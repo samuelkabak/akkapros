@@ -1,0 +1,8 @@
+# Development dependencies (not required to run the toolkit)
+pytest>=7.0.0          # For running tests
+pytest-cov>=4.0.0      # For test coverage
+black>=23.0.0          # For code formatting
+ruff>=0.1.0            # For linting
+mypy>=1.0.0            # For type checking
+build>=0.10.0          # For building packages
+twine>=4.0.0           # For uploading to PyPI (if you ever do)

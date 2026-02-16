@@ -1,0 +1,1539 @@
+&X000001 = L I.5 Erra and Išum SB I
+#project: eblo
+#atf: lang akk-x-stdbab
+#atf: use unicode
+#atf: use math
+#atf: use legacy
+
+#tr.en: King of all settlements, creator of the universe, […]!
+1. %n šar (|) gimir (|) dadmē | bānû (|) kibrā[ti (|) ... ]
+#note: The interpretation of the opening lines of the poem is a @i{vexata quaestio}. The most serious difficulty is the identification of the character described as “king of all settlements,” who could conceivably be Išum, Erra, or even Marduk (see already @bib{RN31@135-137}). It seems easiest to interpret that the poem begins with a hymn to Išum, as defended by @bib{mueller1995wer@349-360}, @bib{RN1593@48-49}, and @bib{RN455@60-61}, among others. @bib{RN31@138} assumed that the missing portion of the line contained “un terzo epiteto divino, composto di due o tre elementi, che dia al verso lo stesso ritmo ternario dei vv. 3-5.” @bib{RN675@263}, who is of the opinion that the opening lines are addressed to Erra, restores [@i{qurādu Erra}], “[warrior Erra].”
+// L 0.0 NA "-" b+1
+HuzNA1 i 1. [LU]GAL gi-mir da-ad₂-me ba-nu#-u# kib#-[ra-a-ti x x x (x x x)]
+BabLB3 i 1. [x] gi-mir da-ad₂-me ba-nu-u₂ kib-ra-a#-[ti x x x (x x x)]
+
+#tr.en: Hendursanga, first-born son of Enlil, [...],
+2. %n hendursanga | apil (|) ellil | rēšt[û | ... ]
+HuzNA1 i 2. {d}hendur-sag-ga₂ IBILA {d}+en-lil₂ reš-t[u-u₂ x x x (x x x)]
+BabLB3 i 2. [{d}hen]dur-sag-ga₂ IBILA {d#}+en#-lil₂# reš-tu#-[u₂ x x x (x x x)]
+
+#tr.en: Bearer of the august scepter, shepherd of the black-headed people, herdsman of [@i{mankind}]!
+3. %n nāš (|) haṭṭi | ṣīrti | nāqid (|) ṣalmāt (|) qaqqadi | rēʾû | [tenēšēti?]
+#note: As noted by @bib{RN83@22 fn. 3}, the entire line contains an etymographic interpretation of the name Hendursaĝa (i.e. Išum): @akk{GA₂} = @i{nāš}, @akk{PA} = @i{ḫaṭṭu}, @akk{SAG} = @i{ṣīrtu}, @akk{PA.<|DAG.KISIM₅×KAK|>} = @i{nāqid}, @akk{SAG GA₂} =  @akk{GE₂₆} (for @akk{GE₆}) = @i{ṣalmāt qaqqadi}, @akk{PA.<UDU>} = @i{rēʾû} (see also @bib{RN3058@6a} and @bib{RN1593@66 fn. 7}). The free restoration @i{tenēšēti} at the end follows @bib{temp_id_07390035038145881@200} (see also @bib{RN31@140}).
+AššNA2 i 1'. [x x x x ṣi]r-ti na!?(NU)-q[id!?] ṣal!?#-[mat SAG].DU# re-ʾu-u!? [x x x x x]
+HuzNA1 i 3. na-aš₂ haṭ-ṭu ṣir-ti na-qid ṣal-mat q[aq-qa-di x x x (x x)]
+BabLB3 i 3. [n]a-aš₂# haṭ-ṭi# ṣir-ti na#-qid# ṣal#-mat# SAG.D[U x x x (x x)]
+
+#tr.en: Išum, zealous butcher whose hands are suited to bear his fierce weapons,
+4. %n īšum | ṭābihu | naʾdu | ša ana našê (|) kakkīšu | ezzūti | qātāšu | asmā
+#note: As first noted by @bib{RN706@400} (see also @bib{RN31@140} and @bib{RN1593@66 fn. 7}), @i{ṭābihu naʾdu} is an etymographic interpretation of the name of Išum. The line is cited in an inscription of Assurbanipal (see @bib{RN661@192-193} and @i{apud} @bib{RN54@157 l. 22}).
+AššNA2 i 2'. [x x x ṭa]-bi-hu na-aʾ-du ša₂ ana na#-še*#-e*# {giš#}TUKUL#-MEŠ-šu₂ ez-zu#-ti# ŠU+MIN-šu₂ as#-ma
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 4. {d}i-šum ṭa₂(TA)-bi-hu na-aʾ-du ša₂ ana n[a-še-e x x x x x x x]
+#note: According to @bib{RN31@140 fn. 11}, the sign @akk{TA} is used for @akk{ṭa₂} only in this line in all manuscripts of the Epic.
+BabLB3 i 4. {d#}i#-šum ṭa-bi-hu na#-aʾ#-du ša₂ ana na-š[e-e x x x x x x x]
+
+#tr.en: And at the lightning of whose wrathful spears even Erra, the warrior of the gods, trembles in (his) abode!
+5. %n (u) ana šubruq (|) ulmīšu | šērūti | erra | qarrād (|) ilī | inūšu | ina šubti
+#note: Most modern interpreters take @i{inūšu} as a subordinative in the relative clause started in l. 4 (see @bib{RN1593@66 fn. 6} with further bibliographical references, and also @bib{RN455@61 fn. 66}). The line is cited in the narrative of Sargon’s Eighth Campaign, as noted by @bib{RN282@127 fn. 52}.
+AššNA2 i 3'. u₃ ana šub-ruq# ul-me-šu₂ še#-ru-ti {d}er₃-ra qar-rad DINGIR-MEŠ i-nu-šu₂*# ina šub-ti
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 5. ana šub-ruq ul-me-šu₂ še-ru-ti {d}er₃-ra q[ar-rad x x x x x x x x]
+BabLB1a i 1'. [x šub-ru]q? u[l?-me-šu₂ x x x x x x x x x x x x x x x x]
+BabLB3 i 5. [a-n]a š[u]b-ruq ul-me#-šu₂# še-ru-tu# {d}er₃-ra# [x x x x x x x x x x]
+
+#tr.en: His heart yearned for combat;
+6. %n īrissū-ma | libbašu || epēš (|) tāhāzi
+#note: Compare the description of the passage 6-14 in @bib{RN1593@49-50}: “The poet follows the five-line invocation by showing Išum (and the audience) a scene in which Išum’s master, lying in bed, ponders the pros and cons of going to war. The arguments are articulated as an internal dialogue between Erra’s mind (@i{libbu}, literally ‘heart’) and his physical self.”
+AššNA2 i 4'. e-ri-su-ma lib₃-ba-šu₂ e-peš ta-ha-zi
+HuzNA1 i 6. i-ris-su-ma lib₃-ba-šu₂ & e-pe[š x x x]
+BabLB1a i 2'. i#-ri#-iš#-su-m[a x x x x x x x x]
+BabLB3 i 6. [i-ri-iš-s]u-ma# lib₃-ba-šu₂# e-pe[š x x x]
+
+#tr.en: To his weapons he exhorted, “Smear yourselves with deadly venom!”
+7. %n ītammi | ana kakkīšu || litpatā | imat (|) mūti
+AššNA2 i 5'. i-ta-ma ana {giš}TUKUL-MEŠ-šu₂ lit-pa-ta i-mat mu-u-ti
+HuzNA1 i 7. i-ta-mi a-na {giš}TUKUL-MEŠ-šu₂ & lit-[pa-ta x x x x x]
+BabLB1a i 3'. i#-ta-me a-na# [x x x x x x x x x x x x]
+BabLB3 i 7. [x x x] a#-na kak-ki-šu₂ lit#-p[a-ta x x x x x]
+
+#tr.en: To the Seven, peerless warriors, “Gird your arms!”
+8. %n ana sebetti | qarrād (|) lā šanān || nandiqā | kakkīkun
+AššNA2 i 6'. a-na {d}IMIN-BI qar-rad la ša₂-na-an na-an-di-qa kak-ki#-ku-un
+HuzNA1 i 8. ana {d}IMIN-BI qar-rad la ša₂-na-an & na-a[n-di-qa x x x x]
+BabLB1a i 4'. ana {d}IMIN-BI qa[r-rad x x x x x x x x x x x x]
+BabLB3 i 8. [x x {d}IMIN-B]I qar#-rad# la# ša₂#-na#-[an x x x x x x x x]
+$ rest of column broken
+
+#tr.en: And he said to you, (Išum): “I shall head for the (battle) field!”
+9. %n iqabbīku | ana kâša || luṣī-ma | ana ṣēri
+AššNA2 i 7'. i-qab-bi-ku a-na ka-a-ša₂ lu-ṣi-ma a-na EDIN
+HuzNA1 i 9. i-qab-bi-ma a-na ka-ša₂ & lu-[ṣi-ma x x]
+BabLB1a i 5'. i-qab-bi-ma# [x x x x x x x x x x x]
+
+#tr.en: You alone are the torch, it is your light they look to!
+10. %n attā | dipārum-ma || inaṭṭalū | nūrka
+#note: Compare @bib{RN3058@4a}: “Earlier in the poem of Erra and Išum, Erra’s heart explicitly identifies Išum as @i{diparu}, “a firebrand,” that the gods follow into battle (I 10). From this it follows that the light which the night watchmen Išum and Ḫendursanga shone to lead people home at night was a burning torch or firebrand. Indeed, it seems likely that Išum’s divine power was instantiated in the fiery glow of the torch, and that his name was indeed the masculine form of the Akkadian common noun @i{išātum}, “fire.””
+// cf. L III.4 38
+AššNA2 i 8'. at-ta di-pa-ru-um-ma i-na-aṭ-ṭa-lu nu-ur₂-ka#
+HuzNA1 i 10. at-ta di-pa-ru-um-ma i-na-ṭ[a-lu x x x]
+BabLB1a i 6'. at-ta di-pa-ru#-u[m-ma x x x x x x x x]
+
+#tr.en: You alone are the champion, the gods [@i{march behind}!]
+11. %n attā | ālik (|) mahrim-ma || ilū (|) ... [ ... ]
+AššNA2 i 9'. at-ta a-lik mah#-ri-im-ma & DINGIR-MEŠ x [x x x (x)]
+HuzNA1 i 11. at-ta a-lik mah-ri-im-ma & [x x x x (x x x)]
+BabLB1a i 7'. at-ta# a-l[ik x x x x x x x x (x x x)]
+
+#tr.en: You alone are the sword, the butcher […]!
+12. %n attā | namṣarum-ma | ṭābih[u (|) ... ]
+AššNA2 i 10'. a[t-t]a nam-ṣa-ru-um-m[a] & ṭa*#-bi#-h[u?] x x x x (x)
+HuzNA1 i 12. at-ta nam-ṣa-ru-um-ma ṭa-bi-h[u x x x (x x)]
+BabLB1a i 8'. at-ta nam-ṣa-ru-u[m-ma x x x x x x (x x)]
+
+#tr.en: Should Erra arise, when he destroys the country,
+13. %n erra | tebī-ma || ina sapān (|) māti
+#note: The line has been almost universally interpreted as a command from Išum to Erra, an interpretation that results in awkward syntax and makes the introduction impossibly difficult to understand. Compare: @bib{RN31@59}: “Erra, alzati! Nell’abbattere il paese”; @bib{RN447@117}: “Debout donc, Era! A terrasser le pays”; @bib{cagni1977poem@84}: “Arise, Erra! By laying waste the country”; @bib{bottero1977antiquites@113} and @bib{RN39@682}: “Debout, Erra! Quant tu saccageras la terre”; @bib{RN216@285} and @bib{dalley1997erra@405}: “O Erra, rise up, and in overwhelming the land”; @bib{polentz1989eigenbegrifflichkeit@23}: “Erra, erheb dich! Wie wird beim Niedermachen des Landes”; @bib{RN712@783}: “Erra, erhebe dich, und beim Einebnen des Landes”; @bib{RN675@264}: “Erra, erhebe dich! (…) beim Niederwalzen des Landes”; @bib{RN1593@50}: “O Erra, arise! (…) when laying the land low!”; @bib{taylor2017erra@336}: “Erra, arise, and in crushing the land”. Note, however, that two MSS (AššNA2 and BabLB1a) have a clear stative @i{tebī-ma}, whereas only the Sultantepe MS, whose readings are generally inferior to those of the others, has an apparent imperative @akk{ti-be₂-ma}. The only interpreter who tried to translate the manuscripts’ stative was @bib{RN1811@92}: “Ist Era erhoben beim Niederstrecken des Landes”. In our view, it is a conditional sentence (see the note on the next line).
+AššNA2 i 11'. {d}er₃-ra te-b[i]-ma# & ina sa-pan ma-a-ti#
+HuzNA1 i 13. {d}er₃-ra ti-be₂-ma & i#-[na sa-pa]n [x x x]
+BabLB1a i 9'. {d}er₃-ra te-bi-m[a x x x x x x x]
+
+#tr.en: Your mind will not rejoice, your heart will not be joyous.
+14. %n kī namrat | kabtatka || (u) hadû | libbuk
+#note: As noted by @bib{RN31@143-144}, this is the first line in the Epic in which sentence boundary does not coincide with verse boundary. The @i{plene} writing of @i{ḫadû} shows that @i{kī} cannot be an interrogative adverb, as traditionally interpreted (“wie wird da strahlen dein Gemüt und erfreut sein dein Herz!” in @bib{mueller1995wer@350}; “How your mood will be bright, your heart joyous!” in @bib{RN1593@50}); but rather a conjunction introducing an oath formula (“If your mind rejoices and your heart is joyous (…)”, i.e., “your mind will surely not be happy, nor your heart be joyous”).
+AššNA2 i 12'. ki-i nam-rat# kab-ta-at-ka u₃ ha-du-u lib-bu-uk
+HuzNA1 i 14. ki#-i nam-rat kab-ta-[k]a!? & [h]a-[d]u-u₂ l[ib₃-bu-uk]
+BabLB1a i 10'. ki-i nam-rat [x x x x x x x x x x]
+
+#tr.en: Erra, like a sleepless man, his limbs are weary,
+15. %n erra | kī ša amēli | dalpi || idāšu | an[hā]
+AššNA2 i 13'. {d}er₃-ra ki-i ša₂ a-me-li dal-pi i-da-a-šu₂ an-[ha]
+HuzNA1 i 15. [{d}e]r₃-ra ki-i ša₂ a-me₂-li# dal#-pi# i-da#-a-šu₂ [x x]
+BabLB1a i 11'. {d}er₃-ra ki#-i ša₂ L[U₂? x x x x x x x x]
+
+#tr.en: To his heart he said: “Shall I arise? Or shall I sleep on?”
+16. %n iqabbi | ana libbīšu || lutbe | luṣlal-ma
+AššNA2 i 14'. i-qab-bi a-na lib₃-bi-šu₂ & lu-ut-be₂ lu-uṣ#-lal-ma
+HuzNA1 i 16. [i-qab-b]i a-na lib₃-bi-šu₂# & lu-ut-be₂# lu-uṣ-l[al-ma]
+BabLB1a i 12'. i-qab-bi a-na lib#-b[i-šu₂ x x x x x x x]
+
+#tr.en: To his weapons he exhorted, “Keep leaning on the corners!”
+17. %n ītamma | ana kakkīšu || ummedā | tubqāti
+// cf. L I.12 SB "-" 164
+AššNA2 i 15'. i-ta-a-ma a-na kak-ki-šu₂ & um-me-da tub#-qa-a-ti
+HuzNA1 i 17. i#-ta#-[mi x x {giš}TUKUL-M]EŠ-šu₂ & um-me-da tub₂-qa-a#-[ti]
+BabLB1a i 13'. i-ta-ma a#-[na x x x x x x x x x x]
+
+#tr.en: To the Seven, peerless warriors, “Return to your abode!”.
+18. %n ana sebetti | qarrād (|) lā šanān || ana šubtīkunu | tūrā-ma
+AššNA2 i 16'. ana {d}IMIN-BI qar-rad la ša₂-na-an a-na šub-te-ku#-nu# tu#-ra#-ma
+HuzNA1 i 18. [x] {d}IMIN-BI# [x x x ša₂]-na-an & ana šub-ti-ku-nu tu#-ra-m[a]
+BabLB1a i 14'. a#-na# {d#}IMIN#-BI# qar#-rad l[a x x x x x x x x x x x x]
+
+#tr.en: Until you should wake him, he is asleep in his bed,
+19. %n adi attā | tadekkûšu || ṣalil | uršuššu
+#note: @bib{RN31@145} describes the scene as a “felice quadretto idilliaco, che è l’unico di tutta l’epopea.”
+AššNA2 i 17'. a-di at-ta ta-de-ek-ku-šu₂ & ṣa-lil [u]r-šu#-uš-šu₂
+HuzNA1 i 19. [a]-di at-ta t[a-de-e]k-ku-šu₂ & ṣa-lil ur-šu#-uš-šu₂
+BabLB1a i 15'. [x x a]t-ta# t[a-de-ek-ku-šu₂ x x x x x x]
+$ rest of column broken
+
+#tr.en: Together with Mami, his wife, he revels.
+20. %n itti māmi | hīratuš || ippuša | ulṣam-ma
+AššNA2 i 18'. it-ti {d}ma-mi hi#-ra-tuš & ip-pu-ša₂ ul-ṣa-am-ma
+HuzNA1 i 20. [i]t-ti {d}ma-ma hi#-r[a]-tuš & ip-pu-šu₂ ul-ṣa#-am-ma
+
+#tr.en: O Engidudu, lord who wanders in the night, who guides the princes,
+21. %n engidudu | bēlu | muttallik (|) mūši | muttarrû (|) rubê
+#note: As has been repeatedly noted, both @i{muttallik mūši} and @i{muttarrû rubê} are etymographic translations of the name Engidudu: see @bib{RN31@149}, @bib{NABU1989-3@1989/3}, and @bib{RN3058@3-4}.
+AššNA2 i 19'. {d}+en-gi₆-du-du# be#-lu₄*# mut*#-tal*#-lik*# mu#-ši mu[t]-tar#-ru-u ru-be₂-e
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 21. [{d}+en]-gi₆-du-du EN mut-tal#-lik# GE₆# mut-tar-ru-u₂ NUN-MEŠ
+
+#tr.en: Who leads safely lad and girl, illuminating (them) like the light of day!
+22. %n ša eṭla (|) u ardata | (ina šulmi) | ittanarrû | unammaru | kīma ūmi
+#note: As seen by most intepreters, @i{namāru} D must be transitive: compare e.g. “Che il giovane e la fanciulla guida sempre in (buona) salute e (li) rende splendidi come (la luce del) giorno” (@bib{RN31@61}, courtesy E. Tadmor).
+AššNA2 i 20'. ša₂ eṭ-la u ar-da-tu it-ta-na#-ru-u u₂-nam-ma*#-ru GIM u₄-me
+HuzNA1 i 22. [x] GURUŠ u {munus}KI.SIKIL ina šul#-[m]u i!?#-[t]a-nar-ru-u₂ u₂-nam#-ma-ru GIM u₄-mi
+
+#tr.en: The divinity of the Seven, peerless warriors, is quite another:
+23. %n ša sebetti | qarrād (|) lā šanān || šunnât | ilūssun
+// cf. L I.4 SB "IV" 3
+// cf. L I.2 SB "I" 91
+// cf. F K.128 13
+AššNA2 i 21'. ša₂ {d}IMIN-BI qar-rad la ša₂-na-an šu-un-na#-[ta] i#-lu#-su-un
+HuzNA1 i 23. [x {d}]IMIN-BI qar-rad la ša₂-na-an & šu-un#-na#-ta DINGIR-su-un
+
+#tr.en: Their origin is strange; they are charged with terror;
+24. %n ilittašunu | ahât-ma || malû | pulhāti
+#note: @i{ilittu} here means “not so much ‘offspring’ or ‘birth’ as the stock from which one comes” (so @bib{RN117@795}).
+AššNA2 i 22'. i-lit#-ta-šu₂-nu a-ha-at#-ma & ma*#-lu*#-u₂# pul#-ha-a-ti
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 24. [i]-lit-ta-šu₂-nu a-hat-ma & ma-lu-u# p[u]l-ha-a-ti
+
+#tr.en: Whoever looks at them is paralyzed with fear: their breath is death,
+25. %n āmiršunu | uštahhat-ma || napīssunu | mūtum-ma
+AššNA2 i 23'. [a]-mir-šu₂-nu uš-tah-ha-at na-pi-is-su-nu mu-tum₃#-ma!?#
+HuzNA1 i 25. a#-mir-šu₂-nu uš-tah-hat-ma & na-pis-su-nu mu#-tum₃-ma
+
+#tr.en: People are terrified and dare not approach it.
+26. %n nišū | šahtū-ma || ul iʾirrū | ana šâšu
+#note: “It” (@i{šâšu}) may refer either to the “breath” (so @bib{RN31@151} and @bib{cagni1977poem@27 n. 9}) or else to the Seven, considered as a unit (so @bib{RN1811@72}). As noted by @bib{RN31@151}, @i{nišū} here and elsewhere in the Epic (e.g. ll. 41, 73) is a masculine noun (on @i{nišū} as a masculine noun, see also @bib{RN2725@377 fn. 5}).
+AššNA2 i 24'. UN-MEŠ šah₂-tu*#-ma# & ul ir-ru a-na ša₂-a-šu
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 26. UN#-MEŠ# šah#-tu-ma & ul iʾ-mi-ri [x š]a₂-a#-šu₂
+
+#tr.en: Išum is a door: before them it is barred.
+27. %n īšum | daltum-ma || edil | pānu[ššu]n
+#note: Compare @bib{lambert1980line@83}: “In the Erra Epic the Seven wished to be fighting, but their master Erra declined to go to battle for the moment and his vizier accordingly restrained them, not by literal incarceration, but simply by his command. Thus this line could be paraphrased: ‘Išum kept them inactive’.” On this line, see also @bib{RN714@358}.
+AššNA2 i 25'. {d}i-šum dal-tum₃#-ma & e-di-il pa#-nu-uš-šu₂
+HuzNA1 i 27. {d#}[i]-šum# {giš}IG#-ma & e-dil pa-nu-[uš-šu₂-u]n
+
+#tr.en: Anu, the king of the gods, impregnated Earth,
+28. %n ānu | šar (|) ilī || erṣeta | irhē-ma
+#note: On the motif of the frightful creatures resulting from the union of Heaven and Earth, see @bib{RN1853@196-198}.
+AššNA2 i 26'. {d}a-nu-um & šar!?# DINGIR-MEŠ er#-ṣe-tu ir#-he#-e*#-ma
+#note: Collation of the line in Lambert’s folio 18397.
+TarNA1 i 1'. [x x x x x x x x x x ir-he-e-m]a
+HuzNA1 i 28. {d}a-n[u]-um LUGAL DINGIR-MEŠ# & KI#-ti₃# i[r-he]-e#-m[a]
+UrkPerQuo1 o 16a. [{d}a-n]u* LUGAL DING[IR-ME]Š KI-ti₃ ir-he-e-ma
+$ line continues
+
+#tr.en: It bore him seven gods, whom he named “the Seven”.
+29. %n sebetti (|) ilī | uldaššum-ma || sebetta | ittabi | zikiršun
+AššNA2 i 27'. IMIN DINGIR-MEŠ ul-da#-aš₂#-šum#-ma {d}IMIN-BI it#-ta-bi z[i-ki]r*-šu₂-un
+#note: Collation of the line in Lambert’s folio 18397.
+TarNA1 i 2'. [x x x x x x x x x x x x x x zi-kir-šu₂-u]n
+HuzNA1 i 29. IMIN DINGIR-M[E]Š ul-da-aš₂-šum-ma & {d}IMIN-BI it-ta-bi [zi-k]ir-šu₂-un
+UrkPerQuo1 o 16b-17a. IMIN DINGIR-MEŠ | [ul-da-a]š₂-š[um*-m]a {d#}IMIN-BI it-ta-bi# zi#-kir?#-[šu₂-un]
+
+#tr.en: These stood before him as he assigned them their functions.
+30. %n izzazzū | ina mahrīšū-ma || šīmassunu | išīm-ma
+AššNA2 i 28'. i[z]-za?#-zu ina mah-ri-šu-ma & ši-mat-su-nu i?#-šim?#-ma
+#note: Collation of the line in Lambert’s folio 18397.
+TarNA1 i 3'. [x x x x x x x x x x x x i-šim-m]a
+$ rest of column broken
+HuzNA1 i 30. iz-za-az#-zu ina mah-ri-šu-ma & ši-mat-su-nu i#-[š]im-ma
+
+#tr.en: He summoned the first and gave him orders:
+31. %n issī-ma | ištēn || išakkana | ṭēma
+#note: @bib{RN31@152-153} links the functions of the Seven as presented in ll. 31-38 with the destructive actions described elsewhere in the Epic, mostly assumed by Erra.
+AššNA2 i 29'. is-si-ma iš-ten₂ i-šak-ka-[na ṭe₃]-e-ma
+HuzNA1 i 31. is#-si-ma# DIŠ#-en i-šak-ka-na ṭ[e₃]-e#-mu
+
+#tr.en: “Wherever you go in your rage — you shall have no rival!”
+32. %n ēma (|) tandirū-ma | tattalku || māhira | ē tarši
+AššNA2 i 30'. e-ma*# ta-an-nam#-ru-ma ta-at-tal#-ku ma-hi-r[a] e!?# [ta]r!?-ši
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 32. [e]-ma [ta-a]n-di-ru-ma ta!?#-tal-ku ma-hi#-ra# e# [t]ar-ši
+#note: The reading @akk{ta!?#} instead of @akk{i} (as copied) follows @bib{RN31@61}, but needs collation.
+
+#tr.en: He said to the second: “Burn like fire and blaze like a flame!”
+33. %n iqabbi | ana šanî | kīma gīri | kubum-ma || humuṭ | kīma nabli
+AššNA2 i 31'. i-qab-bi ana ša₂-ne₂-e GIM {d}gira₂* gu-b[u-u]m-[ma h]u-muṭ# GIM# nab-li₃
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 33. i-qa[b-bi x] MIN-i GIM {d#}gira₂# ku-bu-um-ma# hu-muṭ GI[M n]ab-li
+
+#tr.en: He exhorted the third: “Let your face be that of a lion so that whoever beholds you melts down!”
+34. %n ītammi | ana šalši | zīm (|) labbi | lū šaknātā-ma | āmirka | lišharmiṭ
+// cf. L I.5 SB "III" 124
+// cf. L I.5 SB "IV" 21
+// cf. L I.2 SB "I" 139
+// cf. L I.2 SB "II" 25
+// cf. L I.2 SB "III" 2
+// cf. L I.2 SB "III" 128
+NinNA1b i 1'. [x x x x x zi-i]m? lab#-bi# [x x x x x x x x x x x x x]
+AššNA2 i 32'. i*-tam?*#-ma# ana šal-ši zi-im lab-bi lu*# šak*#-na*#-ta-ma a-me-ru*-uk*# liš*#-har-miṭ
+#note: According to @bib{RN31@154 fn. 40}, collation of the line does not yield any satisfactory result because the tablet has deteriorated greatly at this point. In any case, as noted by Cagni, the signs copied (@akk{DU₃-uš#-ma}) cannot be right. Compare, however, the collation of the line in Lambert’s folio 18397, followed here.
+HuzNA1 i 34. i-t[a-mi an]a šal-ši z[i]-im la-bi lu šak-na#-[t]a-ma a-mir-ka [li]š-har-miṭ
+
+#tr.en: He said to the fourth: “May the mountain be destroyed at the attack of your fiery weapons!”
+35. %n iqabbi | ana rebî | ana našê (|) kakkīka | ezzūti | šadû | lītabbit
+NinNA1b i 2'. i#-qab#-bi# ana# LIMMU#-i# ana* ni-iš {giš#}TU[KUL-MEŠ-ka] ez?#-z[u?-ti x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 33'. i-qab-bi ana re-be₂-e ana na*#-še*#-e {giš*}TUKUL*#-MEŠ-ka ez-zu-ti KUR-u li-tab#-bit#
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 35. i-qab#-[bi x r]e-bi-i a-na na-še-e {giš}TUKUL-MEŠ#-[k]a ez-[z]u-ti KUR-u₂ li#-tab*#-bit
+#note: Collation in @bib{RN728@92}.
+
+#tr.en: And then to the fifth he said: “Blow like the wind and overwhelm the world!”
+36. %n ana hamši | iqtabi | kīma šāri | zīq-ma || kippata | hīṭa
+#note: In some contexts the verb @i{ḫâṭu} is used together with @i{zâqu}, occasionally as synonyms, as noted in @bib{RN1853@109-113}. The translation adopted follows @bib{RN608@42-46} (see also @bib{RN1853@110 fn. 221}).
+NinNA1b i 3'. a#-na# IA₂# iq#-ta#-bi ki-ma# IM# zi#-qi₂-i[m] k[ip]-pa-ta hi-i#-ṭu*
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 34'. a-na ha-an-ši iq-ta-bi GIM IM# zi#-iq*#-ma ki[p*-p]a*-ta hi-i-ṭa
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 36. a-na [ha-am]-ši# iq-ta-bi GIM IM ziq#-ma# kip-pat hi-iṭ-ṭa#
+
+#tr.en: To the sixth he commanded: “sweep over above and below, sparing no one!”
+37. %n šešša | umtaʾʾer | eliš (|) u šapliš | bāʾam-ma || lā tagammil | mamma
+NinNA1b i 4'. AŠ₃#-šu₂ [u]m-ta*#-ʾi-ir# e-liš u šap#-liš ba-ʾa-[a]m-ma la*# ta-gam-mil mam-ma
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 35'. šeš-ša₂ um-ta-ʾi-ir e-liš u šap-liš ba-ʾa-ma [l]a tag-gam-mil mim-ma
+HuzNA1 i 37. [š]eš-[ša₂ u]m-ta-ʾi-ir e-liš u# šap#-liš ba-ʾa-ma la ta-gam-mil mam-ma
+
+#tr.en: The seventh he filled with viper’s venom: “Finish (all) life!”.
+38. %n sibâ | imat (|) bašmi | iṣēnšū-ma | šumqita | napišta
+NinNA1b i 5'. IMIN#-a# i*#-mat*# ba#-aš₂#-me# i#-ṣi-in-šu#-ma# š[u]m*-qi₂#-ta ZI-ta
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 36'. se-ba-a i-mat ba-aš₂-me i-ṣe-en-šu₂-ma šum-qi₂-ta na#-[p]iš-tu
+HuzNA1 i 38. ša-ba#-a i-mat ba-aš₂-mi i-[ṣ]e*-en-šum-ma u₂-šam-qat ZI-t[i₃]
+#note: Collation in @bib{RN728@92}.
+
+#tr.en: Once Anu had fixed the lot of all Seven,
+39. %n ultu (|) šīmat (|) sebetti | napharšunu || išīmu | ānu
+NinNA1b i 6'. ul*#-tu*# ši-mat {d}IMIN-BI nap#-har#-šu₂-nu i-šim#-mu {d}a-num
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 37'. [ul-t]u₂ ši-mat {d}IMIN-BI nap-har-šu₂-nu i-ši-mu {d}a-num
+HuzNA1 i 39. ul-tu# ši#-mat {d}IMIN-BI nap#-har-šu₂-nu i-ši-mu {d}a-num
+
+#tr.en: He handed them over to Erra, the warrior of the gods, (saying): “Let them march at your flank!
+40. %n iddinšunūtī-ma | ana erra | qarrād (|) ilī || lillikū | idāka
+#note: The repetition of the phrase @i{lillikū idāka} in ll. 40 and 44 is described as an “enveloping figure” by @bib{RN554@174}.
+NinNA1b i 7'. id#-din#-šu#-nu-ti#-ma ana {d}er₃#-ra qar-rad DINGIR-[MEŠ l]il-li-ku i-da-ka
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 38'. [id-din]-šu₂#-nu-ti-ma ana {d}er₃-ra qar-rad DINGIR-MEŠ lil-li-ku i-da-ka
+HuzNA1 i 40. id-din-šu-[n]u-ti-ma ana {d#}er₃-ra qar-rad DINGIR-MEŠ lil-li-ku i-da-a-šu
+
+#tr.en: “When the noise of the peoples in settlements becomes unbearable to you,
+41. %n kī ša nišī (|) dadmē | hubūršina || elīka | imtarṣu
+#note: @bib{RN707@168-170} states that the “noise” here, as in @i{Atraḫasīs}, refers not to a rebellion of the humanity against the gods, as previously assumed, but simply to the uproar created by overpopulation.
+NinNA1b i 8'. ki#-i# ša₂# UN-MEŠ da#-ad₂-me hu-bur-ši-na [U]GU*-ka im-tar-ṣu*
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 39'. [x x x UN]-MEŠ da-ad₂-me hu-bur-ši-na UGU#-ka# im-tar-ṣu
+HuzNA1 i 41. ki-i ša UN-ME[Š d]a-ad₂#-me hu-bur-ši-na UGU-ka im-tar-ṣu
+
+#tr.en: “And your temper drives you to decimate them,
+42. %n ublam-ma | libbaka || ana šakān (|) kamāri
+#note: As noted by @bib{RN31@156-157}, the literal meaning of the expression @i{kamāra šakānu}, very common in the Epic, could be “to lay a trap.” For more instances of the phrase, see @bib{RN2961@224}.
+NinNA1b i 9'. ub-lam-ma lib₃-ba-ka a-na ša₂-kan [k]a-mar-ri
+AššNA2 i 40'. [x x x] lib₃-ba-ka & a-na ša₂-kan ka-ma-ri
+HuzNA1 i 42. ub-lam-ma [l]ib₃-ba-ka a-na ša₂-kan ka-ma-ri
+
+#tr.en: “To ravage the black-headed and the wild beasts to destroy,
+43. %n ṣalmāt (|) qaqqadi | ana šumutti || šumqut(u) (|) būl (|) šakkan
+#note: The line uses a particularly elaborated chiasmus, as noted by @bib{temp_id_8182441432333507@289-290}.
+NinNA1b i 10'. ṣal-mat SAG.DU a-na šu-mut-ti šum-q[u]-ut bu-ul {d}GIR₃
+AššNA2 i 41'. [x x SAG.D]U ana šu-mut-ti šum-qu-tu bu-ul {d}GIR₃
+HuzNA1 i 43. ṣal-mat SAG.DU a#-[n]a šu-mut-ti šum-qu-tu₄ bu-li₃ {d}GIR₃
+
+#tr.en: “Let these be your wrathful weapons, that they march at your flank!”.
+44. %n lū kakkūka | ezzūtu | šunū-ma || lillikū | idāka
+NinNA1b i 11'. [l]u-u {giš}TUKUL#-MEŠ-ka ez-zu#-ti šu#-nu-ma [li]l-li#-ku# i-da#-ka
+AššNA2 i 42'. [x x {giš}TUKUL-MEŠ-k]a ez-zu-ti šu-nu-ma lil-li-ku i-da#-a*-ka
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 44. lu-u₂ {giš}TUKUL-MEŠ-k[a e]z-zu-ti šu-nu-ma lil-li-ku!(LU) i-da-a-ka
+
+#tr.en: They are furious, their weapons are raised,
+45. %n šunu | ezzū-ma || tebû | kakkūšun
+#note: On the expression @i{tebû kakkūšun}, “their weapons are raised,” see @bib{RN117@785}.
+// cf. L I.4 SB "I" 63
+// cf. L I.4 SB "I" 80
+NinNA1b i 12'. šu#-nu ez-zu-ma# te*#-bu-u {giš}TUKUL-MEŠ-šu₂-un
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 43'. [x x ez-zu]-ma & te-bu-u₂ kak-°ka\ki°-šu₂-un
+HuzNA1 i 45. šu-nu ez-zu-m[a] ti-bu-u₂ kak-ku-šu₂-un
+
+#tr.en: They turn to Erra: “Rise! Stand up!
+46. %n ītammû | ana erra || tibe | iziz-ma
+NinNA1b i 13'. i#-ta#-mu-u a-na {d}er₃-ra te-be₂# i-ziz-ma
+AššNA2 i 44'. [x x x x x x] {d*#}er₃*#-ra*# te-be₂ i-zi-iz-ma
+HuzNA1 i 46. i-ta-mu-u₂ a-[n]a {d}er₃-ra ti-be₂ i-zi-iz-ma
+
+#tr.en: “Why, like a worn-out old man, do you reside in a city,
+47. %n minsu | kī šībi | muqqi || tušib | ina āli
+// cf. L III.10 13
+NinNA1b i 14'. min₃#-su# ki#-i# ši-i#-bi muq*-qi₂ tu*#-šib ina a-li*#
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 45'. [x x x x x x x x x tu]-ši-ib ina* URU*#
+#note: As noted by @bib{RN31@162}, the uncorrected version of the copy, @akk{ina a-LAM}, would represent the only syllabic writing of @i{ālu}, “city,” in the entire Epic (but cf. MS NinNA1b in this line). Collation of the line follows Lambert’s folio 18397.
+HuzNA1 i 47. min₃-su ki-i ši-i#-bi muq-qi₂ & tu-šib ina URU
+
+#tr.en: “Like a little child do you reside in a house?
+48. %n kī šerri | laʾî || tušib | ina bīti
+NinNA1b i 15'. ki#-i# šer₃-ri la-ʾ-u₂*# & tu*#-šib ina E₂
+#note: For the collation @akk{tu*#-šib}, see Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 46'. [x x x x x x x tu-ši]-ib*# ina E₂
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 48. ki-i šer₃-ri la-ʾi#-i & tu-šib ina E₂
+AššNASch5 r 3. ki-i šer₃-ri la-ʾi#-[i x x x x]
+$ beginning of excerpt
+
+#tr.en: “As one who knows not the (battle) field, will we eat the bread of women?
+49. %n kī lā ālik (|) ṣēri || nikkala | akal (|) sinniš
+NinNA1b i 16'. ki-i# la# a-lik# EDIN ni-ik-ka#-la a-k[a]l* sin-niš#
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 47'. [x x x x x nik-ka-l]a a-kal sin-niš#
+HuzNA1 i 49. ki-i <la> a-lik EDIN ni#-ka-la & a-kal sin-niš
+AššNASch5 r 4. ki-i l[a x x x x x x x x x x]
+$ end of excerpt
+
+#tr.en: “As if we did not know how to fight, should we tremble and fear?
+50. %n kī ša tāhāza | lā nīdû || niplaha | nirūda
+#note: The use of preterites in this line (@i{niplaḫa}, @i{nirūda}), as opposed to the present in the previous line (@i{nikkala}) has not been explained (@bib{temp_id_07390035038145881@202} states that it is “schwer zu erklären”; @bib{RN31@163} simply refers to him). The most likely explanation is that @i{niplaḫa} and @i{nirūda} represent cohortatives without @i{i} (@bib{RN27201@§81g}) used as a rhetorical question (@bib{RN27201@§153g}). A cohortative without @i{i} also occurs in @i{Erra and Išum} V 18 (q.v.).
+NinNA1b i 17'. ki#-i# ša₂ ta-ha-za la# ni-du-u ni-ip-la-h[a*] ni-ru*#-da*#
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 i 48'. [x x x x x x x x x x ni-i]p-la-ha n[i]-ru#-[da]
+HuzNA1 i 50. ki-i ša₂ ta-ha-zi la# ni-du-u₂ & ni-ip-la-ha ni-ru-da
+
+#tr.en: “Going to the (battle) field is becoming for manhood, like a festival!
+51. %n alāk (|) ṣēri | ša eṭlūti | kī ša isinnum-ma
+#note: @bib{NABU1990-56@56} interprets @akk{ki-i ša₂} as @i{kīša}, “certainly”: “Das Zufeldeziehen der Mannen ist doch gewiss ein Fest.” This understanding, however, should be ruled out, since a manuscript of one of the passages discussed by von Soden (III 140-141) writes @akk{ki-ma ša₂} (see @i{ad loc}.). Compare Lambert’s understanding, “Going to the manly battle field is like a festival” (@bib{RN706@400}).
+NinNA1b i 18'. a-lak EDIN ša₂ eṭ-lu-ti & ki-i# ša₂# i#-[s]in-nu-im-ma
+AššNA2 i 49'. [x x x x x x x x x x] i#-si[n-nu-um-ma]
+$ rest of column broken
+HuzNA1 i 51. a-lak EDIN ša₂ eṭ-lu-ti# ki-i ša₂ i-sin-nu-um-ma
+
+#tr.en: “The city dweller, be he a prince, bread does not satiate him,
+52. %n āšib (|) āli | lū rubû || ul išebbi | akla
+#note: According to @bib{RN31@163-164}, “Il senso del verso è che il combattere procura il cibo (attraverso il bottino).”
+NinNA1b i 19'. a#-šib URU lu NUN* ul*# i!?-šeb-b[i] ak#-la
+#note: Collation @akk{NUN} of Lambert @i{apud} @bib{RN31@Fig. 14}.
+HuzNA1 i 52. a-šib URU <lu> NUN-u₂ ul i-šeb-bi ak-la
+
+#tr.en: “Criticized by his own people, despised,
+53. %n šumsuk | ina pī (|) nišīšū-ma || qalil | qaqqassu
+// cf. L II.3 21
+NinNA1b i 20'. šum*-suk ina pi-i U[N-MEŠ-šu₂-ma x x qa]q-qad-su
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+HuzNA1 i 53. šum-suk ina KA UN-MEŠ-šu₂-ma# & qa-lil SAG.DU-su
+
+#tr.en: “He will have to beg to the humblest soldier.
+54. %n ana ālik (|) ṣēri | akî || itarraṣ | qāssu
+#note: @i{akî} here and in l. 56 has been universally interpreted as an interrogative adverb @i{akī}, which makes the understanding of these lines difficult. As noted in the comment to III 54, it is best to interpret it as the adjective @i{akû}, “humble.” 
+// cf. L I.4 SB "III" 61
+NinNA1b i 21'. a-na a-lik EDIN a-ki-i!?# [x x x x Š]U-su
+HuzNA1 i 54. a-na a-lik EDIN a-ki-i i-tar-ra-aṣ qa-as-su
+
+#tr.en: “The city dweller, however mighty his strength,
+55. %n ša āšib (|) āli || lū puggulat | kubukkuš
+NinNA1b i 22'. ša₂ a-šib URU lu p[u!?-ug-gu-lat ku-bu-uk]-kuš
+HuzNA1 i 55. ša₂ a-šib URU lu pu-ug-gu#-lat# & <<lu>> ku-bu-uk-ku-[uš]
+#note: Collation in @bib{RN728@92} (“correctly copied”).
+
+#tr.en: “In what does it advantage the humblest soldier?
+56. %n ana ālik (|) ṣēri | akî || idannin | mīna
+NinNA1b i 23'. a-na a-lik EDIN a-ki-i*# [x x x mi]-i!?#-na#
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+HuzNA1 i 56. a-na a-lik EDIN a-ki-i i-dan#-nin m[i]-i#-n[u]
+
+#tr.en: “The abundant bread of the city cannot compare with the cake baked in embers!
+57. %n akal (|) āli | lullû || ul ubbala | kamān (|) tumri
+#note: Compare @bib{RN706@400b}: “The sense of @akk{ub-ba-la} is probably ‘fetch (a price)’, and thus «X is not equal in value to Y».” See @bib{NABU2006-66@66} for some ethnographic parallels to the “bread baked in ashes.”
+NinNA1b i 24'. a-kal URU lul-lu-u# [x x x x x x tum₃]-ri
+HuzNA1 i 57. a-kal URU lul-lu-u₂ ul ub#-ba-la ka-man# tum₃#-[ri]
+
+#tr.en: “The fine, honeyed beer cannot compare with the water from a waterskin!
+58. %n šikar (|) našpi || duššupi || ul ubbala | mê (|) nādi
+#note: @bib{RN3078@105} identifies @i{šikar našpi} with Sumerian @sux{kaš sig}, “golden beer.”
+NinNA1b i 25'. ši-kar# na-aš₂-pi [x x x x x x x x x x na]-a#-di#
+HuzNA1 i 58. ši-kar na-aš₂-pi du-uš-šu-pi ul# ub-ba-lu A-[M]EŠ n[a]-a-[di]
+
+#tr.en: “The palace on the citadel cannot compare with the shepherd’s hut!
+59. %n ēkal (|) tamlî | ul ubbala | maṣallu | ša r[ēʾ]î
+#note: The reading of the last word follows @bib{temp_id_07390035038145881@203} (see also @bib{RN31@165}), as opposed to @akk{ma-ṣal-la tu-ša₂-[ri]} (@bib{RN706@400b}, a reading now rendered impossible by MS NinNA3).
+NinNA1b i 26'. E₂*#.GAL*# [x x x x x x x x x x re-ʾ]-i!?#
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+NinNA3 ii 1. [x x x x x x x x x m]a-ṣal-lu ša₂ SI[PA]
+#note: According to @bib{RN419@76b}, the last sign “may be @akk{S[IPA]}, but cannot be @akk{{l[u₂}SIPA]}.”
+HuzNA1 i 59. E₂.GAL tam-li-i ul ub-ba-la ma#-ṣal-la-tu ša₂# [x (x)]
+
+#tr.en: “Warrior Erra, go out into the (battle) field, rattle your weapons!
+60. %n qurādu | erra | ṣī-ma | ana ṣēri | turuk | kakkīka
+NinNA1b i 27'. [qu-r]a!?-d[u!? x x x x x x x x x x {giš}TUKUL-(MEŠ)-k]a
+$ end of side
+NinNA3 ii 2. [x x x x x x x x x x EDI]N tu-ruk kak-ki-ka
+HuzNA1 i 60. qu-ra-du {d}er₃-ra ṣi-i-ma ana EDIN# tu-ruk [{giš}]TUKUL-MEŠ-[k]a
+
+#tr.en: “Make your noise loud, so that those above and below tremble!
+61. %n rigimka | dunnin-ma || lištarʾibū | eliš (|) u šapliš
+NinNA3 ii 3. [x x x x x x x x x x] e#-liš u šap-liš
+HuzNA1 i 61. ri-gim-ka dun-nin-ma liš-tar-i-bu# e-liš u# šap-[l]iš
+$ single ruling
+
+#tr.en: “Let the Igigi hear it and extol your name!
+62. %n igīgū | lišmû-ma || lišarbû | šumka
+NinNA3 ii 4. [x x x x x x x x x x] MU-ka
+HuzNA1 i 62. {d}i₂-gi₃-gi₃ liš-mu-ma & li-šar!#(ŠIR₃)-bu & MU-[k]a
+
+#tr.en: “Let the Anunnaki hear it and fear the mention of you!
+63. %n anunnakū | lišmû-ma || lišhuṭ[ū] | zikirka
+NinNA3 ii 5. [x x x x x x x x x x x s]i₃-qar-ka
+AššNA2 ii 1'. [{d}]a*#-nun*#-[na-ki x x x x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 63. {d}a-nun-na-ki liš-mu-ma & liš-hu-ṭ[u] & zi-ki[r]-ka
+
+#tr.en: “Let the gods hear it and bend for your yoke!
+64. %n ilū | lišmû-ma || liknušū | ana nīrīka
+NinNA3 ii 6. [x x x x x x x x x n]i-ri-ka
+AššNA2 ii 2'. DINGIR-MEŠ & [x x x x x x x x x x]
+HuzNA1 i 64. DINGIR-MEŠ liš-mu-ma & lik-nu-šu# & ana ni-ri-ka
+
+#tr.en: “Let the kings hear it and kneel before you!
+65. %n malkū | lišmû-ma || likmisū | šapalka
+NinNA3 ii 7. [x x x x x x x x x ša₂-p]al-ka
+AššNA2 ii 3'. ma-al-ki & [x x x x x x x x x]
+HuzNA1 i 65. ma-al-ki liš-mu-ma & lik-mi-su# & ša₂-pal#-ka
+
+#tr.en: “Let the countries hear it and bring you their tribute!
+66. %n mātātu | lišmâ-ma || bilassin[a] | [liš]šâka
+NinNA3 ii 8. [x x x x x x x x x x x liš-ša₂-a]-ka
+AššNA2 ii 4'. ma-ta-a-te & liš#-[ma-ma x x x x x x x x]
+HuzNA1 i 66. [K]UR.KUR liš-ma-ma & bi-lat-si-n[a] & [liš]-ša₂#-a#-[k]a
+
+#tr.en: “Let the demons hear it and die for themselves!
+67. %n gallû | lišmû-ma || ina ramā[nīš]unu | l[im]ūtū
+NinNA3 ii 9. [x x x x x x x x ra-ma-ni]-šu₂#-nu# l[i-m]u-tu
+AššNA2 ii 5'. gal-le-e & liš-mu#-ma# [x x x x x x x x x]
+HuzNA1 i 67. [ga]l-lu-u₂ liš-mu-ma & ina ra-ma#-[ni-šu₂-nu] & [li-mu-t]u?
+
+#tr.en: “Let the mighty one hear it and diminish his strength!
+68. %n dannu | lišmē-ma || liššur | em[ūq]īšu
+NinNA3 ii 10. [x x x x x liš-šu-r]u e-m[u-q]i₂-šu
+AššNA2 ii 6'. dan-nu & liš*-me-ma# liš!?#-[šu-ru? x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 i 68. [da]n-nu liš-mi-ma & liš-šu-r[u?] & [e-mu-qi₂]-šu₂
+$ end of column
+
+#tr.en: “Let the tall mountains hear it and @i{be destroyed}, and their summits be leveled!
+69. %n hursānū | zaqrūtu | lišmû-ma | l[ītabb]itū-ma? | lišpilā | rēš[āš]un
+#note: On the restoration @akk{l[i-tab-b]i-tu-ma}, see @bib{RN31@168}, where also an alternative @akk{[liš-tal-pi]-tu-ma}, “let them be leveled,” is suggested.
+// cf. L I.5 SB "I" 35
+NinNA1d ii 1'-2'. [hur]-sa#-n[i?] z[aq?-ru-ti x x x x x x x x] | ($___$) liš-pi-l[a x x x x]
+NinNA3 ii 11. [x x x x x x x x x x li-tab-b]i-tu-ma liš-pi#-la# re-š[a₂-š]u-un
+AššNA2 ii 7'. hur-sa-a-ni zaq-ru-ti liš-mu-ma l[i?-tab-bi-tu-ma x x x x x x]
+HuzNA1 ii 1. [x x x zaq]-ru#-te# liš#-m[u-ma x x x x x x x x x x x x]
+
+#tr.en: “Let the rolling seas hear it and be troubled, and destroy (their) fauna!
+70. %n tâmātu | gallātu | lišmâ-ma | l[idd]alhā-ma | lihalliqā | m[eš]erta
+NinNA1d ii 3'. ta#-ma-a-ti gal-l[a-ti x x x x x x x x x x]
+NinNA3 ii 12. [x x x x x x x x x lid-d]al-ha-ma li-hal#-li#-qa m[e-š]er₃-tu₂
+AššNA2 ii 8'. {(10*#)} ta-ma-a-ti gal-la-ti liš-ma-ma l[i*-dal-ha-ma x x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 2. [x x x x gal-l]a-a-tu₂ liš-ma-m[a x x x x x x x x x x x]
+
+#tr.en: “From the thickest forests let its trunks be uprooted!
+71. %n ša qīši | danni || liktappirū | gupnūšu
+NinNA1d ii 4'. ša₂ qi₂-i-ši da[n-ni x x x x x x x]
+NinNA3 ii 13. [x x x x x x lik-tap-p]i-ru gup-nu#-šu
+AššNA2 ii 9'. ša!?# qi₂!?#-i!?#-ši!?# dan#-ni# [x x x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397: “illegible traces only left.”
+HuzNA1 ii 3. [š]a qi₂-i-š[i* dan-n]i lik-tap#-pi-[ru x x x x]
+#note: Collated on excavation photograph kindly made available by E. Robson.
+AššNASch1 o 5'. [x q]i₂-i-ši dan-ni lim-tap-<pi>-ru# [x x x x]
+#note: Observe the apparently meaning sequence @akk{IGI TAB RU#} in the school tablet AššNASch1.
+$ beginning of excerpt
+
+#tr.en: “In the impenetrable reed-bed, let its reeds be snapped!
+72. %n apu | ša nēreba | lā īšû || li[h]taṣṣiṣū | qanûšu
+NinNA1d ii 5'. a#-pu# ša₂ ne₂-re-b[i x x x x x x x x x x x x x]
+NinNA3 ii 14. [x x x x x x x x x x lih]-ta#-aṣ-ṣi#-ṣu# GI-MEŠ!#-šu
+AššNA2 ii 10'. a-pu ša₂# ne₂#-re#-ba# la!?# [x x x x x x x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397: “@akk{a-bu} now gone.”
+HuzNA1 ii 4. a#-pu ša₂ ne₂-r[e-ba l]a i-šu-u₂ li#-i[h-taṣ-ṣi-ṣu x x x x]
+AššNASch1 o 6'. GIŠ*#.GI ša# ne₂-re*#-ba la!(BA) i#-[šu-u₂ x x x x x x x]
+
+#tr.en: “May the peoples fear and their noise be quieted!
+73. %n nišū | liplahā-ma || litquna | hubūršin
+NinNA1d ii 6'. [UN]-MEŠ# lip#-[la-ha-ma x x x x x x]
+$ rest of column broken
+NinNA3 ii 15. [x x x x x x lit-q]u-na# hu-bur#-šin#
+AššNA2 ii 11'. UN#-[ME]Š lip-la-ha#-m[a!? x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397: “@akk{UN#} gone.”
+HuzNA1 ii 5. [U]N-MEŠ lip-l[a]-ha-ma lit-q[u-na x x x]
+AššNASch1 o 7'. UN-MEŠ lip-la-ha-ma x [x x x x x]
+AššNASch3 r 7. UN-MEŠ lip#-la-hu#-ma lit-qu#-na hu-bur#-šin#
+$ beginning of excerpt
+
+#tr.en: “Let the wild beasts shake and be brought to dust!
+74. %n būlu | līrur-ma || litūr | ana ṭiṭṭi
+#note: See the commentary on the parallel passage in IV 150.
+// L I.5 SB "IV" 150
+NinNA3 ii 16. [x x x x x x x x] ana ṭi-iṭ#-ṭ[i]
+AššNA2 ii 12'. [bu-u]l!? li-ru-ur-ma l[i-tur x x x x x]
+#note: Collation of the line in Lambert’s folio 18397: “First trace gone.”
+HuzNA1 ii 6. [b]u-lu₄ li-r[u-u]r-ma li-tur [x x x x]
+AššNASch1 o 8'. MAŠ₂.ANŠE li-ru-ur-[ma x x x x x x]
+AššNASch3 r 8. MAŠ₂.ANŠE li-ru-ur-ma li#-tur# a-na ṭi#-iṭ-ṭi#
+$ end of excerpt
+
+#tr.en: “May your fathers the gods regard and praise your heroism!
+75. %n ilū | abbūka | līmurū-ma || linādū | qurdīk[a]
+NinNA1a ii 1'. [x x x x x l]i-mu#-ru#-ma# l[i-na-du x x x]
+NinNA3 ii 17. [x x x x x x x x x] li#-[n]a-du qur-di-k[a]
+AššNA2 ii 13'. [x x AD]-MEŠ-ka li-mu-ru-m[a x x x x x x]
+HuzNA1 ii 7. DINGIR#-MEŠ AD-MEŠ-ka# li-mu-ru-ma li-na-d[u x x x]
+AššNASch1 o 9'. DINGIR-MEŠ AD-MEŠ-ka l[i-mu-ru-ma x x x x x x]
+AššNASch3 r 9. DINGIR-MEŠ# AD-MEŠ-ka li-mu-ru-[ma x x x x x x]
+$ beginning of excerpt
+
+#tr.en: “Warrior Erra, why have you forsaken the (battle) field and reside in the city?
+76. %n qurādu | erra | minsu | ṣēra | tumaššir-ma || tušib | ina āli
+NinNA1a ii 2'. [x x x {d}e]r₃-ra min₃-su EDIN tu-maš*-ši[r₃!(SAR)-ma x x x x]
+NinNA3 ii 18. [x x x x x x x x x tu-maš-šir₃-m]a tu-šib ina URU#
+AššNA2 ii 14'. qar-ra-du {d}er₃-r[a] min₃-su EDIN# t[u-maš-šer₃-ma x x x x]
+HuzNA1 ii 8. [q]u-ra-du {d}er₃-ra# min₃-su EDIN tu#-<maš!?>-šer₃#-ma t[u-šib x x]
+#note: The emendation follows @bib{RN31@169}.
+AššNASch1 o 10'. qu-ra-du {d}er₃-r[a x x x x x x x x x x x]
+AššNASch3 r 10. [q]u-ra-du {d}er₃#-ra min₃-su [x x x x x x x x x]
+$ end of excerpt
+
+#tr.en: “The wild cattle and the wild beasts have despised us.
+77. %n būl (|) šakkan | (u) nammaššû || leqû | šēṭūtni
+#note: The “despise” (@i{šēṭūtu} is one of the leitmotifs of the Epic: according to @bib{RN31@170}: the “‘disprezzo’ degli uomini verso Erra, da intendersi come dimenticanza o rifiuto del culto dovuto (cfr. V, 49ss.). Il ‘disprezzo’ degli animali (se ne parla solo qui) va interpretato secondo lo stesso ordine di idee e come un topos letterario: anche nella ‘Teodicea Babilonese’ (vv. 45-66) alcuni animali selvatici, che compiono distruzioni, vengono considerati colpevoli di opposizione al culto e pertanto preordinati al castigo.” On the motif, see also @bib{RN984@69-81}.
+NinNA1a ii 3'. [x x x x nam-m]aš-šu-u le-qu-u₂ [x x x x]
+NinNA3 ii 19. [x x x x x x x x le-q]u-u še-ṭu-ut-ni
+AššNA2 ii 15'. bu-ul {d}GIR₃ {d}na[m]-maš*#-šu-u₂ le-q[u!?-u₂ x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 9. bu#-ul {d}GIR₃ u₃# [n]am-maš-še-e le-qu-u [x x x x]
+AššNASch1 o 11'. MAŠ₂*.ANŠE* {d*}GIR₃* nam*-ma[š-še-e x x x x x x x]
+#note: The line appears to have been cleaned after Ebeling’s copy.
+
+#tr.en: “Erra warrior, to you we address ourselves: Let our speech be unberable to you!
+78. %n qurādu | erra | niqabbīkum-ma | atmûni | l[i]mruṣ | elīka
+#note: The restoration @akk{[li-i]m-ru-uṣ} was proposed by @bib{frankena1964worte@42 and 46}; see also @bib{RN31@171} (“il nostro discurso ti sia di pungolo!”).
+NinNA1a ii 4'. [x x x {d}er₃-r]a ni-qab-bi-kum₂-ma at#-m[u-ni x x x x x x]
+NinNA3 ii 20. [x x x x x x x x x x x x x li-i]m-ru#-uṣ# UGU-ka
+AššNA2 ii 16'. qu-ra-du {d}e[r₃]-ra ni-qab-ba-kum₂!?#-ma at#-mu-ni l[im!?-ru-uṣ x x x]
+#note: Collation of the line in Lambert’s folio 18397: “no room for @i{-kum-} or @i{-kúm-}: as Ebeling.”
+HuzNA1 ii 10. qu-ra-du {d}er₃-r[a n]i-qab-bi-kum₂-ma at-mu-ni [x x x x x]
+AššNASch1 o 12'. qu*#-ra*-du* {d*}er₃*#-ra*# (x) [x x x x x x x x x x x x]
+#note: The line appears to have been cleaned after Ebeling’s copy.
+$ end of excerpt ?
+$ end of side ?
+
+#tr.en: “Before the whole country belittles us,
+79. %n adi mātu | napharša || irbû | elīni
+#note: Literally, “before it grows bigger than us,” compare the translation “ci abbia a sopraffare” (@bib{RN31@67}). See the detailed discussion of the passage 79-86 in @bib{RN31@172-174}.
+NinNA1a ii 5'. [x x x nap]-har#-ša₂ ir-bu#-[u₂ x x x]
+NinNA3 ii 21. [x x x x x x x x x] UGU-ni
+AššNA2 ii 17'. a-di KUR nap-h[ar-ša₂] ir!?#-bu#-u₂ [x x x]
+HuzNA1 ii 11. [a-d]i ma-a-t[i nap-h]ar-ša₂ ir-bu-u₂ [x x x]
+
+#tr.en: “You must surely hear our advice!
+80. %n mindē-ma | attā || šemâta | amātni
+NinNA3 ii 22. [x x x x x x x x] a-mat-ni
+AššNA2 ii 18'. {(10)} min₃-de-ma at-t[a*] še-ma-ta [x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 12. [min₃-d]e-[ma at-t]a ši-ma-a-ti [x x x]
+
+80. %n [mindē-ma | amātn]i || ul šemâta | [attā]
+NinNA1a ii 6'. [x x x a-mat-n]i ul še-ma-ta# [at-ta]
+
+#tr.en: “Do a kindness to the Anunnaki, who love silence:
+81. %n ana anunnakī | [r]āʾim (|) šahrarti || damiqta | epša
+NinNA1a ii 7'. [x x x x x x x r]a-ʾi-im š[a]h-ra#-a[r-ti x x x x]
+NinNA3 ii 23. [x x x x x x x x x x x x x x S]IG₅ ep#-ša₂
+AššNA2 ii 19'. a-na {d}a-nun-na-ki <ra-ʾi-im> šah*#-ra*#-ar*#-ti [x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 13. [x x x x x x x ra-ʾi-i]m? šah-ra-ar₂-ti SIG₅-ti [x x]
+
+#tr.en: “The Anunnaki, because of the noise of the people, are unable to fall asleep.
+82. %n anunnakū | ina hubūr (|) nišī || ul irehhû | šitta
+NinNA1a ii 8'. [x x x x x x h]u-bur UN-MEŠ u[l x x x x x x x]
+NinNA3 ii 24. [x x x x x x x x x x x i-re-eh-hu]-u# šit-tu₄
+AššNA2 ii 20'. {d}a-nun-na-ki# ina hu!?#-bur!?# [x x (x)] i*#-re*#-[eh-hu-u₂ x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 14. [x x x x x x hu-b]ur UN-MEŠ ul i-re#-eh-hu-u₂ [x x]
+
+#tr.en: “The pastures – the source of life of the country – are trodden by cattle.
+83. %n napišti (|) māti | gipāra || rahiṣ | būlu
+NinNA1a ii 9'. [x x x x x x g]i-pa-r[u x x x x x]
+NinNA3 ii 25. [x x x x x x x x ra-hi-i]ṣ bu-lu₄
+AššNA2 ii 21'. na*#-piš*#-ti ma#-a-ti gi*#-p[a!?-ra r]a*-[hi]-iṣ*# b[u*-u₂-lu]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 15. [x x x x x gi-p]a-ra ra-hi-iṣ [M]AŠ₂.ANŠE#
+
+#tr.en: “The farmer, over @i{his land}, weeps bitterly.
+84. %n ikkaru | ina muhhi (|) ... || ibakki | [ṣa]rpiš
+#note: Suggested restorations include @akk{A#.[ŠA₃-ME]Š-šu₂}, “his fields” (@bib{temp_id_07390035038145881@204}) and @akk{[er-m]u-u-šu₂}, “his @i{tillage}” (@bib{RN706@401a}): the former is difficult epigraphically, the latter grammatically (@bib{RN31@171-172}). See also Lambert’s proposal @akk{[NUNU]Z?-u-šu₂} = [@i{perʾ}]@i{u-u-šú}, “his offspring” (@i{apud} @bib{RN31@172 fn. 101}). Another possibility, also far from certain, would be @akk{[muh-h]i!?-šu₂}, “on account of this.”
+NinNA1a ii 10'. [x x x x mu-u]h₂!-hi x [x x x x x]
+$ rest of column broken
+NinNA3 ii 26. [x x x x x x (x) x x x x x ṣa]r-piš
+AššNA2 ii 22'. ik-ka-ru ina UGU x (x)-u₂?#-šu₂*# i*#-bak*#-k[i* x x]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 16. [x x x x x] x-(u)-šu₂ i-bak-ki [ṣa]r-piš
+
+#tr.en: “The lion and the wolf destroy the wild cattle.
+85. %n nēšu (|) u barbaru | [uš]amqatū | būl (|) šakkan
+// L I.5 SB "III" 15
+AššNA2 ii 23'. ne₂-e#-šu u bar-ba-ru šum*#-qu*-u[t* x x x x]
+#note: Collation of the line in Lambert’s folio 18397.
+NinNA3 ii 27. [x x x x x x x x x x bu-u]l {d#}G[IR₃]
+$ rest of column broken
+HuzNA1 ii 17. ne₂#-[šu (x) x x x u₂-š]am-qa-tu MAŠ₂.ANŠE {d#}GIR₃
+
+#tr.en: “The shepherd, for his herd sleepless night and day, beseeches you,
+86. %n rēʾû | aššu ṣēnīšu | urra (|) u mūša | ul iṣallal | iballa | [k]âša
+AššNA2 ii 24'. re-e₂#-u₂ aš?*-šu₂ ṣe-ni-šu₂ ur*#-ra*# u*# mu*#-ša₂*# ul# i-ṣal-l[al x x x x x x]
+#note: Collation of the line in Lambert’s folio 18397 and in @bib{RN31@172}.
+HuzNA1 ii 18. re#-[ʾ-u₂ x x x x x x x] u₃?# GE₆ ul i-ṣal-lal i#-bal#-la# [k]a-a-ša₂
+
+#tr.en: “And we, who (once) knew the mountain passes, have forgotten every way.
+87. %n u nīnu | mūdê (|) nēreb (|) šadî || nimtaš[ši | h]arrāna
+#note: The restoration of the line is due to von Soden @i{apud} @bib{temp_id_07390035038145881@204}.
+AššNA2 ii 25'. u₃ ne₂-e-nu mu-de#-e ne₂#-reb KUR-e ni[m-ta-aš-ši x x x]
+HuzNA1 ii 19. u₃?# [x x x x x x x x KUR]-i# nim-ta-aš₂*-[ši h]ar-ra-nu
+#note: Collation in @bib{RN728@92}.
+
+#tr.en: “On our war-gear are spun cobwebs;
+88. %n ina muhhi (|) tillê (|) ṣērīni || šatât | qê (|) e[tt]ūtu
+AššNA2 ii 26'. ina UGU til-le-e EDIN-ni ša₂-ta#-[at x x x x x]
+#note: As noted by @bib{RN31@175}, a restoration @akk{ša₂-ta-[a]} seems also possible.
+HuzNA1 ii 20. [x x x x x x x x x še-te]-et# qe₂-e# e[t-t]u-tu
+
+#tr.en: “Our precious bow offers resistance and has become too stiff for our strength,
+89. %n qašatni | ṭābtu | ibbalkit-ma || idnina | eli em[ūq]īni
+#note: Compare @bib{RN706@401a}: “Like the bow of Odysseus, th[r]ough lack of use it was no longer flexible.”
+AššNA2 ii 27'. qa-šat-ni ṭa-ab#-tu₂ ib-bal-kit-ma i[d-ni-na x x x x x]
+HuzNA1 ii 21. [x x x x x x ib-bal-kit-m]a id#-ni#-na# UGU!?# e#-m[u-q]i₂-ni
+
+#tr.en: “The tip of our sharp arrow is dulled,
+90. %n ša uṣṣīni | zaqti || kepât | lišāššu
+AššNA2 ii 28'. {(10)} ša₂ uṣ-ṣi#-ni zaq-ti ke-pa*#-ta l[i-ša₂-aš₂-šu₂]
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 22. [x x x x x x x x x] li-ša₂-aš₂#-šu₂
+
+#tr.en: “Our sword, for lack of bloodshed, is covered with rust.”
+91. %n patarni | ina lā ṭabāhi | itt[ad]i | šuhta
+AššNA2 ii 29'. GIR₂-ni ina la!(ŠU) ṭa-ba-hi & it-t[a-di x x x]
+#note: Collation by @bib{RN31@175 fn. 112} shows that the sign @akk{ŠU} is correctly copied.
+HuzNA1 ii 23. pa-tar#-n[i x x x x x it-ta-d]i šu-uh-tu₂
+
+#tr.en: Warrior Erra heard them,
+92. %n išmēšunūtī-(ma) | qurādu | erra
+// cf. L I.4 SB "IV" 128
+NinNA1b ii 1'. iš#-m[e-šu-nu-ti-ma x x x x x x]
+AššNA2 ii 30'. iš*-me-šu-nu-ti-ma qu-[ra-du {d}er₃]-ra
+#note: Collation of the line in Lambert’s folio 18397, who also states: “30-31 end now lost.”
+HuzNA1 ii 24. iš-me-šu#-nu-ti# q[u-r]a-du {d}er₃-ra
+
+#tr.en: The words of the Seven pleased him like the finest of oils.
+93. %n amāt (|) se[bet]ti | iqbû | kī ulu (|) š[amn]i | elīšu | iṭīb
+// cf. L I.4 SB "II" 69
+// cf. L I.4 SB "IV" 129
+NinNA1b ii 2'. a-mat {d}IM[IN-BI x x x x x x x x x x x x x]
+HuzNA1 ii 25. a-mat {d}IM[IN]-BI iq-bu-u₂ ki-i u₂-lu I₃#.[GI]Š UGU-šu₂ i#-ṭib
+
+93. %n amāt (|) sebetti | iqbûšu | el[īšu | (kī ulu (|) šamni) || i]ṭīb
+#note: As noted by @bib{RN31@176}, the line could contain @i{kī ulu šamni} in the broken section. 
+AššNA2 ii 31'. a-mat {d}IMIN-BI iq-bu-šu₂ UG[U-šu₂ x x x x x x i]-ṭib
+#note: Collation of the line in Lambert’s folio 18397: “30-31 end now lost.”
+
+#tr.en: He prepared to speak, addressing Išum:
+94. %n īpuš-ma | pâšu || izakkar | ana [īš]um
+NinNA1b ii 3'. i-pu-u[š-ma x x x x x x x x x x]
+AššNA2 ii 32'. i-pu-uš-ma pa-a-šu₂ i-[zak-kar x x x x]
+HuzNA1 ii 26. i-pu-[u]š-ma pa-a-šu i-zak-kar ana {d}[i-š]um
+
+#tr.en: “Why, having heard this, are you sitting silent?
+95. %n minsu | šemâtā-ma || qâliš | tuš[ša]b
+NinNA1b ii 4'. min₃-su še*#-[ma-ta-ma qa]-liš# [x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}. Second half of the line preserved in K.19050.
+AššNA2 ii 33'. min₃-su še!?#-ma-ta-ma qa!?#-[liš t]u-uš-[šab]
+HuzNA1 ii 27. min₃-su# še-ma-ta-ma & qa-liš tu-u[š-ša₂-b]u
+
+#tr.en: “Open the path, I shall take to the road!
+96. %n ṭūda | pitē-ma || luṣbat | harrā[n]a
+// L I.5 SB "II" 128
+// L I.5 SB "III" 130
+NinNA1b ii 5'. ṭu*-di p[i-te-ma lu-u]ṣ-ba-ta ha[r-ra-na]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}. Second half of the line preserved in K.19050.
+AššNA2 ii 34'. ṭu-da pi-i-ti-ma lu#-u[ṣ-b]a-ta har-ra-[nu]
+HuzNA1 ii 28. ṭu-da# pi-te*-ma & lu-uṣ-bat har-r[a-n]i
+#note: Collation in @bib{RN2069@23}.
+
+#tr.en: “Let the Seven, the peerless warriors, make war!
+97. %n sebettu | qarrād (|) lā šanān || lupp[išū] | t[āhāz]a
+#note: The parallel in III 133 allows now the correct restoration of the line. @bib{RN31@176} reconstructed @akk{lu-up#-p[it?]}.
+// L I.5 SB "III" 131
+NinNA1b ii 6'a. {d}IMIN-BI q[ar*-rad x x x x x x x x (x) x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 35'a. {d}IMIN-BI qar-rad la ša₂#-n[a*-an x x x x (x) x]
+#note: Collation of the line in Lambert’s folio 18397. At the end, space does not seem to allow the restoration @i{luppišū tāḫāza}; perhaps the line in this manuscript (and also in NinNA1b) read simply: @i{qarrād lā šanān šūlika idāya},
+$ line continues
+HuzNA1 ii 29. {d}IMIN-BI q[a]r-rad la ša₂-na-an lu-up#-p[iš?] t[a-ha-z]a
+#note: Collation in @bib{RN728@92} (“97 end Final trace probably head of a vertical”).
+
+#tr.en: “Make my fierce weapons march to my flank!
+98. %n kakkī[y]a | ezzūti || šūlika | idāya
+// L I.5 SB "III" 132
+NinNA1b ii 6'b. [x x x x ez-zu-t]u šu-li-ka i?#-[da-a-a]
+#note: Second half of the line preserved in K.19050.
+AššNA2 ii 35'b. [x x x ez-zu-t]u!? šu-li-k[a!?] i-da-a-a
+HuzNA1 ii 30. {giš}TUKUL-MEŠ-[i]a ez-zu-tu šu-li-ku# i#-[da-a-a]
+
+#tr.en: “And you, my champion, come before me!”.
+99. %n u attā | ālik (|) mahrīya || alik | pā[nī]ya
+#note: Formerly @i{arkīya} was reconstructed at the end, apparently confirmed by collation of MS AššNA2 (so @bib{RN31@177 fn. 116}). However, as already suggested by Borger @i{apud} @bib{RN31@177 fn. 116}, the obvious command to a “champion” (@i{ālik maḫrīya}) would be for him to “march ahead” (@i{alik pānīya}), a supposition now confirmed by the identical line in III 133.
+// L I.5 SB "III" 133
+NinNA1b ii 7'. u at-ta# a*#-[lik x x x] a-lik# [x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}. Second half of the line preserved in K.19050.
+AššNA2 ii 36'. u₃ at#-ta a-lik ma[h-ri-i]a a-lik pa?#-[ni]-ia
+#note: Collation of the line in Lambert’s folio 18397 (only one horizontal after @akk{a-lik}). The collation of L. Jakob-Rost @i{apud} @bib{RN31@177 fn. 116} suggested a reading @akk{EGIR} (the KAR copy admits a reading @akk{ar₂#-[ki]-ia#})..
+HuzNA1 ii 31. u₃ at-ta# a-lik mah-ri-ia [a-li]k pa#-[ni-ia]
+
+#tr.en: [When] Išum [heard] these words,
+100. %n īšum | annīta | [ina šemêšu]
+NinNA1b ii 8'. {d}i-šu[m x x x x x x]
+#note: The preserved surface of K.19050 seems to be blank in this line, which probably indicates that the line was written in a spaced-out manner.
+HuzNA1 ii 32. {d#}i#-š[u]m an-ni-ta [x x x x x]
+
+100. %n [iš]mē-ma | īš[um | ann]â | qabâ | [(ša) err]a
+// L I.5 SB "III" 134
+AššNA2 ii 37'. [iš]-me-e-ma# {d}i-š[um an-na]-a qa-ba#-a# [(ša₂) {d}er₃-r]a!?
+
+#tr.en: Moved with compassion he said, [“alas!”]
+101. %n rēma | irt[ašī-(ma) || iqt]abi | [ahūlap]
+// L I.5 SB "III" 135
+AššNA2 ii 38'. {(10)} re-e-mu ir#-t[a-ši iq-t]a-bi# [x x x]
+#note: Collation of the line in Lambert’s folio 18397: “@i{re} now gone; traces doubtful.”
+
+101. %n īpuš-ma | pâšu | izakkar | [ana qurā]di | e[rra]
+NinNA1b ii 9'. <i>-pu-uš!?# (x) [x x x (x x)] i?#-[x x x x x x x x]
+#note: See the collation of Lambert @i{apud} @bib{RN31@Fig. 14}. The sign @akk{i?#-[...]} is preserved in K.19050.
+HuzNA1 ii 33. i#-[pu-uš]-ma?# pa-a-še i-zak-kar [x qu-ra]-du {d}e[r₃-ra]
+#note: As noted by @bib{RN31@177}, MS HuzNA1 uses @i{-še} for the suffix @i{-šu} also in I 104, 126, and 180.
+
+#tr.en: “Warrior Erra, why have you devised insidious plots against the gods?
+102. %n (qurādu | erra) | minsu | ana il[ī || lemu]tta | takp[ud]
+#note: For parallels to the expression “to plot evil” against the gods in the Epic, see @bib{RN31@177-178}. According to him, the planned “evil” is the destruction that Erra prepares.
+NinNA1b ii 10'. qu#-ra#-du# [x x x x x x x x x x x]
+AššNA2 ii 39'. min₃-su a-na DINGIR-[MEŠ le-mu]-ut!?-tu₂# tak#-[pu-ud]
+HuzNA1 ii 34. qu!?#-r[a!?-du] {d!?#}er₃-ra min₃-su a-[na x x HU]L-ti₃ tak-p[u-ud]
+#note: Cagni’s reading of MS HuzNA1 @akk{be-lu₄}, is difficult, since Erra never receives the epithet @i{bēlu} elsewhere in the Epic (@bib{RN31@177}). A reading @akk{qu#-r[a-du]} seems easier to reconcile with the traces as copied.
+
+#tr.en: “You have plotted to ravage the earth and destroy [its inhabitants]; will you not desist?”
+103. %n ana sapān | mātāti | hulluq (|) [nišīšin | lemu]tta | takpud-ma | lā t[atūr | ana a]rkīka
+#note: Compare the close paralllel in an Esarhaddon inscription mentioned by @bib{RN31@178}: @akk{{d}EN.LIL₂.LA₅ | DINGIR#-MEŠ {d}AMAR.UTU a-na sa-pan | KUR# hul-lu-qu UN-MEŠ-ša₂ | ik-ta-pu-ud HUL-ti₃}, “The Enlil of [the go]ds, the god Marduk, became angry and plotted evilly to level the land (and) to destroy its people” (@bib{RN393@Esarhaddon 104} i 34-37).
+// L I.5 SB "II" 27
+// L I.5 SB "II" 67
+// L I.5 SB "III" 142
+// L I.5 SB "V" 40
+NinNA1b ii 11'. ana# sa*#-pan*# KUR*#.KUR!?# h[ul!?-lu-uq x x x x x x x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 40'. ana sa*#-pan*# KUR.KUR hul#-lu-u[q x x x HU]L!?-tu₂ tak-pu#-ud#-[ma x x x x ar₂]-k[i!?-k]a!?
+#note: Collation of the line in Lambert’s folio 18397, who adds: “last @i{ud} uncertain.”
+HuzNA1 ii 35-36. a-na sa-pan# [KUR.KU]R hul-lu-uq! [x x (x) HUL]-ti₃ tak-pu-ud-ma | ($___$) la# t[a-tur x a]r-ki-ka
+
+#tr.en: Erra prepared to speak,
+104. %n erra | pâšu || īpuš-[ma] | iqabbi
+// L I.5 SB "III" 143
+NinNA1b ii 12'. {d}er₃-ra [x x x x x x x x x]
+AššNA2 ii 41'a. {d}er₃-ra KA-šu₂ DU₃-[ma DUG₄].GA
+$ line continues
+HuzNA1 ii 37. {d}er₃-ra [pa-a-š]e i-[pu-uš-ma] i-qab-bi
+
+#tr.en: Addressing Išum, his champion, in these words:
+105. %n ana īšum | ā[li]k (|) mahrīšu || [amāta] | izakkar
+// L I.5 SB "III" 144
+NinNA1b ii 13'. ana# {d#}i#-šum# a*#-[lik x x x x x x x x x]
+AššNA2 ii 41'b. ana {d}i-š[um a-li]k mah-r[i-šu₂ x x x x]
+$ line continues
+HuzNA1 ii 38. a-na {d}i#-[šu]m a#-[lik m]ah-ri#-šu₂# [x x (x)] i-zak-kar
+
+#tr.en: “Išum, pay attention, listen to my words!
+106. %n īšum | qūlam-ma || šime | qabâya
+// L I.5 SB "III" 180
+// L I.5 SB "V" 17
+NinNA1b ii 14'. {d#}i#-šum# [x x x x x x x x]
+AššNA2 ii 42'. {d}i-šum q[u*]-lam-ma še-mi qa-ba-a-a
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 39. {d}i-š[u]m qu-[l]a-ma ši-[mi] qa-ba-a-a
+
+#tr.en: “Concerning the peoples in settlements, whose pardon you requested,
+107. %n aššu nišī (|) dadmē || ša taqbû | gamālšin
+// L I.5 SB "III" 181
+NinNA1b ii 15'. aš₂*#-šu₂*# UN#-ME[Š x x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 43'. aš₂-šu₂# UN#-M[EŠ da-a]d₂-me ša₂ taq-bu-u ga-mal₂-šin*#
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 40. aš₂-šu₂ n[i!?-š]i da-ad₂-[m]e ša₂ taq-bu-u [ga-m]a-al-šin
+
+#tr.en: “O champion of the gods, wise Išum, whose counsel is sweet!
+108. %n ālik (|) mahri (|) ilī | enqu | īšum | ša milikšu | damqu
+#note: As noted by @bib{RN1811@43}, @bib{RN55aa@148}, and @bib{RN31@178}, the passage is ironic. Gössmann speaks of “offensichtlich beißende Ironie.”
+// L I.5 SB "III" 182
+NinNA1b ii 16'. a*#-lik*# mah#-ri# D[INGIR-MEŠ x x x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 44'. a#-l[ik!? x x] DINGIR-MEŠ en-qu {d}i-šum ša₂# mi₃*#-lik#-šu₂ dam-qu#
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 41. a-li[k ma]h-ri DINGIR-MEŠ en#-q[u] {d#}i-šum ša₂ mi-li[k]-šu₂# dam-qu
+$ single ruling
+
+#tr.en: “In heaven I am a wild bull, on earth I am a lion,
+109. %n ina šamê | rīmāku || ina erṣeti | labbāku
+#note: @bib{RN1811@43} calls this passage “ein Musterbeispiel bab. Poesie.” See the thorough study of the lines in @bib{cohen2013fearful@1-28}.
+// L I.5 SB "III" 183
+// L III.7 54
+NinNA1b ii 17'. ina AN*#-e*# r[i*-ma-ku x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 45'. i[na!? x x] ri-ma-ku & ina KI-ti₃ lab-ba#-ku
+HuzNA1 ii 42. ina A[N]-e# ri-ma-k[u] & ina KI-ti₃ & [l]ab-ba-ka
+#note: Collation in @bib{RN2069@23} (“109-127 The cracks should be wider”).
+
+#tr.en: “In the land I am a king, among the gods a fury,
+110. %n ina māti | šarrāku || ina ilī | ezzāku
+// L I.5 SB "III" 184
+NinNA1b ii 18'. ina KUR šar#-[ra-ku x x x x x x]
+AššNA2 ii 46'. [x x] šar!(ŠIR₃)-ra-ku & ina DINGIR-MEŠ ez-za-ku#
+HuzNA1 ii 43. [x K]UR šar-ra-k[u] & ina DINGIR-MEŠ [e]z-ze#-ka
+
+#tr.en: “Among the Igigi I am a hero, among the Anunnaki a champion,
+111. %n ina igīgī | qardāku || ina anunnakī | gašrāku
+// L I.5 SB "III" 185
+NinNA1b ii 19'. ina {d}i₂-gi₃-gi₃ qar*#-d[a*-ku x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 47'. [x x x x x] qar-da-ku & ina {d}a-nun-<na>-ki gaš-ra-ku
+HuzNA1 ii 44. [x] {d#}i₂-gi₃-gi₃ qar-da-k[u] & ina {d}a-nun-na-ki & gaš-rak
+
+#tr.en: “Among the beasts I am a bowhunter, in the mountain the pit-trap,
+112. %n ina būli | māhiṣāku || ina šadî | šubāku
+#note: On the translation “archer” or “bowhunter” of @i{māḫiṣu}, and “pit-trap” of @i{šubāku}, see the commentary on III 186.
+// L I.5 SB "III" 186
+// cf. L I.5 SB "IV" 93
+NinNA1b ii 20'. ina bu-li ma*#-hi*#-ṣ[a-ku x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+AššNA2 ii 48'. [x x x] ma#-hi-ṣa-ku & ina KUR-i*# šu#-ba-ku
+#note: Collation of the line in Lambert’s folio 18397.
+HuzNA1 ii 45. [x b]u-li₃ ma-hi-ṣa-k[u] & ina KUR-i & šu-ba-ku#
+
+#tr.en: “In the reedbed I am the fire, in the forest the axe,
+113. %n ina api | gīrāk[u] || ina qīši | magšarāku
+// L I.5 SB "III" 187
+NinNA1b ii 21'. ina a-pi {d#}gi[ra₂-ku x x x x x x]
+AššNA2 ii 49'. [x x x x x & x x x ma-ag-ša₂-ra]-ku!?#
+$ rest of column broken
+HuzNA1 ii 46. ina a#-[p]i {d}gira₂-k[u?] & ina qi₂-ši ma-ag*#-ša₂-rak
+#note: Collation of @akk{ma-ag*#-ša₂-rak} in @bib{RN2069@23}. See also the collation in Lambert’s folio 18397.
+
+#tr.en: “In campaign I am the standard,
+114. %n ina alāk (|) harrāni | urinnāku
+// L I.5 SB "III" 188
+NinNA1b ii 22'. ina a-lak* h[ar-ra-ni x x x x x]
+#note: Collation of @bib{RN706@401a} and @i{apud} @bib{RN31@Fig. 14}.
+HuzNA1 ii 47. ina a-l[a]k har-ra-nu & u₂-ri-in-na-ku
+#note: The reading @akk{a-lak!} stems from von Soden @i{apud} @bib{temp_id_07390035038145881@205}. @bib{RN1811@114} reads @akk{a-li[k]}. According to the copy, the third sign could also be read as @akk{l[i]k}. The parallel in tablet III seems to read @i{a-lik}, which should probably be interpreted as a @i{parīs} infinitive (@bib{RN27201@§87k}).
+
+#tr.en: “As the wind I blow, as Adad I thunder;
+115. %n kī šāri | azâq || kī addi | ur[t]aṣṣan
+// L I.5 SB "III" 189
+NinNA1b ii 23'. ki-i ša₂-a*#-r[i* x x x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+HuzNA1 ii 48. ki-i IM# a-za-qu ki-i {d}IŠKUR ur#-[t]a-ṣa-an
+
+#tr.en: “Like the sun god I oversee the whole orb.
+116. %n kī [ša]mši | abarri || [k]ippata | [k]alāma
+// L I.5 SB "III" 190
+NinNA1b ii 24'. ki*#-i*# [x x x x x x x x x x x x]
+#note: Collation of Lambert @i{apud} @bib{RN31@Fig. 14}.
+$ end of column
+HuzNA1 ii 49. ki-i {d#}[U]TU-ši a-bar#-ri# [k]ip-pa-ta [k]a-la-ma
+
+#tr.en: “When I go forth into the field I am a wild goat;
+117. %n ana ṣ[ē]ri | uṣṣī-ma | bi[b]bāku
+// L I.5 SB "III" 191
+HuzNA1 ii 50. a-na E[DI]N uṣ#-ṣi#-ma bi-i[b]-ba-ku
+
+#tr.en: “When I enter the steppe, as Nergal do I take residence.
+118. %n ana n[a]mî | errub-ma | nergal | ram[âk]u | šubta
+#note: Previous attempts at restoring this line (e.g. @bib{RN31@180 fn. 125}, @bib{cagni1977poem@31 n. 30}, @bib{NABU2013-10@10}, @bib{cohen2013fearful@4-5}) can now be proven wrong thanks to the parallel in tablet III.
+// L I.5 SB "III" 192
+HuzNA1 ii 51. a-na n[a]-me-e er-ru-ub-ma {d#}U#.GUR# ra-m[a-k]u šub-ta
+
+#tr.en: “The gods all fear my name.
+119. %n ilū | napharšunu || nib[ī]tī | šahtū
+#note: Previous attempts at restoring this line (e.g. @bib{RN31@180}) should now be abandoned in view of the parallel in tablet III. It is interpreted that the writing @i{-ta} in @akk{ni-b[i!?]-ta#} reflects an implicit first-person suffix @i{-i}, since the parallel in III 193 does have the suffix.
+// L I.5 SB "III" 193
+HuzNA1 ii 52. DINGIR-MEŠ# nap-har#-šu₂-nu ni-b[i!?]-ta# šah-tu
+
+#tr.en: “And yet, the black-headed people despise me.
+120. %n u nišī | ṣalmā[t (|) q]aqqadi || leq[û] | šēṭūtī
+#note: @bib{RN31@181} notes that this is the only instance in which @i{šēṭūtu} is used without a personal suffix, and speculates that the suffix may have been omitted “per indicare un atteggiamento più generale.” Note, however, that the suffix is written in the parallel line III 197, and that MS HuzNA1 also omits the first-person possessive suffix of a word in the previous line.
+// L I.5 SB "III" 194
+// cf. L I.5 SB "III" 212
+// cf. L I.5 SB "IV" 113
+HuzNA1 ii 53. u₃# UN-MEŠ ṣal-ma[t S]AG.DU le-q[u-u₂] ši-ṭu-tu₄
+
+#tr.en: “I — for they have not feared my name
+121. %n anāku | aššu lā išhuṭū-(ma) | zikrī
+// L I.5 SB "III" 195
+HuzNA1 ii 54. a-na-ku aš₂-šu₂ la aš₂-hu-ṭu-ma zik-ri
+#note: The writing /@i{aš}/ of MS HuzNA1 can be explained as a sandhi writing (@i{lā}~@i{ašḫuṭū-ma}), or else as another case of the preference for the /@i{a}/ vowel in Sultantepe manuscripts, on which see @bib{RN404@125–126}, @bib{RN117@370}, and @bib{RN1013@11}.
+AššNASch2 r 7a. a-na-ku aš₂-šu₂ la iš-hu-tu₂ zik-ri :.
+$ beginning of excerpt
+$ line continues
+
+#tr.en: “And have neglected the orders of prince Marduk, I shall do as he pleases.
+122. %n u ša rubê | marūtuk | amāssu | iddû-ma | eppuš(u) | kī libbuš
+#note: The understanding of @akk{ep-pu-šu} // @akk{[e]p-pu-uš} in the first person follows a suggestion by E. Tadmor.
+// L I.5 SB "III" 196
+HuzNA1 ii 55. u₃# ša₂ NUN {d}AMAR.UTU a-mat-su id-du-[ma e]p-pu-uš ki-i lib-bu-uš
+AššNASch2 r 7b. u₃ ša₂ NUN {d}AMAR.UTU a-mat-su id-du-ma ep-pu-šu ki-i lib-bu-uš
+#note: Compare @bib{RN31@181}: “Nella Var. @akk{ip-pu-šu} si ha @i{-u} sovrabbondante, possibilmente con funzione sintattica (espressione di una conseguenza: cfr. Comm. a I, 20: Excursus).”
+
+#tr.en: “I shall make prince Marduk angry, I shall raise him from his throne and devastate mankind.”
+123. %n rubâ | marūtuk | ušaggag-ma | ina šubtīšu | adekkē-ma | nišī | asappan
+#note: Compare @bib{RN31@181}: “la collera di Marduk ha una precisa giustificazione nella colpa degli uomini (vv. 120-122); il suo allontanamento, causato dalla stessa collera, ha come conseguenza le terribili distruzioni, qui sintetizzate da Erra con il semplice ‘gli uomini abbatterò’, ma che hanno una ben più vasta portata, come sappiamo dal resoconto di una sua manifestazione di collera (I, 132-137) e dalla descrizione delle malvagità di Erra (Tavv. II-IV).”
+HuzNA1 ii 56. NUN {d}AMAR.UTU u₂-šag-gag-ma ina šub-t[i-šu₂ a]-de-ke-ma UN-MEŠ a-sa-pan
+AššNASch2 r 8. NUN-a {d}AMAR.UTU u₂-šag-gag-ma ina šub-ti#-šu₂ a-de-ke-ma UN#-MEŠ a-sa-ap-pan
+
+#tr.en: The warrior Erra set off to Šuʾanna, the city of the king of the gods,
+124. %n qurādu | erra | ana šuʾanna | āl (|) šar (|) ilī | ištakan | pānīšu
+#note: The epithet “city of the king of the gods” of Šuʾanna (i.e., Babylon) is also known from @i{Tintir} I 13 (see @bib{RN124@247}.
+HuzNA1 ii 57. qu-ra-du {d}er₃-ra ana šu-an-n[a U]RU LUGAL DINGIR-MEŠ iš-ta-kan pa-ni-šu₂
+AššNASch2 r 9. qu-ra-du {d}er₃-ra a-na šu-an-na URU LUGAL DINGIR.DINGIR# iš-ta-kan pa-ni-šu
+
+#tr.en: He entered the Esagil, the palace of heaven and earth, and presented himself before him.
+125. %n ana ēsagil | ēkal (|) šamê (|) (u) erṣeti | īrum-ma | ittaziz | pānuššu
+HuzNA1 ii 58. ana e₂-sag-il₂ E₂.GAL AN-e u K[I-ti₃] i#-ru-um-ma it-ta-ziz pa-nu-uš-šu₂
+AššNASch2 r 10. a-na e₂#-sag-il₂ E₂#.GAL AN-e KI-ti₃ i-ru-um#-ma it-ta-ziz pa-nu-uš-šu
+
+#tr.en: He prepared to speak, addressing the king of the gods:
+126. %n īpuš-ma | pâšu || ana šar (|) ilī | ītammi
+HuzNA1 ii 59. i-pu-uš-ma pa-a-še <ana> LU[GAL DI]NGIR-MEŠ i#-ta-mi#
+AššNA2 iii 1'. [x x x x x x x x x x x x i-ta]-ma
+AššNASch2 r 11. e-pu-uš-ma pa-a-šu a-na LUGAL DINGIR.DINGIR i-ta-ma
+
+#tr.en: “The image, the ornament of your lordship, which, like the stars of heaven, was full of splendor, why is it covered with filth?
+127. %n minsu | šukuttu | simat (|) bēlūtīka | ša kīma kakkab(ī) (|) šamāmī | lulâ | malât | leqât | urūša
+#note: The exact translation of @i{šukuttu} is debated: some authors prefer a more general translation “jewel” (@bib{RN706@299}) or “prezioso apparato” (@bib{RN31@183}), others understand that it refers to Marduk’s statue (so e.g. @bib{cassin1968splendeur@49 fn. 86}, followed by @bib{RN984@192}). The last word was interpreted as @i{urūšu}/@i{urrušu}, related to @i{arāšu}, “to be(come) dirty” @bib{temp_id_07390035038145881@205} and as @i{aršu}, “dirty,” by @bib{RN31@183}. @bib{RN2721@U/W 248b} parses it as @i{urrušu}, “filthy person or thing.” @bib{RN31@188} compares the passage with the following lines in an inscription of Esarhaddon (@bib{RN393@Esarhaddon 104 iv 9-17}): “I repaired the woeful desecrated state of the gods and goddess who lived in it, who had been displaced by floods and storm, and whose appearances had become dim; I made their dimmed appearance bright, cleaned their dirty garments, (and) had them permanently installed on their daises.” (@akk{DINGIR-MEŠ u {d}iš-tar a-ši-bu-ut | qer-bi-šu ša₂ A-MEŠ bu-tuq-tu | u₃ ra-a-du u₂-bi-lu-šu₂-nu-ti-ma | i-ki-lu ši-ki-in-šu-un | šal-pu-ut-ta-šu₂-nu lu-mu-un-tu₂ | ud-diš zi-me-šu₂-nu uk-ku-lu-tu | u₂-ša₂-an-biṭ ṣu-bat-su-nu | ar-šu ub-bi-ib ina BARA₂-ME-šu₂-nu | da-riš u₂-šar-me-šu₂-nu-ti}).
+HuzNA1 ii 60-61. min₃-su šu-kut-ti si-mat be-lu-ti-ka# [x x] MUL-MEŠ ša₂#-ma#-[me] lu#-la-a ma-la-at# | [l]e-qa-a!?#-[t]i!? u₂-ru-ši
+$ end of column
+AššNA2 iii 2'. [x x x x x x x x x x x x x x x x x x x x x x x x x x x u₂]-ru#-u-ša₂*#
+#note: Collation of the line in Lambert’s folio 18398.
+AššNASch2 r 12. min₃-su šu-kut-ta si-mat be-lu-ti-ka ša₂ GIM kak#-kab ša₂-ma-me lu-la#-a ma-la#-at₂# le-qa-ta ur#-šiš!?#
+#note: @akk{ma-la#-at₂#} could also be read as @akk{ma-la#-ta#}
+
+#tr.en: “The diadem of your lordship, which used to make the Eḫalanki shine like the Etemenanki, why is it dimmed?
+128. %n agê (|) bēlūtīka | (ša) kīma ētemenanki | ušanbiṭu | ēhalanki | pānūšu | katmū
+#note: Etemenanki is the ziggurat of Marduk in Babylon; Eḫalanki is the seat of Zarpanitu in her cella in the Esagil (@bib{RN1914@149 no. 1088 and 98 no. 448, respectively}). On the comparison, see @bib{RN600@84-85}. Compare the translation in @bib{RN164@887}: “which made the inner sanctum shine like the outside tower.”
+HuzNA1 iii 1-2. a-ge-e# be₂-lu-ti-ka# GIM# e₂-te-me-en-an-ki u₂-nam-ma-ri# | ($___$) e₂-hal-an-k[i] pa-nu-šu kat₃#-m[u]
+AššNA2 iii 3'-4'. [x x x x x x x x x x x x x x] u₂#-ša₂-an-bi-ṭu | ($___$) [x x x x x x x ka]t₃!?-mu
+AššNASch2 r 13. a-ge-e be-lu-ti-ka ša!?# ki-ma °DIŠ\° e₂-te-me-na#-ak u₂-ša₂-an-ba-ṭu e₂-hal#-an#-ki pa-nu-šu kat₃-mu
+#note: Compare @bib{RN31@183 fn. 134}: “Gössmann, ad loc., segue l’esempI. D, una tavoletta scolastica che ha una scrittura erronea nel nome del primo tempio e un @i{ana} erroneo sia qui sia nel v. prec.: «Die Krone deiner Herrschaft: lässt man sie gen Etemenak leuchten, so ist das Antlitz von é.ḫal.an.ki bedeckt».”
+
+#tr.en: The king of the gods prepared to speak,
+129. %n īpuš-ma | pâšu || šar (|) ilī | ītammi
+HuzNA1 iii 3. i-pu-uš#-ma pa-a-šu [L]UGAL DINGIR-MEŠ i-ta-a-mi
+AššNA2 iii 5'. [x x x x x x x x x x i]-ta-ma
+AššNASch2 r 14a. DU₃-uš-ma pa-a-šu₂ °DIŠ\° LUGAL DINGIR.DINGIR i-tam-ma :.
+$ line continues
+
+#tr.en: To Erra, the warrior of the gods, he addressed (his) word:
+130. %n ana erra | qarrād (|) ilī || amāta | izakkar
+HuzNA1 iii 4. a-na {d#}er₃-ra qar-rad DINGIR-M[E]Š a-mat i-zak-kar
+AššNA2 iii 6'. [x x x x x x x x x a-ma-t]u* MU-ar₂
+#note: Collation of the line in Lambert’s folio 18398.
+AššNASch2 r 14b. a-na {d}er₃-ra qar-rad DINGIR-MEŠ INIM MU-a[r₂]
+BabLB1b iii? 1'. [x x x x x x x x x a]-ma#-[tu₂ x x x]
+
+#tr.en: “Warrior Erra! Regarding that action you suggested:
+131. %n qurādu | erra | aššu šipri | šâšu | ša taqbû | epēša
+#note: According to @bib{RN164@887}, the line refers to I 123.
+// cf. L I.5 SB "I" 149
+HuzNA1 iii 5. qu-ra-[d]u {d}er₃-ra aš₂-šu₂ šip-ri# ša₂-a-šu₂ ša₂ taq-bu-u₂ e-pe-šu₂
+AššNA2 iii 7'. [x x x x x x x x x x ša₂]-a#-šu₂# ša₂ taq-bu-u e-pe#-ša₂
+AššNASch2 r 15. qu#-ra-du {d}er₃-ra aš₂-šu₂ šip-ru ša₂-a#-šu# ša₂ taq-bu-u₂ e-pe#-[šu]
+$ single ruling
+$ end of excerpt
+BabLB1b iii? 2'. [x x x x x x x x x x x x x x taq]-bu#-u₂# [x x x]
+
+#tr.en: “Once, in my anger, I arose from my throne, causing a flood;
+132. %n ultu (|) ullu | āgugū-ma | ina šubtīya | atbû-ma | aškuna | abūba
+#note: It is uncertain whether the word @i{abūbu} refers to the Flood or to any catastrophe in general. The latter interpretation seems more likely since, as noted by @bib{RN31@184-186}, Enlil is in Mesopotamian mythology the god responsible for sending the flood, and this seems to be the case also in the Epic: in IV 50, it is stated that “Lord of the Lands” (i.e., Enlil) spared Sippar from the Flood, which probably implies that it was also Enlil who sent it. See also @bib{RN801@251-253, 274-278}, who remarks that in the Epic the cause of the Flood is not the overpopulation of the earth. In any case, the subordinative in @i{a-gu-gu-ma} and @i{at-bu-ma} mean that @i{ultu ullu} cannot be taken as an adverbial expression (pace @bib{RN1826@251-252}, “depuis longtemps,” “autrefois”), but rather a conjunction, with @bib{RN27201@§174g*}.
+HuzNA1 iii 6. ul-tu ul#-lu a-gu-gu-ma ina šub-[t]i-ia at-bu-ma aš₂-ku-na a-bu-bu
+AššNA2 iii 8'. [x x x x x x x x x] šub#-ti-ia at-bu-ma aš₂-ku#-na* a-bu-bu
+#note: Collation of the line in Lambert’s folio 18398.
+BabLB1b iii? 3'. [x x x x x x x x x x x x a]-te-eb-bi-ma x [x x x x x]
+
+#tr.en: “I arose from my residence, and the seams of heaven and earth were rent asunder.
+133. %n ina šub[t]īya | atbē-ma | šipīt (|) šamê (|) (u) erṣeti | uptaṭṭir
+#note: @akk{ši-BIT} is interpreted as @i{šipītu}, “seam” (following Landsberger’s proposal @i{apud} @bib{aro1958bemerkungen@25}, recommended also by @bib{RN1445@26}; on this word, see @bib{RN3043@225}, who advocates for a transcription with /@i{p}/). Compare the interpretation as @i{šipṭu}, “equilibrium,” in @bib{RN706@399b} and @bib{RN3209@155-156}. Compare also the understanding “Strafgericht Urteil” in @bib{hruška1974letzten@357 fn. 22}.
+// cf. L I.5 SB "I" 170
+// cf. L I.5 SB "II" 1
+HuzNA1 iii 7. ina šub-[t]i-ia at-be₂-ma ši-pit AN#-e u KI-ti₃ up-ta-aṭ-ṭir
+AššNA2 iii 9'. [x x x x x x x ši-pi]t AN-e KI-ti₃ up-ta-ṭir
+BabLB1b iii? 4'. [x x x x x x x x x x x x K]I-ti₃ up-ta-a[ṭ-ṭi-ir]
+
+#tr.en: “The heavens that were shaken: (for this cause,) the celestial bodies changed their positions, and I did not restore them to their places;
+134. %n šamê | ša uštarʾibū | ša kakkabī (|) šamāmī | manzāssunu | išnī-ma | ul utīr | ašruššun
+#note: Compare @bib{RN706@401a}: “Each of these difficult lines presents the same syntactic pattern: a relative clause without an antecedent acts as a casus pendens: «With reference to the quaking of the heavens(!) …, with reference to the shaking of the underworld …, with reference to the disturbing of the equilibrium of the universe …».”
+// cf. L I.5 SB "IV" 123
+AššNA2 iii 10'-11'. AN#-e# ša₂# uš*-[tar-i-bu x M]UL-MEŠ ša₂-ma-mi man#-za#-su-nu | ($___$) iš-ni-ma# [u]l u₂-tir# aš₂-ru-uš-šu-un
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 8-9. AN#-[u₂] ša₂# uš-tar-i-bu ša₂ MUL š[a₂-m]a-mi man#-za#-as-su-nu iš-ni-ma | ($___$) ul i-tur# aš₂#-[r]u-šu₂-un
+#note: On the variant @i{itūr}, see @bib{RN31@187}, who considers it inferior.
+BabLB1b iii? 5'. [x x x x x x x x x x x x man-z]a-as-su-nu uš#-[tan-ni-ma x x x x x x x x x]
+
+#tr.en: “The netherworld that trembled: (for this cause,) the (production) of the furrow decreased to such an extent that it was forever difficult to levy (taxes on it);
+135. %n erkallu | ša inūšu | ša šerʾi | bilassu | imṭī-ma | adi ulla | ana emēdi | ašṭa
+#note: Compare the interpretation in @bib{RN2721@A/2 476}: “(the yield of the furrow became so little that) it was difficult to levy taxes (on it)” (followed also by @bib{RN31@187}).
+// cf. L I.5 SB "IV" 123
+AššNA2 iii 12'. er-kal-la ša₂# i#-nu-šu ša₂ ši-ir-ʾi bi-lat-su im-ṭi-ma | ($___$) a-di ul-la a-na i-me₂-di aš₂-ṭa#
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 10-11. er-kal-lu₄# ša₂ i-nu-šu₂ ša₂ ši-ir-[ʾ]i bi-lat-su# im-ṭi-ma a-di ul-la | ($___$) a-na e#-me-da aš₂-ṭa
+BabLB1b iii? 6'-7'. [x x x x x x x x x x x še-e]r?-ʾ[i? x x x] | [im-ṭi-m]a a-di ul#-la# a#-na e-me₂-di aš₂#-ṭ[a]
+
+#tr.en: “The seams of heaven and earth that were rent asunder: the springs diminished and the floods receded. When I looked again, it was scarcely enough.
+136. %n šipīt (|) šamê (|) (u) erṣeti | ša uptaṭṭiru | nagbu | imtaṭī-ma | mīlū | ittahsū | atūr | āmur-ma | ana šebê | imtarṣa
+NinNA3 iii 1'-2'. [x x x x x x x x x x x x x x x x x x x it-ta]h-su | [x x x x x x x x x i]m-tar-ṣa
+AššNA2 iii 13'-16'. ši-pit AN-e KI-ti₃ ša₂ up-ta-ṭi-ru nag*-[b]u* | ($___$) im-ta-ṭi-ma# mi-li it-ta-ah-su# | a-tur a-mur-ma a-na ši-be₂-e im-tar#-ṣa
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 12-13. ši-pit [A]N-e u KI-ti₃ ša₂ up#-ta#-ṭi-ru IDIM im-ta#-ṭi-ma mi₃-lu it-tah-su | ($___$) a#-tur# a-mur-ma a-na pe-te-e# im-tar#-ṣa#
+#note: On the variant @i{ana petê}, see @bib{RN31@188}, who states that it “intende che è difficile ‘riaprire’ le vene delle acque fecondatrici.”
+BabLB1b iii? 8'-9'. [x x x x x x nag]-bi# uh#-ta-aṭ-ṭi#-ma*# mi-li*# i[t-tah-su] | ($___$) [x x x x x x x x x x] im-tar-ṣ[u]
+#note: The join 80-6-17, 2683 shows that the line in the Babylonian version contains the rare verb @i{haṭāmu}, “to block,” which is also attested in @i{Erra} IV 122.
+
+#tr.en: “The progeny of the living beings was scarce, but I did not restore things;
+137. %n ša šiknāt (|) napišti | nabnīssina | iṣhir-ma || ul utī[r] | ašruššun
+NinNA3 iii 3'. [x x x x x x x x x x x x u]l i-tur aš₂-ru-šun
+AššNA2 iii 17'. ša₂ šik!?#-nat!?# ZI-ti₃ nab-nit-si-na iṣ-hi-ir-ma ul u₂-ti[r] a[š₂-ru-uš]-šun
+HuzNA1 iii 14. ša₂ šik#-na-at# ZI#-ti₃ nab-[n]it-si-na iṣ-hir-ma ul# i#-tur# [a]š₂-ru-šu₂-un
+#note: On the variant @i{itūr}, see @bib{RN31@188}: “non tornò al suo stato (iniziale).”
+BabLB1b iii? 10'. [x x x x x x x x x x x x x u]l i-tur aš₂-ru-uš-šu₂-[(un)]
+
+#tr.en: “Till, like a farmer, I took their seedlings in my hand.
+138. %n adi kī(ma) ikkari | zērīšin || aṣbat(u) | ina qātīya
+NinNA3 iii 4'. [x x x x x x x x x x aṣ-b]a-tu ina ŠU#-ia
+AššNA1 ii 1'. [x x x x i]k-ka-[ri x x x x x x x x x]
+AššNA2 iii 18'. a-di ki-ma ik-ka-ri ze-ru-šin aṣ-ba-at [x ŠU+MIN-i]a*
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 15. a-di ki-i# {lu₂}ENGAR# NUMUN-ši-na aṣ#-bat ina# qa-ti-ia
+BabLB1b iii? 11'. [x x x x x x x x x x aṣ-ba-a]t ina ŠU#+MIN-ia
+
+#tr.en: “I built a(nother) house and settled therein.
+139. %n bīta | ēpuš-ma || ušib | ina libbi
+#note: Compare the interpretation in @bib{RN164@887 fn. 7}: “Perhaps a reference to (re)construction of Esagila after the deluge, or to a special building where his image was refurbished.” This is also the understanding of @bib{RN31@188}: “il diluvio che gli ha deturpato lo @i{šukuttu} (…) lo ha privato anche del suo tempio.”
+NinNA3 iii 5'. [x x x x x x x in]a lib₃-bi
+AššNA1 ii 2'. [x x x i]-pu-uš-[ma x x x x x]
+AššNA2 iii 19'. E₂ i-pu-uš-ma u₂-ši-ib in[a x x]
+HuzNA1 iii 16. E₂ e-pu-uš#-ma# u₂-šib ina lib₃-bi
+BabLB1b iii? 12'. [x x x x x x x] i-na lib₃#-b[i]
+
+#tr.en: “My image, which by reason of the deluge was removed, whose appearance was tarnished;
+140. %n šukuttī | ša ina abūbi | uddaʾʾipū-ma || īkilu | šikinša
+NinNA3 iii 6'. [x x x x x x x x x x x x x i-ki]-lu# ši-kin-ša₂
+AššNA1 ii 3'. [šu-kut-t]u ša₂ ina a-bu-bi [x x x x x x x x x x x x]
+$ rest of column broken
+AššNA2 iii 20'. šu-kut-ti ša₂ ina a-bu-bi ud-da-i-pu-ma i-ki-l[u x x x]
+HuzNA1 iii 17. šu-kut-tu ša₂ ina a-b[u-b]i ud-da-ʾi-pu-u₂-ma i#-ki-lu ši-kin-šu₂
+BabLB1b iii? 13'. [x x x x x x x x x x x x x] i#-ki-lu ši-kin-[šu₂]
+
+#tr.en: “I ordered the fire god to polish my face and cleanse my garments.
+141. %n ana šunbuṭ (|) zīmīya (|) (u) ubbub (|) ṣubātīya || gīra | umtaʾʾer
+// cf. L I.5 SB "I" 181
+NinNA3 iii 7'. [x x x x x x x x x x x x x x x x] {d#}gira₂ um!(TA)-ta-ʾi-ir
+HuzNA1 iii 18. ana šu-un-bu-uṭ zi-[m]i-ia u ub-bu-ub ṣu-ba-ti#-ia {d}gira₂ um-ta-ʾi-ir
+AššNA2 iii 21'. ana šu-un-bu-uṭ zi-me-ia ub#-bu-ub ṣu-ba-te-ia [x x x x x x]
+#note: Collation of the line in Lambert’s folio 18398: “@akk{ub-bu-ub} perfect and regular.”
+BabLB1b iii? 14'. [x x x x x x x x x x x x ṣu-ba]-ti#-ia?# {d#}gira₂?# u[m?-ta-ʾ-ir]
+$ rest of column broken
+
+#tr.en: “When he had polished my image and fulfilled the action,
+142. %n ultu (|) šukuttī | unammerū-ma || uqattû | šipra
+NinNA3 iii 8'. [x x x x x x x x x x u₂-qat-tu]-u₂# šip-ri
+AššNA2 iii 22'. ul-tu šu-kut-ti u₂-nam-mer-u-ma u₂-qa[t₂*-tu-u₂ x x]
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 19. ul-tu šu-kut-ti# u₂-nam-me-ru-ma u₂-qat#-tu-u₂ šip-ri
+
+#tr.en: “And I had girded on the diadem of my lordship and returned to my place,
+143. %n agê (|) bēlūtīya | annadqū-ma || ana ašrīya | atūru
+NinNA3 iii 9'. [x x x x x x x x x x x x x aš₂-r]i-ia a-tu-ru
+AššNA2 iii 23'. a-ge-e be-lu-ti-ia an-na-ad-qu-ma ana aš₂-ri-i[a x x x]
+#note: Collation of the line in Lambert’s folio 18398.
+HuzNA1 iii 20. a-ge-e be-[l]u-ti-ia an-na-ad-qu-ma a-na# aš₂-ri-ia a-tu-ru
+
+#tr.en: “My countenance was haughty, terrifying was my glance!
+144. %n zīmūʾa | tubbû-(ma) || galit | niṭlī
+#note: The reading of @i{tubbû} as @i{ṭebû} D, followed here, is advocated by @bib{RN31@189} and @bib{RN416xc@283}, both of which compare it with @i{Enūma eliš} IV 77: @i{mīnâ tubbâti eliš našâtī-ma}, “Why outwardly do you assume a friendly attitude?” Note the chiasm in this line, as studied by @bib{RN2070@202}.
+NinNA3 iii 10'. [x x x x x x x x x x ni-i]ṭ-li
+AššNA2 iii 24'. zi-mu-u₂-a tu-ub-bu-u₂ ga-lit ni-[iṭ-li]
+HuzNA1 iii 21. zi-mu-u₂#-a tub-bu-u₂-ma ga-l[i]t ni-iṭ-li
+
+#tr.en: “The people that escaped the flood saw the action fulfilled:
+145. %n nišū | ša ina abūbi | isītā-ma | īmurā | epēš (|) šipri
+NinNA3 iii 11'. [x x x x x x x x x x x x x x e-pe]š šip-ri
+AššNA2 iii 25'. UN-MEŠ ša₂ ina a-bu-bi i-se-ta-ma e-mu-ra [x x x x]
+HuzNA1 iii 22. UN-MEŠ ša₂ in[a] a#-<bu>-bi i-se-ta-ma e-mu-ra e-peš šip-ri
+#note: Collation in @bib{RN728@92} (“145 Correctly copied, not @akk{[a-b]u-bi}”).
+
+#tr.en: “If I should now lift up my weapons, I would destroy the rest.
+146. %n kakk[īy]a | ušatbā-ma || uhall[a]q | rēha
+#note: On the substantivized adjective @i{rēḫu}, “rest,” see @bib{RN358@35}, who understands the phrase in this context as “auch noch den Rest vernichten.” @bib{RN31@189-190}, following a suggestion by Deller, interprets it rather as a stative 3f plural, understanding @i{nišū} as the subject: “(Sebbene?) io alzi le mie armi e distrugga — sopravvivono (ancora).” The formulation of AššNA2, taken here in the main text, is understood here as an irrealis (on irrealis in sentences connected with @i{-ma}, see @bib{krebernik2001šumman@73-74}.
+// cf. L I.5 SB "V" 41
+// cf. L III.10 54
+NinNA3 iii 12'. [x x x x x x x x x x x re-e]-ha#
+HuzNA1 iii 23. {giš}TUKUL-ME[Š-i]a u₂-šat-ba-ma u₂-hal-l[a]q re-e-ha
+
+146. %n kakkīka | tušatbī-ma || tuhalliq | rē[ha]
+#note: On the variant, see @bib{RN31@189-190}: “La formulazione dell’esempl. S [HuzNA1] per i primi due verbi, con la 1ª pers., è da preferire nel contesto; fa però difficoltà il Pres. La formulazione dell’esempl. B [AššNA2] è migliore per il Pret. ma non sembra accettabile per il contenuto.”
+AššNA2 iii 26'. {giš}TUKUL-MEŠ-ka tu-šat-bi-ma tu-hal-liq re-[e-ha]
+
+#tr.en: “Those craftsmen I brought down to the Apsû, and I have not yet decreed their return,
+147. %n ummânī | šunūti | ana apsî | ušērid-ma || elâšunu | ul aqbi
+#note: The passage is discussed in length by @bib{RN31@190-192}. According to him, the passage refers to the seven @i{apkallū} of the Apsû.
+// cf. L I.5 SB "II" 29
+NinNA3 iii 13'. [x x x x x x x x x x x x x x x x x aq-b]i
+AššNA2 iii 27'. um-ma-ni šu-nu-ti ana ABZU u₂-še-rid-ma e-l[a-šu₂-nu x x x]
+HuzNA1 iii 24. um-ma-a#-[n]i šu-nu-ti a-na ABZU u₂-še-rid-ma# e-la-šu₂-nu ul aq-bi#
+
+#tr.en: “I changed the location of the @i{mēsu}-tree (and its) amber, and revealed it to none.
+148. %n ša mēsi (|) elmēši | ašaršun | unakkir-ma || ul ukallim | mamma
+#note: The @i{mēsu}-tree is, as has been repeatedly observed (e.g. by @bib{RN1733@5-6} and @bib{schaudig_explaining_2019@382-383}, commonly mentioned in Mesopotamian literature as the preferred material for divine statues. The tree is commonly identified with the @i{Celtis australis} or hackberry tree on etymological grounds, but this identification does not fit the description of the tree in Mesopotamian sources particularly well (@bib{RN1953@17}).
+NinNA3 iii 14'. [x x x x x x x x x x x x x x x x x x ma]m-ma
+AššNA2 iii 28'. ša₂ {giš}MES el-me-ši a-šar!(ŠIR₃)-šu₂-un u₂-nak-kir-ma ul u₂-[kal-lim x x]
+HuzNA1 iii 25. ša₂ {giš}M[ES e]l-me-ši a-šar!(ŠIR₃)-šu-un u₂-nak-[kir-m]a ul# u₂#-kal#-lim# mam-ma
+
+#tr.en: “Now about that action you mentioned, O hero Erra!
+149. %n enna | aššu šipri | šâšu | ša taqbû | qurādu | erra
+// cf. L I.5 SB "I" 131
+NinNA3 iii 15'. [x x x x x x x x x x x x x x x x {d}er₃-r]a
+$ several lines broken
+AššNA2 iii 29'. en-na aš₂-šu₂ šip-ru ša₂-a-šu₂ ša₂ taq-bu-u qu-ra-du [x x x]
+HuzNA1 iii 26. [x x a]š₂-šu₂ šip-ri ša₂-a-šu₂ ša₂ taq-bu#-u₂# qu-ra-du {d}er₃-ra
+BabLB2 iii 1'. [x x x x x x x x x x x x x] UR!?#.S[AG x x x]
+#note: The traces seem compatible with a reading @akk{[LUG]AL g[i-mir]} (see next line).
+
+#tr.en: “Where is the @i{mēsu}-tree, the flesh of the gods, fitting for the king of the universe?
+150. %n ali | mēsu | šīr (|) ilī | simat (|) šar (|) gimri
+#note: On the expression @i{šīr ilī}, “flesh of the gods,” i.e., material for divine statues, see @bib{RN1733@11-12}, @bib{RN375@412}, @bib{RN1518@193}, all referring to this passage.
+AššNA2 iii 30'. a-li {giš}MES UZU DINGIR#-MEŠ si-mat LUGAL gi[m-ri]
+HuzNA1 iii 27. [x x {gi]š!?}MES# UZU DINGIR-MEŠ si#-mat LUGAL gi-mir
+BabLB2 iii 2'a. [x x x x x x x x x x x]
+$ line continues
+
+#tr.en: “The pure tree, the splendid lad, which is meet for lordship;
+151. %n iṣu | ellu | eṭlu | ṣīru || ša šūluku | ana bēlūti
+#note: As noted by @bib{RN31@194}, the line contains an etymographical explanation of @akk{{giš}MES}, in which @akk{GIŠ} = @i{iṣu}, “tree,” and @akk{MES} = @i{eṭlu}, “lad.” The transliteration of @akk{iṣ-ṣu} as @akk{GIŠ-ṣu} (i.e., as @i{iṣu}) is defended in @bib{RN1518@194-195 fn. 517}.
+NinNA1e iii 1'. [x x x x x x x š]a₂ šu-lu#-k[u x x x x]
+AššNA2 iii 31'. GIŠ-ṣu el-lu# eṭ-lu!(KU) ṣi-i-ru ša₂ šu-lu-ku ana be-[lu-ti]
+#note: Collation of the line in Lambert’s folio 18398: “@i{lu} [in @akk{eṭ-lu!(KU)}] hardly possible.”
+HuzNA1 iii 28. [x x el-l]u GURUŠ ṣi-ri ša₂# šu-lu-ku a-na be-lu-ti
+BabLB2 iii 2'b-3'a. [G]IŠ-ṣi# el#-lu eṭ#-[lu (x x)] | [x x x x x x x x x x x x]
+$ line continues
+
+#tr.en: “That in the waters of the vast sea spreads its roots a hundred double-hours to reach the depths of the Netherworld;
+152. %n ša ina tâmti | rapašti | (ina) mê | meʾat (|) bērī | išissu | ikšudu | šupul (|) aralli
+#note: The @i{mēsu}-tree appears here as @i{axis mundi}, as a cosmic tree spanning heaven and earth (see @bib{RN31@192}, @bib{RN220@28}, @bib{stol2017review@376}). Compare the famous description of the passage in @bib{RN949@198} (also cited by @bib{RN31@193}): “Wenn sich im Erra-Epos der senile Marduk darüber beschwert, daß er nach der Sintflut die vorsintflutlichen (im wahren Sinne des Wortes!) @i{mēšu}-Bäume, von denen das @i{e}[@i{lmēšu}] kommt (das Wortspiel @i{mēšu} : @i{elmešu} ist zu beachten!), nicht wieder auffinden konnte, so wird sicher niemand Bekanntschaft mit den antediluvialen Bernsteinwäldern voraussetzen; wohl aber die halbmythische Vorstellung, daß Bernstein ein Baumharz sei (Plinius zitiert bei Meyer, @i{Konv. Lex}.⁵ II 866) bzw. eine Variante der Fabel, daß „Bernstein von Nußbäumen“ stamme (Löw 2, 61 Anm. 1).”
+// cf. L I.5 SB "IV" 49
+NinNA1e iii 2'-3'. [x x x x x ra-pa-aš₂-t]i A-MEŠ [x x x x x x x x x] | [x x a]-ra-[al-li]
+AššNA2 iii 32'. ša₂ ina tam-ti₃ DAGAL-ti₃ A-MEŠ 1 me DANNA i-šid-su!? i[k-šu-da] | ($___$) šu-pul a-ra-al-[li]
+TarNA1 iii 1'-2'. [x x ta]m-t[i₃? x x x x x x x i-ši]d-su# ik#-šu#-[du] | ($___$) [š]u-p[ul a-ra-a]l-li#
+HuzNA1 iii 29-30. [x x x x x r]a-pa#-aš₂#-ti# A#-MEŠ 1 me DANNA i-šid-su ik-šu-da# | ($___$) [šu]-pul a-ra-al-[li]
+BabLB2 iii 3'b-4'a. [x x tam-t]i₃ DAGAL#-ti₃ ina A-MEŠ 1# me# DAN[NA x x (x)] | [x x x x x x x x x x]
+$ line continues
+
+#tr.en: “Whose top in the heights touches the sky of Anu?
+153. %n [(u)] qimmassu | (ina) elâti | emdet | šamê | ša ānu
+NinNA1e iii 4'. [x x x x e-la-a]-ti en-de-et A[N-e x x x x]
+NinNA2 iii 1'. [u q]im-mat-su# [x x x x x x x x x x x x x]
+AššNA2 iii 34'. qim-mat-su ina e-la-a-ti em-de-tu AN#-e ša₂ [x x x]
+TarNA1 iii 3'. [(u) qi]m-mat#-su# ina e#-la#-a#-ti# en#-de#-et# AN-e ša₂ {d#}a#-nim#
+HuzNA1 iii 31. [x x x x e-l]a-a-ti [en]-de-ti AN-e ša₂ {d#}[a-nim]
+BabLB2 iii 4'b. [qim-ma]t-su e-la-a-tu₂ en-de-e[t x x x x x x]
+
+#tr.en: “Where is the pure blue pigment that was made (as) splendid (as) lapis lazuli?
+154. %n ali | ebbu | zagindurû || ša ušamsakū | uqnâ
+#note: Lambert @i{apud} @bib{RN31@194-195} suggests parsing the verb as @i{nasāqu}, “to choose.” Here the interpretation as @i{nasāku}, “in Ordnung bringen o.ä.” (so @bib{borger1971tempelbau@79-80}) is preferred. Although the verb could be a first person, it seems preferable to interpret it as a third person plural, either as an impersonal form, or with the gods that appear in the following lines as its subject. On @i{zagindurû} as “Egyptian blue,” see @bib{thavapalan2020meaning@355-366}, with previous bibliography. @i{uqnû}, now restored thanks to MS TarNA1, is interpreted as a predicative complement (on this category, see @bib{fromebllab0003@79-81}); compare II 34: @i{šumsukat eli ša mahri}, “I made more splendid than before.”
+// cf. L I.5 SB "II" 32
+NinNA1e iii 5'. [x x x x {na₄}ZA.GI]N₃.DURU₅ ša₂ u₂-šam-s[a-ku x x (x x)]
+NinNA2 iii 2'. [a]-li# eb-bu {na₄#}ZA#.[GIN₃.DURU₅ x x x x x x x (x x)]
+AššNA2 iii 35'. a-li eb-bu {na₄}ZA.GIN₃.DURU₅ ša₂ u₂-šam-sa-ku {n[a₄!?}ZA.GIN₃]
+TarNA1 iii 4'. [a]-li# eb-bu {na₄}ZA.GIN₃.DURU₅ ša₂ u₂#-šam-sa-ku {na₄}ZA.GIN₃
+HuzNA1 iii 32. [x x x x] {na₄#}ZA#.GIN₃.DURU₅ ša₂ u₂#-[ša]m-sa#-ku [x x (x x)]
+BabLB2 iii 5'. [x x x x x x x x x] u₂#-šam-sa-ku [x x (x x)]
+
+#tr.en: “Where is Ninildu, master carpenter of my sovereignty?
+155. %n ali | ninildu || nagargal (|) ānūtīya
+#note: The three sages mentioned in I 155-160, Ninildu, Kusibanda, and Ninagal, are the patron gods of the carpenters, goldsmiths, and smiths, respectively, appear frequently together in the series @i{Mīs pî}, which contains the rituals and incantations necessary for preparing and consecrating the cult statue.
+NinNA1e iii 6'. [x x x x x {lu₂}NAG]AR.GAL# {d}a#-n[u-ti-ia]
+NinNA2 iii 3'. a#-li {d}nin-ild[u₂ x x x x x x x]
+AššNA2 iii 36'. a-li {d}nin-ildu₂# <<NAGAR#.BU>> NAGAR.GAL {d}a-nu-t[i-ia]
+TarNA1 iii 5'. a#-li {d}nin-ildu₂ {d}NAGAR.GAL {d}a-nu-ti-ia
+HuzNA1 iii 33. [x x {d}n]in-ildu₂ {lu₂@v#}N[AGAR.GAL] {d#}a-nu-ti-ia [x x x (x x)]
+BabLB1c r 1'. [x x {d}nin-i]ldu₂ NA[GAR.GAL x x x x x]
+BabLB2 iii 6'. [x x x x x x {lu₂}NAGAR.GA]L {d}a-nu-t[i-ia]
+
+#tr.en: “Bearer of the pure golden axe, skilled in the (carving of) that tree (@i{scil.} the @i{mēsu}-tree),
+156. %n nāš (|) pāši (|) šašši | ebbi || mūdû (|) iṣi | šâšu
+#note: The recovery of the last two words thanks to MS TarNA1 confirms the ideas (but not the specific wording) expressed by @bib{RN31@195-196}.
+NinNA1e iii 7'. [x x x x x x x x x x x x x GIŠ-ṣ]i? ša₂#-[a-šu₂]
+$ rest of column broken
+NinNA2 iii 4'. ($___$) na-ši pa-a-ši {d}šam-š[i x x x x x x x x x x]
+AššNA2 iii 37'a. ($___$) na-aš₂ pa-aš₂ ša₂-aš#-ši# mu-du-u₂# G[IŠ-ṣi ša₂-a]-šu₂#
+$ line continues
+TarNA1 iii 6'. [n]a-aš₂ pa-a-ši {d}UTU-ši eb-bi mu-de-e GIŠ-ṣi ša₂-a-šu₂
+HuzNA1 iii 34a. [x x x x {d}U]TU-ši eb-bi mu-d[e-e x (x) ša₂]-a#-šu₂
+#note: The collation given in @bib{RN250@195} (“probably @akk{[{giš}TU]N₃!}”) is rendered unlikely by the parallel in TarNA1.
+$ line continues
+BabLB1c r 2'. [x x x x {d}UTU-š]i eb-bi mu-de-e# GIŠ#-ṣ[i x x x]
+BabLB2 iii 7'. [x x x x x x x x x x mu-d]e-e# GIŠ-ṣi ša₂-[a-šu₂]
+
+#tr.en: “Who makes (it) shine like the noonday and places (it) at my feet?
+157. %n ša kīma ūmi | ušanbaṭū-ma || (ina) šaplūʾa | ukann[u]
+#note: The reading @akk{u₂-kan-[na-šu]} at the end of the line originates from a suggestion by von Soden (@i{apud} @bib{RN1811@15}). @bib{RN31@196} cautiously accepted this interpretation and compared it to the common Mesopotamian glyptic motif of a tree “bowed” under the feet of a god. The restoration is, however, highly improbable, as it would produce a non-trochaic ending (@i{ukannašu} being a subjunctive). Furthermore, MS TarNA1 appears to allow space for only one sign after @i{kan#}. The reading adopted here means that the object crafted by Ninildu is not Marduk’s statue but rather the pedestal upon which the statue rests. There is some evidence of wooden pedestals: for example, an inscription of Esarhaddon describes the reconstruction of the @i{šubat} @akk{{giš}}@i{musukkanni iṣi dārê} (“seat of @i{musukkannu}-wood, the everlasting wood”) of Tašmētu (@bib{RN393@Esarhaddon 48} r 91; see @bib{RN124@269}).
+NinNA2 iii 5'. [x k]i-ma u₄-me u₂-ša₂-an-ba-ṭ[u!-ma x x x x x x x x x]
+AššNA2 iii 37'b-38'. ša₂ GIM u₄-me u₂-ša₂-an#-[ba-ṭu-ma] | ($___$) ($___$) šap-lu-u#-a u₂-kan-[nu]
+TarNA1 iii 7'. ša₂ ki-ma u₄-me u₂-ša₂-an-ba-ṭu-ma ina KI.TA-ia u₂#-kan#-n[u]
+HuzNA1 iii 34b-35. ša₂ GIM u₄#-[me x x x x x x x] | ($___$) ina šap-lu-u₂-a# [x x x x x]
+BabLB1c r 3'. [x x] u₄#-mu u₂-ša₂-an-ba-ṭu-ma ina š[ap-li-ia x x x x x]
+BabLB2 iii 8'. [x x x x x x x x x x x ša]p-li-ia u₂-[kan-nu]
+
+#tr.en: “Where is Kusibanda, the creator (of the images) of god and men, whose hands are choice?
+158. %n ali | kusibanda | bān (|) ili (|) u amēli || ša qātāšu | na[sqā]
+#note: The former restoration @akk{[el-la]} (e.g. in @bib{RN31@74}) is incompatible with the signs in MS TarNA1. @akk{na-a[s-qa]} is possible, but not certain.
+NinNA1c iii 1'. [x x x x x x x x x x x x] ša₂# ŠU+MIN-šu₂*# [x x]
+NinNA2 iii 6'. [x x] {d#}ku₃#-si₂₂-ban₃-da! ba-an DINGIR u L[U₂ x x x x x x]
+AššNA2 iii 39'. a-li {d}ku₃-si₂₂-ban₃-da ba-an DINGIR*# u LU₂ ša₂ qa*#-ta-a-šu₂# [x x]
+#note: Collation of the line in Lambert’s folio 18398.
+TarNA1 iii 8'. a-li {d}ku₃-si₂₂-ban₃-da DU₃ DINGIR u LU₂ ša₂ ŠU#+MIN-šu₂ na-a[s-qa]
+HuzNA1 iii 36. [a-l]i {d}ku₃-si₂₂-ban₃-da b[a-an x x x x x x x x x x]
+BabLB1c r 4'. [x x {d}ku₃-s]i₂₂-ban₃-da ba-ni DINGIR u LU₂ ša₂ Š[U+MIN-šu₂ x x x]
+BabLB2 iii 9'. [x x x x x x x x x x L]U₂ ša₂ qa-ta-šu₂ n[a-as-qa]
+
+#tr.en: “Where is Ninagal, the bearer of the upper and lower millstones,
+159. %n ali | ninagal || nāš (|) (e)sî (|) (u) šapilti | [ ( ... ) ]
+#note: On @i{sû} as the “upper millstone,” see @bib{RN1712@90-91, 94-96}.
+NinNA1c iii 2'. [x x x x x x x x] se#-e u ša₂-pil₂-ti# [x x (x)]
+NinNA2 iii 7'. [x x {d}n]in-a₂-gal na-aš₂ se-[e x x x x x x]
+AššNA2 iii 40'a. a-li {d}nin-a₂-gal na-aš₂ se-e# ša₂-pil#-ti
+$ line continues
+TarNA1 iii 9'. a-li {d}nin-a₂-gal na-aš₂ e-se-e u ša₂-p[il-ti]
+HuzNA1 iii 37. [a-l]i {d}nin-<a₂>-gal na-aš₂ [x x x x x x (x x)]
+BabLB1c r 5'. [x x {d}nin]-a₂!?#-gal na-aš₂ e-se#-e u₃# [x x x]
+BabLB2 iii 10'a. [x x x x x x x x x x x ša₂?-pil?]-tu₄#
+$ line continues
+
+#tr.en: “Who @i{molds} strong copper as (easily as) leather, the inventor of in[struments]?
+160. %n ša danna | erâ | kī(ma) maški | ilēmu || pātiqu (|) u[nūti]
+#note: Compare @i{Lugale} 473: @sux{za-e urudu-ni₃-kala-ga kuš-gin₇ u₃-[mu-e-HI]} | @akk{at-ta e-ra-a dan-nu ki-ma maš-ki t[e-le-ʾ-em]}, “you @i{mold} strong copper like leather.” The variant @i{ilūmu} in MS TarNA1 suggests parsing the verb as @i{luāmu}, a verb otherwise attested only in Old Assyrian whose meaning is “to put pressure on somebody” (@bib{RN2721@L 77}) or “mit Worten hart zusetzen” (@bib{RN2720@560a}).
+NinNA1c iii 3'. [x x x x x x x x x x x x x p]a-ti-qu u₂-n[u-tu₂]
+NinNA2 iii 8'. [x dan-n]a e-ra-a ki-i maš-ki i#-[le-mu x x x x x x]
+AššNA2 iii 40'b-41'. ša₂ dan*#-na*# e!?#-[ra-a] | ($___$) ki-ma maš-ki i-le-mu pa-ti-qu u₂-[nu-ti]
+#note: Collation of the line in Lambert’s folio 18398 (different handwriting: “klar: @akk{dan-na#}”).
+TarNA1 iii 10'. ša₂ dan-na URUDU ki-i# KUŠ i-lu-mu# pa#-t[i-qu x x x]
+HuzNA1 iii 38. [š]a₂ dan#-na URUDU*-HI.A GI[M x x x x x x x x x x x]
+#note: Collation in @bib{RN2069@23} (“@akk{URUD.HI.A}”).
+BabLB1c r 6'. [x x x x x x x x x x x p]a!?-t[i!?-qu x x x]
+$ rest of column broken
+BabLB2 iii 10'b. ša₂# dan#-n[a x x x x x x x x x x x x x x x]
+$ rest of column broken
+
+#tr.en: “Where the choice pearls, the fruit of the vast sea, fitting for a diadem?
+161. %n ali | abnū | nasqūtu | binût (|) tâmti | rapašti | simat (|) ag[ê]
+NinNA1c iii 4'. [x x x x x x x x b]i-nu-ut tam-ti₃ DAGAL-ti₃ si-mat a#-g[e-e]
+NinNA2 iii 9'. [x x NA₄-M]EŠ na-as-qu-te bi-nu-ut [x x x x x x x x x x x]
+AššNA2 iii 42'. a-li NA₄#-MEŠ na#-as#-qu!?-ti bi-nu-ut tam-ti₃ DAGAL-ti₃ s[i!?-mat x x x]
+TarNA1 iii 11'-12'. a#-li NA₄-MEŠ na-as₂#-qu#-[t]i [x x x x x x x x x x] | si#-mat [x x x]
+HuzNA1 iii 39. [a-l]i NA₄-MEŠ na-as₂-qu-t[i x x x x x x x x x x x x x x]
+
+#tr.en: “Where the seven sages of the Apsû, pure carps, who like Ea their lord are perfect in their august wisdom, the purifiers of my body?
+162. %n ali | sebet (|) apkallū (|) apsî | purādū ebbūtu | ša kīma ēa | bēlīšunu | uzna | ṣīrta | šuklulū | mubbibū (|) zumrīya
+// cf. L I.5 SB "II" 32
+NinNA1c iii 5'-6'. [x x x x x x x x x] eb#-bu-ti ša₂ ki-ma {d}e₂-a EN-šu₂-[nu] | ($___$) [x x x x x x x m]u-ub-bi-bu zu!(SU)-um-ri-[ia]
+NinNA2 iii 10'-11'. [x x x AB]GAL-MEŠ ABZU p[u-ra-du x x x x x x] | [{d}e₂]-a*# be*#-li₂*#-šu₂*#-nu uz-n[u x x x x x x x x x x x x x]
+AššNA2 iii 43'-44'. a-li IMIN NUN.<ME>-MEŠ ABZU pu-ra-di eb-bu-te# ša₂ ki-ma [x x x] | ($___$) EN*#-šu₂-nu uz#-na# ṣir-tu₂ šuk-lu*#-lu*# x-bu MEŠ [(x)]
+#note: Collation of the line in Lambert’s folio 18398.
+TarNA1 iii 13'-14'. a#-li# IMIN NUN.<ME>-MEŠ A[BZU x x x eb-bu-t]i | [š]a₂ GIM {d!#}DIŠ# EN#-šu₂#-nu!(TIM?#) [x x x x x x x x x x x S]U-MU#
+HuzNA1 iii 40-42. [x x] IMIN ABGAL ap-s[i-i x x x x x x] | ($___$) [š]a₂ ki-ma {d}e₂#-[a x x x x x x x x] | ($___$) šuk-lu-lu m[u-ub-bi-bu x x x x]
+
+#tr.en: Warrior Erra heard him.
+163. %n išmēšū-ma | qu[r]ādu | erra
+// cf. L I.5 SB "IV" 128
+NinNA1c iii 7'. [x x x x qu]-ra#-du {d}er₃-r[a]
+NinNA2 iii 12'. [x x x x q]u-[ra-du x x x]
+$ rest of column broken
+AššNA2 iii 45'. [iš-me₂]-šu!?-ma!? qu-[r]a-du [x x x]
+#note: Collation of the line in Lambert’s folio 18398: “Uncertain.” @bib{RN31@76} reads @akk{[iz]-zi!?*#-iz}.
+TarNA1 iii 15'. iš#-me#-šu-m[a x x x] {d#}er₃-ra
+HuzNA1 iii 43. [iš-m]e₂-šu-ma [x x x x x x x x]
+
+#tr.en: He prepared to speak, addressing prince Marduk:
+164. %n [īp]uš-ma | pâ[šu] | izakkar | ana rubê | marūtuk
+NinNA1c iii 8'. [x x x x x x x x x x x x] {d#}AMAR.[UTU]
+AššNA2 iii 46'. [x x x x x x x] i#-zak#-kar# ana# NUN-e {d}AMAR.U[TU]
+$ end of column
+TarNA1 iii 16'. [DU₃-m]a K[A-šu x x x x N]UN {d}AMAR.UTU
+HuzNA1 iii 44. [i-p]u-uš-ma pa-a#-[šu x x x x x x x x]
+
+#tr.en: “[…] … from the Apsû […] … to the heights. 
+165. %n [ ... ] ... | [u]ltu? apsî | [ ... ] ... | ana elâti
+#note: Erra probably promises in this line to bring back up the sages who have gone down to the Apsû. As already assumed by @bib{RN31@198}, ll. 165-167 contain Erra’s response to the problem adduced by Marduk in ll. 147-162: “Mentre il v. 165 è praticamente inesistente, gli altri 2 versi, attraverso i pur scarsi resti (presenza della pietra @i{elmēšu} e del verbo (@i{w})@i{aradu}) permettono almeno di intuire il contenuto delle parole di Erra. Si tratta della soluzione della seconda difficoltà, sollevata da Marduk in I, 147-ss. Questa interpretazione è sostenuta dall'osservazione sullo svolgimento dell'azione dell'epopea: dopo queste parole di Erra, Marduk non tornerà più sulla sua seconda difficoltà; ritornerà invece a insistere sulla prima (sollevata in I, 128-ss.) nei vv. 170-178 fino a che Erra darà anche a questa una risposta soddisfacente (vv. 182-189).”
+NinNA1c iii 9'-10'. [x x x x x x x x x (x x) a]p?-s[i?-i] | [(x x x x x) x x x x x x x x]
+$ rest of side broken
+TarNA1 iii 17'-18'. [x x x] x [x x (x)] x [u]l?-tu₂? ABZU# | ($___$) [(x x x x x)] x x-ša₂# ana e-la-a-ti
+HuzNA1 iii 45. [(x)] x x x-ma [x x x x x x x x x x (x x x)]
+
+#tr.en: “[The @i{mēsu}-tree, @i{which} …], I will cause its equal to ascend [...] the @i{mēsu}-tree,
+166. %n [mēsu ... | m]eheršu | ušellâm-ma | [ ... ] | mēsa
+AššNA2 iv 0-1'. [...] | ($___$) u₂-š[e?-lam-ma x x (x x)]
+#note: The reading @akk{š[e} looks possible on the photo PhAss 5308. The verb is, however, read as @akk{u₂-š[er₃-red]} by @bib{RN706@401b}.
+TarNA1 iii 19'-20'. [x x x x x x (x x) m]e-her!#(SAR)-šu₂ u₂-še-lam-ma | ($___$) [(x x x)] {giš}MES
+HuzNA1 iii 46. [x x x x x (x) me-hi?-r]i-šu₂ E₁₁# [x x x x (x x x)]
+
+#tr.en: “The pure amber, @i{which} […], I will cause its equal to ascend … […] … the amber.”
+167. %n [e]lmēša | ebba | š[a? ... ] ... | meheršu | ušellâm-ma | [ ... ] ... | elmēšu
+AššNA2 iv 2'-3'. [e]l*-me-šu eb-ba š[a₂? x x x x x x (x x x)] | ($___$) u₂-[še-lam-ma x x x (x x)]
+#note: Collation of the line in Lambert’s folio 18398.
+TarNA1 iii 21'-22'. [x x x x (x x)] x-mu?#-ru# me#-her#-šu₂ u₂-še-lam-ma | ($___$) [(x x x)] x-ka# el-me-šu
+#note: At the beginning of the second line, read perhaps @akk{[šu-kut-t]a?-ka}.
+HuzNA1 iii 47. [x x x x (x x x) me-h]i?-ri-šu₂ E₁₁# [x x (x x x)] (x) x [(x)]
+
+#tr.en: Marduk, hearing this,
+168. %n [mar]ūtuk | annīta | ina šemêšu
+AššNA2 iv 4'. [{d}AMA]R.UTU an-ni-t[u₂* x x x x x]
+#note: Collation of the line in Lambert’s folio 18398.
+TarNA1 iii 23'. [x x x] an-ni-ta ina še-me-šu
+HuzNA1 iii 48. [x x x x x x] i-[na še-me₂-(e)]-šu
+
+#tr.en: Addressing warrior Erra, said to him:
+169. %n [īp]uš-ma | pâšu | izakkar | ana qurādi | erra
+AššNA2 iv 5'. [i-pu]-uš#-ma pa-a-šu i-zak#-k[ar* x x x x x x x]
+TarNA1 iii 24'. [x x x x] pa#-a-šu₂ MU-ra ana qu-ra-du# {d}er₃-ra
+HuzNA1 iii 49. [x x x x x x x i-zak-ka]r a#-n[a x x x] {d#}er₃-ra
+
+#tr.en: “If I should rise up [from] my residence, the seams of heaven and earth would be torn asunder;
+170. %n [ina š]ubtīya | atebbī-ma || šipīt šamê (|) erṣeti | uptaṭṭar
+// cf. L I.5 SB "I" 133
+// cf. L I.5 SB "II" 1
+AššNA2 iv 6'. [ina š]ub-te-ia a-te-eb-bu-ma* ši-[pit x x (x x) x x x x]
+#note: Collation of the line in Lambert’s folio 18398. On the spelling @akk{a-te-eb-bu-ma*}, compare @bib{RN1593@67 n. 22}: “I take @i{atebbûmma} (@akk{a-te-eb-bu-ma}) as present conditional with ventive in -@i{u}(@i{m}).”
+TarNA1 iii 25'. [x šu]b-ti#-ia a-teb-bi-ma ši-pit AN-e# KI!?# up-ta-ṭar
+HuzNA1 iii 50. [x šub-ti-i]a? a?#-t[eb?-bi-ma x x x x x x x u]p-ta-aṭ-ṭar
+
+#tr.en: “The waters would rise and sweep away the land;
+171. %n [m]û | illûnim-ma || ibaʾʾū | māta
+AššNA2 iv 7'. [A-M]EŠ il-lu-nim-ma i?#-b[a?-ʾu x x x]
+#note: Collation of the line in Lambert’s folio 18398.
+TarNA1 iii 26'. [A]-MEŠ# e#-lu-nim-ma i-ba-ʾu# ma-a-t[u₂]
+HuzNA1 iii 51. [x x x x x x i-ba]-ʾu-[(u₂) m]a-a-tu#
+
+#tr.en: “They would turn a bright day into darkness;
+172. %n ūma | namra || ana daʾummati | uta[rrū]
+// cf. L I.5 SB "II" 6
+AššNA2 iv 8'. [u₄-m]u nam-ru a-na da-u[m-ma-ti x x x]
+TarNA1 iii 27'. u₄#-mu nam#-ru# a#-na# da#-um#-ma#-ti u₂-ta#-ru?#
+HuzNA1 iii 52. [x x x x x da-um-m]a-ti u₂!?#-[ta]r!?-[ru]
+
+#tr.en: “A storm would arise and [@i{cover}] the stars of the sky;
+173. %n [meh]û | itebbâ-ma | kakkabī (|) šamām[ī | ( ... ) ukattam?]
+#note: The restoration at the beginning is Kraus’s (@i{apud} @bib{RN151@3b}), the end is restored as @i{ikattam} by @bib{RN31@199}, referring to II 131#: @i{ša sîn ina šāt mūši ukattam pānu}[@i{ššu}], “I shall darken the face of the moon during the night.”
+AššNA2 iv 9'. [me-h]u-u₂ i-te#-eb-ba-a[m!?-ma x x x x x x x (x x)]
+TarNA1 iii 28'. [me-h]a-a i#-te#-eb#-ba#-am#-ma?# MUL#-MEŠ AN-m[i x x x (x)]
+#note: The writing @akk{AN-m[i]} for @i{šamāmī} is highly unusual, but not unique: it is also attested in the Middle Assyrian tablet @i{KAR} 128 r 32 (@bib{RN19@181}): @akk{{d}U.DAR-MEŠ-at AN-mi}, “goddesses of heaven.”
+HuzNA1 iii 53. [x x x i-te-b]a-ma# MUL-MEŠ ša₂-m[a-mi x x x (x x)]
+
+#tr.en: “An evil [wind] would arise and [@i{obscure}] the sight of the people, all living beings,
+174. %n [šāru] | lemnu | iziqqam-ma | ša nišī | šiknāt (|) napišt[i] | niṭi[lšin | uṭṭa?]
+#note: The restoration adopted here was first proposed by @bib{temp_id_07390035038145881@208}, and followed also by @bib{RN31@199}.
+// cf. L I.5 SB "I" 187
+AššNA2 iv 10'-11'. [x] lem-nu i-ziq-qam-m[a x x x x x x x] | ($___$) ni-ṭi[l-šin x x (x x x x)]
+TarNA1 iii 29'. [x x x x x x x] ša₂# [UN]-ME# šik-nat# ZI-t[i₃ x x x x x]
+HuzNA1 iii 54. [x x x i-z]i-qam-ma ša₂ UN-MEŠ šik-na-at Z[I-ti₃ x x x x x]
+
+#tr.en: “The @i{gallû}-demons would ascend and seize [@i{mankind}];
+175. %n [ga]llû | illûnim-ma | iṣabbat(ū) | [ ... ]
+// cf. L I.5 SB "I" 185
+AššNA2 iv 12'. [ga]l-le-e el-lu-nim-ma# [x x x x x x (x x x)]
+TarNA1 iii 30'. [x x x x x x x i]-ṣa#-b[a-tu x x x x x]
+HuzNA1 iii 55. [x x x] il-lu-nim-ma i-ṣab#-bat [x x x (x x x)]
+#note: @bib{RN31@199} assumes that “Il sing. @akk{i-ṣab-bat} (…) fa supporre un cambiamento di soggetto.” It is, however, easier to interpret it as the use of a CVC sign for representing CVCV, an use attested in Sultantepe @bib{RN211@473}.
+
+#tr.en: “The unarmed man who confronts them […]
+176. %n [ša] qablī (|) paṭrāti | māhiršun[u | ... ]
+#note: On the expression @i{qabla paṭāru}, “to undress,” see @bib{RN117@873 ad 181}.
+// cf. F K.1109 o 29
+AššNA2 iv 13'. [x] qab-li paṭ-ra-a-ti ma-hir-šu₂#-[nu x x x (x x x)]
+TarNA1 iii 31'. [x x x x x x (x x)] x (x) [x x x x x (x x)]
+$ several lines broken
+HuzNA1 iii 56. [x qab]-li paṭ-ra-a-ti ma-hir!#-šu₂-n[u x x x (x x x)]
+
+#tr.en: “The Anunnaki would ascend to the earth and ravage the living beings.
+177. %n anunnakū | illûnim-ma || šiknāt (|) napišti | imessū
+// cf. L I.5 SB "I" 184
+AššNA2 iv 14'. {d#}a-nun-na-ki i-lu-nim-ma šik-nat ZI-ti₃ i-mes-su
+HuzNA1 iii 57. [{d}a-nun-n]a-ki il-lu-nim-ma šik-[na-at x x x x x]
+
+#tr.en: “[Until] I gird myself with my weapons, who will send them back?”
+178. %n [adi] kakkīya | lā annadqu || utâršunūti | mannu
+AššNA2 iv 15'. [x (x) {gi]š}TUKUL-MEŠ-ia la an-na-ad-qu u₂-tar!?#-šu₂-nu-ti man-nu
+HuzNA1 iii 58. [(x x) {giš}TUKUL]-MEŠ-ia la an-na-ad-qu [x x x x x x x]
+
+#tr.en: Erra, hearing this,
+179. %n erra | annīta | ina šemêšu
+AššNA2 iv 16'. [{d}]er₃-ra an-ni-ta ina še-me-šu₂
+HuzNA1 iii 59. [{d}e]r₃-ra an-ni-tu₂ [x x x x (x)]
+
+#tr.en: He prepared to speak, addressing prince Marduk:
+180. %n īpuš-ma | pâšu | izakkar | ana rubê | marūtuk
+AššNA2 iv 17'. i#-pu-uš-ma pa-a-šu i-zak!-kar a-na NUN-e {d}AMAR.UTU
+HuzNA1 iii 60. [i-pu-u]š-ma pa-a-še i-za[k-kar x x x x x]
+$ end of column
+
+#tr.en: “Prince Marduk, until you enter that house and the fire god purifies your garment and so return to your temple,
+181. %n rubû | marūtuk | adi attā | ana bīti | šâšu | terrubū-ma | gīru | ṣubātka | ubbabū-ma | tatūra | ašrukka
+#note: “That house” refers to the place in which Marduk’s statue will be refurbished, i.e. the @i{bīt mummi} or workshop.
+// cf. L I.5 SB "I" 141
+NinNA1b iv 1'-2'. [x] {d#}AMAR#.U[TU x x x x x x x x x x x x] | ($___$) {d#}gira₂ ṣu-b[at-ka x x x x x x x x x x]
+AššNA2 iv 18'-19'. [NU]N {d}AMAR.UTU a-di at-ta ana E₂ ša₂-a-šu₂ ter-ru-bu-ma {d}gira₂ | ($___$) ṣu-bat-ka ub-ba-bu-ma ta-tu-ra aš₂-ruk-ka
+HuzNA1 iv 1-2. NUN {d}AMAR.UTU a-di# [a]t-ta a-na E₂ [x x x te-ru-bu-m]a {d}gira₂ TUG₂-ka | ($___$) tu-u[b-b]a-bu ta-tur-r[u a]š₂-ruk-ka
+
+#tr.en: “Till that time I will assume command and strengthen the seams of heaven and earth.
+182. %n adi (|) ulla | araddī-ma || šipīt (|) šamê (|) erṣeti | udannan
+NinNA1b iv 3'. [a-d]i ul#-la# a#-r[ad-di-ma x x x x x x x x x x]
+$ rest of column broken
+AššNA2 iv 20'-21'. [a-d]i ul-la a-rad-di-ma ši-pit AN-e KI-ti₃ | ($___$) u₂-dan-na-an
+HuzNA1 iv 3. a-di ul-lu a-rad-di-ma ši-pit A[N-e x x] u₂#-dan-na-an
+
+#tr.en: “I will ascend to the sky to give orders to the Igigi,
+183. %n ana šamê | ellī-ma | ana igīgī | anaddin | ûrta
+AššNA2 iv 22'. [a-n]a AN-e el-li-ma a-na {d}i₂-gi₃-gi₃ a-nam-din ur-tu
+HuzNA1 iv 4. a-na AN-e il-li-ma a-na {d}i₂-[gi₃-gi₃ x x x] ur-ta
+
+#tr.en: “I will go down to the Apsû to inspect the Anunnaki.
+184. %n urrad | ana apsî || anunnakī | upaqqad
+// cf. L I.5 SB "I" 177
+AššNA2 iv 23'. [ur-r]ad a-na ABZU {d}a-nun-na-ki u₂-pa-qa-ad
+HuzNA1 iv 5. ur-ra-du a-na ABZU {d}a-nun-na-k[i] u₂#-paq-qad
+
+#tr.en: “The fierce @i{gallû}-demons I will drive off to the Netherworld,
+185. %n gallê | šamrūti || ana kurnugî | aṭarrad-(ma)
+// cf. L I.5 SB "I" 175
+AššNA2 iv 24'. [ga]l!?-le-e šam-ru-te a-na kur-nu-gi₄-a a-ṭar-rad
+HuzNA1 iv 6. gal-le-e šam-ru-ti a-na kur-nu-g[i₄-a] a-ṭar#-rad-ma
+
+#tr.en: “I will oppose them my wrathful weapons.
+186. %n kakkīya | ezzūti || elīšunu | ušzaz(za)
+AššNA2 iv 25'. {giš#}TUKUL-MEŠ-ia ez-zu-ti UGU-šu₂-nu u₂-ša₂-za-za
+HuzNA1 iv 7. {giš}TUKUL-ia ez-zu-tu UGU-šu₂-nu uš#-za-za
+
+#tr.en: “Of the evil wind – like a bird, I will bind its wings.
+187. %n ša šāri (|) lemni | kīma iṣṣūri || akassâ | idīšu
+// cf. L I.5 SB "I" 174
+AššNA2 iv 26'. ša₂ IM! lem-ni GIM MUŠEN a-kas₃-sa-a i-da-a-šu₂
+HuzNA1 iv 8. ša IM lem-nu ki-ma MUŠEN a-kas₂-sa-[(a)] i#-di-šu
+
+#tr.en: “When you enter that house, O prince Marduk,
+188. %n ana bīti (|) šâšu | ašar (|) terrubu | rubû | marūtuk
+AššNA2 iv 27'. a-na E₂ ša₂-a-šu₂ a-šar!(ŠIR₃) t[e]r-ru-bu NUN {d}AMAR.UTU
+HuzNA1 iv 9. a-na E₂ ša₂-a-šu₂ a-šar!(ŠIR₃) te-ru-bu# [x] {d#}AMAR.UTU
+
+#tr.en: “On the right and on the left of your door I will station Anu and Enlil like bulls.”
+189. %n imna (|) u šumēla | ša bābīka | ānu (|) (u) ellil | ušarbaṣa | kīma alpi
+#note: Compare @bib{RN164@809 fn. 1}: “The imagery seems to be of the great winged bulls, such as stood at the entrances to certain Assyrian palaces.” In contrast, @bib{NABU2024-24} suggests that the line might contain a veiled reference to lamentations about laying bulls. Although impossible, this reading perhaps stretches the limits of what can be reasonably inferred from the line.
+AššNA2 iv 28'-29'. im!-na u šu-me-la ša₂ KA₂-ka {d}a-num u {d}en-lil₂ | ($___$) u₂-šar!(ŠIR₃)-ba-ṣa GIM GU₄
+HuzNA1 iv 10. ZAG u 150 ša₂ KA₂-ka {d}a-num {d#}en-lil₂ u₂-š[ar!(ŠIR₃)-ba-ṣ]u GIM GU₄
+
+#tr.en: Prince Marduk heard it:
+190. %n išmē(šū)-ma | rubû | marūtuk
+AššNA2 iv 30'a. iš-me-e-ma NUN {d}AMAR.UTU
+$ line continues
+HuzNA1 iv 11. iš-me₂-šu-ma NUN [{d}AM]AR.UTU
+
+#tr.en: The words spoken by Erra pleased him.
+191. %n amāt (|) erra | iqbû(šu) || elīšu | iṭīb
+AššNA2 iv 30'b. a-mat {d}er₃-ra iq-bu-šu₂ UGU-šu₂ i-ṭib
+$ single ruling
+HuzNA1 iv 12. a#-mat# {d}er₃-ra iq-bu-u₂# UGU-šu₂ i#-ṭib
+$ double ruling

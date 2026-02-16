@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-A computational toolkit for reconstructing Old Babylonian accentuation. Processes phonological texts, applies a novel accentuation repair algorithm, computes acoustic metrics (VarcoC, ΔC, %V), and generates publication-ready output in multiple formats.
+A computational toolkit for reconstructing Babylonian accentuation. Processes phonological texts, applies a novel accentuation repair algorithm, computes acoustic metrics (VarcoC, ΔC, %V), and generates publication-ready output in multiple formats.
 
 Developed for Assyriologists, historical linguists, and digital humanities researchers working with Akkadian literary texts.
 
