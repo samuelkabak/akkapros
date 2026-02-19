@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Syllabifier
-Version: 1.0.0
+Version: 2.5.0
 
 Converts Akkadian text to syllabified format with:
 - Pipes | at word ENDINGS (no spaces after pipes)
-- Dots . between syllables
-- Non-Akkadian text in [brackets] with ALL spaces preserved inside brackets
-- Spaces between words are automatically filtered out (not bracketed)
-- Mixed words like "d[o]ne" handled correctly
-- Fault-tolerant: accepts 'h' for ḫ (both are valid)
-- Output: {prefix}_syl.txt (like atf_parser)
-
-SPACE PRESERVATION RULE:
-  ALL spaces around punctuation are preserved INSIDE the brackets.
-  Standalone spaces between words are discarded (they're implicit in pipes).
-  This ensures perfect restoration of original text after repair.
+- Dots . between syllables (hyphens preserved by default)
+- Non-Akkadian text in [brackets] with ALL whitespace preserved inside
+- Spaces between Akkadian words are eliminated (replaced by pipe)
+- Newlines between words are preserved as line breaks
+- Hyphen vs dash distinction: attached hyphen = syllable separator, spaced dash = punctuation
+- Hyphen split across lines automatically merged with warning
+- Leading/trailing spaces trimmed
 """
 
 import sys
@@ -23,7 +19,7 @@ import re
 import unicodedata
 from pathlib import Path
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 # ------------------------------------------------------------
@@ -33,202 +29,258 @@ LONG = set('āēīūâêîû')
 SHORT = set('aeiu')
 V = LONG | SHORT
 
-# Core Akkadian consonants — 'd' is already here!
+# Core Akkadian consonants
 C = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 
 # Foreign characters that may appear (only 'h' for ḫ alternative)
 FOREIGN = set('')
 
-# Complete set for word detection
-def get_akloi(extra=''):
-    """Return the set of characters considered as Akkadian letters."""
-    result = V | C | {'-'} | FOREIGN
-    for c in extra:
-        result.add(c)
-    return result
 
-# Initialize with default
-AKLOI = get_akloi()
-
-
-def is_akkadian(c, extra=''):
-    """Return True if character is an Akkadian letter."""
+def is_akkadian_letter(c, extra=''):
+    """Return True if character is an Akkadian letter (vowel or consonant)."""
+    all_letters = V | C | FOREIGN
     if extra:
-        return c in (V | C | {'-'} | FOREIGN | set(extra))
-    return c in AKLOI
+        all_letters |= set(extra)
+    return c in all_letters
+
+
+def is_hyphen(c, before='', after=''):
+    """Return True if character is a hyphen attached to letters (not a dash)."""
+    if c != '-':
+        return False
+    
+    # If no context, just return True for hyphen character
+    if before == '' and after == '':
+        return True
+    
+    # Check if this is a dash (surrounded by spaces) or hyphen (attached to letters)
+    before_is_letter = before and is_akkadian_letter(before)
+    after_is_letter = after and is_akkadian_letter(after)
+    
+    # If it has a letter on either side, it's a hyphen (part of word)
+    return before_is_letter or after_is_letter
+
+
+def is_word_char(c, extra='', before='', after=''):
+    """Return True if character can be part of an Akkadian word."""
+    if is_akkadian_letter(c, extra):
+        return True
+    if c == '-':
+        return is_hyphen(c, before, after)
+    return False
 
 
 def is_vowel(c):
+    """Return True if character is a vowel."""
     return c in V
 
 
-def syllabify_word(word):
-    """Syllabify an Akkadian word using the validated algorithm."""
-    segs = [c for c in word if c in V or c in C or c in FOREIGN]
-    if not segs:
-        return word
+def text_preprocess_boundaries(text):
+    """
+    Preprocess text before syllabification:
+    1. Trim trailing whitespace from each line (preserve leading spaces)
+    2. Detect and merge hyphen-split words across lines
+    3. Preserve newlines for paragraph structure
+    4. Warn about tabs between Akkadian words
+    """
+    lines = text.split('\n')
+    processed_lines = []
+    warnings = []
+    tab_warning_issued = False
     
-    # If word has no vowels, return as is (for single consonants like 'd')
-    if not any(c in V for c in segs):
-        return word
+    i = 0
+    while i < len(lines):
+        line = lines[i].rstrip('\n')
+        original_line = line
+        
+        # Only trim trailing whitespace, preserve leading spaces
+        line = line.rstrip()
+        
+        # Check for hyphen at end of line
+        if original_line.rstrip().endswith('-') and i + 1 < len(lines):
+            next_line = lines[i + 1]
+            next_line_stripped = next_line.lstrip()
+            if next_line_stripped and is_word_char(next_line_stripped[0]):
+                base = original_line.rstrip().rstrip('-')
+                merged = base + '-' + next_line_stripped
+                warnings.append(f"Hyphen split across lines merged: '{original_line.rstrip()}' + '{next_line}' → '{merged}'")
+                processed_lines.append(merged)
+                
+                # Add the rest of the next line after the merged word
+                rest = next_line[len(next_line_stripped):]
+                if rest:
+                    processed_lines.append(rest)
+                else:
+                    processed_lines.append('')
+                
+                i += 2
+                continue
+        
+        processed_lines.append(line)
+        i += 1
     
-    syllables = []
-    i, n = 0, len(segs)
-    first = True
+    if '\t' in text and not tab_warning_issued:
+        warnings.append("Tabs detected: tabs between Akkadian words are treated as spaces and eliminated")
+        tab_warning_issued = True
     
-    while i < n:
-        if first and segs[i] in V:
-            first = False
-            syl = [segs[i]]
-            i += 1
-            if i < n and segs[i] in (C | FOREIGN) and (i+1 >= n or segs[i+1] in (C | FOREIGN)):
-                syl.append(segs[i])
+    if warnings:
+        print("\n⚠️  WARNINGS:", file=sys.stderr)
+        for w in warnings:
+            print(f"   {w}", file=sys.stderr)
+        print(file=sys.stderr)
+    
+    return '\n'.join(processed_lines)
+
+
+def syllabify_word(word, merge_hyphen=False):
+    """Syllabify an Akkadian word."""
+    if '-' not in word:
+        segs = [c for c in word if is_akkadian_letter(c)]
+        if not segs:
+            return word
+        
+        if not any(is_vowel(c) for c in segs):
+            return word
+        
+        syllables = []
+        i, n = 0, len(segs)
+        first = True
+        
+        while i < n:
+            if first and is_vowel(segs[i]):
+                first = False
+                syl = [segs[i]]
                 i += 1
-            syllables.append(''.join(syl))
-            continue
-        
-        first = False
-        onset = []
-        while i < n and segs[i] in (C | FOREIGN):
-            onset.append(segs[i])
-            i += 1
-        
-        if i < n and segs[i] in V:
-            syl = onset + [segs[i]]
-            i += 1
-            if i < n and segs[i] in (C | FOREIGN):
-                if i+1 >= n or segs[i+1] in (C | FOREIGN):
+                if i < n and not is_vowel(segs[i]) and (i+1 >= n or not is_vowel(segs[i+1])):
                     syl.append(segs[i])
                     i += 1
-            syllables.append(''.join(syl))
+                syllables.append(''.join(syl))
+                continue
+            
+            first = False
+            onset = []
+            while i < n and not is_vowel(segs[i]):
+                onset.append(segs[i])
+                i += 1
+            
+            if i < n and is_vowel(segs[i]):
+                syl = onset + [segs[i]]
+                i += 1
+                if i < n and not is_vowel(segs[i]):
+                    if i+1 >= n or not is_vowel(segs[i+1]):
+                        syl.append(segs[i])
+                        i += 1
+                syllables.append(''.join(syl))
+        
+        return '.'.join(syllables)
     
-    return '.'.join(syllables)
+    parts = word.split('-')
+    result_parts = []
+    for part in parts:
+        result_parts.append(syllabify_word(part, merge_hyphen))
+    
+    separator = '-' if not merge_hyphen else '.'
+    return separator.join(result_parts)
 
 
 def tokenize_line(line, extra=''):
-    """
-    Split line into tokens correctly.
-    
-    Rules:
-    - Multi-character punctuation (||, ...) detected first
-    - Akkadian letters → word tokens
-    - Non-Akkadian sequences become punctuation tokens
-    """
+    """Split line into word and punctuation tokens."""
     tokens = []
     i = 0
     n = len(line)
     
     while i < n:
-        # Check for double pipe
-        if i+1 < n and line[i] == '|' and line[i+1] == '|':
-            # Look ahead to see if there's a space after
-            if i+2 < n and line[i+2] == ' ':
-                tokens.append(('punct', '|| '))
-                i += 3
-            else:
-                tokens.append(('punct', '||'))
-                i += 2
-            continue
+        before = line[i-1] if i > 0 else ''
+        after = line[i+1] if i+1 < n else ''
         
-        # Check for ellipsis
-        if i+2 < n and line[i] == '.' and line[i+1] == '.' and line[i+2] == '.':
-            # Look ahead to see if there's a space after
-            if i+3 < n and line[i+3] == ' ':
-                tokens.append(('punct', '... '))
-                i += 4
-            else:
-                tokens.append(('punct', '...'))
-                i += 3
-            continue
-        
-        # Check for double colon
-        if i+1 < n and line[i] == ':' and line[i+1] == ':':
-            if i+2 < n and line[i+2] == ' ':
-                tokens.append(('punct', ':: '))
-                i += 3
-            else:
-                tokens.append(('punct', '::'))
-                i += 2
-            continue
-        
-        # Check for Akkadian word
-        if is_akkadian(line[i], extra):
+        if is_word_char(line[i], extra, before, after):
             start = i
-            while i < n and is_akkadian(line[i], extra):
+            while i < n:
+                before_inner = line[i-1] if i > start else ''
+                after_inner = line[i+1] if i+1 < n else ''
+                if not is_word_char(line[i], extra, before_inner, after_inner):
+                    break
                 i += 1
-            tokens.append(('word', line[start:i]))
-            continue
-        
-        # Check for single punctuation with space after
-        if line[i] in ',.;:?!' and i+1 < n and line[i+1] == ' ':
-            tokens.append(('punct', line[i] + ' '))
-            i += 2
-            continue
-        
-        # Any other non-Akkadian character (including spaces)
-        # Collect until next Akkadian letter
-        start = i
-        while i < n and not is_akkadian(line[i], extra):
-            i += 1
-        tokens.append(('punct', line[start:i]))
+            word = line[start:i]
+            tokens.append(('word', word))
+        else:
+            start = i
+            while i < n:
+                before_inner = line[i-1] if i > start else ''
+                after_inner = line[i+1] if i+1 < n else ''
+                if is_word_char(line[i], extra, before_inner, after_inner):
+                    break
+                i += 1
+            punct = line[start:i]
+            
+            if punct.isspace():
+                prev_is_word = tokens and tokens[-1][0] == 'word'
+                next_is_word = i < n and is_word_char(line[i], extra)
+                if prev_is_word and next_is_word:
+                    continue
+            
+            if punct:
+                tokens.append(('punct', punct))
     
     return tokens
 
 
-def syllabify_text(text, extra=''):
+def syllabify_text(text, extra='', merge_hyphen=False):
     """Process text and return syllabified version."""
+    text = text_preprocess_boundaries(text)
     lines = text.split('\n')
     result_lines = []
     
     for line in lines:
         line = line.rstrip('\n')
-        if not line.strip():
+        if not line:
             result_lines.append('')
             continue
         
         tokens = tokenize_line(line, extra)
+        current_line_parts = []
+        in_brackets = False
         
-        parts = []
-        for typ, text in tokens:
+        for typ, token_text in tokens:
             if typ == 'word':
-                parts.append(syllabify_word(text) + '|')
-            else:  # punct
-                # Skip standalone spaces between words
-                if text == ' ':
-                    continue
-                parts.append(f"[{text}]")
+                if in_brackets:
+                    current_line_parts.append(token_text + '|')
+                else:
+                    syllabified = syllabify_word(token_text, merge_hyphen)
+                    current_line_parts.append(syllabified + '|')
+            else:
+                if '[' in token_text:
+                    in_brackets = True
+                if ']' in token_text:
+                    in_brackets = False
+                current_line_parts.append(f"[{token_text}]")
         
-        result_lines.append(''.join(parts))
+        if current_line_parts:
+            result_lines.append(''.join(current_line_parts))
     
     return '\n'.join(result_lines)
 
 
-def process_file(input_file, output_file, extra_letters=''):
+def process_file(input_file, output_file, extra_letters='', merge_hyphen=False):
     """Main processing function."""
     print(f"Reading: {input_file}")
     print(f"Extra letters: '{extra_letters}'" if extra_letters else "Extra letters: none")
+    print(f"Hyphen mode: {'MERGE TO DOTS' if merge_hyphen else 'PRESERVE'}")
     
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    print(f"Processing...")
-    
-    result = syllabify_text(content, extra_letters)
-    
-    print(f"Written: {output_file}")
+    print("Processing...")
+    result = syllabify_text(content, extra_letters, merge_hyphen)
     
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(result)
+    print(f"Written: {output_file}")
 
 
 def run_tests():
-    """Run comprehensive unit tests with CORRECT expectations."""
-    print("\n" + "="*80)
-    print("AKKADIAN SYLLABIFIER — COMPREHENSIVE TESTS")
-    print("="*80)
-    
+    """Run unit tests."""
     tests = [
-        # ===== SYLLABLE TYPES =====
         ("CV", "ša", "ša|"),
         ("CVC", "šar", "šar|"),
         ("CVV", "bā", "bā|"),
@@ -237,8 +289,6 @@ def run_tests():
         ("#V", "a", "a|"),
         ("#VV", "ī", "ī|"),
         ("#VVC", "ān", "ān|"),
-        
-        # ===== WORD COMBINATIONS =====
         ("CV-CVC", "gimir", "gi.mir|"),
         ("CVC-CVV", "dadmē", "dad.mē|"),
         ("CVV-CVV", "bānû", "bā.nû|"),
@@ -263,140 +313,72 @@ def run_tests():
         ("VC-CVV-CV", "ezzūti", "ez.zū.ti|"),
         ("CVV-CVV-CV", "qātāšu", "qā.tā.šu|"),
         ("VC-CVV", "asmā", "as.mā|"),
-        
-        # ===== NUMBERS =====
-        ("Number standalone", "123", "[123]"),
+        ("Hyphenated word - preserve", "hendur-sanga", "hen.dur-san.ga|"),
+        ("Hyphenated word - merge", "hendur-sanga", "hen.dur.san.ga|", True),
+        ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a.mē.lu-ša-ī.šum|"),
+        ("Multiple hyphens - merge", "amēlu-ša-īšum", "a.mē.lu.ša.ī.šum|", True),
+        ("Hyphen at beginning", "-šar", "-šar|"),
+        ("Hyphen at end", "šar-", "šar-|"),
+        ("Dash with spaces", "hendur - sanga", "hen.dur|[ - ]san.ga|"),
+        ("Hyphen+space", "hendur- sanga", "hen.dur-|san.ga|"),
+        ("Space+hyphen", "hendur -sanga", "hen.dur|-san.ga|"),
+        ("Single space between words", "šar gimir", "šar|gi.mir|"),
+        ("Multiple spaces between words", "šar   gimir", "šar|gi.mir|"),
+        ("Tab between words", "šar\tgimir", "šar|gi.mir|"),
+        ("Newline between words", "šar\ngimir", "šar|\ngi.mir|"),
+        ("Double newline", "šar\n\ngimir", "šar|\n\ngi.mir|"),
         ("Number between words", "šar 123 gimir", "šar|[ 123 ]gi.mir|"),
-        ("Number with spaces", "šar  123  gimir", "šar|[  123  ]gi.mir|"),
         ("Number with commas", "šar 12,345 gimir", "šar|[ 12,345 ]gi.mir|"),
-        
-        # ===== SINGLE PUNCTUATION =====
-        ("Comma space after", "šar, gimir", "šar|[, ]gi.mir|"),
-        ("Period space after", "šar. gimir", "šar|[. ]gi.mir|"),
-        ("Colon space after", "šar: gimir", "šar|[: ]gi.mir|"),
-        ("Semicolon space after", "šar; gimir", "šar|[; ]gi.mir|"),
-        ("Question space after", "šar? gimir", "šar|[? ]gi.mir|"),
-        ("Exclamation space after", "šar! gimir", "šar|[! ]gi.mir|"),
-        
-        # ===== PUNCTUATION WITH SPACE BEFORE =====
-        ("Space before comma", "šar ,gimir", "šar|[ ,]gi.mir|"),
-        ("Space before period", "šar .gimir", "šar|[ .]gi.mir|"),
-        ("Space before question", "šar ?gimir", "šar|[ ?]gi.mir|"),
-        
-        # ===== PUNCTUATION WITH SPACES BOTH SIDES =====
-        ("Space both sides comma", "šar , gimir", "šar|[ , ]gi.mir|"),
-        ("Space both sides period", "šar . gimir", "šar|[ . ]gi.mir|"),
-        ("Space both sides colon", "šar : gimir", "šar|[ : ]gi.mir|"),
-        ("Space both sides semicolon", "šar ; gimir", "šar|[ ; ]gi.mir|"),
-        ("Space both sides question", "šar ? gimir", "šar|[ ? ]gi.mir|"),
-        ("Space both sides exclamation", "šar ! gimir", "šar|[ ! ]gi.mir|"),
-        
-        # ===== MULTIPLE PUNCTUATION =====
-        ("Double pipe space both sides", "šar || gimir", "šar|[ || ]gi.mir|"),
-        ("Double pipe space after only", "šar|| gimir", "šar|[|| ]gi.mir|"),
-        ("Double pipe space before only", "šar ||gimir", "šar|[ ||]gi.mir|"),
-        ("Double pipe no spaces", "šar||gimir", "šar|[||]gi.mir|"),
-        
-        # ===== ELLIPSIS =====
-        ("Ellipsis space both sides", "šar ... gimir", "šar|[ ... ]gi.mir|"),
-        ("Ellipsis space after only", "šar... gimir", "šar|[... ]gi.mir|"),
-        ("Ellipsis space before only", "šar ...gimir", "šar|[ ...]gi.mir|"),
-        ("Ellipsis no spaces", "šar...gimir", "šar|[...]gi.mir|"),
-        
-        # ===== MIXED PUNCTUATION =====
-        ("Ellipsis and double pipe", "šar ... || gimir", "šar|[ ... || ]gi.mir|"),
-        ("Comma and ellipsis", "šar, ... gimir", "šar|[, ][... ]gi.mir|"),
-        ("Multiple punctuation with spaces", "šar : ... || gimir", "šar|[ : ... || ]gi.mir|"),
-        
-        # ===== REAL EXAMPLES =====
-        ("Complex line with ellipsis and double pipe", 
-         "ikkaru ina muhhi ... || ibakki ṣarpiš",
-         "ik.ka.ru|i.na|muh.hi|[ ... || ]i.bak.ki|ṣar.piš|"),
-        
-        ("Line with numbers and punctuation",
-         "šar gimir 123, 456 ... done",
-         "šar|gi.mir|[ 123, 456 ... ]d|[o]ne|"),
+        ("Number with newline", "šar 123\n456 gimir", "šar|[ 123]\n[456 ]gi.mir|"),
+        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar|[ 123]\n[  456 ]gi.mir|"),
+        ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar|[ 123  \t-  456 ]gi.mir|"),
+        ("Comma after word", "šar, gimir", "šar|[, ]gi.mir|"),
+        ("Period after word", "šar. gimir", "šar|[. ]gi.mir|"),
+        ("Double pipe", "šar || gimir", "šar|[ || ]gi.mir|"),
+        ("Ellipsis", "šar ... gimir", "šar|[ ... ]gi.mir|"),
+        ("Chinese characters", "šar 国王 gimir", "šar|[ 国王 ]gi.mir|"),
+        ("Mixed with brackets", "šar gimir[test]done", "šar|gi.mir|[[]test|[]]d|[o]ne|"),
+        ("Complex line", "ikkaru ina muḫḫi ... || ibakki ṣarpiš", 
+         "ik.ka.ru|i.na|muḫ.ḫi|[ ... || ]i.bak.ki|ṣar.piš|"),
     ]
     
     passed = 0
     total = len(tests)
     
-    print(f"\nRunning {total} tests...\n")
-    
-    for name, inp, expected in tests:
-        # Process the input
-        result = syllabify_text(inp)
+    print("\nRunning tests...\n")
+    for test in tests:
+        if len(test) == 3:
+            name, inp, expected = test
+            merge = False
+        else:
+            name, inp, expected, merge = test
         
+        result = syllabify_text(inp, merge_hyphen=merge)
         if result == expected:
-            passed += 1
             print(f"✅ {name}")
+            passed += 1
         else:
             print(f"❌ {name}")
-            print(f"   Input:    '{inp}'")
-            print(f"   Expected: '{expected}'")
-            print(f"   Got:      '{result}'")
-            # Show tokens for debugging
-            tokens = tokenize_line(inp)
-            print(f"   Tokens: {[(t[0], repr(t[1])) for t in tokens]}")
+            print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
     
     print(f"\nPassed: {passed}/{total}")
     return passed == total
 
-def simple_safe_filename(text):
-    """
-    Minimal safe filename conversion
-    """
-    if not text:
-        return "unnamed"
-    
-    # Remove accents
-    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
-    
-    # Replace invalid chars and spaces with underscores
-    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
-    
-    # Keep only safe characters
-    text = re.sub(r'[^\w\-\.]', '_', text)
-    
-    # Clean up
-    text = re.sub(r'_+', '_', text)
-    text = text.strip('._-')
-    
-    return text or "unnamed"
-
 
 def main():
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 or '--help' in sys.argv:
         print(__doc__)
-        print("\nUsage: python syllabify.py <input> [-o <output>] [--outdir <dir>] [--extra-letters <chars>] [--test]")
-        sys.exit(0)
-    
-    if '--help' in sys.argv or '-h' in sys.argv:
-        print(__doc__)
-        print("\n" + "="*60)
-        print("OPTIONS:")
-        print("  -o <prefix>      Output prefix (creates <prefix>_syl.txt)")
-        print("  --outdir <dir>   Output directory (default: .)")
-        print("  --extra-letters <chars>  Add extra characters to the letter set")
-        print("  --test            Run unit tests")
-        print("="*60)
-        print("\nEXAMPLES:")
-        print("  python syllabify.py input.txt")
-        print("  python syllabify.py input.txt -o erra --outdir ./output")
-        print("  python syllabify.py input.txt --extra-letters \"abc\"")
-        print("  python syllabify.py --test")
-        print("="*60)
-        sys.exit(0)
+        return
     
     if '--test' in sys.argv:
         success = run_tests()
         sys.exit(0 if success else 1)
     
-    # Parse arguments
     input_file = None
     output_name = None
     outdir = '.'
     extra_letters = ''
+    merge_hyphen = False
     
     i = 1
     while i < len(sys.argv):
@@ -410,6 +392,9 @@ def main():
         elif arg == '--extra-letters' and i+1 < len(sys.argv):
             extra_letters = sys.argv[i+1]
             i += 2
+        elif arg == '--merge-hyphen':
+            merge_hyphen = True
+            i += 1
         elif arg.startswith('-'):
             print(f"Unknown option: {arg}")
             sys.exit(1)
@@ -430,20 +415,12 @@ def main():
         print(f"Error: File not found: {input_file}")
         sys.exit(1)
     
-    # Update foreign character set
-    global FOREIGN, AKLOI
-    FOREIGN = set('h')  # Default: 'h' for ḫ
-    for c in extra_letters:
-        FOREIGN.add(c)
-    AKLOI = get_akloi(extra_letters)
-    
     if output_name:
-        output_name = simple_safe_filename(output_name)
         output_file = Path(outdir) / f"{output_name}_syl.txt"
     else:
         output_file = Path(outdir) / (input_path.stem + '_syl.txt')
     
-    process_file(input_file, str(output_file), extra_letters)
+    process_file(input_file, str(output_file), extra_letters, merge_hyphen)
 
 
 if __name__ == "__main__":
