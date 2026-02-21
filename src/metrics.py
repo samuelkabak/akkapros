@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Metrics Calculator
-Version: 7.0.0
+Version: 2.0.0
 
 Computes comprehensive metrics from Akkadian text with proper handling of:
 - Vowel length: short (a), long (ā/â), extra-long (à/ì/ù/è)
 - Consonant gemination: marked with : (e.g., mas:ta)
-- Glottal stops: ʿ for initial vowels
+- Glottal stops: ʾ for initial vowels
 - Distance-based ΔC calculation
 - Word boundaries marked with $
-
-Uses re.search for tokenization to find words anywhere in the line.
+- Pause metrics for spaces and punctuation
 """
 
 import sys
@@ -24,7 +23,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import unicodedata
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 
 
 # ------------------------------------------------------------
@@ -52,7 +51,7 @@ ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 # Processing-specific sets
 PROCESSING_VOWELS = EXTRA_LONG
 
-GLOTTAL = 'ʿ'
+GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
 LENGTH_MARKER = ':'
 WORD_BOUNDARY = '$'
 
@@ -192,7 +191,7 @@ def process_word(word: str) -> str:
     Process a single word:
     1. Replace vowel + ~ with extra-long vowels (à, ì, ù, è)
     2. Replace remaining ~ with : (length marker)
-    3. Add ʿ if word starts with a vowel
+    3. Add ʾ if word starts with a vowel
     """
     # Step 1: Replace vowel + ~ with extra-long vowels
     replacements = [
@@ -207,7 +206,7 @@ def process_word(word: str) -> str:
     # Step 2: Replace remaining ~ with :
     word = word.replace('~', LENGTH_MARKER)
     
-    # Step 3: Add ʿ if word starts with a vowel
+    # Step 3: Add ʾ if word starts with a vowel
     # Get first character ignoring syllable boundaries
     first_char = word[0]
     if first_char in ALL_VOWELS:
@@ -705,14 +704,26 @@ def preprocess_text(text: str) -> str:
 def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) -> Dict:
     """
     Compute speech rate metrics.
+    
+    Args:
+        text: The text (not used directly, kept for API consistency)
+        stats: Statistics from analyze_text containing syllables_per_word
+        wpm: Words per minute (input parameter)
+        pause_ratio: Percentage of time spent in pauses (e.g., 35 for 35%)
+    
+    Returns:
+        Dictionary with speech rate metrics
     """
     spw = stats['word_stats']['syllables_per_word']['mean']
     
-    # Syllables per second (speech rate including pauses)
+    # Syllables per second (speech rate - INCLUDING pauses)
+    # This comes directly from WPM and SPW
     sps_speech = (wpm / 60) * spw
     
-    # Syllables per second (articulation rate excluding pauses)
-    sps_articulation = sps_speech / (1 + (pause_ratio / 100))
+    # Syllables per second (articulation rate - EXCLUDING pauses)
+    # If pause_ratio% of time is pauses, then articulation time = (100 - pause_ratio)% of total time
+    # So articulation rate = speech rate / (1 - pause_ratio/100)
+    sps_articulation = sps_speech / (1 - (pause_ratio / 100))
     
     # Durations
     syllable_duration = 1 / sps_articulation
@@ -731,9 +742,167 @@ def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) 
 
 
 # ------------------------------------------------------------
+# Pause metrics
+# ------------------------------------------------------------
+def count_spaces_and_punctuation(text: str) -> Dict:
+    """
+    Count pause events between words.
+    
+    A pause event is:
+    - SPACE: only spaces between two words (no punctuation)
+    - PUNCT: any punctuation with surrounding spaces (all captured as one unit)
+    """
+    word_pattern = build_word_pattern()
+    
+    spaces = 0
+    punctuation = 0
+    merged_boundaries = 0
+    
+    i = 0
+    n = len(text)
+    last_was_word = False
+    
+    while i < n:
+        # First, try to match a word
+        match = word_pattern.match(text[i:])
+        if match:
+            word = match.group()
+            word_underscores = word.count('_')
+            if word_underscores > 0:
+                merged_boundaries += word_underscores
+            i += len(word)
+            last_was_word = True
+            continue
+        
+        # Not a word - check for spaces/punctuation between words
+        if last_was_word:
+            # Remember start position
+            start = i
+            
+            # Skip all spaces and punctuation until next word or end
+            while i < n and not word_pattern.match(text[i:]):
+                i += 1
+            
+            # Determine if this gap contains any punctuation
+            gap = text[start:i]
+            has_punctuation = any(c not in ' \t' for c in gap)
+            
+            if has_punctuation:
+                punctuation += 1  # One punctuation pause (includes all spaces)
+            else:
+                spaces += 1  # Pure spaces pause
+            
+            last_was_word = False
+        else:
+            # Skip anything at start (shouldn't happen in valid text)
+            i += 1
+    
+    return {
+        'spaces': spaces,
+        'punctuation': punctuation,
+        'merged_boundaries': merged_boundaries
+    }
+
+
+def compute_pause_metrics(text: str, stats: Dict) -> Dict:
+    """
+    Compute space and punctuation ratios per syllable.
+    
+    Args:
+        text: Original text (before preprocessing)
+        stats: Statistics from analyze_text (contains syllable counts)
+    
+    Returns:
+        {
+            'spaces_per_syllable': float,
+            'punctuation_per_syllable': float,
+            'total_boundaries': int,
+            'pauseable_boundaries': int
+        }
+    """
+    counts = count_spaces_and_punctuation(text)
+    total_syllables = stats['total_syllables']
+    
+    if total_syllables == 0:
+        return {
+            'spaces_per_syllable': 0,
+            'punctuation_per_syllable': 0,
+            'total_boundaries': 0,
+            'pauseable_boundaries': 0,
+            'raw_counts': counts
+        }
+    
+    spaces_per_syllable = counts['spaces'] / total_syllables
+    punctuation_per_syllable = counts['punctuation'] / total_syllables
+    total_boundaries = counts['spaces'] + counts['punctuation'] + counts['merged_boundaries']
+    pauseable_boundaries = counts['spaces'] + counts['punctuation']  # Merged boundaries have no pause
+    
+    return {
+        'spaces_per_syllable': spaces_per_syllable,
+        'punctuation_per_syllable': punctuation_per_syllable,
+        'total_boundaries': total_boundaries,
+        'pauseable_boundaries': pauseable_boundaries,
+        'raw_counts': counts
+    }
+
+
+def compute_pause_durations(pause_metrics: Dict, speech_metrics: Dict, pause_ratio: float, punct_weight: float = 2.0) -> Dict:
+    """
+    Compute duration per space and per punctuation based on pause ratio.
+    
+    Args:
+        pause_metrics: Output from compute_pause_metrics
+        speech_metrics: Output from compute_speech_rate
+        pause_ratio: Total pause ratio percentage
+        punct_weight: How many times longer punctuation is than space
+    
+    Returns:
+        Dictionary with space and punctuation durations
+    """
+    # Get metrics
+    spaces_per_syllable = pause_metrics['spaces_per_syllable']
+    punct_per_syllable = pause_metrics['punctuation_per_syllable']
+    
+    # Speech metrics
+    syllable_duration = speech_metrics['syllable_duration']
+    sps_speech = speech_metrics['sps_speech']
+    
+    # Total time per syllable including pauses
+    total_time_per_syllable = 1 / sps_speech
+    
+    # Pause time per syllable
+    pause_time_per_syllable = total_time_per_syllable - syllable_duration
+    
+    # Distribute pause time using the weight
+    total_pause_units = spaces_per_syllable + punct_per_syllable * punct_weight
+    if total_pause_units == 0:
+        space_duration = 0
+        punct_duration = 0
+        space_contribution = 0
+        punct_contribution = 0
+    else:
+        space_duration = pause_time_per_syllable / total_pause_units
+        punct_duration = space_duration * punct_weight
+        space_contribution = spaces_per_syllable * space_duration
+        punct_contribution = punct_per_syllable * punct_duration
+    
+    return {
+        'space_duration': space_duration,
+        'punctuation_duration': punct_duration,
+        'total_pause_time': pause_time_per_syllable,
+        'pause_time_per_syllable': pause_time_per_syllable,
+        'space_contribution': space_contribution,
+        'punct_contribution': punct_contribution,
+        'space_percent': (space_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
+        'punct_percent': (punct_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
+        'punct_weight': punct_weight
+    }
+
+
+# ------------------------------------------------------------
 # Main processing
 # ------------------------------------------------------------
-def process_file(filename: str, wpm: float, pause_ratio: float) -> Dict:
+def process_file(filename: str, wpm: float, pause_ratio: float, punct_weight: float = 2.0) -> Dict:
     """Process a single file and return all metrics."""
     with open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -766,6 +935,10 @@ def process_file(filename: str, wpm: float, pause_ratio: float) -> Dict:
     # Compute speech rate for repaired text
     speech_repaired = compute_speech_rate(preprocessed_repaired, repaired_stats, wpm, pause_ratio)
     
+    # Compute pause metrics
+    pause_metrics = compute_pause_metrics(text, repaired_stats)
+    pause_durations = compute_pause_durations(pause_metrics, speech_repaired, pause_ratio, punct_weight)
+
     return {
         'file': filename,
         'original': {
@@ -775,7 +948,9 @@ def process_file(filename: str, wpm: float, pause_ratio: float) -> Dict:
         'repaired': {
             'stats': repaired_stats,
             'acoustic': acoustic_repaired,
-            'speech': speech_repaired
+            'speech': speech_repaired,
+            'pause_metrics': pause_metrics,
+            'pause_durations': pause_durations
         },
         'repair_stats': repair_stats
     }
@@ -864,6 +1039,21 @@ def format_table(result: Dict) -> str:
     lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f}s")
     lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f}s")
     
+    # Pause metrics
+    pm = rep['pause_metrics']
+    pd = rep['pause_durations']
+    
+    lines.append(f"\nPause metrics:")
+    lines.append(f"  Spaces per syllable: {pm['spaces_per_syllable']:.3f}")
+    lines.append(f"  Punctuation per syllable: {pm['punctuation_per_syllable']:.3f}")
+    lines.append(f"  Total boundaries: {pm['total_boundaries']}")
+    lines.append(f"  Pauseable boundaries: {pm['pauseable_boundaries']}")
+    
+    lines.append(f"\nPause duration allocation (total pause: {pd['pause_time_per_syllable']:.4f}s per syllable):")
+    lines.append(f"  Punctuation weight: {pd['punct_weight']:.1f}× space")
+    lines.append(f"  Space duration: {pd['space_duration']:.4f}s per space ({pd['space_percent']:.1f}% of pause)")
+    lines.append(f"  Punctuation duration: {pd['punctuation_duration']:.4f}s per punctuation ({pd['punct_percent']:.1f}% of pause)")
+
     # --- REPAIR STATISTICS ---
     lines.append("\n--- REPAIR STATISTICS ---")
     rs = result['repair_stats']
@@ -978,6 +1168,27 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
         add_row("word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
         
+        # Pause metrics
+        add_row("--- PAUSE METRICS ---", [""] * len(results))
+        
+        for r in results:
+            pm = r['repaired']['pause_metrics']
+            pd = r['repaired']['pause_durations']
+            
+            values = [f"{pm['spaces_per_syllable']:.3f}" for r in results]
+            add_row("spaces_per_syllable", values)
+            values = [f"{pm['punctuation_per_syllable']:.3f}" for r in results]
+            add_row("punct_per_syllable", values)
+            values = [f"{pd['space_duration']:.4f}" for r in results]
+            add_row("space_duration", values)
+            values = [f"{pd['punctuation_duration']:.4f}" for r in results]
+            add_row("punct_duration", values)
+            values = [f"{pd['space_percent']:.1f}" for r in results]
+            add_row("space_percent", values)
+            values = [f"{pd['punct_percent']:.1f}" for r in results]
+            add_row("punct_percent", values)
+            break  # Only do once since we're looping over results
+        
         # --- REPAIR STATISTICS ---
         add_row("--- REPAIR STATISTICS ---", [""] * len(results))
         
@@ -1022,8 +1233,6 @@ def test_small_text():
     
     print(f"\nTest text: {test_text}")
     
-
-
     # Test original
     print("\n--- ORIGINAL (without ~) ---")
     original_stats = analyze_text(test_text.replace('~', ''), is_repaired=False)
@@ -1051,7 +1260,7 @@ def test_small_text():
     repaired_stats = analyze_text(test_text, is_repaired=True)
     
     print("Syllable counts:")
-    for typ in ['CV', 'CVC', 'CVV', 'CVC~', 'CVV~', 'VV:', 'VV:C' ,'CVV:', 'CVC:' ]:
+    for typ in ['CV', 'CVC', 'CVV', 'CVC:', 'CVV:', 'VV:', 'VV:C' ,'CVV:', 'CVC:' ]:
         count = repaired_stats['syllable_counts'].get(typ, 0)
         if count > 0:
             print(f"  [{typ}]: {count}")
@@ -1101,9 +1310,7 @@ def run_tests():
     tests_passed = 0
     tests_total = 0
     
-#    debug_mean_calculation('šar gi.mir_dad.mē bā.nû kib.rā.ti','orig')
-
-    test_small_text ()
+    test_small_text()
 
     # ===== TEST 1: Word Pattern Matching =====
     print("\n--- Test 1: Word Pattern Matching ---")
@@ -1222,10 +1429,10 @@ def run_tests():
         ('bī~t', 'bìt'),
         ('mâ~r', 'màr'),
         ('kû~n', 'kùn'),
-        ('at.tā', 'ʿat.tā'),
-        ('ā.lik', 'ʿā.lik'),
+        ('at.tā', 'ʾat.tā'),
+        ('ā.lik', 'ʾā.lik'),
         ('maḫ.rim~-ma', 'maḫ.rim:-ma'),
-        ('i.lū~', 'ʿi.lù'),
+        ('i.lū~', 'ʾi.lù'),
         ('~a', ':a'),
         ('k~a', 'k:a'),
         ('dad~', 'dad:'),
@@ -1249,37 +1456,37 @@ def run_tests():
         {
             'name': 'Simple line',
             'input': 'at.tā ā.lik',
-            'expected': 'ʿat.tā$ʿā.lik'
+            'expected': 'ʾat.tā$ʾā.lik'
         },
         {
             'name': 'Line with repairs',
             'input': 'maḫ.rim~-ma i.lū~',
-            'expected': 'maḫ.rim:-ma$ʿi.lù'
+            'expected': 'maḫ.rim:-ma$ʾi.lù'
         },
         {
             'name': 'Complex line with punctuation',
             'input': 'at.tā, ā.lik! maḫ.rim~-ma || i.lū~ ...',
-            'expected': 'ʿat.tā$ʿā.lik$maḫ.rim:-ma$ʿi.lù$'
+            'expected': 'ʾat.tā$ʾā.lik$maḫ.rim:-ma$ʾi.lù$'
         },
         {
             'name': 'Line with merged words',
             'input': 'ana_kâ.ša lu.ṣī-ma',
-            'expected': 'ʿana_kâ.ša$lu.ṣī-ma'
+            'expected': 'ʾana_kâ.ša$lu.ṣī-ma'
         },
         {
             'name': 'Line with multiple spaces',
             'input': 'at.tā   ā.lik',
-            'expected': 'ʿat.tā$ʿā.lik'
+            'expected': 'ʾat.tā$ʾā.lik'
         },
         {
             'name': 'Line with leading spaces',
             'input': '  at.tā ā.lik',
-            'expected': 'ʿat.tā$ʿā.lik'
+            'expected': 'ʾat.tā$ʾā.lik'
         },
         {
             'name': 'Line with trailing spaces',
             'input': 'at.tā ā.lik  ',
-            'expected': 'ʿat.tā$ʿā.lik'
+            'expected': 'ʾat.tā$ʾā.lik'
         },
     ]
     
@@ -1311,9 +1518,9 @@ def run_tests():
             'expected_vowels': ['a', ':', 'a']
         },
         {
-            'name': 'ʿana',
+            'name': 'ʾana',
             'input': 'a.na',
-            'expected_consonants': ['ʿ', 'n'],
+            'expected_consonants': ['ʾ', 'n'],
             'expected_vowels': ['a', 'a']
         },
         {
@@ -1364,7 +1571,7 @@ def run_tests():
             'expected_distances': [1, 1, 1]
         },
         {
-            'name': 'ʿana',
+            'name': 'ʾana',
             'input': 'a.na',
             'expected_distances': [1, 1]
         },
@@ -1397,6 +1604,35 @@ def run_tests():
         print("  ✅ All distance tests passed")
         tests_passed += 1
 
+    # ===== TEST 7: Pause Metrics =====
+    print("\n--- Test 7: Pause Metrics ---")
+    tests_total += 1
+    
+    test_text = "šar gi.mir_dad~.mē || bā.nû kib.rā~.ti ..."
+    stats = analyze_text(test_text, is_repaired=True)
+    pause_metrics = compute_pause_metrics(test_text, stats)
+
+    # Expected counts:
+    # - spaces: between šar and gi.mir_dad~.mē, between bā.nû and kib.rā~.ti = 2 spaces
+    # - punctuation: || and ... = 2 punctuation units
+    # - merged boundaries: _ in gi.mir_dad~.mē = 1
+
+    passed = True
+    if pause_metrics['raw_counts']['spaces'] != 2:
+        print(f"  ❌ Space count: got {pause_metrics['raw_counts']['spaces']}, expected 2")
+        passed = False
+    if pause_metrics['raw_counts']['punctuation'] != 2:
+        print(f"  ❌ Punctuation count: got {pause_metrics['raw_counts']['punctuation']}, expected 2")
+        passed = False
+    if pause_metrics['raw_counts']['merged_boundaries'] != 1:
+        print(f"  ❌ Merged boundaries: got {pause_metrics['raw_counts']['merged_boundaries']}, expected 1")
+        passed = False
+
+    if passed:
+        print("  ✅ All pause metrics tests passed")
+        tests_passed += 1
+    else:
+        print(f"  Raw counts: {pause_metrics['raw_counts']}")
 
     # Summary
     print(f"\n{'='*80}")
@@ -1404,6 +1640,29 @@ def run_tests():
     print(f"{'='*80}\n")
     
     return tests_passed == tests_total
+
+
+def simple_safe_filename(text):
+    """
+    Minimal safe filename conversion
+    """
+    if not text:
+        return "unnamed"
+    
+    # Remove accents
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
+    
+    # Replace invalid chars and spaces with underscores
+    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
+    
+    # Keep only safe characters
+    text = re.sub(r'[^\w\-\.]', '_', text)
+    
+    # Clean up
+    text = re.sub(r'_+', '_', text)
+    text = text.strip('._-')
+    
+    return text or "unnamed"
 
 
 def main():
@@ -1415,6 +1674,7 @@ EXAMPLES:
   python metrics.py erra_tilde.txt --table
   python metrics.py --test
   python metrics.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
+  python metrics.py erra_tilde.txt --punct-weight 2.5  # punctuation 2.5x longer than spaces
 
 Version {__version__}
 """
@@ -1431,6 +1691,8 @@ Version {__version__}
     parser.add_argument('--wpm', type=float, default=165, help='Words per minute (default: 165)')
     parser.add_argument('--pause-ratio', type=float, default=35, 
                        help='Pause ratio percentage (default: 35)')
+    parser.add_argument('--punct-weight', type=float, default=2.0,
+                       help='How many times longer punctuation pause is than space (default: 2.0)')
     parser.add_argument('--extra-consonants', default='', 
                        help='Extra characters to treat as consonants')
     parser.add_argument('--extra-vowels', default='', 
@@ -1438,7 +1700,7 @@ Version {__version__}
     parser.add_argument('--test', action='store_true', help='Run unit tests')
     
     args = parser.parse_args()
-    
+
     if args.test:
         success = run_tests()
         sys.exit(0 if success else 1)
@@ -1471,7 +1733,7 @@ Version {__version__}
     results = []
     for f in input_files:
         print(f"Processing: {f}")
-        result = process_file(f, args.wpm, args.pause_ratio)
+        result = process_file(f, args.wpm, args.pause_ratio, args.punct_weight)
         results.append(result)
     
     # Create output directory if needed
@@ -1479,8 +1741,16 @@ Version {__version__}
         Path(args.outdir).mkdir(parents=True, exist_ok=True)
     
     # Save outputs
-    base = Path(args.outdir) / (args.output if args.output else 'metrics')
-    
+    if args.output:
+        safe_output = simple_safe_filename(args.output)
+        base = Path(args.outdir) / safe_output
+    else:
+        # When no output prefix, use input filename as base
+        if len(input_files) == 1:
+            base = Path(args.outdir) / Path(input_files[0]).stem
+        else:
+            base = Path(args.outdir) / 'metrics'
+
     if args.json:
         json_file = base.with_suffix('.json')
         with open(json_file, 'w', encoding='utf-8') as f:
@@ -1489,26 +1759,31 @@ Version {__version__}
             else:
                 json.dump(results, f, indent=2, ensure_ascii=False)
         print(f"JSON saved to: {json_file}")
-    
+
     if args.csv:
         csv_file = base.with_suffix('.csv')
         format_csv(results, csv_file)
         print(f"CSV saved to: {csv_file}")
-    
+
     if args.table:
         if len(results) == 1:
             table = format_table(results[0])
             if args.output:
-                table_file = base.with_suffix('.txt')
-                with open(table_file, 'w', encoding='utf-8') as f:
-                    f.write(table)
-                print(f"Table saved to: {table_file}")
+                # Use the same base name with _metrics.txt
+                table_file = base.with_name(base.name + '_metrics.txt')
             else:
-                print(table)
+                # For single file without output prefix, use filename_metrics.txt
+                table_file = base.with_name(base.stem + '_metrics.txt')
+            
+            with open(table_file, 'w', encoding='utf-8') as f:
+                f.write(table)
+            print(f"Table saved to: {table_file}")
         else:
             for i, result in enumerate(results):
                 table = format_table(result)
-                table_file = Path(args.outdir) / f"{Path(result['file']).stem}_metrics.txt"
+                # Use input filename + _metrics.txt
+                safe_stem = simple_safe_filename(Path(result['file']).stem)
+                table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
                 with open(table_file, 'w', encoding='utf-8') as f:
                     f.write(table)
                 print(f"Table saved to: {table_file}")

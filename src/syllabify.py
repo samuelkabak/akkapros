@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Syllabifier
-Version: 2.5.0
+Version: 1.2.0
 
 Converts Akkadian text to syllabified format with:
 - Pipes | at word ENDINGS (no spaces after pipes)
@@ -12,6 +12,7 @@ Converts Akkadian text to syllabified format with:
 - Hyphen vs dash distinction: attached hyphen = syllable separator, spaced dash = punctuation
 - Hyphen split across lines automatically merged with warning
 - Leading/trailing spaces trimmed
+- Diphthong detection: inserts glottal stop between adjacent vowels
 """
 
 import sys
@@ -19,29 +20,49 @@ import re
 import unicodedata
 from pathlib import Path
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 # ------------------------------------------------------------
 # Phonetic inventory — Akkadian core
 # ------------------------------------------------------------
-LONG = set('āēīūâêîû')
+AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
+AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
+
+# Vowel length categories
 SHORT = set('aeiu')
-V = LONG | SHORT
+LONG = set('āēīūâêîû')
+EXTRA_LONG = set('àìùè')  # For repaired text processing
 
-# Core Akkadian consonants
-C = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
+# Foreign characters (from command line)
+FOREIGN_VOWELS = set()
+FOREIGN_CONSONANTS = set()
+EXTRA_VOWELS = set()
+EXTRA_CONSONANTS = set()
 
-# Foreign characters that may appear (only 'h' for ḫ alternative)
-FOREIGN = set('')
+# All vowels for processing (including extra-long)
+ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG
+ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
+ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
+
+GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
+
+if GLOTTAL not in ALL_CONSONANTS:
+    ALL_CONSONANTS.add(GLOTTAL)
+
+def is_vowel(c):
+    """Return True if character is a vowel."""
+    return c in ALL_VOWELS
 
 
-def is_akkadian_letter(c, extra=''):
-    """Return True if character is an Akkadian letter (vowel or consonant)."""
-    all_letters = V | C | FOREIGN
-    if extra:
-        all_letters |= set(extra)
-    return c in all_letters
+def is_consonant(c):
+    """Return True if character is a consonant."""
+    return c in ALL_CONSONANTS
+
+
+def is_akkadian_letter(c):
+    """Return True if character is an Akkadian letter."""
+    return c in ALL_AKKADIAN
 
 
 def is_hyphen(c, before='', after=''):
@@ -63,26 +84,74 @@ def is_hyphen(c, before='', after=''):
 
 def is_word_char(c, extra='', before='', after=''):
     """Return True if character can be part of an Akkadian word."""
-    if is_akkadian_letter(c, extra):
+    if is_akkadian_letter(c):
         return True
     if c == '-':
         return is_hyphen(c, before, after)
     return False
 
 
-def is_vowel(c):
-    """Return True if character is a vowel."""
-    return c in V
+def preprocess_diphthongs(text):
+    """
+    Detect and process diphthongs by inserting a glottal stop between adjacent vowels.
+    
+    A diphthong is defined as two vowels in sequence (VV) within a word.
+    For each occurrence, insert a glottal stop between them: V ʾ V
+    
+    Examples:
+        'ua' → 'uʾa'
+        'ai' → 'aʾi'
+        'āi' → 'āʾi'
+    
+    Returns:
+        Processed text with diphthongs separated by glottal stops
+        Also prints warnings for each detected diphthong
+    """
+    # Build a regex pattern that matches two vowels in sequence
+    vowels_pattern = f'([{re.escape("".join(ALL_VOWELS))}])([{re.escape("".join(ALL_VOWELS))}])'
+    
+    # Find all diphthongs
+    matches = list(re.finditer(vowels_pattern, text))
+    
+    if matches:
+        print("\n⚠️  DIPHTHONG WARNINGS:", file=sys.stderr)
+        for match in matches:
+            diphthong = match.group(0)
+            pos = match.start()
+            # Show context (10 chars before and after)
+            start = max(0, pos - 10)
+            end = min(len(text), pos + 10)
+            context = text[start:end]
+            print(f"   Diphthong '{diphthong}' at position {pos}: ...{context}...", file=sys.stderr)
+            print(f"     → Inserting glottal stop: {diphthong[0]}ʾ{diphthong[1]}", file=sys.stderr)
+        
+        # Replace all diphthongs with vowel + glottal + vowel
+        text = re.sub(vowels_pattern, r'\1' + GLOTTAL + r'\2', text)
+        print(f"   Total diphthongs processed: {len(matches)}", file=sys.stderr)
+        print(file=sys.stderr)
+    
+    return text
 
 
-def text_preprocess_boundaries(text):
+def text_preprocess_boundaries(text, extra_vowels='', extra_consonants=''):
     """
     Preprocess text before syllabification:
-    1. Trim trailing whitespace from each line (preserve leading spaces)
-    2. Detect and merge hyphen-split words across lines
-    3. Preserve newlines for paragraph structure
-    4. Warn about tabs between Akkadian words
+    1. Update character sets with extra vowels/consonants
+    2. Process diphthongs (insert glottal stops)
+    3. Trim trailing whitespace from each line (preserve leading spaces)
+    4. Detect and merge hyphen-split words across lines
+    5. Preserve newlines for paragraph structure
+    6. Warn about tabs between Akkadian words
     """
+    # Update global character sets
+    global ALL_VOWELS, ALL_CONSONANTS, ALL_AKKADIAN
+    ALL_VOWELS = AKKADIAN_VOWELS | set(extra_vowels) | EXTRA_LONG
+    ALL_CONSONANTS = AKKADIAN_CONSONANTS | set(extra_consonants)
+    ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
+    
+    # Process diphthongs
+    text = preprocess_diphthongs(text)
+    
     lines = text.split('\n')
     processed_lines = []
     warnings = []
@@ -225,9 +294,9 @@ def tokenize_line(line, extra=''):
     return tokens
 
 
-def syllabify_text(text, extra='', merge_hyphen=False):
+def syllabify_text(text, extra_vowels='', extra_consonants='', merge_hyphen=False):
     """Process text and return syllabified version."""
-    text = text_preprocess_boundaries(text)
+    text = text_preprocess_boundaries(text, extra_vowels, extra_consonants)
     lines = text.split('\n')
     result_lines = []
     
@@ -237,7 +306,7 @@ def syllabify_text(text, extra='', merge_hyphen=False):
             result_lines.append('')
             continue
         
-        tokens = tokenize_line(line, extra)
+        tokens = tokenize_line(line, '')  # extra parameter handled via globals
         current_line_parts = []
         in_brackets = False
         
@@ -261,17 +330,20 @@ def syllabify_text(text, extra='', merge_hyphen=False):
     return '\n'.join(result_lines)
 
 
-def process_file(input_file, output_file, extra_letters='', merge_hyphen=False):
+def process_file(input_file, output_file, extra_vowels='', extra_consonants='', merge_hyphen=False):
     """Main processing function."""
     print(f"Reading: {input_file}")
-    print(f"Extra letters: '{extra_letters}'" if extra_letters else "Extra letters: none")
+    if extra_vowels:
+        print(f"Extra vowels: '{extra_vowels}'")
+    if extra_consonants:
+        print(f"Extra consonants: '{extra_consonants}'")
     print(f"Hyphen mode: {'MERGE TO DOTS' if merge_hyphen else 'PRESERVE'}")
     
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     
     print("Processing...")
-    result = syllabify_text(content, extra_letters, merge_hyphen)
+    result = syllabify_text(content, extra_vowels, extra_consonants, merge_hyphen)
     
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(result)
@@ -280,7 +352,12 @@ def process_file(input_file, output_file, extra_letters='', merge_hyphen=False):
 
 def run_tests():
     """Run unit tests."""
+    print("\n" + "="*80)
+    print("AKKADIAN SYLLABIFIER — COMPREHENSIVE TESTS")
+    print("="*80)
+    
     tests = [
+        # ===== SYLLABLE TYPES =====
         ("CV", "ša", "ša|"),
         ("CVC", "šar", "šar|"),
         ("CVV", "bā", "bā|"),
@@ -289,6 +366,8 @@ def run_tests():
         ("#V", "a", "a|"),
         ("#VV", "ī", "ī|"),
         ("#VVC", "ān", "ān|"),
+        
+        # ===== WORD COMBINATIONS =====
         ("CV-CVC", "gimir", "gi.mir|"),
         ("CVC-CVV", "dadmē", "dad.mē|"),
         ("CVV-CVV", "bānû", "bā.nû|"),
@@ -313,39 +392,60 @@ def run_tests():
         ("VC-CVV-CV", "ezzūti", "ez.zū.ti|"),
         ("CVV-CVV-CV", "qātāšu", "qā.tā.šu|"),
         ("VC-CVV", "asmā", "as.mā|"),
-        ("Hyphenated word - preserve", "hendur-sanga", "hen.dur-san.ga|"),
-        ("Hyphenated word - merge", "hendur-sanga", "hen.dur.san.ga|", True),
+        
+        # ===== HYPHEN TESTS =====
+        ("Hyphenated word - preserve", "ḫendur-sanga", "ḫen.dur-san.ga|"),
+        ("Hyphenated word - merge", "ḫendur-sanga", "ḫen.dur.san.ga|", True),
         ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a.mē.lu-ša-ī.šum|"),
         ("Multiple hyphens - merge", "amēlu-ša-īšum", "a.mē.lu.ša.ī.šum|", True),
         ("Hyphen at beginning", "-šar", "-šar|"),
         ("Hyphen at end", "šar-", "šar-|"),
-        ("Dash with spaces", "hendur - sanga", "hen.dur|[ - ]san.ga|"),
-        ("Hyphen+space", "hendur- sanga", "hen.dur-|san.ga|"),
-        ("Space+hyphen", "hendur -sanga", "hen.dur|-san.ga|"),
+        
+        # ===== DASH VS HYPHEN =====
+        ("Dash with spaces", "ḫendur - sanga", "ḫen.dur|[ - ]san.ga|"),
+        ("Hyphen+space", "ḫendur- sanga", "ḫen.dur-|san.ga|"),
+        ("Space+hyphen", "ḫendur -sanga", "ḫen.dur|-san.ga|"),
+        
+        # ===== WHITESPACE BETWEEN WORDS =====
         ("Single space between words", "šar gimir", "šar|gi.mir|"),
         ("Multiple spaces between words", "šar   gimir", "šar|gi.mir|"),
         ("Tab between words", "šar\tgimir", "šar|gi.mir|"),
         ("Newline between words", "šar\ngimir", "šar|\ngi.mir|"),
         ("Double newline", "šar\n\ngimir", "šar|\n\ngi.mir|"),
+        
+        # ===== NUMBERS AND NON-AKKADIAN =====
         ("Number between words", "šar 123 gimir", "šar|[ 123 ]gi.mir|"),
         ("Number with commas", "šar 12,345 gimir", "šar|[ 12,345 ]gi.mir|"),
         ("Number with newline", "šar 123\n456 gimir", "šar|[ 123]\n[456 ]gi.mir|"),
         ("Number with spaces and newline", "šar 123\n  456 gimir", "šar|[ 123]\n[  456 ]gi.mir|"),
         ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar|[ 123  \t-  456 ]gi.mir|"),
+        
+        # ===== PUNCTUATION =====
         ("Comma after word", "šar, gimir", "šar|[, ]gi.mir|"),
         ("Period after word", "šar. gimir", "šar|[. ]gi.mir|"),
         ("Double pipe", "šar || gimir", "šar|[ || ]gi.mir|"),
         ("Ellipsis", "šar ... gimir", "šar|[ ... ]gi.mir|"),
+        
+        # ===== FOREIGN CHARACTERS =====
         ("Chinese characters", "šar 国王 gimir", "šar|[ 国王 ]gi.mir|"),
         ("Mixed with brackets", "šar gimir[test]done", "šar|gi.mir|[[]test|[]]d|[o]ne|"),
+        
+        # ===== REAL EXAMPLES =====
         ("Complex line", "ikkaru ina muḫḫi ... || ibakki ṣarpiš", 
          "ik.ka.ru|i.na|muḫ.ḫi|[ ... || ]i.bak.ki|ṣar.piš|"),
+        
+        # ===== DIPHTHONG TESTS =====
+        ("Diphthong ua", "ua", "u.ʾa|"),
+        ("Diphthong ai", "ai", "a.ʾi|"),
+        ("Diphthong iā", "iā", "i.ʾā|"),
+        ("Multiple diphthongs", "ua iā", "u.ʾa|i.ʾā|"),
+        ("Diphthong with consonant", "šar ua", "šar|u.ʾa|"),
     ]
     
     passed = 0
     total = len(tests)
     
-    print("\nRunning tests...\n")
+    print(f"\nRunning {total} tests...\n")
     for test in tests:
         if len(test) == 3:
             name, inp, expected = test
@@ -364,6 +464,27 @@ def run_tests():
     print(f"\nPassed: {passed}/{total}")
     return passed == total
 
+def simple_safe_filename(text):
+    """
+    Minimal safe filename conversion
+    """
+    if not text:
+        return "unnamed"
+    
+    # Remove accents
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
+    
+    # Replace invalid chars and spaces with underscores
+    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
+    
+    # Keep only safe characters
+    text = re.sub(r'[^\w\-\.]', '_', text)
+    
+    # Clean up
+    text = re.sub(r'_+', '_', text)
+    text = text.strip('._-')
+    
+    return text or "unnamed"
 
 def main():
     if len(sys.argv) == 1 or '--help' in sys.argv:
@@ -377,7 +498,8 @@ def main():
     input_file = None
     output_name = None
     outdir = '.'
-    extra_letters = ''
+    extra_vowels = ''
+    extra_consonants = ''
     merge_hyphen = False
     
     i = 1
@@ -389,8 +511,11 @@ def main():
         elif arg == '--outdir' and i+1 < len(sys.argv):
             outdir = sys.argv[i+1]
             i += 2
-        elif arg == '--extra-letters' and i+1 < len(sys.argv):
-            extra_letters = sys.argv[i+1]
+        elif arg == '--extra-vowels' and i+1 < len(sys.argv):
+            extra_vowels = sys.argv[i+1]
+            i += 2
+        elif arg == '--extra-consonants' and i+1 < len(sys.argv):
+            extra_consonants = sys.argv[i+1]
             i += 2
         elif arg == '--merge-hyphen':
             merge_hyphen = True
@@ -416,11 +541,12 @@ def main():
         sys.exit(1)
     
     if output_name:
-        output_file = Path(outdir) / f"{output_name}_syl.txt"
+        safe_output = simple_safe_filename(output_name)        
+        output_file = Path(outdir) / f"{safe_output}_syl.txt"
     else:
         output_file = Path(outdir) / (input_path.stem + '_syl.txt')
     
-    process_file(input_file, str(output_file), extra_letters, merge_hyphen)
+    process_file(input_file, str(output_file), extra_vowels, extra_consonants, merge_hyphen)
 
 
 if __name__ == "__main__":

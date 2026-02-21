@@ -8,6 +8,7 @@ __pycache__/
 data/output/
 test/output/
 sandbox/
+tools/
 htmlcov/
 venv/
 env/

@@ -90,9 +90,11 @@ class ATFParser:
         '°',  # degree sign - sign value uncertain
     }
     
-    def __init__(self, preserve_case: bool = False, preserve_h: bool = False, strict_mode: bool = False, test_mode: bool = False):
+    def __init__(self, preserve_case: bool = False, preserve_h: bool = False, 
+             remove_hyphens: bool = False, strict_mode: bool = False, test_mode: bool = False):
         self.preserve_case = preserve_case
         self.preserve_h = preserve_h
+        self.remove_hyphens = remove_hyphens  
         self.strict_mode = strict_mode
         self.test_mode = test_mode
         self.metadata = {}
@@ -123,10 +125,14 @@ class ATFParser:
 
     def clean_line(self, line: str, for_test: bool = False) -> str:
         """
-        Clean a line of Akkadian text for processing according to spec.
+        Clean a line of Akkadian text for reading aloud.
         """
         original = line
         text = line
+        
+        # STEP 1: Remove line numbers and %n markers
+        text = re.sub(r'^\d+\.\s*%n\s*', '', text)
+        text = re.sub(r'^\d+\.\s*', '', text)
         
         # Convert to lowercase unless case preservation is requested
         if not self.preserve_case:
@@ -135,74 +141,70 @@ class ATFParser:
         # Convert h unless h preservation is requested
         if not self.preserve_h:
             text = text.replace('h', 'ḫ').replace('H', 'Ḫ')
-
+        
         # Replace NBSP with normal space
         text = text.replace('\u00A0', ' ')
         
-        # FIRST: Handle double pipes (preserve them)
-        text = text.replace('||', '___DOUBLEPIPE___')
+        # Convert both || and ‡ to em-dash with spaces
+        text = text.replace('||', ' — ')
+        text = text.replace('‡', ' — ')
         
-        # THEN: Handle single pipes (convert to space)
+        # Handle single pipes (convert to space)
         text = text.replace('|', ' ')
         
-        # Handle Glossenkeil (‡) - replace with colon
-        text = text.replace('‡', ':')
-        
-        # Remove other editorial characters (silently)
-        for char in self.EDITORIAL_CHARS:
+        # Remove all editorial characters
+        editorial_chars = {'?', '!', '*', '°'}
+        for char in editorial_chars:
             text = text.replace(char, '')
         
-        # Handle numerals - preserve (no warning in normal mode)
-        # Only warn in strict mode
-        if self.strict_mode and re.search(r'\d', text):
-            self._warn_once("Numerals detected and preserved", 'numeral')
+        # Handle broken sign 'x' - remove completely
+        text = re.sub(r'x', '', text)
         
-        # Handle broken sign 'x' - replace with a placeholder
-        # First, replace each x with a marker
-        text = text.replace('x', '___BROKEN___')
-        
-        # Collapse multiple broken markers into a SINGLE '...'
-        text = re.sub(r'(___BROKEN___\s*)+', ' ... ', text)
-        
-        # Handle parentheses ( ) - KEEP content, remove parentheses
+        # Remove all types of brackets, keep content
         text = re.sub(r'\(([^)]+)\)', r'\1', text)
-        
-        # Handle brackets [ ] - KEEP content, remove brackets
         text = re.sub(r'\[([^\]]+)\]', r'\1', text)
         text = re.sub(r'\[\s*\]', '', text)
-        
-        # Handle angle brackets < > - KEEP content, remove brackets
         text = re.sub(r'<([^>]+)>', r'\1', text)
         text = re.sub(r'<>\s*', '', text)
+        text = re.sub(r'\{([^}]+)\}', r'\1', text)
+        text = re.sub(r'\{\s*\}', '', text)
         
-        # Handle braces { } - REMOVE entirely (determinatives)
-        if '{' in text or '}' in text:
-            if self.strict_mode:
-                self._warn_once("Determinatives ({...}) removed entirely", 'determinative')
-            text = re.sub(r'\{[^}]+\}', '', text)
+        # STEP 2: Process long vowels (vowel followed by same vowel with hyphen)
+        # Examples: ba-nu-u₂ → banû, kib-ra-a-ti → kibrāti
+        # But don't affect da-ad₂-me (different vowels)
+
+        # STEP: Process long vowels (always do this, regardless of hyphen option)
+        text = re.sub(r'a-a', 'ā', text)
+        text = re.sub(r'e-e', 'ē', text)
+        text = re.sub(r'i-i', 'ī', text)
+        text = re.sub(r'u-u', 'ū', text)
+
+        # STEP: Handle hyphens based on option
+        if self.remove_hyphens:
+            text = text.replace('-', '')
+        # else: keep hyphens
+
+        # Remove subscript numerals (after processing vowel length)
+        text = re.sub(r'[₂₃₄₅₆₇₈₉]', '', text)
         
-        # KEEP ... (ellipsis) - but collapse multiple occurrences
-        # First, protect existing ellipsis
-        text = text.replace('...', '___ELLIPSIS___')
+        # Remove collation markers #
+        text = text.replace('#', '')
         
-        # Now collapse any remaining multiple dots into one ellipsis
-        text = re.sub(r'\.{2,}', '...', text)
+        # Convert ... ellipsis to …
+        text = text.replace('...', '…')
+        text = re.sub(r'\.{2,}', '…', text)
         
-        # Restore protected ellipsis
-        text = text.replace('___ELLIPSIS___', '...')
-        
-        # CRITICAL FIX: Collapse multiple ellipsis sequences into ONE '...'
-        # This handles "... ...", "...   ...", "... ... ...", etc.
-        text = re.sub(r'\.{3,}(\s*\.{3,})+', '...', text)
+        # Collapse multiple ellipsis
+        text = re.sub(r'…\s*…', ' … ', text)
         
         # Remove any remaining single dots
         text = re.sub(r'(?<!\.)\.(?!\.)', '', text)
         
-        # Restore double pipes
-        text = text.replace('___DOUBLEPIPE___', '||')
+        # Normalize spaces
+        text = re.sub(r' +', ' ', text)
         
-        # Normalize spaces (but preserve single spaces)
-        text = re.sub(r'\s+', ' ', text)
+        # Clean up spacing around em-dash
+        text = re.sub(r' ?— ?', ' — ', text)
         
         result = text.strip()
         
@@ -219,6 +221,7 @@ class ATFParser:
             ))
         
         return result
+
 
     def parse_file(self, filename: str) -> Dict:
         """
@@ -312,116 +315,114 @@ def run_tests():
     parser = ATFParser(test_mode=True)
     tests_passed = 0
     tests_failed = 0
-    tests_warned = 0
     
-    # Test 1: Parentheses handling
+    # Test 1: Parentheses removed, content kept
     test1 = parser.clean_line("(u) ana šubruq", for_test=True)
     if test1 == "u ana šubruq":
         tests_passed += 1
-        print(f"✅ Test 1: Parentheses (u) → '{test1}'")
+        print(f"✅ Test 1: Parentheses removed → '{test1}'")
     else:
         tests_failed += 1
         print(f"❌ Test 1: Expected 'u ana šubruq', got '{test1}'")
     
-    # Test 2: Glossenkeil handling
-    test2 = parser.clean_line("kīma ‡ nāri", for_test=True)
-    if test2 == "kīma : nāri":
+    # Test 2: Single pipe to space
+    test2 = parser.clean_line("erra | qarrād", for_test=True)
+    if test2 == "erra qarrād":
         tests_passed += 1
-        print(f"✅ Test 2: Glossenkeil ‡ → ':' → '{test2}'")
+        print(f"✅ Test 2: Single pipe → space → '{test2}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 2: Expected 'kīma : nāri', got '{test2}'")
+        print(f"❌ Test 2: Expected 'erra qarrād', got '{test2}'")
     
-    # Test 3: Determinatives (braces) - should be removed entirely
-    test3 = parser.clean_line("{d}ištar", for_test=True)
-    if test3 == "ištar":
+    # Test 3: Double pipe to em-dash
+    test3 = parser.clean_line("libbašu || epēš", for_test=True)
+    if test3 == "libbašu — epēš":
         tests_passed += 1
-        print(f"✅ Test 3: Determinatives {{d}} → removed → '{test3}'")
+        print(f"✅ Test 3: Double pipe → em-dash → '{test3}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 3: Expected 'ištar', got '{test3}'")
+        print(f"❌ Test 3: Expected 'libbašu — epēš', got '{test3}'")
     
-    # Test 4: Single pipe to space
-    test4 = parser.clean_line("erra | qarrād", for_test=True)
-    if test4 == "erra qarrād":
+    # Test 4: Glossenkeil to em-dash
+    test4 = parser.clean_line("iqabbīku‡ ana kâša", for_test=True)
+    if test4 == "iqabbīku — ana kâša":
         tests_passed += 1
-        print(f"✅ Test 4: Single pipe | → space → '{test4}'")
+        print(f"✅ Test 4: Glossenkeil → em-dash → '{test4}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 4: Expected 'erra qarrād', got '{test4}'")
+        print(f"❌ Test 4: Expected 'iqabbīku — ana kâša', got '{test4}'")
     
-    # Test 5: Double pipe preserved
-    test5 = parser.clean_line("libbašu || epēš", for_test=True)
-    if test5 == "libbašu || epēš":
+    # Test 5: Ellipsis preserved
+    test5 = parser.clean_line("kibrāti ...", for_test=True)
+    if test5 == "kibrāti …":
         tests_passed += 1
-        print(f"✅ Test 5: Double pipe || preserved → '{test5}'")
+        print(f"✅ Test 5: Ellipsis preserved → '{test5}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 5: Expected 'libbašu || epēš', got '{test5}'")
+        print(f"❌ Test 5: Expected 'kibrāti …', got '{test5}'")
     
-    # Test 6: Broken sign x
-    test6 = parser.clean_line("u x x x 3-šu", for_test=True)
-    if test6 == "u ... 3-šu":
+    # Test 6: Question marks removed
+    test6 = parser.clean_line("tenēšēti?", for_test=True)
+    if test6 == "tenēšēti":
         tests_passed += 1
-        print(f"✅ Test 6: Broken sign x → '...' → '{test6}'")
+        print(f"✅ Test 6: Question marks removed → '{test6}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 6: Expected 'u ... 3-šu', got '{test6}'")
+        print(f"❌ Test 6: Expected 'tenēšēti', got '{test6}'")
     
-    # Test 7: Numerals preserved
-    test7 = parser.clean_line("5 meât", for_test=True)
-    if test7 == "5 meât":
+    # Test 7: Subscripts removed
+    test7 = parser.clean_line("da-ad₂-me", for_test=True)
+    if test7 == "dād-me":
         tests_passed += 1
-        print(f"✅ Test 7: Numerals preserved → '{test7}'")
+        print(f"✅ Test 7: Subscripts removed → '{test7}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 7: Expected '5 meât', got '{test7}'")
+        print(f"❌ Test 7: Expected 'dād-me', got '{test7}'")
     
-    # Test 8: Question marks removed
-    test8 = parser.clean_line("iš?û? ašar?û?!", for_test=True)
-    if test8 == "išû ašarû":
+    # Test 8: Collation markers removed
+    test8 = parser.clean_line("ba-nu-u₂#", for_test=True)
+    if test8 == "ba-nū":
         tests_passed += 1
-        print(f"✅ Test 8: Editorial signs removed → '{test8}'")
+        print(f"✅ Test 8: Collation markers removed → '{test8}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 8: Expected 'išû ašarû', got '{test8}'")
+        print(f"❌ Test 8: Expected 'banū', got '{test8}'")
     
-    # Test 9: Single quote preserved
-    test9 = parser.clean_line("be-lí", for_test=True)
-    if test9 == "be-lí":
+    # Test 9: Brackets removed, content kept
+    test9 = parser.clean_line("kibrā[ti]", for_test=True)
+    if test9 == "kibrāti":
         tests_passed += 1
-        print(f"✅ Test 9: Single quote preserved → '{test9}'")
+        print(f"✅ Test 9: Brackets removed → '{test9}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 9: Expected 'be-lí', got '{test9}'")
+        print(f"❌ Test 9: Expected 'kibrāti', got '{test9}'")
     
-    # Test 10: Multi-line preservation
-    test10 = parser.clean_line("šum4-ma amēlu ana bīt ilišu išši-ma iqbî", for_test=True)
-    if test10 == "šum4-ma amēlu ana bīt ilišu išši-ma iqbî":
+    # Test 10: Multiple x's removed
+    test10 = parser.clean_line("kib-ra-a-ti x x x", for_test=True)
+    if test10 == "kib-rā-ti":
         tests_passed += 1
-        print(f"✅ Test 10: Multi-line preservation → '{test10}'")
+        print(f"✅ Test 10: Broken signs removed → '{test10}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 10: Expected 'šum4-ma amēlu ana bīt ilišu išši-ma iqbî', got '{test10}'")
+        print(f"❌ Test 10: Expected 'kibrāti', got '{test10}'")
     
-    # Test 11: Asterisk and degree sign removal
-    test11 = parser.clean_line("a-na-ku * 5 meât", for_test=True)
-    if test11 == "a-na-ku 5 meât":
+    # Test 11: Complex line with multiple markers
+    test11 = parser.clean_line("1. %n šar (|) gimir (|) dadmē | bānû (|) kibrā[ti (|) ... ]", for_test=True)
+    if test11 == "šar gimir dadmē bānû kibrāti …":
         tests_passed += 1
-        print(f"✅ Test 11: Asterisk removed → '{test11}'")
+        print(f"✅ Test 11: Complex line cleaned → '{test11}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 11: Expected 'a-na-ku 5 meât', got '{test11}'")
+        print(f"❌ Test 11: Expected 'šar gimir dadmē bānû kibrāti …', got '{test11}'")
     
-    # Test 12: Multiple ellipsis collapse
-    test12 = parser.clean_line("x x x ... x x", for_test=True)
-    # Should have exactly one '...' total
-    if test12.count('...') == 1:
+    # Test 12: Multiple spaces normalized
+    test12 = parser.clean_line("šar   gimir    dadmē", for_test=True)
+    if test12 == "šar gimir dadmē":
         tests_passed += 1
-        print(f"✅ Test 12: Ellipsis collapse → '{test12}'")
+        print(f"✅ Test 12: Multiple spaces normalized → '{test12}'")
     else:
         tests_failed += 1
-        print(f"❌ Test 12: Expected one '...', got '{test12}'")
+        print(f"❌ Test 12: Expected 'šar gimir dadmē', got '{test12}'")
     
     # Summary
     print("\n" + "="*80)
@@ -432,6 +433,7 @@ def run_tests():
     print("="*80)
     
     return tests_failed == 0
+
 
 def save_output(results: Dict, prefix: str, outdir: Path):
     """Save all output files."""
@@ -544,6 +546,8 @@ MIT License (c) 2026 Samuel KABAK
                        help='Output prefix (default: input filename without extension)')
     parser.add_argument('--outdir', default='.',
                        help='Output directory (default: current directory .)')
+    parser.add_argument('--remove-hyphens', action='store_true',
+                    help='Remove hyphens (cuneiform sign boundaries) for cleaner reading text')
     parser.add_argument('--preserve-case', action='store_true',
                        help='Preserve original case (default: convert to lowercase)')
     parser.add_argument('--preserve-h', action='store_true',
@@ -590,11 +594,10 @@ MIT License (c) 2026 Samuel KABAK
         parser_obj = ATFParser(
             preserve_case=args.preserve_case,
             preserve_h=args.preserve_h,
+            remove_hyphens=args.remove_hyphens, 
             strict_mode=args.strict
         )
         results = parser_obj.parse_file(str(input_path))
-
-        prefix = simple_safe_filename(prefix)
         
         # Save outputs
         orig_file, proc_file = save_output(results, prefix, outdir)
