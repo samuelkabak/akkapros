@@ -5,70 +5,30 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "akkapros"
 version = "1.0.0"
-description = "Akkadian accentuation reconstruction toolkit for Assyriology and historical linguistics. Processes Babylonian phonological texts, applies accentuation repair algorithm, computes acoustic metrics (VarcoC, ΔC, %V), and generates IPA output."
+description = "Akkadian accentuation reconstruction toolkit"
 readme = "README.md"
 authors = [{name = "Samuel KABAK", email = "samuel.kabak@gmail.com"}]
 license = {text = "MIT License"}
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Text Processing :: Linguistic",
-    "Topic :: Scientific/Engineering :: Information Analysis",
+requires-python = ">=3.8"
+dependencies = [
+    # Only what your project directly needs
+    # DiaMoE-TTS is called externally, not imported
+    # "boto3",
 ]
-keywords = [
-    "akkadian", "assyriology", "prosody", "accentuation", 
-    "historical-linguistics", "phonology", "old-babylonian",
-    "cuneiform", "digital-humanities", "text-processing", "ipa",
-    "semitic-languages", "corpus-linguistics"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black",
+    "flake8",
+    "sox",
 ]
-dynamic = ["dependencies"]
-
-[project.urls]
-Homepage = "https://github.com/samuelkabak/akkapros"
-Repository = "https://github.com/samuelkabak/akkapros.git"
-Documentation = "https://github.com/samuelkabak/akkapros/docs"
-"Bug Tracker" = "https://github.com/samuelkabak/akkapros/issues"
-
-[project.scripts]
-akkapros-atf = "akkapros.atf_parser:main"
-akkapros-syllabify = "akkapros.syllabify:main"
-akkapros-repair = "akkapros.repair:main"
-akkapros-metrics = "akkapros.metrics:main"
-akkapros-format = "akkapros.format:main"
 
 [tool.setuptools]
 packages = ["akkapros"]
 package-dir = {"" = "src"}
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --strict-markers"
 testpaths = ["tests"]
 python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-
-[tool.ruff]
-line-length = 88
-target-version = "py38"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I", "N"]
-ignore = []
-
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
