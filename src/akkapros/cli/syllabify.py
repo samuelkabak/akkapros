@@ -4,7 +4,7 @@ Akkadian Prosody Toolkit — Syllabifier
 Version: 1.2.0
 
 Converts Akkadian text to syllabified format with:
-- Pipes | at word ENDINGS (no spaces after pipes)
+- Initially, pipes | at word ENDINGS (no spaces after) - replaced by ¦
 - Dots . between syllables (hyphens preserved by default)
 - Non-Akkadian text in [brackets] with ALL whitespace preserved inside
 - Spaces between Akkadian words are eliminated (replaced by pipe)
@@ -46,6 +46,8 @@ ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
 ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 
 GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
+
+WORD_ENDING = '¦'
 
 if GLOTTAL not in ALL_CONSONANTS:
     ALL_CONSONANTS.add(GLOTTAL)
@@ -133,7 +135,7 @@ def preprocess_diphthongs(text):
     return text
 
 
-def text_preprocess_boundaries(text, extra_vowels='', extra_consonants=''):
+def text_preprocess_boundaries(text, warnings, extra_vowels='', extra_consonants=''):
     """
     Preprocess text before syllabification:
     1. Update character sets with extra vowels/consonants
@@ -143,6 +145,10 @@ def text_preprocess_boundaries(text, extra_vowels='', extra_consonants=''):
     5. Preserve newlines for paragraph structure
     6. Warn about tabs between Akkadian words
     """
+    
+    if not isinstance(warnings, list):
+        raise TypeError("Expected a list in text_preprocess_boundaries")
+
     # Update global character sets
     global ALL_VOWELS, ALL_CONSONANTS, ALL_AKKADIAN
     ALL_VOWELS = AKKADIAN_VOWELS | set(extra_vowels) | EXTRA_LONG
@@ -191,13 +197,7 @@ def text_preprocess_boundaries(text, extra_vowels='', extra_consonants=''):
     if '\t' in text and not tab_warning_issued:
         warnings.append("Tabs detected: tabs between Akkadian words are treated as spaces and eliminated")
         tab_warning_issued = True
-    
-    if warnings:
-        print("\n⚠️  WARNINGS:", file=sys.stderr)
-        for w in warnings:
-            print(f"   {w}", file=sys.stderr)
-        print(file=sys.stderr)
-    
+        
     return '\n'.join(processed_lines)
 
 
@@ -257,7 +257,7 @@ def tokenize_line(line, extra=''):
     tokens = []
     i = 0
     n = len(line)
-    
+
     while i < n:
         before = line[i-1] if i > 0 else ''
         after = line[i+1] if i+1 < n else ''
@@ -296,10 +296,12 @@ def tokenize_line(line, extra=''):
 
 def syllabify_text(text, extra_vowels='', extra_consonants='', merge_hyphen=False):
     """Process text and return syllabified version."""
-    text = text_preprocess_boundaries(text, extra_vowels, extra_consonants)
+    warnings = []  
+    text = text_preprocess_boundaries(text, warnings, extra_vowels, extra_consonants)
     lines = text.split('\n')
     result_lines = []
-    
+  
+
     for line in lines:
         line = line.rstrip('\n')
         if not line:
@@ -313,20 +315,30 @@ def syllabify_text(text, extra_vowels='', extra_consonants='', merge_hyphen=Fals
         for typ, token_text in tokens:
             if typ == 'word':
                 if in_brackets:
-                    current_line_parts.append(token_text + '|')
+                    current_line_parts.append(token_text + WORD_ENDING)
                 else:
                     syllabified = syllabify_word(token_text, merge_hyphen)
-                    current_line_parts.append(syllabified + '|')
+                    current_line_parts.append(syllabified + WORD_ENDING)
             else:
+                # 'punct'
                 if '[' in token_text:
                     in_brackets = True
                 if ']' in token_text:
                     in_brackets = False
                 current_line_parts.append(f"[{token_text}]")
+                if not ' ' in token_text and not '\t' in token_text:
+                    warnings.append(f"Punctuation part does not contain a space: '{token_text}' line '{line}")
         
         if current_line_parts:
             result_lines.append(''.join(current_line_parts))
     
+    if warnings:
+        print("\n⚠️  WARNINGS:", file=sys.stderr)
+        for w in warnings:
+            print(f"   {w}", file=sys.stderr)
+        print(file=sys.stderr)
+
+
     return '\n'.join(result_lines)
 
 
@@ -358,88 +370,89 @@ def run_tests():
     
     tests = [
         # ===== SYLLABLE TYPES =====
-        ("CV", "ša", "ša|"),
-        ("CVC", "šar", "šar|"),
-        ("CVV", "bā", "bā|"),
-        ("CVVC", "nāš", "nāš|"),
-        ("#VC", "ap", "ap|"),
-        ("#V", "a", "a|"),
-        ("#VV", "ī", "ī|"),
-        ("#VVC", "ān", "ān|"),
+        ("CV", "ša", "ša¦"),
+        ("CVC", "šar", "šar¦"),
+        ("CVV", "bā", "bā¦"),
+        ("CVVC", "nāš", "nāš¦"),
+        ("#VC", "ap", "ap¦"),
+        ("#V", "a", "a¦"),
+        ("#VV", "ī", "ī¦"),
+        ("#VVC", "ān", "ān¦"),
         
         # ===== WORD COMBINATIONS =====
-        ("CV-CVC", "gimir", "gi.mir|"),
-        ("CVC-CVV", "dadmē", "dad.mē|"),
-        ("CVV-CVV", "bānû", "bā.nû|"),
-        ("CVC-CVV-CV", "kibrāti", "kib.rā.ti|"),
-        ("CVC-CVC-CVC-CV", "ḫendursanga", "ḫen.dur.san.ga|"),
-        ("V-CVC", "apil", "a.pil|"),
-        ("VC-CVC", "ellil", "el.lil|"),
-        ("CVVC-CVV", "rēštû", "rēš.tû|"),
-        ("CVC-CV-geminate", "ḫaṭṭi", "ḫaṭ.ṭi|"),
-        ("CVVC-CV", "ṣīrti", "ṣīr.ti|"),
-        ("CVV-CVC", "nāqid", "nā.qid|"),
-        ("CVC-CVVC", "ṣalmāt", "ṣal.māt|"),
-        ("CVC-CV-CV", "qaqqadi", "qaq.qa.di|"),
-        ("CVV-CVV", "rēʾû", "rē.ʾû|"),
-        ("CV-CVV-CVV-CV", "tenēšēti", "te.nē.šē.ti|"),
-        ("VV-CVC", "īšum", "ī.šum|"),
-        ("CVV-CV-CV", "ṭābiḫu", "ṭā.bi.ḫu|"),
-        ("CVC-CV", "naʾdu", "naʾ.du|"),
-        ("V-CV", "ana", "a.na|"),
-        ("CV-CVV", "našê", "na.šê|"),
-        ("CVC-CVV-CV", "kakkīšu", "kak.kī.šu|"),
-        ("VC-CVV-CV", "ezzūti", "ez.zū.ti|"),
-        ("CVV-CVV-CV", "qātāšu", "qā.tā.šu|"),
-        ("VC-CVV", "asmā", "as.mā|"),
+        ("CV-CVC", "gimir", "gi.mir¦"),
+        ("CVC-CVV", "dadmē", "dad.mē¦"),
+        ("CVV-CVV", "bānû", "bā.nû¦"),
+        ("CVC-CVV-CV", "kibrāti", "kib.rā.ti¦"),
+        ("CVC-CVC-CVC-CV", "ḫendursanga", "ḫen.dur.san.ga¦"),
+        ("V-CVC", "apil", "a.pil¦"),
+        ("VC-CVC", "ellil", "el.lil¦"),
+        ("CVVC-CVV", "rēštû", "rēš.tû¦"),
+        ("CVC-CV-geminate", "ḫaṭṭi", "ḫaṭ.ṭi¦"),
+        ("CVVC-CV", "ṣīrti", "ṣīr.ti¦"),
+        ("CVV-CVC", "nāqid", "nā.qid¦"),
+        ("CVC-CVVC", "ṣalmāt", "ṣal.māt¦"),
+        ("CVC-CV-CV", "qaqqadi", "qaq.qa.di¦"),
+        ("CVV-CVV", "rēʾû", "rē.ʾû¦"),
+        ("CV-CVV-CVV-CV", "tenēšēti", "te.nē.šē.ti¦"),
+        ("VV-CVC", "īšum", "ī.šum¦"),
+        ("CVV-CV-CV", "ṭābiḫu", "ṭā.bi.ḫu¦"),
+        ("CVC-CV", "naʾdu", "naʾ.du¦"),
+        ("V-CV", "ana", "a.na¦"),
+        ("CV-CVV", "našê", "na.šê¦"),
+        ("CVC-CVV-CV", "kakkīšu", "kak.kī.šu¦"),
+        ("VC-CVV-CV", "ezzūti", "ez.zū.ti¦"),
+        ("CVV-CVV-CV", "qātāšu", "qā.tā.šu¦"),
+        ("VC-CVV", "asmā", "as.mā¦"),
         
         # ===== HYPHEN TESTS =====
-        ("Hyphenated word - preserve", "ḫendur-sanga", "ḫen.dur-san.ga|"),
-        ("Hyphenated word - merge", "ḫendur-sanga", "ḫen.dur.san.ga|", True),
-        ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a.mē.lu-ša-ī.šum|"),
-        ("Multiple hyphens - merge", "amēlu-ša-īšum", "a.mē.lu.ša.ī.šum|", True),
-        ("Hyphen at beginning", "-šar", "-šar|"),
-        ("Hyphen at end", "šar-", "šar-|"),
+        ("Hyphenated word - preserve", "ḫendur-sanga", "ḫen.dur-san.ga¦"),
+        ("Hyphenated word - merge", "ḫendur-sanga", "ḫen.dur.san.ga¦", True),
+        ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a.mē.lu-ša-ī.šum¦"),
+        ("Multiple hyphens - merge", "amēlu-ša-īšum", "a.mē.lu.ša.ī.šum¦", True),
+        ("Hyphen at beginning", "-šar", "-šar¦"),
+        ("Hyphen at end", "šar-", "šar-¦"),
         
         # ===== DASH VS HYPHEN =====
-        ("Dash with spaces", "ḫendur - sanga", "ḫen.dur|[ - ]san.ga|"),
-        ("Hyphen+space", "ḫendur- sanga", "ḫen.dur-|san.ga|"),
-        ("Space+hyphen", "ḫendur -sanga", "ḫen.dur|-san.ga|"),
+        ("Dash with spaces", "ḫendur - sanga", "ḫen.dur¦[ - ]san.ga¦"),
+        ("Hyphen+space", "ḫendur- sanga", "ḫen.dur-¦san.ga¦"),
+        ("Space+hyphen", "ḫendur -sanga", "ḫen.dur¦-san.ga¦"),
         
         # ===== WHITESPACE BETWEEN WORDS =====
-        ("Single space between words", "šar gimir", "šar|gi.mir|"),
-        ("Multiple spaces between words", "šar   gimir", "šar|gi.mir|"),
-        ("Tab between words", "šar\tgimir", "šar|gi.mir|"),
-        ("Newline between words", "šar\ngimir", "šar|\ngi.mir|"),
-        ("Double newline", "šar\n\ngimir", "šar|\n\ngi.mir|"),
+        ("Single space between words", "šar gimir", "šar¦gi.mir¦"),
+        ("Multiple spaces between words", "šar   gimir", "šar¦gi.mir¦"),
+        ("Tab between words", "šar\tgimir", "šar¦gi.mir¦"),
+        ("Newline between words", "šar\ngimir", "šar¦\ngi.mir¦"),
+        ("Double newline", "šar\n\ngimir", "šar¦\n\ngi.mir¦"),
         
         # ===== NUMBERS AND NON-AKKADIAN =====
-        ("Number between words", "šar 123 gimir", "šar|[ 123 ]gi.mir|"),
-        ("Number with commas", "šar 12,345 gimir", "šar|[ 12,345 ]gi.mir|"),
-        ("Number with newline", "šar 123\n456 gimir", "šar|[ 123]\n[456 ]gi.mir|"),
-        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar|[ 123]\n[  456 ]gi.mir|"),
-        ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar|[ 123  \t-  456 ]gi.mir|"),
+        ("Number between words", "šar 123 gimir", "šar¦[ 123 ]gi.mir¦"),
+        ("Number with commas", "šar 12,345 gimir", "šar¦[ 12,345 ]gi.mir¦"),
+        ("Number with newline", "šar 123\n456 gimir", "šar¦[ 123]\n[456 ]gi.mir¦"),
+        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦[ 123]\n[  456 ]gi.mir¦"),
+        ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar¦[ 123  \t-  456 ]gi.mir¦"),
         
         # ===== PUNCTUATION =====
-        ("Comma after word", "šar, gimir", "šar|[, ]gi.mir|"),
-        ("Period after word", "šar. gimir", "šar|[. ]gi.mir|"),
-        ("Double pipe", "šar || gimir", "šar|[ || ]gi.mir|"),
-        ("Ellipsis", "šar ... gimir", "šar|[ ... ]gi.mir|"),
+        ("Comma after word", "šar, gimir", "šar¦[, ]gi.mir¦"),
+        ("Period after word", "šar. gimir", "šar¦[. ]gi.mir¦"),
+        ("Em-dash", "šar — gimir", "šar¦[ — ]gi.mir¦"),
+        ("Ellipsis", "šar … gimir", "šar¦[ … ]gi.mir¦"),
         
         # ===== FOREIGN CHARACTERS =====
-        ("Chinese characters", "šar 国王 gimir", "šar|[ 国王 ]gi.mir|"),
-        ("Mixed with brackets", "šar gimir[test]done", "šar|gi.mir|[[]test|[]]d|[o]ne|"),
+        ("Chinese characters", "šar 国王 gimir", "šar¦[ 国王 ]gi.mir¦"),
+        ("Mixed with brackets", "šar gimir[test]done", "šar¦gi.mir¦[[]test¦[]]d¦[o]ne¦"),
         
         # ===== REAL EXAMPLES =====
-        ("Complex line", "ikkaru ina muḫḫi ... || ibakki ṣarpiš", 
-         "ik.ka.ru|i.na|muḫ.ḫi|[ ... || ]i.bak.ki|ṣar.piš|"),
+        ("Complex line", "ikkaru ina muḫḫi … — ibakki ṣarpiš", 
+         "ik.ka.ru¦i.na¦muḫ.ḫi¦[ … — ]i.bak.ki¦ṣar.piš¦"),
         
         # ===== DIPHTHONG TESTS =====
-        ("Diphthong ua", "ua", "u.ʾa|"),
-        ("Diphthong ai", "ai", "a.ʾi|"),
-        ("Diphthong iā", "iā", "i.ʾā|"),
-        ("Multiple diphthongs", "ua iā", "u.ʾa|i.ʾā|"),
-        ("Diphthong with consonant", "šar ua", "šar|u.ʾa|"),
+        ("Diphthong ua", "ua", "u.ʾa¦"),
+        ("Diphthong ai", "ai", "a.ʾi¦"),
+        ("Diphthong iā", "iā", "i.ʾā¦"),
+        ("Multiple diphthongs", "ua iā", "u.ʾa¦i.ʾā¦"),
+        ("Diphthong with consonant", "šar ua", "šar¦u.ʾa¦"),
+
     ]
     
     passed = 0

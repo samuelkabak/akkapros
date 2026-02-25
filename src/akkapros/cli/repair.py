@@ -23,6 +23,9 @@ V = LONG | SHORT
 C = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 CIRCUMFLEX = set('âêîû')
 
+SYL_WORD_ENDING = '¦'
+TIL_WORD_LINKER = '+'
+
 
 # ------------------------------------------------------------
 # Function words
@@ -389,11 +392,11 @@ def parse_syl_line(line: str) -> List[Union[Word, str]]:
                 j = n
             tokens.append(line[i:j+1])
             i = j + 1
-        elif line[i] == '|':
+        elif line[i] == SYL_WORD_ENDING:
             i += 1
         else:
             start = i
-            while i < n and line[i] != '|' and line[i] != '[':
+            while i < n and line[i] != SYL_WORD_ENDING and line[i] != '[':
                 i += 1
             if start < i:
                 word_text = line[start:i]
@@ -415,14 +418,14 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
     combined = []
     i = 0
     while i < len(parts):
-        if parts[i] == '_':
+        if parts[i] == TIL_WORD_LINKER:
             # Underscore attaches to previous word
             if combined:
-                combined[-1] = combined[-1] + '_'
+                combined[-1] = combined[-1] + TIL_WORD_LINKER
             i += 1
         else:
             # Check if this part should be merged with previous (for multiple underscores)
-            if combined and combined[-1].endswith('_'):
+            if combined and combined[-1].endswith(TIL_WORD_LINKER):
                 # Previous word ended with underscore, attach this word directly
                 combined[-1] = combined[-1] + parts[i]
             else:
@@ -613,7 +616,7 @@ class RepairEngine:
                         else:
                             result_parts.append(w.get_text())
                         if k < len(func_group) - 1:
-                            result_parts.append('_')
+                            result_parts.append(TIL_WORD_LINKER)
                     
                     i = j
                     continue
@@ -626,7 +629,7 @@ class RepairEngine:
                     # Find the last content word in result_parts
                     for idx in range(len(result_parts) - 1, -1, -1):
                         part = result_parts[idx]
-                        if isinstance(part, str) and not part.endswith('_') and not part.startswith('_'):
+                        if isinstance(part, str) and not part.endswith(TIL_WORD_LINKER) and not part.startswith(TIL_WORD_LINKER):
                             # Found a content word - need to rollback if it was repaired
                             # Find the original word object for this content
                             for word_idx in range(i-1, -1, -1):
@@ -641,17 +644,17 @@ class RepairEngine:
                             result_parts = result_parts[:idx]
                             
                             # Now add it back with underscores and all function words
-                            result_parts.append(prev_token.get_text() + '_')
+                            result_parts.append(prev_token.get_text() + TIL_WORD_LINKER)
                             for w in func_group:
                                 result_parts.append(w.get_text_flat())
-                                result_parts.append('_')
+                                result_parts.append(TIL_WORD_LINKER)
                             result_parts.pop()  # Remove last underscore
                             break
                     else:
                         # No content word found - just add function words
                         for w in func_group:
                             result_parts.append(w.get_text_flat())
-                            result_parts.append('_')
+                            result_parts.append(TIL_WORD_LINKER)
                         result_parts.pop()
                     
                     i = j
@@ -660,7 +663,7 @@ class RepairEngine:
                 # Default: add function words with underscores
                 for w in func_group:
                     result_parts.append(w.get_text_flat())
-                    result_parts.append('_')
+                    result_parts.append(TIL_WORD_LINKER)
                 result_parts.pop()  # Remove trailing underscore
                 i = j
                 continue
@@ -701,7 +704,7 @@ class RepairEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append('_')
+                            result_parts.append(TIL_WORD_LINKER)
                     i = j + 1
                     repaired = True
                     self.stats['merged_forward'] += 1
@@ -717,7 +720,7 @@ class RepairEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append('_')
+                            result_parts.append(TIL_WORD_LINKER)
                     i = j + 1
                     repaired = True
                     self.stats['merged_forward'] += 1
@@ -945,39 +948,39 @@ def run_tests():
         # ===== BASIC TESTS (original 6) =====
         {
             'name': 'Basic line with merge and repair',
-            'input': 'šar|gi.mir|dad.mē|bā.nû|kib.rā.ti|[ ...]',
+            'input': 'šar¦gi.mir¦dad.mē¦bā.nû¦kib.rā.ti¦[ ...]',
             'expected': {
-                'lob': 'šar gi.mir_dad~.mē bā.nû kib.rā~.ti ...',
-                'sob': 'šar gi.mir_dad~.mē bā.nû kib.rā~.ti ...'
+                'lob': 'šar gi.mir+dad~.mē bā.nû kib.rā~.ti ...',
+                'sob': 'šar gi.mir+dad~.mē bā.nû kib.rā~.ti ...'
             }
         },
         {
             'name': 'Line with multiple repairs',
-            'input': 'ḫen.dur.san.ga|a.pil|el.lil|rēš.tû|[ ...]',
+            'input': 'ḫen.dur.san.ga¦a.pil¦el.lil¦rēš.tû¦[ ...]',
             'expected': {
-                'lob': 'ḫen.dur.san~.ga a.pil_el~.lil rēš.tû~ ...',
-                'sob': 'ḫen.dur.san~.ga a.pil_el~.lil rē~š.tû ...'
+                'lob': 'ḫen.dur.san~.ga a.pil+el~.lil rēš.tû~ ...',
+                'sob': 'ḫen.dur.san~.ga a.pil+el~.lil rē~š.tû ...'
             }
         },
         {
             'name': 'Function words merge forward with content',
-            'input': 'u|a.na|šar.ri|',
+            'input': 'u¦a.na¦šar.ri¦',
             'expected': {
-                'lob': 'u_ana_šar.ri',
-                'sob': 'u_ana_šar.ri'
+                'lob': 'u+ana+šar.ri',
+                'sob': 'u+ana+šar.ri'
             }
         },
         {
             'name': 'Function word at end merges backward',
-            'input': 'šar.ru|u|',
+            'input': 'šar.ru¦u¦',
             'expected': {
-                'lob': 'šar.ru_u',
-                'sob': 'šar.ru_u'
+                'lob': 'šar.ru+u',
+                'sob': 'šar.ru+u'
             }
         },
         {
             'name': 'Word with final superheavy',
-            'input': 'rēš.tû|',
+            'input': 'rēš.tû¦',
             'expected': {
                 'lob': 'rēš.tû~',
                 'sob': 'rē~š.tû'
@@ -985,17 +988,17 @@ def run_tests():
         },
         {
             'name': 'Multiple function words with content',
-            'input': 'u|a.na|i.na|šar.ri|',
+            'input': 'u¦a.na¦i.na¦šar.ri¦',
             'expected': {
-                'lob': 'u_ana_ina_šar.ri',
-                'sob': 'u_ana_ina_šar.ri'
+                'lob': 'u+ana+ina+šar.ri',
+                'sob': 'u+ana+ina+šar.ri'
             }
         },
         
         # ===== HYPHEN TESTS =====
         {
             'name': 'Word with hyphen - even morae (no repair)',
-            'input': 'kam-du.tûm-lû|',  # 2+1+3+2 = 8 (EVEN)
+            'input': 'kam-du.tûm-lû¦',  # 2+1+3+2 = 8 (EVEN)
             'expected': {
                 'lob': 'kam-du.tûm-lû',
                 'sob': 'kam-du.tûm-lû'
@@ -1003,7 +1006,7 @@ def run_tests():
         },
         {
             'name': 'Word with hyphen - odd morae (repair needed)',
-            'input': 'kam-du.tûm-lû.ma|',  # 2+1+3+2+1 = 9 (ODD)
+            'input': 'kam-du.tûm-lû.ma¦',  # 2+1+3+2+1 = 9 (ODD)
             'expected': {
                 'lob': 'kam-du.tûm-lû~.ma',
                 'sob': 'kam-du.tûm-lû~.ma'
@@ -1011,7 +1014,7 @@ def run_tests():
         },
         {
             'name': 'Word with multiple hyphens - already syllabified',
-            'input': 'a.mē.lu-ša-ī.šum|',  # From syllabify.py: 1+2+1+1+2+2 = 9 (ODD)
+            'input': 'a.mē.lu-ša-ī.šum¦',  # From syllabify.py: 1+2+1+1+2+2 = 9 (ODD)
             'expected': {
                 'lob': 'a.mē.lu-ša-ī~.šum',
                 'sob': 'a.mē.lu-ša-ī~.šum'
@@ -1021,7 +1024,7 @@ def run_tests():
         # ===== ENCLITIC -MA TESTS =====
         {
             'name': 'Word with -ma enclitic - even morae (no repair)',
-            'input': 'ip-pa-lis-ma|',  # ip-pa-lis-ma = 2+1+2+1 = 6 (EVEN)
+            'input': 'ip-pa-lis-ma¦',  # ip-pa-lis-ma = 2+1+2+1 = 6 (EVEN)
             'expected': {
                 'lob': 'ip-pa-lis-ma',
                 'sob': 'ip-pa-lis-ma'
@@ -1029,7 +1032,7 @@ def run_tests():
         },
         {
             'name': 'Word with -ma enclitic - odd morae (repair needed)',
-            'input': 'ī.ris.sū-ma|',  # ī.ris.sū-ma = 2+2+2+1 = 7 (ODD)
+            'input': 'ī.ris.sū-ma¦',  # ī.ris.sū-ma = 2+2+2+1 = 7 (ODD)
             'expected': {
                 'lob': 'ī.ris.sū~-ma',
                 'sob': 'ī.ris.sū~-ma'
@@ -1039,7 +1042,7 @@ def run_tests():
         # ===== MIXED SEPARATORS =====
         {
             'name': 'Mixed dots and hyphens - odd morae (repair needed)',
-            'input': 'hen.dur-san.ga|',  # hen.dur-san.ga = 2+2+2+1 = 7 (ODD)
+            'input': 'hen.dur-san.ga¦',  # hen.dur-san.ga = 2+2+2+1 = 7 (ODD)
             'expected': {
                 'lob': 'hen.dur-san~.ga',
                 'sob': 'hen.dur-san~.ga'
@@ -1049,23 +1052,24 @@ def run_tests():
         # ===== COMPLEX REAL EXAMPLES =====
         {
             'name': 'Line with -ma enclitic',
-            'input': 'ī.ris.sū-ma|lib.ba.šu|[ || ]e.pēš|tā.ḫā.zi|',
+            'input': 'ī.ris.sū-ma¦lib.ba.šu¦[ — ]e.pēš¦tā.ḫā.zi¦',
             'expected': {
-                'lob': 'ī.ris.sū~-ma lib.ba.šu || e.pēš tā.ḫā~.zi',
-                'sob': 'ī.ris.sū~-ma lib.ba.šu || e.pēš tā.ḫā~.zi'
+                'lob': 'ī.ris.sū~-ma lib.ba.šu — e.pēš tā.ḫā~.zi',
+                'sob': 'ī.ris.sū~-ma lib.ba.šu — e.pēš tā.ḫā~.zi'
             }
         },
         {
             'name': 'Multiple hyphens and enclitics',
-            'input': 'ī.tam.mi|a.na|kak.kī.šu|[ || ]lit.pa.tā|i.mat|mū.ti|',
+            'input': 'ī.tam.mi¦a.na¦kak.kī.šu¦[ — ]lit.pa.tā¦i.mat¦mū.ti¦',
             'expected': {
-                'lob': 'ī.tam~.mi ana_kak.kī.šu || lit~.pa.tā i.mat_mū.ti',
-                'sob': 'ī.tam~.mi ana_kak.kī.šu || lit~.pa.tā i.mat_mū.ti'
+                'lob': 'ī.tam~.mi ana+kak.kī.šu — lit~.pa.tā i.mat+mū.ti',
+                'sob': 'ī.tam~.mi ana+kak.kī.šu — lit~.pa.tā i.mat+mū.ti'
             }
         },
         
     ]
-    
+
+
     all_passed = True
     
     for style in [AccentStyle.LOB, AccentStyle.SOB]:

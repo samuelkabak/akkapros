@@ -67,3 +67,6 @@ outputs/audio/
 *.pem
 secrets.*
 config.local.*
+
+# Local working drafts
+rawmat.md

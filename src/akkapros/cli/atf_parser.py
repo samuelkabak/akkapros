@@ -126,6 +126,7 @@ class ATFParser:
     def clean_line(self, line: str, for_test: bool = False) -> str:
         """
         Clean a line of Akkadian text for reading aloud.
+        Output guarantees proper spacing around … and —.
         """
         original = line
         text = line
@@ -145,9 +146,12 @@ class ATFParser:
         # Replace NBSP with normal space
         text = text.replace('\u00A0', ' ')
         
-        # Convert both || and ‡ to em-dash with spaces
-        text = text.replace('||', ' — ')
-        text = text.replace('‡', ' — ')
+        # Replace tabs with spaces
+        text = text.replace('\t', ' ')
+        
+        # Convert both || and ‡ to em-dash (no spaces yet)
+        text = text.replace('||', '—')
+        text = text.replace('‡', '—')
         
         # Handle single pipes (convert to space)
         text = text.replace('|', ' ')
@@ -169,42 +173,39 @@ class ATFParser:
         text = re.sub(r'\{([^}]+)\}', r'\1', text)
         text = re.sub(r'\{\s*\}', '', text)
         
-        # STEP 2: Process long vowels (vowel followed by same vowel with hyphen)
-        # Examples: ba-nu-u₂ → banû, kib-ra-a-ti → kibrāti
-        # But don't affect da-ad₂-me (different vowels)
-
-        # STEP: Process long vowels (always do this, regardless of hyphen option)
+        # Process long vowels
         text = re.sub(r'a-a', 'ā', text)
         text = re.sub(r'e-e', 'ē', text)
         text = re.sub(r'i-i', 'ī', text)
         text = re.sub(r'u-u', 'ū', text)
-
-        # STEP: Handle hyphens based on option
+        
+        # Handle hyphens based on option
         if self.remove_hyphens:
             text = text.replace('-', '')
-        # else: keep hyphens
-
-        # Remove subscript numerals (after processing vowel length)
+        
+        # Remove subscript numerals
         text = re.sub(r'[₂₃₄₅₆₇₈₉]', '', text)
         
-        # Remove collation markers #
+        # Remove collation markers
         text = text.replace('#', '')
+        
+        # ===== PUNCTUATION SPACING GUARANTEES =====
         
         # Convert ... ellipsis to …
         text = text.replace('...', '…')
         text = re.sub(r'\.{2,}', '…', text)
         
-        # Collapse multiple ellipsis
-        text = re.sub(r'…\s*…', ' … ', text)
+        # ALWAYS add spaces around … and —
+        text = re.sub(r'…', ' … ', text)
+        text = re.sub(r'—', ' — ', text)
         
-        # Remove any remaining single dots
-        text = re.sub(r'(?<!\.)\.(?!\.)', '', text)
-        
-        # Normalize spaces
+        # Normalize spaces (collapse multiple spaces)
         text = re.sub(r' +', ' ', text)
         
-        # Clean up spacing around em-dash
-        text = re.sub(r' ?— ?', ' — ', text)
+        # Trim trailing spaces only (preserve leading)
+        lines = text.split('\n')
+        lines = [line.rstrip() for line in lines]
+        text = '\n'.join(lines)
         
         result = text.strip()
         
