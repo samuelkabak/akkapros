@@ -15,4 +15,25 @@ Example use (future):
 
 """
 
-# No constants defined yet. Add shared values as needed in future refactors.
+# Shared constants for phonetic inventory and other values used across
+# multiple modules in the Akkadian Prosody Toolkit.
+
+# ---- Phonetic inventory ---------------------------------------------------
+# Core Akkadian vowel and consonant sets.  These are loaded by both the
+# syllabification and metrics modules so they live here to avoid duplication.
+
+AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
+AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
+
+# Vowel length categories (short, long).  
+# primarily by the metrics module, but defining it here keeps the inventory
+# consistent.
+SHORT_VOWELS = set('aeiu')
+LONG_VOWELS = set('āēīūâêîû')
+
+# Symbols
+GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
+WORD_ENDING = '¦'       # marker used by the syllabifier
+LENGTH_MARKER = ':'     # gemination marker (used in metrics)
+
+# Additional constants may be added here when shared across modules.
