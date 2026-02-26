@@ -23,7 +23,7 @@ import unicodedata
 from pathlib import Path
 
 # Import from library
-from akkapros.lib.parse import ATFParser, run_tests, EBLError
+from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
 
 __version__ = "1.0.0"
