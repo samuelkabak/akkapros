@@ -27,7 +27,7 @@ from akkapros.lib.constants import (
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
     GLOTTAL,
-    WORD_ENDING,
+    SYL_WORD_ENDING,
 )
 
 __version__ = "1.2.0"
@@ -255,7 +255,7 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
 def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = '', merge_hyphen: bool = False) -> str:
     """Return the fully syllabified version of ``text``.
 
-    The returned string uses the global ``WORD_ENDING`` marker at the end
+    The returned string uses the global ``SYL_WORD_ENDING`` marker at the end
     of every word and preserves line breaks.
     """
     warnings: List[str] = []
@@ -273,10 +273,10 @@ def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = ''
         for typ, token_text in tokens:
             if typ == 'word':
                 if in_brackets:
-                    current_line_parts.append(token_text + WORD_ENDING)
+                    current_line_parts.append(token_text + SYL_WORD_ENDING)
                 else:
                     syllabified = syllabify_word(token_text, merge_hyphen)
-                    current_line_parts.append(syllabified + WORD_ENDING)
+                    current_line_parts.append(syllabified + SYL_WORD_ENDING)
             else:
                 if '[' in token_text:
                     in_brackets = True

@@ -47,7 +47,7 @@ ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 
 GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
 
-WORD_ENDING = '¦'
+SYL_WORD_ENDING = '¦'
 
 if GLOTTAL not in ALL_CONSONANTS:
     ALL_CONSONANTS.add(GLOTTAL)
@@ -315,10 +315,10 @@ def syllabify_text(text, extra_vowels='', extra_consonants='', merge_hyphen=Fals
         for typ, token_text in tokens:
             if typ == 'word':
                 if in_brackets:
-                    current_line_parts.append(token_text + WORD_ENDING)
+                    current_line_parts.append(token_text + SYL_WORD_ENDING)
                 else:
                     syllabified = syllabify_word(token_text, merge_hyphen)
-                    current_line_parts.append(syllabified + WORD_ENDING)
+                    current_line_parts.append(syllabified + SYL_WORD_ENDING)
             else:
                 # 'punct'
                 if '[' in token_text:

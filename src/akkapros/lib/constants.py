@@ -33,7 +33,7 @@ LONG_VOWELS = set('āēīūâêîû')
 
 # Symbols
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
-WORD_ENDING = '¦'       # marker used by the syllabifier
+SYL_WORD_ENDING = '¦'       # marker used by the syllabifier
 LENGTH_MARKER = ':'     # gemination marker (used in metrics)
 
 # Additional constants may be added here when shared across modules.
