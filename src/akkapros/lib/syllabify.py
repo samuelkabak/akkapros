@@ -270,7 +270,8 @@ def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = ''
         tokens = tokenize_line(line, '')
         current_line_parts: List[str] = []
         in_brackets = False
-        for typ, token_text in tokens:
+        for i in range(len(tokens)):
+            typ, token_text = tokens[i]
             if typ == 'word':
                 if in_brackets:
                     current_line_parts.append(token_text + SYL_WORD_ENDING)
@@ -283,7 +284,8 @@ def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = ''
                 if ']' in token_text:
                     in_brackets = False
                 current_line_parts.append(f"[{token_text}]")
-                if not ' ' in token_text and not '\t' in token_text:
+                punct_not_final = i+1 < len(tokens)
+                if punct_not_final and not in_brackets and token_text != ']' and ' ' not in token_text :
                     warnings.append(f"Punctuation part does not contain a space: '{token_text}' line '{line}")
         if current_line_parts:
             result_lines.append(''.join(current_line_parts))

@@ -8,7 +8,7 @@ LIBRARY MODULE: Core ATF parsing functionality
 This module contains the core ATF parsing logic, independent of CLI.
 Use this module when you need to process ATF files programmatically.
 
-For CLI usage, see atf_parser.py in the cli package.
+For CLI usage, see atfparser.py in the cli package.
 
 Part of the Akkadian Prosody project (akkapros)
 https://github.com/samuelkabak/akkapros

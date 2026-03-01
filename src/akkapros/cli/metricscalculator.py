@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""Akkadian Prosody Toolkit — Metrics Calculator (CLI wrapper)
+
+This module provides the command-line interface and delegates all
+metrics computation to ``akkapros.lib.metrics``.
+"""
+
+import sys
+import re
+import json
+import argparse
+import unicodedata
+from pathlib import Path
+
+_repo_root = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(_repo_root / "src"))
+
+from akkapros.lib.metrics import (
+    __version__,
+    update_character_sets,
+    process_file,
+    format_table,
+    format_csv,
+    run_tests,
+)
+
+
+def simple_safe_filename(text: str) -> str:
+    """Minimal safe filename conversion."""
+    if not text:
+        return "unnamed"
+
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
+    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
+    text = re.sub(r'[^\w\-.]', '_', text)
+    text = re.sub(r'_+', '_', text)
+    text = text.strip('._-')
+
+    return text or "unnamed"
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description='Compute metrics for Akkadian text',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""
+EXAMPLES:
+  python metricscalculator.py erra_tilde.txt --table
+  python metricscalculator.py --test
+  python metricscalculator.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
+  python metricscalculator.py erra_tilde.txt --punct-weight 2.5  # punctuation 2.5x longer than spaces
+
+Version {__version__}
+"""
+    )
+    parser.add_argument('--version', action='version',
+                        version=f'akkapros-metrics {__version__}')
+    parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
+    parser.add_argument('--input-list', help='File containing list of input files (one per line)')
+    parser.add_argument('-p', '--prefix', help='Output prefix')
+    parser.add_argument('--outdir', default='.', help='Output directory (default: .)')
+    parser.add_argument('--csv', action='store_true', help='Output CSV format')
+    parser.add_argument('--table', action='store_true', help='Output human-readable table')
+    parser.add_argument('--json', action='store_true', help='Output JSON format')
+    parser.add_argument('--wpm', type=float, default=165, help='Words per minute (default: 165)')
+    parser.add_argument('--pause-ratio', type=float, default=35,
+                        help='Pause ratio percentage (default: 35)')
+    parser.add_argument('--punct-weight', type=float, default=2.0,
+                        help='How many times longer punctuation pause is than space (default: 2.0)')
+    parser.add_argument('--extra-consonants', default='',
+                        help='Extra characters to treat as consonants')
+    parser.add_argument('--extra-vowels', default='',
+                        help='Extra characters to treat as vowels')
+    parser.add_argument('--test', action='store_true', help='Run unit tests')
+
+    args = parser.parse_args()
+
+    if args.test:
+        success = run_tests()
+        sys.exit(0 if success else 1)
+
+    if not (args.csv or args.table or args.json):
+        args.table = True
+
+    input_files = []
+    if args.input_list:
+        with open(args.input_list, 'r', encoding='utf-8') as f:
+            input_files = [line.strip() for line in f if line.strip()]
+    elif args.input:
+        input_files = [args.input]
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+    for input_file in input_files:
+        if not Path(input_file).exists():
+            print(f"Error: File not found: {input_file}")
+            sys.exit(1)
+
+    update_character_sets(args.extra_consonants, args.extra_vowels)
+
+    results = []
+    for input_file in input_files:
+        print(f"Processing: {input_file}")
+        result = process_file(input_file, args.wpm, args.pause_ratio, args.punct_weight)
+        results.append(result)
+
+    if args.outdir != '.':
+        Path(args.outdir).mkdir(parents=True, exist_ok=True)
+
+    if args.prefix:
+        safe_output = simple_safe_filename(args.prefix)
+        base = Path(args.outdir) / safe_output
+    else:
+        if len(input_files) == 1:
+            base = Path(args.outdir) / Path(input_files[0]).stem
+        else:
+            base = Path(args.outdir) / 'metrics'
+
+    if args.json:
+        json_file = base.with_suffix('.json')
+        with open(json_file, 'w', encoding='utf-8') as f:
+            if len(results) == 1:
+                json.dump(results[0], f, indent=2, ensure_ascii=False)
+            else:
+                json.dump(results, f, indent=2, ensure_ascii=False)
+        print(f"JSON saved to: {json_file}")
+
+    if args.csv:
+        csv_file = base.with_suffix('.csv')
+        format_csv(results, csv_file)
+        print(f"CSV saved to: {csv_file}")
+
+    if args.table:
+        if len(results) == 1:
+            table = format_table(results[0])
+            if args.prefix:
+                table_file = base.with_name(base.name + '_metrics.txt')
+            else:
+                table_file = base.with_name(base.stem + '_metrics.txt')
+
+            with open(table_file, 'w', encoding='utf-8') as f:
+                f.write(table)
+            print(f"Table saved to: {table_file}")
+        else:
+            for result in results:
+                table = format_table(result)
+                safe_stem = simple_safe_filename(Path(result['file']).stem)
+                table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
+                with open(table_file, 'w', encoding='utf-8') as f:
+                    f.write(table)
+                print(f"Table saved to: {table_file}")
+
+
+if __name__ == "__main__":
+    main()

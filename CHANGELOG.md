@@ -19,10 +19,10 @@
 - Added sample data file `erra-and-ishum-SB.atf` to `data/samples/`
 
 ### Stable
-- **atf_parser.py**: Production-ready eBL ATF parser with comprehensive test suite
+- **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite
 - **syllabify.py**: Fully functional syllabifier with 60+ passing unit tests
 - **repair.py**: Complete moraic repair system with LOB/SOB accent models, all tests passing
-- **metrics.py**: Comprehensive metrics calculator with acoustic analysis and pause metrics, all tests passing
+- **metricscalculator.py**: Comprehensive metrics calculator with acoustic analysis and pause metrics, all tests passing
 - **format.py**: Currently under development (IPA, Markdown, LaTeX output)
 
 ### Fixed

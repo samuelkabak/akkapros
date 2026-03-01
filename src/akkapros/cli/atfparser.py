@@ -105,8 +105,9 @@ SOURCE:
 OPTIONS:
   --test      - Run self-test suite
   --strict    - Enable warnings for informational purposes
+  -p, --prefix PREFIX  - Specify output file prefix (default is input filename stem)
 
-OUTPUT FILES:
+OUTPUT FILES (created in --outdir):
   PREFIX_orig.txt    - Original %%n lines (with ATF markup preserved)
   PREFIX_proc.txt    - Cleaned text for syllabification/repair
   PREFIX_trans.txt   - English translation (if present)
@@ -121,7 +122,7 @@ MIT License (c) 2026 Samuel KABAK
     parser.add_argument('--version', action='version',
                        version=f'akkapros-parser {__version__}')
     parser.add_argument('input', nargs='?', help='eBL ATF file (must contain %%n lines)')
-    parser.add_argument('-o', '--output', 
+    parser.add_argument('-p', '--prefix', 
                        help='Output prefix (default: input filename without extension)')
     parser.add_argument('--outdir', default='.',
                        help='Output directory (default: current directory .)')
@@ -162,8 +163,8 @@ MIT License (c) 2026 Samuel KABAK
         sys.exit(1)
     
     # Determine output prefix
-    if args.output:
-        prefix = args.output
+    if args.prefix:
+        prefix = args.prefix
     else:
         prefix = input_path.stem
     

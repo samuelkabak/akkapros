@@ -5,6 +5,11 @@ This module provides a simple command-line interface that delegates the
 syllabification work to ``akkapros.lib.syllabify``.  It replaces the old
 ``syllabify.py`` script and follows the naming convention: CLI modules are
 "actors" (``-ifier``) while library modules are "verbs" (``-ify``).
+
+The interface mirrors other CLIs (e.g. ``atfparser.py``) by allowing the
+user to specify an output directory plus a prefix; the final file will be
+``<prefix>_syl.txt``.  Use ``-p/--prefix`` and ``--outdir`` rather than
+providing a complete file path.
 """
 
 import sys
@@ -53,7 +58,9 @@ def main():
     parser = argparse.ArgumentParser(description="Syllabify Akkadian text")
     parser.add_argument('--version', action='version', version=f'akkapros-syllabifier {__version__}')
     parser.add_argument('input', nargs='?', help='Input file')
-    parser.add_argument('-o', '--output', help='Output file')
+    parser.add_argument('-p', '--prefix', help='Output file prefix (default: input filename stem)')
+    parser.add_argument('--outdir', default='.',
+                        help='Output directory (default: current directory)')
     parser.add_argument('--extra-vowels', default='', help='Extra vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra consonants')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
@@ -73,7 +80,22 @@ def main():
         print(f"Error: File '{args.input}' not found.")
         sys.exit(1)
 
-    output_path = Path(args.output) if args.output else input_path.with_suffix('_syl.txt')
+    # choose prefix and output directory
+    if args.prefix:
+        prefix = args.prefix
+    else:
+        prefix = input_path.stem
+    outdir = Path(args.outdir)
+    if outdir != Path('.'):
+        outdir.mkdir(parents=True, exist_ok=True)
+    output_path = outdir / f"{prefix}_syl.txt"
+
+    # display configuration
+    print(f"Input: {input_path}")
+    print(f"Output: {output_path}")
+    print(f"Output directory: {outdir}")
+    print(f"Output prefix: {prefix}")
+
     process_file(str(input_path), str(output_path), extra_vowels=args.extra_vowels, extra_consonants=args.extra_consonants, merge_hyphen=args.merge_hyphen)
 
 

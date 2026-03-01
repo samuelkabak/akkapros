@@ -4,10 +4,7 @@ Akkadian Prosody Toolkit — Moraic Repair System
 Version: 1.0.0 - WITH HYPHEN SUPPORT
 """
 
-import sys
 import re
-import argparse
-from pathlib import Path
 from enum import Enum
 from typing import List, Optional, Tuple, Union, Dict, Set
 
@@ -1107,79 +1104,3 @@ def run_tests():
     
     return all_passed
 
-def simple_safe_filename(text):
-    """
-    Minimal safe filename conversion
-    """
-    if not text:
-        return "unnamed"
-    
-    # Remove accents
-    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
-    
-    # Replace invalid chars and spaces with underscores
-    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
-    
-    # Keep only safe characters
-    text = re.sub(r'[^\w\-\.]', '_', text)
-    
-    # Clean up
-    text = re.sub(r'_+', '_', text)
-    text = text.strip('._-')
-    
-    return text or "unnamed"
-
-def main():
-    parser = argparse.ArgumentParser(description='Apply moraic repair to syllabified Akkadian text')
-    parser.add_argument('--version', action='version', version=f'akkapros-repair {__version__}')
-    parser.add_argument('input', nargs='?', help='Input *_syl.txt file')
-    parser.add_argument('-o', '--output', help='Output prefix (creates <prefix>_tilde.txt)')
-    parser.add_argument('--outdir', default='.', help='Output directory')
-    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
-    parser.add_argument('--restore-diphthongs', action='store_true', 
-                       help='Restore original diphthongs by removing inserted glottal stops')
-    parser.add_argument('--only-restore-diphthongs', action='store_true',
-                       help='ONLY restore diphthongs without running repair algorithm')
-    parser.add_argument('--test', action='store_true', help='Run standard tests')
-    parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
-        
-    args = parser.parse_args()
-            
-    if args.test:
-        success = run_tests()
-        sys.exit(0 if success else 1)
-
-    if args.test_diphthongs:
-        success = test_diphthong_restoration()
-        sys.exit(0 if success else 1)
-
-    if not args.input:
-        parser.print_help()
-        sys.exit(0)
-    
-    input_path = Path(args.input)
-    if not input_path.exists():
-        print(f"Error: File not found: {args.input}")
-        sys.exit(1)
-    
-    if args.output:
-        safe_output = simple_safe_filename(args.output)
-        output_file = Path(args.outdir) / f"{safe_output}_tilde.txt"
-    else:
-        output_file = Path(args.outdir) / (input_path.stem.replace('_syl', '') + '_tilde.txt')
-    
-    if args.outdir != '.':
-        Path(args.outdir).mkdir(parents=True, exist_ok=True)
-    
-    style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
-    style = style_map[args.style]
-    engine = RepairEngine(style=style)
-    engine.process_file(
-        str(input_path), 
-        str(output_file), 
-        args.restore_diphthongs,
-        args.only_restore_diphthongs
-    )
-
-if __name__ == "__main__":
-    main()

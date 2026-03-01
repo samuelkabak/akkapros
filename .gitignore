@@ -1,6 +1,7 @@
 # User specific
 sandbox/
 *.bak
+.github/
 
 # IDE
 .vscode/

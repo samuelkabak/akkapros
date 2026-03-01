@@ -316,8 +316,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 EXAMPLES:
-  python format.py erra_tilde.txt -o erra --ipa --md --tex
-  python format.py erra_tilde.txt -o erra --ipa
+    python format.py erra_tilde.txt -p erra --ipa --md --tex
+    python format.py erra_tilde.txt -p erra --ipa
   python format.py --input-list files.txt --ipa --md
 
 OUTPUT FORMATS:
@@ -332,7 +332,7 @@ Version {__version__}
                        version=f'akkapros-format {__version__}')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('--input-list', help='File containing list of input files')
-    parser.add_argument('-o', '--output', default='output', help='Output prefix')
+    parser.add_argument('-p', '--prefix', help='Output prefix (default: input filename stem)')
     parser.add_argument('--outdir', default='.', help='Output directory')
     parser.add_argument('--ipa', action='store_true', help='Generate IPA output')
     parser.add_argument('--md', action='store_true', help='Generate Markdown output')
@@ -385,7 +385,7 @@ Version {__version__}
             stem = Path(input_file).stem
             output_prefix = stem.replace('_tilde', '')
         else:
-            output_prefix = args.output
+            output_prefix = args.prefix if args.prefix else Path(input_file).stem.replace('_tilde', '')
         
         process_file(input_file, output_prefix, outdir, formats, 
                     args.wpm, args.pause_ratio)

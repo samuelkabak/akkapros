@@ -25,10 +25,10 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 
 | Program | Version | Description |
 |---------|---------|-------------|
-| `atf_parser.py` | 1.0.0 | Converts eBL ATF files to clean phonological text |
+| `atfparser.py` | 1.0.0 | Converts eBL ATF files to clean phonological text |
 | `syllabify.py` | 1.0.0 | Syllabifies Akkadian text following Huehnergard (2011) |
-| `repair.py` | 1.0.0 | Applies accentuation repair algorithm |
-| `metrics.py` | 1.0.0 | Computes acoustic metrics from repaired text |
+| `repairer.py` | 1.0.0 | Applies accentuation repair algorithm |
+| `metricscalculator.py` | 1.0.0 | Computes acoustic metrics from repaired text |
 | `format.py` | 1.0.0 | Generates Markdown, LaTeX, and IPA output |
 
 ---
@@ -41,13 +41,13 @@ git clone https://github.com/samuelkabak/akkapros.git
 cd akkapros
 
 # Process an ATF file
-python3 src/atf_parser.py texts/erra.atf -o erra
+python3 src/atfparser.py texts/erra.atf -p erra --outdir outputs
 
 # Syllabify and repair
-python3 src/repair.py erra_proc.txt -o erra
+python3 src/repairer.py erra_proc.txt -p erra --outdir outputs
 
 # Compute metrics
-python3 src/metrics.py erra.tilde > erra_metrics.txt
+python3 src/metricscalculator.py erra.tilde > erra_metrics.txt
 
 # Generate publication outputs
 python3 src/format.py erra.tilde --md --tex --ipa

@@ -10,8 +10,10 @@ import argparse
 from pathlib import Path
 from enum import Enum
 from typing import List, Optional, Tuple, Union, Dict, Set
+import unicodedata
 
 __version__ = "1.0.0"
+
 
 
 # ------------------------------------------------------------
