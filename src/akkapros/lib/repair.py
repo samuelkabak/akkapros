@@ -20,8 +20,19 @@ V = LONG | SHORT
 C = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 CIRCUMFLEX = set('âêîû')
 
-SYL_WORD_ENDING = '¦'
-TIL_WORD_LINKER = '+'
+# shared constants
+from akkapros.lib.constants import (
+    AKKADIAN_VOWELS,
+    AKKADIAN_CONSONANTS,
+    GLOTTAL,
+    SYL_WORD_ENDING,
+    SYL_SEPARATOR,
+    HYPHEN,
+    OPEN_ESCAPE,
+    CLOSE_ESCAPE,
+    TIL_WORD_LINKER
+)
+
 
 
 # ------------------------------------------------------------
@@ -39,7 +50,7 @@ FUNCTION_WORDS: Set[str] = {
 
 def is_function_word(word_text: str) -> bool:
     """Return True if word is a function word (ignoring dots and hyphens)."""
-    return word_text.replace('.', '').replace('-', '') in FUNCTION_WORDS
+    return word_text.replace(SYL_SEPARATOR, '').replace(HYPHEN, '') in FUNCTION_WORDS
 
 
 class AccentStyle(Enum):
@@ -157,7 +168,7 @@ class Word:
         # Parse syllables and track separators
         current = []
         for c in text:
-            if c in ('.', '-'):
+            if c in (SYL_SEPARATOR, HYPHEN):
                 if current:
                     self.syllables.append(''.join(current))
                     self.separators.append(c)
@@ -383,8 +394,8 @@ def parse_syl_line(line: str) -> List[Union[Word, str]]:
     word_count = 0
     
     while i < n:
-        if line[i] == '[':
-            j = line.find(']', i)
+        if line[i] == OPEN_ESCAPE:
+            j = line.find(CLOSE_ESCAPE, i)
             if j == -1:
                 j = n
             tokens.append(line[i:j+1])
@@ -393,7 +404,7 @@ def parse_syl_line(line: str) -> List[Union[Word, str]]:
             i += 1
         else:
             start = i
-            while i < n and line[i] != SYL_WORD_ENDING and line[i] != '[':
+            while i < n and line[i] != SYL_WORD_ENDING and line[i] != OPEN_ESCAPE:
                 i += 1
             if start < i:
                 word_text = line[start:i]
@@ -435,7 +446,7 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
         if isinstance(token, Word):
             for syllable in token.syllables:
                 for c in syllable.text:
-                    if c not in ('.', '-'):  # Ignore separators
+                    if c not in (SYL_SEPARATOR, HYPHEN):  # Ignore separators
                         akkadian_chars.add(c)
     akkadian_chars.add('~')
     
@@ -945,83 +956,83 @@ def run_tests():
         # ===== BASIC TESTS (original 6) =====
         {
             'name': 'Basic line with merge and repair',
-            'input': 'šar¦gi.mir¦dad.mē¦bā.nû¦kib.rā.ti¦[ ...]',
+            'input': 'šar¦gi·mir¦dad·mē¦bā·nû¦kib·rā·ti¦‹ ···›',
             'expected': {
-                'lob': 'šar gi.mir+dad~.mē bā.nû kib.rā~.ti ...',
-                'sob': 'šar gi.mir+dad~.mē bā.nû kib.rā~.ti ...'
+                'lob': 'šar gi·mir_dad~·mē bā·nû kib·rā~·ti ···',
+                'sob': 'šar gi·mir_dad~·mē bā·nû kib·rā~·ti ···'
             }
         },
         {
             'name': 'Line with multiple repairs',
-            'input': 'ḫen.dur.san.ga¦a.pil¦el.lil¦rēš.tû¦[ ...]',
+            'input': 'ḫen·dur·san·ga¦a·pil¦el·lil¦rēš·tû¦‹ ···›',
             'expected': {
-                'lob': 'ḫen.dur.san~.ga a.pil+el~.lil rēš.tû~ ...',
-                'sob': 'ḫen.dur.san~.ga a.pil+el~.lil rē~š.tû ...'
+                'lob': 'ḫen·dur·san~·ga a·pil_el~·lil rēš·tû~ ···',
+                'sob': 'ḫen·dur·san~·ga a·pil_el~·lil rē~š·tû ···'
             }
         },
         {
             'name': 'Function words merge forward with content',
-            'input': 'u¦a.na¦šar.ri¦',
+            'input': 'u¦a·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+ana+šar.ri',
-                'sob': 'u+ana+šar.ri'
+                'lob': 'u_ana_šar·ri',
+                'sob': 'u_ana_šar·ri'
             }
         },
         {
             'name': 'Function word at end merges backward',
-            'input': 'šar.ru¦u¦',
+            'input': 'šar·ru¦u¦',
             'expected': {
-                'lob': 'šar.ru+u',
-                'sob': 'šar.ru+u'
+                'lob': 'šar·ru_u',
+                'sob': 'šar·ru_u'
             }
         },
         {
             'name': 'Word with final superheavy',
-            'input': 'rēš.tû¦',
+            'input': 'rēš·tû¦',
             'expected': {
-                'lob': 'rēš.tû~',
-                'sob': 'rē~š.tû'
+                'lob': 'rēš·tû~',
+                'sob': 'rē~š·tû'
             }
         },
         {
             'name': 'Multiple function words with content',
-            'input': 'u¦a.na¦i.na¦šar.ri¦',
+            'input': 'u¦a·na¦i·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+ana+ina+šar.ri',
-                'sob': 'u+ana+ina+šar.ri'
+                'lob': 'u_ana_ina_šar·ri',
+                'sob': 'u_ana_ina_šar·ri'
             }
         },
         
         # ===== HYPHEN TESTS =====
         {
             'name': 'Word with hyphen - even morae (no repair)',
-            'input': 'kam-du.tûm-lû¦',  # 2+1+3+2 = 8 (EVEN)
+            'input': 'kam-du·tûm-lû¦',  # 2_1_3_2 = 8 (EVEN)
             'expected': {
-                'lob': 'kam-du.tûm-lû',
-                'sob': 'kam-du.tûm-lû'
+                'lob': 'kam-du·tûm-lû',
+                'sob': 'kam-du·tûm-lû'
             }
         },
         {
             'name': 'Word with hyphen - odd morae (repair needed)',
-            'input': 'kam-du.tûm-lû.ma¦',  # 2+1+3+2+1 = 9 (ODD)
+            'input': 'kam-du·tûm-lû·ma¦',  # 2_1_3_2_1 = 9 (ODD)
             'expected': {
-                'lob': 'kam-du.tûm-lû~.ma',
-                'sob': 'kam-du.tûm-lû~.ma'
+                'lob': 'kam-du·tûm-lû~·ma',
+                'sob': 'kam-du·tûm-lû~·ma'
             }
         },
         {
             'name': 'Word with multiple hyphens - already syllabified',
-            'input': 'a.mē.lu-ša-ī.šum¦',  # From syllabify.py: 1+2+1+1+2+2 = 9 (ODD)
+            'input': 'a·mē·lu-ša-ī·šum¦',  # From syllabify·py: 1_2_1_1_2_2 = 9 (ODD)
             'expected': {
-                'lob': 'a.mē.lu-ša-ī~.šum',
-                'sob': 'a.mē.lu-ša-ī~.šum'
+                'lob': 'a·mē·lu-ša-ī~·šum',
+                'sob': 'a·mē·lu-ša-ī~·šum'
             }
         },
         
         # ===== ENCLITIC -MA TESTS =====
         {
             'name': 'Word with -ma enclitic - even morae (no repair)',
-            'input': 'ip-pa-lis-ma¦',  # ip-pa-lis-ma = 2+1+2+1 = 6 (EVEN)
+            'input': 'ip-pa-lis-ma¦',  # ip-pa-lis-ma = 2_1_2_1 = 6 (EVEN)
             'expected': {
                 'lob': 'ip-pa-lis-ma',
                 'sob': 'ip-pa-lis-ma'
@@ -1029,38 +1040,38 @@ def run_tests():
         },
         {
             'name': 'Word with -ma enclitic - odd morae (repair needed)',
-            'input': 'ī.ris.sū-ma¦',  # ī.ris.sū-ma = 2+2+2+1 = 7 (ODD)
+            'input': 'ī·ris·sū-ma¦',  # ī·ris·sū-ma = 2_2_2_1 = 7 (ODD)
             'expected': {
-                'lob': 'ī.ris.sū~-ma',
-                'sob': 'ī.ris.sū~-ma'
+                'lob': 'ī·ris·sū~-ma',
+                'sob': 'ī·ris·sū~-ma'
             }
         },
         
         # ===== MIXED SEPARATORS =====
         {
             'name': 'Mixed dots and hyphens - odd morae (repair needed)',
-            'input': 'hen.dur-san.ga¦',  # hen.dur-san.ga = 2+2+2+1 = 7 (ODD)
+            'input': 'hen·dur-san·ga¦',  # hen·dur-san·ga = 2_2_2_1 = 7 (ODD)
             'expected': {
-                'lob': 'hen.dur-san~.ga',
-                'sob': 'hen.dur-san~.ga'
+                'lob': 'hen·dur-san~·ga',
+                'sob': 'hen·dur-san~·ga'
             }
         },
         
         # ===== COMPLEX REAL EXAMPLES =====
         {
             'name': 'Line with -ma enclitic',
-            'input': 'ī.ris.sū-ma¦lib.ba.šu¦[ — ]e.pēš¦tā.ḫā.zi¦',
+            'input': 'ī·ris·sū-ma¦lib·ba·šu¦‹ — ›e·pēš¦tā·ḫā·zi¦',
             'expected': {
-                'lob': 'ī.ris.sū~-ma lib.ba.šu — e.pēš tā.ḫā~.zi',
-                'sob': 'ī.ris.sū~-ma lib.ba.šu — e.pēš tā.ḫā~.zi'
+                'lob': 'ī·ris·sū~-ma lib·ba·šu — e·pēš tā·ḫā~·zi',
+                'sob': 'ī·ris·sū~-ma lib·ba·šu — e·pēš tā·ḫā~·zi'
             }
         },
         {
             'name': 'Multiple hyphens and enclitics',
-            'input': 'ī.tam.mi¦a.na¦kak.kī.šu¦[ — ]lit.pa.tā¦i.mat¦mū.ti¦',
+            'input': 'ī·tam·mi¦a·na¦kak·kī·šu¦‹ — ›lit·pa·tā¦i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī.tam~.mi ana+kak.kī.šu — lit~.pa.tā i.mat+mū.ti',
-                'sob': 'ī.tam~.mi ana+kak.kī.šu — lit~.pa.tā i.mat+mū.ti'
+                'lob': 'ī·tam~·mi ana_kak·kī·šu — lit~·pa·tā i·mat_mū·ti',
+                'sob': 'ī·tam~·mi ana_kak·kī·šu — lit~·pa·tā i·mat_mū·ti'
             }
         },
         

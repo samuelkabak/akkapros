@@ -34,6 +34,16 @@ LONG_VOWELS = set('āēīūâêîû')
 # Symbols
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
 SYL_WORD_ENDING = '¦'       # marker used by the syllabifier
-LENGTH_MARKER = ':'     # gemination marker (used in metrics)
+SYL_SEPARATOR = '·'          # separator between syllables in the syllabifier output
+HYPHEN = '-'                # hyphen character (used in some contexts, but may be merged to dots in syllabification)
+OPEN_ESCAPE = '‹'
+CLOSE_ESCAPE = '›'
+
+OPEN_IGNORE = '['
+CLOSE_IGNORE = ']'
+
+
+TIL_WORD_LINKER = '_'
+
 
 # Additional constants may be added here when shared across modules.
