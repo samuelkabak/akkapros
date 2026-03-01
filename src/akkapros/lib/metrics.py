@@ -22,16 +22,36 @@ from collections import Counter
 __version__ = "2.0.0"
 
 
+# shared constants
+from akkapros.lib.constants import (
+    AKKADIAN_VOWELS,
+    AKKADIAN_CONSONANTS,
+    GLOTTAL,
+    SYL_WORD_ENDING,
+    SYL_SEPARATOR,
+    OPEN_ESCAPE,
+    CLOSE_ESCAPE,
+    TIL_WORD_LINKER,
+    SHORT_VOWELS,
+    LONG_VOWELS,
+    EXTRA_LONG_VOWELS
+)
+
+
 # ------------------------------------------------------------
 # Phonetic inventory — Akkadian core
 # ------------------------------------------------------------
-AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
-AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
+
+#AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
+#AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 
 # Vowel length categories
-SHORT = set('aeiu')
-LONG = set('āēīūâêîû')
-EXTRA_LONG = set('àìùè')
+#SHORT_VOWELS = set('aeiu')
+#LONG_VOWELS = set('āēīūâêîû')
+#EXTRA_LONG_VOWELS = set('àìùè')
+
+#GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
+
 
 # Foreign characters (from command line)
 FOREIGN_VOWELS = set()
@@ -39,15 +59,15 @@ FOREIGN_CONSONANTS = set()
 EXTRA_VOWELS = set()
 EXTRA_CONSONANTS = set()
 
+
 # All vowels for processing (including extra-long)
-ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG
+ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG_VOWELS
 ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
 ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 
 # Processing-specific sets
-PROCESSING_VOWELS = EXTRA_LONG
+PROCESSING_VOWELS = EXTRA_LONG_VOWELS
 
-GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
 LENGTH_MARKER = ':'
 WORD_BOUNDARY = '$'
 
@@ -68,7 +88,7 @@ def update_character_sets(extra_consonants='', extra_vowels=''):
     EXTRA_CONSONANTS = set(extra_consonants)
     EXTRA_VOWELS = set(extra_vowels)
     
-    ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG
+    ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG_VOWELS
     ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
     ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 
@@ -116,11 +136,11 @@ def build_word_pattern() -> re.Pattern:
     # CLASS_WORD_INTERNAL_SYLLABLE_FIRST_LETTER := CONSONANTS
     internal_first_class = f'[{consonants_class}]'
     
-    # CLASS_SYLLABLE_SEPARATOR := '.' or '-'
-    syl_sep = r'[.\-]'
+    # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or '-'
+    syl_sep = rf'[\{SYL_SEPARATOR}\-]'
     
-    # CLASS_UNIT_WORD_SEPARATOR := '_'
-    unit_sep = '_'
+    # CLASS_UNIT_WORD_SEPARATOR := TIL_WORD_LINKER
+    unit_sep = TIL_WORD_LINKER
     
     # CLASS_FIRST_SYLLABLE := FIRST_LETTER + COMPLEMENT*
     first_syl = first_letter_class + complement_class
@@ -132,7 +152,7 @@ def build_word_pattern() -> re.Pattern:
     unit_word = first_syl + f'(?:{syl_sep}{internal_syl})*'
     
     # CLASS_MERGED_WORD := UNIT_WORD + (UNIT_SEPARATOR + UNIT_WORD)*
-    merged_word = unit_word + f'(?:{unit_sep}{unit_word})*'
+    merged_word = unit_word + rf'(?:\{unit_sep}{unit_word})*'
     
     return re.compile(merged_word)
 
@@ -234,9 +254,9 @@ def count_merged_units(words: List[str]) -> Dict:
     merged_units = 0
     
     for word in words:
-        if '_' in word:
+        if TIL_WORD_LINKER in word:
             merged_units += 1
-            total_merged_words += word.count('_') + 1
+            total_merged_words += word.count(TIL_WORD_LINKER) + 1
     
     avg = total_merged_words / merged_units if merged_units > 0 else 0
     
@@ -292,33 +312,33 @@ def classify_syllable(syl: str, is_repaired: bool = False) -> str:
     clean = syl
     if len(syl) == 1:
         # āēīūâêîûaeiuàìùè
-        if syl[0] in SHORT: 
+        if syl[0] in SHORT_VOWELS: 
             return 'V'
-        if syl[0] in LONG: 
+        if syl[0] in LONG_VOWELS: 
             return 'VV'
-        if syl[0] in EXTRA_LONG: 
+        if syl[0] in EXTRA_LONG_VOWELS: 
             return 'VV:'
     elif  len(syl) == 2:
         # c+āēīūâêîûaeiuàìùè or āēīūâêîûaeiuàìùè+C
-        if syl[0] in SHORT: 
+        if syl[0] in SHORT_VOWELS: 
             return 'VC'
-        if syl[0] in LONG: 
+        if syl[0] in LONG_VOWELS: 
             return 'VVC'
-        if syl[0] in EXTRA_LONG: 
+        if syl[0] in EXTRA_LONG_VOWELS: 
             return 'VV:C'
-        if syl[1] in SHORT: 
+        if syl[1] in SHORT_VOWELS: 
             return 'CV'
-        if syl[1] in LONG: 
+        if syl[1] in LONG_VOWELS: 
             return 'CVV'
-        if syl[1] in EXTRA_LONG: 
+        if syl[1] in EXTRA_LONG_VOWELS: 
             return 'CVV:'
     elif  len(syl) == 3:
         # c+āēīūâêîûaeiuàìùè+c
-        if syl[1] in SHORT: 
+        if syl[1] in SHORT_VOWELS: 
             return 'CVC'
-        if syl[1] in LONG: 
+        if syl[1] in LONG_VOWELS: 
             return 'CVVC'
-        if syl[1] in EXTRA_LONG: 
+        if syl[1] in EXTRA_LONG_VOWELS: 
             return 'CVV:C'
     else:
         pass # Never happen
@@ -380,7 +400,7 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
     # Process each word
     for word in words:
         # Split into syllables (on . or -)
-        syllables = re.split(r'[\.\-_]+', word)
+        syllables = re.split(rf'[\{SYL_SEPARATOR}\-\{TIL_WORD_LINKER}]+', word)
 
         # Count syllables in this word
         word_syllable_count = 0
@@ -399,13 +419,13 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
             # Count morae
             morae = 0
             for c in syl:
-                if c in LONG:
+                if c in LONG_VOWELS:
                     morae += 2
-                elif c in EXTRA_LONG:
+                elif c in EXTRA_LONG_VOWELS:
                     morae += 3
                 elif c == LENGTH_MARKER:
                     morae += 1
-                elif c in SHORT or c in ALL_CONSONANTS or c == GLOTTAL:
+                elif c in SHORT_VOWELS or c in ALL_CONSONANTS or c == GLOTTAL:
                     morae += 1
             morae_list.append(morae)
             word_mora_count += morae
@@ -502,7 +522,7 @@ def extract_segments(text: str) -> Tuple[List[str], List[str]]:
     # Remove word boundaries and syllable boundaries
     all_segments = []
     for c in text:
-        if c in (WORD_BOUNDARY, '.', '-', '_'):
+        if c in (WORD_BOUNDARY, SYL_SEPARATOR, '-', TIL_WORD_LINKER):
             continue
         all_segments.append(c)
     
@@ -553,11 +573,11 @@ def vowel_length(v: str) -> int:
         return 0
     total = 0
     for c in v:
-        if c in SHORT:
+        if c in SHORT_VOWELS:
             total += 1
-        elif c in LONG:
+        elif c in LONG_VOWELS:
             total += 2
-        elif c in EXTRA_LONG:
+        elif c in EXTRA_LONG_VOWELS:
             total += 3
         elif c == LENGTH_MARKER:
             total += 1
@@ -763,7 +783,7 @@ def count_spaces_and_punctuation(text: str) -> Dict:
         match = word_pattern.match(text[i:])
         if match:
             word = match.group()
-            word_underscores = word.count('_')
+            word_underscores = word.count(TIL_WORD_LINKER)
             if word_underscores > 0:
                 merged_boundaries += word_underscores
             i += len(word)
@@ -1207,7 +1227,7 @@ def test_small_text():
     print("TEST: Small text syllable counting")
     print("="*80)
     
-    test_text = "šar gi.mir_dad~.mē bā.nû kib.rā~.ti"
+    test_text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
     
     # Expected original counts (without repairs)
     expected_original = {
@@ -1317,17 +1337,17 @@ def run_tests():
     full_word_pattern = re.compile(f'^(?:{word_pattern.pattern})$')
     
     test_cases = [
-        ('at.tā', True),
-        ('ā.lik', True),
-        ('maḫ.rim~-ma', True),
-        ('i.lū~', True),
+        ('at·tā', True),
+        ('ā·lik', True),
+        ('maḫ·rim~-ma', True),
+        ('i·lū~', True),
         ('~a', True),
-        ('ana_kâ.ša', True),
-        ('ka_', False),
+        ('ana+kâ·ša', True),
+        ('ka+', False),
         ('$word', False),
         ('word$', False),
         ('_word', False),
-        ('word_', False),
+        ('word+', False),
     ]
     
     passed = True
@@ -1347,59 +1367,59 @@ def run_tests():
     test_cases = [
         {
             'name': 'Simple line',
-            'input': 'at.tā ā.lik',
+            'input': 'at·tā ā·lik',
             'expected': [
-                ('WORD', 'at.tā'),
+                ('WORD', 'at·tā'),
                 ('SPACES', ' '),
-                ('WORD', 'ā.lik')
+                ('WORD', 'ā·lik')
             ]
         },
         {
             'name': 'Line with punctuation',
-            'input': 'at.tā, ā.lik!',
+            'input': 'at·tā, ā·lik!',
             'expected': [
-                ('WORD', 'at.tā'),
+                ('WORD', 'at·tā'),
                 ('PUNCT', ','),
                 ('SPACES', ' '),
-                ('WORD', 'ā.lik'),
+                ('WORD', 'ā·lik'),
                 ('PUNCT', '!')
             ]
         },
         {
             'name': 'Line with merged words',
-            'input': 'ana_kâ.ša lu.ṣī-ma',
+            'input': 'ana+kâ·ša lu·ṣī-ma',
             'expected': [
-                ('WORD', 'ana_kâ.ša'),
+                ('WORD', 'ana+kâ·ša'),
                 ('SPACES', ' '),
-                ('WORD', 'lu.ṣī-ma')
+                ('WORD', 'lu·ṣī-ma')
             ]
         },
         {
             'name': 'Line with multiple spaces',
-            'input': 'at.tā   ā.lik',
+            'input': 'at·tā   ā·lik',
             'expected': [
-                ('WORD', 'at.tā'),
+                ('WORD', 'at·tā'),
                 ('SPACES', '   '),
-                ('WORD', 'ā.lik')
+                ('WORD', 'ā·lik')
             ]
         },
         {
             'name': 'Line with leading spaces',
-            'input': '  at.tā ā.lik',
+            'input': '  at·tā ā·lik',
             'expected': [
                 ('SPACES', '  '),
-                ('WORD', 'at.tā'),
+                ('WORD', 'at·tā'),
                 ('SPACES', ' '),
-                ('WORD', 'ā.lik')
+                ('WORD', 'ā·lik')
             ]
         },
         {
             'name': 'Line with trailing spaces',
-            'input': 'at.tā ā.lik  ',
+            'input': 'at·tā ā·lik  ',
             'expected': [
-                ('WORD', 'at.tā'),
+                ('WORD', 'at·tā'),
                 ('SPACES', ' '),
-                ('WORD', 'ā.lik'),
+                ('WORD', 'ā·lik'),
                 ('SPACES', '  ')
             ]
         },
@@ -1425,10 +1445,10 @@ def run_tests():
         ('bī~t', 'bìt'),
         ('mâ~r', 'màr'),
         ('kû~n', 'kùn'),
-        ('at.tā', 'ʾat.tā'),
-        ('ā.lik', 'ʾā.lik'),
-        ('maḫ.rim~-ma', 'maḫ.rim:-ma'),
-        ('i.lū~', 'ʾi.lù'),
+        ('at·tā', 'ʾat·tā'),
+        ('ā·lik', 'ʾā·lik'),
+        ('maḫ·rim~-ma', 'maḫ·rim:-ma'),
+        ('i·lū~', 'ʾi·lù'),
         ('~a', ':a'),
         ('k~a', 'k:a'),
         ('dad~', 'dad:'),
@@ -1451,38 +1471,38 @@ def run_tests():
     test_cases = [
         {
             'name': 'Simple line',
-            'input': 'at.tā ā.lik',
-            'expected': 'ʾat.tā$ʾā.lik'
+            'input': 'at·tā ā·lik',
+            'expected': 'ʾat·tā$ʾā·lik'
         },
         {
             'name': 'Line with repairs',
-            'input': 'maḫ.rim~-ma i.lū~',
-            'expected': 'maḫ.rim:-ma$ʾi.lù'
+            'input': 'maḫ·rim~-ma i·lū~',
+            'expected': 'maḫ·rim:-ma$ʾi·lù'
         },
         {
             'name': 'Complex line with punctuation',
-            'input': 'at.tā, ā.lik! maḫ.rim~-ma || i.lū~ ...',
-            'expected': 'ʾat.tā$ʾā.lik$maḫ.rim:-ma$ʾi.lù$'
+            'input': 'at·tā, ā·lik! maḫ·rim~-ma || i·lū~ ···',
+            'expected': 'ʾat·tā$ʾā·lik$maḫ·rim:-ma$ʾi·lù$'
         },
         {
             'name': 'Line with merged words',
-            'input': 'ana_kâ.ša lu.ṣī-ma',
-            'expected': 'ʾana_kâ.ša$lu.ṣī-ma'
+            'input': 'ana+kâ·ša lu·ṣī-ma',
+            'expected': 'ʾana+kâ·ša$lu·ṣī-ma'
         },
         {
             'name': 'Line with multiple spaces',
-            'input': 'at.tā   ā.lik',
-            'expected': 'ʾat.tā$ʾā.lik'
+            'input': 'at·tā   ā·lik',
+            'expected': 'ʾat·tā$ʾā·lik'
         },
         {
             'name': 'Line with leading spaces',
-            'input': '  at.tā ā.lik',
-            'expected': 'ʾat.tā$ʾā.lik'
+            'input': '  at·tā ā·lik',
+            'expected': 'ʾat·tā$ʾā·lik'
         },
         {
             'name': 'Line with trailing spaces',
-            'input': 'at.tā ā.lik  ',
-            'expected': 'ʾat.tā$ʾā.lik'
+            'input': 'at·tā ā·lik  ',
+            'expected': 'ʾat·tā$ʾā·lik'
         },
     ]
     
@@ -1503,19 +1523,19 @@ def run_tests():
     test_cases = [
         {
             'name': 'masta (no repair)',
-            'input': 'mas.ta',
+            'input': 'mas·ta',
             'expected_consonants': ['m', 's', 't'],
             'expected_vowels': ['a', '', 'a']
         },
         {
             'name': 'mas:ta (with gemination)',
-            'input': 'mas~.ta',
+            'input': 'mas~·ta',
             'expected_consonants': ['m', 's', 't'],
             'expected_vowels': ['a', ':', 'a']
         },
         {
             'name': 'ʾana',
-            'input': 'a.na',
+            'input': 'a·na',
             'expected_consonants': ['ʾ', 'n'],
             'expected_vowels': ['a', 'a']
         },
@@ -1558,17 +1578,17 @@ def run_tests():
     test_cases = [
         {
             'name': 'masta (no repair)',
-            'input': 'mas.ta',
+            'input': 'mas·ta',
             'expected_distances': [1, 0, 1]
         },
         {
             'name': 'mas:ta (with gemination)',
-            'input': 'mas~.ta',
+            'input': 'mas~·ta',
             'expected_distances': [1, 1, 1]
         },
         {
             'name': 'ʾana',
-            'input': 'a.na',
+            'input': 'a·na',
             'expected_distances': [1, 1]
         },
         {
@@ -1604,7 +1624,7 @@ def run_tests():
     print("\n--- Test 7: Pause Metrics ---")
     tests_total += 1
     
-    test_text = "šar gi.mir_dad~.mē || bā.nû kib.rā~.ti ..."
+    test_text = "šar gi·mir+dad~·mē || bā·nû kib·rā~·ti ···"
     stats = analyze_text(test_text, is_repaired=True)
     pause_metrics = compute_pause_metrics(test_text, stats)
 

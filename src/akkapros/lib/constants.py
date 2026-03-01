@@ -30,12 +30,12 @@ AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 # consistent.
 SHORT_VOWELS = set('aeiu')
 LONG_VOWELS = set('āēīūâêîû')
+EXTRA_LONG_VOWELS = set('àìùè')
 
 # Symbols
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
 SYL_WORD_ENDING = '¦'       # marker used by the syllabifier
 SYL_SEPARATOR = '·'          # separator between syllables in the syllabifier output
-HYPHEN = '-'                # hyphen character (used in some contexts, but may be merged to dots in syllabification)
 OPEN_ESCAPE = '‹'
 CLOSE_ESCAPE = '›'
 
@@ -43,7 +43,7 @@ OPEN_IGNORE = '['
 CLOSE_IGNORE = ']'
 
 
-TIL_WORD_LINKER = '_'
+TIL_WORD_LINKER = '+'
 
 
 # Additional constants may be added here when shared across modules.

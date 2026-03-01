@@ -45,10 +45,10 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 EXAMPLES:
-  python metricscalculator.py erra_tilde.txt --table
-  python metricscalculator.py --test
-  python metricscalculator.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
-  python metricscalculator.py erra_tilde.txt --punct-weight 2.5  # punctuation 2.5x longer than spaces
+    python metricser.py erra_tilde.txt --table
+    python metricser.py --test
+    python metricser.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
+    python metricser.py erra_tilde.txt --punct-weight 2.5  # punctuation 2.5x longer than spaces
 
 Version {__version__}
 """
