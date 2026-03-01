@@ -29,6 +29,7 @@ __license__ = "MIT"
 __project__ = "Akkadian Prosody"
 __repo__ = "akkapros"
 
+HYPHEN = '-'
 
 class EBLError(Exception):
     """Exception raised for eBL-specific parsing errors."""
@@ -177,7 +178,7 @@ class ATFParser:
         
         # Handle hyphens based on option
         if self.remove_hyphens:
-            text = text.replace('-', '')
+            text = text.replace(HYPHEN, '')
         
         # Remove subscript numerals
         text = re.sub(r'[₂₃₄₅₆₇₈₉]', '', text)

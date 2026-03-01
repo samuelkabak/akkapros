@@ -37,6 +37,7 @@ from akkapros.lib.constants import (
     EXTRA_LONG_VOWELS
 )
 
+HYPHEN = '-'
 
 # ------------------------------------------------------------
 # Phonetic inventory — Akkadian core
@@ -136,8 +137,8 @@ def build_word_pattern() -> re.Pattern:
     # CLASS_WORD_INTERNAL_SYLLABLE_FIRST_LETTER := CONSONANTS
     internal_first_class = f'[{consonants_class}]'
     
-    # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or '-'
-    syl_sep = rf'[\{SYL_SEPARATOR}\-]'
+    # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or HYPHEN
+    syl_sep = rf'[\{SYL_SEPARATOR}\{HYPHEN}]'
     
     # CLASS_UNIT_WORD_SEPARATOR := TIL_WORD_LINKER
     unit_sep = TIL_WORD_LINKER
@@ -400,7 +401,7 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
     # Process each word
     for word in words:
         # Split into syllables (on . or -)
-        syllables = re.split(rf'[\{SYL_SEPARATOR}\-\{TIL_WORD_LINKER}]+', word)
+        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{TIL_WORD_LINKER}]+', word)
 
         # Count syllables in this word
         word_syllable_count = 0
@@ -522,7 +523,7 @@ def extract_segments(text: str) -> Tuple[List[str], List[str]]:
     # Remove word boundaries and syllable boundaries
     all_segments = []
     for c in text:
-        if c in (WORD_BOUNDARY, SYL_SEPARATOR, '-', TIL_WORD_LINKER):
+        if c in (WORD_BOUNDARY, SYL_SEPARATOR, HYPHEN, TIL_WORD_LINKER):
             continue
         all_segments.append(c)
     

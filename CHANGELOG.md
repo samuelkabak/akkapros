@@ -12,12 +12,14 @@
 - Basic directory structure: src/ and tests/
 - Placeholder __init__.py files
 - **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics) with deduplicated shared options and unified outputs
+- **printer.py / print.py**: New accent rendering pipeline from `*_tilde.txt` to `<prefix>_accent_accute.txt` and `<prefix>_accent_bold.md`
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)
 - Moved CLI scripts to `akkapros/cli/` subpackage
 - Separated library code into `akkapros/lib/` for future API development
 - Added sample data file `erra-and-ishum-SB.atf` to `data/samples/`
+- Standardized `HYPHEN` as an explicit variable in active library modules (`syllabify.py`, `repair.py`, `metrics.py`, `atfparse.py`, `print.py`) to reduce hardcoded separator usage
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite

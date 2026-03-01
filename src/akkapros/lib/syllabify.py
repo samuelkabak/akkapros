@@ -22,19 +22,6 @@ import re
 import sys
 from typing import List
 
-# shared constants
-from akkapros.lib.constants import (
-    AKKADIAN_VOWELS,
-    AKKADIAN_CONSONANTS,
-    GLOTTAL,
-    SYL_WORD_ENDING,
-    SYL_SEPARATOR,
-    OPEN_ESCAPE,
-    CLOSE_ESCAPE,
-    OPEN_IGNORE,
-    CLOSE_IGNORE
-)
-
 __version__ = "1.2.0"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
@@ -48,6 +35,22 @@ __repo__ = "akkapros"
 # ``text_preprocess_boundaries`` when the user supplies extra vowels or
 # consonants via command-line options.  They mirror the globals that existed
 # in the original script.
+
+# shared constants
+from akkapros.lib.constants import (
+    AKKADIAN_VOWELS,
+    AKKADIAN_CONSONANTS,
+    GLOTTAL,
+    SYL_WORD_ENDING,
+    SYL_SEPARATOR,
+    OPEN_ESCAPE,
+    CLOSE_ESCAPE,
+    OPEN_IGNORE,
+    CLOSE_IGNORE
+)
+
+HYPHEN = '-'
+
 
 FOREIGN_VOWELS = set()
 FOREIGN_CONSONANTS = set()
@@ -84,7 +87,7 @@ def is_hyphen(c: str, before: str = "", after: str = "") -> bool:
     a dash surrounded by spaces counts as punctuation.  We rely on the
     neighbouring characters to make this distinction.
     """
-    if c != '-':
+    if c != HYPHEN:
         return False
     if before == '' and after == '':
         return True
@@ -97,7 +100,7 @@ def is_word_char(c: str, extra: str = '', before: str = '', after: str = '') -> 
     """True if character can form part of an Akkadian word token."""
     if is_akkadian_letter(c):
         return True
-    if c == '-':
+    if c == HYPHEN:
         return is_hyphen(c, before, after)
     return False
 
@@ -180,12 +183,12 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
         line = lines[i].rstrip('\n')
         original_line = line
         line = line.rstrip()
-        if original_line.rstrip().endswith('-') and i + 1 < len(lines):
+        if original_line.rstrip().endswith(HYPHEN) and i + 1 < len(lines):
             next_line = lines[i + 1]
             next_line_stripped = next_line.lstrip()
             if next_line_stripped and is_word_char(next_line_stripped[0]):
-                base = original_line.rstrip().rstrip('-')
-                merged = base + '-' + next_line_stripped
+                base = original_line.rstrip().rstrip(HYPHEN)
+                merged = base + HYPHEN + next_line_stripped
                 warnings.append(f"Hyphen split across lines merged: '{original_line.rstrip()}' + '{next_line}' → '{merged}'")
                 processed_lines.append(merged)
                 rest = next_line[len(next_line_stripped):]
@@ -204,7 +207,7 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
 
 def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
     """Return the syllabified representation of a single word."""
-    if '-' not in word:
+    if HYPHEN not in word:
         segs = [c for c in word if is_akkadian_letter(c)]
         if not segs:
             return word
@@ -234,9 +237,9 @@ def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
                         syl.append(segs[i]); i += 1
                 syllables.append(''.join(syl))
         return SYL_SEPARATOR.join(syllables)
-    parts = word.split('-')
+    parts = word.split(HYPHEN)
     result_parts = [syllabify_word(p, merge_hyphen) for p in parts]
-    separator = '-' if not merge_hyphen else SYL_SEPARATOR
+    separator = HYPHEN if not merge_hyphen else SYL_SEPARATOR
     return separator.join(result_parts)
 
 

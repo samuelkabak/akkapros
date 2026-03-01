@@ -30,6 +30,7 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 | `repairer.py` | 1.0.0 | Applies accentuation repair algorithm |
 | `metricser.py` | 1.0.0 | Computes acoustic metrics from repaired text |
 | `fullreparer.py` | 1.0.0 | Runs syllabify + repair + metrics in one command |
+| `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text and accent markdown outputs |
 | `format.py` | 1.0.0 | Generates Markdown, LaTeX, and IPA output |
 
 ---
@@ -53,9 +54,47 @@ python3 src/akkapros/cli/metricser.py erra.tilde > erra_metrics.txt
 # Full pipeline in one command (writes _syl, _tilde and metrics outputs)
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --table
 
+# Accent rendering from *_tilde.txt (writes both outputs by default)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
+
 # Generate publication outputs
 python3 src/format.py erra.tilde --md --tex --ipa
 
+```
+
+---
+
+## 🖨️ Accent Printer CLI (`printer.py`)
+
+`printer.py` reads `*_tilde.txt` and produces reading outputs:
+
+- `<prefix>_accent_accute.txt`
+- `<prefix>_accent_bold.md`
+
+### Marker behavior
+
+- `+` (`TIL_WORD_LINKER`) → `‿`
+- `·` (`SYL_SEPARATOR`) removed in final output
+- `-` (`HYPHEN`) preserved
+- `~` marks the preceding syllable:
+	- in `accent_accute`: replaced by `´`
+	- in `accent_bold`: removed and the host syllable is bolded
+- content inside square brackets `[ ... ]` is left untouched (for markdown URI safety)
+
+### Usage
+
+```bash
+# write both outputs (default)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
+
+# write only accent text
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --accute
+
+# write only bold markdown
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --bold
+
+# run self-tests
+python3 src/akkapros/cli/printer.py --test
 ```
 
 ---

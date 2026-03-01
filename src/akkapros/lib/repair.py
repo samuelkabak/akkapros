@@ -23,6 +23,8 @@ from akkapros.lib.constants import (
     TIL_WORD_LINKER
 )
 
+HYPHEN = '-'
+
 # ------------------------------------------------------------
 # Phonetic inventory
 # ------------------------------------------------------------
@@ -49,7 +51,7 @@ FUNCTION_WORDS: Set[str] = {
 
 def is_function_word(word_text: str) -> bool:
     """Return True if word is a function word (ignoring dots and hyphens)."""
-    return word_text.replace(SYL_SEPARATOR, '').replace('-', '') in FUNCTION_WORDS
+    return word_text.replace(SYL_SEPARATOR, '').replace(HYPHEN, '') in FUNCTION_WORDS
 
 
 class AccentStyle(Enum):
@@ -167,7 +169,7 @@ class Word:
         # Parse syllables and track separators
         current = []
         for c in text:
-            if c in (SYL_SEPARATOR, '-'):
+            if c in (SYL_SEPARATOR, HYPHEN):
                 if current:
                     self.syllables.append(''.join(current))
                     self.separators.append(c)
@@ -445,7 +447,7 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
         if isinstance(token, Word):
             for syllable in token.syllables:
                 for c in syllable.text:
-                    if c not in (SYL_SEPARATOR, '-'):  # Ignore separators
+                    if c not in (SYL_SEPARATOR, HYPHEN):  # Ignore separators
                         akkadian_chars.add(c)
     akkadian_chars.add('~')
     
