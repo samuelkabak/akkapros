@@ -11,6 +11,7 @@
 - .gitignore for Python projects
 - Basic directory structure: src/ and tests/
 - Placeholder __init__.py files
+- **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics) with deduplicated shared options and unified outputs
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)
