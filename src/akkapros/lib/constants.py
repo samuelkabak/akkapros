@@ -36,6 +36,8 @@ EXTRA_LONG_VOWELS = set('àìùè')
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
 SYL_WORD_ENDING = '¦'       # marker used by the syllabifier
 SYL_SEPARATOR = '·'          # separator between syllables in the syllabifier output
+HYPHEN = '-'
+WORD_LINKER = '+'
 OPEN_ESCAPE = '‹'
 CLOSE_ESCAPE = '›'
 
@@ -43,7 +45,8 @@ OPEN_IGNORE = '['
 CLOSE_IGNORE = ']'
 
 
-TIL_WORD_LINKER = '+'
+# Backward compatibility alias (deprecated name)
+TIL_WORD_LINKER = WORD_LINKER
 
 
 # Additional constants may be added here when shared across modules.

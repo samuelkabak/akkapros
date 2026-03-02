@@ -8,7 +8,7 @@ Transforms *_tilde text into two reading-friendly outputs:
 - accent_bold markdown: syllable containing ~ is bold, ~ removed
 
 Core marker handling:
-- TIL_WORD_LINKER '+' -> '‿'
+- WORD_LINKER '+' -> '‿'
 - SYL_SEPARATOR '·' removed in final outputs
 - Hyphen '-' preserved as boundary marker
 """
@@ -18,7 +18,7 @@ from typing import Tuple
 
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
-    TIL_WORD_LINKER,
+    WORD_LINKER,
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
 )
@@ -60,7 +60,7 @@ def _convert_word(word: str, mode: str) -> str:
             current_syllable.clear()
 
     for char in word:
-        if char == TIL_WORD_LINKER:
+        if char == WORD_LINKER:
             flush_current()
             out.append(WORD_LINKER_OUT)
         elif char == TILDE:
@@ -81,7 +81,7 @@ def _is_word_char(char: str) -> bool:
     """Return True for characters that belong to processable Akkadian word chunks."""
     if char in AKKADIAN_VOWELS or char in AKKADIAN_CONSONANTS:
         return True
-    return char in {TIL_WORD_LINKER, SYL_SEPARATOR, HYPHEN, TILDE}
+    return char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN, TILDE}
 
 
 def _convert_non_bracket_part(part: str, mode: str) -> str:

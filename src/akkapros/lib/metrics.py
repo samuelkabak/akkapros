@@ -31,7 +31,7 @@ from akkapros.lib.constants import (
     SYL_SEPARATOR,
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
-    TIL_WORD_LINKER,
+    WORD_LINKER,
     SHORT_VOWELS,
     LONG_VOWELS,
     EXTRA_LONG_VOWELS
@@ -140,8 +140,8 @@ def build_word_pattern() -> re.Pattern:
     # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or HYPHEN
     syl_sep = rf'[\{SYL_SEPARATOR}\{HYPHEN}]'
     
-    # CLASS_UNIT_WORD_SEPARATOR := TIL_WORD_LINKER
-    unit_sep = TIL_WORD_LINKER
+    # CLASS_UNIT_WORD_SEPARATOR := WORD_LINKER
+    unit_sep = WORD_LINKER
     
     # CLASS_FIRST_SYLLABLE := FIRST_LETTER + COMPLEMENT*
     first_syl = first_letter_class + complement_class
@@ -255,9 +255,9 @@ def count_merged_units(words: List[str]) -> Dict:
     merged_units = 0
     
     for word in words:
-        if TIL_WORD_LINKER in word:
+        if WORD_LINKER in word:
             merged_units += 1
-            total_merged_words += word.count(TIL_WORD_LINKER) + 1
+            total_merged_words += word.count(WORD_LINKER) + 1
     
     avg = total_merged_words / merged_units if merged_units > 0 else 0
     
@@ -401,7 +401,7 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
     # Process each word
     for word in words:
         # Split into syllables (on . or -)
-        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{TIL_WORD_LINKER}]+', word)
+        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{WORD_LINKER}]+', word)
 
         # Count syllables in this word
         word_syllable_count = 0
@@ -523,7 +523,7 @@ def extract_segments(text: str) -> Tuple[List[str], List[str]]:
     # Remove word boundaries and syllable boundaries
     all_segments = []
     for c in text:
-        if c in (WORD_BOUNDARY, SYL_SEPARATOR, HYPHEN, TIL_WORD_LINKER):
+        if c in (WORD_BOUNDARY, SYL_SEPARATOR, HYPHEN, WORD_LINKER):
             continue
         all_segments.append(c)
     
@@ -784,7 +784,7 @@ def count_spaces_and_punctuation(text: str) -> Dict:
         match = word_pattern.match(text[i:])
         if match:
             word = match.group()
-            word_underscores = word.count(TIL_WORD_LINKER)
+            word_underscores = word.count(WORD_LINKER)
             if word_underscores > 0:
                 merged_boundaries += word_underscores
             i += len(word)

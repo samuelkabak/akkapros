@@ -43,13 +43,13 @@ from akkapros.lib.constants import (
     GLOTTAL,
     SYL_WORD_ENDING,
     SYL_SEPARATOR,
+    HYPHEN,
+    WORD_LINKER,
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
     OPEN_IGNORE,
     CLOSE_IGNORE
 )
-
-HYPHEN = '-'
 
 
 FOREIGN_VOWELS = set()
@@ -89,11 +89,18 @@ def is_hyphen(c: str, before: str = "", after: str = "") -> bool:
     """
     if c != HYPHEN:
         return False
-    if before == '' and after == '':
-        return True
     before_is_letter = before and is_akkadian_letter(before)
     after_is_letter = after and is_akkadian_letter(after)
-    return before_is_letter or after_is_letter
+    return bool(before_is_letter and after_is_letter)
+
+
+def is_linker(c: str, before: str = "", after: str = "") -> bool:
+    """Determine whether ``c`` is a word-linker connecting two words (+)."""
+    if c != WORD_LINKER:
+        return False
+    before_is_letter = before and is_akkadian_letter(before)
+    after_is_letter = after and is_akkadian_letter(after)
+    return bool(before_is_letter and after_is_letter)
 
 
 def is_word_char(c: str, extra: str = '', before: str = '', after: str = '') -> bool:
@@ -102,6 +109,8 @@ def is_word_char(c: str, extra: str = '', before: str = '', after: str = '') -> 
         return True
     if c == HYPHEN:
         return is_hyphen(c, before, after)
+    if c == WORD_LINKER:
+        return is_linker(c, before, after)
     return False
 
 # ---------------------------------------------------------------------------
@@ -195,6 +204,18 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
                 processed_lines.append(rest or '')
                 i += 2
                 continue
+        if original_line.rstrip().endswith(WORD_LINKER) and i + 1 < len(lines):
+            next_line = lines[i + 1]
+            next_line_stripped = next_line.lstrip()
+            if next_line_stripped and is_word_char(next_line_stripped[0]):
+                base = original_line.rstrip().rstrip(WORD_LINKER)
+                merged = base + WORD_LINKER + next_line_stripped
+                warnings.append(f"Word linker split across lines merged: '{original_line.rstrip()}' + '{next_line}' → '{merged}'")
+                processed_lines.append(merged)
+                rest = next_line[len(next_line_stripped):]
+                processed_lines.append(rest or '')
+                i += 2
+                continue
         processed_lines.append(line)
         i += 1
     if '\t' in text and not tab_warning_issued:
@@ -207,7 +228,7 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
 
 def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
     """Return the syllabified representation of a single word."""
-    if HYPHEN not in word:
+    if HYPHEN not in word and WORD_LINKER not in word:
         segs = [c for c in word if is_akkadian_letter(c)]
         if not segs:
             return word
@@ -237,10 +258,26 @@ def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
                         syl.append(segs[i]); i += 1
                 syllables.append(''.join(syl))
         return SYL_SEPARATOR.join(syllables)
-    parts = word.split(HYPHEN)
+
+    parts = []
+    separators = []
+    current = []
+    for c in word:
+        if c in (HYPHEN, WORD_LINKER):
+            parts.append(''.join(current))
+            separators.append(c)
+            current = []
+        else:
+            current.append(c)
+    parts.append(''.join(current))
+
     result_parts = [syllabify_word(p, merge_hyphen) for p in parts]
-    separator = HYPHEN if not merge_hyphen else SYL_SEPARATOR
-    return separator.join(result_parts)
+    result = [result_parts[0]]
+    for idx, sep in enumerate(separators):
+        out_sep = SYL_SEPARATOR if (sep == HYPHEN and merge_hyphen) else sep
+        result.append(out_sep)
+        result.append(result_parts[idx + 1])
+    return ''.join(result)
 
 
 def tokenize_line(line: str, extra: str = '') -> List[tuple]:
@@ -319,6 +356,42 @@ def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = ''
                     syllabified = syllabify_word(token_text, merge_hyphen)
                     current_line_parts.append(syllabified + SYL_WORD_ENDING)
             else:
+                # Treat "- " / "+ " as suffix boundary marker attached to previous word.
+                if (
+                    token_text in (f"{HYPHEN} ", f"{WORD_LINKER} ")
+                    and current_line_parts
+                    and current_line_parts[-1].endswith(SYL_WORD_ENDING)
+                    and i + 1 < len(tokens)
+                    and tokens[i + 1][0] == 'word'
+                    and not in_brackets
+                ):
+                    previous = current_line_parts.pop()
+                    current_line_parts.append(previous[:-1] + token_text[0] + SYL_WORD_ENDING)
+                    continue
+
+                # Treat " -" / " +" as prefix boundary marker attached to next word.
+                if (
+                    token_text in (f" {HYPHEN}", f" {WORD_LINKER}")
+                    and i + 1 < len(tokens)
+                    and tokens[i + 1][0] == 'word'
+                    and not in_brackets
+                ):
+                    current_line_parts.append(token_text[1])
+                    continue
+
+                # If trailing hyphen/linker is punctuation at line end, keep it before final ¦
+                if (
+                    i == len(tokens) - 1
+                    and token_text in (HYPHEN, WORD_LINKER)
+                    and current_line_parts
+                    and current_line_parts[-1].endswith(SYL_WORD_ENDING)
+                ):
+                    previous = current_line_parts.pop()
+                    current_line_parts.append(previous[:-1])
+                    current_line_parts.append(f"{OPEN_ESCAPE}{token_text}{CLOSE_ESCAPE}")
+                    current_line_parts.append(SYL_WORD_ENDING)
+                    continue
+
                 if '[' in token_text:
                     in_brackets = True
                 if ']' in token_text:
@@ -391,8 +464,13 @@ def run_tests() -> bool:
         ("Hyphenated word - merge", "ḫendur-sanga", "ḫen·dur·san·ga¦", True),
         ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a·mē·lu-ša-ī·šum¦"),
         ("Multiple hyphens - merge", "amēlu-ša-īšum", "a·mē·lu·ša·ī·šum¦", True),
-        ("Hyphen at beginning", "-šar", "-šar¦"),
-        ("Hyphen at end", "šar-", "šar-¦"),
+        ("Word linker + preserve", "apilellil+gimirdadmē", "a·pi·lel·lil+gi·mir·dad·mē¦"),
+        ("Word linker + with syllabic words", "apil+ellil", "a·pil+el·lil¦"),
+        ("Mixed + and - separators", "apil+el-lil", "a·pil+el-lil¦"),
+        ("Hyphen at beginning", "-šar", "‹-›šar¦"),
+        ("Hyphen at end", "šar-", "šar‹-›¦"),
+        ("Linker at beginning", "+šar", "‹+›šar¦"),
+        ("Linker at end", "šar+", "šar‹+›¦"),
         
         # ===== DASH VS HYPHEN =====
         ("Dash with spaces", "ḫendur - sanga", "ḫen·dur¦‹ - ›san·ga¦"),
@@ -404,6 +482,8 @@ def run_tests() -> bool:
         ("Multiple spaces between words", "šar   gimir", "šar¦gi·mir¦"),
         ("Tab between words", "šar\tgimir", "šar¦gi·mir¦"),
         ("Newline between words", "šar\ngimir", "šar¦\ngi·mir¦"),
+        ("Hyphen split across lines merge", "ḫendur-\nsanga", "ḫen·dur·san·ga¦\n", True),
+        ("Word linker split across lines", "apil+\nellil", "a·pil+el·lil¦\n"),
         ("Double newline", "šar\n\ngimir", "šar¦\n\ngi·mir¦"),
         
         # ===== NUMBERS AND NON-AKKADIAN =====
