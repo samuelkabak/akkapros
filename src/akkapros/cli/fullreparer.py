@@ -48,6 +48,7 @@ def run_pipeline(
     extra_consonants: str,
     merge_hyphen: bool,
     style: str,
+    only_last: bool,
     restore_diphthongs: bool,
     only_restore_diphthongs: bool,
     wpm: float,
@@ -88,7 +89,7 @@ def run_pipeline(
     # 2) Repair using library engine
     print("\n[2/3] Repairing...")
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
-    engine = RepairEngine(style=style_map[style])
+    engine = RepairEngine(style=style_map[style], only_last=only_last)
     engine.process_file(
         str(syl_file),
         str(tilde_file),
@@ -151,6 +152,8 @@ Versions: {__version__}
 
     # Repairer options
     parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
+    parser.add_argument('-l', '--only-last', action='store_true',
+                        help='For explicit + links, restrict repair to the last linked word only')
     parser.add_argument('--restore-diphthongs', action='store_true',
                         help='Restore diphthongs after repair (or restoration-only mode)')
     parser.add_argument('--only-restore-diphthongs', action='store_true',
@@ -222,6 +225,7 @@ Versions: {__version__}
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
         style=args.style,
+        only_last=args.only_last,
         restore_diphthongs=args.restore_diphthongs,
         only_restore_diphthongs=args.only_restore_diphthongs,
         wpm=args.wpm,

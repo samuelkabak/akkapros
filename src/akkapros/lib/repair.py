@@ -20,7 +20,7 @@ from akkapros.lib.constants import (
     SYL_SEPARATOR,
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
-    TIL_WORD_LINKER
+    WORD_LINKER
 )
 
 HYPHEN = '-'
@@ -301,7 +301,7 @@ class Word:
 
 
 class MergedUnit:
-    def __init__(self, words: List[Word]):
+    def __init__(self, words: List[Word], locked_prefix_words: int = 0):
         self.words = words
         self.syllables = []
         for w in words:
@@ -312,6 +312,12 @@ class MergedUnit:
         for w in words:
             self.word_boundaries.append(pos + len(w.syllables) - 1)
             pos += len(w.syllables)
+
+        # Optional explicit-link locking: words before the explicit-link tail
+        # are ineligible for repair candidates.
+        locked_prefix_words = max(0, min(locked_prefix_words, len(words)))
+        ineligible_count = sum(len(w.syllables) for w in words[:locked_prefix_words])
+        self.pre_linker_syllables = set(range(ineligible_count))
     
     @property
     def morae(self) -> int:
@@ -323,6 +329,9 @@ class MergedUnit:
     
     def is_syllable_final_in_word(self, syl_idx: int) -> bool:
         return syl_idx in self.word_boundaries
+
+    def is_syllable_before_linker(self, syl_idx: int) -> bool:
+        return syl_idx in self.pre_linker_syllables
     
     def get_best_repair(self, style: AccentStyle) -> Optional[Dict]:
         candidates = []
@@ -345,6 +354,8 @@ class MergedUnit:
         
         for i in range(n_syllables - 1, -1, -1):
             syl = self.syllables[i]
+            if self.is_syllable_before_linker(i):
+                continue
             is_final_in_word = self.is_syllable_final_in_word(i)
             
             if syl.can_lengthen_vowel():
@@ -401,11 +412,16 @@ def parse_syl_line(line: str) -> List[Union[Word, str]]:
                 j = n
             tokens.append(line[i:j+1])
             i = j + 1
+        elif line[i].isspace():
+            i += 1
+        elif line[i] == WORD_LINKER:
+            tokens.append(WORD_LINKER)
+            i += 1
         elif line[i] == SYL_WORD_ENDING:
             i += 1
         else:
             start = i
-            while i < n and line[i] != SYL_WORD_ENDING and line[i] != OPEN_ESCAPE:
+            while i < n and line[i] != SYL_WORD_ENDING and line[i] != OPEN_ESCAPE and line[i] != WORD_LINKER:
                 i += 1
             if start < i:
                 word_text = line[start:i]
@@ -427,14 +443,14 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
     combined = []
     i = 0
     while i < len(parts):
-        if parts[i] == TIL_WORD_LINKER:
+        if parts[i] == WORD_LINKER:
             # Underscore attaches to previous word
             if combined:
-                combined[-1] = combined[-1] + TIL_WORD_LINKER
+                combined[-1] = combined[-1] + WORD_LINKER
             i += 1
         else:
             # Check if this part should be merged with previous (for multiple underscores)
-            if combined and combined[-1].endswith(TIL_WORD_LINKER):
+            if combined and combined[-1].endswith(WORD_LINKER):
                 # Previous word ended with underscore, attach this word directly
                 combined[-1] = combined[-1] + parts[i]
             else:
@@ -543,8 +559,9 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
 #------------------------
 
 class RepairEngine:
-    def __init__(self, style: AccentStyle = AccentStyle.LOB):
+    def __init__(self, style: AccentStyle = AccentStyle.LOB, only_last: bool = False):
         self.style = style
+        self.only_last = only_last
         self.stats = {
             'words': 0,
             'function_words': 0,
@@ -577,6 +594,43 @@ class RepairEngine:
             syllable.repair_type = None
             syllable.repaired_morae = syllable.morae
             syllable.repaired_text = syllable.text
+
+    def _get_explicit_group_repair(self, unit: MergedUnit) -> Optional[Dict]:
+        """Pick repair site for explicit '+' groups.
+
+        - only_last=True: use standard model priorities, with pre-linker lock.
+        - only_last=False: allow propagation and choose the rightmost legal site.
+        """
+        if self.only_last:
+            return unit.get_best_repair(self.style)
+
+        n_syllables = len(unit.syllables)
+        for i in range(n_syllables - 1, -1, -1):
+            syl = unit.syllables[i]
+            if unit.is_syllable_before_linker(i):
+                continue
+            is_final_in_word = unit.is_syllable_final_in_word(i)
+
+            if syl.can_lengthen_vowel():
+                rule = 'heavy_nonfinal' if not is_final_in_word else 'final_heavy'
+                priority = 2 if not is_final_in_word else 3
+                return {
+                    'position': i,
+                    'type': 'lengthen_vowel',
+                    'word_idx': syl.word_idx,
+                    'rule': rule,
+                    'priority': priority,
+                }
+            if syl.can_geminate_coda() and not is_final_in_word:
+                return {
+                    'position': i,
+                    'type': 'geminate_coda',
+                    'word_idx': syl.word_idx,
+                    'rule': 'heavy_nonfinal',
+                    'priority': 2,
+                }
+
+        return None
     
     def repair_line(self, tokens: List[Union[Word, str]]) -> str:
         if not tokens:
@@ -589,6 +643,11 @@ class RepairEngine:
         while i < n:
             token = tokens[i]
             
+            # Handle explicit word linker from input
+            if token == WORD_LINKER:
+                i += 1
+                continue
+
             # Handle bracketed text
             if isinstance(token, str):
                 result_parts.append(token[1:-1])
@@ -596,6 +655,89 @@ class RepairEngine:
                 continue
             
             word = token
+
+            # Handle user-provided explicit '+' links as mandatory prosodic units.
+            forced_group = [word]
+            j = i
+            while (
+                j + 2 < n
+                and tokens[j + 1] == WORD_LINKER
+                and not isinstance(tokens[j + 2], str)
+            ):
+                forced_group.append(tokens[j + 2])
+                j += 2
+
+            if len(forced_group) > 1:
+                explicit_tail_start = (len(forced_group) - 1) if self.only_last else 0
+
+                def append_group(words_group: List[Word]) -> None:
+                    for k, linked_word in enumerate(words_group):
+                        if linked_word.is_function_word:
+                            result_parts.append(linked_word.get_text_flat())
+                        else:
+                            result_parts.append(linked_word.get_text())
+                        if k < len(words_group) - 1:
+                            result_parts.append(WORD_LINKER)
+
+                def resolve_group(words_group: List[Word]) -> Tuple[bool, bool]:
+                    unit = MergedUnit(words_group, locked_prefix_words=explicit_tail_start)
+                    if not unit.needs_repair:
+                        return True, False
+                    repair = self._get_explicit_group_repair(unit)
+                    if repair:
+                        unit.apply_repair(repair)
+                        self.stats['words_repaired'] += 1
+                        self.stats['repaired_syllables'] += 1
+                        self.stats['repair_types'][repair['type']] += 1
+                        return True, True
+                    return False, False
+
+                for linked_word in forced_group:
+                    self.stats['words'] += 1
+                    self.stats['total_syllables'] += len(linked_word.syllables)
+                    if linked_word.is_function_word:
+                        self.stats['function_words'] += 1
+
+                merged_group = list(forced_group)
+                resolved, _ = resolve_group(merged_group)
+                if resolved:
+                    append_group(merged_group)
+                    i = j + 1
+                    continue
+
+                # If explicit group cannot be repaired, keep merging forward
+                # with following words until punctuation or successful resolution.
+                k = j + 1
+                merged_forward_used = False
+                while k < n and not isinstance(tokens[k], str):
+                    next_word = tokens[k]
+                    merged_group.append(next_word)
+                    self.stats['words'] += 1
+                    self.stats['total_syllables'] += len(next_word.syllables)
+                    if next_word.is_function_word:
+                        self.stats['function_words'] += 1
+
+                    merged_forward_used = True
+                    resolved, _ = resolve_group(merged_group)
+                    if resolved:
+                        append_group(merged_group)
+                        if merged_forward_used:
+                            self.stats['merged_forward'] += 1
+                        i = k + 1
+                        break
+                    k += 1
+                else:
+                    # Still unresolved at punctuation/end: last resort on the
+                    # first syllable of the last word in the merged explicit group.
+                    last_word = merged_group[-1]
+                    if last_word.syllables and last_word.syllables[0].last_resort_repair():
+                        self._update_last_resort_stats(last_word.syllables[0])
+                    append_group(merged_group)
+                    if merged_forward_used:
+                        self.stats['merged_forward'] += 1
+                    i = k
+                continue
+
             self.stats['words'] += 1
             self.stats['total_syllables'] += len(word.syllables)
             
@@ -625,7 +767,7 @@ class RepairEngine:
                         else:
                             result_parts.append(w.get_text())
                         if k < len(func_group) - 1:
-                            result_parts.append(TIL_WORD_LINKER)
+                            result_parts.append(WORD_LINKER)
                     
                     i = j
                     continue
@@ -638,7 +780,7 @@ class RepairEngine:
                     # Find the last content word in result_parts
                     for idx in range(len(result_parts) - 1, -1, -1):
                         part = result_parts[idx]
-                        if isinstance(part, str) and not part.endswith(TIL_WORD_LINKER) and not part.startswith(TIL_WORD_LINKER):
+                        if isinstance(part, str) and not part.endswith(WORD_LINKER) and not part.startswith(WORD_LINKER):
                             # Found a content word - need to rollback if it was repaired
                             # Find the original word object for this content
                             for word_idx in range(i-1, -1, -1):
@@ -653,17 +795,17 @@ class RepairEngine:
                             result_parts = result_parts[:idx]
                             
                             # Now add it back with underscores and all function words
-                            result_parts.append(prev_token.get_text() + TIL_WORD_LINKER)
+                            result_parts.append(prev_token.get_text() + WORD_LINKER)
                             for w in func_group:
                                 result_parts.append(w.get_text_flat())
-                                result_parts.append(TIL_WORD_LINKER)
+                                result_parts.append(WORD_LINKER)
                             result_parts.pop()  # Remove last underscore
                             break
                     else:
                         # No content word found - just add function words
                         for w in func_group:
                             result_parts.append(w.get_text_flat())
-                            result_parts.append(TIL_WORD_LINKER)
+                            result_parts.append(WORD_LINKER)
                         result_parts.pop()
                     
                     i = j
@@ -672,7 +814,7 @@ class RepairEngine:
                 # Default: add function words with underscores
                 for w in func_group:
                     result_parts.append(w.get_text_flat())
-                    result_parts.append(TIL_WORD_LINKER)
+                    result_parts.append(WORD_LINKER)
                 result_parts.pop()  # Remove trailing underscore
                 i = j
                 continue
@@ -713,7 +855,7 @@ class RepairEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append(TIL_WORD_LINKER)
+                            result_parts.append(WORD_LINKER)
                     i = j + 1
                     repaired = True
                     self.stats['merged_forward'] += 1
@@ -729,7 +871,7 @@ class RepairEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append(TIL_WORD_LINKER)
+                            result_parts.append(WORD_LINKER)
                     i = j + 1
                     repaired = True
                     self.stats['merged_forward'] += 1
@@ -764,6 +906,7 @@ class RepairEngine:
             print(f"Mode:   DIPHTHONG RESTORATION ONLY")
         else:
             print(f"Style:  {self.style.value.upper()}")
+            print(f"Explicit + mode: {'ONLY LAST LINKED WORD' if self.only_last else 'ALLOW PROPAGATION'}")
             if restore_diphthongs:
                 print(f"Option: RESTORE DIPHTHONGS")
         
@@ -1075,6 +1218,64 @@ def run_tests():
                 'sob': 'ī·tam~·mi ana+kak·kī·šu — lit~·pa·tā i·mat+mū·ti'
             }
         },
+
+        # ===== EXPLICIT '+' FROM INPUT TESTS =====
+        {
+            'name': 'Explicit plus forms one repair unit',
+            'input': 'a·pil+el·lil¦',
+            'expected': {
+                'lob': 'a·pil+el~·lil',
+                'sob': 'a·pil+el~·lil'
+            }
+        },
+        {
+            'name': 'Explicit plus allows propagation to previous word (default)',
+            'input': 'bā·nû+a·pil¦',
+            'expected': {
+                'lob': 'bā·nû~+a·pil',
+                'sob': 'bā·nû~+a·pil'
+            }
+        },
+        {
+            'name': 'Multiple explicit plus links: only last word eligible',
+            'input': 'bā·nû+a·pil+el·lil¦',
+            'expected': {
+                'lob': 'bā·nû+a·pil+el~·lil',
+                'sob': 'bā·nû+a·pil+el~·lil'
+            }
+        },
+        {
+            'name': 'Explicit plus resolves internally before propagating further',
+            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'expected': {
+                'lob': 'bā·nû~+a·na·ku šar~·ri',
+                'sob': 'bā·nû~+a·na·ku šar~·ri'
+            }
+        },
+        {
+            'name': 'Explicit plus unresolved at punctuation uses last-resort on last word',
+            'input': 'šar+a·na·ku¦‹ ···›',
+            'expected': {
+                'lob': 'šar+~a·na·ku ···',
+                'sob': 'šar+~a·na·ku ···'
+            }
+        },
+        {
+            'name': 'Explicit plus coexists with algorithmic plus',
+            'input': 'a·pil+el·lil¦gi·mir¦dad·mē¦',
+            'expected': {
+                'lob': 'a·pil+el~·lil gi·mir+dad~·mē',
+                'sob': 'a·pil+el~·lil gi·mir+dad~·mē'
+            }
+        },
+        {
+            'name': 'Explicit plus then function words with content',
+            'input': 'šar+bā·nû¦u¦a·na¦i·na¦šar·ri¦',
+            'expected': {
+                'lob': 'šar+bā·nû u+ana+ina+šar·ri',
+                'sob': 'šar+bā·nû u+ana+ina+šar·ri'
+            }
+        },
         
     ]
 
@@ -1109,6 +1310,62 @@ def run_tests():
                 all_passed = False
         
         print(f"  Passed: {passed}/{total}")
+
+    # Verify strict behavior with only_last=True for explicit '+' groups.
+    strict_cases = [
+        {
+            'name': 'only_last keeps repair on linked tail',
+            'input': 'bā·nû+a·pil¦',
+            'expected': {
+                'lob': 'bā·nû+~a·pil',
+                'sob': 'bā·nû+~a·pil',
+            }
+        },
+        {
+            'name': 'only_last keeps final linked repair in 3-word chain',
+            'input': 'bā·nû+a·pil+el·lil¦',
+            'expected': {
+                'lob': 'bā·nû+a·pil+el~·lil',
+                'sob': 'bā·nû+a·pil+el~·lil',
+            }
+        },
+        {
+            'name': 'only_last may merge forward when linked tail cannot repair',
+            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'expected': {
+                'lob': 'bā·nû+a·na·ku+šar·ri',
+                'sob': 'bā·nû+a·na·ku+šar·ri',
+            }
+        },
+        {
+            'name': 'only_last unresolved at punctuation uses last-resort on tail',
+            'input': 'šar+a·na·ku¦‹ ···›',
+            'expected': {
+                'lob': 'šar+~a·na·ku ···',
+                'sob': 'šar+~a·na·ku ···',
+            }
+        },
+    ]
+
+    print("\n--- Testing ONLY_LAST strict mode ---")
+    for style in [AccentStyle.LOB, AccentStyle.SOB]:
+        engine = RepairEngine(style=style, only_last=True)
+        for test in strict_cases:
+            tokens = parse_syl_line(test['input'])
+            result = engine.repair_line(tokens)
+            expected = test['expected'][style.value]
+
+            result = ' '.join(result.split())
+            expected = ' '.join(expected.split())
+
+            if result == expected:
+                print(f"  ✅ {style.value.upper()}: {test['name']}")
+            else:
+                print(f"  ❌ {style.value.upper()}: {test['name']}")
+                print(f"     Input:    {test['input']}")
+                print(f"     Expected: {expected}")
+                print(f"     Got:      {result}")
+                all_passed = False
     
     print(f"\n{'='*80}")
     print(f"Overall: {'ALL TESTS PASSED' if all_passed else 'SOME TESTS FAILED'}")

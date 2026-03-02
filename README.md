@@ -73,7 +73,7 @@ python3 src/format.py erra.tilde --md --tex --ipa
 
 ### Marker behavior
 
-- `+` (`TIL_WORD_LINKER`) → `‿`
+- `+` (`WORD_LINKER`) → `‿`
 - `·` (`SYL_SEPARATOR`) removed in final output
 - `-` (`HYPHEN`) preserved
 - `~` marks the preceding syllable:
@@ -121,7 +121,7 @@ Use `fullreparer.py` when you want to avoid running `syllabify`, `repairer`, and
 ### Stage-specific options
 
 - **Syllabification**: `--merge-hyphen`
-- **Repair**: `--style {lob,sob}`, `--restore-diphthongs`, `--only-restore-diphthongs`
+- **Repair**: `--style {lob,sob}`, `-l/--only-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
 
 ### Examples
@@ -136,7 +136,86 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outd
 # Restore diphthongs in repair stage
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --restore-diphthongs --table
 
+# Keep explicit + repair restricted to the last linked word
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_last --outdir outputs --style lob --only-last --table
+
 # Run integrated tests for all three stages
 python3 src/akkapros/cli/fullreparer.py --test-all
 
 ```
+
+---
+
+## 🧠 Moraic Repair Algorithm (Current Behavior)
+
+### 1) Syllable classification
+
+Each syllable is classified by structure and mora count:
+
+| Type | Structure | Morae | Example |
+|---|---|---:|---|
+| `CV` | consonant + short vowel | 1 | `ša` |
+| `V` | short vowel (initial) | 1 | `a` |
+| `CVC` | closed short | 2 | `šar` |
+| `VC` | closed short (initial) | 2 | `ap` |
+| `CVV` | open long | 2 | `bā` |
+| `VV` | open long (initial) | 2 | `ī` |
+| `CVVC` | closed long | 3 | `nāš` |
+| `VVC` | closed long (initial) | 3 | `ān` |
+
+### 2) Repair operations
+
+When a target syllable is selected, exactly one mora is added:
+
+| Operation | Applies to | Effect | Example |
+|---|---|---|---|
+| Vowel lengthening | `CVV`, `VV`, `CVVC`, `VVC` | long vowel becomes extra-long | `rā → rā~` |
+| Coda gemination | `CVC`, `VC` (non-final in unit) | coda consonant geminated | `dad → dad~` |
+| Onset gemination (last resort) | `CV`, `V` | onset geminated; for vowel-initial, glottal gemination | `ka → k~a`, `a → ~a` |
+
+### 3) Accent styles
+
+Two styles are implemented and differ only in candidate priority:
+
+- **LOB**: final superheavy (incl. circumflex finals) > rightmost non-final heavy > final heavy
+- **SOB**: rightmost non-final heavy > final heavy
+
+### 4) Merge logic
+
+If an odd-mora content word cannot be repaired internally:
+
+1. **Forward merge** with following content words until the merged unit is even or repairable.
+2. **Backward merge for trailing function-word groups** at punctuation/end (with rollback of earlier repairs when needed).
+3. **Last resort** onset gemination when no merge path succeeds.
+
+### 5) Function words
+
+Function words are never stressed independently; they attach to neighboring content words:
+
+- `u + ana + šarri → u+ana+šar·ri`
+
+### 6) Explicit `+` linker behavior (new)
+
+`+` in `*_syl.txt` is treated as an explicit user-defined prosodic link:
+
+- Linked sequences are parsed as a mandatory merged unit.
+- **Default behavior**: repair may propagate leftward to previous linked words when needed.
+- **Strict behavior** (`-l/--only-last`): only the last linked word is repair-eligible; earlier linked words are ineligible.
+
+Examples:
+
+- Default: `bā·nû+a·pil¦ → bā·nû~+a·pil`
+- Strict (`--only-last`): `bā·nû+a·pil¦ → bā·nû+~a·pil`
+
+### 7) Hyphen behavior
+
+`-` is preserved as an intra-word prosodic marker (construct chains, enclitics, compounds) and behaves like a syllable boundary for repair parsing.
+
+### 8) Output markers
+
+Current repair output conventions:
+
+- `~` after repaired syllable
+- `+` between merged/linked words in prosodic units
+- `·` and `-` preserved as syllable/prosodic boundaries
+- spaces for non-merged word boundaries

@@ -13,6 +13,8 @@
 - Placeholder __init__.py files
 - **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics) with deduplicated shared options and unified outputs
 - **printer.py / print.py**: New accent rendering pipeline from `*_tilde.txt` to `<prefix>_accent_accute.txt` and `<prefix>_accent_bold.md`
+- **repairer.py / fullreparer.py**: Added `-l/--only-last` option for explicit `+` link behavior
+- **repair.py tests**: Added strict-mode (`only_last=True`) regression cases for explicit `+` groups
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)
@@ -20,6 +22,7 @@
 - Separated library code into `akkapros/lib/` for future API development
 - Added sample data file `erra-and-ishum-SB.atf` to `data/samples/`
 - Standardized `HYPHEN` as an explicit variable in active library modules (`syllabify.py`, `repair.py`, `metrics.py`, `atfparse.py`, `print.py`) to reduce hardcoded separator usage
+- **repair.py explicit `+` behavior**: default now allows repair propagation to previous linked words; strict tail-only behavior is available via `--only-last`
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite
