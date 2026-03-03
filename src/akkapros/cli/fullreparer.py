@@ -153,8 +153,8 @@ Versions: {__version__}
 
     # Repairer options
     parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
-    parser.add_argument('-l', '--only-last', action='store_true',
-                        help='For explicit + links, restrict repair to the last linked word only')
+    parser.add_argument('-r', '--relax-last', action='store_true',
+                        help='For explicit + links, allow repair propagation before the last linked word')
     parser.add_argument('--restore-diphthongs', action='store_true',
                         help='Restore diphthongs after repair (or restoration-only mode)')
     parser.add_argument('--only-restore-diphthongs', action='store_true',
@@ -222,6 +222,8 @@ Versions: {__version__}
     if not (output_table or output_json or output_csv):
         output_table = True
 
+    only_last = not args.relax_last
+
     code = run_pipeline(
         input_file=input_path,
         outdir=outdir,
@@ -230,7 +232,7 @@ Versions: {__version__}
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
         style=args.style,
-        only_last=args.only_last,
+        only_last=only_last,
         restore_diphthongs=args.restore_diphthongs,
         only_restore_diphthongs=args.only_restore_diphthongs,
         wpm=args.wpm,

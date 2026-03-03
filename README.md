@@ -125,7 +125,7 @@ Use `fullreparer.py` when you want to avoid running `syllabify`, `repairer`, and
 ### Stage-specific options
 
 - **Syllabification**: `--merge-hyphen`
-- **Repair**: `--style {lob,sob}`, `-l/--only-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
+- **Repair**: `--style {lob,sob}`, `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
 
 ### Examples
@@ -140,8 +140,8 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outd
 # Restore diphthongs in repair stage
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --restore-diphthongs --table
 
-# Keep explicit + repair restricted to the last linked word
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_last --outdir outputs --style lob --only-last --table
+# Allow explicit + repair propagation before the last linked word
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style lob --relax-last --table
 
 # Run integrated tests for all three stages
 python3 src/akkapros/cli/fullreparer.py --test-all
