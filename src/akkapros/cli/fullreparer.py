@@ -5,6 +5,7 @@ Runs the complete processing pipeline in one command:
 1) syllabify (from *_proc.txt to *_syl.txt)
 2) repair    (from *_syl.txt to *_tilde.txt)
 3) metrics   (from *_tilde.txt to selected metrics outputs)
+4) print     (from *_tilde.txt to selected accent outputs)
 
 The CLI deduplicates shared options across stages (for example, --prefix,
 --outdir, --extra-vowels, --extra-consonants).
@@ -58,8 +59,11 @@ def run_pipeline(
     output_table: bool,
     output_json: bool,
     output_csv: bool,
+    output_acute: bool,
+    output_bold: bool,
+    output_ipa: bool,
 ) -> int:
-    """Execute syllabify -> repair -> metrics and write all outputs."""
+    """Execute syllabify -> repair -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
 
@@ -67,6 +71,9 @@ def run_pipeline(
     syl_file = outdir / f"{safe_prefix}_syl.txt"
     tilde_file = outdir / f"{safe_prefix}_tilde.txt"
     metrics_base = outdir / safe_prefix
+    acute_file = outdir / f"{safe_prefix}_accent_acute.txt"
+    bold_file = outdir / f"{safe_prefix}_accent_bold.md"
+    ipa_file = outdir / f"{safe_prefix}_accent_ipa.txt"
 
     print(f"Input: {input_file}")
     print(f"Output directory: {outdir}")
@@ -100,7 +107,7 @@ def run_pipeline(
     print(f"Written: {tilde_file}")
 
     # 3) Metrics
-    print("\n[3/3] Computing metrics...")
+    print("\n[3/4] Computing metrics...")
     update_character_sets(extra_consonants, extra_vowels)
     metrics_result = process_metrics_file(str(tilde_file), wpm, pause_ratio, punct_weight)
 
@@ -122,6 +129,25 @@ def run_pipeline(
             f.write(table)
         print(f"Table saved to: {table_file}")
 
+    # 4) Printer outputs
+    print("\n[4/4] Generating accent outputs...")
+    accent_print.process_file(
+        input_file=str(tilde_file),
+        output_acute_file=str(acute_file),
+        output_bold_file=str(bold_file),
+        output_ipa_file=str(ipa_file),
+        write_acute=output_acute,
+        write_bold=output_bold,
+        write_ipa=output_ipa,
+    )
+
+    if output_acute:
+        print(f"Accent acute saved to: {acute_file}")
+    if output_bold:
+        print(f"Accent bold saved to: {bold_file}")
+    if output_ipa:
+        print(f"Accent IPA saved to: {ipa_file}")
+
     print("\nPipeline completed successfully.")
     return 0
 
@@ -134,6 +160,7 @@ def main() -> None:
 EXAMPLES:
   python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --style lob --table
   python fullreparer.py outputs/erra_proc.txt -p erra --restore-diphthongs --json --csv
+        python fullreparer.py outputs/erra_proc.txt -p erra --acute --bold --ipa
     python fullreparer.py --test-all
 
 Versions: {__version__}
@@ -168,6 +195,14 @@ Versions: {__version__}
     parser.add_argument('--pause-ratio', type=float, default=35, help='Pause ratio percentage')
     parser.add_argument('--punct-weight', type=float, default=2.0,
                         help='Punctuation pause multiplier relative to space pauses')
+
+    # Printer options
+    parser.add_argument('--acute', action='store_true',
+                        help='Write <prefix>_accent_acute.txt')
+    parser.add_argument('--bold', action='store_true',
+                        help='Write <prefix>_accent_bold.md')
+    parser.add_argument('--ipa', action='store_true',
+                        help='Write <prefix>_accent_ipa.txt')
 
     # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
@@ -217,10 +252,18 @@ Versions: {__version__}
     output_table = args.table
     output_json = args.json
     output_csv = args.csv
+    output_acute = args.acute
+    output_bold = args.bold
+    output_ipa = args.ipa
 
     # Match metricser behavior: default to table if no explicit format selected.
     if not (output_table or output_json or output_csv):
         output_table = True
+
+    # Match printer behavior: default to acute + bold if no explicit format selected.
+    if not (output_acute or output_bold or output_ipa):
+        output_acute = True
+        output_bold = True
 
     only_last = not args.relax_last
 
@@ -241,6 +284,9 @@ Versions: {__version__}
         output_table=output_table,
         output_json=output_json,
         output_csv=output_csv,
+        output_acute=output_acute,
+        output_bold=output_bold,
+        output_ipa=output_ipa,
     )
     sys.exit(code)
 

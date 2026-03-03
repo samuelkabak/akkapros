@@ -11,7 +11,7 @@
 - .gitignore for Python projects
 - Basic directory structure: src/ and tests/
 - Placeholder __init__.py files
-- **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics) with deduplicated shared options and unified outputs
+- **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics → print) with deduplicated shared options and unified outputs
 - **printer.py / print.py**: Added IPA output path (`<prefix>_accent_ipa.txt`) with punctuation/pause tagging and bracket escape tags
 - **repairer.py**: Added `-r/--relax-last` to enable non-tail propagation for explicit `+` links
 - **repair.py tests**: Added strict-default and relaxed-mode regression cases for explicit `+` groups
@@ -25,6 +25,7 @@
 - **repair.py explicit `+` behavior**: `RepairEngine` default is now strict tail-only (`only_last=True`)
 - **repairer.py CLI behavior**: strict tail-only linked repair is now the default; use `--relax-last` to allow propagation
 - **print.py IPA behavior**: punctuation clusters emit one `(..)` pause, spaces emit `⟨pause⟩ (.)`, and bracketed chunks emit `⟨escape:[...]⟩`
+- **acute naming standardization**: renamed `accute` to `acute` across printer/fullreparer CLI flags, printer library API, tests, and output filename suffix (`_accent_acute.txt`)
 - **phonetic constants scope**: extra-long vowels (`àìùè`) are now metrics-internal only
 
 ### Stable

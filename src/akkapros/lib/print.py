@@ -4,7 +4,7 @@ Akkadian Prosody Toolkit — Accent Printer (Library)
 Version: 1.0.0
 
 Transforms *_tilde text into three reading-friendly outputs:
-- accent_accute text: ~ -> ´
+- accent_acute text: ~ -> ´
 - accent_bold markdown: syllable containing ~ is bold, ~ removed
 - accent_ipa text: IPA transliteration with stress/length markers
 
@@ -34,7 +34,7 @@ __license__ = "MIT"
 __project__ = "Akkadian Prosody"
 __repo__ = "akkapros"
 
-ACCUTE_MARK = '´'
+ACUTE_MARK = '´'
 WORD_LINKER_OUT = '‿'
 TILDE = '~'
 HYPHEN = '-'
@@ -236,8 +236,8 @@ def _flush_syllable(
     if not syllable_text:
         return ''
 
-    if mode == 'accute':
-        return syllable_text.replace(TILDE, ACCUTE_MARK)
+    if mode == 'acute':
+        return syllable_text.replace(TILDE, ACUTE_MARK)
 
     if mode == 'ipa':
         repaired = TILDE in syllable_text
@@ -514,9 +514,9 @@ def _convert_mixed_bracket_part_ipa(part: str) -> str:
 
 
 def convert_line(line: str, mode: str) -> str:
-    """Convert one line to accent_accute, accent_bold, or accent_ipa format."""
-    if mode not in {'accute', 'bold', 'ipa'}:
-        raise ValueError("mode must be 'accute', 'bold' or 'ipa'")
+    """Convert one line to accent_acute, accent_bold, or accent_ipa format."""
+    if mode not in {'acute', 'bold', 'ipa'}:
+        raise ValueError("mode must be 'acute', 'bold' or 'ipa'")
 
     parts = split_by_brackets_level3(line)
     if len(parts) > 1:
@@ -541,26 +541,26 @@ def convert_line(line: str, mode: str) -> str:
 
 
 def convert_text(text: str) -> Tuple[str, str]:
-    """Convert full text and return (accent_accute_text, accent_bold_markdown)."""
-    accute_text, bold_text, _ = convert_text_with_ipa(text)
-    return accute_text, bold_text
+    """Convert full text and return (accent_acute_text, accent_bold_markdown)."""
+    acute_text, bold_text, _ = convert_text_with_ipa(text)
+    return acute_text, bold_text
 
 
 def convert_text_with_ipa(text: str) -> Tuple[str, str, str]:
-    """Convert full text and return (accent_accute_text, accent_bold_text, accent_ipa_text)."""
+    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text)."""
     lines = text.splitlines(keepends=True)
-    accute_lines = [convert_line(line, mode='accute') for line in lines]
+    acute_lines = [convert_line(line, mode='acute') for line in lines]
     bold_lines = [convert_line(line, mode='bold') for line in lines]
     ipa_lines = [convert_line(line, mode='ipa') for line in lines]
-    return ''.join(accute_lines), ''.join(bold_lines), ''.join(ipa_lines)
+    return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines)
 
 
 def process_file(
     input_file: str,
-    output_accute_file: str,
+    output_acute_file: str,
     output_bold_file: str,
     output_ipa_file: str = '',
-    write_accute: bool = True,
+    write_acute: bool = True,
     write_bold: bool = True,
     write_ipa: bool = False,
 ) -> None:
@@ -568,12 +568,12 @@ def process_file(
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    accute_text, bold_text, ipa_text = convert_text_with_ipa(text)
+    acute_text, bold_text, ipa_text = convert_text_with_ipa(text)
 
-    if write_accute:
-        Path(output_accute_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_accute_file, 'w', encoding='utf-8') as f:
-            f.write(accute_text)
+    if write_acute:
+        Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_acute_file, 'w', encoding='utf-8') as f:
+            f.write(acute_text)
 
     if write_bold:
         Path(output_bold_file).parent.mkdir(parents=True, exist_ok=True)
@@ -591,22 +591,28 @@ def process_file(
 def run_tests() -> bool:
     """Lightweight self-tests for conversion rules."""
     tests = [
-        ("nû~", "accute", "nû´"),
+        ("nû~", "acute", "nû´"),
         ("nû~", "bold", "**nû**"),
-        ("nû~k", "accute", "nû´k"),
+        ("nû~k", "acute", "nû´k"),
         ("nû~k", "bold", "**nûk**"),
-        ("šar~·ri", "accute", "šar´ri"),
+        ("šar~·ri", "acute", "šar´ri"),
         ("šar~·ri", "bold", "**šar**ri"),
-        ("k~a·pin", "accute", "k´apin"),
+        ("k~a·pin", "acute", "k´apin"),
         ("k~a·pin", "bold", "**ka**pin"),
-        ("~a·pil", "accute", "´apil"),
+        ("k~a", "acute", "k´a"),
+        ("k~a", "bold", "**ka**"),
+        ("~a·pil", "acute", "´apil"),
         ("~a·pil", "bold", "**a**pil"),
+        ("~a", "acute", "´a"),
+        ("~a", "bold", "**a**"),
         ("nû~", "ipa", "ˈnuːː"),
         ("nû~k", "ipa", "ˈnuːːk"),
         ("šar~·ri", "ipa", "ˈʃarː.ri"),
         ("k~a·pin", "ipa", "ˈkːa.pin"),
         ("~a·pil", "ipa", "ˈʔːa.pil"),
-        ("gi·mir+dad~·mē", "accute", "gimir‿dad´mē"),
+        ("k~a", "ipa", "ˈkːa"),
+        ("~a", "ipa", "ˈʔːa"),
+        ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir ˈdadː.meː"),
         ("qa", "ipa", "qɒ"),
@@ -662,6 +668,11 @@ def run_tests() -> bool:
         ("qā", "ipa", "qɒː"),
         ("ṭeṭ", "ipa", "tˤɛtˤ"),
         ("q~a", "ipa", "ˈqːɒ"),
+        ("q~a", "acute", "q´a"),
+        ("q~a", "bold", "**qa**"),
+        ("~aq", "acute", "´aq"),
+        ("~aq", "bold", "**aq**"),
+        ("~aq", "ipa", "ˈʔːɒq"),
         ("qaq·qa·di", "ipa", "qɒq.qɒ.di"),
         ("ṣal·mā~t", "ipa", "sˤɒl.ˈmaːːt"),
         ("ḫaṭ~·ṭi", "ipa", "ˈχɒtˤː.tˤɨ"),
@@ -684,13 +695,13 @@ def run_tests() -> bool:
         ("šar… gi·mir", "ipa", "ʃar ⟨ellipsis⟩ (..) gi.mir"),
         ("123 gi·mir", "ipa", " ⟨number⟩ (..) gi.mir"),
         ("$€£", "ipa", " ⟨dollar⟩ ⟨euro⟩ ⟨pound⟩ (..) "),
-        ("er~·ra", "accute", "er´ra"),
+        ("er~·ra", "acute", "er´ra"),
         ("er~·ra", "bold", "**er**ra"),
         ("nā~š", "bold", "**nāš**"),
-        ("ša+ana+na·šê", "accute", "ša‿ana‿našê"),
+        ("ša+ana+na·šê", "acute", "ša‿ana‿našê"),
         ("ī·ris·sū~-ma", "bold", "īris**sū**-ma"),
         ("šar [https://ex.am/ple+uri] gi·mir+dad~·mē", "bold", "šar [https://ex.am/ple+uri] gimir‿**dad**mē"),
-        ("šar, 123 gi·mir+dad~·mē", "accute", "šar, 123 gimir‿dad´mē"),
+        ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir‿dad´mē"),
     ]
 
     passed = 0
@@ -702,21 +713,21 @@ def run_tests() -> bool:
             print(f"FAILED [{mode}]\n  in : {inp}\n  got: {got}\n  exp: {expected}")
 
     text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
-    expected_accute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
+    expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
     expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈʔːa.pil\n"
-    got_accute, got_bold, got_ipa = convert_text_with_ipa(text_in)
+    got_acute, got_bold, got_ipa = convert_text_with_ipa(text_in)
     total_extra = 4
     extra_passed = 0
 
-    if got_accute == expected_accute:
+    if got_acute == expected_acute:
         extra_passed += 1
     else:
         print(
-            "FAILED [convert_text accute]"
+            "FAILED [convert_text acute]"
             f"\n  in : {text_in}"
-            f"\n  got: {got_accute}"
-            f"\n  exp: {expected_accute}"
+            f"\n  got: {got_acute}"
+            f"\n  exp: {expected_acute}"
         )
 
     if got_bold == expected_bold:
@@ -741,24 +752,24 @@ def run_tests() -> bool:
 
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / "sample_tilde.txt"
-        out_accute = Path(tmpdir) / "sample_accent_accute.txt"
+        out_acute = Path(tmpdir) / "sample_accent_acute.txt"
         out_bold = Path(tmpdir) / "sample_accent_bold.md"
         out_ipa = Path(tmpdir) / "sample_accent_ipa.txt"
         in_path.write_text("k~a·pin + ~a·pil", encoding='utf-8')
 
         process_file(
             input_file=str(in_path),
-            output_accute_file=str(out_accute),
+            output_acute_file=str(out_acute),
             output_bold_file=str(out_bold),
             output_ipa_file=str(out_ipa),
-            write_accute=True,
+            write_acute=True,
             write_bold=False,
             write_ipa=True,
         )
 
         file_ok = (
-            out_accute.exists()
-            and out_accute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
+            out_acute.exists()
+            and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
             and out_ipa.exists()
             and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈʔːa.pil"
             and not out_bold.exists()
@@ -768,8 +779,8 @@ def run_tests() -> bool:
         else:
             print(
                 "FAILED [process_file selective write]"
-                f"\n  accute_exists: {out_accute.exists()}"
-                f"\n  accute_text: {out_accute.read_text(encoding='utf-8') if out_accute.exists() else ''}"
+                f"\n  acute_exists: {out_acute.exists()}"
+                f"\n  acute_text: {out_acute.read_text(encoding='utf-8') if out_acute.exists() else ''}"
                 f"\n  ipa_exists: {out_ipa.exists()}"
                 f"\n  ipa_text: {out_ipa.read_text(encoding='utf-8') if out_ipa.exists() else ''}"
                 f"\n  bold_exists: {out_bold.exists()}"

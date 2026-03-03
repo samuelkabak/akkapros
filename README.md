@@ -29,7 +29,7 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 | `syllabify.py` | 1.0.0 | Syllabifies Akkadian text following Huehnergard (2011) |
 | `repairer.py` | 1.0.0 | Applies accentuation repair algorithm |
 | `metricser.py` | 1.0.0 | Computes acoustic metrics from repaired text |
-| `fullreparer.py` | 1.0.0 | Runs syllabify + repair + metrics in one command |
+| `fullreparer.py` | 1.0.0 | Runs syllabify + repair + metrics + print in one command |
 | `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text, bold markdown, and IPA outputs |
 
 ---
@@ -50,7 +50,7 @@ python3 src/repairer.py erra_proc.txt -p erra --outdir outputs
 # Compute metrics
 python3 src/akkapros/cli/metricser.py erra.tilde > erra_metrics.txt
 
-# Full pipeline in one command (writes _syl, _tilde and metrics outputs)
+# Full pipeline in one command (writes _syl, _tilde, metrics, and accent outputs)
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --table
 
 # Accent rendering from *_tilde.txt (writes both outputs by default)
@@ -64,7 +64,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 
 `printer.py` reads `*_tilde.txt` and produces reading outputs:
 
-- `<prefix>_accent_accute.txt`
+- `<prefix>_accent_acute.txt`
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
 
@@ -74,7 +74,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - `·` (`SYL_SEPARATOR`) removed in final output
 - `-` (`HYPHEN`) preserved
 - `~` marks the preceding syllable:
-	- in `accent_accute`: replaced by `´`
+	- in `accent_acute`: replaced by `´`
 	- in `accent_bold`: removed and the host syllable is bolded
 	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
 - in IPA mode, spaces emit `⟨pause⟩ (.)`
@@ -89,7 +89,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
 
 # write only accent text
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --accute
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --acute
 
 # write only bold markdown
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --bold
@@ -105,7 +105,7 @@ python3 src/akkapros/cli/printer.py --test
 
 ## ⚡ Full Pipeline CLI (`fullreparer.py`)
 
-Use `fullreparer.py` when you want to avoid running `syllabify`, `repairer`, and `metricser` separately.
+Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `repairer` → `metricser` → `printer`) in one command.
 
 ### Input and outputs
 
@@ -115,6 +115,8 @@ Use `fullreparer.py` when you want to avoid running `syllabify`, `repairer`, and
 	- `<prefix>_tilde.txt`
 - **Metrics outputs**: selected by flags (`--table`, `--json`, `--csv`)
 	- If no metrics format is selected, `--table` is used by default.
+- **Accent outputs**: selected by flags (`--acute`, `--bold`, `--ipa`)
+	- If no accent format is selected, `--acute` and `--bold` are used by default.
 
 ### Shared options (deduplicated)
 
@@ -127,6 +129,7 @@ Use `fullreparer.py` when you want to avoid running `syllabify`, `repairer`, and
 - **Syllabification**: `--merge-hyphen`
 - **Repair**: `--style {lob,sob}`, `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
+- **Printer**: `--acute`, `--bold`, `--ipa`
 
 ### Examples
 
@@ -140,10 +143,13 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outd
 # Restore diphthongs in repair stage
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --restore-diphthongs --table
 
+# Write only IPA accent output (skip acute/bold)
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_ipa --outdir outputs --ipa --table
+
 # Allow explicit + repair propagation before the last linked word
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style lob --relax-last --table
 
-# Run integrated tests for all three stages
+# Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all
 
 ```
