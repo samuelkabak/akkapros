@@ -45,7 +45,7 @@ IPA_MAP = {
 def apply_ipa_vowel(v: str) -> str:
     """
     Convert Akkadian vowel to IPA.
-    Handles short, long, and extra-long vowels.
+    Handles short and long vowels.
     """
     # Short vowels
     if v == 'a': return 'a'
@@ -64,12 +64,6 @@ def apply_ipa_vowel(v: str) -> str:
     if v == 'î': return 'iː'
     if v == 'û': return 'uː'
     if v == 'ê': return 'eː'
-    
-    # Extra-long vowels (grave)
-    if v == 'à': return 'aːː'
-    if v == 'ì': return 'iːː'
-    if v == 'ù': return 'uːː'
-    if v == 'è': return 'eːː'
     
     return v
 
@@ -122,8 +116,8 @@ def word_to_ipa(word: str, is_merged: bool = False) -> str:
         if not syl:
             continue
         
-        # Check if this syllable is repaired (contains ː or extra-long vowel)
-        is_repaired = 'ː' in syl or any(v in 'àìùè' for v in syl)
+        # Check if this syllable is repaired (contains ː)
+        is_repaired = 'ː' in syl
         
         if is_repaired:
             result.append('ˈ')
@@ -132,7 +126,7 @@ def word_to_ipa(word: str, is_merged: bool = False) -> str:
         for c in syl:
             if c in IPA_MAP:
                 result.append(IPA_MAP[c])
-            elif c in 'aeiuāēīūâêîûàìùè':
+            elif c in 'aeiuāēīūâêîû':
                 result.append(apply_ipa_vowel(c))
             else:
                 result.append(c)
@@ -180,8 +174,8 @@ def word_to_markdown(word: str) -> str:
         if not syl:
             continue
         
-        # Check if this syllable is repaired (contains ː or extra-long vowel)
-        is_repaired = 'ː' in syl or any(v in 'àìùè' for v in syl)
+        # Check if this syllable is repaired (contains ː)
+        is_repaired = 'ː' in syl
         
         if is_repaired:
             result.append(f'**{syl}**')
@@ -231,8 +225,8 @@ def word_to_latex(word: str) -> str:
         if not syl:
             continue
         
-        # Check if this syllable is repaired (contains ː or extra-long vowel)
-        is_repaired = 'ː' in syl or any(v in 'àìùè' for v in syl)
+        # Check if this syllable is repaired (contains ː)
+        is_repaired = 'ː' in syl
         
         if is_repaired:
             result.append(f'\\textbf{{{syl}}}')

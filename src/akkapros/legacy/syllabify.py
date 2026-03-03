@@ -32,7 +32,6 @@ AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 # Vowel length categories
 SHORT = set('aeiu')
 LONG = set('āēīūâêîû')
-EXTRA_LONG = set('àìùè')  # For repaired text processing
 
 # Foreign characters (from command line)
 FOREIGN_VOWELS = set()
@@ -40,8 +39,8 @@ FOREIGN_CONSONANTS = set()
 EXTRA_VOWELS = set()
 EXTRA_CONSONANTS = set()
 
-# All vowels for processing (including extra-long)
-ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS | EXTRA_LONG
+# All vowels for processing
+ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS
 ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
 ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
 
@@ -151,7 +150,7 @@ def text_preprocess_boundaries(text, warnings, extra_vowels='', extra_consonants
 
     # Update global character sets
     global ALL_VOWELS, ALL_CONSONANTS, ALL_AKKADIAN
-    ALL_VOWELS = AKKADIAN_VOWELS | set(extra_vowels) | EXTRA_LONG
+    ALL_VOWELS = AKKADIAN_VOWELS | set(extra_vowels)
     ALL_CONSONANTS = AKKADIAN_CONSONANTS | set(extra_consonants)
     ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
     

@@ -30,8 +30,7 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 | `repairer.py` | 1.0.0 | Applies accentuation repair algorithm |
 | `metricser.py` | 1.0.0 | Computes acoustic metrics from repaired text |
 | `fullreparer.py` | 1.0.0 | Runs syllabify + repair + metrics in one command |
-| `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text and accent markdown outputs |
-| `format.py` | 1.0.0 | Generates Markdown, LaTeX, and IPA output |
+| `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text, bold markdown, and IPA outputs |
 
 ---
 
@@ -57,9 +56,6 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir o
 # Accent rendering from *_tilde.txt (writes both outputs by default)
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
 
-# Generate publication outputs
-python3 src/format.py erra.tilde --md --tex --ipa
-
 ```
 
 ---
@@ -70,6 +66,7 @@ python3 src/format.py erra.tilde --md --tex --ipa
 
 - `<prefix>_accent_accute.txt`
 - `<prefix>_accent_bold.md`
+- `<prefix>_accent_ipa.txt`
 
 ### Marker behavior
 
@@ -79,7 +76,11 @@ python3 src/format.py erra.tilde --md --tex --ipa
 - `~` marks the preceding syllable:
 	- in `accent_accute`: replaced by `´`
 	- in `accent_bold`: removed and the host syllable is bolded
-- content inside square brackets `[ ... ]` is left untouched (for markdown URI safety)
+	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
+- in IPA mode, spaces emit `⟨pause⟩ (.)`
+- in IPA mode, punctuation emits symbolic tags and a clustered punctuation pause `(..)`
+- in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
+- content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
 
 ### Usage
 
@@ -92,6 +93,9 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 
 # write only bold markdown
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --bold
+
+# write only IPA output
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa
 
 # run self-tests
 python3 src/akkapros/cli/printer.py --test
@@ -194,18 +198,32 @@ Function words are never stressed independently; they attach to neighboring cont
 
 - `u + ana + šarri → u+ana+šar·ri`
 
-### 6) Explicit `+` linker behavior (new)
+## 🔧 Repairer CLI (`repairer.py`)
+
+`repairer.py` applies moraic repair to `*_syl.txt` and writes `<prefix>_tilde.txt`.
+
+### Explicit `+` linker behavior
 
 `+` in `*_syl.txt` is treated as an explicit user-defined prosodic link:
 
 - Linked sequences are parsed as a mandatory merged unit.
-- **Default behavior**: repair may propagate leftward to previous linked words when needed.
-- **Strict behavior** (`-l/--only-last`): only the last linked word is repair-eligible; earlier linked words are ineligible.
+- **Default behavior**: strict tail-only repair (only the last linked word is repair-eligible).
+- **Relaxed behavior** (`-r/--relax-last`): repair may propagate leftward to previous linked words when needed.
 
 Examples:
 
-- Default: `bā·nû+a·pil¦ → bā·nû~+a·pil`
-- Strict (`--only-last`): `bā·nû+a·pil¦ → bā·nû+~a·pil`
+- Default: `bā·nû+a·pil¦ → bā·nû+~a·pil`
+- Relaxed (`--relax-last`): `bā·nû+a·pil¦ → bā·nû~+a·pil`
+
+Usage:
+
+```bash
+# strict tail-only linked repair (default)
+python3 src/akkapros/cli/repairer.py outputs/erra_syl.txt -p erra --outdir outputs
+
+# relaxed linked repair propagation
+python3 src/akkapros/cli/repairer.py outputs/erra_syl.txt -p erra --outdir outputs --relax-last
+```
 
 ### 7) Hyphen behavior
 

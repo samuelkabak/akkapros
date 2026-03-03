@@ -12,9 +12,9 @@
 - Basic directory structure: src/ and tests/
 - Placeholder __init__.py files
 - **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics) with deduplicated shared options and unified outputs
-- **printer.py / print.py**: New accent rendering pipeline from `*_tilde.txt` to `<prefix>_accent_accute.txt` and `<prefix>_accent_bold.md`
-- **repairer.py / fullreparer.py**: Added `-l/--only-last` option for explicit `+` link behavior
-- **repair.py tests**: Added strict-mode (`only_last=True`) regression cases for explicit `+` groups
+- **printer.py / print.py**: Added IPA output path (`<prefix>_accent_ipa.txt`) with punctuation/pause tagging and bracket escape tags
+- **repairer.py**: Added `-r/--relax-last` to enable non-tail propagation for explicit `+` links
+- **repair.py tests**: Added strict-default and relaxed-mode regression cases for explicit `+` groups
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)
@@ -22,14 +22,20 @@
 - Separated library code into `akkapros/lib/` for future API development
 - Added sample data file `erra-and-ishum-SB.atf` to `data/samples/`
 - Standardized `HYPHEN` as an explicit variable in active library modules (`syllabify.py`, `repair.py`, `metrics.py`, `atfparse.py`, `print.py`) to reduce hardcoded separator usage
-- **repair.py explicit `+` behavior**: default now allows repair propagation to previous linked words; strict tail-only behavior is available via `--only-last`
+- **repair.py explicit `+` behavior**: `RepairEngine` default is now strict tail-only (`only_last=True`)
+- **repairer.py CLI behavior**: strict tail-only linked repair is now the default; use `--relax-last` to allow propagation
+- **print.py IPA behavior**: punctuation clusters emit one `(..)` pause, spaces emit `⟨pause⟩ (.)`, and bracketed chunks emit `⟨escape:[...]⟩`
+- **phonetic constants scope**: extra-long vowels (`àìùè`) are now metrics-internal only
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite
 - **syllabify.py**: Fully functional syllabifier with 60+ passing unit tests
 - **repair.py**: Complete moraic repair system with LOB/SOB accent models, all tests passing
 - **metricser.py**: Comprehensive metrics calculator with acoustic analysis and pause metrics, all tests passing
-- **format.py**: Currently under development (IPA, Markdown, LaTeX output)
+- **printer.py / print.py**: Accent/IPA rendering path and tests are stable
+
+### Removed
+- **src/akkapros/cli/format.py** (obsolete CLI formatter)
 
 ### Fixed
 - None (pre-release development)

@@ -30,7 +30,6 @@ AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 # consistent.
 SHORT_VOWELS = set('aeiu')
 LONG_VOWELS = set('āēīūâêîû')
-EXTRA_LONG_VOWELS = set('àìùè')
 
 # Symbols
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)

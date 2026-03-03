@@ -34,6 +34,7 @@ from akkapros.lib.metrics import (
     format_csv,
     run_tests as run_metrics_tests,
 )
+from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
 
 
@@ -133,7 +134,7 @@ def main() -> None:
 EXAMPLES:
   python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --style lob --table
   python fullreparer.py outputs/erra_proc.txt -p erra --restore-diphthongs --json --csv
-  python fullreparer.py --test-all
+    python fullreparer.py --test-all
 
 Versions: {__version__}
 """
@@ -168,12 +169,13 @@ Versions: {__version__}
     parser.add_argument('--punct-weight', type=float, default=2.0,
                         help='Punctuation pause multiplier relative to space pauses')
 
-    # Test controls (covering all three programs)
+    # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
     parser.add_argument('--test-repair', action='store_true', help='Run repair library tests')
     parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
     parser.add_argument('--test-metrics', action='store_true', help='Run metrics library tests')
-    parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, repair and metrics')
+    parser.add_argument('--test-print', action='store_true', help='Run print library tests')
+    parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, repair, diphthongs, metrics and print')
 
     args = parser.parse_args()
 
@@ -183,9 +185,10 @@ Versions: {__version__}
         ok = run_repair_tests() and ok
         ok = test_diphthong_restoration() and ok
         ok = run_metrics_tests() and ok
+        ok = accent_print.run_tests() and ok
         sys.exit(0 if ok else 1)
 
-    if args.test_syllabify or args.test_repair or args.test_diphthongs or args.test_metrics:
+    if args.test_syllabify or args.test_repair or args.test_diphthongs or args.test_metrics or args.test_print:
         ok = True
         if args.test_syllabify:
             ok = syllabify.run_tests() and ok
@@ -195,6 +198,8 @@ Versions: {__version__}
             ok = test_diphthong_restoration() and ok
         if args.test_metrics:
             ok = run_metrics_tests() and ok
+        if args.test_print:
+            ok = accent_print.run_tests() and ok
         sys.exit(0 if ok else 1)
 
     if not args.input:

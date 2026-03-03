@@ -559,7 +559,7 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
 #------------------------
 
 class RepairEngine:
-    def __init__(self, style: AccentStyle = AccentStyle.LOB, only_last: bool = False):
+    def __init__(self, style: AccentStyle = AccentStyle.LOB, only_last: bool = True):
         self.style = style
         self.only_last = only_last
         self.stats = {
@@ -1229,11 +1229,11 @@ def run_tests():
             }
         },
         {
-            'name': 'Explicit plus allows propagation to previous word (default)',
+            'name': 'Explicit plus keeps repair on linked tail (default strict)',
             'input': 'bā·nû+a·pil¦',
             'expected': {
-                'lob': 'bā·nû~+a·pil',
-                'sob': 'bā·nû~+a·pil'
+                'lob': 'bā·nû+~a·pil',
+                'sob': 'bā·nû+~a·pil'
             }
         },
         {
@@ -1248,8 +1248,8 @@ def run_tests():
             'name': 'Explicit plus resolves internally before propagating further',
             'input': 'bā·nû+a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû~+a·na·ku šar~·ri',
-                'sob': 'bā·nû~+a·na·ku šar~·ri'
+                'lob': 'bā·nû+a·na·ku+šar·ri',
+                'sob': 'bā·nû+a·na·ku+šar·ri'
             }
         },
         {
@@ -1311,18 +1311,18 @@ def run_tests():
         
         print(f"  Passed: {passed}/{total}")
 
-    # Verify strict behavior with only_last=True for explicit '+' groups.
-    strict_cases = [
+    # Verify relaxed behavior with only_last=False for explicit '+' groups.
+    relaxed_cases = [
         {
-            'name': 'only_last keeps repair on linked tail',
+            'name': 'relax_last allows propagation to previous linked word',
             'input': 'bā·nû+a·pil¦',
             'expected': {
-                'lob': 'bā·nû+~a·pil',
-                'sob': 'bā·nû+~a·pil',
+                'lob': 'bā·nû~+a·pil',
+                'sob': 'bā·nû~+a·pil',
             }
         },
         {
-            'name': 'only_last keeps final linked repair in 3-word chain',
+            'name': 'relax_last still allows final linked repair in 3-word chain',
             'input': 'bā·nû+a·pil+el·lil¦',
             'expected': {
                 'lob': 'bā·nû+a·pil+el~·lil',
@@ -1330,15 +1330,15 @@ def run_tests():
             }
         },
         {
-            'name': 'only_last may merge forward when linked tail cannot repair',
+            'name': 'relax_last may repair before linked tail when legal',
             'input': 'bā·nû+a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû+a·na·ku+šar·ri',
-                'sob': 'bā·nû+a·na·ku+šar·ri',
+                'lob': 'bā·nû~+a·na·ku šar~·ri',
+                'sob': 'bā·nû~+a·na·ku šar~·ri',
             }
         },
         {
-            'name': 'only_last unresolved at punctuation uses last-resort on tail',
+            'name': 'relax_last unresolved at punctuation uses last-resort on tail',
             'input': 'šar+a·na·ku¦‹ ···›',
             'expected': {
                 'lob': 'šar+~a·na·ku ···',
@@ -1347,10 +1347,10 @@ def run_tests():
         },
     ]
 
-    print("\n--- Testing ONLY_LAST strict mode ---")
+    print("\n--- Testing RELAX_LAST mode ---")
     for style in [AccentStyle.LOB, AccentStyle.SOB]:
-        engine = RepairEngine(style=style, only_last=True)
-        for test in strict_cases:
+        engine = RepairEngine(style=style, only_last=False)
+        for test in relaxed_cases:
             tokens = parse_syl_line(test['input'])
             result = engine.repair_line(tokens)
             expected = test['expected'][style.value]

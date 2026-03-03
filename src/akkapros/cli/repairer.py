@@ -47,8 +47,8 @@ def main() -> None:
     parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
     parser.add_argument('--outdir', default='.', help='Output directory')
     parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
-    parser.add_argument('-l', '--only-last', action='store_true',
-                        help='For explicit + links, restrict repair to the last linked word only')
+    parser.add_argument('-r', '--relax-last', action='store_true',
+                        help='For explicit + links, allow repair propagation before the last linked word')
     parser.add_argument('--restore-diphthongs', action='store_true',
                         help='Restore original diphthongs by removing inserted glottal stops')
     parser.add_argument('--only-restore-diphthongs', action='store_true',
@@ -88,7 +88,7 @@ def main() -> None:
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     style = style_map[args.style]
 
-    engine = RepairEngine(style=style, only_last=args.only_last)
+    engine = RepairEngine(style=style, only_last=not args.relax_last)
     engine.process_file(
         str(input_path),
         str(output_file),

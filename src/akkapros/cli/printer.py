@@ -4,6 +4,7 @@
 Converts *_tilde text into:
 - <prefix>_accent_accute.txt
 - <prefix>_accent_bold.md
+- <prefix>_accent_ipa.txt
 """
 
 import sys
@@ -19,7 +20,7 @@ from akkapros.lib.utils import simple_safe_filename
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Convert *_tilde text into accent-accute and accent-bold reading outputs'
+        description='Convert *_tilde text into accent-accute, accent-bold and accent-ipa reading outputs'
     )
     parser.add_argument('--version', action='version', version=f'akkapros-printer {accent_print.__version__}')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
@@ -30,6 +31,8 @@ def main() -> None:
                         help='Write <prefix>_accent_accute.txt')
     parser.add_argument('--bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
+    parser.add_argument('--ipa', action='store_true',
+                        help='Write <prefix>_accent_ipa.txt')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -56,19 +59,23 @@ def main() -> None:
 
     write_accute = args.accute
     write_bold = args.bold
-    if not (write_accute or write_bold):
+    write_ipa = args.ipa
+    if not (write_accute or write_bold or write_ipa):
         write_accute = True
         write_bold = True
 
     accute_out = outdir / f"{prefix}_accent_accute.txt"
     bold_out = outdir / f"{prefix}_accent_bold.md"
+    ipa_out = outdir / f"{prefix}_accent_ipa.txt"
 
     accent_print.process_file(
         input_file=str(input_path),
         output_accute_file=str(accute_out),
         output_bold_file=str(bold_out),
+        output_ipa_file=str(ipa_out),
         write_accute=write_accute,
         write_bold=write_bold,
+        write_ipa=write_ipa,
     )
 
     print(f"Input: {input_path}")
@@ -76,6 +83,8 @@ def main() -> None:
         print(f"Written: {accute_out}")
     if write_bold:
         print(f"Written: {bold_out}")
+    if write_ipa:
+        print(f"Written: {ipa_out}")
 
 
 if __name__ == '__main__':
