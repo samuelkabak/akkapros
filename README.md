@@ -89,7 +89,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 ### XAR orthography profile
 
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
-- Consonant remap includes distinct emphatic/base channels (e.g., `q -> q̇`, `ṭ -> c̄`, `ṣ -> ĵ`, `š -> x̌`).
+- Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
 	- default: `ā -> aā`, `ī -> iī`, `ū -> uū`, `ē -> eē`, `â -> aâ`, `î -> iî`, `û -> uû`, `ê -> eê`
 	- emphatic: `ā -> àā`, `ī -> ìī`, `ū -> ùū`, `ē -> èē`, `â -> àâ`, `î -> ìî`, `û -> ùû`, `ê -> èê`
