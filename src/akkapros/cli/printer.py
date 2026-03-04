@@ -5,6 +5,7 @@ Converts *_tilde text into:
 - <prefix>_accent_acute.txt
 - <prefix>_accent_bold.md
 - <prefix>_accent_ipa.txt
+- <prefix>_accent_xar.txt
 """
 
 import sys
@@ -20,7 +21,7 @@ from akkapros.lib.utils import simple_safe_filename
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Convert *_tilde text into accent-acute, accent-bold and accent-ipa reading outputs'
+        description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs'
     )
     parser.add_argument('--version', action='version', version=f'akkapros-printer {accent_print.__version__}')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
@@ -33,6 +34,8 @@ def main() -> None:
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt')
+    parser.add_argument('--xar', action='store_true',
+                        help='Write <prefix>_accent_xar.txt')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -60,22 +63,26 @@ def main() -> None:
     write_acute = args.acute
     write_bold = args.bold
     write_ipa = args.ipa
-    if not (write_acute or write_bold or write_ipa):
+    write_xar = args.xar
+    if not (write_acute or write_bold or write_ipa or write_xar):
         write_acute = True
         write_bold = True
 
     acute_out = outdir / f"{prefix}_accent_acute.txt"
     bold_out = outdir / f"{prefix}_accent_bold.md"
     ipa_out = outdir / f"{prefix}_accent_ipa.txt"
+    xar_out = outdir / f"{prefix}_accent_xar.txt"
 
     accent_print.process_file(
         input_file=str(input_path),
         output_acute_file=str(acute_out),
         output_bold_file=str(bold_out),
         output_ipa_file=str(ipa_out),
+        output_xar_file=str(xar_out),
         write_acute=write_acute,
         write_bold=write_bold,
         write_ipa=write_ipa,
+        write_xar=write_xar,
     )
 
     print(f"Input: {input_path}")
@@ -85,6 +92,8 @@ def main() -> None:
         print(f"Written: {bold_out}")
     if write_ipa:
         print(f"Written: {ipa_out}")
+    if write_xar:
+        print(f"Written: {xar_out}")
 
 
 if __name__ == '__main__':

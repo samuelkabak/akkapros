@@ -65,6 +65,26 @@ IPA_VOWELS_EMPHATIC = {
     'â': 'ɑː', 'î': 'ɨː', 'û': 'ʊː', 'ê': 'ɛː',
 }
 
+XAR_CONSONANT_MAP = {
+    'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
+    'q': 'q̇', 'ṭ': 'c̄', 'ṣ': 'ĵ', 'š': 'x̌',
+    's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
+    'r': 'r', 'ḥ': 'ḫ', 'ḫ': 'ḫ', 'ʿ': "'", 'ʾ': "'",
+    'w': 'w', 'y': 'j', 't': 't',
+}
+
+XAR_VOWELS_DEFAULT = {
+    'a': 'a', 'i': 'i', 'u': 'u', 'e': 'e',
+    'ā': 'aā', 'ī': 'iī', 'ū': 'uū', 'ē': 'eē',
+    'â': 'aâ', 'î': 'iî', 'û': 'uû', 'ê': 'eê',
+}
+
+XAR_VOWELS_EMPHATIC = {
+    'a': 'à', 'i': 'ì', 'u': 'ù', 'e': 'è',
+    'ā': 'àā', 'ī': 'ìī', 'ū': 'ùū', 'ē': 'èē',
+    'â': 'àâ', 'î': 'ìî', 'û': 'ùû', 'ê': 'èê',
+}
+
 IPA_SYMBOL_TAGS = {
     '.': 'period',
     ',': 'comma',
@@ -147,6 +167,26 @@ def _insert_glottal_stops(word: str) -> str:
     return ''.join(out)
 
 
+def _insert_glottal_stops_with_indices(word: str) -> Tuple[str, list]:
+    """Insert ʾ before vowel-initial segments and map each output char to source index (-1 for inserted)."""
+    out = []
+    out_indices = []
+
+    for idx, char in enumerate(word):
+        boundary = idx == 0 or word[idx - 1] in {WORD_LINKER, HYPHEN}
+        if boundary and char != GLOTTAL_STOP:
+            if char in ALL_VOWELS:
+                out.append(GLOTTAL_STOP)
+                out_indices.append(-1)
+            elif char == TILDE and idx + 1 < len(word) and word[idx + 1] in ALL_VOWELS:
+                out.append(GLOTTAL_STOP)
+                out_indices.append(-1)
+        out.append(char)
+        out_indices.append(idx)
+
+    return ''.join(out), out_indices
+
+
 def _is_emphatic_adjacent(text: str, index: int, skip_chars=None) -> bool:
     """True when a vowel has adjacent q/ṣ/ṭ (optionally skipping separators)."""
 
@@ -170,6 +210,99 @@ def _to_ipa_vowel(vowel: str, emphatic_context: bool) -> str:
     if emphatic_context:
         return IPA_VOWELS_EMPHATIC.get(vowel, vowel)
     return IPA_VOWELS_DEFAULT.get(vowel, vowel)
+
+
+def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
+    if emphatic_context:
+        return XAR_VOWELS_EMPHATIC.get(vowel, vowel)
+    return XAR_VOWELS_DEFAULT.get(vowel, vowel)
+
+
+def remove_glottals(text: str) -> str:
+    """Remove mapped glottal apostrophes in XAR using diphthong-preserving replacements."""
+    short_to_circumflex = {'a': 'â', 'i': 'î', 'u': 'û', 'e': 'ê'}
+
+    replacements = [
+        (r"u'a", 'ua'),
+        (r"u'ā", 'uā'),
+        (r"u'â", 'uâ'),
+        (r"u'ā~", 'uā~'),
+        (r"u'â~", 'uâ~'),
+        (r"ū'a", 'uā'),
+        (r"û'a", 'uâ'),
+        (r"ū'ā", 'uā~'),
+        (r"û'ā", 'uâ~'),
+        (r"ū'â", 'uâ~'),
+        (r"û'â", 'uâ~'),
+        (r"ū'ā~", 'uā'),
+        (r"û'ā~", 'uâ'),
+        (r"ū'â~", 'uâ'),
+        (r"û'â~", 'uâ'),
+        (r"ū~'a", 'uā~'),
+        (r"û~'a", 'uâ~'),
+        (r"ū~'ā", 'uā'),
+        (r"û~'ā", 'uâ'),
+        (r"ū~'â", 'uâ'),
+        (r"û~'â", 'uâ'),
+        (r"ū~'ā~", 'uā~'),
+        (r"û~'ā~", 'uâ~'),
+        (r"ū~'â~", 'uâ~'),
+        (r"û~'â~", 'uâ~'),
+        (r"([^aeiu]?)u'a", r"\1ua"),
+        (r"([^aeiu]?)u'ā", r"\1uā"),
+        (r"([^aeiu]?)u'â", r"\1uâ"),
+    ]
+
+    for pattern, repl in replacements:
+        text = re.sub(pattern, repl, text)
+
+    # Residual glottals near consonants:
+    # (C|start) [aiue] ' (C|end) -> (C|start) [âîûê] (C|end)
+    text = re.sub(
+        r"(^|(?<=[^aeiuāēīūâêîû]))([aiue])'(?=[^aeiuāēīūâêîû]|$)",
+        lambda m: f"{m.group(1)}{short_to_circumflex[m.group(2)]}",
+        text,
+    )
+
+    # (C|start) [aiue] C ' -> (C|start) [âîûê] C
+    text = re.sub(
+        r"(^|(?<=[^aeiuāēīūâêîû]))([aiue])([^aeiuāēīūâêîû'])'",
+        lambda m: f"{m.group(1)}{short_to_circumflex[m.group(2)]}{m.group(3)}",
+        text,
+    )
+
+    return text.replace("'", "")
+
+
+def _convert_word_xar(word: str) -> str:
+    """Convert one Akkadian word token to XAR with ordered transforms."""
+    emphatic_flags = []
+    for idx, char in enumerate(word):
+        if char in ALL_VOWELS:
+            emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR}))
+
+    step1 = ''.join(XAR_CONSONANT_MAP.get(char, char) for char in word)
+    step2 = remove_glottals(step1)
+
+    out = []
+    vowel_idx = 0
+    for char in step2:
+        if char in ALL_VOWELS:
+            emphatic_context = emphatic_flags[vowel_idx] if vowel_idx < len(emphatic_flags) else False
+            out.append(_to_xar_vowel(char, emphatic_context))
+            vowel_idx += 1
+        elif char == WORD_LINKER:
+            out.append(WORD_LINKER_OUT)
+        elif char == SYL_SEPARATOR:
+            continue
+        elif char == HYPHEN:
+            out.append(HYPHEN)
+        elif char == TILDE:
+            out.append(ACUTE_MARK)
+        else:
+            out.append(char)
+
+    return ''.join(out)
 
 
 def _is_punctuation(char: str) -> bool:
@@ -267,6 +400,30 @@ def _flush_syllable(
             return f"{IPA_STRESS}{ipa_syllable}"
         return ipa_syllable
 
+    if mode == 'xar':
+        converted = []
+
+        context_text = source_text if source_text else syllable_text
+        context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
+
+        for idx, char in enumerate(syllable_text):
+            if char in ALL_VOWELS:
+                context_index = source_indices[idx] if source_indices else idx
+                converted.append(
+                    _to_xar_vowel(
+                        char,
+                        _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
+                    )
+                )
+            elif char in XAR_CONSONANT_MAP:
+                converted.append(XAR_CONSONANT_MAP[char])
+            elif char == TILDE:
+                converted.append(ACUTE_MARK)
+            else:
+                converted.append(char)
+
+        return ''.join(converted)
+
     clean = syllable_text.replace(TILDE, '')
     if TILDE in syllable_text and clean:
         return f"**{clean}**"
@@ -275,8 +432,14 @@ def _flush_syllable(
 
 def _convert_word(word: str, mode: str) -> str:
     """Convert one Akkadian word token."""
+    if mode == 'xar':
+        return _convert_word_xar(word)
+
+    source_word = word
+    source_index_map = None
+
     if mode == 'ipa':
-        word = _insert_glottal_stops(word)
+        word, source_index_map = _insert_glottal_stops_with_indices(word)
 
     out = []
     current_syllable = []
@@ -284,12 +447,20 @@ def _convert_word(word: str, mode: str) -> str:
 
     def flush_current() -> None:
         if current_syllable:
+            source_indices = current_indices
+            source_text = word
+            if source_index_map is not None:
+                source_text = source_word
+                source_indices = [
+                    source_index_map[idx] if 0 <= source_index_map[idx] < len(source_word) else 0
+                    for idx in current_indices
+                ]
             out.append(
                 _flush_syllable(
                     ''.join(current_syllable),
                     mode,
-                    source_text=word,
-                    source_indices=current_indices,
+                    source_text=source_text,
+                    source_indices=source_indices,
                 )
             )
             current_syllable.clear()
@@ -514,9 +685,9 @@ def _convert_mixed_bracket_part_ipa(part: str) -> str:
 
 
 def convert_line(line: str, mode: str) -> str:
-    """Convert one line to accent_acute, accent_bold, or accent_ipa format."""
-    if mode not in {'acute', 'bold', 'ipa'}:
-        raise ValueError("mode must be 'acute', 'bold' or 'ipa'")
+    """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format."""
+    if mode not in {'acute', 'bold', 'ipa', 'xar'}:
+        raise ValueError("mode must be 'acute', 'bold', 'ipa' or 'xar'")
 
     parts = split_by_brackets_level3(line)
     if len(parts) > 1:
@@ -548,11 +719,18 @@ def convert_text(text: str) -> Tuple[str, str]:
 
 def convert_text_with_ipa(text: str) -> Tuple[str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text)."""
+    acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(text)
+    return acute_text, bold_text, ipa_text
+
+
+def convert_text_with_ipa_xar(text: str) -> Tuple[str, str, str, str]:
+    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text)."""
     lines = text.splitlines(keepends=True)
     acute_lines = [convert_line(line, mode='acute') for line in lines]
     bold_lines = [convert_line(line, mode='bold') for line in lines]
     ipa_lines = [convert_line(line, mode='ipa') for line in lines]
-    return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines)
+    xar_lines = [convert_line(line, mode='xar') for line in lines]
+    return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
 
 
 def process_file(
@@ -560,15 +738,17 @@ def process_file(
     output_acute_file: str,
     output_bold_file: str,
     output_ipa_file: str = '',
+    output_xar_file: str = '',
     write_acute: bool = True,
     write_bold: bool = True,
     write_ipa: bool = False,
+    write_xar: bool = False,
 ) -> None:
     """Read *_tilde input and write selected output files."""
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    acute_text, bold_text, ipa_text = convert_text_with_ipa(text)
+    acute_text, bold_text, ipa_text, xar_text = convert_text_with_ipa_xar(text)
 
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
@@ -586,6 +766,13 @@ def process_file(
         Path(output_ipa_file).parent.mkdir(parents=True, exist_ok=True)
         with open(output_ipa_file, 'w', encoding='utf-8') as f:
             f.write(ipa_text)
+
+    if write_xar:
+        if not output_xar_file:
+            raise ValueError("output_xar_file is required when write_xar is True")
+        Path(output_xar_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_xar_file, 'w', encoding='utf-8') as f:
+            f.write(xar_text)
 
 
 def run_tests() -> bool:
@@ -615,6 +802,52 @@ def run_tests() -> bool:
         ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir ˈdadː.meː"),
+        ("qa", "xar", "q̇à"),
+        ("qi", "xar", "q̇ì"),
+        ("qu", "xar", "q̇ù"),
+        ("qe", "xar", "q̇è"),
+        ("ṭa", "xar", "c̄à"),
+        ("ṣa", "xar", "ĵà"),
+        ("ša", "xar", "x̌a"),
+        ("ḥa", "xar", "ḫa"),
+        ("ya", "xar", "ja"),
+        ("ʿa", "xar", "a"),
+        ("qā~", "xar", "q̇àā´"),
+        ("šar~", "xar", "x̌ar´"),
+        ("q~a", "xar", "q̇´à"),
+        ("ʾa ʿa", "xar", "a a"),
+        ("ʾa", "xar", "a"),
+        ("uʾa", "xar", "ua"),
+        ("kūʾa", "xar", "kuaā"),
+        ("baʾk", "xar", "baâk"),
+        ("abʿd", "xar", "aâbd"),
+        ("ʾka", "xar", "ka"),
+        ("bakʾ", "xar", "baâk"),
+        ("bākʾ", "xar", "baāk"),
+        ("biʾd", "xar", "biîd"),
+        ("buʾd", "xar", "buûd"),
+        ("beʾd", "xar", "beêd"),
+        ("takʾ", "xar", "taâk"),
+        ("tikʾ", "xar", "tiîk"),
+        ("tukʾ", "xar", "tuûk"),
+        ("tekʾ", "xar", "teêk"),
+        ("tīkʾ", "xar", "tiīk"),
+        ("bā", "xar", "baā"),
+        ("bī", "xar", "biī"),
+        ("bū", "xar", "buū"),
+        ("bē", "xar", "beē"),
+        ("bâ", "xar", "baâ"),
+        ("bî", "xar", "biî"),
+        ("bû", "xar", "buû"),
+        ("bê", "xar", "beê"),
+        ("qā", "xar", "q̇àā"),
+        ("qī", "xar", "q̇ìī"),
+        ("qū", "xar", "q̇ùū"),
+        ("qē", "xar", "q̇èē"),
+        ("qâ", "xar", "q̇àâ"),
+        ("qî", "xar", "q̇ìî"),
+        ("qû", "xar", "q̇ùû"),
+        ("qê", "xar", "q̇èê"),
         ("qa", "ipa", "qɑ"),
         ("qi", "ipa", "qɨ"),
         ("qu", "ipa", "qʊ"),
@@ -653,6 +886,7 @@ def run_tests() -> bool:
         ("qî~", "ipa", "ˈqɨːː"),
         ("qû~", "ipa", "ˈqʊːː"),
         ("qê~", "ipa", "ˈqɛːː"),
+        ("ʾa", "ipa", "ʔa"),
         (
             "ana+se·bet·ti qar·rā~d lā+ša·nān — nan~·di·qā kak·kī·kun",
             "ipa",
@@ -719,8 +953,9 @@ def run_tests() -> bool:
     expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
     expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈʔːa.pil\n"
-    got_acute, got_bold, got_ipa = convert_text_with_ipa(text_in)
-    total_extra = 4
+    expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´meē\n´apil\n"
+    got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
+    total_extra = 5
     extra_passed = 0
 
     if got_acute == expected_acute:
@@ -751,6 +986,16 @@ def run_tests() -> bool:
             f"\n  in : {text_in}"
             f"\n  got: {got_ipa}"
             f"\n  exp: {expected_ipa}"
+        )
+
+    if got_xar == expected_xar:
+        extra_passed += 1
+    else:
+        print(
+            "FAILED [convert_text xar]"
+            f"\n  in : {text_in}"
+            f"\n  got: {got_xar}"
+            f"\n  exp: {expected_xar}"
         )
 
     with tempfile.TemporaryDirectory() as tmpdir:

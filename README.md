@@ -30,7 +30,7 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 | `repairer.py` | 1.0.0 | Applies accentuation repair algorithm |
 | `metricser.py` | 1.0.0 | Computes acoustic metrics from repaired text |
 | `fullreparer.py` | 1.0.0 | Runs syllabify + repair + metrics + print in one command |
-| `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text, bold markdown, and IPA outputs |
+| `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text, bold markdown, IPA, and XAR outputs |
 
 ---
 
@@ -67,6 +67,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - `<prefix>_accent_acute.txt`
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
+- `<prefix>_accent_xar.txt`
 
 ### Marker behavior
 
@@ -77,10 +78,24 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 	- in `accent_acute`: replaced by `´`
 	- in `accent_bold`: removed and the host syllable is bolded
 	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
+	- in `accent_xar`: replaced by `´` on the repaired segment in XAR orthography
+- in `accent_xar`, glottal letters `ʿ` and `ʾ` are removed in final output (Old Babylonian profile); glottal-cleanup rules are kept as a protective normalization when input includes forms from other Akkadian periods/regions (e.g., Old Akkadian, Standard Babylonian, Assyrian Akkadian)
+- for ASCII/diacritic-stripped post-processing, use this convention to preserve circumflex-vs-macron distinction: when diaeresis is removed from circumflex outputs, insert an apostrophe before the second vowel (`èë -> e'e`, `aä -> a'a`, `iï -> i'i`, `uü -> u'u`)
 - in IPA mode, spaces emit `⟨pause⟩ (.)`
 - in IPA mode, punctuation emits symbolic tags and a clustered punctuation pause `(..)`
 - in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
 - content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
+
+### XAR orthography profile
+
+- XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
+- Consonant remap includes distinct emphatic/base channels (e.g., `q -> q̇`, `ṭ -> c̄`, `ṣ -> ĵ`, `š -> x̌`).
+- Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
+	- default: `ā -> aā`, `ī -> iī`, `ū -> uū`, `ē -> eē`, `â -> aâ`, `î -> iî`, `û -> uû`, `ê -> eê`
+	- emphatic: `ā -> àā`, `ī -> ìī`, `ū -> ùū`, `ē -> èē`, `â -> àâ`, `î -> ìî`, `û -> ùû`, `ê -> èê`
+- Processing order for XAR is: consonant substitution -> glottal cleanup rules -> vowel substitution.
+- Old Babylonian profile: `ʿ` and `ʾ` are removed in final XAR output. Cleanup rules are kept as protection for inputs from other Akkadian periods/regions.
+- If a later external normalization strips diacritics, preserve circumflex-vs-macron distinction by inserting apostrophes in the stripped form (e.g., `èë -> e'e`, `aä -> a'a`, `iï -> i'i`, `uü -> u'u`).
 
 ### Emphatic vowel coloring
 
@@ -101,6 +116,9 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 # write only IPA output
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa
 
+# write only XAR output
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --xar
+
 # run self-tests
 python3 src/akkapros/cli/printer.py --test
 ```
@@ -119,7 +137,7 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 	- `<prefix>_tilde.txt`
 - **Metrics outputs**: selected by flags (`--table`, `--json`, `--csv`)
 	- If no metrics format is selected, `--table` is used by default.
-- **Accent outputs**: selected by flags (`--acute`, `--bold`, `--ipa`)
+- **Accent outputs**: selected by flags (`--acute`, `--bold`, `--ipa`, `--xar`)
 	- If no accent format is selected, `--acute` and `--bold` are used by default.
 
 ### Shared options (deduplicated)
@@ -131,15 +149,15 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 ### Stage-specific options
 
 - **Syllabification**: `--merge-hyphen`
-- **Repair**: `--style {lob,sob}`, `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
+- **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
-- **Printer**: `--acute`, `--bold`, `--ipa`
+- **Printer**: `--acute`, `--bold`, `--ipa`, `--xar`
 
 ### Examples
 
 ```bash
-# LOB style, metrics table output
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --style lob --table
+# SOB style (default), metrics table output
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --table
 
 # SOB style with JSON and CSV metrics
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outdir outputs --style sob --json --csv
@@ -150,8 +168,11 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --out
 # Write only IPA accent output (skip acute/bold)
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_ipa --outdir outputs --ipa --table
 
+# Write only XAR accent output (skip acute/bold/ipa)
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outdir outputs --xar --table
+
 # Allow explicit + repair propagation before the last linked word
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style lob --relax-last --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style sob --relax-last --table
 
 # Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all
@@ -230,6 +251,9 @@ Usage:
 ```bash
 # strict tail-only linked repair (default)
 python3 src/akkapros/cli/repairer.py outputs/erra_syl.txt -p erra --outdir outputs
+
+# explicit LOB style (non-default)
+python3 src/akkapros/cli/repairer.py outputs/erra_syl.txt -p erra --outdir outputs --style lob
 
 # relaxed linked repair propagation
 python3 src/akkapros/cli/repairer.py outputs/erra_syl.txt -p erra --outdir outputs --relax-last

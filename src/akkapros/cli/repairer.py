@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument('input', nargs='?', help='Input *_syl.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
     parser.add_argument('--outdir', default='.', help='Output directory')
-    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
+    parser.add_argument('--style', choices=['lob', 'sob'], default='sob', help='Accent style')
     parser.add_argument('-r', '--relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
     parser.add_argument('--restore-diphthongs', action='store_true',

@@ -559,7 +559,7 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
 #------------------------
 
 class RepairEngine:
-    def __init__(self, style: AccentStyle = AccentStyle.LOB, only_last: bool = True):
+    def __init__(self, style: AccentStyle = AccentStyle.SOB, only_last: bool = True):
         self.style = style
         self.only_last = only_last
         self.stats = {

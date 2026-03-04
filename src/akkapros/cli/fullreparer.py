@@ -62,6 +62,7 @@ def run_pipeline(
     output_acute: bool,
     output_bold: bool,
     output_ipa: bool,
+    output_xar: bool,
 ) -> int:
     """Execute syllabify -> repair -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
@@ -74,6 +75,7 @@ def run_pipeline(
     acute_file = outdir / f"{safe_prefix}_accent_acute.txt"
     bold_file = outdir / f"{safe_prefix}_accent_bold.md"
     ipa_file = outdir / f"{safe_prefix}_accent_ipa.txt"
+    xar_file = outdir / f"{safe_prefix}_accent_xar.txt"
 
     print(f"Input: {input_file}")
     print(f"Output directory: {outdir}")
@@ -136,9 +138,11 @@ def run_pipeline(
         output_acute_file=str(acute_file),
         output_bold_file=str(bold_file),
         output_ipa_file=str(ipa_file),
+        output_xar_file=str(xar_file),
         write_acute=output_acute,
         write_bold=output_bold,
         write_ipa=output_ipa,
+        write_xar=output_xar,
     )
 
     if output_acute:
@@ -147,6 +151,8 @@ def run_pipeline(
         print(f"Accent bold saved to: {bold_file}")
     if output_ipa:
         print(f"Accent IPA saved to: {ipa_file}")
+    if output_xar:
+        print(f"Accent XAR saved to: {xar_file}")
 
     print("\nPipeline completed successfully.")
     return 0
@@ -160,7 +166,7 @@ def main() -> None:
 EXAMPLES:
   python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --style lob --table
   python fullreparer.py outputs/erra_proc.txt -p erra --restore-diphthongs --json --csv
-        python fullreparer.py outputs/erra_proc.txt -p erra --acute --bold --ipa
+        python fullreparer.py outputs/erra_proc.txt -p erra --acute --bold --ipa --xar
     python fullreparer.py --test-all
 
 Versions: {__version__}
@@ -179,7 +185,7 @@ Versions: {__version__}
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphens into syllable separators in syllabification')
 
     # Repairer options
-    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
+    parser.add_argument('--style', choices=['lob', 'sob'], default='sob', help='Repair accent style')
     parser.add_argument('-r', '--relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
     parser.add_argument('--restore-diphthongs', action='store_true',
@@ -203,6 +209,8 @@ Versions: {__version__}
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt')
+    parser.add_argument('--xar', action='store_true',
+                        help='Write <prefix>_accent_xar.txt')
 
     # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
@@ -255,13 +263,14 @@ Versions: {__version__}
     output_acute = args.acute
     output_bold = args.bold
     output_ipa = args.ipa
+    output_xar = args.xar
 
     # Match metricser behavior: default to table if no explicit format selected.
     if not (output_table or output_json or output_csv):
         output_table = True
 
     # Match printer behavior: default to acute + bold if no explicit format selected.
-    if not (output_acute or output_bold or output_ipa):
+    if not (output_acute or output_bold or output_ipa or output_xar):
         output_acute = True
         output_bold = True
 
@@ -287,6 +296,7 @@ Versions: {__version__}
         output_acute=output_acute,
         output_bold=output_bold,
         output_ipa=output_ipa,
+        output_xar=output_xar,
     )
     sys.exit(code)
 
