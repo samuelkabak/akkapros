@@ -1,0 +1,2490 @@
+&X000001 = L III.3 Marduk’s Address to the Demons SB -
+#project: eblo
+#atf: lang akk-x-stdbab
+#atf: use unicode
+#atf: use math
+#atf: use legacy
+
+#tr.en: Begone Evil, evil angel, evil demon, evil poultergeist, evil ghost,
+1. %n šiptu duppir lemnu šēdu lemnu utukku lemnu alû lemnu eṭemmu lemnu
+BabaHel1 i 1a. [x x x x x x x] lem#-nu# u₂-tuk-ku lem-nu a-lu-u₂ lem-nu e-ṭem₂-m[u] lem-nu
+$ line continues
+BabaHel3 o 1. [x d]up-pir lem-nu {d}[ALAD] lem-nu UDUG lem-nu a-lu-u₂ lem#-nu GIDIM lem-nu
+BabaLBSch13 3'. [E]N₂ dup-pir lem-nu {d}ALAD# lem#-[nu x x x x x x x x x x x x x x]
+$ beginning of excerpt
+NinNA14 i 1-2a. [x x x x x x x x x x x x a-l]u-u₂ lem-nu | [x (x x) x x]
+NinNAQuo1 r 20. [x] dup-pir lem-nu še-e#-[du x x]
+BabNBPar1 i 3'. [...] x x lem#-nu# GIDIM?# lem-n[u]
+
+#tr.en: evil devil, evil god, evil spirit, Lamaštu,
+2. %n gallû lemnu ilu lemnu rābiṣu lemnu
+BabaHel1 i 1b-2a. GAL₅.LA₂ lem-nu DINGIR?# | [x x x x x x x]
+$ line continues
+BabaHel3 o 2a. [gal]-lu-u₂ lem-nu DINGIR# [x x MAŠKI]M HUL
+$ line continues
+BabaLBSch13 4'a. [GAL₅].LA₂ lem-nu DINGIR lem-nu MAŠKIM lem#-nu#
+$ line continues
+NinNA14 i 2b. [x x x x x x x x ra]-bi#-ṣu# lem-nu#
+BabNBPar1 i 4'a. [...]
+$ line continues
+
+#tr.en: Labāṣu, Grabber
+3. %n lamaštu labāṣu ahhāzu
+BabaHel1 i 2b. [l]a-maš-tu₄ la-ba-ṣu ah-ha-zu
+$ line continues
+BabaHel3 o 2b. {d}DIM₁₀.ME {d}DIM₁₀.ME.DURU₅ {d}DIM₁₀.ME.LAGAB
+BabaLBSch13 4'b. [x x x x x x x x x x x]
+NinNA14 i 3. [x x x la-ba]-ṣu# ah-ha#-zu#
+BabNBPar1 i 4'b. [... ah-h]a-zu
+$ line continues
+
+#tr.en: Lilû, Līlītu, young lady of Lilû,
+4. %n lilû lilītu ardat lilî
+BabaHel1 i 2c. LU₂.LIL₂.LA₂ KI.SIKIL L[IL₂].LA₂ KI.SIKIL.U₄.DA#.KAR!#.RA!#
+BabaHel3 o 3a. [x x x] KI#.SIKIL#.LIL₂#.LA₂# K[I.SIKIL U₄.DA.K]AR.RA
+$ line continues
+BabaLBSch13 5'a. [l]i-lu-u₂ li-li-tu₄ ar₂-da-tu₄# [x x x]
+$ line continues
+NinNA14 i 4. [x x x x x x a]r-da-at li-l[i?-i]
+BabNBPar1 i 4'c-5'a. li-lu-u₂# | [...]
+$ line continues
+
+#tr.en: Lugal-urra, offspring of Šulpa’e’a,
+5. %n lugalura rihût šulpaea
+BabaHel1 i 3a. [x x x x x x x] {d}šul-p[a]-e₃#-a
+$ line continues
+BabaHel3 o 3b-4a. {d}lugal-ur₃-ra# | [x x x] {d#}šul#-pa-e₃-[a]
+$ line continues
+BabaLBSch13 5'b-6'a. [x x x x] | [A].RI#.A {d}šul-pa-e₃-a
+$ line continues
+NinNA14 i 5. [x x x x x A.RI].A# {d}šul-p[a-e₃-a]
+BabNBPar1 i 5'b-6'a. [{d}lugal-ur₃]-ra A.RI!.A | [...]
+$ line continues
+
+#tr.en: that which falls from heaven, the flash of a star, the fall of Bennu,
+6. %n miqit šamê ṣereh kakkabi miqit benni
+BabaHel1 i 3b. mi-qit AN-e ṣe-re-eh MUL mi#-qit {d}be-en-nu
+BabaHel3 o 4b. [mi-q]it AN!-e ṣe-re-eh MUL [m]i-qit# {d#}be#-en#-nu#
+BabaLBSch13 6'b-7'a. mi-qit A[N-e x x x x] | [mi-q]it be-en#-nu
+$ line continues
+NinNA14 i 6. [x x x x x x x M]UL-MEŠ mi-qit# [x x x x]
+BabNBPar1 i 6'b. [... MUL-M]EŠ mi-qit {d}be-en?#-nu!#(IGI?#)
+#note: See @bib{fromebllab0044@151 fn. 54}: “The final oblique of the @akk{BAD} sign seems to overlap with the initial horizontal of the @akk{EN} sign.”
+
+#tr.en: be you an image of Namtar, be you an image of the devil, be you any Evil that exists,
+7. %n lū ṣalam namtari lū ṣalam gallê lū mimma lemnu ša šuma nabû
+BabaHel1 i 4. [x x x x x x x l]u-u₂ ṣal-mu# gal#-le#-e# lu-u₂# mim#-ma lem-nu ša₂ šu-um na#-bu-u
+BabaHel3 o 5. [x x x x {d}n]am-<ta>-ri lu#-[u₂ x x x x x] lu-u₂ mim-ma lem-nu ša₂ šu-u₂ [na]-bu-u₂
+BabaLBSch13 7'b-8'a. lu-u₂ ṣal-mu nam#-t[a-ri x x x x x] | [lu]-u₂# mim-ma lem-nu ša₂ šu-mu na-bu-u₂
+$ line continues
+NinNA14 i 7. [x x x x x x x x x x x x GAL₅.L]A!? lu-u mim-ma lem-n[u x x x x x x]
+BabNBPar1 i 7'-8'a. [... gal-le]-e# lu-u₂# mim#-ma# lem#-nu | [...]
+$ line continues
+
+#tr.en: before the spell of Asalluḫi, the magician of the gods, son of Ea, the sage,
+8. %n ina mahar tê ša asalluhi mašmaš ilī mār ea apkalli
+BabaHel1 i 5a. [x x x x x {d}asal-lu₂-h]i MAŠ.MAŠ DINGIR-MEŠ DUM[U] {d#}IDIM# ABGAL
+$ line continues
+BabaHel3 o 6a. [x] IGI# te#-e# ša₂ {d}asal-lu₂-hi MAŠ.M[AŠ DINGIR-M]EŠ DUM[U] {d}IDIM ABGAL
+$ line continues
+BabaLBSch13 8'b-9a. i[na? x x x x] | {d#}asal-lu₂-hi MAŠ.MAŠ DINGIR-MEŠ DUMU {d}IDIM [x]
+NinNA14 i 8. [x x x x x {d}asal-l]u₂-hi MAŠ.MAŠ DINGIR-MEŠ DUMU [x x x]
+BabNBPar1 i 8'b. [x x x x x x x x x MAŠ.MA]Š DINGIR-MEŠ DUMU {d#}IDIM# ABGAL
+
+#tr.en: begone, depart, Evil that is in front of me, make off enemy that is behind me!
+9. %n duppir puṭur lemnu ša pānīya ukkiš ayyābī ša arkīya
+BabaHel1 i 5b-6. dup-pir pu-ṭur lem#-nu#-u ša₂ IGI-ia₂ uk!(KIŠ)-kiš | ($___$) a#-a-bi ša₂ EGIR-ia₂
+$ single ruling
+BabaHel3 o 6b-7. dup-pir pu#-ṭur# | lem-nu ša₂ IGI-ia uk-kiš?# a-[a-bi š]a₂ E[GIR]-ia
+$ single ruling
+BabaLBSch13 10'. [d]up-pir pu#-ṭur lem-nu ša₂ IGI-ia u[k-kiš x x x x x x]
+$ single ruling
+$ end of excerpt
+NinNA1 i 1'. [x x x x x x x x x x x x x x x x x x]
+$ single ruling
+NinNA14 i 9. [x x x x x x x x x x u]k-kiš a-a-bu ša₂ a[r-ki-a]
+$ single ruling
+NinNAVar1 i 4. pu-ṭur dup-pir lem-nu ša₂ pa-ni-ia
+$ beginning of excerpt
+$ 1 line blank
+#note: NinNAVar1 continues with line 8′.
+BabNBPar1 i 9'. [x x x x x x x x x x x x x x x x] EGIR#-ia₂
+$ (end of paralell section)
+
+#tr.en: I am Asalluḫi, magician of the gods, the holy god,
+10. %n anāku asalluhi mašmaš ilī ilu ellu
+BabaHel1 i 7. [x x x x x x M]AŠ.MAŠ DINGIR-MEŠ DINGIR-MEŠ el#-lu
+BabaHel3 o 8. [an]a-ku {d}asal#-lu₂#-hi MAŠ.MAŠ DINGIR-ME[Š DINGIR?-ME]Š el-lu
+NinNA1 i 2'. [x x {d}asal-lu₂-h]i MAŠ.MAŠ DINGIR-MEŠ# [x (x) x x]
+NinNA14 i 10. [x x x x x x x x] DINGIR-MEŠ DINGIR e[l-lu]
+
+#tr.en: I am Asalluḫi, the holy god, the life giving exorcist,
+11. %n anāku asalluhi ilu ellu āšip balāṭi
+BabaHel1 i 8. [x x x x x x] DINGIR-MEŠ el-lu a-ši-pu ba-la#-ṭu
+BabaHel3 o 9. [ana]-ku {d}asal#-lu₂-hi DINGIR-ME[Š e]l-l[u a-ši-p]u ba-la-ṭu#
+NinNA1 i 3'. [x x {d}asal#-lu₂-h]i DINGIR el-lu₄ a-ši-pu# ba#-[la-ṭi]
+NinNA14 i 11. [x x x x x x x e]l-lu a-šip ba-l[a-ṭi]
+
+#tr.en: I am Asalluḫi, sage of the Apsû, whose spell is life,
+12. %n anāku asalluhi apkal apsî ša tûšu balāṭu
+BabaHel1 i 9. [x x {d}asal-lu₂-h]i? ABGAL ap-si-i ša₂# tu-u₂-<šu₂> ba-la-ṭu
+BabaHel3 o 10. [a]na-ku# {d}asal#-lu₂-hi ABG[AL a]p-s[i-i x T]U₆-šu₂ ba-la-ṭu#
+NinNA1 i 4'. [x x x x x x x A]BZU ša₂ tu-u₂-šu₂ ba-l[a-ṭu]
+NinNA14 i 12. [x x x x x x x x š]a₂ TU₆-šu ba-[la-ṭu]
+
+#tr.en: I am Asalluḫi, lord of the abyss, magician of the gods, who makes the dead alive,
+13. %n anāku asalluhi bēl nagbi mašmaš ilī muballiṭ mīti
+BabaHel1 i 10. [x x {d}a]sal-lu₂-hi EN nag#-bi MAŠ.MAŠ DINGIR-MEŠ mu-bal-liṭ mi-i#-tu₄
+BabaHel3 o 11. [an]a-ku# {d}asal-lu₂-hi EN# IDIM MAŠ.MAŠ DINGIR#-M[EŠ x x x] mi-i-tu₄
+NinNA1 i 5'. [x x x x x x x nag-b]i MAŠ.MAŠ DINGIR-MEŠ mu-bal-liṭ mi-i-[tu₄]
+NinNA14 i 13. [x x x x x x x x x x x DINGIR-ME]Š mu-bal-liṭ [x x x]
+
+#tr.en: I am Asalluḫi, exorcist of life, who purifies heaven and earth.
+14. %n anāku asalluhi šammi balāṭi mullil šamê u erṣeti
+// cf. F Rm-II.172 o 20
+BabaHel1 i 11. [ana]-ku# {d}asal-lu₂-hi šim-mu₂ TIN mul-lil# AN-e u K[I]-ti₃
+BabaHel3 o 12. [an]a-k[u] {d}asal#-lu₂-hi šim#-mu₂ ba-la-[ṭi mu-li]l AN-e u K[I]-ti₃
+NinNA1 i 6'. [x x x x x x š]am-me ba-la-ṭi mu-lil AN-e u KI-t[i₃]
+NinNA14 i 14. [x x x x x x x x TI.L]A mu-ul-li[l x x x x x]
+
+#tr.en: I am Asalluḫi, the fierce storm, who drives away the great devils,
+15. %n anāku asalluhi ūmu ezzu muṭarrid gallê rabûti
+BabaHel1 i 12. ana#-[k]u {d}asal-lu₂-hi u₄-mu ez-zu mu-[ṭar-ri]d GAL₅#.LA₂#-MEŠ# GAL#-MEŠ
+BabaHel3 o 13. ana-ku {d}asal#-lu₂-hi u₄-mu ez-zi# m[u-ṭar-rid] GAL₅#.L[A₂-MEŠ] GAL#-MEŠ#
+NinNA1 i 7'. [x x x x x x] u₄#-mu ez-zu mu-ṭa-rid GAL₅.LA₂-MEŠ GAL-M[EŠ]
+NinNA14 i 15. [x x x x x x x x x x m]u-ṭar-rid GAL₅.L[A₂-MEŠ x x]
+
+#tr.en: I am Asalluḫi, lord of the incantation, before whom the devils and Namtar-demons go into hiding.
+16. %n anāku asalluhi bēl šipti ša (ina) mahrīšu gallû (u) namtarū immedū puzrāti
+// cf. L III.3 44
+BabaLB1 i 1'. [x x x x x x x (x x x)] x [(x x x) x pu-uz-ra-a]-ti#
+BabaHel1 i 13. ana-ku {d}asal-lu₂-hi EN EN₂ ša₂ ina IGI-šu₂ GAL₅.L[A₂-MEŠ x x x x i]m?-me?#-du pu-u[z-ra]-a#-tu₂
+BabaHel3 o 14. ana-ku {d}asal#-lu₂-hi [E]N EN₂ ša₂ IGI-šu₂ GAL₅.LA₂-ME[Š nam-t]a-r[i x x x x x x x x]
+NinNA1 i 8'. [x x x x x x] EN EN₂ ša₂ ina IGI-šu₂ GAL₅.LA₂-MEŠ NAM.TAR-MEŠ im-me-du pu-uz-r[a-a-ti]
+NinNA14 i 16. [x x x x x x x x x x x x GAL₅.L]A₂-MEŠ NAM.TAR-ME[Š x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who uproots illness, who destroys the high mountains,
+17. %n anāku asalluhi nāsih murṣi muʾabbit šadî elûti
+BabaLB1 i 2'. [x x x x x m]ur-ṣi mu-ab-bi[t KUR]-MEŠ# e-lu#-tu₂
+BabaHel1 i 14. ana-ku {d}asal-lu₂-hi na-si-ih mur-ṣu mu#-[ab-bit KUR-ME]Š e-lu-[t]u₂
+BabaHel3 o 15. ana-ku {d}asal-lu₂-hi na-si-ih mur-ṣu# m[u]-ab#-bit K[UR-MEŠ x x x]
+NinNA1 i 9'. [x x x x x x] na-si-ih mur-ṣi mu-ab-bit KUR-MEŠ e-l[u-tu₂]
+NinNA14 i 17. [x x x x x x x x x mur]-ṣi mu-a[b-bit x x x x x]
+
+#tr.en: I am Asalluḫi, warrior of the gods, who destroys the evil ones,
+18. %n anāku asalluhi qarrād ilī muʾabbit lemnūti
+BabaLB1 i 3'. [x x x x DIN]GIR-MEŠ mu-ab-bit lem-nu-ti
+BabaHel1 i 15. ana-ku {d}asal-lu₂-hi qar-rad DINGIR-MEŠ [x x x] lem-nu-tu#
+BabaHel3 o 16. ana#-ku {d}asal#-lu₂-hi UR.SAG DINGIR-MEŠ mu-ab-bit lem#-[nu]-tu?#
+BabaLBSch1 1'. [x x x x x x x x DINGIR]-MEŠ?# mu#-ab#-bit# lem#-[nu-tu]
+NinNA1 i 10'. [x x x x x x U]R.SAG DINGIR-MEŠ m[u]-ab#-bit lem-n[u-tu]
+NinNA14 i 18. [x x x x x x x x DINGIR-M]EŠ mu-a[b-bit x x x]
+
+#tr.en: I am Asalluḫi, chief of the world regions, guardian of life,
+19. %n anāku asalluhi ašarēd kibrāti nāṣir napišti
+BabaLB1 i 4'. [x x x x ki]b-ra#-a-ti na-ṣir na-piš-ti
+BabaHel1 i 16. ana#-ku# {d}asal#-lu₂-hi SAG.KAL kib#-ra-a-tu₂ na#-ṣir ZI-t[i₃]
+BabaHel3 o 17. [ana]-ku# {d}asal#-lu₂#-hi SAG.KAL kib-ra-a#-tu₄ na-ṣir# °tu₄\° na-piš-t[u₄]
+BabaLBSch1 2'. [x x x x x x x x kib]-ra#-a-ti na-ṣ[ir n]a-pi-[iš-ti]
+NinNA1 i 11'. [x x x x x x] SAG.KAL kib-ra-a-ti na-ṣir na-p[iš-tu₄]
+NinNA14 i 19. [x x x x x x x x kib-r]a-a#-ti# [x x x x x]
+BabaLBSch15 o 5'. [x SA]G.KAL# kib-ra#-[a-ti x x x x x]
+$ beginning of excerpt
+
+#tr.en: I am Asalluḫi, who makes the dead alive, unique one of heaven and earth,
+20. %n anāku asalluhi muballiṭ mīti ušumgal šamê u erṣeti
+BabaLB1 i 5'. [x x mu-bal]-liṭ {lu₂!}UŠ₂ UŠUMGAL# AN-e u KI#-ti₃
+BabaHel1 i 17. [ana-k]u {d}asal#-lu₂#-hi# mu#-bal-liṭ {lu₂}UŠ₂ UŠUMGAL# AN-e u KI#-t[i₃]
+BabaHel3 o 18. [ana-k]u {d}asal#-l[u₂-h]i mu-bal-liṭ mi-i-t[u₄] UŠUMGAL# AN-e u KI-ti₃
+BabaLBSch1 3'. [x x x x x x x x x] mi-i-ti UŠUMGAL AN#-e u?# K[I?-ti₃]
+NinNA1 i 12'. [x x x x x x m]u-[b]al-liṭ {lu₂}UŠ₂ UŠUMGAL AN-e u K[I-ti₃]
+NinNA8 i 1'. [x x x x x {lu₂}]UŠ₂# UŠU[MGAL x x x x x]
+BabaLBSch15 o 6'. [x mu-ba]l-liṭ {lu₂}UŠ₂# [x x x x x x]
+
+#tr.en: I am Asalluḫi, who is wide in knowledge, superlative in intelligence,
+21. %n anāku asalluhi ša uznī petû šūturu hasīsa
+BabaLB1 i 6'. [x x x uz]-na pe-tu#-u₂# šu-tu-ru ha-si-su
+BabaHel1 i 18. [x x {d}asa]l-lu₂#-hi# ša₂ GEŠTUG+MIN pe-tu#-[u₂ š]u-tu-ru ha#-[s]i-[si]
+BabaHel3 o 19. [ana-k]u {d}asal#-[lu₂]-hi# ša₂ GEŠTUG+MIN pe-tu-u₂# šu!?#-tu#-ru ha-si-si
+BabaLBSch1 4'. [x x x x x x x x x p]e-tu-u₂ šu-tu-ru ha-si#-[sa]
+NinNA1 i 13'. [x x x x x x uz-n]a pe-tu-u₂ šu-tu-ru ha-[si-sa]
+NinNA8 i 2'. [x x x x p]e-tu-u₂ š[u-tu-ru x x x]
+BabaLBSch15 o 7'. [x x uz-n]u pe-t[u-u₂ x x x x x x]
+
+#tr.en: I am Asalluḫi, by whose rites the dead become alive,
+22. %n anāku asalluhi ša ina kikiṭṭêšu mītu iballuṭu
+BabaLB1 i 7'. [x x x i]-na KID₃.KID₃#-ṭe₃#-šu₂ {lu₂}UŠ₂ i-bal-lu-ṭu
+BabaHel1 i 19. [x x {d}asal-l]u₂-hi ša₂ ina# KID₃#.KID₃#-ṭ[e₃?-šu₂] {lu₂#}UŠ₂ i-bal-lu-[ṭu]
+BabaHel3 o 20. [x x {d}asal-lu₂]-hi ina KID₃.KID₃-ṭe₃#-šu₂# [x x x] i#-bal-lu-ṭu
+BabaLBSch1 5'. [x x x x x x x x KID₃.KI]D₃-ṭe₃-šu₂ mi-i-ti i!(U₂)-bal-lu-ṭ[u]
+#note: See @bib{fromebllab0044@150}: “Uniquely to the other sources, the verb @i{balāṭu} is rendered in a defective D conjugation that retains the G theme vowel @i{u}. Thus, whether or not a transitive meaning “revive” or the like was intended is unclear.”
+BabaLBSch2 8'. [x x x x x x x x KI]D₃.K[ID₃-ṭe₃]-šu₂# m[i-i]-ti i-bal-<lu>-ṭu
+$ beginning of excerpt
+NinNA1 i 14'. [x x x x x x KID₃.KI]D₃-ṭe₄!?#-šu₂!?# {lu₂#}UŠ₂# i#-b[al-lu-ṭu]
+NinNA8 i 3'. [x x x x KID₃.K]ID₃-ṭe₃-šu₂ [x x x x x x]
+BabaLBSch15 o 8'. [x x KID₃.KI]D₃-ṭ[e₃-šu₂ x x x x x]
+$ rest of side broken
+
+#tr.en: I am Asalluḫi, who is strong in conflict and battle, am I,
+23. %n anāku asalluhi ša ina qabli u tāhāzi lēʾû anāku
+BabaLB1 i 8'. [x x x x qab-l]i u ta-ha-zi le-ʾ-u₂ a-na-ku
+BabaHel1 i 20. [x x x x x x x x x x ta-ha-z]i le-ʾ-u₂ [x x]
+BabaHel3 o 21. [x x {d}asal-lu₂]-hi ša₂ ina MURUB₄ u t[a-ha-zi le-ʾ]-u₂# ana-ku
+BabaLBSch1 6'. [x x x x x x x x x x] u ta-ha-za le-ʾ-u₂# a-na#-k[u]
+$ single ruling
+$ end of excerpt
+BabaLBSch2 9'. ana#-ku# [x x x x š]a₂ ina MURUB₄ u [t]a-ha-zi?# le-ʾ-u₂ ana-ku
+NinNA3 i 1'. [x x x x x x x x x x le]-ʾ#-[u₂ x x]
+NinNA8 i 4'. [x x x x] MURUB₄# u ta-h[a-zi x x x x x x]
+
+#tr.en: I am Asalluḫi, who is girt with fierce awe, superlative in splendour,
+24. %n anāku asalluhi ša puluhta ezzeta hitlupu šūturu namrīrī
+BabaLB1 i 9'. [x x x pu-luh-t]u₂ ez-ze-tu₂ hi-it-lu-pu šu-tu-ru nam-ri-ir-ri
+BabaHel1 i 21. [x x x x x x x x x x x x x hi-i]t-lu-pu šu-tu-ru nam-r[i-ir-ri]
+BabaHel3 o 22. [x x {d}asal-lu₂]-hi# ša₂# pu#-luh#-tu₄ e[z-ze-tu₂ hi-i]t?#-[l]u-pu# šu#-tu#-ru nam-ri!?#-[ir-ri]
+BabaLBSch2 10'. ana-ku {d}asal-l[u₂-hi š]a₂ pu-luh-tu₂ ez-ze#-tu₂ hi-it#-lu-pu šu-tu#-ru nam!-ri-ir-ri
+NinNA3 i 2'. [x x x x x x x x x hi-it-lu-p]u šu-t[u-ru x x x x]
+NinNA8 i 5'. [x x x pu-lu]h-tu ez-ze-tu h[i-it-lu-pu x x x x x x x]
+AššNACom1 o 1-4. !bs ana-ku {d}asal-lu₂-hi ša₂ pu-luh-tu₂ ez-ze-tu₂ hi-it-lu-pu | ($___$) !bs šu-tu#-ru nam-ri-ir | ($___$) !cm MU EN ša₂ TA {iti}BARA₂ EN {iti}KIN U₂-MEŠ ik-tan-šu-ma | ($___$) !cm {d}EN.LIL₂-u₂-ta DU₃-šu₂ {d}en-lil₂ {d}AMAR-UTU ina muh-hi-ma qa-bi#
+
+#tr.en: I am Asalluḫi, who was created in E’unir, is full of terror,
+25. %n anāku asalluhi ša ina eʾunir ibbanû malû hurbāša
+BabaLB1 i 10'. [x x x x] e₂#-u₆-nir ib-ba-nu-u₂ ma#-lu#-u₂# hur#-ba#-šu₂
+BabaHel1 i 22. [x x x x x x x x x x x ib-ba-nu]-u₂ ma-lu-u₂ hu[r-ba-šu₂]
+BabaHel3 o 23. [x x {d}asal-lu₂]-hi# ša₂ ina e₂#-u₆#-[nir x x x x] ma#-lu?#-u₂# hur#-ba-šu₂
+BabaLBSch2 11'. ana-ku {d}asal-lu₂-hi [š]a₂ ina e₂-u₆-nir# i[b]-ba-nu-u₂# ma-lu#-u₂ hur-°\ba°-šu₂
+BabaLBSch3 1'. ana-k[u] {d}a[sal-lu₂-hi x x x x x x x x x x x x x x x]
+NinNA3 i 3'. [x x x x x x x ib-ba-nu]-u₂# ma-l[u-u₂ x x x]
+NinNA8 i 6'. [x x] ša₂# ina# e₂#-u₆-nir ib-b[a-nu-u₂ x x x x x x]
+NinNA12 i 1'. [x x x x x x x i]b-ba-nu-u₂ m[a-lu-u₂] hur?#-[ba-šu₂]
+AššNACom1 o 6-7. !bs KI.MIN ša₂ ina e₂-u₆-nir ib-ba-nu-u ma-lu-u hur-ba-šu₂ | ($___$) !cm e₂-u₆-nir ziq-qur-rat NIBRU{ki}
+
+#tr.en: I am Asalluḫi, shining, wise, the noble sage of the gods,
+26. %n anāku asalluhi namru šalbābu apkal ilī muttallu
+BabaLB1 i 11'. [x x x x] šal-ba-bu ABGAL DINGIR-MEŠ mut-tal-lu#
+BabaHel1 i 23. [x x x x x x x x x x x x] DINGIR-MEŠ mut-[tal-lu]
+BabaHel3 o 24. [x x x x x x] nam-ri šal-b[a-bu x x x] mut-tal-lu
+BabaLBSch2 12'. ana-ku {d}asal-lu₂-hi [n]am-ri šal-ba-bu ABGAL# DINGIR-MEŠ mut-tal-lu
+BabaLBSch3 2'. ana-ku {d}as[al-lu₂-hi x x x x x x x x x x x]
+NinNA3 i 4'. [x x x x x x x ABG]AL DINGIR-[MEŠ x x x]
+NinNA8 i 7'. [x x] nam-ru šal-ba-bu A[BGAL x x x x x]
+NinNA12 i 2'. [x x x x x x x A]BGAL DINGIR-MEŠ mut-tal-lu
+
+#tr.en: I am Asalluḫi, who surveys the height of the distant heaven,
+27. %n anāku asalluhi ša šamê rūqūti mēlâšunu ihīṭu
+BabaLB1 i 12'. [x x x A]N?-e ru-<qu>-tu me₂-la-šu₂-nu hi-i-ṭu
+BabaHel1 i 24. [x x x x x x x x x x x x x x x me₂-l]a-šu₂-nu i?#-[hi-ṭu]
+BabaHel3 o 25. [x x x x x x] ša₂ AN-e# ru-q[u-ti] me₂#-la!-šu₂#-nu hi-iṭ-ṭu
+BabaLBSch2 13'. ana-ku {d}asal-lu₂-hi [š]a₂ AN-e ru-qu-tu me₂-la-šu₂-nu# i-hi-ṭu
+BabaLBSch3 3'. ana-ku {d}asal-lu₂#-hi# [x x x x x x x x x x x x x]
+NinNA3 i 5'. [x x x x x x x x] me₂-la-šu₂?#-[nu x x x]
+NinNA8 i 8'. [KI.MI]N ša₂ AN-e ru-qu-u-t[i x x x x x x x]
+NinNA12 i 3'. [x x x x x ru-qu-t]i me₂-la-šu₂-nu hi-i-ṭu
+AššNACom1 o 8-9. !bs KI.MIN ša₂ AN-e ru-qu-te me-la-šu₂-nu i-hi-ṭu | ($___$) !cm 20 MA.NA KI.LA₂ 3 ME LIM 16 LIM DANNA TA MURUB₄#-at AN-e a-di i-[rat KI-ti₃]
+
+#tr.en: I am Asalluḫi, I know the depth of the vast Ḫubur-river,
+28. %n anāku asalluhi ša hubur palkâti šupulša īde
+BabaLB1 i 13'. [x x x hu-b]ur pal-ka-tu₄ šu#-pu-ul-šu₂ i-de
+BabaHel1 i 25. [x x x x x x x x x x x x] šu#-pul-šu# i-de#
+BabaHel3 o 26. [x x x x x x] ša₂ hu-bur pa[l-ka-tu₄ š]u-pu-ul!-šu₂ i-de#
+BabaLBSch2 14'. ana-ku {d}asal-lu₂-h[i] ša₂ hu-bur pal-ka#-tu₄ šu-pu-ul#-šu₂ i-de
+$ single ruling
+$ end of excerpt
+BabaLBSch3 4'. ana-ku {d}asal-lu₂-hi ša₂# h[u-bur x x x x x x x x x]
+NinNA3 i 6'. [x x x x x pal-ka-t]i? šu-pu#-u[l-šu₂ x x]
+NinNA8 i 9'. [K]I.MIN ša₂ hu-bur pal-ka-ti [x x x x x x]
+NinNA12 i 4'. [x x x x x pal]-ka-ti šu-pu-ul-ša₂ i-de
+AššNACom1 o 10-14. !bs KI.MIN ša₂ hu-bur pal-ka-ti šu-pul-ša₂ i-de | ($___$) !cm 40 MA.NA KI.LA₂ 3# ME LIM 32 LIM DANNA TA MURUB₄-at AN-e a#-di# i#-[rat x (x x)] | ($___$) !cm 33?# MA.NA ME 1 LIM 44 LIM DANNA zi₃-ṣu-re-e AN-e | ($___$) !cm 18?# DANNA mu-bu-u [(x x x)] ša₂ AN-e | ($___$) !cm ina lib₃-bi x x x KI.LA₂ (x) AN-e
+
+#tr.en: I am Asalluḫi, whom Sirsir names in the upper sea,
+29. %n anāku asalluhi ša ina tâmti elīti inabbûšu sirsir
+BabaLB1 i 14'. [x x x tam-t]i₃? e-li-tu₄# i-nam#-bu-šu₂ {d}sirsir#
+BabaHel1 i 26. [x x x x x x x x x x x x x i]n-nam-bu-u₂-šu₂ {d}sirsir
+BabaHel3 o 27. [x x x x x x] ša₂# <ina> tam-ti₃ e#-[li-tu₄ i-na]m-bu#-šu₂ {d}sirsir
+BabaLBSch3 5'. ana-ku {d}asal-lu₂-hi ša₂ ina ta[m-ti₃ x x x x x x x x x x]
+BabaLBSch10 o 1'. [(x x x x x) x x (x)] x x [(x x) x x x x x x x x x]
+NinNA3 i 7'. [x x x x x x e-li-t]i i-nam-[bu-u₂-šu₂ x x]
+NinNA8 i 10'. [KI.MI]N ša₂ ina ti-amti e-li-t[i x x x x x x]
+NinNA12 i 5'. [x x x x tam-t]i₃ e-li-ti i-nam-bu-u₂-šu₂ sirsirₓ(|BU&BU.ZA.A.AB|)
+
+#tr.en: I am Asalluḫi, whom Laguda exalts in the lower sea.
+30. %n anāku asalluhi ša ina tâmti šaplīti ušarbûšu laguda
+BabaLB1 i 15'. [x x x tam-t]i₃ šap#-li-tu₄ u₂#-šar#-bu-šu₂ {d}la#-gu-du
+BabaHel1 i 27. [x x x x x x x x x x šap-li-t]u₄ u₂-šar-bu-šu₂ {d}la-gu!(GEME₂)-da!(LA)
+BabaHel3 o 28. [x x x x x x x] ina tam-ti₃# [x x x] u₂#-šar-bu-šu₂ {d}la-gu-du
+BabaLBSch3 6'. ana-ku {d}asal-lu₂-hi ša₂ ina ta[m-ti₃ x x x x x x x x x x x]
+BabaLBSch10 o 2'. [x x x x x š]ap-li-t[u₄ x x x x x x x x]
+NinNA3 i 8'. [x x x x x x šap-li-t]i u₂-šar-bu-šu₂# {d#}[la-gu-da]
+NinNA8 i 11'. [x x] ša₂# ina ti-amti šap-li-ti u₂#-[šar-bu-šu₂ x x x x]
+NinNA12 i 6'. [x x x x x x] šap-li-ti u₂-šar-bu-šu₂ {d}la-gu-da
+
+#tr.en: I am Asalluḫi, discoverer of the sum of everything, son of Mami,
+31. %n anāku asalluhi atû rikis kalāma bukur mami
+BabaLB1 i 16'. [x x a-t]u-u₂ ri-kis ka-la-mu b[u]-kur₂ {d}ma-mi
+BabaHel1 i 28. [x x x x x x x x x x x k]a-la-mu bu-kur₂ {d}ma-mi
+BabaHel3 o 29. [x x x x x x a]-tu!?#-[u₂ x x ka-la-m]u bu-kur₂ {d}ma-mi
+BabaLBSch3 7'. ana-ku {d}asal-lu₂-hi a-t[u-u₂ x x x x x x x x x x]
+$ single ruling
+$ end of excerpt
+BabaLBSch10 o 3'. [x x x x x r]i-ki-is k[a-la-mu x x x x x]
+NinNA3 i 9'. [x x x x x x x ka-l]a-ma bu-kur₂# {d#}[ma-mi]
+NinNA8 i 12'. [x x a-tu]-u₂# ri-kis ka-l[a-ma x x x x x]
+NinNA12 i 7'. [x x a-tu]-u₂# ri-kis ka-la-ma# bu-kur₂ {d}ma-mi
+
+#tr.en: I am Asalluḫi, warrior who throws down, he who has evil at his disposal.
+32. %n anāku asalluhi qarrādu sākip mukīl rēš lemutti
+BabaLB1 i 17'. [x x U]R.SAG sa-kip mu-kil SAG HUL-ti₃
+BabaHel1 i 29. [x x x x x x x x x x m]u-kil <<PAP>> SAG HUL-ti₃
+BabaHel3 o 30. [x x x x x x x x x x x x SA]G HUL-ti₃
+BabaLBSch10 o 4'. [x x x x s]a-kip mu-k[il x x x]
+$ single ruling
+$ end of excerpt
+NinNA3 i 10'. [x x x x x x] mu-kil SA[G? x x]
+NinNA8 i 13'. [x x x x] sa#-kip# m[u-kil x x x]
+NinNA12 i 8'. [x x UR.S]AG sa-kip mu-kil SAG HUL-ti₃
+
+#tr.en: I am Asalluḫi, aristocrat of the gods of the distant heavens,
+33. %n anāku asalluhi etel ilī ša šamê rūqūti
+BabaLB1 i 18'. [x x] e#-tel-lu DINGIR-MEŠ ša₂ ša₂-ma-mu ru-qu-tu
+BabaHel1 i 30. [x x x x x x x x x x x x] ša₂-ma-mi <<MA>> ru-qu-<<UD>>-u₂-tu
+BabaHel3 o 31. [x x x x x x x x x x x x x x] ru#-qu#-t[u?]
+NinNA3 i 11'. [x x x x x x x x ša₂-m]a-mi ru-q[u-tu]
+NinNA12 i 9'. [x x e-te]l-li DINGIR-MEŠ ša AN-e ru-qu-ti
+
+#tr.en: I am Asalluḫi, giver of prosperity and life to the teeming peoples,
+34. %n anāku asalluhi nādin šulmi u balāṭi ana nišī rapšāti
+BabaLB1 i 19'. [x x] na!#-din šul-mi! u TI.LA ana UN-MEŠ rap-ša₂-a-tu₂
+BabaHel1 i 31. [x x x x x x x x x x T]IN ana UN rap-ša₂-a-tu₂
+NinNA3 i 12'. [x x x x x x x x x] ana# UN-MEŠ ra[p-ša₂-a-ti]
+NinNA12 i 10'. [x x na]-din# šul-me u TI.LA ana UN-MEŠ rap-ša₂-a-ti
+
+#tr.en: I am Asalluḫi, who saves the defeated, takes the hand of the fallen,
+35. %n anāku asalluhi ēṭir kamî ṣābit qātī naski
+// cf. L III.3 81
+BabaLB1 i 20'. [x x] e-ṭi-ir ka-mi-i ṣa-bit ŠU#+MIN na-as!?#-ku
+BabaHel1 i 32. [x x x x x x x x x ka]-mi-i ṣa-bit ŠU+MIN na-as-ku
+NinNA3 i 13'. [x x x x x x x x ṣ]a-bit ŠU+MIN na#-[as-ku]
+NinNA12 i 11'. [x x] e#-ṭi-ir ka-mi-i ṣa-bit ŠU na-as-ki
+AššNACom1 o 15-16. !bs [x x] e#-ṭir ka#-me#-e# ṣa-bit ŠU+MIN na-as-ku# | ($___$) !cm [k]a-mu-u₂ : gar-ba-nu
+
+#tr.en: I am Asalluḫi, who drives away the enemy, fells the evil one,
+36. %n anāku asalluhi mukkiš ayyābi mušamqit lemni
+BabaLB1 i 21'. [KI].MIN mu-uk#-kiš a-a-bi mu-šam#-qit lem-nu
+BabaHel1 i 33. [x x x x x x mu-uk-ki-i]š? a-a-bi mu-šam-qit lem-nu
+NinNA3 i 14'. [x x x x x x x x mu-š]am-qit [x x]
+NinNA12 i 12'. [x x m]u-uk-kiš a-a-bi mu-šam-qit lem-ni
+
+#tr.en: I am Asalluḫi, who defeats the demon, the evil devil,
+37. %n anāku asalluhi kāmû utukki gallê ili lemni
+BabaLB1 i 22'. [KI].MIN# ka-mu-u₂ u₂-tuk-ku GAL₅.LA₂ DINGIR-MEŠ lem-nu
+BabaHel1 i 34. [x x x x x x x x x] UDUG gal-lu-u₂ lem-nu
+NinNA3 i 15'. [x x x x x x x x GA]L₅.LA₂# DI[NGIR? x x]
+NinNA12 i 13'. [x x k]a-mu-u₂ u₂-tuk-ku GAL₅.LA₂ DINGIR lem-ni
+
+#tr.en: I am Asalluḫi, lord of Babylon, merciful am I,
+38. %n anāku asalluhi bēl bābili rēmēnû anāku
+BabaLB1 i 23'. [KI].MIN EN KA₂.DINGIR.RA{ki} reme-nu-u₂ a-na-ku
+BabaHel1 i 35. [x x x x x x x KA₂.DINGIR.RA{k]i} reme#-nu-u₂ ana-ku
+NinNA12 i 14'. [x x x K]A₂.DINGIR#-MEŠ#{ki#} re-me₂-nu-u₂ a-na-ku
+
+#tr.en: I am Asalluḫi, prince who controls every law,
+39. %n anāku asalluhi malku hāmim gimir ûrti
+BabaLB1 i 24'. [KI.M]IN ma-al-ku ha-mi-im gi-mir ur-ti
+BabaHel1 i 36. [x x x x x x ma-a]l-ku ha-ʾ-im gi-mir ur#-ti#
+NinNA12 i 15'. [x x x x x ha-mi-i]m gi-mir ur-t[i]
+
+#tr.en: I am Asalluḫi, who knows everything, offspring of Ninšiku,
+40. %n anāku asalluhi mūdê kalāma ilitti niššīku
+BabaLB1 i 25'. [KI].MIN mu-de-e ka-la-mu i-lit {d}nin-ši-ku₃
+BabaHel1 i 37. [x x x x x x mu-d]u-u₂ ka-la-mu i-lit-tu₂ {d}nin-ši#-ku₃
+NinNA12 i 16'. [x x x x x x x x i-lit-t]i {d#}nin#-š[i-ku₃]
+
+#tr.en: I am Asalluḫi, mighty prince, who is superlative in intelligence,
+41. %n anāku asalluhi dannu malku ša šūturu hasīsa
+BabaLB1 i 26'. KI#.MIN dan-nu ma-al-ku ša₂ ša₂-tu-u₂ ha-si-su
+BabaHel1 i 38. [x x x x x x x x] ma#-al-ku ša₂ šu-tu-ru ha-°\si°-sa₂
+
+#tr.en: I am Asalluḫi, whose splendour covers all the world regions.
+42. %n anāku asalluhi ša sahpū namrīrūšu eli kalīšina kibrāti
+BabaLB1 i 27'. KI.MIN ša₂# sah#-pu nam-ri-ir-ru-šu₂ UGU ka-li-ši-na kib-rat#
+BabaHel1 i 39. [x x x x x x x x x n]am-ri-ru-šu₂ e-li ka-li-šu₂-nu kib-ra-a#-[ti]
+BabaLB7 o 1'. [x x x x x x x x x x x ka-li-ši-n]a? ki?#-ib?#-ra?#-t[u₂?]
+NinNA2 i 1'. [x x x x sah-p]u nam#-r[i-ru]-šu?# e?#-li?# [x x x x x x x]
+
+#tr.en: I am Asalluḫi, who rises up in fury, a fearsome flood,
+43. %n anāku asalluhi ša ezziš tebû abūbiš galtu
+BabaLB1 i 28'. KI#.MIN ša₂# ez-zi-iš te-bu-u₂ a-bu-biš gal-tu
+BabaHel1 i 40. [x x x x x x x x x x] te#-bu-u₂ a-bu#-bi gal-tu₄
+BabaLB7 o 2'. [x x x x x x x x x x x x ga]l-tu₄
+NinNA2 i 2'. [x x x e]z-zi-iš te-bu-u₂ a#-[bu-bi-iš x x]
+
+#tr.en: I am Asalluḫi, at the mention of whose name devils and Namtar-demons go into hiding.
+44. %n anāku asalluhi ana zikir šumīšu gallû namtarū immedū puzrāti
+// cf. L III.3 16
+BabaHel1 i 41. [x x x x x x x x x x x x x] GAL₅#.LA₂#-MEŠ# NAM#.TAR im-mi-du!(IM) pu-u[z-ra-a-tu₂]
+BabaLB7 o 3'. [x x x x x x x x x x x x x x x im-m]e-du pu-uz-ra-a-tu₂
+NinNA2 i 3'. [x x] ana# zi-kir šu-me-šu₂ GAL₅.LA₂-MEŠ {d}NAM.TAR-M[EŠ x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who does not speak in the place of blasphemy, am I,
+45. %n anāku asalluhi ša ašar šillati lā iqabbû anāku
+BabaLB1 i 29'. KI#.MIN ša₂ a-šar šil-la-ti la iq-qab-bu-u₂ ana-ku
+BabaHel1 i 42. [x x x x x x x x x x x x x i-qa]b-bu-u₂ ana-ku
+BabaLB7 o 4'. [x x x x x x x x x] i[q?]-q[ab?-bu-u₂] ana-ku
+NinNA2 i 4'. [x x š]a₂ a-šar šil-la-ti la i-q[ab-bu-u₂ x x]
+AššNACom1 o 17-21. !bs [x x] <ša₂> a-šar šil-la-te la i-qab-bu-u a-na-ku | ($___$) !cm [M]U EN ša₂ ina a₂-ki-it ina qa-bal tam-ti₃ aš₂-bu | ($___$) !cm ša₂#-niš ša₂ ina E₂ ER₂ LU₂ ina qab-ri-šu₂ la i-kar-ra-bu | ($___$) !cm šal-šiš MU DUMU-MEŠ KA₂.DINGIR.RA{ki} | ($___$) !cm sa₂ ina MUL.SAG.ME.GAR la i-tam-mu#-u
+AššNACom2 o 3-6. !bs ana-ku {d}asal-lu₂-hi ša₂ a-[š]ar šil-la-te! la i-qab-bu-u ana#-[ku] | ($___$) !cm ina ŠA₃ kam-me ša₂ {d}MES DU₃-šu₂ UM.ME.A la i#-sal-lit | ($___$) !cm la i-[tak]-kip ma-a {d}AMAR.UTU ka-mu-u AD-MEŠ-šu₂ ŠEŠ-MEŠ-šu₂ | ($___$) !cm ina lib₃-bi EN₂ dup-pir lem-nu
+$ single ruling
+$ end of excerpt
+
+#tr.en: I am Asalluḫi, who is victorious, Marduk, in conflict and battle,
+46. %n anāku asalluhi ša ina qabli u tāhāzi dapīnu marduk
+BabaLB1 i 30'. KI#.MIN# ša₂ i-na qab-li u ta-ha-zi da-pi-nu {d}AMAR.UTU
+BabaHel1 i 43. [x x x x x x x x x x x x x x] {d}AMAR.UTU#
+BabaLB7 o 5'. [x x x x x x x x ta-ha-z]i da#-pi?#-[nu {d}A]MAR.UTU
+NinNA2 i 5'. [x x] ša₂ ina MURUB₄ u ME₃ da#-p[i-nu x x x]
+
+#tr.en: I am Asalluḫi, who was created by his own decree, am I,
+47. %n anāku asalluhi ša ina ṭēmīšu ibbanû anāku
+BabaLB1 i 31'. KI.MIN ša₂ i-na ṭe₃-mi-šu₂ ib-ba-nu-u₂ ana-ku
+BabaHel1 i 44. [x x x x x x x x x x ib-ba-n]u-u₂ ana-ku
+BabaLB7 o 6'. [x x x x x x x x x x x ana]-ku
+NinNA2 i 6'. [x x] ša₂ ina ṭe₃-mi-šu₂ ib#-ba-n[u x x x]
+AššNACom1 o 22-27. !bs KI.MIN ša₂ ina ṭe₃-me-šu₂ ib-ba-nu-u a-na-ku | ($___$) !cm IL₂ ša₂# i#-na# {iti#}ŠU# U₄.13.KAM ina IGI EN GAR-nu | ($___$) !cm ša₂-niš ma-a ina UGU u₂-lu-lu an-šar₂ qa-bi | ($___$) !cm ša₂ KA um-ma-ni MIN-e ma-a {d}ne₂-bi-ru : {d}MES ša₂ ana ra-ma-ni-šu₂ DU₃-u | ($___$) !cm {d}ni₂-bi₇-ru₂{+ra} : ša₂-a : RA : i-na : UMUŠ : ṭe₃-e-mu | ($___$) !cm NI₂ : ra-ma-nu : {d}ne₂-bi-ru : {d}ni₂-bi₇-ru₂
+AššNACom2 o 1-2. !bs ana-ku {d}asal-lu₂-hi ša₂ ina ra-ma-ni-šu₂ DU₃-u ana#-k[u] | ($___$) !cm ma-a ina UGU u₂-lu-lu an-šar₂ qa-bi#
+BabaLB6 o 1'. [x x x x (x) x x x ib-ba-nu]-u₂?# [x x x]
+
+#tr.en: I am Asalluḫi, diviner of the world regions, the fearsome, am I,
+48. %n anāku asalluhi bārû kibrāti rašubbu anāku
+BabaLB1 i 32'. KI.MIN {lu₂}HAL kib-ra-a-tu₂ ra-šub-bu ana-ku
+BabaHel1 i 45. [x x x x x x x x kib-ra]-a-tu₂ ra-šub-°\bu° ana-ku
+BabaLB7 o 7'. [x x x x kib-ra]-a-t[u₂ x x x ana]-ku
+NinNA2 i 7'. [x x] {lu₂}HAL kib-ra-a-ti ra-[šub-bu x x]
+BabaLB6 o 2'. [x x x x kib]-ra#-a#-tu₂# [r]a?-šub#-bu# [x x x]
+
+#tr.en: I am Asalluḫi, the holy god, who sits in radiance, am I,
+49. %n anāku asalluhi ilu ellu āšib melammī anāku
+BabaLB1 i 33'. KI.MIN DINGIR el-lu a-ši-ib me-lam-mi ana-ku
+BabaHel1 i 46. [x x x x x x x x x a-ši]b me-lam-KU ana-ku
+BabaLB7 o 8'. [x x x x x] a#-ši-b[u] m[e-lam-mi ana]-ku
+NinNA2 i 8'. [x x] DINGIR el-lu₄ a#-šib me-l[am-mi x x]
+AššNACom1 o 28-30. !bs [KI.MI]N DINGIR el-lu a-šib me-lam-me a-na-ku | ($___$) !cm [M]E : AN-e : LAM : er-ṣe-tu₂ : a-šib AN-e KI-ti₃ ki qa-bu-u | ($___$) !cm ša mu-kal-lim-te šu-u
+BabaLB6 o 3'. [x x x x x] a-ši-bu me-lam-mu# a#-[na-ku]
+
+#tr.en: I am Asalluḫi, who is blessed in Eugga, am I,
+50. %n anāku asalluhi ša ina bīti mitguri kāribu anāku
+BabaLB1 i 34'. KI#.MIN# ša₂ ina E₂ mit-gu-ru ka-ri-bu ana-ku
+BabaHel1 i 47. [x x {d}asal-l]u₂-hi ša₂ E₂# [x x x ka-r]ib-šu₂ ana-ku#
+BabaLB7 o 9'. [x x x x x mit-gu-r]u? qa-ri-ib# [(x)] ana#-ku
+BabaLBSch4 o 3'. {d#}asal#-lu₂-hi [x x x x x x x x x x]
+$ beginning of excerpt
+NinNA2 i 9'. [x x] ša₂ ina E₂ mit#-ga#-ru ka-r[i-bu x x]
+NinNA13 i 1'. [x x x x x x x x x x x] ana#-ku#
+AššNACom1 o 31-33. !bs [KI.MI]N ša₂ ina E₂ mit-ga-ri!(IK!?) ka-ri-bu ana-ku : !cm ša₂ ina E₂ LU₂ ki-ma IZI ša₂ š[u-u] | ($___$) i#-kar-ra-bu ma-a la ana LU₂ šu₂-u i-kar-rab ma-a# [x x x (x)] | ($___$) x x x ma te-du-u {d}E[N x x x (x)]
+$ end of side
+BabaLB6 o 4'. [x x x x x mit]-gu#-ru ka-ri-bu a#-n[a-ku]
+
+#tr.en: I am Asalluḫi, unique one of heaven and earth, the abyss and the sea,
+51. %n anāku asalluhi ušumgal šamê u erṣeti nagbi (u) tâmāti
+BabaLB1 i 35'. [x x U]ŠUMGAL AN-e u KI-ti₃ nag-bi ta-ma-a-ti
+BabaHel1 i 48. [x x {d}asal]-lu₂-hi UŠUM A[N-e x x x na]g-bi u ta#-ma#-[a-ti]
+BabaLB7 o 10'. [x x x x x x] KI-ti₃ nag#-[b]i ta#-ma-a-tu₂
+BabaLBSch4 o 4'. [K]I.MIN UŠUMGAL AN#-[e x x x x x x x x]
+SipLB1 i' 1'. [x x x x x x K]I-ti₃ x x [x x x x]
+NinNA2 i 10'. [KI].MIN# UŠUM[GAL AN]-e# u KI-ti₃ nag-bi [x x x x]
+NinNA13 i 2'. [x x x x x x x x x x] ta#-ma#-a-ti
+BabaLB6 o 5'. [x x x x x x] u KI-ti₃ nag-bi u!?# ta#-ma-a-ti#
+
+#tr.en: I am Asalluḫi, who lives in Esagil, who gives a protecting angel,
+52. %n anāku asalluhi āšib esagila qāʾiš lamassi
+BabaLB1 i 36'. [x x] a-ši-bu e₂-sag-il₂ qa-i-šu {d}LAMA
+BabaHel1 i 49. [x x {d}as]al-lu₂-hi a-šib e₂-s[ag-il₂ x x x x x x]
+BabaLB3 o i' 1'. [x x x x x x x x x x] {d}[LAMA]
+BabaLBSch4 o 5'. [K]I.MIN a-šib e₂-sa[g-il₂ x x x x x]
+SipLB1 i' 2'. [x x x x e₂-sag-i]l₂? qa-ʾ-i-šu [x x]
+NinNA2 i 11'. [KI].MIN a-šib [e₂]-sag-il₂ qa-i-š[u x x]
+NinNA13 i 3'. [x x x x x x x x x x] {d#}la-mas-si
+BabaLB6 o 6'. [x x x x e₂-sag-i]l₂ qa-i-iš# {d}LAMA#
+
+#tr.en: I am Asalluḫi, who loves truth everywhere (“above and below”),
+53. %n anāku asalluhi rāʾim kitti eliš (u) šapliš
+BabaLB1 i 37'. [x x r]a-ʾ-im kit-ti e-liš šap-liš
+BabaHel1 i 50. [x x] {d!}asal-lu₂-hi ra-ʾ-i[m x x x x x x x]
+BabaLB3 o i' 2'. [x x x x x x x x x] u šap-liš
+BabaLB7 o 11'. [x x x x x x x] e#-liš u šap-liš
+BabaLBSch4 o 6'. [KI].MIN ra-im kit-t[i x x x x x]
+BabaLBSch14 2'. [x x (x x x x) ra]-ʾ#-im kit-ti e-liš °\u° ša[p-liš]
+$ beginning of excerpt
+SipLB1 i' 3'. [x x x x x kit-t]u₄ e-liš u šap-[liš]
+NinNA2 i 12'. [KI].MIN ra#-[i]m kit-ti e-liš u# [x x]
+NinNA13 i 4'. [x x x x x x x x x] šap-liš
+BabaLB6 o 7'. [x x x (x) x ki]t-ti e-liš u# šap-liš
+$ end of side
+
+#tr.en: I am Asalluḫi, who dispels darkness, who extends the years,
+54. %n anāku asalluhi pētû ekleti muttiru šanāti
+BabaLB1 i 38'. [x x p]e-tu-u₂ ek-le-ti mu-ut-ti-ru MU-MEŠ
+BabaHel1 i 51. ana#-ku# {d}asal-lu₂-hi pe-tu-u₂ e[k-le-ti x x x x x x]
+BabaLB3 o i' 3'. [x x x x x x x x m]u-ut!?#-ti-ru MU.AN.NA-MEŠ
+BabaLB7 o 12'. [x x x x x ek-le-t]u₄ mu#-ut-ti-ru MU.AN#.NA#-MEŠ#
+BabaLBSch4 o 7'. [KI.M]IN pe-tu-u₂ e[k-le-ti₃ x x x x x x x x]
+BabaLBSch14 3'. [x x (x x x x) pe-t]u-u₂ ek-le-ti₃? mu-ut#-ti-ru M[U.AN.NA-MEŠ]
+SipLB1 i' 4'. [x x x x x ek-l]e-ti mu-ut-ti-ru M[U.AN.NA-MEŠ]
+NinNA2 i 13'. [KI.MI]N [x x x e]k-le-ti mu-ut-t[i-ru x x]
+NinNA13 i 5'. [x x x x x x x x mu-ut-ti]r? MU?#-ME[Š]
+BabaLB6 r 1. [x x pe-tu]-u₂ ek-le#-ti?# [mu-ut]-ti#-[ru M]U-MEŠ#
+
+#tr.en: I am Asalluḫi, who establishes/ed all the Igigi of heaven, the great gods.
+55. %n anāku asalluhi mukīn gimir igīgī ša šamê ilī rabûti
+BabaLB1 i 39'. [x x m]u-kin gi-mir {d}i₂-gi₃-gi₃ ša₂ AN-e DINGIR-MEŠ GAL#-MEŠ
+BabaHel1 i 52. ana-ku {d}asal-lu₂-hi mu-kin x gi-m[ir? x x x x x x x x x x x]
+BabaLB3 o i' 4'. [x x x x x x] {d#}i₂-gi₃-gi₃ °\ša₂° AN-e °\DINGIR°-MEŠ GAL-MEŠ
+BabaLB7 o 13'. [x x x x x x {d}]i₂#-gi₃#-gi₃# ša₂#-ma-mi DINGIR#-MEŠ# GAL-MEŠ#
+BabaLBSch4 o 8'. [KI.M]IN mu-kin gi-mi[r x x x x x x x x x x x]
+$ single ruling
+$ end of excerpt
+BabaLBSch14 4'. [x x (x x x x) x x g]i-mir {d}i₂-gi₃#-gi₃# ša₂! AN-e DINGIR-[MEŠ x x]
+SipLB1 i' 5'. [x x x x gi-mi]r {d}i₂-gi₃-gi₃ ša₂ AN-e DINGIR-MEŠ [x x]
+NinNA2 i 14'. [x x x x gi-mi]r {d}i₂!(ZA)-gi₃-gi₃ ša AN-e [x x x x]
+BabaLB6 r 2. [x x x x x x] {d}i₂#-[gi₃-gi₃ x x x x x GAL]-MEŠ#
+
+#tr.en: I am Asalluḫi, who lives in Esagil, who cleanses their abodes,
+56. %n anāku asalluhi āšib esagila mullil atmanīšun
+BabaLB1 i 40'. K[I.M]IN a-šib e₂-sag-il₂ mu-ul-lil at-ma-ni-šu-un
+BabaHel1 i 53. ana-ku {d}asal-lu₂-hi a-šib e₂-sag-i[l₂ x x x x x x x]
+BabaLB3 o i' 5'. [x x x x e₂-sag-i]l₂ mu-lil at-DA-šu:un
+#note: Corrupt?
+BabaLB7 o 14'. [x x x x x x x mu-ul-li]l at#-m[a?-ni-šu-u]n?
+BabaLBSch14 5'. [x x (x x x x) x x e₂-sag]-il₂# mu-ul#-lil <<u>> at-[ma-ni-šu-un]
+SipLB1 i' 6'. [x x x x e₂-sag-i]l₂ mu-ul-lil at-ma-ni-[šu-un]
+NinNA2 i 15'. [x x x x e₂-sag-i]l₂ mul-lil a[t-ma-ni-šu-un]
+NinNA9 i 1'. [x x x x x x x x x at-m]a?-ni?#-šu₂?#-[un]
+BabaLB6 r 3. [x x x x e₂-s]ag?-[il₂ x (x) x x x x x x]
+$ rest of side broken
+
+#tr.en: I am Asalluḫi, who lives in Esagil and Babylon, fearsome, fierce one,
+57. %n anāku asalluhi āšib esagila u bābili rašubbu ezzu
+BabaLB1 i 41'. KI#.MIN# a-šib e₂-sag-il₂ u KA₂.DINGIR.RA{ki#} ra-šub-ba{ki#} ez-zu!(MA)
+BabaHel1 i 54. ana-ku {d}asal-lu₂-hi a-šib e₂#-sag-i[l₂ x x x x x x x x x]
+$ end of side
+BabaLB3 o i' 6'. [x x x x e₂-sag]-il₂ u TIN.TIR{ki} ra-šub-bu ez-zu
+SipLB1 i' 7'. [x x x x e₂-sag-i]l₂ u TIN.TIR{ki} ra-šub-bu{ki} ez-[zu]
+NinNA2 i 16'. [x x x x x x x x KA₂.DINGIR].RA#{ki} ra-šu[b-bu x x]
+NinNA9 i 2'. [x x x x x x x x x x x x r]a-šub-bu{ki} ez-[zu]
+
+#tr.en: I am Asalluḫi, dragon of the Anunnaki, lion of the Igigi,
+58. %n anāku asalluhi ušumgal anunnakkī labbi igīgī
+BabaLB1 i 42'. [KI.MI]N UŠUMGAL! {d}a-nun-na-ki la-ab-bu {d}i₂#-gi₃#-gi₃#
+BabaHel1 ii 1. ana-ku {d}asal-lu₂-hi UŠUM {d}a-[nun-na-ki x x x x x x x]
+BabaLB3 o i' 7'. [x x x {d}]a#-nun#-na-ki la-ab-bu {d}i₂-gi₃-gi₃
+BabaLBSch14 6'. [x x x x e₂-sag-i]l₂ UŠUMGAL# {d}a-nun-na#-[ki x x x x x x x]
+#note: @bib{fromebllab0044@149}: “The scribe seems to have merged lines 57 and 58 as presented by the other sources, omitting the toponym Babylon and the epithets @i{rašubbu} and @i{ezzu}.”
+SipLB1 i' 8'. [x x x {d}a-nu]n-na-ki la-ab-bu {d}i₂-[gi₃-gi₃]
+NinNA2 i 17'. [x x x x x x x la]-ab#-b[u x x x x]
+NinNA9 i 3'. [x x x x x x x x la-ab]-°\bi° {d}i₂-[gi₃-gi₃]
+
+#tr.en: I am Asalluḫi, foremost of … who splits the … mountain,
+59. %n anāku asalluhi ašarēd ... [ ... ] ... pāṣidu šadu ...
+BabaLB1 i 43'. [x x a-ša₂-r]ed? x [x (x)] x [x] x [x x x (x)]
+BabaHel1 ii 2. ana-ku {d}asal-lu₂-hi a-ša₂-red hur!?# x x x x [x x x x x (x x)]
+BabaLB3 o i' 8'. [x x x x x x x (x x)]-ša₂!?#-ni!?# pa-ṣi#-du ša₂#-du# E₂# U₂# GAL
+BabaLBSch14 7'. [x x (x x x x) x x x (x x)]-ša₂?#-ni# pa-aṣ#-du ša₂-du E₂?# [x x (x x)]
+SipLB1 i' 9'. [x x x x x x x (x x)-r]i!?-ni pa-ṣi-du ša₂-du U₂# [x]
+NinNA9 i 4'. [x x x x x x x x (x x x) pa-ṣ]i-du ša₂-du U₂ x
+
+#tr.en: I am Asalluḫi, warrior of the gods, the director of Anduruna,
+60. %n anāku asalluhi qarrād ilī mumaʾʾer anduruna
+BabaHel1 ii 3. ana-ku {d}asal-lu₂-hi UR.SAG DINGIR#-MEŠ# mu-ma-ʾ-[er x x x]
+BabaLB3 o i' 9'. [x x x x x x x x x x an-dur]u₂-na
+BabaLBSch14 8'. [x x (x x x x) x x x x m]u-ma#-ʾ#-er# an-[duru₂-na]
+SipLB1 i' 10'. [x x x x x x m]u-ma-ʾ-er an-duru₂#-[na]
+NinNA5 i 1'. [x x x x x x mu-m]a-ʾ#-er# an#-[duru₂-na]
+NinNA9 i' 5'. [x x x x x x mu-ma-ʾ-e]r an-duru₂-na
+BabaLBCom1 o 1-2. !bs [GE UMUN-hi UR.SAG DINGIR-MEŠ mu-ma-ʾ-er an-duru₂-na !cm : ru-bu-uṣ] an-zu-u₂ ša₂ ina šar₂-š[ar₂{ki}] | ($___$) [al]-du x [x x x x x x x x x] x u {d}nin-giš-zi-da : x [x (x)]
+
+#tr.en: I am Asalluḫi, who is clothed with splendour, filled with terror,
+61. %n anāku asalluhi ša namrīrī litbušu malû pulhāti
+BabaHel1 ii 4. ana-ku {d}asal-lu₂-hi ša₂ nam#-ri-<ri> lit#-bu-šu₂ ma-lu-u₂ p[ul-ha-a-ti]
+BabaLB3 o i' 10'. [x x x x x x x x x x x x pul-h]a-a#-tu₄#
+BabaLBSch14 9'. [x x (x x x x) x x x x x x x x x x pu-u]l?-[ha-a-ti]
+SipLB1 i' 11'. [x x x x x x lit-b]u-šu ma#-lu-u₂# p[u-ul-ha-a-ti]
+NinNA5 i 2'. [x x x x x x lit-bu-š]u ma-lu-u₂ pul-ha-a#-[ti]
+NinNA9 i' 6'. [x x x x x x lit-bu-š]u ma-lu-u₂ pul-ha-a-ti
+BabaLBCom1 o 3-4. !bs [GE UMUN-hi š]a₂ nam-ri-r[i lit-bu-šu ma-lu-u₂ pu]l-ha-a-t[i] | ($___$) !cm lu-ba-ri ša₂ x [x x x x x x x x x x] x lu-u₂ UR.MAH
+AššNACom1 r 1-4. !qt [ana-ku] {d}asal-lu₂-hi ša₂ nam-ri-ir lit-bu-šu₂ ma-lu-u pul-h[a-a-ti] | ($___$) !cm MU EN ša₂ TA@v {iti}ZIZ₂ EN {iti}ŠE me₂-e-qa ṣal-t[i] | ($___$) !cm {d}lah₃-mu il-lab-bi-šu₂ {d}a-nu-ta!(UM) DU₃-š[u₂] | ($___$) !cm ša₂-niš MU {lu₂}MAŠ.MAŠ ša₂ {tug₂#}AB₂#.SAG SA₅ GAR-nu iq-t[a-bi]
+
+#tr.en: I am Asalluḫi, wearing a tiara, whose radiance is adorned with awe,
+62. %n anāku asalluhi āpir agê ša melammūšu rašubbata zaʾnū
+BabaHel1 ii 5. ana-ku {d}asal-lu₂-hi a-pir a-gi-i ša₂ me-lam-mu-šu₂ r[a-šub-ba-ta x x x]
+BabaLB3 o i' 11'. [x x x x x x x x x x x x ra]-šub#-ba#-ta!# za-a-nu
+BabaLB8 o 1'. [x x x x x x x x x x x x x x x x x za]-a?#-nu#
+BabaLBSch5 o 1'. [x x x x x x x x x x x x x me-lam-mi]-šu₂ ra-šub-ba-<tu₂> za#-a#-n[a]
+SipLB1 i' 12'. [x x x x x x x x x x x x me-la]m?-mu#-[šu₂ x x x x x x x]
+NinNA5 i 3'. [x x x x x x x x me-l]am-mu-šu₂ ra-šub-ba-ta za-ʾ-nu#
+NinNA9 i' 7'. [x x x x x x x x x x x x x r]a-šub-ba-ta za-ʾ-nu
+BabaLBCom1 o 5-7. !bs GE# UMUN#-hi a-pir AGA š[a₂ me-lam-mu-šu₂ ra]-šub#-bat za#-a-nu | ($___$) !cm šu-ku-us {gada}T[UN₃?# x x x x x x pi-i iṣ-ṣ]i : ši-ir-mu ina ŠA₃ {mul₂}AB.SIN₂ | ($___$) !cm ša₂ me-lam-mu!-šu₂ pi-x [x x x x x x] x-u dib-ba-a[ʾ] NU?# SAR-ar₂
+AššNACom1 r 5-6. !bs KIMIN a-pir a-ge-e ša₂ me-lam-mu#-šu₂ ra-šub-ba-tu₂ za-ʾ-na [(x)] | ($___$) !cm ša₂ ina E₂ šip-pu {lu₂}MAŠ.MAŠ {tug₂}AB₂.SAG SA₅ GAR-nu iq-t[a-bi]
+
+#tr.en: I am Asalluḫi, who protects the needy, who saves the poor/weak,
+63. %n anāku asalluhi hātin ābirî mušēzib enši
+BabaHel1 ii 6. ana-ku# {d}asal-lu₂-hi ha#-tin a-<<na>>-bi-ri-i mu-še-zib e[n-šu₂]
+BabaLB3 o i' 12'. [x x x x x x x x x x x] en#-šu₂
+BabaLB8 o 2'. [x x x x x x x x x mu]-še#-zib e[n]-šu₂?#
+BabaLBSch5 o 2'. [x x x x x x x x x x x x x x x x] en-šu₂
+NinNA5 i 4'. [x x x x a-b]i-ri-i mu-še-zib en-ši
+NinNA9 i' 8'. [x x x x x x x x x m]u-še-zib en-ši
+BabaLBCom1 o 8-11. !bs GE UMUN-hi ha-tin a-bi-ri-i# m[u-še-zib en-ši : ] dun#-na-mu-u : en-šu₂ : dun-na-mu-u : u₂-la-la | ($___$) !cm {mul₂!}ERIN₂ SI {mul₂}GIR₂.TAB : x# [x x x]-MEŠ-šu₂ ana UR₂#-ME-šu₂ GUR ni-ši i-na IGI NU.GIG.ME | ($___$) !cm ina ŠA₃ GIR₂.TAB IGI-MEŠ šu₂-nu x [x (x) ina m]a-har AGA ša₂ {d}ši-da-da NU IGI-MEŠ | ($___$) !cm lib₃-bu-u₂ {d}15-MEŠ [SA]G.DU-šu₂-nu KUD MUL₂ MU gab-bi KI {mul₂}GIR₂.TAB
+
+#tr.en: I am Asalluḫi, who digs the canals, who sustains the life of the land.
+64. %n anāku asalluhi muppir nārāti mukīl napišti māti
+BabaHel1 ii 7. ana-ku {d}asal-lu₂-hi m[u]-up-pir ID₂-MEŠ mu-kil ZI-ti₃# ma-a-t[u₄]
+BabaLB3 o i' 13'. [x x x x x x x x x n]a-piš#-ti₃ ma-a-tu₂#
+BabaLB8 o 3'. [x x x x x x x x x] na-piš#-tu₄# ma-[a-tu₂]
+BabaLBSch5 o 3'. [x x x x x x x x x x x x x n]a-piš-tu₄ KUR
+NinNA5 i 5'. [x x mu-u]p-pir# ID₂-MEŠ mu-kil na-piš-ti ma-a-ti
+NinNA9 i' 9'. [x x x x x x x x x n]a-piš-ti ma-a-ti
+BabaLBCom1 o 12-13. !bs GE UMUN-hi mu-up-pir ID₂-MEŠ m[u-ki]n na-piš-tu₂ KUR !cm : ID₂-ME KI {mul₂}GIR₂.TAB tam-ti₃ | ($___$) !cm na-piš-tu₂ ma-a-tu₂ ša₂ D[U]G₄-u : {d}be-let da-ad₂-me
+
+#tr.en: I am Asalluḫi, seer who gives decisions, who assigns lots,
+65. %n anāku asalluhi bārû purussê pāris halhalli
+BabaHel1 ii 8. ana-ku {d}asal-lu₂-hi {lu₂}HAL@v# pu-ru-us-su-u₂ pa-ri-is HAL@v.HAL.LA
+BabaLB3 o i' 14'. [x x x x x x x x x pa-ri]-is# HAL@v.HAL.LA
+BabaLB8 o 4'. [x x x x x x x x x] p[a-r]i-is HAL@v.H[AL.LA]
+BabaLBSch5 o 4'. [x x x x x x x x x x x x x x x x HAL@v].HAL.LA
+NinNA5 i 6'. KI#.MIN# [b]a-ru-u₂ EŠ.BAR pa-ri-su hal-hal-li
+NinNA9 i' 10'. [x x x x x x x pa]-ri-su hal-hal-li
+BabaLBCom1 o 14-15. !bs GE UMUN-hi {lu₂}HAL EŠ.BAR pa-ri-is hal-hal-la !cm : KI {mul₂}PA.BIL.SAG | ($___$) !cm {lu₂}HAL u {lu₂}ša₂-ʾ-i-lu : hal-hal-la : HAL : bi-ri : HAL : pi-riš-tu₂
+
+#tr.en: I am Asalluḫi, who reveals (the meaning) of cuneiform wedges, who destroys the evil and the wicked,
+66. %n anāku asalluhi pētû sattukki muhalliq ṣēni u raggi
+BabaHel1 ii 9. ana-ku {d}asal-lu₂-hi pe-tu-u₂ sat-tak-ku mu-hal-liq!(LU) ṣe#-e-nu u rag-g[u]
+BabaLB3 o i' 15'. [x x x x x sat-tak-k]u mu-hal-liq ṣe#-e#-nu u rag#-gu
+BabaLB8 o 5'. [x x x x x sat-t]ak-ka MU mu-hal-liq# ṣe-e-n[u x] rag#-gu#
+BabaLBSch5 o 5'. [x x x x x x x x x x x x mu-hal-li]q? ṣe-e-ni u rag-gu
+$ end of excerpt
+NinNA5 i 7'. KI.MIN p[e-t]u-u₂ sat-tuk-ki mu-hal-liq ṣe-ni u rag-gi
+NinNA9 i' 11'. [x x x x x x x x mu-hal-li]q ṣe#-ni u rag-gi
+BabaLBCom1 o 16-18. !bs GE UMUN-hi pe-tu-u₂ sat-tak-ku m[u]-hal-liq₂ ṣe-nu u rag-gu# : SUHUR.MAŠ ina KI KID ZU ina ad-ri {(KUR₂)} | ($___$) !cm šu-pul me-e mu-u₂-tu₂ [ : š]u-pul ša₂ AN-e šu₂-u : E₂# ni-ṣir-tu₂ ša₂ {d}ṣal-bat-a-nu | ($___$) !cm MUL ṣar-hu : ṣar-[x (x)] x-šu₂ : BUR₃ : ši-la :# BUR₃ : šu-pul : BUR₃ : {d}ṣal-bat-a-nu
+
+#tr.en: I am Asalluḫi, who daily picks on what the people say,
+67. %n anāku asalluhi ša ūmišam-ma pî nišī ihirru
+BabaHel1 ii 10. ana-ku {d}asal-lu₂-hi ša₂ u₄-mi-šam KA UN-MEŠ i-he-er-ri
+BabaLB3 o i' 16'. [x x x x x x x x UN-M]EŠ i-hi-ir-ri
+BabaLB8 o 6'. [x x x x x x p]i-i UN-MEŠ i-hir-ri
+NinNA5 i 8'. KI.MIN ša₂ u₄#-mi-šam-ma pi-i UN-MEŠ i-hi-ir-ru
+NinNA9 i' 12'. [x x x x x x x x x x x] i#-hi-ir-ru
+BabaLBCom1 o 19-20. !bs [G]E UMUN#-hi ša₂ u₂-<mi>-šam-mu p[i-i ni-š]i i-hi-ṭu !cm : {mul₂}x (x) :# {d}BAD : {d}a-la-la : {d}BAD | ($___$) !cm {d#}a-la#-la# [ina pi-i] ni-ši li-in-na-bi : {d#}BAD ša₂ ina pi-i ni-ši šak-nu
+$ end of obverse
+AššNACom1 r 7-8. !bs KIMIN ša₂ u₂-me-šam-ma KA!(UGU) UN-MEŠ i-hi-r[u] | ($___$) !cm ma-a a-na IZI.GAR i-qab-bi#
+
+#tr.en: I am Asalluḫi, whose rays light up the lands,
+68. %n anāku asalluhi ša šarūrūšu unammarū mātāti
+BabaHel1 ii 11. ana-ku {d}asal-lu₂-hi ša₂ ša₂-ru-<ru>-šu₂ u₂-nam-ma-ru KUR.KUR#-MEŠ
+BabaLB3 o i' 17'. [x x x x x x x u₂-nam-ma-r]u ma-ta-a-tu₂
+BabaLB8 o 7'. [x x x ša₂-ru-ru-š]u₂ u₂-nam#-ma-ru KUR.KUR-MEŠ
+BabaLB18 ii 1'. [x x x x x x x x x x x u₂-nam-ma]-ri?# KUR#.K[UR?-MEŠ]
+NinNA5 i 9'. KI.MIN ša₂ ša₂-ru-ru-šu₂ u₂-nam-ma-ru ma-ta-a-ti
+NinNA9 i' 13'. [x x x x x x x x x x x ma-t]a-a-ti
+BabaLBCom1 r 1-3. !bs [G]E UMUN-hi ša₂ ša₂-ru-<ru>-šu₂ u₂-na[m-ma-ru KU]R.KUR-MEŠ !cm : KI {mul₂}KUN-MEŠ {iti}ŠE U₄.20.KAM@v | !cm ša₂ ni-ši ŠUK-MEŠ-ši-na ana {d}UTU [GAR-ma ma-aq-q]i₂-tu₂ ša₂ U₄.20.KAM@v ša₂ {iti}ŠE ša₂ ni-ši IGI-MEŠ-ši-na | !cm i-qa-a EN₂ {d}UTU U₄.20.[KAM U₄-ka n]am-ri GURUN pi-i# iṣ-ṣi : ša₂-niš ana UGU ša₂-ru-ru ša₂ {d}UTU DUG₄-u₂
+AššNACom1 r 9-10. !bs KIMIN ša₂ ša₂-ru-ru-šu u₂-nam-ma-ru KUR.KUR-MEŠ | ($___$) !cm MU ṣu-lum ša₂ lib₃-bi {d}UTU {d}MES iq-ta-bi
+
+#tr.en: I am Asalluḫi, whose brilliance destroys a stone wall.
+69. %n anāku asalluhi ša birbirrūšu ubbatū dūr abni
+BabaHel1 ii 12. ana-ku {d}asal-lu₂-hi ša₂ bir-bir-ru-šu₂ ub-ba-tu₂ BAD₃ ab#-nu
+BabaLB3 o i' 18'. [x x x x x x x ub-b]a-tu# BAD₃ ab-nu
+BabaLB8 o 8'. [x x x bir-bir-ru-š]u₂ ub-ba#-tu₂# BAD₃# ab-nu
+BabaLB18 ii 2'. [x x x x x x x x x x x ub-ba-t]u BAD₃# a[b-nu]
+NinNA5 i 10'. KI.MIN ša₂ bir-bir-ru-šu₂ ub-ba-tu BAD₃ ab-ni
+NinNA9 i' 14'. [x x x x x x x x x x BA]D₃? ab#-n[i]
+BabaLBCom1 r 4-9. !bs GE UMUN-hi ša₂ bir-bir-ru-šu₂ ub-[ba-tu₂ BAD₃ NA₄ !cm : ] ana UGU {mul₂}HUN#.GA₂ 5 UŠ EGIR GIŠ.ŠU₂ | ($___$) !cm ša₂ {mul₂}{lu₂}HUN.G[A₂ x x x x] x ša₂ {d}30 {d}UTU ana ŠA₃ KUR-du ul-tu {d}UTU | ($___$) !cm ina {giš}RIN₂ KUR-h[a x x x (x) i]na IGI {d}UTU GUB BAD₃ NA₄ : AGA {d}30 | ($___$) !cm it-ti n[i-x x x (x) GI]N-na : a-di {d}30 ub-ba-tu₂ BAD₃ NA₄ | ($___$) !cm ana UGU AGA [x x x x] x : {d}UTU ana KI NA₄# ša₂ {d}30 {na₄}A.SAG °\° SAG₃ | ($___$) !cm {lu₂}HUN.GA₂ : x [x x x x {mu]l₂}KUŠU A₂#.SAG₃ ša₂-niš ana UGU zi-mi ša₂ {d}UTU ša₂ KUR-u₂ ša₂ NA₄ pi-i iṣ-ṣu
+
+#tr.en: I am Asalluḫi, wise, sagacious, superlative in intelligence,
+70. %n anāku asalluhi eršu itpēšu ša šūturu hasīsa
+BabaHel1 ii 13. ana-ku {d}asal-lu₂-hi er-šu₂ <<ša₂>> it-pe-šu₂ ša₂ šu-tu-ru ha-si-su
+BabaLB3 o i' 19'. [x x x x x x x x x šu-t]u-ru# ha#-si#-s[u]
+BabaLB8 o 9'. [x x x x x it-pe-š]u₂ ša₂ šu#-tu#-[r]u ha-si-[s]i
+BabaLB18 ii 3'. [x x x x x x x x x x x x x šu]-tu-ru ha-s[i-si]
+NinNA5 i 11'. KI.MIN er-šu it-pe-šu ša₂ šu-tu-ru ha-si-sa
+$ end of column
+BabaLBCom1 r 10. !bs GE UMUN-hi er-šu₂ it-pe-šu₂ ša₂ š[u-tu-ru ha-si-si !cm : ] ŠA₃ AB₂.AB₂ AB₂.AB₂ {d}IDIM ha-si-si : {d}IDIM
+
+#tr.en: I am Asalluḫi, whose weapon is a fierce flood,
+71. %n anāku asalluhi ša kakkašu abūbu ezzu
+BabaHel1 ii 14. ana-ku {d}asal-lu₂-hi ša₂ {giš}TUKUL-šu₂ a-bu-bu ez!-zu
+BabaLB8 o 10'. [x x x x x x a]-bu-b[u] e[z]-zu
+BabaLB18 ii 4'. [x x x x x x x x x x a]-bu#-bu# e[z-zu]
+NinNA4 ii 1. [x x x {giš}TUKU]L-šu a-bu-bu ez-zu
+BabaLBCom1 r 11-13. !bs [G]E UMUN-hi ša₂ {giš}TUKUL-šu₂ a-bu-b[u ez-zu !cm : {mul₂}ZU]BI kak-ku ša₂ ŠU+MIN {d}AMAR.UTU gam-lu | ($___$) !cm šag-gi-šu₂ : qa[b-lu? x x ša]g-ga-šu₂ MUŠ# im-tu₂ : mu-bal-li-ṭu | ($___$) !cm ZUR!(BI) ez-zu : ni-x [x x x x] ina lib₃-bi MU ša₂ {d}AMAR.UTU qa-bi!(TI)
+AššNACom1 r 11. !bs KI.MIN {giš}TUKUL-šu₂ a-bu-bu ez-zu !cm : {d}muš-te-šir-hab-li₃ {giš}TUKUL {d}ša₃-zu
+
+#tr.en: I am Asalluḫi, who with his torch burns the enemy and the evil one,
+72. %n anāku asalluhi ša ina dipārīšu iqammû ayyāba u lemna
+BabaHel1 ii 15. ana-ku {d}asal-lu₂-hi ša₂ ina di#-pa-ri-šu₂ i-qam-mu-u₂ a-a-bi u lem-nu
+BabaLB8 o 11'. [x x x x di-pa-ri-š]u₂ i-qam₂-mu-u₂# a-a-bi u le[m-nu]
+$ end of column
+BabaLB18 ii 5'. [x x x x x x x x x x x x] i#-qam₂#-mu#-u₂# a-a-bi [x x x]
+NinNA4 ii 2. [x x x x x x x x i-qam]-mu-u₂ a-a-bu u lem-nu
+BabaLBCom1 r 14. !bs [GE] UMUN#-hi# ša₂# ina di-pa-ri-šu₂ i-qa-m[u-u₂ a-a-b]i u lem-nu !cm : {d}gira₃ nu-u₂-ri ša₂ IGI {d}+en-me-šar₂-ra
+
+#tr.en: I am Asalluḫi, Enlil of the gods, who looks after the world regions,
+73. %n anāku asalluhi enlil ilī āšir kibrāti
+BabaHel1 ii 16. ana#-ku# {d}asal-lu₂-hi {d}+en-lil₂ DINGIR#-MEŠ a-ši-ir kib-ra-a-tu₂
+BabaLB8 r 1. [x x x x x x x a-ši-i]r kib-r[a-a-tu₂]
+BabaLB18 ii 6'. [x x x x x x x x x x x a-š]ir ki[b-ra-a-tu₂]
+NinNA4 ii 3. [x x x x x x x] a#-ši#-[i]r kib-ra-a-ti
+BabaLBCom1 r 15. !bs [GE UMUN-hi {d}+en-li]l₂ DINGIR-MEŠ a-ši-ir [kib-rat !cm : K]I? {mul₂}{giš}GIGIR {d}en-me-šar₂-ra : {d}+en-lil₂
+AššNACom1 o 5. !bs KI.MIN {d}+en-lil₂ DINGIR#-MEŠ a-ši-ir kib-ra-te# !cm ina muh-hi-ma qa-b[i]
+
+#tr.en: I am Asalluḫi, shepherd of all the peoples, protection of every population,
+74. %n anāku asalluhi rēʾû kiššat nišī ṣulūl kal dadmē
+BabaHel1 ii 17. [ana-k]u {d}asal-lu₂-hi re-ʾ-u₂ kiš-šat UN-MEŠ ṣu-lul kal da-ad₂-me
+BabaLB8 r 2. [x x x x x x x x x ṣu-l]u-lu kal da-a[d₂]-me
+BabaLB18 ii 7'. [x x x x x x x x x x x x x] ṣu#-lul kal d[a-ad₂-me]
+NinNA4 ii 4. [x x x x x x x x x ṣu]-lul!?# kal da-ad₂-me
+BabaLBCom1 r 16-17. !bs [GE UMUN-hi re-ʾ-u₂ kiš-šat ni]-ši ṣ[u-lul kal da-a]d₂-me !cm : {mul₂}SIPA.ZI.AN.NA re-ʾ-um | ($___$) !cm [x x x x x x (x x)] {d#}i₃-li₂-ab-rat : DINGIR-MEŠ ab-ra-a-ti
+$ single ruling
+
+#tr.en: I am Asalluḫi, whose strength is not rivalled among the great gods,
+75. %n anāku asalluhi ša ina ilī rabûti lā iššannanā emūqāšu
+BabaHel1 ii 18. [ana-k]u {d}asal-lu₂-hi ša₂ ina DINGIR-MEŠ GAL-MEŠ la iš-ša₂#-na-an e-mu-qa-a-šu
+BabaLB8 r 3. [x x x x x x x x i]š-ša₂-na-na e#-mu#-qa#-a-šu₂
+BabaLB18 ii 8'. [x x x x x x x x x x x x iš-ša₂-na-n]a e-[mu-qa-a-šu₂]
+BabaLBSch6 i 1'. [x x x x x x x x x x x x x x x x] e#-m[u-qa-a-šu₂]
+NinNA4 ii 5. [x x x x x x x iš-ša₂-na-n]a e-mu-qa-a-šu
+
+#tr.en: I am Asalluḫi, who grasps the whole of heaven and earth, who holds the reins,
+76. %n anāku asalluhi ṣābit kippat šamê u erṣeti mukīl ṣerreti
+BabaHel1 ii 19. [ana-k]u {d}asal-lu₂-hi ṣa-bit kip-pat AN-e u KI-ti₃ mu-kil ṣer-ret
+BabaLB8 r 4. [x x x x x x x x] u# KI-ti₃ mu-kil ṣer-re-tu₄
+BabaLB18 ii 9'. [x x x x x x x x x x x x x x x mu-ki]l? [x x x]
+BabaLBSch6 i 2'. [x x x x x x x x x x x x] u# K[I-ti₃ mu]-kil ṣer-r[e-e-ti]
+NinNA4 ii 6. [x x x x x x x x x x x x x ṣ]er-re-e-ti
+NinNA12 ii 1'. ana-ku {d}a[sal-lu₂-hi x x x x x x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who administers the gods, assigns lots,
+77. %n anāku asalluhi pāqid ilī muʾaddû isqi
+BabaLB1 ii 1'. [x x x x DINGIR]-MEŠ?# [x x x x x x x]
+BabaHel1 ii 20. [x x {d}]asal-lu₂-hi pa-qid DINGIR-MEŠ# mu-ad-du-u₂ {giš}ŠUB.B[A]
+BabaLB8 r 5. [x x x x x x mu-a]d-du-u₂ is-qu
+BabaLB18 ii 10'. [x x x x x x x x x x m]u?-[ad-du-u₂ x x x]
+BabaLBSch6 i 3'. [x x x x x x x x x x] mu-ad-du-u₂ {giš}ŠU[B.BA]
+NinNA4 ii 7. [x x x x x x x x x x] is-qi₂
+NinNA12 ii 2'. ana-ku {d}asal-lu₂-hi# [x x x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who forms regulations for the shrines, who grants the regular offerings,
+78. %n anāku asalluhi bāšim gišhurrī ešrēti nādin sattukki
+BabaLB1 ii 2'. KI#.MIN# ba#-šim# giš-hur#?-ri# [x x x x x x x x x]
+BabaHel1 ii 21. [x x {d}]asal-lu₂-hi ba-šim giš-hur-ri eš-ret na-din sat-tuk-k[u]
+BabaLB8 r 6. [x x x x giš-hur]-ri eš-re-e-ti na-din sat-tuk-ku
+BabaLBSch6 i 4'. [x x x x x x x x] giš-hur-ri eš-re-e-ti n[a-din x x x]
+NinNA4 ii 8. [x x x x x x x x x x x na-di-n]u sat-tu-ki
+NinNA12 ii 3'. ana-ku {d}asal-lu₂-hi ba-šim# giš#-h[ur-ri x x x x x x x]
+
+#tr.en: I am Asalluḫi, at whose word the mountains subside and their peaks totter,
+79. %n anāku asalluhi ša ana amātīšu šadû irabbubū rēssunu iqâp
+BabaLB1 ii 3'. KI.MIN ša a-na a-ma-ti-šu₂# KUR#-M[EŠ x x x x x x x x x x]
+BabaHel1 ii 22. [x x {d}]asal-lu₂-hi ša₂ ana a-ma-ti-šu₂ KUR-MEŠ i-rab-bu-bu SAG-su-nu i-qa#-[pu]
+BabaLB8 r 7. [x x x x x x x x x x] i#-rab-bu-bu re#-es-su-nu i-qa-pu
+BabaLBSch6 i 5'. [x x x x x x x] ana# a-ma-ti-šu₂ KUR-MEŠ i-rab-bu-bu [x x x x x x]
+$ end of excerpt
+NinNA4 ii 9. [x x x x x x x x x x x SAG-su]-nu# i#-qa#-p[u]
+NinNA12 ii 4'. ana-ku {d}asal-lu₂-hi ša₂ ana a-ma-ti-šu₂ ša₂-du-u₂# i#-[rab-bu-bu x x x x x x]
+NinNA15 ii 1'. [x x x x a-m]a-ti-šu₂ K[UR-MEŠ x x x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who, like the sun, looks over the lands.
+80. %n anāku asalluhi ša kīma šamši ibarrû mātāti
+BabaLB1 ii 4'. KI.MIN ša ki-ma {d}UTU-ši i-bar-r[u-u₂ x x x]
+BabaHel1 ii 23. [x x x x x x x k]i-ma# {d}UTU#-ši i-bar-ru-u₂ KUR.KUR-[MEŠ]
+BabaLB8 r 8. [x x x x x x x x i-bar]-ru#-u₂# KUR.KUR-MEŠ
+BabaLB14 i' 1'. [x x x x x x x x {d}]UTU#-š[i x x x x x x x]
+NinNA12 ii 5'. ana-ku {d}asal-lu₂-hi ša ki-ma {d}UTU-ši i-bar-r[u-u x x x]
+NinNA15 ii 2'. [x x] ša₂# ki-ma {d}UTU#-[ši x x x x x x x]
+AššNACom1 r 12-13. !bs KI.MIN ša₂ ki-ma {d}UTU-ši i-bar-ru-u KUR.KUR-MEŠ !cm : {d}UTU {d}ŠU₂ ša₂ de-e-ni | ($___$) !cm ša₂-niš : U₄ : {d}ša₂-maš : NAB : {d}UTU : {d}šul-pa-e₃-a
+
+#tr.en: I am Asalluḫi, who is responsible for spreading slander, but takes the hand of the fallen,
+81. %n anāku asalluhi mušassik karṣi ṣābit qātī naski
+// cf. L III.3 35
+BabaLB1 ii 5'. KI.MIN mu-šas-sik kar#-ṣi ṣa-b[it? x x x x x]
+BabaHel1 ii 24. [x x x x x x x x x k]ar-ṣu ṣa-bit# ŠU+MIN na-as-[ku]
+BabaLB8 r 9. [x x x x x x x x x x x n]a-as-ku
+BabaLB14 i' 2'. [x x {d}asa]l-lu₂-hi [mu]-šam-sik kar#-ṣ[u x x x x x x x]
+NinNA4 ii 11. [x x x x x x x x x x x n]a-as#-ki#
+NinNA12 ii 6'. ana-ku {d}asal-lu₂-hi mu-šas-sik kar#-ṣi ṣa-bit ŠU+MIN [x x x]
+NinNA15 ii 3'. KI#.MIN# mu#-šas-sik k[ar-ṣi x x x x x x x]
+
+#tr.en: I am Asalluḫi, who purges the righteous and the wicked in the river.
+82. %n anāku asalluhi ša ina nāri ubbabu kīna u ragga
+BabaLB1 ii 6'. KI.MIN ša₂ ina ID₂ ub-ba-bu ki#-i?#-[ni x x x]
+BabaHel1 ii 25. [x x x x x x x x x ub]-ba#-bu# ki#-i#-ni u rag-g[u]
+BabaLB8 r 10. [x x x x x x x x x x x x ra]g-gu
+BabaLB14 i' 3'. [x x {d}asa]l-lu₂-hi ša₂ ina ID₂ ub-ba#-bu [x x x x x x]
+NinNA4 ii 12. [x x x x x x x x x x x x] rag-gu
+NinNA12 ii 7'. ana-ku {d}asal-lu₂-hi ša₂ ina {d}ID₂ ub-ba-bu ki-nu u [x x]
+NinNA15 ii 4'. KI.MIN ša₂ ina {d}ID₂ u[b-ba-bu x x x x x]
+AššNACom1 r 14. !bs [KI.M]IN ša₂ ina ID₂ ub-ba-bu ke-e-nu u rag-gu !cm : MU hur-sa-an iq-ta-bi
+
+#tr.en: I am Asalluḫi, savage, hero, lord of the land,
+83. %n anāku asalluhi dabru šagapūru bēlu ša māti
+BabaLB1 ii 7'. KI.MIN da-ab-ru# ša₂-ga-pu-ru# b[e-lu x x x x]
+BabaHel1 ii 26. [x x x x x x x x x x x x x be-l]u ša₂ m[a]-a#-[ti]
+BabaLB8 r 11. [x x x x x x x x x x x] ša₂# ma-a-tu₄
+BabaLB14 i' 4'. [x x {d}asa]l-lu₂-hi da-ab-ri šag-ga-[pu-ru x x x x x x]
+NinNA4 ii 13. [x x x x x x x x x x x x m]a-a-ta
+NinNA12 ii 8'. ana-ku {d}asal-lu₂-hi da#-ab-ru ša₂-ga-pu-ru be-lu ša₂ ma-a#-ti#
+NinNA15 ii 5'. KI.MIN da-ab-ru ša₂-g[a-pu-ru x x x x x x]
+
+#tr.en: I am Asalluḫi, august, magnificent, ornament of lordship,
+84. %n anāku asalluhi kabtu šitrāhu simat bēlūti
+BabaLB1 ii 8'. KI#.MIN# kab#-tu# šit-ra-hu si-mat b[e-lu-ti]
+BabaLB8 r 12. [x x x x x x x x x be-lu]-tu#
+BabaLB14 i' 5'. [x x {d}asa]l-lu₂-hi kab-tu šit-ra-h[u x x x x x]
+NinNA4 ii 14. [x x x x x x x x x be-l]u-ti
+NinNA12 ii 9'. ana-ku {d}asal-lu₂-hi kab-tu šit-ra-hu si-mat be-lu-ti
+NinNA15 ii 6'. KI.MIN kab-tu šit-[ra-hu x x x x x]
+
+#tr.en: I am Asalluḫi, in fear of whom Every Evil returns to its lair,
+85. %n anāku asalluhi ša ina puluhtīšu mimma lemnu iturru uppušu
+BabaLB1 ii 9'. KI.MIN ša ina pu-luh#-ti-[šu₂] mim-ma lem-nu i#-t[ur-ru x x x x]
+BabaLB7 r 1'. [x x x x x x x x x x x x x x] lem?#-nu?# [x x x x x x x]
+BabaLB8 r 13. [x x x x x x x x x x x x x x x up-pu]-uš#
+BabaLB14 i' 6'. [x x {d}asal-lu₂]-hi# ša₂# ina pu#-luh-[ti-šu₂ x x x x x x x x x x x]
+NinNA4 ii 15. [x x x x x x x x x x x x x x x up-p]u-uš-šu₂
+NinNA12 ii 10'. ana-ku {d}asal-lu₂-hi ša₂ ina pu-luh-ti-šu₂ mim-ma lem:nu i-tur-ru up#-pu-uš-šu₂
+NinNA15 ii 7'. KI.MIN ša₂ ina pu-luh-ti-šu₂ [x x x x x x x x x x x]
+
+#tr.en: I am Asalluḫi, who surveys the subterranean ocean, forms the (its) regulations,
+86. %n anāku asalluhi hāʾiṭ lalgar bāšim gišhurrī
+BabaLB1 ii 10'. KI.MIN ha-ʾ#-iṭ# lal₃#-gar ba-ši-mu giš-h[ur-ri]
+BabaLB7 r 2'. [x x x x x x x x b]a-ši-mu giš-hur-[r]u
+NinNA4 ii 16. [x x x x x x x x x x giš-h]u-ri
+NinNA12 ii 11'. ana-ku {d}asal-lu₂-hi ha-ʾ!-iṭ lal₃-gar ba-ši-mu giš-hu-ru
+NinNA15 ii 8'. KI.MIN ha-iṭ lal₃-gar [x x x x x x]
+AššNACom1 r 15-18. !bs [KI.MIN] ha-iṭ lal₃-gar ba-ši-mu giš-hur-ri | ($___$) !cm [M]U iṣ-ṣur-tu₂ ša₂ ina muh#-hi# {d#}UTU# iq-ta-bi | ($___$) !cm [ša₂-niš (x)] x [x (x)] x [(x)] x i[q-ta-bi (x)] | ($___$) !cm [x x x] x x {d}AMAR.UTU ša₂ x [x (x x)]
+
+#tr.en: I am Asalluḫi, who gives pasturage and watering, who sends abundant rain,
+87. %n anāku asalluhi šārik rîti (u) mašqīti mušaznin nuhši
+BabaLB1 ii 11'. KI.MIN ša#-ri-ik# ri-ʾ#-i-ti u maš-qi₂#-ti# [x x x x x x x]
+BabaLB7 r 3'. [x x x x x ri-ʾ]-i#-tu₄ maš-qi₂-tu₄ mu-<ša₂>-az?#-nin?# nu-uh#-šu₂#
+NinNA4 ii 17. [x x x x x x x x x x x x x x x nu-u]h-š[i]
+NinNA12 ii 12'. ana-ku {d}asal-lu₂-hi ša₂ ša₂-ri-<ik> ri#-°\ti° u maš-qi₂-ti! mu-ša₂-az#-nin nu-uh-ši
+NinNA15 ii 9'. KI.MIN ša₂-rik ri-i-ti u maš-q[i₂-ti x x x x x x x]
+AššNA1 o i' 1'. [x x x x x x x x r]i?-i?#-[ti x x x x x x x x x x x]
+
+#tr.en: I am Asalluḫi, at whose utterance the grip of the Namtar-demon is undone,
+88. %n anāku asalluhi ša ina ṣīt pîšu uttakkaru ṣibit namtari
+BabaLB1 ii 12'. KI#.MIN ša# i-na ṣi-it pi-i#-šu ut-tak-ka-ru# ṣi#-b[it x x x]
+BabaLB7 r 4'. [x x x x x x pi-i-š]u₂ ut-tak-ka-ri ṣi-bit nam-ta-ri
+NinNA4 ii 18. [x x x x x x x x x x x x x x x n]am-t[a-ri]
+NinNA12 ii 13'. ana-ku {d}asal-lu₂-hi ša₂ ina ṣi-it pi-i-šu₂ ut-tak-ka-ru li-pit nam-t[a-ri]
+NinNA15 ii 10'. KI.MIN ša₂ i-na ṣi-it pi-i-šu ut#-t[ak-ka-ru x x x x x]
+AššNA1 o i' 2'. [x x x x x x x pi-i]-šu ut-ta[k-ka-ru x x x x x]
+
+#tr.en: I am Asalluḫi, whose godhead is great everywhere,
+89. %n anāku asalluhi ša ina pāṭ gimri šurbât ilūssu
+BabaLB1 ii 13'. KI.MIN ša# i-na paṭ gim-ri šur-ba-at i#-l[u-us-su]
+BabaLB7 r 5'. [x x x x x x x] šur#-ba#-a-tu₂ i-lu-us-su
+NinNA4 ii 19. [x x x x x x x x x x i-lu-u]s-s[u]
+NinNA12 ii 14'. ana-ku {d}asal-lu₂-hi ša₂ ina paṭ gim-ri šur-ba-ti DINGIR-us-s[u]
+NinNA15 ii 11'. KI.MIN ša₂ ina pa-aṭ gim-ri [x x x x x x]
+AššNA1 o i' 3'. [x x x x x gim-r]i šur#-ba-at [x x x]
+
+#tr.en: I am Asalluḫi, who nurtures his people like a father and mother,
+90. %n anāku asalluhi ša kīma abi u ummi ittanarrû nišīšu
+BabaLB1 ii 14'. KI.MIN ša# ki-ma AD u AMA it-ta-nar-ru-u₂# [x x x]
+BabaLB7 r 6'. [x x x x x x x i]t-ta-nar#-ru-u₂ UN#-MEŠ-šu₂
+NinNA4 ii 20. [x x x x x x x x x x x x x ni]-ši-šu
+NinNA12 ii 15'. ana#-ku {d}asal-lu₂-hi ša₂ ki-ma AD u AMA it!-ta-nar-ru-u₂ UN-M[EŠ-šu₂]
+NinNA15 ii 12'. KI.MIN ša₂ ki#-ma AD u AMA i[t-ta-nar-ru-u₂ x x x]
+AššNA1 o i' 4'. [x x x x x A]D u AMA it-ta-na-a[r-ru-u₂ x x x]
+
+#tr.en: I am Asalluḫi, the secret of whose heart his divine brothers do not know,
+91. %n anāku asalluhi ša tāmīt libbīšu lā īdû ilū ahhūšu
+BabaLB1 ii 15'. KI#.MIN# ša# ta-mit lib₃-bi-šu₂ la i-du-u₂ DINGIR-[MEŠ x x x]
+BabaLB7 r 7'. [x x x x x lib₃-bi-š]u₂ la i-du-u₂ DINGIR-MEŠ# [Š]EŠ-MEŠ-šu₂
+NinNA4 ii 21. [x x x x x x x x x x x x x x ŠEŠ]-MEŠ#-šu
+NinNA12 ii 16'. [x x] {d#}asal-lu₂-hi ša₂ ta-mit ŠA₃-šu₂ la i-du#-u₂ DINGIR-MEŠ Š[EŠ-MEŠ-šu₂]
+NinNA15 ii 13'. KI#.MIN ša₂ ta-mit lib₃-bi-šu₂ la [x x x x x x x x]
+AššNA1 o i' 5'. [x x x t]a-mit lib₃-b[i]-šu₂ la i-°\du°-°\u° [x x x x x]
+
+#tr.en: I am Asalluḫi, who uproots illness, who destroys the great devils.
+92. %n anāku asalluhi nāsih murṣi muʾabbit gallê rabûti
+BabaLB1 ii 16'. KI#.MIN na-si-ih mur-ṣu mu-ab-bi[t x x x GA]L-MEŠ
+BabaLB7 r 8'. [x x x x x x x mu-a]b-bit# GAL₅.LA₂-MEŠ GAL-MEŠ
+NinNA4 ii 22. [x x x x x x x x x x x x x GA]L-MEŠ
+NinNA12 ii 17'. [x x {d}asal-lu₂]-hi# na-si-ih mur-ṣi mu-ab-bit GAL₅.LA₂-MEŠ GA[L-MEŠ]
+NinNA15 ii 14'. [x x] na-sih₂# mur-ṣi mu-a[b-bit x x x x x]
+AššNA1 o i' 6'. [x x na-s]i-ih mur-ṣi mu-u[b-bit x x x x x]
+
+#tr.en: I am Asalluḫi, the fierce storm, the persistent gorer who cannot be faced, am I,
+93. %n anāku asalluhi ūmu ezzu muttakkipu lā māhiru anāku
+BabaLB1 ii 17'. KI.MIN u₄-mi ez-zu mut-tak-pu la ma#-[hi-ri] a#-na-ku
+BabaLB7 r 9'. [x x x x x x x x x x m]a-hi-ri ana-ku
+NinNA4 ii 23. [x x x x x x x x x x x x x x] ana#-ku
+NinNA12 ii 18'. [x x x x x x] u₄#-mu ez-zu mu-tak#-pu!?# la!?# ma!?#-hi!?#-ru₃# a-[na-ku]
+NinNA15 ii 15'. [x x u₄-m]u ez-zu mut-tak-[pu x x x x x x]
+AššNA1 o i' 7'. [x x x x] ez#-zu mut-tak-ki-p[u] la# ma#-hi-ru# ana#-ku#
+
+#tr.en: I am Asalluḫi, who transposes evil destinies, who releases guilt,
+94. %n anāku asalluhi mušpēl šīmāti lemnēti mupaṭṭir arni
+BabaLB1 ii 18'. KI#.MIN muš-pe-el# ši-ma-a-ti lem-ne₂-e-[ti mu-paṭ]-ṭir ar₂-ni
+BabaLB7 r 10'. [x x x x x x x x x x x x x m]u-paṭ-ṭir# ar₂-ni
+NinNA12 ii 19'. [x x x x x x mu]š-[p]e-el# [x x x x x x x x x x x x x]
+NinNA15 ii 16'. [x x muš-p]el ši-ma-a-ti l[em-ne₂-e-ti x x x x x]
+AššNA1 o i' 8'. [x x muš-pe-e]l ši-ma-a-ti le[m-n]e₂-ti mu-paṭ-ṭir ar₂-ni
+
+#tr.en: I am Asalluḫi, the superb warrior, the expert on omens,
+95. %n anāku asalluhi uršānu gitmālu telēʾû šummi
+BabaLB1 ii 19'. KI.MIN ur-ša₂-nu git₂-ma-lu te#-l[e-e šum]-mu
+BabaLB7 r 11'. [x x x x x x x x te-l]e?-e šum#-mu
+NinNA6 i' 1'. [x x x x x x x x x x x š]u-u[m-mi]
+NinNA15 ii 17'. [x x x x x g]it₂-ma-lu t[e-le-e x x]
+AššNA1 o i' 9'. [x x x x x git₂-m]a-lu te-le-e₂-a-um šum-mi
+
+#tr.en: I am Asalluḫi, by whose spell the dead come to life, the sick man rises (from his bed),
+96. %n anāku asalluhi ša ina têšu mītu iballuṭu itebbû marṣu
+BabaLB1 ii 20'. KI.MIN ša# ina te-e-šu₂ {lu₂}UŠ₂ [x x x x i-tib-bu]-u₂# mar#-ṣi
+BabaLB7 r 12'. [x x x x x x x x x i-bal]-lu-ṭu i-teb#{+eb#}-bu-u₂ mar-ṣa#
+NinNA6 i' 2'. [x x x x x x x x x i-bal-lu]-ṭu# i-te-eb-bu-[u₂ x x]
+NinNA15 ii 18'. [x x x x x x x x x] i#-bal-[lu-ṭu x x x x x x x]
+AššNA1 o i' 10'. [x x x x x x x {lu₂}]UŠ₂ i-bal-lu-ṭu# i-te-eb-bu-u mar-ṣu
+
+#tr.en: I am Asalluḫi, who throws out the Namtar-demon and defeats disease, chill and headache,
+97. %n anāku asalluhi sākip namtari kāmû asakki šuruppê diʾi
+BabaLB1 ii 21'. KI.MIN sa₃-kip nam#-ta#-ri k[a-mu-u₂ x x x x x x x x l]i?-ʾ-bu
+BabaLB7 r 13'. [x x x x x x x x ka-mu]-u₂#? a?#-s[ak?-ki šu-r]u-up-pu-u₂ di-ʾ-i#
+BabaLB19 i' 1'. [x x] sa₃#-ki[p x x x x x x x x x x x x x x x x x]
+NipNB1 1'. [x x x x n]am-[ta-ri x x x x x x x x x x x x x x]
+NinNA6 i' 3'. [x x sa]-kip nam-ta#-ri# ka#-mu#-u₂ a-sak-ki šu-ru-up-p[u-u x x x]
+NinNA10 ii 1'. [x x s]a-kip# na[m-ta-ri x x x x x x x x x x x x x x]
+NinNA15 ii 19'. [x x x x x x x k]a?-[mu-u₂ x x x x x x x x x x x]
+AššNA1 o i' 11'. [x x x x x x nam-t]a-ri# ka-mu-u a-sa-ki šuru-pe₂-e di!-ʾ#-[x]
+
+#tr.en: I am Asalluḫi, the merciful god, who keeps at bay trespasses, sins and evil transgressions,
+98. %n anāku asalluhi ilu rēmēnû munessû egâti hiṭâti gillāti lemnēti
+BabaLB1 ii 22'. KI.MIN DINGIR re-me₂-nu-u₂# [mu]-ne₂#-[su-u₂ x x x x x hi-ṭ]a-a-tu₂ gil₂-l[a-a-t]u₂ HUL#-MEŠ
+BabaLB7 r 14'. [x x x x x x x x x x x x x x x x hi-ṭa-t]u₂ gil₂-la-a-tu₂ lem-ne₂-e-tu₂
+BabaLB19 i' 2'. [x x DIN]GIR-MEŠ reme-nu#-[u₂ x x x x x x x x x x x x x x x x x x]
+NipNB1 2'. [x x x reme-nu]-u₂ mu#-ne₂#-su#-[u₂ x x x x x x x x]
+NinNA6 i' 4'. [x x] DINGIR reme-nu-u mu-ne₂-es-su-u e-ga-a-ti hi-ṭa-a-ti gil₂-la-a-t[i x x]
+NinNA10 ii 2'. [x x DIN]GIR re-me-nu-u₂ mu#-n[e₂-es-su-u x x x x x x x x g]il₂-la#-a#-ti# [lem]-ne₂#-e#-ti
+AššNA1 o i' 12'. [x x x x x x x x x x x e]-g[e?]-te gil₂-la-ti hi-ṭa-te!(ŠE) lem-na-t[i]
+
+#tr.en: I am Asalluḫi, at whose mention the Anunnaki vanish,
+99. %n anāku asalluhi ša ina hissat šumīšu anunnakū šahāta ahzū
+BabaLB1 ii 23'. KI.MIN ša₂ ina hi-is-[sat MU-šu₂ {d}a-nun]-na#-ki# ša₂-ha-tu a[h-z]u
+BabaLB7 r 15'. [x x x x x x x x x x x x x x x ah-z]a
+BabaLB19 i' 3'. [x x] ša₂# ana hi-is-sat MU#-šu₂# {d#}[a-nun-na-ki x x x x x]
+NipNB1 3'. [x x x x h]i-is#-sa-ti MU-šu₂ {d#}a-n[un-na-ki x x x x x]
+NinNA6 i' 5'. [x x] ša₂# ina hi#-is#-sa#-ti-šu₂ {d}a#-nun#-na-ki ša₂-ha-t[u₂ x x]
+NinNA10 ii 3'. [x x š]a₂ ina hi-is-sa-ti-šu₂ [{d}a-nu]n-na#-ki# ša₂-ha-ta ah-zu
+AššNA1 o i' 13'. [x x x x x x x x x {d}a-nun-n]a-ki ša₂-ha-tu₂ ah-zu
+
+#tr.en: I am Asalluḫi, the skilled one of the Igigi, who holds the reins of the Anunnaki,
+100. %n anāku asalluhi lēʾû igīgī mukīl ṣerret anunnakī
+BabaLB1 ii 24'. KI.MIN le-ʾ#-[u₂ x x x x] mu-kil ṣer#-ret {d}a-nun-na-[k]i
+BabaLB7 r 16'. [x x x x x x x x x x x x x {d}a-nun-n]a-ki
+BabaLB19 i' 4'. [x x] le#-mu-u₂ {d}i₂-gi₃-gi₃ m[u-kil x x x x x x x]
+NipNB1 4'. [x x le]-ʾ#-i {d}i₂#-gi₃-gi₃ mu-kil# ṣer#-[ret x x x x x]
+NinNA6 i' 6'. [x x le-ʾ]-u?# {d?#}[i₂-gi₃-gi₃] mu#-kil# ṣe[r-ret x x x x x]
+NinNA10 ii 4'. [x x] le-ʾ-u₂ {d}i₂-gi₃-gi₃ m[u-kil ṣ]er-re-e-ti {d}a-nun-na-ki
+AššNA1 o i' 14'. [x x x x x x x x x x x ṣ]er-ret {d}a-nun-na-ki
+
+#tr.en: I am Asalluḫi, who takes the hand of the weak and fettered, who releases guilt,
+101. %n anāku asalluhi ṣābit qātī ulāli ubburi mupaṭṭir arni
+BabaLB1 ii 25'. KI.MIN ṣa-bit [x x u₂-la-l]u ub-bu-ru mu-paṭ-ṭir# ar₂-n[i]
+BabaLB7 r 17'. [x x x x x x x x x x x x x x x ar₂-n]i
+BabaLB9 r 1'. [x x x x x x x x x ub-bu]-ru# m[u-paṭ-ṭir x x]
+BabaLB19 i' 5'. [x x ṣ]a-bit ŠU+MIN u₂-la-lu m[u-paṭ-ṭir x x]
+#note: See @bib{fromebllab0044@145}: “If correctly deciphered, this source would be the only one to omit the verbal adjective @i{ubburu} (@i{abāru} III D) “bound” (or perhaps here, as elsewhere, with the legal connotation of “accused”).”
+NipNB1 5'. [x x ṣ]a-bit ŠU#+MIN u₂-la#-lu ub-bu-ri mu#-p[aṭ-ṭir x x]
+NinNA10 ii 5'. [x x] ṣa-bit ŠU+MIN u₂-la-li u[b-b]u-ri mu-paṭ-ṭir ar-ni#
+
+#tr.en: I am Asalluḫi, who dispels magic, sorcery and witchcraft, who drives away disease,
+102. %n anāku asalluhi pāšir kišpī ruhê rusê ṭārid asakki
+BabaLB1 ii 26'. KI.MIN pa-šir [x x ru-he]-e# ru-se-e ṭa-rid a-sak#-[ki]
+BabaLB7 r 18'. [x x x x x x x x x x x x x x a-sak-k]i
+BabaLB9 r 2'. [x x x x x x] ru-he-e ru-se!-e# ṭ[a-rid x x x]
+BabaLB19 i' 6'. [x x] pa#-[š]ir kiš-pi ru-he-e [x x x x x x x x]
+NipNB1 6'. [x x] pa#-šir kiš-pi ru#-he-e ru#-se#-e [x x x x x]
+NinNA10 ii 6'. [x x p]a-šir kiš-pi ru-he-e ru-s[e]-e# ṭa-rid a-sak-k[i]
+AššNA1 o i' 15'. [x x x x x x ru-he]-e# ru-se#-e ṭa-rid a-sa-ki
+
+#tr.en: I am Asalluḫi, who cures grievous maladies, the physician of mankind,
+103. %n anāku asalluhi muṭīb simmī marṣūti asû tenēšēti
+BabaLB1 ii 27'. KI.MIN mu-ṭib s[im-mi mar-ṣu]-u₂-ti a-su-u₂# te#-n[e₂-še]-e#-[ti]
+BabaLB7 r 19'. [x x x x x x x x x x x x x x te-ne₂-še-e-t]i
+BabaLB9 r 3'. [x x x x m]ar-ṣu-tu a-su-u₂# [x x x x x]
+BabaLB19 i' 7'. [x x mu]-ṭib sim#-mi mar-ṣu-t[u₂ x x x x x x x x]
+NipNB1 7'. [x x] mu-ṭib SIM-MEŠ {lu₂}GIG-MEŠ# a#-su#-u# [x x x x x]
+#note: See @bib{fromebllab0044@142}: “The Sumerogram @akk{SIM} for @i{simmu} “wound, lesion” is presumably an extra-linguistic adaptation of the Akkadian loan into Sumerian @sux{simₓ(GIG)-ma}, which is attested several times in Sumerian literary contexts (see @bib{Attinger2021Glossaire@924}) and also as the Sumerogram @akk{GIG} = @i{simmu} (see @bib{RN1703@55}; @bib{scheyhing2011babylonisch@81}; @bib{RN2123@492 ad 1}). Perhaps the use of @akk{NAM} = @i{sim} arose in order to disambiguate it from the pervasive @akk{GIG} = @i{marṣu} by resorting to a lexemically unrelated but better-known homophone that was used to render the Akkadian word as a CVC sign.”
+NinNA10 ii 7'. [x x] mu-ṭib sim-mi mar-ṣu-u₂-ti a-su#-u₂# te-ne₂-še-e-t[i]
+AššNA1 o i' 16'. [x x x x x x mar-ṣ]u-ti a-su-u te!(ŠE)-ne₂-še-e-ti
+
+#tr.en: I am Asalluḫi, without whom the life-giving incantation does not come near,
+104. %n anāku asalluhi ša šipat balāṭi lā iṭehhû ina balīšu
+BabaLB1 ii 28'. KI.MIN ša₂ ši-p[at x x x l]a i-ṭe-eh#-hu-u₂# i[na x x x]
+BabaLB9 r 4'. [x x x x x ba-l]a!-ṭu la i-ṭe-eh-h[u-u₂ x x x x]
+BabaLB19 i' 8'. [x x x] ši-pat ba-[la-ṭu x x x x x x x x x x]
+NipNB1 8'. [KI.MI]N ša₂ ši-pat ba-la-ṭu la TE#-u₂# [x x x x]
+NinNA10 ii 8'. [x x š]a₂ ši-pat ba-la-ṭi la i-ṭe-eh-hu-u₂ ina ba-l[i-šu₂]
+AššNA1 o i' 17'. [x x x x x x x x l]a i-ṭe-hu-u ina ba-li-šu₂
+
+#tr.en: I am Asalluḫi, fierce yet relenting, next, father and mother,
+105. %n anāku asalluhi ēz u pašir ša nīš abi u ummi
+BabaLB1 ii 29'. KI.MIN e-z[i x x x x] ni#-ši [A]D u A[MA]
+BabaLB9 r 5'. [x x x x x pa-š]ir ša₂ ni-iš a-bi [x x x]
+BabaLB19 i' 9'. [x x e]-zi [x x x x x x x x x x x]
+NipNB1 9'. [KI.M]IN e-zi# u pa-šir ša₂ ni-iš [x x x x x]
+NinNA10 ii 9'. [x x] e-zi u pa-šir ša₂ ni-iš a-bi u um-m[e]
+AššNA1 o i' 18'. [x x x x x x x x n]i-iš a-bi u um-mi
+
+#tr.en: I am Asalluḫi, who is merciful among mankind, Marduk,
+106. %n anāku asalluhi ša ina tenēšēti rēmēnû marduk
+BabaLB1 ii 30'. KI.MIN ša₂ <ina> te-n[e₂-še-e-ti r]e-mi#-nu#-u₂# {d#}[AMAR.UTU]
+BabaLB9 r 6'. [x x x x te-ne₂-še]-e#-tu₄ reme-nu-u₂ {d#}[AMAR.UTU]
+NipNB1 10'. [KI].MIN# ša₂# ina te-ne₂#-še#-e-ti reme-nu-u₂ [x x]
+NinNA10 ii 10'. [x x š]a₂ ina te-ne₂-še-e-ti re-me-nu-u₂ {d}AMAR.[UTU]
+AššNA1 o i' 19'. [x x x x x x x x x r]e-me-nu-u {d}AMAR.UTU
+
+#tr.en: I am Asalluḫi, unique one in heaven and earth, Marduk!
+107. %n anāku asalluhi ušumgal šamê u erṣeti marduk
+// cf. L III.3 108
+BabaLB1 ii 31'. KI.MIN UŠUMG[AL x x x K]I-ti₃# {d#}[AMAR.UTU]
+$ single ruling
+BabaLB9 r 7'. [x x x AN]-e# u KI-ti₃ [x x]
+$ single ruling
+NipNB1 11'. [KI.MIN] UŠUMGAL# AN-e u KI-ti₃ [x x]
+$ single ruling
+NinNA10 ii 11'. [x x] UŠUMGAL AN-e u KI-ti₃ {d}AMAR.[UTU]
+$ single ruling
+AššNA1 o i' 20'. [x x x x x x K]I-ti₃ {(98)} {d}AMAR.UTU
+$ single ruling
+#note: Or 98? See @bib{RN990@292} and @bib{RN2805zzxx@77} for the gloss.
+
+#tr.en: Asalluḫi, unique one in heaven and earth, Marduk, saw them.
+108. %n īmuršunūtī-ma asalluhi ušumgal šamê u erṣeti marduk
+// cf. L III.3 107
+BabaLB1 ii 32'. i-mur#-šu-nu#-ti# [x x x x x UŠU]MGAL AN#-e# u KI-ti₃ {d}A[MAR.UTU]
+BabaLB9 r 8'. [x x x x x x x x x x] UŠUMGAL# AN-e u [x x x x]
+NipNB1 12'. [i-mur-šu-nu-t]i-ma# {d}asal-lu₂-hi UŠUMGAL AN-e# [x x x x x]
+NinNA10 ii 12'. [i-mur-šu-nu-t]i-ma {d}asal-lu₂-hi UŠUMGAL AN-e u KI-ti₃ {d}AM[AR.UTU]
+AššNA1 o i' 21'. [x x x x x x {d}asal-lu₂-h]i UŠUMGAL# A[N]-e# [x KI-t]i₃ {d#}[AMAR.UTU]
+NinNA21 1'. [x x x x x x x x x x] UŠUMGAL# A[N-e x x x x x]
+
+#tr.en: To Nabû, his vizier he addressed a word,
+109. %n ana nabû sukkallīšu amāta izakkar
+BabaLB1 ii 33'. a-na {d}+AG SUKKAL-šu₂ [x x x x x x]
+$ line continues
+BabaLB9 r 9'a. [x x x x x x x x i-zak-k]ar
+$ line continues
+BabaLB15 i' 1'a. [x {d}]+AG?# SUK[KAL?-šu₂ x x x x x x]
+$ line continues
+NipNB1 13'. [x x x x x x] a#-ma-ti i#-[zak-kar]
+NinNA10 ii 13'. [x x x x SUKK]AL-šu₂ a#-ma#-ta i-za[k-kar]
+AššNACom1 r 19. !bs a-na# {d#}AG# SUKKAL-šu₂ a-ma-tu₂ i-za-k[ar] !cm : ir#-ri[š? x x (x x)]
+NinNA21 2'. [x x x x x x] a#-ma-tu₂ i#-[zak-kar]
+
+#tr.en: Who is this who came here […]
+110. %n mannu annû ša annikâ iʾirru [ ... ]
+BabaLB1 ii 34'. [x x] an#-[nu-u₂] ša₂ a-na-ka-a iʾ#-[i-ru x x]
+BabaLB9 r 9'b. man-nu an-nu-u₂# [x x x x x x x x x x]
+BabaLB15 i' 1'b. [x x x x x x x x x x x x x ...]
+NipNB1 14'. [x x x x x] ša₂ an-ni-ka-a iʾ#-[i-ru x x]
+NinNA10 ii 14'. [x x x x x x x x x x] iʾ#-i-ru [x x]
+NinNA21 3'. [x x x x x x] an#-ni-ka-a i?#-[ʾ-i-ru x x]
+
+#tr.en: To the fierce, great incantation of Ea […]
+111. %n ana šipti ezzeti rabīti ša ea [ ( ... ) ]
+BabaLB1 ii 35'. ana šip-ti ez-z[e-ti x x] ša₂ {d}e₂-a# [(x x)]
+BabaLB15 i' 2'a. [x x x] ez-ze-tu₄ GAL-tu₄# ša₂# [x x x (x x)]
+$ line continues
+NipNB1 15'. [x x x x x x] GAL-ti [x x x x]
+NinNA10 ii 15'. [x x x x x x x x] ša₂# {d?#}[e₂-a (x x)]
+NinNA21 4'. [x x x x x x GA]L?-ti ša {d#}[e₂-a (x x)]
+
+#tr.en: To the mighty booths of Ningišzida,
+112. %n ana šutukkī dannūti ša ningišzida
+// cf. F BM.76980 &d 7'
+BabaLB1 ii 36'. ana šu-tuk-ku da[n-nu-tu₂ x {d}nin-g]iš-zi-d[a]
+BabaLB15 i' 2'b. [x x x x x x x x x x x x x]
+NipNB1 16'. [x x x x da]n-nu-t[i x x x x x x]
+NinNA21 5'. [x x x x dan-nu-t]i °\° ša {d}nin-gi[š-zi-da]
+
+#tr.en: To the great regulations of Ea, lord of Eridu,
+113. %n ana uṣrāti rabâti ša ea bēl eridu
+BabaLB1 ii 37'. ana GIŠ.HUR-MEŠ GAL?#-M[EŠ? x x x E]N eri-d[u₁₀]
+BabaLB15 i' 3'a. [x GIŠ].HUR-MEŠ GAL-MEŠ ša₂ {d}IDIM EN [x x]
+$ line continues
+NipNB1 17'. [x x x x GA]L-MEŠ# [x x x x x x]
+NinNA21 6'. [x x x x x x] ša?# {d#}[IDIM?] EN?# [x x]
+$ rest of side broken
+
+#tr.en: May burning Girra […] … like […].
+114. %n girru qāmû ... [ ... ]
+BabaLB1 ii 38'. {d}GIBIL₆ qa-[mu-u₂ ...] x x x [(x x)]
+BabaLB15 i' 3'b. [x x x ... x x x]
+
+#tr.en: May victorious Nusku […] gather them,
+115. %n nusku dapī[nu ... likm]issunūti
+BabaLB1 ii 39'. {d}nuska da-pi-[nu ... x x x x x x]
+BabaLB15 i' 4'a. [... lik-m]i?-is-su-nu-tu₂
+$ line continues
+
+#tr.en: May Light […],
+116. %n dipāru ... [ ... ]
+BabaLB1 ii 40'. {d}IZI.GAR li-ir-[...]
+BabaLB15 i' 4'b. IZI.GAR l[i x ...]
+
+#tr.en: Should you be evil demons,
+117. %n lū gallû lemnūtu attunu
+BabaLB1 ii 41'. lu-u₂ GAL₅.LA₂-MEŠ l[em-nu-tu₂ x x x]
+BabaLB15 i' 5'a. [x x] GAL₅#.LA₂-MEŠ lem-nu-tu₂ at-t[u-nu]
+$ line continues
+
+#tr.en: Scatter like [fog …]
+118. %n naspihā kīma i[mbari ... ]
+BabaLB1 ii 42'. na#-as#-pi-hi GIM i[m-ba-ri ...]
+BabaLB15 i' 5'b. [x x x x x x x x ...]
+
+#tr.en: [Should] you be evil angels,
+119. %n [lū] šēdū lemnūtu attunu
+BabaLB1 ii 43'. [x x še]-e#-du le[m-nu-tu₂ x x x]
+BabaLB15 i' 6'a. [x x še-e-d]u lem#-nu-tu₂# at-tu#-nu
+$ line continues
+
+120. %n ... [ ... ]
+BabaLB15 i' 6'b. na-[...]
+
+121. %n [ ... ] ... [ ... ]
+BabaLB15 i' 7'. [...] x x-ri x [...]
+
+122. %n [ ... ]
+
+123. %n [ ... ] ... [ ... ]
+BabaLB15 i' 8'. [...] x lu# [...]
+
+A+123. lū lilû haṣ[ab! ūrāti! tattanablakkatā]
+AššNACom1 r 20-21. !bs lu-u li-lu-u ša₂ ha-aṣ-b[u-ra-a-te tat-ta-nab-lak-ka-tu₂] | ($___$) !cm ha-as-bu-ra-a-te : li-[x x (x)]
+
+#tr.en: … […]
+1'. %n ... [ ... ]
+BabaHel3 r 1'. u₂#-t[am ...]
+
+#tr.en: Or … […]
+2'. %n lū ... [ ... ]
+BabaHel3 r 2'. lu₂-u₂ x x x [...]
+
+#tr.en: Or the children … […] … […]
+3'. %n lū mārū ... [ ... ]
+BabaHel3 r 3'. lu₂-u₂ DUMU-MEŠ M[E? x x x x x x]-u₂# li#-x [x x x]
+BabaLB11 i' 1'. [x x x x] x x x [x x x x x x x x x x]
+
+#tr.en: Or you who constantly clamber over mud walls …
+4'. %n lū ša pitqāti tattanablakkatā ana ... [ ... ]
+BabaHel3 r 4'. lu₂-u₂ ša₂ pit-q[a-a-tu₄ ta-at-ta-na]b-lak-ka-tu x x x x
+BabaLB11 i' 2'. [x x x pi]t-qa#-a-tu₄ tat-t[a-nab-lak-ka-ta x x x x]
+AššNACom1 r 22-23. !bs lu-u pi-it-ka-a-te ta-at-ta-na#-bal-ka-ta ana ti#-x [x (x)] | ($___$) !cm pi-ti-iq-t[u₂ : x x (x)] (x) x x ša₂-niš KUR mu-[x x]
+
+#tr.en: Or you who are the owl(?), the watcher, [(…)] he who has evil at his disposal
+5'. %n lū ešbû hayyāṭu mukīl rēš lemutti
+BabaHel3 r 5'. lu₂-u₂ eš-bu-u₂# ha#-a#-[a-ṭu] mu-kil SAG HUL#-ti₃#
+BabaLB11 i' 3'. [x x eš]-bu-u₂ ha-a-a#-[ṭu x x x x x x]
+
+#tr.en: Or you who are the epilepsy of the great gods,
+6'. %n lū antašubbû ša ilī rabûti
+BabaHel3 r 6'. lu-u₂ an#-[t]a?-šub-bu-u₂ ša₂ DINGIR-ME[Š G]AL-MEŠ
+BabaLB11 i' 4'a. [x x a]n-ta-šub-bu-u₂ ša₂ DINGIR-MEŠ GA[L-MEŠ]
+$ line continues
+
+#tr.en: Or you who are Bennu, the watcher of the night,
+7'. %n lū <be>nnu hayyāṭu ša mušīti
+BabaHel3 r 7'. lu#-u₂ {d}<be>-en-nu ha-a-a-[ṭ]u °ša?\ša₂° mu-ši#-tu₄
+BabaLB11 i' 4'b. [x x x x x x x x x x x x x x]
+
+#tr.en: Or you who constantly scratch like a wolf,
+8'. %n lū ša kīma barbari tētenekkikā
+BabaLB1 iii 1'. [x x x x UR.BAR.R]A? [x x x x x x]
+BabaLB3 r i 1'. [x x x x x x x x x x x] x [x]
+BabaHel3 r 8'. lu-u₂ ša₂ ki-ma UR.BAR.R[A t]e-te#-nek!(HUL)-ki-mu
+$ end of excerpt
+BabaLB11 i' 5'a. [x x] ša₂ GIM UR.BAR.RA te-te-ne₂-ki-m[u]
+$ line continues
+NinNAVar1 i 6-7. lu-u ša₂ ki-ma UR.BAR.RA te-te-ne₂-ki-ka | NU : ma
+#note: As @akk{MA} is positioned directly under @akk{KA}, it probably denotes a correction of the latter.
+
+#tr.en: Or you who constantly flash like lightening,
+9'. %n lū ša kīma berqi tattanabriqā
+BabaLB1 iii 2'. [x x x GI]M NIM!?#.GIR₂ t[a?-at-ta-nab-ri-qu]
+BabaLB3 r i 2'. [x x x x x x ta-at-ta-n]a-ab#-ri-q[u?]
+BabaHel2 o 1. lu-u₂ ša₂ ki#-ma# [x x ta-at]-ta#-nab-ri-q[u]
+BabaLB11 i' 5'b. [x x x x x x x x x x x x x]
+AššNA1 r 1. [x x x x x x ta-at-ta]-nab!?#-ri-qa
+
+#tr.en: Or you who constantly flicker like a flame,
+10'. %n lū ša kīma laʾmi taštanahhiṭā
+BabaLB1 iii 3'. lu-u ša₂ GIM la-ʾ-mi ta[š-ta-na-ah-hi-ṭu]
+BabaLB3 r i 3'. [x x x x x x x x] taš#-ta-na#-hi#-ṭ[u]
+BabaHel2 o 2. lu-u₂ ša₂# [x x x x teš₂-t]e-ne₂-eh-hi-ṭu
+BabaLB11 i' 6'a. [x x] ša₂ GIM la-ʾ-mi teš₂#-te-ne₂-hi-ṭ[u]
+$ line continues
+NinNA5 ii 1'. lu#-[u x x x x x x x x x x]
+
+#tr.en: Or you who constantly … like fire,
+11'. %n lū ša kīma gīri tattallallâ
+BabaLB1 iii 4'. lu-u ša₂ GIM {d}gira₃ t[a-at-tal₂-lal-a]
+BabaLB3 r i 4'. [x x x x {d}gir]a₃ ta-at#-tal₂-lal-l[a]
+BabaHel2 o 3. lu#-u₂# [x x x x x] ta-at-{+ta}tal₂-lal-la
+BabaLB11 i' 6'b. [x x x x x x x x x x]
+NinNA5 ii 2'. lu-u [x x x ta-at-tal₂-lal-l]a?
+
+#tr.en: Or you who constantly shine like daylight,
+12'. %n lū ša kīma ṣēti tattanabbiṭā
+BabaLB1 iii 5'. lu-u ša₂ GIM ṣe-e-ti ta-a[t-ta-na-an-bi-ṭu]
+BabaLB3 r i 5'. [x x x x x x x t]a-at-ta-na:an-bi#-[ṭu]
+BabaHel2 o 4. lu-u₂# [x x x x x x ta-a]t-ta-na-an#-bi#-ṭu
+BabaLB11 i' 7'a. [x x] ša₂ GIM UD.DA tat-ta-na-an-bi#-[ṭu]
+$ line continues
+BabaLBSch9 o 10'. [x x x x x x x] ta-at-ta-na-an-bi-ṭu
+$ beginning of excerpt
+NinNA5 ii 3'. lu-u [x x x x t]a-at#-t[a-na-an-bi]-ṭa
+
+#tr.en: Or you who constantly shine like a star,
+13'. %n lū ša kīma kakkabi tattananbiṭā
+BabaLB1 iii 6'. lu-u ša₂ GIM MUL ta-a[t-ta-na-an-bi-ṭu]
+BabaLB3 r i 6'. [x x x x x ta-at]-ta?#-na?#-[an-bi-ṭu]
+BabaHel2 o 5. [x x x x x x ta]-a[t]-[t]a-na-an-bi-ṭu#
+BabaLB11 i' 7'b. [x x x x x x x x x x x]
+BabaLBSch9 o 11'. [x x x x x] ta-at-ta-na-an-bi-ṭu
+NinNA5 ii 4'. lu-[u x x x] ta-at-ta-na#-an#-bi#-ṭa
+NinNA12 iii 1'a. [x x] ša₂?# GIM?# MUL?# t[a?-at-ta-na-an-bi-ṭu]
+$ line continues
+NinNA16 i' 1'. [x x x x x ta-at-ta-na-an#-bi-ṭ]a?
+
+#tr.en: Or you who are constantly obscure like a black spot,
+14'. %n lū ša kīma ṣalmi tattanaṣlimā
+BabaLB1 iii 7'. lu-u ša₂ GIM# ṣal-mi ta-a[t-ta-na-aṣ-li-mu]
+BabaHel2 o 6. [x x x x x x]-mu ta-at-ta#-[n]a-aṣ-li-mu
+BabaLB11 i' 8'a. [x x] ša₂ GIM ṣal-mu tat-ta-na-aṣ-[li-mu]
+$ line continues
+BabaLBSch9 o 12'. [x x x x x x] ta-at-ta-na-aṣ-li-mu
+NinNA5 ii 5'. l[u-u x x ṣal-m]i ta-at-ta-na-aṣ-li-ma
+NinNA12 iii 1'b. lu#-[u x x x x x x x x x x x]
+NinNA16 i' 2'. [x x x x x x ta-at-ta-na-a]ṣ-li-ma
+
+#tr.en: Or you who constantly overwhelm like a poultergeist,
+15'. %n lū ša kīma alê tattanaktamā
+BabaLB1 iii 8'. lu-u ša₂ GIM a-le-e ta-at#-[ta-nak-ta-ma]
+BabaHel2 o 7. [x x x x x a]-le-e ta-at-[t]a-nak-ta-mu
+BabaLB11 i' 8'b. [x x x x x x x x x x x x x]
+BabaLBSch9 o 13'. [x x x x x x x] ta-at-ta-nak-ta-ma
+NinNA5 ii 6'. [x x x x a-le]-e# ta-at-ta-nak-ta-ma
+NinNA12 iii 2'a. lu#-[u] ša₂ GIM a-le-e ta-at-ta-nak#-ta-ma
+$ line continues
+NinNA16 i' 3'. [x x x x x x x ta-at-ta]-nak-ta-ma
+
+#tr.en: Or you who constantly pick on (victims) like Lilû,
+16'. %n lū ša kīma lilî tahtanirrā
+BabaLB1 iii 9'. lu-u ša₂ GIM li-li-i tah-ta-n[i?-ir-ri]
+BabaHel2 o 8. [x x x x x {lu₂}L]IL₂.LA₂ tah-ta-n[i]-ir#-ri
+BabaLB11 i' 9'a. [lu]-u₂# ša₂ GIM {lu₂}LIL₂.LA₂ tah-ta-ni-[ir-ri]
+$ line continues
+BabaLBSch9 o 14'. [x x x x x x x] tah-ta-ni-ir-ra
+NinNA5 ii 7'. [x x x x x {lu₂}LIL₂].LA₂ tah-ta-nir-ra
+$ end of obverse
+NinNA12 iii 2'b. : lu-u š[a₂ x x x x x x x x x x]
+NinNA16 i' 4'. [x x x x x x x tah-ta]-ni#-ir-ra
+NinNAVar1 i 8. lu-u ša₂ ki-ma {munus}LIL₂.LA₂ tah-ta-ni-ir-ra#
+
+#tr.en: Or you who constantly enter houses,
+17'. %n lū ša bītāti tētenerrubā
+BabaLB1 iii 10'. lu-u ša₂ E₂-MEŠ te-te-ne₂#-e[r-ru-ba]
+BabaHel2 o 9. [x x x] E₂#-M[EŠ] te-te-ne₂-er-°\ru!?#°-bu
+BabaLB11 i' 9'b. [x x x x x x x x x x x]
+BabaLBSch9 o 15'. [x x x x x] te-te-ner-ru-ba
+$ end of excerpt
+NinNA5 iii 1. lu-u ša₂ E₂-MEŠ te#-te#-ne-er-ru-ba
+NinNA12 iii 3'a. lu-u ša₂ E₂-MEŠ te-te-ne₂-er#-ru-ba :
+$ line continues
+NinNA16 i' 5'. [x x x x x te-te-ne₂-e]r-ru-ba
+
+#tr.en: Or you who constantly move over thresholds,
+18'. %n lū ša askuppāti tešteneʾʾirā
+BabaLB1 iii 11'. lu-u ša₂ KUN₄-MEŠ teš₂-te-ne₂-ʾ-i#-[ra]
+BabaHel2 o 10. [x x š]a₂ as-k[up-pa]-a#-tu₂ teš₂-te-ne₂#-ʾi-ra
+BabaLB11 i' 10'a. [lu]-u₂# ša₂ as-kup-pa-a-tu₂ taš-t[a-na-ʾ-i-ra]
+$ line continues
+NinNA5 iii 2. lu-u ša₂ as-kup-pa-a-ti teš₂-te#-ni-ʾ-i-ra
+NinNA12 iii 3'b. lu-u ša₂ as#-kup-p[a-a-ti x x x x x x]
+NinNA16 i' 6'. [x x x x x teš₂-te-ne₂]-ʾ#-i-ra
+NinNA20 i' 1'. l[u-u x x x x x x x x x x x x]
+
+#tr.en: Or you who constantly clamber over rooves,
+19'. %n [lū ša] ūrāti tattanablakkatā
+BabaHel2 o 11. [x x x] UR₃#-[MEŠ t]at-ta-nab-lak-ka#-tu
+BabaLB11 i' 10'b. [x x x x x x x x x x x]
+
+#tr.en: Or you who constantly walk around house foundations,
+20'. %n lū ša ina asurrê tātanallakā
+BabaLB1 iii 12'. lu-u ša₂ ina a-sur-re-e ta-at-ta-na-[al-la-ka]
+BabaHel2 o 12. [x x x] i?#-n[a?# a-sur-r]e? ta-at-ta-na-al#-la#-ku?#
+BabaLB11 i' 11'a. [lu]-u₂# ša₂ ina a-sur-re-e DU.D[U-ka]
+$ line continues
+NinNA5 iii 3. lu-u ša₂ ina a-sur-re-e ta-at#-ta-na-al-la-ka
+NinNA12 iii 4'. lu#-u ša₂ ina a-sur-re-e ta-at-t[a-na-al-la-ka]
+NinNA16 i' 7'. [x x x x x x x x DU.D]U-ka
+NinNA20 i' 2'. lu-[u x x x x x x x x x x x x x]
+
+#tr.en: Or you who are constantly present in holes,
+21'. %n lū ša ina tubqinnāti tattanaššabā
+BabaLB1 iii 13'. lu-u ša₂ ina tub₂-qin-na-a-ti ta-at-ta-na-[aš₂-ša₂-ba]
+BabaHel2 o 13. [x x x x x tub₂-qin-na]-a#-tu₂ ta-at-ta-n[a-aš₂]-ša₂#-b[a]
+BabaLB11 i' 11'b. [x x x x x x x x x x x x x x x x]
+NinNA5 iii 4. lu-u ša₂ ina tub₂-qin-na-a-ti ta-at#-ta-na-aš₂-ša₂-ba
+NinNA12 iii 5'. lu-u ša₂ ina tub-qin-na-a-ti ta-at-ta-na-a[š₂-ša₂-ba]
+NinNA16 i' 8'. [x x x x x x x x x TUŠ].TUŠ-ba#
+NinNA20 i' 3'. lu-u [x x x x x x x x x x x x x x]
+
+#tr.en: Or you who constantly seek the fine young man and fine woman on the street,
+22'. %n lū ša eṭla damqa ardata damiqta ina sūqi tešteneʾʾâ
+BabaLB1 iii 14'. lu-u ša₂ GURUŠ SIG₅ KI.SIKIL SIG₅-ti₃ ina SILA teš₂-te-[ne₂-ʾ-a]
+BabaLB2 i' 1'. [x x x x x x x x x x x da]-mi#-iq#-tu₄ [x x x x x x x]
+BabaHel2 o 14. [x x x x x x x] i?#-na?# SIL[A t]eš₂-te-ne₂-ʾ-a
+BabaLB11 i' 12'. [l]u-u₂ ša₂ GURUŠ SIG₅ KI.SIK[IL x x x x x x x x x]
+NinNA5 iii 5. lu-u ša₂ GURUŠ SIG₅ KI.SIKIL {munus}SIG₅ ina SILA te[š₂]-te-ne₂-ʾ-a
+NinNA12 iii 6'. lu-u ša₂ GURUŠ SIG₅ KI.SIKIL {munus}SIG₅ ina SILA teš₂-te#-[ne₂-ʾ-a]
+NinNA16 i' 9'. [x x x x x x x x x x x teš₂-te]-ne₂-ʾ-a
+NinNA20 i' 4'. lu-u ša₂# [x x x x x x x x x x x x x]
+
+#tr.en: Or you who are the Watcher at noon,
+23'. %n lū hāʾiṭu ša muṣlāli
+BabaLB1 iii 15'. lu-u ha-a-a-ṭu ša₂ AN.[BAR₇]
+BabaLB2 i' 2'. [x x ha-a-a-ṭ]u [x x x]
+BabaHel2 o 15. [x x x x x x x AN].BAR₇
+BabaLB11 i' 13'a. [l]u-u₂ ha-a-a-ṭu š[a₂ x x]
+$ line continues
+NinNA5 iii 6. lu-u ha-i-ṭu °\° ša₂ AN.BAR₇
+NinNA12 iii 7'a. lu-u ha-a-a-i-ṭu ša₂ mu-uṣ-la-li :!?
+$ line continues
+NinNA16 i' 10'. [x x x x x x x x mu-uṣ-l]a-l[i]
+NinNA20 i' 5'. [l]u-u# ha-ʾ?#-[i-ṭu x x x x x]
+
+#tr.en: Or you who are the Watcher of what people say,
+24'. %n lū hayyāṭ pî ša amēlūti
+BabaLB1 iii 16'. lu-u ha-a-a-ṭu pi-i ša₂ a-me-lu-[ti]
+BabaLB2 i' 3'. [x x x x x x pi]-i# ša₂ a#-me#-l[u-ti]
+BabaHel1 iii 1'a. [x x x x x x x x x x x x x :. ]
+$ line continues
+BabaHel2 o 16. [x x x x x x x x x a-me-lu]-ti₃
+BabaLB10 i 1'. [x x h]a-a#-[a-ṭu x x x x x x x x]
+BabaLB11 i' 13'b. [x x x x x x x x x x x x x]
+NinNA5 iii 7. [l]u-u ha-a-a-aṭ pi-i ša₂ a-me#-lu-ti
+NinNA12 iii 7'b. lu-u ha-a-a-aṭ pi-i ša₂# a#-me#-lu#-ti#
+NinNA16 i' 11'. [x x x x x x x x x a-me-l]u-t[i]
+
+#tr.en: Or you who constantly stand before an invalid,
+25'. %n lū ša ina rēš marṣi tattanazzazzā
+BabaLB1 iii 17'. lu-u ša₂ ina SAG {lu₂}GIG GUB.GUB-[za]
+BabaLB2 i' 4'. [x x x x x x x] GUB.[GU]B-[za]
+BabaHel1 iii 1'b. [l]u-u₂# ša₂# SAG# {lu₂!#}[GIG x x x]
+BabaHel2 o 17. [x x x x x x x GUB.GUB]-zu#
+BabaLB10 i 2'. [l]u-u₂ ša₂# ina SAG# {l[u₂}GIG x x x]
+BabaLB11 i' 14'a. lu-u₂ ša₂ ina SAG {lu₂}G[IG x x x]
+$ line continues
+BabaLBSch7 o 1. [x x x x x x x] GUB.GUB-zu
+$ beginning of excerpt
+NinNA5 iii 8. [lu]-u# ša₂ ina SAG {lu₂}GIG GUB.GUB#-za#
+NinNA12 iii 8'a. lu-u ša₂ ina SAG {lu₂}GIG GUB.GUB-za
+$ line continues
+
+#tr.en: Or you who constantly sit before an invalid,
+26'. %n lū ša ina rēš marṣi tattanaššabā
+BabaLB1 iii 18'. lu-u ša₂ ina SAG {lu₂}GIG TUŠ.TUŠ-[ba]
+BabaLB2 i' 5'. [x x x x x x mar-ṣ]a TUŠ.[TU]Š-ba
+BabaHel1 iii 2'a. [x x x x x x x x x x :. ]
+$ line continues
+BabaHel2 o 18. [x x x x x x x TUŠ.TUŠ]-ba#
+BabaLB10 i 3'. lu-u₂ ša₂ ina SAG# {lu₂}G[IG x x x]
+BabaLB11 i' 14'b. [x x x x x x x x x x]
+BabaLBSch7 o 2. [x x x x x x x] TUŠ.TUŠ-bi
+NinNA5 iii 9. [x x] ša₂ ina SAG {lu₂}GIG TUŠ.TUŠ-ba
+NinNA12 iii 8'b. : lu-u ina SAG {lu₂}GIG TUŠ.TUŠ-ba#
+AššNA1 r i 1'. [x x x x x x TUŠ.TU]Š-ba
+
+#tr.en: Or you who constantly walk before an invalid,
+27'. %n lū ša ina rēš marṣi tattanallakā
+BabaLB1 iii 19'. lu-u ša₂ ina SAG {lu₂}GIG °TUŠ?\DU°.DU-[ka]
+BabaLB2 i' 6'. [x x x x x x ma]r-ṣa D[U.D]U-ku
+BabaHel1 iii 2'b. lu-u₂ ša₂ [x] SAG {lu₂}G[IG x x x]
+BabaLB10 i 4'. lu-u₂ ša₂ ina SAG {lu₂}G[IG x x x]
+BabaLB11 i' 15'a. [lu]-u₂# ša₂ ina SAG {l[u₂}GIG x x x]
+$ line continues
+BabaLBSch7 o 3. [x x x x x x x] DU.DU-ak
+NinNA5 iii 10. lu-u ša₂ ina SAG {lu₂}GIG DU.DU-ka
+NinNA12 iii 9'a. lu-u ša₂ ina SAG {lu₂}GIG DU.DU-ka#
+$ line continues
+AššNA1 r i 2'. [x x x x x x x DU].DU-ka
+
+#tr.en: Or you who eat with him when he eats,
+28'. %n lū ša ina akālīšu ittīšu takkalā
+BabaLB1 iii 20'. lu#-u ša₂ ina GU₇-šu₂ KI-šu₂ tak-ka-[lu]
+BabaLB2 i' 7'. [x x x x a-k]a-li-šu₂ [x x t]ak-ka-lu
+BabaHel1 iii 3'a. [x x x x x x x x x x x :. ]
+$ line continues
+BabaLB10 i 5'. lu-u₂ ša₂ ina GU₇-šu₂ K[I-šu₂ x x x]
+BabaLB11 i' 15'b. [x x x x x x x x x x x]
+BabaLBSch7 o 4. [x x x x x x x x it]-ti-šu₂ ta-ak-ka-lu
+NinNA5 iii 11a. [x x š]a₂!? [x] GU₇-šu₂ KI-šu₂ GU₇-MEŠ :
+$ line continues
+NinNA12 iii 9'b. : lu#-u ša₂ ina a-ka-li-šu₂ it-ti-šu₂ tak-ka-la
+AššNA1 r i 3'. [x x x x x x x x ta-t]a-ak*-ka-la
+
+#tr.en: Or you who drink with him when he drinks,
+29'. %n lū ša ina šatîšu ittīšu tašattâ
+BabaLB1 iii 21'. lu-u ša₂ ina NAG-šu₂ KI-šu₂ ta-šat-ta-[a]
+BabaLB2 i' 8'. [x x x x NA]G-šu₂ [x x ta-šat]-tu-u₂
+BabaHel1 iii 3'b. lu-u₂ ša₂ ina NAG-šu₂ KI#-[šu₂ x x x x]
+BabaLB10 i 6'. lu#-u₂# ša₂# ina NAG-šu K[I-šu₂ t]a-š[at?-ta-a]
+BabaLB11 i' 16'a. [x x] ša₂# ina N[AG-šu₂ x x x x x x x]
+$ line continues
+BabaLBSch7 o 5. [x x x x x x x i]t-ti-šu₂ ta-šat-tu-u₂
+NinNA5 iii 11b. lu-u ša₂ ina NAG-šu₂ KI-šu₂ NAG-MEŠ
+NinNA12 iii 10'a. lu-u ša₂ ina!?# NAG!?#-šu₂!?# it-t[i-šu₂ x x x x x : ]
+$ line continues
+AššNA1 r i 4'. [x x x x x x x x taš-ta-na-a]t-ta-a#
+BabaLBSch16 o 1. [x x x x N]AG-šu₂ KI-šu₂ t[a-šat-ta-a]
+$ beginning of excerpt
+
+#tr.en: Or you who constantly frighten the invalid so-and-so,
+30'. %n lū ša marṣa annanna tugdanallatā
+BabaLB1 iii 22'. lu-u [š]a₂ {lu₂}GIG NENNI tug-da-na-al-l[a-ta]
+BabaLB2 i' 9'. [x x x {lu₂}G]IG NENNI [tug-da-na]-al-la-tu₄
+BabaHel1 iii 4'a. [x x x x x x tug-da-na-a]l-la-tu₂ :.
+$ line continues
+BabaLB10 i 7'. lu-u₂ ša₂ {lu₂}GIG# N[ENN]I tu[g-d]a-na-a[l-la-ta]
+BabaLB11 i' 16'b. [x x x x x x x x x x x x]
+BabaLBSch7 o 6. [x x x x x x] tug-da-na-al-la-ta
+NinNA5 iii 12. [x x x {l]u₂}GIG NENNI tug-da-na-al-la-ta
+NinNA12 iii 10'b. [x x {l]u₂}GIG NENNI tug-da-na-al-la-da
+AššNA1 r i 5'. [x x x x x tug-da-na-al]-la-da#
+BabaLBSch16 o 2. [x x x] {lu₂#}GIG NENNI tug-da#-n[a-al-la-ta]
+
+#tr.en: Or you who constantly scare the invalid so-and-so,
+31'. %n lū ša marṣa annanna tuptanallahā
+BabaLB1 iii 23'. lu-u š[a₂] {lu₂}GIG NENNI tup₂-ta-na-al-[la-ha]
+BabaLB2 i' 10'. [x x x {l]u₂}GIG NENNI# [tup₂-t]a-na-al-la-hu
+BabaHel1 iii 4'b. lu-u₂ ša₂ {lu₂}GI[G x tup₂-ta-na-al-la]-ha#
+BabaLB10 i 8'. lu-u₂ ša₂ {lu₂}GIG NE[NNI] tup₂-ta-na-a[l-la-ha]
+BabaLBSch7 o 7. [x x x x x x] tup₂#-ta-na-al-la-ha
+NinNA5 iii 13. [x x {l]u₂}GIG NENNI tup₂-ta#-na-al-la-ha
+NinNA12 iii 11'a. lu-<u!?> ša₂!? {lu₂}GIG# N[ENNI x x x x x x : ]
+$ line continues
+AššNA1 r i 6'. [x x x x x x tup₂-ta-n]a-la-[h]a
+BabaLBSch16 o 3. [x x {l]u₂}G[IG] NENNI# tup₂#-ta-n[a-al-la-ha]
+
+#tr.en: Or you who constantly terrify the invalid so-and-so,
+32'. %n lū ša marṣa annanna tuptanarradā
+BabaLB1 iii 24'. lu-u š[a₂ {lu₂}]GIG NENNI tup₂-ta-nar-ra-[du]
+BabaLB2 i' 11'. [x x x {l]u₂}GIG NENNI# [tup₂-t]a-nar-ra-du
+BabaHel1 iii 5'. [x x x x G]IG N[ENNI tup₂-t]a-nar-[r]a-du
+BabaLB10 i 9'. lu-u₂ ša₂ {lu₂}GIG NE[NN]I tup₂-ta-na-[ra-du]
+BabaLBSch7 o 8. [lu]-u₂# ša₂# <<ana#>> [x x x x t]up₂-ta-nar-ra-da
+UrkLB1 o 1'. [x x x x x x tup₂-ta-nar]-ra?#-d[u]
+NinNA5 iii 14. [x x] ša₂# {lu₂#}GIG NENNI tup₂-ta#-nar-ra-da
+NinNA12 iii 11'b. [x x x {lu₂}]GIG# NENNI tup₂-ta-nar-ra-da
+AššNA1 r i 7'. [x x x x x x tup₂-ta-nar-r]a-da
+BabaLBSch16 o 4. [x x x {l]u₂}GIG# NENNI# tup₂-ta-nar#-[ra-du]
+
+#tr.en: Or you who constantly obstruct before an invalid,
+33'. %n lū ša ana pān marṣi taptanarrikā
+BabaLB1 iii 25'. lu#-u# ša₂ ana# [x {l]u₂}GIG# ta-ap-ta-na-ar-[ri-ku]
+BabaLB2 i' 12'. [x x x] ana IGI {lu₂}[G]IG [ta-ap-ta]-nar#-r[i-ku]
+BabaHel1 iii 6'a. [lu]-u₂# ša₂# ana# IGI# {lu₂}GIG tap-ta-na-ri-ku :.
+$ line continues
+BabaLB10 i 10'. l[u]-u₂ ša₂ ana IGI {lu₂}G[I]G ta-ap-ta-n[a-ar-ri-ku]
+BabaLBSch7 o 9. [lu]-u₂ ša₂ ana IGI {l[u₂}GIG t]a-ap-ta-nar-ri-ku
+UrkLB1 o 2'. [x x x x x x x ta-ap-ta-na-ar-ri-k]a
+NinNA5 iii 15. lu#-u ša₂ ana IG[I] {lu₂#}GIG ta-ap#-ta-na-ar-ri-ka
+NinNA12 iii 12'a. lu-u ša₂ ana IGI [x x x x x x x x x]
+$ line continues
+NinNAVar1 o i 10. lu-u ša₂ ina IGI {lu₂#}GIG# x [x x x x x]
+AššNA1 r i 8'. [x x x x x x x ta-ap-ta-na-ar]-ri#-ka
+BabaLBSch16 o 5. [x x x x x {l]u₂}GIG# ta-ap-ta#-[nar-ri-ku]
+
+#tr.en: Or you who constantly wrinkle the nose before an invalid,
+34'. %n lū ša ana pān marṣi tugdannaṣā
+BabaLB1 iii 26'. lu#-u# ša₂ MIN MIN tug-da-an-na-ṣa#
+BabaLB2 i' 13'. [x x x] ana# IGI [{lu₂}G]IG [x x x x x]
+BabaHel1 iii 6'b. lu-u₂ ša₂ ana [x {lu₂}]GIG tug-dan-na-ṣa
+BabaLB10 i 11'. lu#-u₂# ša₂ ana {lu₂}[GI]G tug-da-an-na-[a]ṣ
+BabaLBSch7 o 10. lu#-u₂ ša₂ ana IGI {lu₂}GI[G tug-d]a-an-na-ṣa
+UrkLB1 o 3'. [x x x x x x tug-da-an-na]-ṣ[a]
+NinNA5 iii 16. lu-u ša₂ ana IGI {lu₂}GIG tug#-da-an-na-ṣa
+NinNA12 iii 12'b. [x x x x x] {lu₂#}GIG tug-dan-na-ṣa
+NinNAVar1 o i 11. KI.MIN [x x x x x]
+AššNA1 r i 9'. [x x x x x x x tug-dan-na]-ṣa
+BabaLBSch16 o 6. [x x x x x x x tug-d]a?-[a]n?-n[a-ṣa]
+
+#tr.en: Or you who bare the teeth before an invalid,
+35'. %n lū ša ana pān marṣi tuhtannaṣā
+BabaLB1 iii 27'. lu-u ša₂ MIN MIN tu-uh-ta-an-na-ṣa
+BabaLB2 i' 14'. [x x x x x {l]u₂}GIG tu[h-ta-an-na-ṣa]
+BabaHel1 iii 7'a. lu-u₂ ša₂ ana IGI {lu₂}GIG tuh-tan-na-ṣa :.
+$ line continues
+BabaLB5 i' 1'. [x x x x x x x tuh-t]a-an-na-[ṣa]
+BabaLB10 i 12'. [x x] ša₂# ana# IGI# {l[u₂}GIG] tu-uh-ta-an-[na]-aṣ
+BabaLBSch7 o 11. lu-u₂ ša₂ ana IGI {lu₂}GIG [tuh]-ta-an-na-ṣa
+UrkLB1 o 4'. [x x x x x x x] K[I.MIN]
+NinNA5 iii 17. lu-u₂ ša₂ ana IGI {lu₂}GIG [t]u-uh-ta-an-na-ṣa
+NinNA12 iii 13'. lu-u ša₂ ana [x x x tu-uh-ta-an]-na-ṣa
+NinNAVar1 o i 12. KI.MIN [x x x x x x]
+NinNA17 i' 1'. [x x] ša# ana# IGI# {lu₂#}GIG# tu?#-[uh-ta-an-na-ṣa]
+BabaLBSch16 o 7. [x x x x x x x tuh-ta-a]n-n[a-ṣa]
+
+#tr.en: Or you who constantly sit before an invalid,
+36'. %n lū ša ana pān marṣi tattanaššabā
+BabaLB1 iii 28'. lu-u ša₂ MIN MIN ta-at-ta-na-aš₂-ša₂-ba
+BabaLB2 i' 15'. [x x x x x {l]u₂}GIG ta-a[t-ta-na-aš₂-ša₂-ba]
+BabaHel1 iii 7'b. lu-u₂ ša₂ ana I[GI] {lu₂}GIG tat-ta-na-a[š₂-ša₂-bu]
+BabaHel1 iii 8'. lu-u₂ ša₂ ana IGI {lu₂}GIG tat-ta-na-aš₂-ša₂-bu
+BabaLB5 i' 2'. [x x x x x x x ta-at-t]a-na-aš₂-<ša₂>-b[a]
+BabaLB10 i 13'. [x x x x x x x t]a-at-ta-na#-[aš₂-š]a₂-bu
+BabaLBSch7 o 12. lu-u₂ ša₂ ana IGI {lu₂}GIG [ta-at-t]a-na-aš₂-ša₂-ba
+UrkLB1 o 5'. [x x x x x x ta-at-ta-na]-aš₂-ša-[ba]
+NinNA5 iii 18. KI.MIN ta-at-ta-na-aš₂-ša₂-ba
+NinNA12 iii 14'. lu-u# š[a₂ x x x x ta-at-ta-na]-aš₂-ša₂-ba
+NinNA17 i' 2'. [lu]-u ša ana IGI {lu₂}GIG TUŠ.TUŠ-[ba]
+BabaLBSch16 o 8. [x x x x x x x ta-at-ta-n]a-aš₂-ša₂#-[ba]
+
+36'. lū ša ana pān marṣi tātanallakā
+NinNA17 i' 3'. lu#-u ša ana IGI {lu₂}GIG DU.DU-[ka]
+
+#tr.en: Or you who grind your teeth before an invalid,
+37'. %n lū ša ana pān marṣi šinnātīkunu tagaṣṣaṣā
+BabaLB1 iii 29'. lu-u ša₂ MIN MIN ZU₂-ku#-nu# ta-gaṣ-ṣa-ṣa
+BabaLB2 i' 16'. [x x x x x] {lu₂}GIG ZU₂-ME[Š-ku-nu x x x x]
+BabaHel1 iii 9'. lu-u₂ ša₂ ana IGI {lu₂} GIG [Z]U₂-MEŠ-ku-[n]u ta-gaṣ-ṣa-ṣu₂!(SU)
+BabaLB5 i' 3'. [x x x x x x x ZU₂-MEŠ-ku-n]u ta-gaṣ-ṣ[a-ṣa]
+BabaLB10 i 14'. [x x x x x x x Z]U₂-MEŠ-ku-n[u ta-gaṣ]-ṣa-aṣ
+BabaLBSch7 o 13. lu-u₂ ša₂ ana IGI {lu₂}GIG [ZU₂-MEŠ]-ku#-nu ta-gaṣ-ṣa-aṣ
+UrkLB1 o 6'. [x x x x x x x ZU₂-MEŠ-ku-n]u ta-gaṣ-ṣa#-[ṣa]
+NinNA5 iii 19. KI.MIN ZU₂-MEŠ-ku-nu ta-gaṣ-ṣa-ṣa
+NinNA12 iii 16'. l[u-u x x x x x x x x x ta-gaṣ]-ṣa-ṣa
+NinNA17 i' 4'. lu-u# ša ana IGI {lu₂}GIG ZU₂-MEŠ-ku-nu ta-g[aṣ-ṣa-ṣa]
+BabaLBSch16 o 9. [x x x x x x x ZU₂-MEŠ]-ku-nu ta-[gaṣ-ṣa-ṣa]
+
+#tr.en: Or you who constantly put out your tongues before an invalid,
+38'. %n lū ša ana pān marṣi lišānkunu tulteneṣṣâni
+BabaLB1 iii 30'. lu-u ša₂ MIN MIN EME-ku-nu tu-ul#-te-ne₂-eṣ#-ṣ[a-a-ni]
+BabaLB2 i' 17'. [x x x x x] {lu₂}GIG EME-[ku-nu x x x x x x x]
+BabaHel1 iii 10'. lu-u₂ ša₂ ana IGI {lu₂}GIG [EME]-M[EŠ]-k[u-nu] tul#-te-ne₂-eṣ-ṣa-a-[ni]
+BabaLB5 i' 4'. [x x x x x x x x x x x] tul-te-ne₂-e[ṣ-ṣa-a-ni]
+BabaLB10 i 15'. [x x x x I]GI {l[u₂}GIG EME-k]u-nu tu-u[l-te-ne₂]-eṣ-ṣa-a
+BabaLBSch7 o 14. lu-u₂ ša₂ ana IGI {lu₂}GIG [EME]-ku-nu tu-ul-<te>-ne₂-eṣ-ṣa-a-nu
+$ single ruling
+$ end of excerpt
+UrkLB1 o 7'. [x x x x x x x x x x t]u-ul-te-ne₂-ṣa-[a-ni]
+NinNA5 iii 20. KI.MIN EME-ku-nu tu-ul-te-ne₂-ṣa-an!?#-ni
+NinNA12 iii 17'. l[u-u x x x x x x x x tu-ul-te-n]e₂-ṣa#-a-ni
+NinNA17 i' 5'. lu-u ša ana IGI {lu₂}GIG EME-MEŠ-ku-nu tul₂#-[te-ne₂-ṣa-a-ni]
+BabaLBSch16 o 10. [x x x x x x x EME-k]u-nu tu-ul-te#-ne₂#-e-ṣ[a-a-ni]
+
+#tr.en: Or you who constantly open your mouths before an invalid,
+39'. %n lū ša ana pān marṣi pīkunu taptenettâ
+BabaLB1 iii 31'. lu-u ša₂ MIN MIN KA-ku-nu tap-te#-net!?#-t[a!?-a]
+BabaLB2 i' 18'. [x x x x x] {lu₂}GIG KA-[ku-nu x x x x x x]
+BabaHel1 iii 11'. lu-u₂ ša₂ ana IGI {lu₂}GIG KA-MEŠ-ku-nu tap-te-ne₂-et-ta-a
+BabaLB10 i 16'. [x x x x I]GI {lu₂}GIG# K[A-ku-n]u ta[p-te-net-t]a!?-a
+BabaLB5 i' 5'. [x x x x x x x x x x] tap-te-ne[t-ta-a]
+UrkLB1 o 8'. [x x x x x x x x x x tap-t]e-net-ta-[a]
+NinNA5 iii 21. KI.MIN KA#-MEŠ#-ku#-nu# tap#-te-net-ta-a
+NinNA12 iii 15'. l[u-u x x x x x x x x tap-te-n]e₂-ta-a
+NinNA17 i' 6'. lu-u ša ana IGI {lu₂}GIG KA-ku-nu t[ap!-te-net-ta-a]
+BabaLBSch16 o 11. [x x x x x x x KA-k]u-nu tap-te-ne₂-et-t[a-a]
+$ single ruling
+$ end of excerpt
+
+#tr.en: Or you who constantly … before an invalid,
+40'. %n lū ša ana pān marṣi tattanašmamā
+BabaLB1 iii 32'. lu-u ša₂ MIN MIN ta?#-at?#-ta?#-[na-aš₂-ma-ma]
+BabaLB2 i' 19'. [x x x x x] {lu₂}GIG ta[t-ta-n]a-aš₂#-ma#-ma#
+BabaHel1 iii 12'. lu#-u₂ ša₂ ana IGI {lu₂}GIG tat-ta-na-aš₂-ma#-ma
+BabaLB5 i' 6'. [x x x x x x x x tat-ta-na-a]š₂!?-m[a!?-ma]
+BabaLB10 i 17'. [x x x x I]GI {lu₂}GIG ta-[a]t-t[a-na]-ša₂!?#-ma-mi
+NinNA5 iii 22. KI.MIN [ta-at-ta-n]a-aš₂-ma-am-ma
+NinNA12 iii 18'. l[u-u x x x x x ta-at-ta-na-aš₂-ma]-am#-ma#
+NinNA17 i' 7'. lu-u ša# ana IGI {lu₂}GIG ta-at-t[a-na-aš₂-ma-ma]
+NinNAVar2 i 2'. [x x x x x x x ta-at-t]a?-na?-aš-ma-ma
+
+#tr.en: Or you who butt like an ox before an invalid,
+41'. %n lū ša ana pān marṣi kīma alpi tattakkipā
+BabaLB1 iii 33'. lu-u ša₂ MIN MIN GIM GU₄ [x x x x x]
+BabaLB2 i' 20'. [x x x x I]GI {lu₂}GIG GIM GU₄ t[at-t]ak-ki-pu
+BabaHel1 iii 13'. lu#-u₂ ša₂ ana IGI {lu₂}GIG GIM GU₄!(GIŠ) tat-ta-ki-pu
+BabaLB10 i 18'. [x x x x IG]I {lu₂}GIG G[I]M GU₄ [tat-t]ak-ki-pu
+NinNA5 iii 23. KI.MIN [x x t]a-at#-tak-ki#-pa
+NinNA12 iii 19'. lu-u [x x x x x x x ta-at-tak]-ki#-[pa]
+NinNA17 i' 8'. lu-u ša ana# IGI# {lu₂}GIG GIM GU₄ [x x x x x]
+
+#tr.en: Or you who display might like a wild ox before an invalid,
+42'. %n lū ša ana pān marṣi kīma rīmi tugdaššarā
+BabaLB1 iii 34'. lu#-u ša₂ MIN MIN GIM AM [x x x x x]
+BabaLB2 i' 21'. [x x x an]a IGI {lu₂}GIG GIM AM [t]ug-daš-ša₂-ri
+BabaHel1 iii 14'a. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM AM tug-daš!(LU)-ša₂-ri :.
+$ line continues
+BabaLB10 i 19'. [x x x x] {lu₂#}GIG G[I]M AM [tug-da-a]š₂-ša₂-ra
+NinNA5 iii 24. KI.MIN [x A]M tug-da-aš₂-š[a₂-r]a
+NinNA12 iii 20'. lu-u š[a₂ x x x x x x x x x x x]
+NinNA17 i' 9'. lu-u ša ana IGI# {lu₂}GIG GIM A[M x x x x x]
+
+#tr.en: Or you who snort like a wild pig before an invalid,
+43'. %n lū ša ana pān marṣi kīma šah api tuttahharā
+BabaLB1 iii 35'. [x x x] MIN# MIN# GIM?# ŠAH?# GIŠ.GI tu#-[ut-tah-ha-ri]
+BabaLB2 i' 22'. [x x x x I]G[I] {lu₂#}GIG# G[IM Š]AH GIŠ.G[I] tu-ut-tah-ha-ri
+BabaHel1 iii 14'b. lu-u₂ ša₂ ana IGI {lu₂}GIG# GIM ŠAH [x x x x x x x]
+BabaLB10 i 20'. [x x x x x {lu₂}GI]G G[I]M ŠAH [x x tu-u]t-tah-ha-ri
+UrkLB1 o 12'. [x x x x x x x x x x x t]u-ta-ha-[ri]
+NinNA5 iii 25. KI.MIN [x Š]AH? GIŠ.GI tu#-tah-h[a-ri]
+NinNA12 iii 21'. lu-u ša₂ ana# [x x x x x x x x x x x]
+NinNA17 i' 10'. lu-u ša ana [x {l]u₂}GIG GIM Š[AH x x x x x x]
+
+#tr.en: Or you who … like a dog before an invalid,
+44'. %n lū ša ana pān marṣi kīma kalbi tuttabbahā
+BabaLB1 iii 36'. [x x x x x x] UR?#.[G]ID₂? [x x x x x]
+BabaLB2 i' 23'. [x x x x x x x x U]R.GID₂?# tu-ut-tab-ba-hu
+BabaHel1 iii 15'a. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM UR!(LU).GIR₁₅ tu-tam{+am}-ba-<hu?> :.
+$ line continues
+BabaLB10 i 21'. [x x x x x x GI]G G[IM U]R.[G]ID₂ t[u?-u]t-tab-ba-hu
+UrkLB1 o 13'. [x x x x x x x x x x tu-u]t?-tam-ba-[hu?]
+NinNA5 iii 26. KI#.MIN# [x] UR.GIR₁₅ tu#-ut-[tab-ba-hu]
+NinNA12 iii 22'. lu-u ša₂ ana# [x x x x x x x x x x x]
+NinNA17 i' 11'. [x x] ša# [x x {l]u₂}GIG# G[IM x x x x x x x]
+
+#tr.en: Or you who constantly moan like a badger(?) before an invalid,
+45'. %n lū ša ana pān marṣi kīma kalab-urṣi tattanammarā
+BabaHel1 iii 15'b. lu-u₂ ša₂ ana IGI {lu₂}GIG# GIM UR.KI [x x x x x x]
+BabaLB2 i' 24'. [x x x x x x x x x x] tat-ta-na-an-ma-r[i!?]
+BabaLB10 i 22'. [x x x x x x x x x x tat]-ta#-na-an-ma-ri
+UrkLB1 o 14'. [x x x x x x x x x ta]-at-ta-na#-an#-ma#-[ri]
+NinNA5 iii 27. [x x GI]M UR.KI ta-at-t[a-na-x x x]
+NinNA12 iii 23'. lu-u š[a₂ x x x x x x x x x x x x x]
+AššNACom1 r 24-25. !bs lu-u ša₂ ina IGI {lu₂}GIG ki-ma# UR#.KI ta-at-ta-na-ad-ma-m[a] | ($___$) !cm UR#.KI UR.GI₇-ur-ṣi ga-ri-du ša₂ ID₂
+
+#tr.en: Or you who roar like a lion before an invalid,
+46'. %n lū ša ana pān marṣi kīma nēši tušarmamā
+BabaHel1 iii 16'a. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM UR.MAH tu-š[ar]-ma-mu :.
+$ line continues
+BabaLB2 i' 25'. [x x x x x x x x x x] tu-šar-ma-m[a]
+BabaLB10 i 23'. [x x x x x x x x x x tu]-šar-ma-ma
+UrkLB1 o 15'. [x x x x x x x x x x t]u-šar-ma-[ma]
+NinNA5 iii 28. [x x G]IM UR.MAH tu-ša[r-ma-ma]
+NinNA12 iii 24'. l[u-u x x x x x x x x x x x]
+
+#tr.en: Or you who constantly slither like a snake before an invalid,
+47'. %n lū ša ana pān marṣi kīma ṣerri tattanašlalā
+BabaHel1 iii 16'b. lu-u₂ ša₂ ana IGI {lu₂}GIG GI[M x x x x x x x]
+BabaLB2 i' 26'. [x x x x x x x x x] tat-ta-na-aš₂-lal-[la]
+BabaLB4 o 1'. [x x x x x {l]u₂}G[IG x x t]a-a[t-ta-na-aš₂-lal-la]
+BabaLB10 i 24'. [x x x x x x x x x ta-at-ta-n]a-aš₂#-la#-la
+UrkLB1 o 16'. [x x x x x x x x x] ta#-at-ta-na-aš₂-lal-[la]
+NinNA5 iii 29. [x x G]IM MUŠ ta-at-ta#-n[a-aš₂-la-la]
+NinNA10 iii 1'. [x x x M]UŠ t[a-at-ta-na-aš₂-la-la]
+
+#tr.en: Or you who constantly slither like a viper before an invalid,
+48'. %n lū ša ana pān marṣi kīma bašmi tattanašlalā
+BabaHel1 iii 17'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM ba-aš-mu!# tat-ta-na-aš₂-la-lu
+BabaHel1 iii 18'a. lu-u₂ ša₂ ana IGI {lu₂}GIG <GIM> ŠA₃.TUR₃ KIMIN<(tat-ta-na-aš₂-la-la)> :.
+$ line continues
+BabaLB2 i' 27'. [x x x x x x x x x x x] KIMIN<(tat-ta-na-aš₂-la-la)>
+BabaLB4 o 2'. [x x x x x {l]u₂}G[IG x MUŠ.Š]A₃.TUR₃# [x x]
+BabaLB4 o 3'. [x x x x x {l]u₂}G[IG x b]a-aš-m[u x x]
+UrkLB1 o 17'. [x x x x x x x x MUŠ?.ŠA₃?.T]UR₃? ta#-at-ta-na-aš₂-lal-[la]
+NinNA5 iii 30. [x x G]IM MUŠ.ŠA₃.TUR₃ [x x]
+NinNA10 iii 2'. [x x x] MUŠ#.ŠA₃#.TU[R₃ x x x x x x x]
+
+#tr.en: Or you who constantly slither like an adder before an invalid,
+49'. %n lū ša ana pān marṣi kīma nirāhi tattanašlalā
+BabaHel1 iii 18'b. lu-u₂ ša₂ ana IGI {lu₂}GIG <GIM> T[UR₃? ... r]i!?
+BabaLB2 i' 28'. [x x x x x x x x x x] KIMIN<(tat-ta-na-aš₂-la-la)>
+NinNA10 iii 3'. [x x GI]M MUŠ.TUR ta-at-ta#-na#-aš₂#-lal#-[la]
+
+#tr.en: Or you who constantly slither like a chameleon (?) before an invalid,
+50'. %n lū ša ana pān marṣi kīma ayyar ili tattanašlalā
+BabaLB2 i' 29'. [x x x x x x x x x x x x x] KIMIN<(tat-ta-na-aš₂-la-la)>
+BabaLB4 o 4'. [x x x x x {l]u₂}G[IG x] a#-a-r[i x x x]
+UrkLB1 o 18'. [x x x x x x x x] a#-a-ri DINGIR-MEŠ [x x]
+NinNA5 iii 31. [x x G]IM a-a-ri DINGIR [x x]
+NinNA10 iii 4'. [x x] GIM# a-a-ar DINGIR ta-at-ta-na-aš₂-lal-la#
+
+#tr.en: Or you who constantly slither like worms before an invalid,
+51'. %n lū ša ana pān marṣi kīma tûlāti tattanašlalā
+BabaHel1 iii 19'b. lu-u₂ ša₂ ana IGI {lu₂}GIG GI[M x x x x ta-at-ta-n]a-aš₂-la-lu
+BabaLB2 i' 30'. [x x x x x x x x x x x x] KIMIN<(tat-ta-na-aš₂-la-la)>
+$ end of obverse
+BabaLB4 o 5'. [x x x x x {lu₂}]GIG# GIM# [t]u-la-[a-ti x x x x x x]
+UrkLB1 o 20'. lu-u ša₂ ana IGI {lu₂#}GI[G] GIM# tu-la-a-tu₂ [x x]
+NinNA5 iii 32. [x x G]IM tu-la-a-ti [x x]
+NinNA10 iii 5'. [x x] GIM tu-la-a-ti ta-at-ta-na-aš₂-lal-la
+#note: It is not certain whether the signs on the edge of BabaHel1 really belong to this line.
+
+#tr.en: Or you who constantly slither like a lizard before an invalid,
+52'. %n lū ša ana pān marṣi kīma ṣurārî tattanašlalā
+BabaHel1 iii 19'a. lu-u₂ ša₂ ana IGI {lu₂} GIG GIM EME.DIR KIMIN<(tat-ta-na-aš₂-la-la)> :.
+$ line continues
+BabaLB2 ii' 1. [x x x x x x x x] x KIMIN<(tat-ta-na-aš₂-la-la)>
+#note: Broken sign in BabaLB2 could be either @akk{DIRI} or @akk{ŠID}.
+BabaLB4 o 6'. [x x x x x {lu₂}GI]G GIM EME#.DI[R!? x x x x x x x]
+UrkLB1 o 19'. [x x x x x x x x] EME.ŠID [x x]
+NinNA5 iii 33. [x x G]IM EME.ŠID [x x]
+NinNA10 iii 6'. [x x] GIM# EME.DIR ta-at-ta-na-aš₂-lal-la
+
+#tr.en: Or you who are always dark like pulled out hair before an invalid,
+53'. %n lū ša ana pān marṣi kīma mušāṭi taṣṣanallimā
+BabaHel1 iii 20. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM mu-ša₂-ṭu tat-ta-na-<aṣ>-li-m[u]
+BabaLB2 ii' 2. [x x x x x x x x] mu-ša₂-ṭu [tat-t]a-na-aṣ-li-m[u]
+BabaLB4 o 7'. [x x x x x {lu₂}]GIG GIM mu-ša₂-ṭu [x x x x x x]
+UrkLB1 o 21'. lu-u ša₂ ana IGI {lu₂}G[IG] GIM mu-ša₂-ṭi ta-aṣ-ṣa-na-al-li-[mu]
+NinNA5 iii 34. [x x G]IM mu-ša₂-ṭi ta-aṣ-ṣa-na-a[l-li-ma]
+NinNA10 iii 7'. [x x x m]u-ša₂-ṭi ta-aṣ-ṣa-na-al-li#-[ma]
+
+#tr.en: Or you who are always dark a billygoat before an invalid,
+54'. %n lū ša ana pān marṣi kīma kizzi taṣṣanallimā
+BabaHel1 iii 21'a. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM MAŠ₂.ZU KI.MIN :.
+$ line continues
+BabaLB2 ii' 3. [x x x x x x x GI]M MAŠ₂.ZU KI.MIN
+BabaLB4 o 8'. [x x x x x {lu₂}GI]G GIM MAŠ₂#.ZU# [x x x x x x]
+UrkLB1 o 22'. lu-u ša₂ ana IGI {lu₂}GIG# GIM MAŠ₂.ZU [x x]
+NinNA5 iii 35. [x x G]IM MAŠ₂.ZU [x x]
+NinNA10 iii 8'. [x x x MAŠ₂.Z]U ta#-aṣ#-ṣa#-na#-a[l-li-ma]
+
+#tr.en: Or you who are always [dark] like a she-goat before an invalid,
+55'. %n lū ša ana pān marṣi kīma enzi ta[ṣṣanallimā]
+BabaHel1 iii 21'b. lu-u₂ ša₂ ana IGI {lu₂}GIG G[IM x x x]
+BabaLB2 ii' 4. [x x x x x x x G]IM UZ₃ KI.MIN
+BabaLB4 o 9'. [x x x x x {lu₂}GI]G GIM UZ₃# [t]a-[aṣ-ṣa-na-al-li-mu]
+UrkLB1 o 23'. lu-u ša₂ ana IGI {lu₂}GIG# GIM SIG₂.UZ₃ [x x]
+NinNA5 iii 36. [x x G]IM UZ₃ [x x]
+NinNA10 iii 9'. [x x x x] ta#-[aṣ-ṣa-na-al-li-ma]
+
+#tr.en: Or you who always bleat like a kid before an invalid,
+56'. %n lū ša ana pān marṣi kīma lalî taltanassâ
+BabaHel1 iii 22'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM MAŠ₂.TUR# tal#-ta-n[a-as-sa-a]
+BabaLB2 ii' 5. [x x x x x x x] GIM MAŠ₂.TUR tat-ta-na-as-sa-a
+BabaLB4 o 10'. [x x x x x {lu₂}GI]G GIM MAŠ₂.TUR tal#-[t]a-na-as-sa-a
+UrkLB1 o 24'. lu#-u ša₂ ana IGI {lu₂}GIG# GIM MAŠ₂.TUR tal!?#-ta#-na#-[as-sa-a]
+NinNA5 iii 37. [x x G]IM MAŠ₂.TUR tal₂-ta-na-as-s[a-a]
+
+#tr.en: Or you who always dance like a lamb before an invalid,
+57'. %n lū ša ana pān marṣi kīma kalūmi taddanakkukā
+BabaHel1 iii 24'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM ka-lu-u₂ tad-d[a?-nak-ku-ku]
+BabaLB2 ii' 6. [x x x x x x x G]IM ka-lu-u₂ tad-da-nak-ku-ku
+BabaLB4 o 11'. [x x x x x {lu₂}GI]G GIM ka-lu-m[u t]ad-da-<nak>-ku-ku
+UrkLB1 o 25'. [l]u-u# ša₂ ana IGI{lu₂}GIG# GIM# SILA₄# t[a-ad-da-nak-ku-ku]
+NinNA5 iii 38. [x x G]IM ka-lu-mi ta-ad-da-nak-ku-[ka]
+NinNA7 i' 1'. [x x] G[IM x x x x x x x x x]
+
+#tr.en: Or you who always … like a fox before an invalid,
+58'. %n lū ša ana pān marṣi kīma šēlebi tatteneṭpâ
+BabaHel1 iii 25'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM KA₅ tat-te-[neṭ-pa-a]
+BabaLB2 ii' 7. [x x x x x {lu₂}GI]G GIM KA₅ tat-te-neṭ-pa-a
+BabaLB4 o 12'. [x x x x x {lu₂}GI]G GIM KA₅#.A ta#-at#-ta-te-ne₂-eṭ#-pa-a
+UrkLB1 o 26'. [x x x] ana# [I]GI {lu₂}GI[G x x x x x x x x x]
+$ end of obverse
+NinNA5 iii 39. [x x x KA₅].A# ta-at-te-ne[ṭ-pa-a]
+NinNA7 i' 2'. [x x] G[IM x x x x x x x x x]
+
+#tr.en: Or you who always fly like a wasp (?) before an invalid,
+59'. %n lū ša ana pān marṣi kīma kuzāzi tattanaprišā
+BabaHel1 iii 23'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM ku-za-za tat-t[a-nap-ri-šu₂]
+BabaLB2 ii' 8. [x x x x x {lu₂}GI]G GIM ku-°ZI?\za-zi° tat-ta-nap-ri-šu₂
+BabaLB4 o 13'. [x x x x x {lu₂}GI]G GIM ku-za-za [t]a-at-ta-nap-ri-šu₂
+UrkLB1 r 1. [x x x x x x x] GIM NIM?#.Z[U₂?.RA.AH x x x x x x]
+NinNA5 iii 40. [x x x x x x ta]-at#-t[a-nap-ri-šu₂]
+NinNA7 i' 3'. [x x] G[IM x x x x x x x x x]
+AššNACom1 r 26-27. !bs lu-u₂ ša₂ in[a] IGI# {lu₂}GIG# ki-ma ku-za-zi ta-at#-ta-nap-r[i-šu₂] | ($___$) !cm k[u-z]a-zu : pi-lak {d}15
+
+59'a. [...] ... [...]
+UrkLB1 r 2. [...] x [...]
+
+#tr.en: Or you who always climb over like a … before an invalid,
+60'. %n lū ša ana pān marṣi kīma pitilti tattanaptilā
+BabaHel1 iii 26'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM ŠU!(MA).SAR tat-t[a-nap-ti-la]
+BabaLB2 ii' 9. [x x x x x x x] GIM ŠU.SAR tat-ta-nab-la-lu
+BabaLB4 o 14'. [lu]-u₂# [x x x {lu₂}G]IG GIM# ŠU!(MA).SAR t[a-a]t-ta-nap-ti:la
+UrkLB1 r 3. [x x x x x x x x x x x x x x x]
+NinNA7 i' 4'. [KI.MI]N G[IM x x x x x x x x]
+NinNA22 iii 1'. [x x x] ana# IGI# {l[u₂}GIG x x x x x x x x x]
+
+#tr.en: Or you who cover yourselves like a naked man before an invalid,
+61'. %n lū ša ana pān marṣi kīma qumāri tattanagšarā
+BabaHel1 iii 27'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM qu-ma-ri t[at-ta-x x (x)]
+BabaLB2 ii' 10. [x x x x x x GI]G GIM qu-ma!-ri tat-ta-nag{+ga}-ša₂-ru
+BabaLB4 o 15'. lu-u₂ š[a₂] ana I[GI {lu₂}GI]G GIM# qu-ma-r[i] ta#-at-ta-nak-ma
+UrkLB1 r 4. lu#-u ša₂# ana# IGI# {lu₂#}GIG GIM q[u!?-ma-ri x x x x x (x x)]
+NinNA7 i' 5'. KI#.MIN G[IM x x x x x x x x x x]
+NinNA22 iii 2'. [KI.M]IN ana IGI {lu₂}GIG# GIM# qu#-u[m-ma-ri x x x x x]
+
+#tr.en: Or you who are ever black like bitumen before an invalid,
+62'. %n lū ša ana pān marṣi kīma iṭṭê tattanaṣlimā
+BabaHel1 iii 28'. lu-u₂ ša₂ ana IGI {lu₂}GIG GIM ESIR!(|A.LAGAB×BAD|) tat-ta#-[na-aṣ-li-mu]
+BabaLB2 ii' 11. [x x x x x x x] GIM ESIR!(|A.LAGAB×BAD|) ta-at-ta-na-aṣ-li-mu
+BabaLB4 o 16'. lu-u₂ š[a₂] ana IGI {l[u₂}GIG] GIM ESIR ta-a[t-t]a-na-aṣ-li-m[u]
+UrkLB1 r 5. lu-u ša₂ ana IGI {lu₂}GIG GIM [x x x x x x x x]
+#note: As copied, the sign cannot be @akk{ESIR}: perhaps @akk{ID} or @akk{|LAGAB×KUL|}.
+NinNA7 i' 6'. KI.MIN G[IM x x x x x x x x]
+NinNA22 iii 3'. [KI.M]IN ana IGI {lu₂}GIG GIM ESIR ta#-[at-ta-na-aṣ-li-mu]
+
+#tr.en: Or you who are white like gypsum before an invalid,
+63'. %n lū ša ana pān marṣi kīma gaṣṣi tapteneṣṣâ
+BabaHel1 iii 29'. lu-u₂ ša₂ ana IGI {lu₂#}GIG# GIM IM.BABBAR tap-te#-[ne₂-eṣ-ṣa-a]
+BabaLB2 ii' 12. [x x x x x x x GI]M IM#.BABBAR# tap-te-ne₂-eṣ-ṣa-a
+BabaLB4 o 17'. [l]u-u₂ š[a₂ x] I[GI] {lu₂}G[I]G GIM# IM.BABBAR ta[p-°\t]en₂?°-eṣ-ṣa-a
+UrkLB1 r 6a. lu-u ša₂ ana IGI# {lu₂}GIG GIM [x x x x x x x x]
+$ line continues
+NinNA7 i' 7'. KI.MIN G[IM x x tap-t]e?-n[e₂?-eṣ-ṣa-a]
+NinNA10 iii 18'. [x x x x x x x x IM.BABBA]R? tap?#-t[e?-ne-eṣ-ṣa-a]
+$ single ruling
+NinNA22 iii 4'. [x x x] ana# IGI {lu₂}GIG GIM IM.BABBAR t[a-ap-te-ne₂-eṣ-ṣa]
+$ single ruling
+
+#tr.en: Or you who constantly walk in the streets,
+64'. %n lū ša ina sūqāti tattanallakā
+BabaHel1 iii 30'a. lu-u₂ ša₂ ina SILA-MEŠ DU.DU-ku :.
+$ line continues
+BabaLB2 ii' 13. [x x x x x x] ta-at-ta#-na-al-la-ku
+BabaLB4 o 18'. [l]u-u₂ [x] ina s[u]-qa#-a-tu₂# DU.DU-ku
+UrkLB1 r 6b. [x x x x x x x x x]
+
+#tr.en: Or you who constantly sit in the streets,
+65'. %n lū ša ina sūqāti tattanaššabā
+BabaHel1 iii 30'b. lu-u₂ ša₂ ina SI[LA-MEŠ x x x]
+$ end of column
+BabaLB2 ii' 14. [x x x x x x] TUŠ.TUŠ#-ba
+BabaLB4 o 19'. [lu]-u₂# ša₂# ina šu-[q]a-a-tu₂ TUŠ.TUŠ-ba
+UrkLB1 r 7a. lu-u ša₂ ina SILA-MEŠ TUŠ.TU[Š-ba]
+$ line continues
+NinNA7 i' 8'. lu-u ša₂ ina SILA-MEŠ TUŠ?#.TUŠ?#-[ba]
+NinNA10 iii 19'. [x x x i?-n]a? SILA-MEŠ TUŠ#.[TUŠ-ba]
+NinNA22 iii 5'. [x x x x SILA-ME]Š TUŠ.TUŠ-[ba]
+
+#tr.en: Or you who constantly recline in the squares,
+66'. %n lū ša ina rebâti tattanapalsahā
+BabaHel1 iv 1a. lu-u₂ ša₂ ina re-ba-a-tu₂ ta[t-ta-na-pal-sa-ha :. ]
+$ line continues
+BabaLB2 ii' 15. [x x x x x x x x] ta#-at#-[t]a-na-pal-sa-hu
+BabaLB4 o 20'. lu-u₂# ša₂ ina r[e-ba]-a#-tu₂ ta-at-t[a-n]a-a[p-pal-sa]-ha#
+UrkLB1 7b. [x x x x x x x x x x x x x x]
+NinNA7 i' 9'. lu-u ša₂ ina re-ba-a-ti [t]a-at-ta-nap-la-a[s-ha]
+NinNA10 iii 20'. [x x x x] re#-ba#-a#-ti# ta-at-ta-na[p-la-as-ha]
+NinNA22 iii 6'. [x x x x re-ba-a-t]i ta-at#-t[a-nap-la-as-ha]
+
+#tr.en: Or you who constantly pick on the city in the evening,
+67'. %n lū ša ina šimētān āla tahtanirrā
+BabaHel1 iv 1b. [x x x x x x x x x x x x]
+BabaLB2 ii' 16. [x x x x x x x tah-ta-ni]-ir-ru
+BabaLB4 o 21'. lu-u₂# ša₂ ina US[AN UR]U tah#-[ta-n]e-e[r-ru]
+UrkLB1 r 8a. lu-u ša₂ ina AN.USAN U[RU!? x x x x x]
+$ line continues
+NinNA7 i' 10'. lu-u ša₂ ina AN.USAN₂ [U]RU tah-ta-nir-[ra]
+NinNA10 iii 21'. [x x x x x x] URU tah-ta-ni-ir-ra
+NinNA22 iii 7'. [x x x x x x UR]U tah-[ta-nir-ra]
+
+#tr.en: Or you who constantly prowl in the city in the evening,
+68'. %n lū ša ina šimētān āla taṣṣanuddā
+BabaHel1 iv 2a. lu#-u₂# ša₂ ina USAN URU! ta[ṣ-ṣa-nun-du :. ]
+$ line continues
+BabaLB2 ii' 17. [x x x x x x ta-aṣ-ṣa]-nun-du
+BabaLB4 o 22'. lu-u₂# [x] ina US[AN UR]U? t[a-aṣ-ṣa-n]un-d[u? (x)]
+#note: Sign well before edge—possibly n[a-du] or an additional unparalleled phrase?
+BabaLBSch8 i' 1'. lu#-[u₂ x x x x x x x x x x]
+UrkLB1 r 8b. [x x x x x x x x x x]
+NinNA7 i' 11'. lu-u ša₂ ina# AN#.USAN₂# [U]RU NIGIN-MEŠ-d[u?]
+NinNA10 iii 22'. [x x x x x x] URU# ta-aṣ-ṣa-nun-du
+NinNAVar2 i 4'-5'. [x x x x x x x ta-aṣ]-ṣa-nun-da | : da!?
+$ 1 line blank
+#note: Variant form of sign? Reading @akk{hi-ta!?} with Geller, association with line 74 looks untenable.
+
+#tr.en: Or you who constantly seek out the city in the evening,
+69'. %n lū ša ina ... āla tešteneʾʾâ
+BabaHel1 iv 2b. [x x x x x x x x x x x]
+BabaLB2 ii' 18. [x x x x x x teš₂-te-ne₂]-ʾ#-a
+BabaLB4 o 23'. lu-u₂# [x x x x teš₂-te-n]e₂-ʾ-[a]
+BabaLBSch8 i' 2'. lu-u₂# ša₂# ina# [x x x x x x]
+UrkLB1 r 9a. [x x x x] x x (x) [x x x x x (x)]
+$ line continues
+NinNA7 i' 12'. lu#-u# [x x x UR]U teš₂-te-ne₂-ʾ-[a]
+NinNA10 iii 23'. [x x x x x x x t]eš₂-te#-ne₂#-ʾ-a
+NinNA22 iii 8'. [x x x x x x x teš₂]-te?#-[ne₂-ʾ-a]
+
+#tr.en: Or you who constantly clamber over (city) walls,
+70'. %n lū ša ina dūrī tattanablakkatā
+BabaLB1 iv 1'. [x x x x x] t[a-at-ta-nab-lak-ka-ta]
+BabaLB2 ii' 19. [x x x x x x] t[a-at-ta-nab-lak-k]a-tu#
+BabaHel1 iv 3. [x x] ša₂ <ina> BAD₃-MEŠ t[at-ta-nab-lak-ka-ta]
+BabaLB4 o 24'. lu#-u₂# [x x x x ta-a]t-ta-nab-l[ak-ka-ta]
+BabaLBSch8 i' 3'. lu-u₂ ša₂ ina BAD₃ t[a-at-ta-nab-lak-ka-ta]
+$ single ruling
+$ end of excerpt
+UrkLB1 r 9b. [x x x x x x x x x x x x x]
+NinNA7 i' 13'. [x x x x x t]a-at-ta-nab-lak-[ka-ta]
+NinNA10 iii 24'. [x x x x x ta-at-ta-nab-la]k-ka#-t[a]
+
+#tr.en: Or you who constantly accumulate in …,
+71'. %n [lū] ša šuršarāta? tattanatbakā
+BabaLB1 iv 2'. [x x x šur]-ša₂#-ra#-a-ta# ta-a[t]-ta#-na#-at#-ba-ku
+BabaHel1 iv 4. [x x] ša₂# šur-ša₂-r[a?-a-ta x x x x x x]
+BabaLB4 o 25'. [x x] ša₂?# x#-[x x x x ta-a]t-ta-na-[at-ba-ku]
+NinNA7 i' 14'. [x x x x x x x x x t]a-at-ta-na-a[t-ba-ka]
+
+#tr.en: Or you who constantly sit in (house) foundations,
+72'. %n lū ša ina asurrê tattanaššabā
+BabaLB4 o 27'. [x x x x x x x x] TUŠ.TUŠ-[ba]
+BabaLB2 ii' 20. [x x x x x x x x] TUŠ.[TUŠ-ba]
+#note: Spacing suggests there was an additional phrase at end of line.
+BabaLB1 iv 3'. [lu]-u# ša₂ ina a-sur-re-e TUŠ#.TUŠ#-ba
+NinNA7 i' 15'. [x x x x x x x x t]a-at-ta-n[a-aš₂-ša₂-ba]
+
+#tr.en: Or you who constantly frequent ditches,
+73'. %n lū ša īkī tešteneʾʾirā
+BabaLB1 iv 4'. lu#-u ša₂ EG₂-MEŠ te-eš-te-ne₂-ʾ-i-ri
+BabaLB2 ii' 21. [x x x x x x x x x x x x]
+BabaLB4 o 26'. [x x x x x te-eš-t]e-ne₂-ʾ-i-[ri]
+BabaLB12 i' 1'. [x x x x x te-eš-te-ne₂]-ʾ#-i-[ri]
+NinNA7 i' 16'. [x x x x x x] taš#-ta#-[na-ʾ-a-ra]
+
+#tr.en: Or you who constantly leap over ditches,
+74'. %n lū ša palgī taštanahhiṭ[ā]
+BabaLB1 iv 5'. lu-u ša₂ PA₅-MEŠ ta-aš-ta-na-ah-<(hi-ṭa)> {(he-pi₂)}
+BabaLB2 ii' 22. [x x x x x] t[a-aš-ta-na-ah-hi]-ṭ[a?]
+BabaLB4 o 28'. [x x x x x teš₂-t]e-ne₂-eh-hi-ṭ[a?]
+BabaLB12 i' 2'. [x x x x x teš₂-t]e-ne₂-eh-hi-[ṭa]
+
+#tr.en: Or you who constantly hid in crevices,
+75'. %n lū ša ina nigiṣṣāti tahtenessâ
+BabaLB1 iv 6'. lu-u ša₂ ina ni-gi-iṣ-ṣa-a-ti tah-te-ne₂-[e]s-sa-a
+BabaLB2 ii' 23. [x x x x ni-gi-iṣ-ṣa-a-t]u₂ tah-te-n[e₂-es-s]a-a#
+BabaLB4 o 29'. [x x x x ni-gi-iṣ-ṣa-a-t]u₂? tah-te-ne₂-es-s[a-a]
+BabaLB12 i' 3'. [x x x x ni-gi-iṣ-ṣa]-a#-tu₂# tah-te-ne₂-e[s-sa-a]
+
+#tr.en: Or you who are shown to the river,
+76'. %n lū ša ana nāri kullumātunu
+BabaLB1 iv 7'. lu-u ša₂ a-na ID₂ kul-lu-m[a-t]u-nu
+BabaLB2 ii' 24a. [x x x x x kul-lu-ma]-tu-nu :
+$ line continues
+BabaLB4 o 30'. [x x x x x kul-lu-m]a-tu-[nu]
+BabaLB12 i' 4'. [x x x an]a ID₂# kul-<lu>-ma-tu-[nu]
+
+#tr.en: Or you who are slaughtered towards the river,
+77'. %n lū ša ana nāri ṭabhātunu
+BabaLB1 iv 8'. lu-u ša₂ a-na ID₂ ṭa-ab-ha-[t]u-nu
+BabaLB2 ii' 24b. lu-u₂ ša₂ ina ID₂# ṭa-ab-ha-tu-nu :
+$ line continues
+BabaLB4 o 31'. [x x x x x ṭa-ab-h]a-tu-[nu]
+$ end of obverse
+BabaLB12 i' 5'. [x x x an]a ID₂ ṭa-ab-ha-[tu-nu]
+
+#tr.en: [Or you] who are dismembered towards the river,
+78'. %n lū ša ana nāri purrusātunu
+BabaLB2 ii' 24c. lu-u₂ [x x x] pur-ru-sa-tu-nu :
+BabaLB4 r 1. [x x x x x pur-r]u-sa-tu-[nu]
+BabaLB12 i' 6'. [x x x x] ID₂ pur-ru-sa-[tu-nu]
+NinNA18 i' 1'. [x x] ša₂# ana# ID₂# pur#-ru#-sa#-tu#-[nu]
+BabaLBSch11 o 1. [x x x] ana# ID₂ pu-ru-[sa-tu-nu]
+$ beginning of excerpt
+
+#tr.en: Or you who constantly bathe in the river,
+79'. %n lū ša ina nāri tartanahhiṣā
+BabaLB1 iv 9'. lu#-u ša₂ ina ID₂ tar#-ta-na-ah-hi-ṣa
+BabaLB2 ii' 25a. [x x x x x tar-t]a-na-ah-hi-DA :
+$ line continues
+BabaLB4 r 2. [lu]-u₂# ša₂# ina# ID₂# [tar-t]a-na-AŠ₂-[x (x)]
+BabaLB12 i' 7'. [x x x x] ID₂# tar-ta-na-[ah-hi-ṣa]
+NinNA18 i' 2'. [x x š]a₂ ina ID₂ tar-ta-na-ah-[hi-ṣa]
+BabaLBSch11 o 2. [x x x] ID₂# tar#-ta-na-ah#-h[i-ṣa]
+
+#tr.en: Or you who prowl in the river as if it were a flood,
+80'. %n lū ša ina nāri kīma amirāni taṣṣanuddā
+BabaLB1 iv 10'. lu#-u ša₂ ina ID₂ GIM a-mi-ra-nu ta-aṣ-ṣa-nun-du
+BabaLB2 ii' 25b. lu-u₂ ša₂ ina ID₂ GIM <a>-mi-ra-n[u ta]ṣ-ṣa-nun-du
+BabaLB12 i' 8'. [x x x x] ID₂# GIM <a>-mi-ra-an t[a-aṣ-ṣa-nun-du]
+$ end of obverse
+BabaLB4 r 3. [l]u-u₂ ša₂ ina ID₂ G[IM? x x x x] taṣ#-ṣa-nun-[du]
+NinNA18 i' 3'. [x x x] ina ID₂ GIM a-mi-ra-a-ni ta-a[ṣ-ṣa-nun-du]
+BabaLBSch11 o 3. [x x x x I]D₂ GIM# a-mi-ra#-nu# [x x x x x]
+
+#tr.en: Or you who prowl in the river,
+81'. %n lū ša ina nāri taṣṣanuddā
+BabaLB1 iv 11'. lu#-u ša₂ ina ID₂ ta-aṣ-ṣa-nun-du
+BabaLB2 ii' 26a. [x x x x x ta-aṣ-ṣa-nun-d]u :#
+$ line continues
+BabaLB4 r 4. [l]u-u₂ ša₂ ina ID₂ [ta-aṣ]-ṣa#-nun-[du]
+BabaLB12 ii' 1. [x x x x x ta-a]ṣ-ṣa-nun-du#
+BabaLBSch11 o 4. [x x x in]a I[D₂] taṣ-ṣa-nun#-[du]
+NinNA18 i' 4'. [x x x i]na ID₂ ta-aṣ-ṣa-n[un-du]
+
+#tr.en: Or you who constantly walk in forests,
+82'. %n lū ša ina qišāti tattanallakā
+BabaLB1 iv 12'. lu-u ša₂ ina {giš}TIR-MEŠ DU#.DU-ku#
+BabaLB2 ii' 26b. lu#-u₂ ša₂ °TIR\ina° TIR-MEŠ tat-ta-na-al#-la-ku
+BabaLB4 r 5. lu-u₂ ša₂# ina {giš}TIR-MEŠ [D]U.[DU-ku]
+BabaLB12 ii' 2. [x x x x {giš}TIR-ME]Š DU.DU-ku
+NinNA18 i' 5'. [x x x in]a {giš#}TIR-MEŠ DU.DU-[ka]
+NinNAVar2 i 8'. [x x x x x qi₂-ša₂]-a#-ti DU-DU-ka
+
+#tr.en: Or you who constantly sneak in forests,
+83'. %n lū ša ina qišāti tahtanallupā
+BabaLB1 iv 13'. lu-u ša₂ ina {giš}TIR-MEŠ tah-ta-na-al-lu-pa#
+BabaLB2 ii' 27a. [x x x x x x x x x x x x x : ]
+$ line continues
+BabaLB4 r 6. lu-u₂ ša₂ ina {giš}TIR-MEŠ tah-t[a]-na#-a#-al#-l[u!-pu]
+BabaLB12 ii' 3. [x x x x {giš}TI]R-MEŠ# tah-ta-na-al-lu-pu
+BabaLBSch11 o 5. [x x š]a₂ ina TI[R-M]EŠ tah-[t]a-na-al-l[u?-pu]
+NinNA18 i' 6'. [x x x x {gi]š}TIR-MEŠ tah-ta#-na-a[l-lu-pu]
+
+#tr.en: Or you who tread paths,
+84'. %n lū ša (ina) kibsāti tušaprasā
+BabaLB1 iv 14'. lu-u ša₂ kib-sa-a-ti tu-šap-<(ra)>-sa# {(he-pi₂)}
+BabaLB2 ii' 27b. [l]u-u₂# ša₂ ina kib-sa-a-tu₂ tu-šap-ra-su
+BabaLB4 r 7. lu-u₂ ša₂ [(ina)] kib#-sa#-a-tu₂ tu#-šap-ra#-[su]
+BabaLB12 ii' 4. [x x x kib-sa]-a-tu₂ tu-šap-ra-ŠU₂
+BabaLBSch11 o 6. [x x š]a₂ kib-sa#-a#-tu₂# [(x)] (x) tu-šap-r[a*-su]
+#note: Copy in @bib{RN1013@560 (pl. 26)} has @akk{p[a}.
+$ single ruling
+$ end of excerpt
+NinNA18 i' 7'. [x x x ki]b?-sa-a-ni tu-šap-r[a-su]
+
+#tr.en: Or you who have no guardian on the steppe/in the Netherworld,
+85'. %n lū ša ina ṣēri pāqida lā tīšâ
+BabaLB1 iv 15'. lu-u ša₂ ina EDEN pa-qi₂-du la ti-ša₂-a
+BabaLB2 ii' 28a. [x x x x x x x x x x x x : ]
+$ line continues
+BabaLB4 r 8. lu-u₂# [x i]na EDEN pa-qi₂-du la ti-[ša₂-a]
+BabaLB12 ii' 5. [x x x x x] pa-qi₂-du la# ti-ša₂-°a\°-a
+NinNA18 i' 8'. [x x x i]na EDEN pa-qi₂-da la# [x x x]
+$ rest of side broken
+
+#tr.en: Or you who have been killed in battle,
+86'. %n lū ša ina tāhāzi dīkātunu
+BabaLB1 iv 16'. lu#-u ša₂ ina ta-ha-zi di-ka-tu-nu
+BabaLB2 ii' 28b. [lu]-u₂ ša₂ ina °\ME₃° di-ka-tu-nu
+BabaLB4 r 9. lu-u₂# [š]a₂ <ina> ta-ha-zi di-ka-t[u-nu]
+BabaLB12 ii' 6. [x x x x x x x] di-ka-tu#-[n]u?
+NinNA18 i' 9'. [x x x i]na ta-ha-zi di-k[a-tu-nu]
+
+#tr.en: Or you who have been struck down with a weapon,
+87'. %n lū ša ina kakki mahṣātunu
+BabaLB1 iv 17'. lu-u ša₂ ina {giš}TUKUL mah#-ṣa-tu-nu
+BabaLB2 ii' 29a. [x x x x x x x x x x : ]
+$ line continues
+BabaLB4 r 10. [l]u-u₂# ša₂# [x {g]iš}TUKUL mah#-ṣa-tu#-[nu]
+BabaLB12 ii' 7. [x x x x {giš}TUKU]L mah-ṣa-t[u-nu]
+NinNA18 i' 10'. [x x x i]na {giš}TUKUL mah-[ṣa-tu-nu]
+
+#tr.en: Or you who have been struck down with a mighty weapon,
+88'. %n lū ša ina kakki danni mahṣātunu
+BabaLB1 iv 18'. lu-u ša₂ ina {giš}TUKUL dan-nu mah#-ṣa-tu-nu
+BabaLB2 ii' 29b. [x x] ša₂ ina {giš}TUKUL dan-nu mah-ṣa-tu-nu
+BabaLB4 r 11. [lu]-u₂# ša₂# [x {gi]š}TUKUL# dan-nu mah#-ṣa#-tu-[nu]
+BabaLB12 ii' 8. [x x x x x x] dan#-nu mah-ṣa-[tu-nu]
+NinNA18 i' 11'. [x x x x] {giš#}TUKUL dan-ni mah-ṣ[a-tu-nu]
+
+#tr.en: Or you who have been slaughtered with a dagger,
+89'. %n lū ša ina patri ṭabhātunu
+BabaLB1 iv 19'. l[u]-u ša₂ ina GIR₂ ṭa#-ab-ha-tu-nu
+BabaLB2 ii' 30a. [x x x x x x x x x x : ]
+$ line continues
+BabaLB4 r 12. [lu]-u₂# ša₂# [x] GIR₂!?# ṭa#-ab#-h[a]-tu#-[nu]
+BabaLB12 ii' 9. [x x x x x] ṭa-a[b-ha-tu-nu]
+NinNA4 iii 1'. [x x x x x x ṭa-ab-ha]-tu#-n[u]
+NinNA18 i' 12'. [x x x x G]IR₂ ṭa-ab-h[a-tu-nu]
+
+#tr.en: Or you who have been killed with a (large) mooring-pole,
+90'. %n lū ša ina tarkulli nērātunu
+BabaLB1 iv 20'. lu-u ša₂ ina tar₂-kul-li! {(he-pi₂)} ne₂-re-tu-nu
+BabaLB2 ii' 30b. [l]u-u₂ ša₂ ina tar₂#-[k]ul-le-e ne₂#-ra?#-tu#-n[u]
+BabaLB4 r 13. lu#-u₂# š[a₂ x tar₂-ku]l-le#-e# ne₂-r[a-t]u-[nu]
+BabaLB12 ii' 10. [x x x x tar₂-kul-le]-e# n[e₂-ra-tu-nu]
+NinNA4 iii 2'. [x x x x x x x x ne₂-ra]-tu-n[u]
+NinNA18 i' 13'. [x x x x tar₂-ku]l-le-e ne₂-r[e-tu-nu]
+
+#tr.en: Or you who have been threshed with spikes,
+91'. %n lū ša ina ṣillî dīšātunu
+BabaLB1 iv 21'. lu-u ša₂ ina ṣil-li-<(i)> {(he-pi₂)} di-ša₂#-tu-nu
+BabaLB2 ii' 31a. [x x x x x x x x x x] :#
+$ line continues
+BabaLB4 r 14. lu-u₂# ša₂ [x {giš}DA]LA₂ di#-ša₂-tu#-nu
+NinNA4 iii 3'. [x x x x x x x di-ša₂]-tu-n[u]
+NinNA18 i' 14'. [x x x x ṣil-l]e-e [x x x x]
+
+#tr.en: Or you who have been impaled on poles,
+92'. %n lū ša ina gašīši puttuhātunu
+BabaLB1 iv 22'. lu-u ša₂ ina ga-ši-ši pu-ut-tu-ha-tu-nu
+BabaLB2 ii' 31b. lu-u₂ ša₂ ina ga-ši-šu₂ p[u-ut-tu-ha-tu-nu]
+BabaLB4 r 15. lu#-u₂ š[a₂] i[na ga-š]i-ši# pu-ut-<tu>-ha-[t]u-nu
+NinNA4 iii 4'. [x x x x x x x pu-ut-t]u-ha-tu-n[u]
+NinNA18 i' 15'. [x x x x x x x pu-u]t?-[tu-ha-tu-nu]
+
+#tr.en: Or you who have been killed in destruction,
+93'. %n lū ša ina šaggašti dīkātunu
+BabaLB1 iv 23'. lu-u ša₂# ina šag#-ga-aš-ti di-ka-tu-nu
+BabaLB2 ii' 32a. [x x x x x x x x di-ka-tu-n]u :
+$ line continues
+BabaLB4 r 16. [lu]-u₂# ša₂# [x šag-g]a-aš₂#-tu₄ di-ka#-tu#-n[u]
+NinNA4 iii 5'. [x x x x x x x x d]i-ka-tu-nu
+
+#tr.en: Or you who have no father and mother,
+94'. %n lū ša aba u umma lā tīšâ
+BabaLB1 iv 24'a. lu-u ša₂ AD u AMA la ti-ša₂-a# :
+$ line continues
+BabaLB2 ii' 32b. lu-u₂ ša₂# AD# [x x x x x x]
+BabaLB4 r 17. [x x x x] u₃?# AMA# la ti-ša₂-a#
+NinNA4 iii 6'. [x x x x x x l]a ti-ša₂-a
+$ end of column
+
+#tr.en: Or you who have no brother and sister,
+95'. %n lū ša aha u ahāta lā tīšâ
+BabaLB1 iv 24'b. lu-u ša₂ ŠEŠ u NIN₉ la ti-ša₂-a
+BabaLB2 ii' 33a. [x x x x x x x x x x : ]
+$ line continues
+BabaLB4 r 18. [x x x x x NI]N₉ la ti-ša₂-a
+NinNA5 iv 1. lu-u ša₂ ŠEŠ [x x x ti-ša₂]-a
+
+#tr.en: Or you who have no family, kith and kin,
+96'. %n lū ša kimta nišūta salāta lā tīšâ
+BabaHel1 iv 1'. [lu]-u₂# ša₂# I[M.RI.A x x x x x x x x x x]
+BabaLB2 ii' 33b. lu#-[u₂ x x x x x x x x x x x x x x]
+BabaLB4 r 19. [x x x x x x x x x x] x [(x x)] la# ti-ša₂-a
+NinNA5 iv 2. lu-u ša₂ IM.RI.A# [x x x x x x x ti-ša₂]-a
+NinNAVar2 i 11'-12'. [x x x ki]m-tu₂ ni-su-tu₂ sa-la#-tu₂ | [l]a ti-ša₂-a
+
+#tr.en: Or you who have no son and daughter,
+97'. %n lū ša (māra u) mārta lā tīšâ
+BabaLB1 iv 25'a. lu-u ša₂ DUMU#.MUNUS la ti-ša₂-a
+$ line continues
+BabaLB4 r 20. [x x x x x x x] la ti-ša₂-a#
+BabaHel1 iv 2'. [lu]-u₂# ša₂ DUM[U x x x x x x x]
+NinNA5 iv 3. lu-u ša₂ DUMU u [x x x ti-ša₂]-a
+
+#tr.en: Or you who have no heir to libate water,
+98'. %n lū ša apla nāq mê lā tīšâ
+BabaLB1 iv 25'b. lu-u ša₂ IBILA na-aq me-e la ti-ša₂-a
+BabaHel1 iv 3'a. [lu]-u₂# ša₂ IBILA n[a-aq x x x x x x :. ]
+$ line continues
+BabaLB4 r 21. [x x x x x x x x x] ti-ša₂#-[a]
+BabaLB17 iv 1'. [x x x x x x x x l]a ti-ša₂-a#
+NinNA5 iv 4. lu-u# ša₂ IBILA na-[aq x x x ti-ša₂]-a#
+
+#tr.en: Or you who sleep (in death) amid colleagues,
+99'. %n lū ša ina tappê ṣallātunu
+BabaLB1 iv 26'. lu-u ša₂ <ina> TAB.BA-e ṣal-la-tu-nu
+$ single ruling
+BabaHel1 iv 3'b. [x x x x x x x x x x x]
+BabaLB4 r 22. [x x x x x x ṣal-la]-tu-[nu]
+$ single ruling
+BabaLB17 iv 2'. [x x x x x x ṣal-la-t]u-nu
+NinNA5 iv 5. [l]u-u ša₂ ina TAB.[BA-e x x x x x]
+$ single ruling
+
+#tr.en: may Asalluḫi, prime son of Eridu, extirpate you,
+100'. %n lissuhkunūši asalluhi aplu rēštû ša eridu
+BabaLB1 iv 27'. li-is-suh-ku#-nu-ši {d}asal-lu₂-hi IBILA reš-tu#-u₂ ša₂ eri-du₁₀
+BabaHel1 iv 4'. [l]i-is-suh-ku#-nu-š[i x x x x x x x x x x x]
+BabaLB4 r 23. [x x x x x x x x x x] DUMU reš#-t[u-u₂ x x x]
+BabaLB17 iv 3'. [x x x x x x x x x x x x x x x er]i-du₁₀
+NinNA5 iv 6. [l]i-is-suh-ku-n[u-ši x x x x x x x x x x x]
+
+#tr.en: may Asalluḫi, son of the great lord Ea, extirpate you,
+101'. %n lissuhkunūši asalluhi apil bēli rabî ea
+BabaLB1 iv 28'. li-is-suh-ku-nu-ši {d}asal-lu₂-hi IBILA EN GAL#-i {d}e₂-a
+BabaHel1 iv 5'. [l]i-is-suh-ku-nu-ši [x x x x x x x x x x x]
+BabaLB4 r 24. [x x x x x x x x x x IBIL]A EN GAL e₂?#-[a?]
+BabaLB17 iv 4'. [x x x x x x x x x x] {d#}IDIM
+NinNA5 iv 7. [l]i-[i]s-suh-ku-n[u-ši x x x x x x x x x x x]
+NinNAVar2 i 13'-14'. [KI.MIN] {d}as[al-l]u₂-hi | [...] {d#}EN#.KI!?#
+
+#tr.en: may Asalluḫi, beloved son of Ea, extirpate you,
+102'. %n lissuhkunūši asalluhi aplu narām ea
+BabaLB1 iv 29'. li#-is-suh-ku#-nu-ši {d}asal-lu₂-hi IBILA na-ram {d}e₂-a
+BabaHel1 iv 6'. [l]i-is#-suh-ku-nu-ši {d#}[asa]l-l[u₂-hi x x x x x x]
+BabaLB4 r 25. [x x x x x x x x x x IBIL]A na-ram {d#}[e₂-a]
+BabaLB17 iv 5'. [x x x x x x x x x] {d}IDIM
+NinNA5 iv 8. [li-n]i-ih-ku-n[u-ši x x x x x x x x x x]
+
+#tr.en: may Asalluḫi, sage of the great gods, extirpate you,
+103'. %n lissuhkunūši asalluhi apkal ilī rabûti
+BabaLB1 iv 30'. li#-is-suh#-ku#-nu-ši {d}asal#-lu₂-hi# ABGAL DINGIR-MEŠ GAL-MEŠ
+BabaHel1 iv 7'. [l]i-is-suh-ku-nu-ši {d}[asa]l-lu₂#-[hi x x x x x]
+BabaLB4 r 26. [x x x x x x x x x x ABG]AL DINGIR-MEŠ GAL-MEŠ
+BabaLB17 iv 6'. [x x x x x x x x x GA]L-MEŠ
+NinNA5 iv 9. [li-is]-suh#-ku#-[nu-ši x x x x x x x x x]
+
+#tr.en: may Asalluḫi, sage of gods and men, extirpate you,
+104'. %n lissuhkunūši asalluhi apkal ili u amēli
+BabaLB1 iv 31'. [l]i-is-suh#-ku-nu-ši {d}asal-lu₂-hi ABGAL DINGIR-MEŠ u LU₂
+BabaHel1 iv 8'. [li-i]s-[s]uh-ku-nu-ši {d#}[asal-lu₂-h]i ABGA[L x x x x]
+$ single ruling
+BabaLB4 r 27. [x x x x x x x x x x ABG]AL DINGIR-MEŠ u LU₂#
+$ single ruling
+BabaLB17 iv 7'. [x x x x x x x x x] u LU₂
+$ single ruling
+NinNA5 iv 10. [x x x x x x x x x x x x x x x]
+
+#tr.en: Asalluḫi, lord of heaven and earth, has exorcised you,
+105'. %n utammīkunūši asalluhi bēl šamê u erṣeti
+BabaLB1 iv 32'. [u₂]-tam-mi-ku#-nu-ši {d}asal-lu₂-hi EN AN-e u KI-ti₃
+BabaHel1 iv 9'. [u₂-tam-mi-ku]-nu#-[ši {d}asal-lu₂-h]i EN AN-e [x x x]
+BabaLB4 r 28. [x x x x x x x x x x x AN]-e?# u?# K[I?]
+BabaLB10 r 1'. [x x x x x x x x x x x] AN?# u?# [K]I?
+BabaLB17 iv 8'. [x x x x x x x x x x x x x x K]I-ti₃
+NinNA5 iv 11. u₂#-tam#-me#-ku#-nu#-ši# {d#}asal#-[lu₂-hi x x x x x]
+NinNAVar2 i' 1-2. u₂-tam-me-[ku-nu-ši x x x x] | EN A[N-e x x x]
+
+#tr.en: Asalluḫi has exorcised you by Ninurta, foremost son of Enlil,
+106'. %n utammīkunūši asalluhi nīš ninurta apli ašarēdi ša enlil
+BabaLB1 iv 33'. [u₂-ta]m-mi#-[k]u-nu-ši {d}asal#-lu₂-hi niš {d}nin-urta IBILA SAG.KAL ša₂ {d}+en-lil₂
+BabaHel1 iv 10'. [x x x x x x {d}asal-lu₂-h]i niš {d}MAŠ IB[ILA x x x x x x]
+BabaLB10 r 2'. [x x x x x x x x x x x x x x x SA]G.KAL?# ša₂?# [{d}]+en#-lil₂#
+BabaLB17 iv 9'. [x x x x x x x x x x x x š]a₂ {d}+en-lil₂
+NinNA5 iv 12. [K]IMIN<(u₂-tam-me-ku-nu-ši)> {d}asal-lu₂-hi niš {d}nin-u[rta x x x x x x x]
+NinNAVar2 i' 3. KIMIN ZI {d#}[MAŠ x x x x x x (x x)]
+
+106'. utammīkunūši asalluhi nīš nuska ... [...]
+NinNAVar2 i' 4. KIMIN ZI {d}NUSKA?# x [...]
+
+#tr.en: Asalluḫi has exorcised you by Udbanu’illa, the great weapon of Ninurta,
+107'. %n utammīkunūši asalluhi nīš ubanuʾila kakki danni ša ninurta
+BabaLB1 iv 34'. [u₂-ta]m-mi-ku-nu-ši {d}asal-lu₂-hi niš {d}u₄-ba-nu-il₂-la# {giš}TUKUL dan-nu ša₂ {d}MAŠ
+BabaHel1 iv 11'. [x x x x x x {d}asal-l]u₂-hi niš# {d#}u₄#-ba#-[nu-il₂-la x x x x x x x]
+BabaLB10 r 3'. [x x x x x x x x x x x {d}u₄-ba-nu-i]l₂-la {giš}TUKUL dan-nu ša₂ {d#}MAŠ
+BabaLB17 iv 10'. [x x x x x x x x x x x x x x x da]n-nu ša₂ {d}MAŠ
+NinNA5 iv 13. KIMIN<(u₂-tam-me-ku-nu-ši)> {d}asal-lu₂-hi niš {d}u₄-ba-nu-i[l₂-la x x x x x x x]
+NinNA17 ii' 1'. [x x x x x x x x x x x x x x x x x x {d}MA]Š
+NinNAVar2 i' 5-6. KIMIN ZI {d}u₄-ba-n[u-il₂-la] | {giš}TUKUL dan-ni š[a₂ x x]
+
+#tr.en: Asalluḫi has exorcised you by Ḫendursagga, who roams about in the land (?),
+108'. %n utammīkunūši asalluhi nīš hendursaga muttašrabbiṭi ša rebâti
+BabaLB1 iv 35'. [u₂-ta]m-mi-ku#-nu-ši {d}asal#-lu₂-hi# niš# {d#}hendur#-sag#-ga₂# mut-taš-rab-bi-ṭu# ša₂# r[e-b]a!;-[(a-tu₂)]
+BabaHel1 iv 12'. [x x x x x x] {d#}asal#-l[u₂-hi x x x x x x x x x x x x x x x x]
+BabaLB10 r 4'. [x x x x x x x x x x x x x x x] mut#-taš-rab-bi-ṭu ša₂ re-ba-a-°\tu₂°
+BabaLB17 iv 11'. [x x x x x x x x x x x x x x x x x r]e-ba#-a-tu₂#
+$ rest of side broken
+NinNA5 iv 14. KIMIN<(u₂-tam-me-ku-nu-ši)> {d}asal-lu₂-hi niš {d}hendur-sag-ga₂ mut-t[aš-rab-bi-ṭu x x x x x]
+NinNA12 iv 1'. [x x x x x x x x x x x x x x x x x x x x x re-ba]-a?#-ti#
+NinNA17 ii' 2'. [x x x x x x x x x x x x x x x x x x x x x re-ba-a-t]i
+NinNAVar2 i' 7-8. KIMIN ZI {d}hendur-sag-ga₂ mu[t-taš-rab-bi-ṭu] | ša₂?# re-b[a-a-tu₂]
+
+#tr.en: Asalluḫi has exorcised you by Šar-ur and Šar-gaz, who fell enemies and evil ones.
+109'. %n utammīkunūši asalluhi nīš šarur (u) šargaz mušamqit ayyābī (u) lemnūti
+BabaLB1 iv 36'. [u₂-ta]m-mi-ku#-nu#-ši# {d#}[asal-lu₂-hi x {d}šar₂]-ur₄?# [x x x x x x x x x x x x x x]
+BabaHel1 iv 13'. [u₂-tam-mi-ku-nu]-ši {d}asal-lu₂-hi °\niš° {d#}šar₂#-[ur₄ x x x x x x x x x x x x x x]
+$ single ruling
+BabaLB10 r 5'. [x x x x x x x x x x x] {d#}šar₂-ur₄ u {d#}[šar₂-g]az mu-ša[m]-qit a-a-bi lem!-nu-tu₂
+NinNA5 iv 15. KIMIN<(u₂-tam-me-ku-nu-ši)> {d}asal-lu₂-hi niš {d}šar₂-ur₄ {d}šar₂-gaz m[u-šam-qit x x x x lem-nu]-ti#
+NinNA12 iv 2'. [x x x x x x x x x x x x x x x x x mu-šam]-qit# a#-a-bi u lem-nu-ti
+NinNA17 ii' 3'. [x x x x x x x x x x x x x x x x x x x x x x x x lem-nu-t]i
+$ single ruling
+NinNAVar2 i' 9-10. KIMIN ZI {d}šar₂-u[r₄? x x x x] | mu-šam-qit a#-[a-bi x x x]
+$ single ruling
+
+#tr.en: May Meslamta’e’a hand you over to the gate of the Land of No Return,
+110'. %n liddinkunūši meslamtaea ana bāb kurnugi
+BabaHel1 iv 14'a. [x x x x x {d}mes-lam-t]a-e₃-a i-<na> KA₂! KUR.NU.GI₄.A
+$ line continues
+BabaLB10 r 6'. [x x x x x {d}mes-lam-ta]-e₃#-a [x] KA₂ KUR#.[NU].GI₄#.A#
+BabaLB13 i' 1'. [x x x x x {d}mes-lam-ta-e₃]-a?# [x x x x x x]
+NinNA5 iv 16. lid-din-ku-nu-ši {d}mes-lam-ta-e₃#-[a x x KUR.NU.G]I₄.A
+NinNA12 iv 3'. [x x x x x x x x x x x x K]A₂ KUR.NU.GI₄.A
+NinNA17 ii' 4'. [x x x x x x x x x x x x x KUR.NU.G]I₄.A
+NinNAVar1 ii 1-2. lid#-d[in-ku-nu-ši x x x x x x] | ($___$) ana KA₂# K[UR.NU.GI₄.A]
+NinNAVar2 i' 11-12. lid-din-ku-nu-š[i x x x x x x x] | KA₂ K[UR.NU.GI₄.A]
+
+#tr.en: May he commit you to the seven gatekeepers of Ereškigal,
+111'. %n lipqidkunūši ana sebetti atî ša ereškigal
+BabaHel1 iv 14'b-15'a. lip#-q[id-ku-nu-ši x (x) se]-bet#-[ti] | [x x x x] {d#}ereš#-ki-gal
+$ line continues
+BabaLB10 r 7'. [x x x x x] ana# IMIN {lu₂}<I₃>.DU₈-MEŠ ša₂ {d#}[er]eš-k[i-gal]
+BabaLB13 i' 2'. [x x x x x x x x I₃].DU₈#-MEŠ š[a₂ x x x x]
+NinNA5 iv 17. lip-qid-ku-nu-ši ana IMIN {lu₂}I₃.DU₈-MEŠ [x {d}ere]š-ki-gal
+NinNA12 iv 4'. [x x x x x x x x x x x x] {d#}ereš-ki-gal
+NinNA17 ii' 5'. [x x x x x x x x x x x x {d#}ereš-ki-ga]l
+NinNAVar1 ii 3-4. lip-q[id x x x x x x x x x] | ($___$) ša₂ [x x x x]
+NinNAVar2 i' 13-14. lip-qid-ku-nu-š[i x x x x x x] | ša₂!?# {d?#}[ereš-ki-gal]
+
+#tr.en: May he hand you over to Namtar, vizier of the vast Netherworld, who holds the Gate of the Bound,
+112'. %n liddinkunūši ana namtar šukkal erṣeti (rapašti) ša bāb kamâti ukallu
+BabaHel1 iv 15'b-16'a. lid-din-ku!(KI)-nu-ši ana na[m-tar x x x] DAGAL#-ti₃# | [x x ka-m]a-a-<ti> u₂-kal-lu
+$ line continues
+BabaLB10 r 8'. [x x x x x x {d}nam]-tar SUKKAL KI-ti₃ DAGAL-ti₃ [x K]A₂ ka-ma-a-tu₂!?# u₂!?#-kal-la#
+BabaLB13 i' 3'. [x x x x x x] {d#}nam-ta[r x K]I-ti₃ DA[GAL-ti₃ x x x x x x x x x]
+NinNA5 iv 18. KIMIN<(lip-qid-ku-nu-ši)> ana {d}nam-tar SUKKAL KI-ti₃ ša₂ KA₂ k[a-ma-a-t]i u₂-kal-lu
+NinNA12 iv 5'. [x x x x x x x x x x x x x x ka-ma-a]-ti u₂-kal-lu
+
+#tr.en: May he cause you to pass through the gate of the vast Netherworld,
+113'. %n lišēribkunūši abul erṣeti rapašti
+BabaHel1 iv 16'b. li-še-rib-ku-nu-ši [x KI]-ti₃ DAGAL-ti₃
+BabaLB10 r 9'a. [li-še-rib-ku-nu]-ši ABUL KI-ti₃ DAGAL-t[i₃]
+$ line continues
+BabaLB13 i' 4'a. [li-še-r]i-bu#-ku#-nu-ši ABUL KI-ti₃ DAGA[L-ti₃]
+$ line continues
+NinNA5 iv 19. li-še-ri-bu-ku-nu-ši ABU[L KI]-ti GAL-ti
+NinNA12 iv 6'a. [x x x x x x x x x x x x]
+$ line continues
+
+#tr.en: May he deliver you to the great devils,
+114'. %n ana qātī gallê rabûti limannīkunūši
+BabaHel1 iv 17'a. ana Š[U+MIN GA]L₅.LA₂-MEŠ GAL-MEŠ li#-man-°\ni°-ku-nu-ši
+$ line continues
+BabaLB10 r 9'b-10'a. [x] ŠU+MIN GAL₅.LA₂-MEŠ# GAL-MEŠ | [x x x x x x]
+$ line continues
+BabaLB13 i' 4'b. [x x x x x x x x x x x x x x]
+NinNA5 iv 20. ana ŠU+MIN GAL₅.LA₂-MEŠ GAL-MEŠ li-m[a-a]l-li-ku-nu-ši
+NinNA12 iv 6'b. [x x x] GAL₅!?#.LA₂#-MEŠ# [GAL]-MEŠ# li-<ma>-al!-ku-nu-ši
+
+#tr.en: May Nedu, chief gate-keeper of the Netherworld, shut the gate on you,
+115'. %n bidu idugallu (ša) erṣeti bābkunu liṣbat
+BabaHel1 iv 17b-18'a. {d}b[i₂-du₈ I₃.DU₈.G]AL ša₂ KI-ti₃ | KA₂#-ku-nu li-iṣ-bat#
+$ line continues
+BabaLB10 r 10'b. {d#}b[i₂-d]u₈ I₃.DU₈.GAL# [(x) K]I-ti₃ KA₂-ku-nu li-iṣ-bat
+BabaLB13 i' 5'. [{d}bi₂]-du₈# I₃.DU₈.GAL KI-ti₃ K[A₂-ku-nu x x x]
+NinNA5 iv 21. {d}bi₂-du₈ I₃.DU₈.GAL KI-ti₃ K[A₂!]-ku-nu li-iṣ-bat
+NinNA12 iv 7'. [x x x x x x x x] KA₂-k[u-nu x x x]
+
+#tr.en: May he hand you over to Ningišzida, chamberlain of the vast Netherworld,
+116'. %n liddinkunūši ana ningišzida guzalê erṣeti rapašti
+BabaHel1 iv 18'b. lid#-din-ku-nu-ši ana {d}ni[n-giš-zi-da GU.Z]A.LA₂ KI-ti₃ DAGAL-ti₃
+BabaLB10 r 11'. [lid]-din#-ku#-nu-ši# [x {d}nin]-giš#-zi#-da# GU#.Z[A.LA₂ KI]-ti₃ DAGAL-ti₃
+BabaLB13 i' 6'. [lid-din-ku-n]u-ši <ana> {d}nin#-giš-zi-da# [x x x x x x x x x]
+NinNA5 iv 22. lid-din-ku-nu-ši ana {d}nin-giš-zi-da GU.ZA.L[A₂ K]I-ti₃ ra-pa-aš₂-ti
+NinNA12 iv 8'. [x x x x x x {d}nin-g]iš-zi-da {gi[š}GU.ZA.LA₂ x x x x]
+
+#tr.en: May the Anunnaki, the great gods, bind you,
+117'. %n anunnakū ilū rabûtu likmûkunūši
+BabaHel1 iv 19'. {d}a-nun-na-ki DINGIR-MEŠ GAL-MEŠ [lik-m]a!?-ku-nu-ši
+BabaLB10 r 12'. {d}a-nun-na-k[i DINGIR]-MEŠ# GAL#-MEŠ# lik-[mu]-ku-nu-ši
+BabaLB13 i' 7'a. [{d}a-nun-na-k]i DINGIR-MEŠ GAL#-MEŠ lik-mu!?(HI?)-ku!#-[nu]-ši#
+$ line continues
+NinNA5 iv 23. {d}a-nun-na-ki DINGIR-MEŠ GAL-MEŠ lik-[m]u-ku-nu-ši
+NinNA12 iv 9'. [x x x x x DINGIR-M]EŠ GAL-MEŠ [x x x x x]
+NinNA19 i' 1'. {d#}[a-nun-na-ki x x x x x x x x x]
+
+#tr.en: He has exorcised you by the great chamberlain of Allatu,
+118'. %n utammīkunūši guzalâ rabâ ša allatu
+BabaHel1 iv 20'a. u₂-tam-mi-ku-nu-ši GU.ZA.LA₂ GAL-a# ša₂?# {d?#}a[l?-la-ti]
+$ line continues
+BabaLB10 r 13'. u₂-tam-mi-ku-nu-ši [G]U.ZA.LA₂ GAL-a š[a₂? {d}a]l-la-tu₄#
+BabaLB13 i' 7'b. u₂?#-[tam-mi-ku-nu-ši x x x x x x x x x x]
+NinNA5 iv 24. u₂-tam-me-ku-nu-ši GU.ZA.LA₂-a GAL-a ša {d}al-la-t[i]
+NinNA12 iv 10'. [x x x x x {giš}G]U.ZA.LA₂ GAL-a ša₂ {d#}[al-la-t]i
+NinNA19 i' 2-3'. u₂-tam-me-ku#-[nu-ši x x x x x x x x x x] | ($___$) ša₂ {d}a[l-la-ti]
+
+#tr.en: May the stream of the great Netherworld hold you back,
+119'. %n liklākunūši naʾīlu ša erṣeti rapašti
+BabaHel1 iv 20'b-21'a. [lik-la-k]u-nu-ši na#-[ʾ-(x)-x] | ša₂ KI-ti₃ DAGAL-ti₃
+$ line continues
+BabaLB10 r 14'. [l]ik-la-ku-nu-ši {d#}[n]a-ʾ-i-ri ša₂ K[I-ti₃] D[AGAL-ti₃]
+BabaLB13 i' 8'. [lik-la-ku-nu-š]i na-ʾ-i#-l[u? x x x x x]
+#note: Line may have been expanded or another line may have been added to judge from the available space in the break.
+NinNA5 iv 25. lik#-la-ku-nu-ši na-ʾ-i-lu ša KI-ti₃ GAL-t[i₃?]
+NinNA12 iv 11'. [lik-la-ku-nu-š]i? na-ʾ-i-lu?# ša₂!?# KI-[ti₃ DAGAL-t]i
+NinNA19 i' 4'. lik-lu-ku-nu-ši n[a-ʾ-i-x x x x x x]
+BabaLB20 1'. [lik-la-k]u?-n[u?-ši x x x x x x x x]
+
+#tr.en: Do not come, do not ever seek, do not return <to> the body of so-and-so, son of so-and-so,
+120'. %n lā tallakāni lā tassanahhurāni lā taturrāni (ana) zumur annanna mār annanna
+BabaHel1 iv 21'b-22'a. la tal-<la>-ka-a-ni [x ta-as-sa-na-ah-hu-r]a?-an-[ni] | la ta-tu-ra-a-ni SU# NENNI?# [x x]
+$ line continues
+BabaHel2 r 1'b-2'a. [x x x x x x x x x x x x x x ta-tur]-r[a?-a-ni] | [x x x x]
+$ line continues
+BabaLB10 r 14'-15'a. [l]a tal-la-ka-[ni] la tas-sa-na-a[h-hu-ra-ni x x x x x] | [S]U NENNI A NENN[I]
+$ line continues
+BabaLB13 i' 9'. [x tal-la-k]a-a-ni la# t[a-as-sa-na-ah-hu-ra-ni x x x x x x x x x x]
+NinNA5 iv 26. [x ta]l-la#-ka#-ni# la ta-as-sa-na-ah-hu-ra-ni la ta-t[ur-ra-ni S]U NENNI# [x x]
+NinNA12 iv 12'. [x tal-la-ka-n]i la ta-as-sa-na#-hu?#-r[a-ni x ta]-tur#-ra#-ni# <SU> NENNI# A NENNI
+NinNA19 i' 5'-6'. la tal-la-ka-a-ni# [x x x x x x x x x] | ($___$) la ta-tur-ra-ni ana [x x x x]
+BabaLB20 2'. [x tal-la-k]a-an-ni l[a x x x x x x x x x x x x x x x x x]
+
+#tr.en: He has exorcised you by heaven and earth/Netherworld, by Anu, Antu; Enlil, Ninlil,
+121'. %n utammīkunūši šamê u erṣeta anu antu enlil ninlil
+// cf. F K.9992 &d 5'
+BabaHel1 iv 22'b-23'a. [x x x x x x A]N-e u KI-ti₃ | {d}a-num an-tu₄ {d}+en-lil₂ {d}nin#-lil₂#
+$ line continues
+BabaHel2 r 2'b. [x x x x x x x x x x x x x x x x x x x x x x]
+$ line continues
+BabaLB10 r 15'b-16'a. u₂#-tam-mi#-ku#-nu#-ši# A[N-e x x x] | {d#}a-num an-tu₄# [x x] x [x x x]
+$ line continues
+BabaLB13 i' 10'. [u₂-tam-mi-ku-nu]-ši# AN#-e# u# KI#-t[i₃!? x x x x x x x x x x x]
+NinNA5 iv 27. [x x x x x x AN]-e# u₃!?# KI#-ti# [x x x x x x x x x x x]
+NinNA12 iv 13'. [u₂-tam-me-k]u-nu-ši AN-e u KI-ti₃ {d}a#-[num x x {d}+e]n-lil₂ {d}nin-lil₂
+NinNA19 i' 7'. u₂-tam-me-ku-nu-ši AN-e# [x x x] | {d#}a-na an-ta {d#}+[en-lil₂ x x x]
+BabaLB20 3'. [x x x x x x AN-u₂] u# KI-t[u₄ [x x x x x x x x x x x]
+
+#tr.en: Dūri, Dāri; Laḫmu, Laḫamu; Engur, Ningarra; Alāla; Bēlili,
+122'. %n dūri dāri lahmu (u) lahāmu engara ningara alāla (u) bēlili
+// cf. F K.9992 &d 6'
+BabaHel1 iv 23'b-24'. {d#}d[u-ri₂ {d}da-r]i₂ {d}lah-mu | {d}la-ha-mu# {d}en-gar {d}nin-gar-ra {d}a#-la-la u {d#}be-li-li
+BabaHel2 r 2'c-3'a. [{d}du-r]i {d}d[a-ri] | [x x x x x x x x x x x x x x x x x x x x x x x x]
+BabaLB10 r 16'b-17'. [x x x x x x] | {d#}lah-mu u [x x x x x x x x x x x x x x x x x x x x]
+NinNA12 iv 14'-15'a. [{d}lah-m]a {d}la-ha-ma {d}en-gar {d}n[in-gar-ra] {d}a-la-la {d}be-li-li | [{d}]du#-ri₂ {d}da-ri₂
+$ line continues
+NinNA19 i' 8'. [x] x {d}da?#-[ri? x x x x x x x x x x x x x x x x x x x x x x x]
+BabaLB20 4'. [x x x x x x x {d}en-ga]r? {d}n[in?-gar-ra x x x x x x x x x x x x x x]
+
+#tr.en: censer, incense, shadow, daylight, evening, night, walk, seat,
+123'. %n nignakka qutrinna ṣilla (u) ṣēta šimētān (u) līlâti šubta kibsa
+BabaHel1 iv 25'. NIG₂#.NA# qut-ri-in ṣil-lu U₄.DA ši-mi#-tan li-la-a-t[u₂] k]ib-su šub-tu
+BabaHel2 r 3'b-4'a. [x x qut-r]in-nu GI[SSU] | [x x x x x x x x x x x x x x]
+$ line continues
+NinNA11 i' 1'a. [x x x x x x x x x x x x x x x x šub-t]a kib#-sa#
+$ line continues
+NinNA12 iv 15'b-16'a. NIG₂.NA# qut-ri#-n[u? (x) U₄?].DA!?# AN.USAN!(MUD) u li-la-a-ti | [šub-t]a kib-sa
+$ line continues
+#note: Possibly a lexemic variant @akk{AN.MUD} designating an eclipse?
+NinNAVar2 ii' 1-3a. NIG₂#.NA qut-rin-na GISSU u U₄.DA | ši-me-tan u li-la-a-ti | šub-tu₂ kib-sa
+$ line continues
+
+#tr.en: path, standing place, the regulation of Ea and Asalluḫi: you are exorcised,
+124'. %n tāluka (u) manzāza uṣurāt ea u asalluhi tummâtunu
+BabaHel1 iv 26'. ta-lu-ku man-za-za GIŠ.HUR-MEŠ {d#}IDIM u {d}asal-lu₂-hi tum₃-ma-tu-nu
+BabaHel2 r 4'b-5'a. [ta]-lu#-ku man-[za-za] | [GIŠ.HUR-M]E[Š? x x x x x x x x x x x]
+$ line continues
+NinNA11 i' 1'b-2'. ta#-l[u-ka] | [x x x x x x x x x x] {d#}asal-lu₂-hi tu[m₃-ma-tu-nu]
+NinNA12 iv 16'b-17'. ta-lu-ka man-za-zi | [GIŠ.HUR-ME]Š {d}e₂-a u {d}asal-lu₂#-hi# [tum₃-m]a-tu-nu
+NinNAVar2 ii' 3b-5. ta-lu-ku u man-za-za | u₂-ṣu₂-ra-at {d}e₂-a | u {d}asal-lu₂-hi tum₃#-ma-tu-nu
+
+#tr.en: uprooted, expelled, driven away, kept at a distance,
+125'. %n (attunu) nashātunu ṭardātunu ukkušātunu duppurātunu
+BabaHel1 iv 27'. na#-as-ha-tu-nu ṭar-da-tu-nu uk-ku-ša₂-tu-nu dup-pu-ra-tu-nu
+BabaHel2 r 5'b-6'a. [n]a-as#-ha-tu#-nu# | [ṭar-da-t]u-nu uk-ku#-[ša₂-tu-nu dup-pu-ra-t]u-nu
+$ line continues
+NinNA11 i' 3'. [x x x x x ṭar-da]-tu#-nu uk-ku-ša₂-tu-nu du[p-pu-ra-tu-nu]
+NinNA12 iv 18'. [na-as-ha-tu-n]u ṭar#-da-tu-nu uk!(AZ)-x-[x-t]u-nu dup-pu-ra-tu-nu
+NinNAVar2 ii' 6-8. at-tu-nu na-as-ha-tu-nu | [ṭar]-da#-tu-nu : uk-ku-ša₂-tu-nu | [du]p-pu-ra-tu-nu
+
+#tr.en: by heaven and earth/Netherworld, you are exorcised by the whip.
+126'. %n nīš šamê u erṣeti tummâtunu hultuppû
+BabaHel1 iv 28'a. [x AN]-e# u KI-ti₃# tum₃!(|NINDA₂×KAR₂|)-ma-tu-nu HUL.DUB₂!
+$ line continues
+BabaHel2 r 6'b-7'a. niš AN-e u KI-ti₃ | [tum₃-ma-t]u-nu HU[L.DUB₂]
+$ line continues
+BabaLB16 i' 1'. [x x x x x x x x x x] HUL#.D[UB₂]
+NinNA11 i' 4'. [x x x x x K]I-ti₃ tu[m₃-ma-tu-nu x x]
+NinNAVar2 ii' 9-10a. [ni-i]š AN-e u KI-ti₃ tum₃#-ma-tu-nu | [HUL.DU]B₂
+$ line continues
+
+#tr.en: Be exorcised by heaven, be exorcised by earth/Netherworld. May the evil tongue stay away.
+127'. %sux zi an-na he₂-pa₃ zi ki-a he₂-pa₃ [eme-h]ul-gal₂ bar-še₃ he₂-em-ta-gub
+BabaHel1 iv 28'b-29'. %sux zi# an-na# he₂-pa₃ zi ki-a | he₂-<pa₃> | [eme-h]ul-gal₂# bar-še₃ he₂-e[m]-ta-gub
+$ single ruling
+BabaHel2 r 7'b-8'. %sux [x x x he₂]-pa₃# zi ki-a he₂-pa₃ | [eme-hu]l-gal₂ bar-[še₃ h]e₂-em-t[a]-gub
+$ single ruling
+BabaLB16 i' 2'. %sux [x x x x x x x x x x eme-hu]l-gal₂ bar-š[e₃ x x x x]
+$ single ruling
+NinNA11 i' 5'-6'. %sux [x] an-na he₂-pa₃ z[i x x x x] | [x x x] bar-še₃ h[e₂-em-ta-gub]
+$ single ruling
+NinNA12 iv 19'-20'. %sux [x an-n]a he₂-pa₃ zi [ki]-a# he₂-pa₃ | [eme-hul-g]al₂ bar-še₃# [he₂-e]m-ta-gub
+NinNAVar2 ii' 10b-12. %sux zi an-na he₂!(I)-pa₃ | [x k]i-a he₂!(I)-pa₃ | [x x x ba]r-še₃# he₂!(I)-em-ta-gub
+$ single ruling
+
+128'. %sux [en₂] udug hul eden-na-(ni) dagal-la šeg₁₀ bi₂-in-gi-ne amaš-še₃ bi₂-in-hul
+BabaHel1 iv 30'-31'. %sux [x] udug?# hul# eden#-na dagal-la šeg₁₀ bi₂-in-gi!-ne!# amaš-še₃ | bi₂#-in-hul
+$ single ruling
+BabaLB16 i' 3'. %sux [x x h]ul eden-na-ni dagal!-l[a x x x x x x x x x x]
+NinNA11 i' 7'. %sux [x x hu]l? eden?#-[na x x x x x x x x x x x x]

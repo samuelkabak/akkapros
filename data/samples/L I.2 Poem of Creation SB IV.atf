@@ -1,0 +1,1306 @@
+&X000001 = L I.2 Poem of Creation (*Enūma eliš*) SB IV
+#project: eblo
+#atf: lang akk-x-stdbab
+#atf: use unicode
+#atf: use math
+#atf: use legacy
+
+#tr.en: They set out for him a princely dais,
+1. %n iddûšum-ma || parak (|) rubûti
+HuzNA1 o 1. [x x x x x x ru]-bu#-u₂-ti
+HuzNA2 o 1. [id-du-šum-m]a p[a-rak ru-bu]-ti#
+BorNB1 o 1. id-du-šum-ma & pa-rak ru-bu-tu₄
+BabaNBSch1 o 4'. id-du-šum-m[a x x x x x]
+$ beginning of excerpt
+NinNAQuo1 r 54. id-du-šum-ma pa-rak ru-bu-u₂-ti#
+$ rest of side blank
+$ end of side
+AššNAQuo1 r 13'. id-du-šum-ma pa-rak ru-bu-u₂#-[ti]
+$ rest of side blank
+$ end of side
+
+#tr.en: He took his place before his fathers to be made sovereign.
+2. %n mahariš | abbīšu || ana malikūti | irme
+HuzNA1 o 2. [x x x x x x x ma-l]i-ku-ti ir-mu
+HuzNA2 o 2. [x x x x x x a]-na ma-li-k[u-t]i ir-bi
+BorNB1 o 2. ma-ha-ri-iš ab-be₂-e-šu & a-na ma-li-ku-tu₄ ir-me
+BabaNBSch1 o 5'. ma-ha-ri-i[š x x x x x x x x x x x x]
+
+#tr.en: “You are the most important among the great gods,
+3. %n attā-ma | kabtāta || ina ilī | rabûti
+// L I.2 SB "IV" 5
+HuzNA1 o 3. [x x x x x x x DI]NGIR.DINGIR GAL.GAL#
+HuzNA2 o 3. [x x x x x x] i#-na# DINGIR.DINGIR GAL.GAL
+BorNB1 o 3. at-ta-ma kab-ta-ta & i-na DINGIR.DINGIR ra-bu-tu₄
+BabaNBSch1 o 6'. at-ta-m[a x x x x x x x x x x]
+
+#tr.en: “Your destiny is unrivalled, your command is sublime.
+4. %n šīmatka | lā šanān || siqarka | ānu
+// L I.2 SB "IV" 6
+HuzNA1 o 4. [x x x x x x x s]i₃-qar-ka {d}a-nu-[u]m
+HuzNA2 o 4. [x x x x x x x si₃-qar]-ka {d}a#-nu-um!(DUB)
+BorNB1 o 4. ši-mat-ka la ša-na-an & si₃-qar-ka {d}a-num
+BabaNBSch1 o 7'. ši-mat{+at!(LA)}-k[a x x x x x x x x x]
+
+#tr.en: “O Marduk, you are the most important among the great gods,
+5. %n marduk | kabtāta || ina ilī | rabûti
+// L I.2 SB "IV" 3
+HuzNA1 o 5. [x x x x x x] i-na DINGIR.DINGIR GAL.GAL
+HuzNA2 o 5. [x x x x x x x x DIN]GIR.DINGIR GAL.GAL
+BorNB1 o 5. {d}AMAR.UTU kab-ta-ta & i-na DINGIR.DINGIR ra-bu-tu₄
+BabaNBSch1 o 8'. {d}AMAR.UTU ka[b-ta-ta x x x x x x x]
+
+#tr.en: “Your destiny is unrivalled, your command is sublime!
+6. %n šīmatka | lā šanān || siqarka | ānu
+// L I.2 SB "IV" 4
+HuzNA1 o 6. [x x x x š]a-na#-an si₃-qar-ka {d}a-nu-um
+HuzNA2 o 6. [x x x x x x x si₃-qar-k]a {d}a-nu-um
+BorNB1 o 6. ši-mat-ka la ša-na-an & si₃-qar-ka {d}a-num
+BabaNBSch1 o 9'. ši-mat{+at}-k[a x x x x x x x x x x]
+
+#tr.en: “Henceforth your command cannot be changed,
+7. %n ištu | ūmim-ma || lā innennâ | qibītka
+HuzNA1 o 7. [x x x x x x] la in-nen-na-a qi₂-bit-ka
+HuzNA2 o 7. [x x x x x x x x x x qi₂-b]it-ka
+BorNB1 o 7. iš-tu u₄-mi-im-ma la in-nen-na-a qi₂-bit-ka
+BabaNBSch1 o 10'. iš#-t[u x x x x x x x x x x x x]
+
+#tr.en: “To raise high, to bring low, this shall be your power.
+8. %n šušqû | u šušpulu || šī | lū qātka
+HuzNA1 o 8. [šu-uš-qu]-u₂# u₃ š[u-uš-pu-l]u ši-i l[u] qat-ka
+HuzNA2 o 8. [x x x x x x x x x š]i-i# [l]u-u₂ qat-ka
+BorNB1 o 8. šu-uš-qu-u₂ u₃ šu-uš-pu-lu ši-i lu-u₂ qa₂-at-ka
+NinNAQuo2 r 30b-31a. !zz a#-na {d}+EN iq-ta-bu-u₂ um-ma !qt šu-uš-qu-u₂ u šu-uš-pu-lu | [ši-i l]u qa#-at#-ka !zz {d}AMAR.UTU ša₂ UN-ME at-ta {d}+EN a-ki-i NAM-ME
+
+#tr.en: “Your command shall be steadfast, your word shall not be gainsaid.
+9. %n lū kīnat | ṣīt pîka || lā sarār | siqarka
+HuzNA1 o 9. [x ki-n]a-at [ṣ]i-[it pi-i-k]a la ša₂-na-an si₃-qar-ka
+HuzNA2 o 9. [x x x x x x x x x x sa-r]a-a[r s]i₃-qar-ka
+BorNB1 o 9. lu-u₂ ki-na-at ṣi-it pi-i-ka la sa-ra-ar si₃-qar-ka
+BabaNBSch2 o 4'. lu-u₂ ki-na-at ṣ[i-it x x x x x x x x x x]
+$ beginning of excerpt
+
+#tr.en: “Not one of the gods shall go beyond the limits you set.
+10. %n mamman | ina ilī || itûkka | lā ittiq
+HuzNA1 o 10. [{(10)} ma-am-m]a?-na an DINGIR.D[INGIR x x x l]a it-ti-iq
+HuzNA2 o 10. [x x x x x x x x x x it-t]i-iq#
+BorNB1 o 10. {(10)} ma-am-ma-an i-na DINGIR.DINGIR i-tuk-ka la it-ti-iq
+BabaNBSch2 o 5'. ma-am-ma-an i-na DING[IR.DINGIR x x x x x x x]
+
+#tr.en: “Support is wanted for the gods’ sanctuaries,
+11. %n zanānūtu | eršat || parak | ilī-ma
+HuzNA1 o 11. [x x] ti!? it!? ban!? x [x x] DINGIR.DINGIR-ma
+HuzNA2 o 11. [x x x x x x x x x DINGIR.DINGIR-m]a
+BorNB1 o 11. za-na-nu-tu₄ er-šat & pa-rak DINGIR.DINGIR-ma
+BabaNBSch3 o 1'. [z]a-na#-nu-t[u₄ x x x x x x x]
+
+11. %n zanānūt kišsat p[arak ilī-ma]
+BabaNBSch2 o 6'. za-na-nu-tu₄# kiš#-ša₂-tu₄ p[a-rak x x x]
+
+#tr.en: “Wherever their shrines are, your own shall be established.
+12. %n ašar (|) sāgīšunu (||) lū kūn | ašrukka
+HuzNA1 o 12. [x x] sa#-gi#-šu-nu l[u x x] aš₂-ruk-ka
+HuzNA2 o 12. [x x x x x x x x x aš₂-ruk-k]a
+BorNB1 o 12. a-šar sa-gi-šu-nu & lu-u₂ ku-un aš-ru-uk-ka
+BabaNBSch2 o 7'. a-šar sa-gi-š[u-nu x x x x x x x x]
+BabaNBSch3 o 2'. a#-šar sa-g[i-šu-nu x x x x x x x x]
+
+#tr.en: “You are Marduk, our champion,
+13. %n marduk | attā-ma || mutirru (|) gimillīni
+HuzNA1 o 13. {d}AMAR.UTU [a]t-ta-ma mu-t[ir-ru gi]-mil-li-ni
+HuzNA2 o 13. [x x x x x x x x x gi-mil-li-n]i
+BorNB1 o 13. {d}AMAR.UTU at-ta-ma & mu-tir-ru gi-mil-li-ni
+BabaNBSch2 o 8'. {d#}AMAR#.UTU# a[t-ta-ma x x x x x x x]
+BabaNBSch3 o 3'. {d}AMAR.UTU at-[ta-ma x x x x x x x]
+
+#tr.en: “We bestow upon you kingship of all and everything.
+14. %n (i) niddinka | šarrūta || kiššat (|) kal (|) gimrēti
+NinNA1a o 1'. [x x x x x x x x x x x gim-re-e-t]i
+HuzNA1 o 14. i nid-din-ka# š[a₂]-ru-ti [x x ka]-lu gim-re-e-ti
+BorNB1 o 14. ni-id-din-ka šar-ru-tu₄ kiš-šat kal gim-re-e-ti
+BabaNBSch3 o 4'. ni-id-din-k[a? x x x x x x (x) x x x x]
+$ end of excerpt
+$ single ruling
+
+#tr.en: “Take your place in the assembly, your word shall be supreme.
+15. %n tišab-ma | ina puhri || lū šaqât | amātka
+NinNA1a o 2'. [x x x x x x x x x x x a-mat-k]a
+HuzNA1 o 15. ti-šab-ma# i-[n]a UKKIN lu-u₂ [ša₂-qa]-at a-mat-ka
+BorNB1 o 15. ti-šam-ma i-na pu-hur lu-u₂ ša-qa₂-ta a-mat-ka
+
+#tr.en: “May your weapon never strike wide but dispatch your foes.
+16. %n kakkūka | ai ippalṭû || liraʾʾisū | nakirīka
+NinNA1a o 3'. [x x x x x x x x x x x x x x na]-ki#-ri#-ka
+HuzNA1 o 16. {giš}TUKUL-MEŠ-ka# a-a# ip-pal#-ṭu-u₂ li#-ra-i-su na#-ki-ri-ka
+BorNB1 o 16. kak-ki-ka a-a ip-pal-ṭu₂-u₂ & li-ra-i-su na-ki-ri-ka
+
+#tr.en: “O Lord, spare his life who trusts in you,
+17. %n bēlu | ša taklūka || napištašu | gimil-ma
+NinNA1a o 4'. [x x x x x x x x x x] gi-mil-ma
+AššNA1 o 1'. [x x x tak]-lu#-ka# na#-p[iš-ta-šu x x x]
+HuzNA1 o 17. be-[lu₄ x x x x] na-piš-ta-šu gi-mil#-ma
+BorNB1 o 17. be-lu₄ ša₂ tak-lu-ka & na-piš-ta-šu gi-mil-ma
+NinNAQuo3 o 11'-12'. !zz [ki-i an-ni-i iq-ṭi-bi]-ia ma-a DIŠ !qt AN.ŠAR₂ ša tak-lu-ka | [na-piš-ta-šu₂ gi]-mil#-ma !zz ina UGU ni-ib-zu
+BabLBQuo1 i 8-11. marduk !qt be-lu₄ | ša₂ tak-lu-ka | na-piš-ta-šu₂ | gi-mil-ma
+
+#tr.en: “But the god who has taken up evil, snuff out his life!”
+18. %n u ila (|) ša lemnēti (|) īhuzu || tubuk | napšassu
+NinNA1a o 5'. [x x x x x x x x x x tu-bu-u]k nap-šat-su
+AššNA1 o 2'. u₃# DINGIR ša₂ lem-ne₂-e-ti [x x x x x x x x x x]
+HuzNA1 o 18. u₃# D[INGIR x x x x i]-hu!?#-[zu] tu!?#-[b]u-uk nap-šat-su-u₂#
+BorNB1 o 18. u₃ DINGIR ša₂ lem-ne₂-e-ti i-hu-zu & tu-bu-uk nap-šat-su
+
+#tr.en: They set up among them a certain constellation,
+19. %n ušzizzū-ma | ina birīšunu || lumāša | ištēn
+#note: Lines IV 19–26 are discussed by @bib{gabriel2025ištar@43–51}, who finds parallels between Marduk’s treatment of the “star” (@i{lumāšu}) and @i{Inanna’s descent to the Netherworld}.
+NinNA1a o 6'. [x x x x x x x x x x lu-ma-š]a iš-ten₂
+AššNA1 o 3'. [u]š-ziz-zu-ma ina bi-ri-šu₂-[nu x x x x x]
+HuzNA1 o 19. uš-z[i-zu-ma] i-na bi-ri-šu₂-nu lu-ma#-ša₂# iš#-[ten₂]
+BorNB1 o 19. uš-zi-zu-ma i-na bi-ri-šu-nu lu-ma-šu iš-ten₂
+
+#tr.en: To Marduk their firstborn said they (these words),
+20. %n ana marduk | bukrīšunu || šunu | izzakrū
+NinNA1a o 7'. [x x x x x x x x x x x i]z-zak-ru
+AššNA1 o 4'. [a]n {d}AMAR.UTU bu-uk-ri-[šu-nu x x x x x]
+HuzNA1 o 20. [{(10)}] an# {d}AMA[R.UTU] bu-uk#-ri-šu-nu šu-nu iz-zak-[ru]
+BorNB1 o 20. {(10)} a-na {d}AMAR.UTU bu-uk-ri-šu-nu & šu-nu iz-zak-ru
+
+#tr.en: “Your destiny, O Lord, shall be foremost of the gods’,
+21. %n šīmatka | bēlu || lū mahrat | ilī-ma
+NinNA1a o 8'. [x x x x x x x x] DINGIR.DINGIR-ma
+AššNA1 o 5'. [š]i-mat-ka be-lu₄ lu ma[h-rat x x x]
+HuzNA1 o 21. ši-mat-k[a] be-lu₄ lu-u₂ mah-rat DINGIR.DINGIR-ma
+BorNB1 o 21. ši-mat-ka be-lu₄ & lu-u₂ mah-ra-at DINGIR.DINGIR-ma
+
+#tr.en: “Command destruction or creation, they shall take place.
+22. %n abātu | (u) banû || qibi | liktūnā
+NinNA1a o 9'. [x x x x x x x x x l]ik-tu-na
+AššNA1 o 6'. [a]-ba-tu₄ ba-nu-u qi₂-[bi x x x]
+HuzNA1 o 22. a-ba#-[tu₄] u₃# ba-nu-u₂ qi₂-bu lik-tu-n[a]
+BorNB1 o 22. a-ba-tu₄ u₃ ba-nu-u₂ & qi₂-bi li-ik-tu-nu
+
+#tr.en: “At your word the constellation shall be destroyed,
+23. %n epšu | pîka || liʾʾabit | lumāšu
+#note: For the forms of @i{abātu} N see @i{GAG} 97j*.
+NinNA1a o 10'. [x x x x x x x x x lu-m]a-šu₂
+AššNA1 o 7'. [ep]-šu₂ pi-i-ka li-ʾ#-[a-bit x x x]
+HuzNA1 o 23. ep-[šu x x x l]i-ʾ-a-bit lu#-[m]a-š[u]
+HuzNA3 o 1'. [x x x x x x x x x lu-ma]-šu
+BorNB1 o 23. ep-ša pi-i-ka & li-ʾ-a-bit lu-ma-šu
+
+#tr.en: “Command again, the constellation shall be intact.”
+24. %n tūr | qibīšum-ma || lumāšu | lišlim
+NinNA1a o 11'. [x x x x x x x x x liš]-lim?#
+AššNA1 o 8'. [t]u-ri qi₂-bi-šum-ma l[u-ma-šu x x]
+HuzNA1 o 24. t[u-ur q]i₂-bi-š[um!?]-ma lu-ma-a-šum [li]š-lim#
+HuzNA3 o 2'. [x x x x x x x x x x l]iš-lim
+BorNB1 o 24. tu-ur qi₂-bi-šum-ma & lu-ma-šu li-iš-lim
+
+#tr.en: He commanded and at his word the constellation was destroyed,
+25. %n iqbī-ma | ina pîšu || iʾʾabit | lumāšu
+AššNA1 o 9'. [i]q-bi-ma ina KA#-šu# i[a-a-bit x x x x]
+HuzNA1 o 25. iq#-bi-ma i-na pi#-i-šu ia-a-bit lu-ma-a-šum#
+HuzNA3 o 3'. [x x x x x x x x x x x l]u-ma-a-šum
+BorNB1 o 25. iq-bi-ma i-na pi-i-šu & iʾ-a-bit lu-ma-šu
+
+#tr.en: He commanded again and the constellation was created anew.
+26. %n itūr | iqbīšum-ma || lumāšu | ittabni
+AššNA1 o 10'. i#-tur iq-bi-šum#-ma# [x x x x x x x]
+HuzNA1 o 26. i-tur iq-bi-šum-ma# lu-ma-a-šum it-tab-ni
+HuzNA3 o 4'. [x x x x x x lu-ma-a-šu]m it-tab-ni
+BorNB1 o 26. i-tu-ur iq-bi-šum-ma & lu-ma-šu it-tab-ni
+BabaNB1 o 1'. [x x x x x x x x x x it-tab-n]i
+
+#tr.en: When the gods his fathers saw what he had commanded,
+27. %n kīma (|) ṣīt pîšu (|) īmurū || ilū | abbūšu
+AššNA1 o 11'. [GI]M ṣi#-it# pi-i-šu₂ i-mu-ru# [x x x x x]
+HuzNA1 o 27. ki-ma ṣi-it pi-i-šu# i-mu-ru DINGIR.DINGIR AD.AD-šu#
+HuzNA3 o 5'. [x x x x x x x x x] DINGIR.DINGIR AD.AD-šu#
+BorNB1 o 27. ki-ma ṣi-it pi-i-šu & i-mu-ru DINGIR.DINGIR ab-be₂-e-šu
+BabaNB1 o 2'. [x x x x x x x x x x x x ab-be₂-e-š]u
+
+#tr.en: Joyfully they hailed, “Marduk is king!”
+28. %n ihdû | ikrubū || marduk-ma | šarru
+AššNA1 o 12'. [i]h-du-[m]a ik-ru-b[u x x x x x]
+HuzNA1 o 28. ih-du-u₂ ik-ru-bu# {d}AMAR.UTU-ma [L]UGAL
+HuzNA3 o 6'. [x x x x x x {d}AMA]R.UTU-ma LU[GAL]
+BorNB1 o 28. ih-du-u₂ ik-ru-bu & {d}AMAR.UTU-ma šar-ru
+BabaNB1 o 3'. [x x x x x x x x x x šar-r]u
+
+#tr.en: They bestowed upon him scepter, throne, and staff,
+29. %n uṣṣibūšu | haṭṭa || kussâ | u palâ
+AššNA1 o 13'. [u]ṣ-ṣi-[b]u-šu₂ {giš}GIDRU {giš}GU.[ZA x x x]
+HuzNA1 o 29. [u]ṣ-ṣi-bu-šu {giš}GIDRU {giš#}GU.ZA u₃ BALA-a
+HuzNA3 o 7'. [x x x x x x {giš}]GU.ZA u₃ BALA-a#
+BorNB1 o 29. u₂-uṣ-ṣi-bu-šu & {giš}NIG₂.GIDRU {giš}GU.ZA u₃ BALA-a
+BabaNB1 o 4'. [x x x x x x x x x x x x pala₄]-a-a[m]
+
+#tr.en: They gave him unopposable weaponry that vanquishes enemies, (saying),
+30. %n iddinūšu | kakka (|) lā mahra || dāʾipu (|) zayyāri
+AššNA1 o 14'. [i]d-di-nu#-šu₂ ka-ak la [x x x x x x x x x]
+HuzNA1 o 30. {(10)} id-di-nu-šu ka-ak la!(MA) mah#-<ri> da-a-a-i-pu za-a-a-ri#
+HuzNA3 o 8'. [x x x x x x x mah-r]i da-a-a-i-pu za-a-a-ri
+BorNB1 o 30. {(10)} id-di-nu-šu kak-ku la ma-ah-ra da-ʾ-i-pu za-a-a-ri
+BabaNB1 o 5'. [x x x x x x x x x x x x x x] za#-a-a-[ri]
+
+#tr.en: “Go, cut off the life of Tiamat,
+31. %n alik-ma | ša tiāmti || napšatuš | puruʾ-ma
+AššNA1 o 15'. [a]-lik-ma ša₂ A.AB.BA nap-ša₂-[tuš x x x x]
+HuzNA1 o 31. a-lik-ma ša₂ ta-a₃-wa-ti nap#-ša₂-tuš pu-ru-ʾ-ma!?(ŠU#)
+HuzNA3 o 9'. [x x x x ta-a₃-wa-t]i nap-ša₂-tuš pu-ru-ʾ-ma
+BorNB1 o 31. a-lik-ma ša₂ ti-amti & nap-ša-tu-uš pu-ru-ʾ-ma
+BabaNB1 o 6'. [x x x x x x x x x x] pu#-ru-ʾ#-[ma]
+
+#tr.en: “Let the winds bear her blood away as glad tidings!”
+32. %n šārū | dāmīša || ana busrati | libillūni
+// cf. L I.2 SB "IV" 132
+// cf. L I.10 SB "II" 18
+AššNA1 o 16'. [ša₂]-a-ru da-mi-ša₂ ana bu-us-r[a-ti x x x x]
+HuzNA1 o 32. IM-MEŠ da-mi-ša₂ a-na bu-su₂-ra#-ti lu-bil-lu-ni#
+HuzNA3 o 10'. [x x x x x a-n]a bu#-su₂-ra-ti lu-bil-lu-ni
+BorNB1 o 32. ša-a-ru da-mi-ša a-na bu-us-ra-tu₄ li-bil-lu-ni
+BabaNB1 o 7'. [x x x x x x x x x x x x li]-bi-il-l[u-ni]
+
+#tr.en: The gods, his fathers, ordained the Lord’s destiny,
+33. %n išīmū-ma | ša bēli (||) šīmatuš | ilū (|) abbūšu
+AššNA1 o 17'. [i]-ši-mu-ma ša₂ be-lu₄ š[i-ma-tuš x x x x x]
+HuzNA1 o 33. i-ši-mu-ma ša₂ be-li₂ ši-ma-tuš DINGIR#.DINGIR AD.AD-šu#
+HuzNA3 o 11'. [x x x x x be-l]i₃ ši-ma-tuš DINGIR.DINGIR AD.AD-šu
+BorNB1 o 33. i-ši-mu-ma ša₂ {d}+EN ši-ma-tu-uš DINGIR.DINGIR ab-be₂-e-šu
+BabaNB1 o 8'. [x x x x x x x x x x x DINGIR.DINGI]R ab-be₂-e#-[šu]
+BabaNBSch4 o 9. [i-ši-mu-m]a ša {d}+EN ši-ma-tu#-uš [x x x x x x]
+$ beginning of excerpt
+
+#tr.en: On the path to success and authority did they set him marching.
+34. %n uruh (|) šulmi (|) (u) tešmê || uštaṣbitūš | harrāna
+AššNA1 o 18'. [u₂]-ru-uh šul#-mi₃ teš₂-me-e# [x x x x x x x x x]
+HuzNA1 o 34. u₂-ru-uh šul-mi u teš₂-me-e u₂#-ša₂-aṣ-bi-tu-šu₂ har-ra#-na
+HuzNA3 o 12'. [x x x x x] u teš₂-me-e u₂-ša₂-aṣ-bi-tu-šu₂ har-ra-na
+BorNB1 o 34. u₂-ru-uh₂ šu-ul-mu u teš₂-me-e uš-ta-aṣ-bi-tu-uš har-ra-nu
+BabaNB1 o 9'. [x x x x x x x x x x uš-ta-aṣ-b]i-tu-uš ha[r-ra-nu]
+BabaNBSch4 o 10. [x x x] šu#-ul-mu u teš₂-me-e u[š-ta-aṣ-bi-tu-uš x x x]
+
+#tr.en: He made a bow, appointed it his weapon,
+35. %n ibšim-(ma) | qašta || kakkašu | uʾaddi
+NinNA1b o 1'. ib#-[šim-ma x x x x x x x x x]
+AššNA1 o 19'. [ib]-šim {giš}BAN# {giš}[TUKUL-šu x x x]
+HuzNA1 o 35. ib-šim {giš}BAN {giš}TUKUL-šu u₂-ad-[R]I?
+HuzNA3 o 13'. [x x x x x] {giš}TUKUL#-šu u₂-ad-di
+BorNB1 o 35. ib-šim-ma {giš}BAN & kak-ka-šu u₂-ad-di
+BabaNB1 o 10'. [x x x x x x x] u₂#-ad#-[di]
+BabaNBSch4 o 11. [ib]-ši-ma {giš}BAN kak-k[a-šu x x x]
+
+#tr.en: He mounted an arrow, set it on the string.
+36. %n mulmulla | uštarkiba || ukīnši | matna
+NinNA1b o 2'. mul-[mul-lu x x x x x x x x x]
+NinNA2 o 1'. [mul]-mul?# uš#-tar#-[ki-ba] u₂#-kin-ši# [x x]
+AššNA1 o 20'. [m]ul-mul-lu uš#-tar#-ki#-ba# [x x x x x]
+HuzNA1 o 36. mul-mul-lu!(ŠU) uš-tar-ki-ba u₂-kin#-ši mat-[n]u
+HuzNA3 o 14'. [x x x uš]-tar-ki-b[a] u₂-kin-ši mat-nu
+BorNB1 o 36. mul-mul-lu₄ uš-tar-ki-ba & u₂-kin-šu ma-at-nu
+BabaNBSch4 o 12. [mul-mul-l]u uš#-tar-ki#-ba u₂-k[in?-šu₂ x x]
+
+#tr.en: He took up a mace, held it in his right hand,
+37. %n iššī-ma | miṭṭa || imnašu | ušāhiz
+NinNA1b o 3'. iš-ši-[ma x x x x x x x x x]
+NinNA2 o 2'. [iš-ši-m]a miṭ-ṭa im-na-šu₂ u₂-ša₂-hi-iz
+AššNA1 o 21'. [iš]-ši-ma {giš}MIT[UM x x x x x x x]
+HuzNA1 o 37. iš-ši {giš}miṭ-ṭa im-na-šu u₂-ša₂-hi-iz#
+HuzNA3 o 15'. [x x {giš}miṭ]-ṭa im-na-šu u₂-ša₂-hi-iz
+BorNB1 o 37. iš-ši-ma {giš}MITUM & im-na-šu u₂-ša-hi-iz
+BabaNBSch4 o 13. [x x x x x x] im#-na#-šu# u₂#-[ša-hi-iz]
+
+#tr.en: Bow and quiver he slung at his side.
+38. %n qašta | u išpata || iduššu | īlul
+NinNA1b o 4'. {giš}BAN u₃# [x x x x x x x x x x]
+NinNA2 o 3'. [x x] u iš-pa-tu₄ i-du-uš-šu₂ i-lul
+AššNA1 o 22'. [x x] u iš-pa-tu₄# i#-du#-[uš-šu₂ x x]
+HuzNA1 o 38. {giš}BAN u₃ {kuš}iš-pa-te i-du-uš-šu# i-lul#
+HuzNA3 o 16'. [{gi]š}BAN# [x i]š-pa-te i-du-uš-šu i-lul
+BorNB1 o 38. {giš}BAN u {kuš}iš-pa-tu₄ & i-du-uš-šu i-lu-ul
+
+#tr.en: Thunderbolts he set before his face,
+39. %n iškun | berqa (||) ina pānīšu
+NinNA1b o 5'. iš-kun NI[M.GIR₂ x x x x x]
+NinNA2 o 4'. [iš-k]un NIM.GIR₂ i-na pa-ni-šu₂
+AššNA1 o 23'. [iš-ku]n NIM.GIR₂ [x x x x x]
+AššNB1 o 1'. i[š-kun x x x x x x x]
+HuzNA1 o 39. [i]š-kun NIM.GIR₂ i-na pa-ni-šu#
+HuzNA3 o 17'. [i]š-ku[n NIM.GI]R₂ i-na pa-ni-šu
+BorNB1 o 39. iš-kun be₂-er-qu & i-na pa-ni-šu
+
+#tr.en: With raging fire he covered his body.
+40. %n nabla | muštahmiṭa || zumuršu | umtalli
+// cf. (Lamaštu II 124)
+NinNA1b o 6'. nab-la muš-tah-[me-ṭu x x x x x x]
+NinNA2 o 5'. [nab-l]a muš-tah-me-ṭu zu-mur-šu₂ um-tal-li
+AššNA1 o 24'. [nab-la mu]š-tah-me-ṭa zu-[mur-šu₂ x x x]
+AššNB1 o 2'. nab#-[la x x x x x x x x x x]
+HuzNA1 o 40. [{(10)} n]ab-li mu-uš-tah-me-ṭu₃ zu-mur-šu# um-tal#-l[i!?]
+HuzNA3 o 18'. [na]b-li# m[u-uš-tah-m]e-ṭa zu-mur#-šu um-tal-li
+BorNB1 o 40. {(10)} nab-lu muš-tah-mi-ṭu & zu-mur-šu um-ta-al-la
+
+#tr.en: Then he made a net to enclose Tiamat within it,
+41. %n īpuš-ma | sapāra || šulmû | qerbiš (|) tiāmta
+NinNA1b o 7'. i-pu-uš-ma sa-p[a-ra x x x x x x x]
+NinNA2 o 6'. [i-p]u-uš-ma sa-pa-ra šul-mu-u qer-biš ti-amta
+AššNA1 o 25'. [i-pu-uš]-ma# sa-pa-ru šul-[mu-u x x x x]
+AššNB1 o 3'. °\e?°-p[u-uš-ma x x x x x x x x x x]
+HuzNA1 o 41. [i-p]u-uš-ma sa-pa-ra šul-mu-u₂ qer#-biš ti#-[amta]
+HuzNA3 o 19'. [i-p]u-u[š-ma s]a-p[a]-ra# šul#-mu#-u₂# qer#-biš# ti-amta
+BorNB1 o 41. i-pu-uš-ma sa-p[a-ra x x x] qer#-bi#-iš tam-ti₃
+
+#tr.en: He deployed the four winds that none of her might escape:
+42. %n erbetti (|) šārī | ušteṣbita || lā aṣê | mimmîša
+NinNA1b o 8'. er-bet-ti ša₂-a-r[i x x x x x x x x x x x x x]
+AššNA1 o 26'. [x x x ša₂]-a-ri uš-ta-aṣ-[bi-ta x x x x x x x x]
+AššNB1 o 4'. er-[bet-ti x x x x x x x x x x x x x x x x]
+HuzNA1 o 42. [er-b]et-ti IM-MEŠ uš-te-eṣ-bi-ta la a-[ṣ]e-e mim-[mi-ša₂]
+HuzNA3 o 20'. [er-be]t-ti [IM-ME]Š uš#-te#-eṣ-bi-ta# [la] a#-ṣe#-e# mim-mi-šu₂!?#
+BorNB1 o 42. LIMMU₂-ti₃ IM-MEŠ uš-t[e-eṣ-bi-ta x x x x m]i-im-me-ša
+BabaNB2 o 1'. [x x x x] uš#-te#-eṣ#-bi#-ta# la a#-ṣe#-[e x x x x]
+
+42. %n erbetti (|) šārī | ušteṣbita || ana lā aṣê | mimmîša
+NinNA2 o 7'. [er-b]et-ti ša₂-a-ri uš-te-eṣ-bi-ta ana la a-ṣe-e mim-mi-ša₂
+
+#tr.en: South Wind, North Wind, East Wind, West Wind,
+43. %n šūta | iltāna || šadâ | amurra
+NinNA1b o 9'. {im}U₁₈.LU {im}[SI.SA₂ x x x x x x]
+NinNA2 o 8'. [{i]m}U₁₈.LU {im}SI.SA₂ {im}KUR.RA {im}MAR.TU
+AššNA1 o 27'. [x x x] {im#}SI.SA₂ [x x x x x x]
+AššNB1 o 5'. šu-tu₄?# il?#-[ta-nu x x x x x x x]
+HuzNA1 o 43. [{im}]U₁₉#.LU {im}SI.SA₂ {im}KUR.RA {im}MAR#.[T]U
+HuzNA3 o 21'. [{im}]U₁₈#.L[U {i]m}SI.SA₂ {im#}[KUR.R]A {im#}MAR.TU
+BorNB1 o 43. {im#}U₁₈#.LU {i[m}SI.SA₂ x x x {im}M]AR.TU
+BabaNB2 o 2'. [x x x {im}SI.S]A₂ {im}KUR.RA [x x x]
+
+#tr.en: He fastened the net at his side, gift of his grandfather Anu;
+44. %n iduš (|) sapāri | uštaqriba || qīsti | abīšu (|) āni
+NinNA1b o 10'. i-du-uš sa-pa-r[a x x x x x x x x x x x x]
+NinNA2 o 9'. i#-du-uš sa-pa-ra uš-taq-ri-ba qi₂-iš-ti AD-šu₂ {d}a-nim
+AššNA1 o 28'. [x x x x x x] uš#-taq-ri-[ba x x x x x x x x]
+AššNB1 o 6'. i#-du#-uš# sa#-p[a-ra x x x x x x x x x x x x]
+AššMA1a o 1'. [x x x sa]-pa#-r[a!? x x x x x x x x x x x x]
+HuzNA1 o 44. [i-du]-uš# sa-pa-ri uš-taq-ri-ba qi₂-[iš]-ti# <AD>-šu {d}a-n[u-u]m
+HuzNA3 o 22'. [i-d]u-uš# [sa-pa]-ri uš-taq-ri-ba# qi₂#-iš-ti AD#-šu₂ {d}a-nu-[u]m
+BorNB1 o 44. [i-du]-uš?# [x x x x x x x x x x a]-bi#-šu# {d#}a#-nim#
+
+44. %n [iduš s]apāri uštaqriba an[a qīšti abīšu āni]
+BabaNB2 o 3'. [x x x s]a-pa-ru uš-taq-ri-ba a-n[a x x x x x x x x]
+$ single ruling
+
+#tr.en: He made ill wind, whirlwind, cyclone,
+45. %n ibni | imhulla | šāra lemna || mehâ | ašamšūta
+#note: @i{šāra lemna} is probably an explanatory gloss, that at some point became part of the textus receptus.
+NinNA1b o 11'. ib-ni im-hu[l-la (x x x) x x x x x x x]
+NinNA2 o 10'. ib-ni im-hul-la IM lem-na me-ha-a a-šam-šu-tu₄
+AššNA1 o 29'. [x x im-hul-la I]M lem#-na# [x x x x x x x]
+AššNB1 o 7'. ib#-ni im#-hu[l-la (x x x) x x x x x x x]
+AššMA1a o 2'. [x x im-hu]l-la ša-a#-ra# [x x x x x x x x x]
+HuzNA1 o 45. [x x] im-hul IM lem-na me-ha-a# [a]-šam#-šu-tu₂#
+HuzNA3 o 23'. [x x im]-hul IM# lem#-na me-ha-a# a#-[š]am-šu-tu₂#
+BabaNB2 o 4'. [x x im-hul]-la ša-ar lem-nu me-hu-u₂ a-š[am-šu-tu₂]
+
+#tr.en: Four-ways wind, seven-ways wind, destructive wind, back-and-forth wind:
+46. %n šār-erbetti | šār-sebetti || imsuhha | šār-lā-mahār
+NinNA1b o 12'. {im}LIMMU₂.BA {i[m}IMIN x x x x x x]
+NinNA2 o 11'. {im}LIMMU₂.BA {im}IMIN {im}SUH₃ {im}NU.SA₂.A
+AššNB1 o 8'. {im}LIMMU.BI [x x (x) x x x x x x]
+AššMA1a o 3'. [x x x] {im}IMIN:BI [x x x x x x]
+HuzNA1 o 46. [{im}LIMMU₂].BA {im}IMIN.BI {im}SU[H₃] {im#}NU#.SA₂.A
+HuzNA3 o 24'. [x x x {i]m}IMIN.BI# {im}SUH₃ {im}NU.SA₂.A#
+BabaNB2 o 5'. [x x x {im}I]MIN.BI <<im>> {im}SUH₃ {im}SA₂.A.NU.SA₂#.[A]
+NinNACom1 o 19a. !qt [x x x x x x {im}SU]H₃ {im}SI.A.NU.SI.A [ !zz (x x x x : )]
+$ line continues
+
+#tr.en: He released the winds that he had made, the seven of them,
+47. %n ušēṣâm-ma | šārī || ša ibnû | sebettīšun
+NinNA1b o 13'. u₂-še-ṣa-a[m-ma x x x x x x x x x x x]
+NinNA2 o 12'. u₂-še-ṣa-am-ma IM-MEŠ ša₂ ib-nu-u₂ se-bet-ti-šu₂-un
+AššNB1 o 9'. u₂-še-ṣa-°\ma?° [x x x x x x x x x x x]
+AššMA1a o 4'. [u₂-še-ṣa-am-m]a ša-a-r[i x x x x x x x x x]
+HuzNA1 o 47. [u₂-še-ṣ]a-am-ma IM-MEŠ ša₂# [ib-n]u-u₂ se-be[t-t]i-šu₂-nu
+HuzNA3 o 25'. [u₂-še-ṣa-am-m]a IM-[M]EŠ ša₂ ib#-nu#-u₂ se#-bet#-ti-šu₂#-nu#
+BabaNB2 o 6'. [u₂-še-ṣa-a]m-ma# ša-a-ri ša₂ ib-nu-u₂ se-bet-ti-šu-un#
+NinNACom1 o 19b. !qt u₂#-še-ṣa-am-ma IM-MEŠ ša₂ ib-nu-u₂ [ !cm x x x x x (x x x)]
+
+#tr.en: Mounting in readiness behind him to roil inside Tiamat.
+48. %n qerbiš (|) tiāmti (|) šudluhu || tebû | arkīšu
+NinNA1b o 14'. qer-biš# [x x x x x x x x x x x]
+NinNA2 o 13'. qer-biš ti-amti šu-ud-lu-hu ti-bu-u₂ EGIR-šu₂
+AššNB1 o 10'. qer-bi-iš [x x x x x x x x x x x]
+AššMA1a o 5'. [x x] ti-amti šu#-[ud-lu-hu x x x x x]
+HuzNA1 o 48. [qer-bi]š ti-amti šu-ud-lu-hu te-bu-u EGIR-šu₂
+HuzNA3 o 26'. [x x t]i-amti š[u]-ud-lu-hu te#-b[u-u] EGIR#-šu₂#
+BabaNB2 o 7'. [qer-bi]-iš# ti-amti šu-ud-lu-hu te-bu-u₂ ar-ki-šu
+
+#tr.en: Then the Lord raised the Deluge, his great weapon.
+49. %n iššī-ma | bēlu || abūba (|) kakkašu (|) rabâ
+// L I.2 SB "IV" 75
+NinNA1b o 15'. iš#-ši#-[ma x x x x x x x x x x]
+NinNA2 o 14'. iš-ši-ma be-lu₄ a-bu-ba {giš}TUKUL-šu₂ GAL-a
+AššNB1 o 11'. iš-ši-ma [x x x x x x x x x x]
+AššMA1a o 6'. [x x x b]e-lu₄ a-b[u-ba x x x x x]
+HuzNA1 o 49. [iš-ši-m]a be-lu₄ a-bu-ba {giš}TUKUL-šu GAL-a
+HuzNA3 o 27'. [iš-š]i-ma# be-lu₄ a-bu-ba {giš}TUK[UL-š]u₂ GAL-[a]
+BabaNB2 o 8'. [iš-š]i-ma be-lu₄ a-bu-bu kak-ka-šu ra-ba-a-am
+$ single ruling
+
+#tr.en: He mounted the terrible chariot, the unopposable Storm Demon,
+50. %n narkabta (|) ūma (|) lā mahra || galitta | irkab
+NinNA2 o 15'. {giš}GIGIR u₄-mu la mah-ri ga-lit-ta ir-kab
+AššNB1 o 12'. {giš}GIGIR u₄-m[i x x x x x x x x]
+AššMA1a o 7'. [x x u₄-m]i la-a m[ah-ri x x x x x]
+HuzNA1 o 50. {(10)} {giš}GIGIR u₄#-mu la mah-hi-rat ga-lit-ta ir-kab
+HuzNA3 o 28'. [x x] u₄#-mu# la mah-hi-[r]at ga-lit-ta ir#-kab#
+BabaNB2 o 9'. [{giš}GIG]IR u₄-mu la mah-ru ga-lit-tu₄ ir-ka-ab
+
+#tr.en: He hitched to it the four-steed team, he tied (the reins) at his side:
+51. %n iṣmissim-ma | erbet (|) naṣmadī || idušša | īlul
+NinNA2 o 16'. iṣ-mid-sim-ma er-bet na-aṣ-ma-di i-du-uš-ša₂ i-lul
+AššNB1 o 13'. iṣ-mi-is-s[im?-ma x x x x x x x x x x x x]
+AššMA1a o 8'. [iṣ-mid-si]m-ma er-be[t x x x x x x x x x x]
+AššMA1b o 1'. [iṣ]-mid#-[sim-ma x x x x x x x x x x x x]
+HuzNA1 o 51. [iṣ-mid-s]im-ma# er#-be₂#-ta na-aṣ-ma-du i-du-uš-ša₂ i-lul
+HuzNA3 o 29'. [iṣ-mid]-sim#-ma er-be₂-ta na-aṣ-ma-du i#-du#-uš-ša₂ i#-[lu]l
+BabaNB2 o 10'. [iṣ]-mid-šum-ma LIMMU na-aṣ-ma-du i-du-uš-šu i-lu-ul
+
+#tr.en: “Slaughterer,” “Merciless,” “Overwhelmer,” “Soaring.”
+52. %n šaggiša | lā pādâ || rāhiṣa | mupparša
+NinNA2 o 17'. ša#-[ag-gi-ša₂? l]a pa#-du-u₂ ra-hi-ṣu mu-up-par-ša₂
+AššNB1 o 14'. ša#-ag-gi-[ša₂ x x x x x x x x x x x]
+AššMA1a o 9'. [x x x] la-a pa-[du-u x x x x x x x]
+AššMA1b o 2'. [šag]-gi-š[a x x x x x x x x x x x]
+HuzNA1 o 52. šag-gi-šu# la pa-du-u ra-hi-ṣu mu-up-par-ši
+HuzNA3 o 30'. [šag]-gi#-šu la pa-du-u ra-hi-[ṣu m]u-u[p-par-ši]
+BabaNB2 o 11'. [š]ag-gi-šu la pa-du-u₂ ra-hi-ṣu mu-up-par-šu
+
+#tr.en: Their lips are curled back, their teeth bear venom,
+53. %n patûni | šaptī || šinnāšunu | našâ (|) imta
+NinNA2 o 18'. [x x x ša]p-ti šin-na-šu₂-nu na-ša₂-a im-ta
+AššNB1 o 15'. pa#-tu-u₂#-[ni x x x x x x x x x x x]
+AššMA1a o 10'. [x x x ša]p-tu₂ š[i-in-na-šu-nu x x x x x]
+AššMA1b o 3'. [pa]-tu#-ni# [x x x x x x x x x x x x]
+HuzNA1 o 53. pa-tu-nu šap-ti šin-na-šu#-nu# na#-ša₂#-a im#-ta
+HuzNA3 o 31'. [x x x] šap-ti# š[i]n-na-šu#-n[u x x x im-t]a!?
+BabaNB2 o 12'. [x x x x x ši]n-na-šu-nu# na-ša-a im-tu₄
+
+#tr.en: They know not fatigue, they are trained to trample down.
+54. %n anāha | lā īdû || sapāna | lamdū
+NinNA2 o 19'. [x x x x] i#-du#-u₂ sa-pa-na# lam-du
+AššNB1 o 16'. a#-[na-ha x x x x x x x x x]
+AššMA1a o 11'. [x x x la]-a# i#-du#-[u₂ x x x x x]
+AššMA1b o 4'. [a-n]a-ha la#-a# [x x x x x x x x]
+#note: Lambert claims in the apparatus entry that @i{la} is omitted in AššMA1b. If this was true, AššMA1a and AššMA1b could not be part of the same tablet (@bib{RN1013@84}). Instead, it seems possible to read the traces at the end of AššMA1b o 4' as @i{la-a}.
+HuzNA1 o 54. a-na-ha la i-du-u₂ sa-pa-na lam-na!?
+HuzNA3 o 32'. [a-na-h]a [l]a i-[du]-u₂# [s]a-pa-na [la]m-na!?
+BabaNB2 o 13'. [x x x x x x x x x x l]a-am#-du#
+
+#tr.en: He stationed at his right gruesome battle and strife,
+55. %n ušziz | imnuššu || tāhāza (|) rašba | u tuqunta
+NinNA2 o 20'. [x x im]-nu?#-[uš-šu₂ ta-ha]-za ra-aš₂-ba u# [t]u-qu-un#-tu₄#
+AššMA1b o 5'. [uš]-zi-iz im-n[u-uš-šu x x x x x x x x x x x]
+HuzNA1 o 55. uš-ziz im-nu-uš-šu ta-ha-za ra-aš₂-ba u tu-qu-un#-tu₂
+HuzNA3 o 33'. [uš-z]iz [i]m-nu-uš#-šu# ta#-ha#-za ra-aš₂-ba u tu-qu-un-tu₂
+
+#tr.en: At his left fray that overthrows all formations.
+56. %n šumēla | ananta || dāʾipat (|) kala (|) muttendī
+#note: On @i{muttendī} instead of @i{muttetendī} see @bib{taylor_new_2001@227}.
+NinNA2 o 21'. šu-me-la u!?# [x x x] x da#-a#-a-i-pat k[a-la mut-t]e-[e]n-d[i]
+AššMA1b o 6'. [šu-m]e-lam a-na-a[n-ta x x x x x x x x x x x]
+HuzNA1 o 56. šu-me-la a-na-an-ta da-a-a-i-pat ka-la mut-{+te#}ten₂#-di#
+HuzNA3 o 34'. [šu-me-l]a a-na-an-ta# da-a-a-i#-pat ka-la mut-{+te#}te[n₂-di]
+
+#tr.en: He was garbed in a ghastly armored garment,
+57. %n nahlapta | apluhta || pulhāti | halip-ma
+NinNA2 o 22'. na-ah-l[ap-ta ap-luh]-ti# pul-ha-ti# h[a]-lip#-m[a]
+AššMA1b o 7'. [{tug₂}GU₂].E₃ ap-luh-t[e x x x x x x]
+HuzNA1 o 57. na-ah-lap-ta ap-luh*-ti pul-ha-ta ha-lip-ma
+#note: On the reading @akk{ap-luh-ti} in HuzNA1 see the corrigenda to STT 1 in @bib{RN2069@23}.
+HuzNA3 o 35'. [na-ah-la]p-ta# ap#-luh-ti pul-ha-ta ha-li[p-m]a
+
+#tr.en: On his head he was covered with terrifying glories.
+58. %n melammī | rašubbāti || apir | rāšuššu
+NinNA2 o 23'. me-lam-mi u!? x [x x (x) a]-pi#-ir ra#-šu#-uš-šu₂
+AššMA1b o 8'. [me-la]m-mi ra-šub-b[a-ti x x x x x x x]
+HuzNA1 o 58. me₂-lam-mi r[a]-šub-ba-ti a-pi-ir ra-šu-uš-šu
+HuzNA3 o 36'. [me₂-lam-m]a!? ra-šub#-[b]a-ti a-pi#-ir ra-šu-uš#-šu#
+
+#tr.en: The Lord made straight and pursued his way,
+59. %n uštēšir-ma | bēlu || urhašu | ušardī-ma
+NinNA2 o 24'. uš-te-šir-ma [x x u]r-ha-šu₂ u₂-šar-di-ma
+AššMA1b o 9'. [uš-t]e-šir-ma be-lu₄ [x x x x x x x]
+HuzNA1 o 59. uš#-te#-šir#-ma be#-lu₄ ur-ha-šu u₂!-šar-di-šu
+HuzNA3 o 37'. [uš-te-šir]-ma be-[l]u₄ ur-ha-šu u₂!(I)-šer₃-di-šu#
+
+#tr.en: Toward raging Tiamat he set his face.
+60. %n ašriš (|) tiāmti | ša uggugat || pānuššu | iškun
+NinNA2 o 25'. aš₂-riš ti-amti# [x ug-gu]-gat# pa-nu-uš-šu₂ iš-kun
+AššMA1b o 10'. [aš₂-ri]š ta-mi-a-ti ša u[g-gu-gat x x x x x x]
+HuzNA1 o 60. {(10)} aš₂#-riš# ti-amti ša₂ ug-gu-gat pa-nu-uš-šu iš-kun
+HuzNA3 o 38'. [x x ti]-amti ša₂ ug#-gu-gat pa#-nu-uš#-šu iš-k[u]n
+
+#tr.en: He was holding a magic spell ready upon his lips,
+61. %n ina šaptīšu (||) tâ | ukalla
+NinNA2 o 26'. i-na šap-ti-[šu₂ x x] u₂-kal-lu
+AššMA1b o 11'. [x x ša]p-te-e-šu [x x x x x]
+HuzNA1 o 61. i-na šap-ti-šu ta-a u₂-kal-la
+HuzNA3 o 39'. [x x šap-ti]-šu# ta#-a u₂#-kal-l[a]
+
+#tr.en: A plant, antidote to venom, he was grasping in his hand.
+62. %n šammi (|) imta (|) bullî || tamih | rittuššu
+NinNA2 o 27'. šam-mi im-ta b[ul-li]-i ta-me-eh rit-tuš-šu₂
+AššMA1b o 12'. [šam-m]i im#-ti bu-ul-l[i-i x x x x x x x]
+AššMA1c o 1'. [x x x x x x x ta-me]-eh# [x x x]
+HuzNA1 o 62. šam-mi im-ta bul-li-i ta-me-eh rit#-tuš-šu
+HuzNA3 o 40'. [x x x x x x x ta-me-e]h rit-tuš-šu#
+NinNACom1 o 20. !qt [x x x x] bul-li#-i ta#-[me-eh rit]-tuš-šu [ !cm x x x x x x]
+
+#tr.en: At that moment the gods were stirring, stirring about him,
+63. %n ina ūmīšu | idullūšu || ilū | idullūšu
+NinNA2 o 28'. i-na u₄-mi-šu i-d[ul-l]u-šu DINGIR.DINGIR i-dul-lu-šu₂
+AššMA1b o 13'. [x x u₄-mi]-šu i-dul#-[lu-šu x x x x x x]
+AššMA1c o 2'. [x x x x x x x x x] DINGIR-MEŠ [x x x x]
+HuzNA1 o 63. i-na u₄-mi-šu i-dul-lu-šu DINGIR.DINGIR i-dul-lu-šu
+HuzNA3 o 41'. [x x x x x x x x x x x] i#-dul-lu-šu
+BabaNB3 o 1'. [x x x x (x)] x [x x x] x x [x x x x x (x)]
+
+#tr.en: The gods his fathers were stirring about him, the gods stirring about him.
+64. %n ilū (|) abbūšu | idullūšu || ilū | idullūšu
+NinNA2 o 29'. DINGIR.DINGIR AD.AD-šu₂ i-dul#-lu-šu DINGIR.DINGIR i-dul-lu-šu₂
+AššMA1b o 14'. [x x a]b-bu#-šu i-d[ul-lu-šu x x x x x x]
+AššMA1c o 3'. [x x x x x x x x x] DINGIR-MEŠ [x x x x]
+HuzNA1 o 64. DINGIR.DINGIR AD.AD-šu i-dul-lu-šu DINGIR.DINGIR i-dul-lu-šu
+HuzNA3 o 42'. [x x x x x x x x x x x i]-dul#-lu-šu#
+BabaNB3 o 2'. [x x] ab#-be#-e#-šu i#-du-lu-šu DIN[GIR.DINGIR x x x x]
+
+#tr.en: The Lord drew near, to see the battle of Tiamat,
+65. %n iṭhē-ma | bēlu || qabluš (|) tiāwati | ibarri
+NinNA2 o 30'. iṭ-he-ma be-lu₄ qab-lu-uš ti-a₃-wa-ti i-bar-ri
+AššMA1b o 15'. [iṭ-he-m]a be-lu₄ [x x x x x x x x x x]
+AššMA1c o 4'. [x x x x x x x x] ta-me-a-t[i x x x]
+HuzNA1 o 65. iṭ-he-ma be-lu₄ qab-lu-šu ta-a₃-wa-ti i-bar-ri
+BabaNB3 o 3'. [iṭ-he]-e#-ma# be-lu₄ qab-lu-uš ta-a₃#-wa#-t[i x x x]
+
+#tr.en: He was looking for the stratagem of Qingu her spouse.
+66. %n ša qingu | hāʾirīša || išeʾʾâ | šibqīšu
+NinNA2 o 31'. ša₂ {d}qin-gu ha-ʾi-ri-ša₂ i-še-ʾ-a šib-qi₂-šu₂
+AššMA1b o 16'. [x {d}qi]n-gu ha-[ʾi-ri-ša₂ x x x x x x x]
+AššMA1c o 5'. [x x x x x x x x] i#-še-ʾ-[a x x x]
+HuzNA1 o 66. ša₂ {d}qin-gu ha-ʾi-ri-ša₂ i-še-ʾ-a šib-qi₂-šu
+BabaNB3 o 4'. [x {d}q]in-gu ha-ʾi-i-ri-šu i-še-ʾ-e š[ib-qi₂-šu]
+
+#tr.en: As he looked, his advance turned to confusion,
+67. %n inaṭṭal-ma (||) eši | mālakšu
+NinNA2 o 32'. i-na-aṭ-ṭal-ma e-ši ma-lak-šu₂
+AššMA1b o 17'. [i-na-aṭ-ṭa]l-ma e?#-[ši x x x]
+AššMA1c o 6'. [x x x x x e]-š[i x x x]
+HuzNA1 o 67. i-na-aṭ-ṭa-lam-ma e-ši ma-lak-šu
+BabaNB3 o 5'. [i-na-a]ṭ-ṭal{+al}-ma e-ši ma-la-a[k-šu]
+
+#tr.en: His thinking was disconcerted and his actions panicky,
+68. %n sapih | ṭēmašū-ma || sehât | epšessu
+NinNA2 o 33'. sa-pi-ih ṭe₃-ma-šu-ma se-ha-ti ep-šet-su
+AššMA1b o 18'. [sa-pi]-ih ṭe₂-[ma-šu-ma x x x x x x x]
+AššMA1c o 7'. [x x x x x x x se]-ha#-a-t[i x x x]
+HuzNA1 o 68. sa-pi-ih ṭe₃-ma-šu-ma sa-ha-ti ep-šet-su
+BabaNB3 o 6'. [sa-p]i-ih ṭe₃-ma-šu-ma se-ha-a-ti e[p-šet-su]
+
+#tr.en: And as for the gods his allies, who went at his side,
+69. %n u ilū | rēṣūšu || ālikū (|) idīšu
+// L I.2 SB "IV" 107
+NinNA2 o 34'. u₃ DINGIR-MEŠ# re-ṣu-šu a-li-ku i-di-šu₂
+AššMA1b o 19'. [x x x] aš₂-ri-š[u? x x x x x x]
+AššMA1c o 8'. [x x x x x x x x x a-l]i-k[u x x x]
+HuzNA1 o 69. u₃ DINGIR.DINGIR re-ṣu-šu a-li-ku i-di-šu
+BabaNB3 o 7'. u₃# DINGIR.DINGIR re-ṣi-šu a-li-ku [x x x]
+
+#tr.en: When they saw the valiant vanguard, their sight failed them.
+70. %n īmurū-ma | qarda (|) ašarēda || niṭilšun | īši
+NinNA2 o 35'. i-mu-ru-[ma] qar#-da a-ša₂-re-du ni-ṭil-šu₂-un i-ši
+AššMA1b o 20'. [i-mu-ru]-ma# qar#-[da x x x x x x x x x x]
+AššMA1c o 9'. [x x x x x x x x x x ni-ṭi]-il!?#-[šu-un x x]
+HuzNA1 o 70. {(10)} i-mu-ru-ma qar#-du# a#-[ša₂]-re-du ni-ṭi-li-šu-un i-ši
+BabaNB3 o 8'. [i-m]u-ru-ma qar-du a-ša#-re-du ni-iṭ#-[li-šu-un x x]
+BabaNBSch5 o 6'. [i-mu]-ru#-ma qar#-du# a-ša-re-du ni-ṭi-il-šu-u[n x x]
+$ beginning of excerpt
+
+#tr.en: Tiamat cast her magic spell pointblank,
+71. %n iddi | t[âš]a | tiāmtu | ul utār | kišāssa
+NinNA2 o 36'. [i]d-di T[U₆-ša₂] ti#-amtu ul u₂-ta-ri ki-šad-sa
+HuzNA1 o 71. [i]d-di T[U₆-ša₂ x x x] u₂-ta-ri ki-šad-sa
+BabaNB3 o 9'. [x x TU₆-š]a? ti-amtu ul [u₂]-ta-ri [x x x]
+BabaNBSch5 o 7'. [x x T]U₆-ša# ti-amtu# ul u₂-ta-a-ri ki-[šad-sa]
+
+#tr.en: Falsehood, lies she held ready on her lips.
+72. %n ina šaptīša | lullâ || ukalla | sarrāti
+NinNA2 o 37'. i#-na šap-t[i]-ša₂ lul-la-a u₂-kal sar-ra-a-ti
+HuzNA1 o 72. [i-n]a š[ap-ti-ša₂ lul-l]a-a u₂-kal sar-ra-a-ti
+BabaNB3 o 10'. [x x šap-ti-š]a lul#-la-a u₂-k[al x x x x]
+BabaNBSch5 o 8'. [x x ša]p-ti-ša# lul#-la-a u₂-kal-la [x x x x]
+
+#tr.en: “… lord, the gods rise against you,
+73. %n ... | ša bēli || ilū | tebûka
+#note: Compare the translation in @bib{RN316@228}: “(Tiamat): ‘Important indeed is [your position] (now) that all the gods are in rebellion against you / having turned from your side to their own!’.”
+NinNA2 o 38'. [x] x ta x x ša₂ be-lu₄ DINGIR.DINGIR ti-bu-ka
+$ end of side
+HuzNA1 o 73. [x] x ta#-a?# [x x be-l]i₂ DINGIR.DINGIR te-bu-šu
+BabaNB3 o 11'. [x x x x x x be]-lu DING[IR.DINGIR x x x]
+BabaNBSch5 o 9'. [x x x x x] ša# be-lu# DINGIR.DINGIR t[e-bu-ka]
+
+#tr.en: “They assembled [where] they are, (but) are they on your side?”
+74. %n ... | iphurū || šunu | ašrukka
+NinNA2 o 39'. [x-r]u-uš-šu₂-un ip-hu-ru šu-nu aš₂-ruk-ka
+#note: Beginning of the line in NinNA2 possibly to be reconstructed as @akk{[ṣe-r]u-uš-šu₂-un}, see @bib{RN43@279}.
+NinNA3 o 1'. [x x x x x x x x] šu-[nu x x x]
+HuzNA1 r 1. [x x]-uš#-šu₂#-[un x x x x x] aš₂#-ru-uš-ka*
+#note: On the reading @akk{aš₂#-ru-uš-ka} in HuzNA1 see the corrigenda to STT 1 in @bib{RN2069@23}.
+BabaNB3 o 12'. [x x x x x ip-h]u-ru šu-n[u x x x]
+$ end of side
+BabaNBSch5 o 10'. [x x x x x ip-hu-r]u šu-nu [x x x]
+
+#tr.en: The Lord [raised] the Deluge, his great weapon,
+75. %n [iššī]-ma | bēlu || abūba (|) kakkašu (|) rabâ
+// L I.2 SB "IV" 49
+NinNA2 o 40'. [iš-ši]-ma# be-lu₄ a-bu-ba {giš}TUKUL-šu₂ GAL-a
+NinNA3 o 2'. [x x x x x a-bu]-ba# {giš#}T[UKUL-šu₂ x x]
+HuzNA1 r 2. [iš-ši]-ma be-lu₄# [x x x] {giš#}TUKUL-šu GAL-a
+BabaNB3 r 1. [x x x x x] a#-bu-bu# kak-k[a-šu x x]
+BabaNBSch5 o 11'. [x x x x x a-bu]-bu# kak-ka-[šu x x]
+
+#tr.en: To Tiamat, who acted conciliatory, sent he (this word),
+76. %n [a]na tiāmti | ša ikmilu || kīam | išpurš[i]
+#note: The translation refers a reading @i{igmilu}, “to act conciliatory,” which is also possible. Compare the translation also “À Tiamat qui faisait-des-grâces” (@bib{RN39@628}).
+NinNA2 o 41'. [x x t]i-amti# ša₂ ik-mi-lu ki-a-am iš-pur-š[i]
+NinNA3 o 3'. [x x x x x x x x k]i-a-am# [x x x]
+HuzNA1 r 3. [a]-na ti-amti ša₂ ik-[mi-lu k]i-a-am iš-pur
+BabaNB3 r 2. [x x ti-amt]i ša ik-mi-l[u x x x x x x]
+BabaNBSch5 o 12'. [x x x x x x x x ki]-a#-[am x x]
+
+#tr.en: “Why outwardly do you assume a friendly attitude,
+77. %n mīnâ | tubbâti || eliš | našâtī-ma
+NinNA2 o 42'. [x x x tub]-ba#-a-ti e-liš na-ša₂-ti-[ma]
+NinNA3 o 4'. [x x x x x x x] e-liš na#-ša₂?#-t[i-ma]
+HuzNA1 r 4. mi-na-a tub!(UM)-ba-a-ti [e-l]iš na-ša₂-ti-ma
+BabaNB3 r 3. [x x x] tu-ub-ba-a-ti e-l[i-iš x x x x]
+
+#tr.en: “While your heart is plotting to open attack?
+78. %n u kapid | libbakī-ma || dekê | ananta
+NinNA2 o 43'. [x x x lib₃]-ba#-ki-ma de-ke a-na-an-[ta]
+NinNA3 o 5'. [x x x x x x x] de-ke a-na-an-[ta]
+HuzNA1 r 5. u₃# ka-pid lib₃-ba-ki-ma de#-ke# a-na-an-ta
+BabaNB3 r 4. [x k]a-pi-id lib₃-ba-ki-ma d[e-ke x x x x]
+
+#tr.en: “The children cried out, they were oppressive to their parents,
+79. %n issû | mārū || abbīšunu | idaṣṣū
+NinNA2 o 44'. [x x x x x (x)] AD#.AD-šu₂-nu i-da-a[ṣ-ṣu]
+NinNA3 o 6'. [x x x x x (x) A]D-AD-šu-nu i-da-a[ṣ?-ṣu]
+HuzNA1 r 6. is-su-u₂ DUMU.DUMU-MEŠ AD.AD-šu-nu i-da-aṣ-ṣu
+BabaNB3 r 5. [is-su]-u₂# ma-ru-u₂ ab-bu-šu#-[nu x x x x]
+
+#tr.en: “But you, their own mother, spurned all natural feeling.
+80. %n u attī | ālittašunu || tazerrī | rēma
+// cf. F CBS.19842 ii 61
+NinNA2 o 45'. [x x x a-lit-ta-š]u-nu ta-ze-ri r[e-e-ma]
+NinNA3 o 7'. [x x x a-lit-ta]-šu₂#-nu ta#-zer-ri re-e-[ma]
+HuzNA1 r 7. {(10)} u₃ at-ti a-lit-ta-šu₂-nu ta-zer-<ri> re-e-ma
+BabaNB3 r 6. [x a]t-ta a#-lit-ta-šu-ni ta-z[e-ri x x x]
+
+#tr.en: “You named Qingu to be spouse for you,
+81. %n tabbî | qingu | ana hāʾirūtīki
+NinNA2 o 46'. [x x x x x x x] a#-na# ha-ʾi-ru#-[ti-ki]
+NinNA3 o 8'. [x x x {d}qin-g]u a-na ha-ʾi-i-ru-ti#-k[i]
+HuzNA1 r 8. tab-bi-ma {d}qin-gu a-na ha-ʾi-ru-ti-ki
+BabaNB3 r 7. [ta]-am#-be₂-e {d}qin-gu a-na ha-ʾi-[ru-ti-ki]
+
+#tr.en: “Though he had no right to be, you set him up for chief god.
+82. %n ana lā simātīšu | taškunīš || ana paraṣ (|) ānūti
+NinNA2 o 47'. [x x x x x x x x x x x pa-ra-a]ṣ {d#}e!?#-nu#-ti
+NinNA3 o 9'. [x x x x x x x taš-ku]-ni#-šu₂# a-na pa#-ra-aṣ {d}a-n[u-ti]
+HuzNA1 r 9. a-na la si-ma-ti-šu taš-ku-ni-iš a-na pa-<ra>-aṣ e-nu-ti
+HuzNA4a o 1'. a#-na# [x x x x x x x x x x x x x x x x x]
+BabaNB3 r 8. [x x] la si-ma-ti-ia taš-kun-ni-[iš x x x x x x x x]
+BabaLBQuo1 o 12'. [...] x ar : suk-kal-lu₄ : LA.BAR : ar-du : !qt ana la si-ma-ti-šu₂ ta-aš₂-k[u-ni-iš x (x) x x x x x x x]
+
+#tr.en: “You attempted wicked deeds against Anshar, sovereign of the gods,
+83. %n ana anšar | šar ilī || lemnēti | tešê-ma
+NinNA2 o 48'. [x x x x x x x x x x x] te-še-ʾ-e-ma
+$ end of side
+NinNA3 o 10'. [x x x x x x x lem-n]e-e#-ti te-eš-š[i-ma]
+HuzNA1 r 10. a-na an-šar₂ LUGAL DINGIR.DINGIR lem-ne-e-ti te-eš-e-ma
+HuzNA4a o 2'. a#-na# an-[šar₂ x x x x x x x x x x x x]
+BabaNB3 r 9. [a-n]a an-šar₂# LUGAL DINGIR.DINGIR lem#-ne#-e#-[ti x x x x]
+
+#tr.en: “And you have perpetrated your evil against the gods my fathers.
+84. %n u ana ilī | abbīya || lemuttaki | tuktinnī
+NinNA2 r 1. [x x x DINGIR].DINGIR# AD.AD-e-a le-mut-ta-ki tuk-tin-n[i]
+NinNA3 o 11'. [x x x x x x x x (x) l]e-mut-ta-ka tuk-[tin-ni]
+HuzNA1 r 11. u₃# a-na DINGIR.DINGIR AD.AD le-mut-ta-ki tuk-tin-ni
+HuzNA4a o 3'. [x x (x) DIN]GIR.D[INGIR x x x x x x x x x]
+BabaNB3 r 10. [x] a-n[a x (x)] x x [(x) x x x x x x x]
+
+#tr.en: “Though your main force is drawn up, though these your weapons are in array,
+85. %n lū ṣandat | ummātki || lū ritkusū (|) šunu | kakkūki
+NinNA2 r 2. [x] ṣa#-an-da-at um-mat-ki lu rit-ku-su šu-nu {giš}TUKUL-MEŠ-ki
+NinNA3 o 12'. [x x x x x x x x l]u rit-ku-su šu-nu {g[iš}TUKUL-MEŠ-ki]
+HuzNA1 r 12. lu-u₂# ṣa-an-da-at um-mat-ku!? lu-u₂ rit-ku-su šu-nu {giš}TUKUL-MEŠ-ki
+HuzNA4a o 4'. lu-u₂# [x x x x x x x x x x x x x x x x x]
+BabaNB2 r 1'. [x x ṣa-an-da]-at# um#-ma#-[at-ki x x x x x x x x x x]
+BabaNBSch7 r 1'. lu-u₂# ṣa#-an#-d[a-at x x x x x x x x x x x x x x]
+
+#tr.en: “Come within range, let us meet in single combat, you and I!”
+86. %n endīm-ma | anāku (|) u kâši || i nīpuš | šašma
+NinNA2 r 3. [e]n-di-im-ma a-na-ku u ka-a-ši i ni-pu-uš ša₂-aš₂-ma
+NinNA3 o 13'. x x [x x x x x x k]a-a-ši# i ni-pu-uš [x x x]
+HuzNA1 r 13. en-di-im#-ma# a-na-ku u₃# ka-a-ši i ni-pu-uš ša₂-aš₂-ma
+HuzNA4a o 5'. en#-di#-ma# a-n[a-ku x x x x x x x x x x x]
+BabaNB2 r 2'. [en-di-i]m-ma a-na-ku u ka-a-šu₂ i ni-pu#-uš# ša₂#-[aš₂-ma]
+BabaNBSch7 r 2'. en-dim-ma a#-[na-ku x x x x x x x x x x x]
+
+#tr.en: When Tiamat heard this,
+87. %n tiāmtu | annīta | ina šemîša
+NinNA2 r 4. ti-amtu an-ni-ta i-na še-mi-ša₂
+NinNA3 o 14'. ti#-[amtu x x x] i-na še-[mi-ša₂]
+HuzNA1 r 14. ti-amtu an-ni-ta i-na še-mi-ša
+HuzNA4a o 6'. ti-amtu an-n[i-ta x x x x x]
+BabaNB2 r 3'. [ti-amt]u an-ni-ta ina še-me-e-šu₂
+BabaNBSch7 r 3'. ti-amtu an-n[i-ta x x x x x]
+
+#tr.en: She was beside herself, she turned into a maniac.
+88. %n mahhūtiš | ītemi || ušanni | ṭēnša
+NinNA2 r 5. mah-hu-tiš₂ i-te-mi u₂-ša₂-an-ni ṭe₃-en-ša₂
+NinNA3 o 15'. mah#-hu#-tiš₂# [x x x] u₂#-ša₂#-an-ni ṭe₃-[en-ša₂]
+HuzNA1 r 15. mah-hu-tiš₂ i-te-mi u₂-ša-an-ni ṭe₃-en-ša
+HuzNA4a o 7'. [m]ah-hu#-tiš₂# i-te-[mi x x x x x x x]
+BabaNB2 r 4'. [mah-hu]-ti-iš i-te-me u₂-ša₂-an-nu ṭe₃-e[n-ša₂]
+BabaNBSch7 r 4'. mah-hu-ti-i[š x x x x x x x x x x]
+BabaNBSch6b o 2'. [x x x x i-t]e-me u₂-š[a-an-nu x x x]
+$ beginning of excerpt
+
+#tr.en: Tiamat shrieked loud, in a passion,
+89. %n issī-ma | tiāmtu || šitmuriš | elīta
+NinNA2 r 6. is-si-ma ti-amtu šit-mu-riš e-li-ta
+NinNA3 o 16'. is#-si#-ma# [x x ši]t-mu#-riš e-[li-ta]
+HuzNA1 r 16. is-si-ma ti-amtu šit-mu-riš e-li-šu
+HuzNA4a o 8'. i[s-s]i-ma ti-am[tu x x x x x x]
+BabaNB2 r 5'. [is-si-m]a ti-amtu šit-mu-ri-iš e#-[li-ta]
+$ single ruling
+BabaNBSch7 r 5'. is-si-ma t[i-amtu x x x x x x x]
+BabaNBSch6b o 3'. [x x x ti-amt]u ši-it-mu-ri-i[š x x x]
+
+#tr.en: Her frame shook all over, down to the ground.
+90. %n šuršiš | malmališ || itrurā | išdāša
+NinNA2 r 7. šur-šiš ma-al-ma-liš it-ru-ra iš-da-a-[ša₂?]
+NinNA3 o 17'. šur₂!?#-šiš# [x x x x i]t-ru#-ra iš-[da-a-ša₂?]
+HuzNA1 r 17. {(10)} šur-šiš ma-al-ma-liš it-ru-ra iš-da-šu
+HuzNA4a o 9'. šur#-šiš ma-al-ma-l[iš x x x x x x]
+BabaNB2 r 6'. [šur-ši-i]š ma#-[al-ma-li]-iš# it-ru-ru iš-da-a-šu₂
+BabaNBSch7 r 6'. šur-ši#-iš# ma#-[al-ma-li-iš x x x x x x x]
+BabaNBSch6a o 1'. šur-ši-iš# [x x x x x x x x x x x x]
+BabaNBSch6b o 4'. [x x x ma-al]-ma-li-iš it-[ru-ru x x x x]
+
+#tr.en: She was reciting an incantation, casting her spell,
+91. %n imanni | šipta || ittanaddi | tâša
+NinNA2 r 8. i-man-ni šip-ta it-ta-nam-di ta-a-[ša₂?]
+NinNA3 o 18'. i#-man-ni [x x i]t-ta#-nam-di ta-[a-ša₂]
+HuzNA1 r 18. i-man-ni šip-ta it-ta-nam-di ta-a-šu
+HuzNA4a o 10'. i-man-[ni x x x x x x x x x]
+$ end of side
+BabaNB2 r 7'. [x x x x x i]t-ta-nam-di ta-a-šu₂
+BabaNBSch6a o 2'. i-ma-an-n[a x x x x x x x x x x x]
+BabaNBSch6b o 5'. [x x x x š]i-ip-tu₄ it-ta-n[a-am-di x x x]
+
+#tr.en: While the gods of battle were whetting their blades.
+92. %n u ilū | ša tāhāzi | ušaʾʾalū | šunu | kakkīšun
+NinNA2 r 9. u₃ DINGIR.DINGIR ša₂ ME₃ u₂-ša₂-ʾa-lu šu-nu {giš}TUKUL-MEŠ-šu₂-u[n]
+NinNA3 o 19'. u₃ DINGIR#.DINGIR# ša₂# ME₃# u₂-ša₂#-ʾ-a-lu šu-nu {g[iš}TUKUL-MEŠ-šu₂-un]
+$ end of side
+HuzNA1 r 19. u₃ DINGIR.DINGIR ša₂ ME₃ u₂-ša₂-ʾa-lu šu-nu {giš}TUKUL-MEŠ-šu₂-un
+HuzNA4a r 1. u₃ DINGIR.DINGIR# [x x x x x x x x x x x x x]
+BabaNB2 r 8'. [x x x x x u₂-ša₂]-ʾ#-a-lu šu₂-nu# kak#-ki-šu
+BabaNBSch6a o 3'. u₃ DINGIR.DIN[GIR x x x x x x x x x x x x]
+BabaNBSch6b o 6'. [x x x x t]a-ha-zi# [x x x x x x x x x x x]
+
+#tr.en: Tiamat and Marduk, sage of the gods, drew close,
+93. %n innendū-ma | tiāmtu || (u) apkal ilī | marduk
+NinNA2 r 10. in-nen-du-ma ti-amtu ABGAL DINGIR-MEŠ {d}AMAR.[UTU]
+NinNA3 r 1. in-nen-du-ma ti-amtu ABGAL DINGIR-MEŠ {d}AMAR.UTU
+HuzNA1 r 20. in-nen-du-ma ti-amtu u₃ ABGAL DINGIR.DINGIR {d}AMAR.UTU
+HuzNA4a r 2. in-nen-du-ma# [x x x x x x x x x x]
+BabaNB2 r 9'. [x x x x x x x] u₃# ABGAL DINGIR.M[EŠ {d}A]MAR.UTU
+BabaNBSch6a o 4'. in-nen-[du-ma x x x x x x x x x]
+BabaNBSch6b o 7'. [in-nen-d]u-m[a x x (x) x x x x x x]
+$ end of excerpt
+
+#tr.en: They locked in single combat, joining for the fray.
+94. %n šašmiš | itlupū || qitrubū | tāhāziš
+NinNA2 r 11. ša₂-aš₂-miš₂ it-lu-pu qit-ru-bu ta-ha-z[i-iš]
+NinNA3 r 2. ša₂-aš₂-miš₂ it-lu-pu qit-ru-bu ta-ha-zi-iš
+HuzNA1 r 21. ša₂-aš₂-miš₂ it-lu-pu qit-ru-bu ta-ha-zi-iš
+HuzNA4a r 3. ša₂-aš₂-miš₂ it-lu#-[pu x x x x x x x]
+BabaNB2 r 10'. [x x x x x x qit-r]u-bu# ta#-[ha-zi-i]š
+
+#tr.en: The Lord spread out his net, encircled her,
+95. %n ušparrir-ma | bēlu || sapārašu | ušalmīši
+NinNA2 r 12. uš-pa-ri-ir-ma be-lu₄ sa-pa-ra-šu₂ u₂-šal-m[i-ši]
+NinNA3 r 3. uš-pa-ri-ir-ma be-lu₄ sa-pa-ra-šu₂ u₂-šal-me-ši
+HuzNA1 r 22. uš-pa-ri-ir-ma be-lu₄ sa-pa-ra-šu u₂-šal-me-ši
+HuzNA4a r 4. uš-pa-ri-ir-ma b[e-lu₄ x x x x x x x x]
+
+#tr.en: The ill wind he was holding behind him he released in her face.
+96. %n imhulla | ṣābit arkati || pānušša | umtaššir
+NinNA2 r 13. im-u₃!?-lu ṣa-bit ar-ka-ti pa-nu-uš-šu₂ um-taš-šir₃
+NinNA3 r 4. im-hul-la ṣa-bit ar-ka-ti pa-nu-uš-ša₂ um-taš-šir₃
+HuzNA1 r 23. im-hul#-la ṣa-bit ar-ka#-ti# pa-nu-uš-ša₂ um-taš-šir₃
+HuzNA4a r 5. im-hul-la ṣa-bit a[r-ka-ti x x x x x x x x]
+
+#tr.en: Tiamat opened her mouth to swallow (him),
+97. %n iptē-ma | pīša || tiāmtu | ana laʾātīša
+NinNA2 r 14. ip-te-ma pi-i-ša₂ ti-amtu a-na la-ʾ-a-ti-šu₂
+NinNA3 r 5. ip-te-ma pi-i-ša₂ ti-amtu a-na la-ʾ-a-ti-ša₂
+HuzNA1 r 24. [i]p-te-ma pi-i-ša t[i]-amtu# a-na la-ʾ-a-ti-ša
+HuzNA4a r 6. ip-te-ma pi-i-š[a x x x x x x x x x]
+
+#tr.en: He thrust in the ill wind so she could not close her lips.
+98. %n imhulla | uštēriba || ana lā katām (|) šaptīša
+NinNA2 r 15. im-hul-la uš-te-ri-ba a-na la ka-tam šap-ti-šu₂
+NinNA3 r 6. im-hul-la uš-te-ri-ba a-na la ka-tam šap-ti-ša₂#
+HuzNA1 r 25. [i]m-hul-la uš-te-ri-ba a-na la ka-<ta>-mu šap-ti-šu
+HuzNA4a r 7. im-hul-la uš-te-r[i-ba x x x x x x x x]
+
+#tr.en: The raging winds bloated her belly,
+99. %n ezzūtu | šārū || karšaša | iṣānū-ma
+NinNA2 r 16. ez-zu-ti IM-MEŠ kar-ša-ša i-ṣa-nu-ma
+NinNA3 r 7. ez-zu-tu₄ IM-MEŠ kar-ša-ša i-ṣa-nu-ma#
+HuzNA1 r 26. ez-zu#-tu₄# IM-MEŠ kar-ša-ša i-ṣa-°x\°-nu-ma
+HuzNA3 r 1'. [x x x x x x x x] i#-[ṣa-nu-ma]
+HuzNA4a r 8. [ez-z]u-tu₄ I[M-MEŠ x x x x x x x]
+
+#tr.en: Her insides were stopped up, she gaped her mouth wide.
+100. %n innesil | libbašā-ma || pâša | ušpalki
+NinNA2 r 17. in-ne₂-sil lib₃-ba-ša₂-ma pa-a-ša uš-pal-ki
+NinNA3 r 8. in-ne₂-sil lib₃-ba-ša₂-ma pa#-a#-ša₂ uš-pal-ki
+HuzNA1 r 27. {(10)} in-ne₂-sil lib₃-b[a-š]a-ma pa-a-ša uš-pal-ki
+HuzNA3 r 2'. [x x x x x x x x x x] uš-pal-ki
+HuzNA4a r 9. [in-ne₂]-sil# [x x x x x x x x x x]
+
+#tr.en: He shot off an arrow, it ruptured her belly,
+101. %n issuk | mulmulla || ihtepi | karassa
+NinNA2 r 18. is-suk mul-mul-la ih-te-pi ka-ras-sa
+NinNA3 r 9. is-suk mul-mul-la ih-te-pi ka-ras-su
+HuzNA1 r 28. is-suk mul-mu[l-la ih-t]e-pa ka-ras-su
+HuzNA3 r 3'. [x x x x x ih-t]e-pa ka#-ras#-su
+BabaLBQuo2 o 1'. !zz [MUL.MUL {giš}TUKUL dan]-nu ša₂ ŠU-MIN-šu₂ !qt mul-mul is-suk!(SI)-ma i[h-te-pi x x x]
+BabaLBQuo3 o 13b-14. !zz ŠA₃ ŠA₃ GU₃.GU₃-si Š[U GIDIM (x)] | [(x)] ša₂#-ne₂-e {d}15 UŠ₂ ŠA₃ : {d}15 : !qt is-suk mul-mul ih#-te-pi ka-ras#-[sa]
+
+#tr.en: It cut to her innards, it pierced the heart.
+102. %n qerbīša | ubattiqa || ušalliṭ | libba
+NinNA2 r 19. qer#-bi-ša₂ u₂-bat-ti-qa u₂-šal-liṭ lib₃-ba
+NinNA3 r 10. qer-bi-ša₂ u₂-bat-ti-qa u₂-šal-liṭ lib₃-ba#
+HuzNA1 r 29. qer-bi-ša₂ u₂#-bat-ti-[qa] u₂-ša₂-liṭ lib₃-ba
+HuzNA3 r 4'. [x x x x x x x] u₂#-ša₂-liṭ [lib₃]-ba
+
+#tr.en: He subdued her and snuffed out her life,
+103. %n ikmīšī-ma | napšatuš | uballi
+NinNA1b r 1'. ik#-[mi-ši-ma x x x x x x]
+NinNA2 r 20. ik#-mi-ši-ma nap-ša₂-tiš₂ u₂-bal-li
+NinNA3 r 11. ik-mi-ši-ma# nap-ša₂-tuš u₂-bal-li#
+HuzNA1 r 30. ik-mi-ši#-ma nap-ša₂-[tuš] u₂#-bal-li
+HuzNA3 r 5'. [x x x x nap]-ša₂#-tuš# u₂#-[b]al-li
+
+#tr.en: He flung down her carcass, he took a stand upon it.
+104. %n šalamtaš | iddâ || elīša | izzaza
+NinNA1b r 2'. ša₂-lam-t[aš x x x x x x x x]
+NinNA2 r 21. ša₂#-lam-<ta>-ša₂ id-da-a UGU-ša₂ i-za-za#
+NinNA3 r 12. ša₂-lam-taš id#-da#-a UGU-ša₂ iz-zi-za
+AššMA1b r 1'. [x x (x)] (x) x [x x x x x x x x]
+HuzNA1 r 31. ša₂-lam-taš id#-da-a UGU!-[ša₂] iz-za-zi
+HuzNA3 r 6'. [x x x id-da]-a UGU-[š]a₂ [iz-z]a-zi
+
+#tr.en: After he had slain Tiamat, the vanguard.
+105. %n ištu (|) tiāmta (||) ālik pāni | ināru
+NinNA1b r 3'. ul-tu ti#-[amta x x x x x x x]
+NinNA2 r 22. ul#-tu ti-amta a-lik pa-ni i-na-r[u]
+NinNA3 r 13. ul#-[t]u ti#-amta# a-lik pa-ni i-na-ru
+AššNB1 r 1'. ul#-t[u x x x x x x x x x]
+AššMA1b r 2'. [x x x (x)] (x) a*#-l[ik? x x x x x]
+HuzNA1 r 32. ul-tu [t]i-amta a-lik pa-[ni] i#-na-ru
+HuzNA3 r 7'. [x x t]i-amta a-lik [pa]-ni [i]-na-ru
+
+#tr.en: Her forces scattered, her host dispersed.
+106. %n kiṣrīša | uptarrira || puhurša | issapha
+NinNA1b r 4'. ki-iṣ-ri-ša₂# [x x x x x x x x x x]
+NinNA2 r 23. ki#-iṣ-ri-ša₂ up-tar-ri-ra pu-hur-ša₂ is-sap-[ha]
+NinNA3 r 14. [ki-i]ṣ-ri#-ša₂ [up-ta]r-ri-ra pu-hur-ša₂ is-sap-h[a]
+AššNB1 r 2'. ki#-iṣ-ru#-ša# [x x x x x x x x x x]
+AššMA1b r 3'. [x x x x] up-ta*#-[ri-ra x x x x x x]
+HuzNA1 r 33. ki-iṣ-r[i]-ša₂# up#-tar-ri-r[a x x x] is-sap#-ha
+HuzNA3 r 8'. k[i-iṣ]-ri#-[š]a₂ up-tar-ri-r[a p]u-hur-ša₂# is-sap#-ha#
+
+#tr.en: As for the gods her allies, who had marched beside her,
+107. %n u ilū | rēṣūša | ālikū (|) idīša
+// L I.2 SB "IV" 69
+NinNA1b r 5'. u₃# DINGIR#.[DINGIR x x x x x x x x x]
+NinNA2 r 24. u₃ DINGIR.DINGIR re-ṣu-ša₂ a-li-ku i-di-[ša₂]
+NinNA3 r 15. u₃# DINGIR#.DINGIR# re#-ṣu-ša₂ a-li-ku i-di-ša₂
+AššNB1 r 3'. u₃# DINGIR-MEŠ [x x x x x x x x x]
+AššMA1b r 4'. [x x x r]e-ṣu-[ša x x x x x x]
+HuzNA1 r 34. u₃ DINGIR.DINGIR [re-ṣ]u-ša₂ a-l[i-ku i-d]i-ša₂
+HuzNA3 r 9'. u₃ DINGIR.[DINGIR] re-ṣu-ša₂ a-l[i-k]u i-di-[ša₂]
+
+#tr.en: In fear and trembling they turned tail,
+108. %n ittarrū | iplahū || usahhirū | alkassun
+NinNA2 r 25. it#-tar-ru ip-la-hu u₂-sah-hi-ru ar-kat₃-su-[un]
+NinNA3 r 16. [it-ta]r-ru# ip#-la#-hu# u₂#-sah#-hi-ra al-kat₃-su-un
+AššNB1 r 4'. it-tar-ru [x x x x x x x x x x x]
+AššMA1b r 5'. [x x x ip-l]a-hu [x x x x x x x x]
+HuzNA1 r 35. it-tar-r[u ip]-la#-hu u₂-s[ah-hi-ra a]l-kat₃-su-[u]n
+HuzNA3 r 10'. [it-tar]-ru# i[p-la]-hu# u₂-sah#-hi#-ru# al#-kat₃-su#-un#
+
+#tr.en: They tried to find a way out to save their lives,
+109. %n ušeṣṣû-ma | napšatuš | eṭēra
+NinNA2 r 26. u₂#-še-ṣu-ma nap-ša₂-tuš e-ṭe-[ra]
+NinNA3 r 17. [u₂-še]-ṣ[u-ma] nap-ša₂-tuš e-ṭe-ru
+AššNB1 r 5'. u₂-še-ṣu-ma n[ap-ša₂-tuš x x x]
+AššMA1b r 6'. [x x x x (x)] x [(x) x x x x]
+HuzNA1 r 36. [u₂-še-ṣ]u-ma nap-ša₂-tuš# e#-ṭe-r[a]
+HuzNA3 r 11'. [u₂-š]e-ṣu-ma nap-ša₂-tu[š] e#-ṭe-ra
+
+#tr.en: There was no escaping the mesh that encircled them.
+110. %n nīta | lamû || naparšudiš | lā leʾû
+NinNA2 r 27. ni#-ta la-mu-u₂ na-par-šu-diš la le-ʾ#-[e]
+NinNA3 r 18. [ni-t]a l[a-mu-u₂] na#-par-šu-di-iš la le-ʾ-e
+AššNB1 r 6'. ni-i-ta la#-[mu-u₂ x x x x x x x x x]
+AššMA1b r 7'. [x x la-mu]-u₂ [x x x x x x x x x]
+HuzNA1 r 37. [x x] la#-mu#-u# na#-pa#-a[r]-šu#-[di-iš] le-ʾ-a
+HuzNA3 r 12'. [ni-i-t]a la-m[u]-u₂ na-par-[šu-di]-iš# le#-ʾ#-a#
+
+#tr.en: He drew them in and smashed their weapons.
+111. %n īsiršunūtī-ma | kakkīšunu | ušabbir
+// cf. L I.2 SB "V" 74
+NinNA2 r 28. i#-sir₂-šu₂-nu-ti-ma {giš}TUKUL-MEŠ-šu₂-nu u₂-ša[b-bir]
+NinNA3 r 19. [i-sir₂]-šu₂#-nu#-ti#-ma# {giš}TUKUL-MEŠ-šu₂-nu u₂-šab-bir
+AššNB1 r 7'. i-si#-ra#-šu₂-nu-[ti-ma x x x x x x x x]
+AššMA1b r 8'. [i-sir₂-šu₂-nu]-ti#-[ma x x x x x x x x]
+HuzNA1 r 38. [i-sir₂-šu₂]-nu#-ti#-ma# {giš}TUKUL-MEŠ-š[u]-nu u₂-šab-bir#
+HuzNA3 r 13'. [i-sir₂]-šu-nu#-ti#-ma [{giš}TUKUL-MEŠ-š]u-nu# [u₂]-šab#-bir#
+
+#tr.en: They were cast in the net and sat in a heap,
+112. %n sapāriš | nadû-ma || kamāriš | ušbū
+NinNA2 r 29. sa#-pa-riš na-du-ma ka-ma-riš u[š-bu]
+NinNA3 r 20. [sa-p]a-riš# na-du-ma ka-ma-riš uš-bu
+AššNB1 r 8'. sa#-pa#-ri-iš na-[du-ma x x x x x]
+HuzNA1 r 39. [sa-pa-ri]š na#-du-ma ka-ma-riš# uš-bu
+HuzNA3 r 14'. [sa-pa-r]iš na-du-ma# [ka]-ma#-r[i]š uš#-bu
+
+#tr.en: They were heaped up in the corners, full of woe,
+113. %n endū | tubqāti || malû | dumāmī
+NinNA2 r 30. e[n]-du tub₂-qa-a-ti ma-lu-u₂ d[u-ma-mi]
+NinNA3 r 21. [en-d]u tub-qa-a-ti ma-lu-u₂ du-ma-mu
+AššNB1 r 9'. en?#-du# t[u-ub-qa-a-ti x x x x x x]
+HuzNA1 r 40. [x x t]ub₂-qa-ti ma-lu-u₂# du-ma-mi
+HuzNA3 r 15'. e[n-du t]ub₂-qa-ti [ma]-lu#-u₂# du-ma-mi
+NinNACom1 o 21a. !qt [x x tub₂-qa-a-t]i ma-lu-u₂# du-ma-mi [( : )]
+$ line continues
+BabaNBCom2 o 3. !qt [x x t]ub-qa-a-ti ma-lu-u₂ du-ma-m[u : !zz ...]
+
+#tr.en: They were bearing his punishment, held in confinement.
+114. %n šēressu | našû || kalû | kišukkiš
+NinNA2 r 31. še#-ret-su na-šu-u₂ ka-lu-u₂ [x x x]
+NinNA3 r 22. [še-ret-s]u na-šu-u ka-lu-u₂ ki-šuk-kiš
+AššNB1 r 10'. še#-re#-es-su na-[šu-u x x x x x x]
+HuzNA1 r 41. [še-ret-s]a na-šu-u₂ ka-lu#-u₂ ki#-š[u]k-kiš
+HuzNA3 r 16'. š[e-r]et-sa# na#-šu#-u₂ [k]a-lu#-u₂# ki-suk-kiš
+NinNACom1 o 21b. !qt [še-ret-su na-š]u-u₂ ka-lu-u₂ ki-šuk-ki# !cm ABUL LUGAL ša₂ ina? B[AD? x x x x x]
+BabaNBCom2 o 4. !zz [x x] x LUGAL ša₂ ina? BAD?-e? x [x] (x) x x [...]
+
+#tr.en: As for the eleven creatures, the ones adorned with glories,
+115. %n (u) ištēn-ešret nabnīti (||) šūt pulhāti | ṣaʾnū
+NinNA2 r 32. u₃ iš-ten₂-eš-ret nab-ni-ti šu-ut pul-ha-ti ṣ[a-ʾ-nu]
+NinNA3 r 23. [x iš-t]en₂-eš-ret nab-ni-ti šu-ut pul-ha-ti i-ṣa-nu
+AššNB1 r 11'. iš#-ten₂#-eš-ret# nab!#-n[i-ti x x x x x x x]
+HuzNA1 r 42. [x iš]-ten₂-eš-ret nab-nit-sa šu#-ut pul-h[a-t]i ṣa-ʾ-nu
+HuzNA3 r 17'. u₃# [iš]-ten₂-e[š]-ret# n[ab-nit-sa š]u-[ut] pul#-h[a-t]i ṣa-ʾ-nu
+
+#tr.en: The demonic horde(?), who went as flunkies at her side,
+116. %n milla (|) gallê || ālikū | kirdip (|) imnīša
+// cf. F DT.234 4'
+NinNA2 r 33. mi-il-la gal-le-e a-li#-[ku x x x x x]
+NinNA3 r 24. [x x x ga]l-le-e a-li-ku kir₄-d[ip] im#-ni#-ša₂
+AššNB1 r 12'. x (x) g[al-le-e x x x x x x x x]
+HuzNA1 r 43. [x x x gal]-le#-e a-li-ku kir₄-di[p] im-ni-ša₂
+HuzNA3 r 18'. [x (x) ga]l-l[e]-e [a-l]i-k[u k]ir₄-[dip] im-ni-ša₂
+BorNB1 r 1'. GAL₅#.LA₂#-MEŠ# [x x x x x x x x]
+
+#tr.en: He put on leadropes, he trussed their arms.
+117. %n ittadi | ṣerrēti || idīšunu | ukassi
+NinNA2 r 34. it#-ta-di ṣer-re-e-ti# i#-di#-šu₂#-[nu# x x x]
+NinNA3 r 25. [x x x] ṣer-re-e-ti i-di-šu-n[u u₂-kas-s]i
+AššNB1 r 13'. it#-ta#-ad#-di ṣer#-[re-e-ti x x x x x x x (x)]
+HuzNA1 r 44. [x x x ṣ]er-re-e-ti# i-di-š[u-n]u u₂-ka-as-si
+HuzNA3 r 19'. [x x x ṣer-re-e-t]i i-di#-[šu-nu u₂-k]a-as-si
+BorNB1 r 2'. it-ta-ad-d[i x x x x x x x x x x x x]
+
+#tr.en: He trampled them under, together with their belligerence.
+118. %n qadu | tuqmātīšunu || šapalšu | ikbus
+NinNA2 r 35. qa₂-du tuq-ma-ti-šu₂-nu ša₂-pal-šu₂ [x x x]
+NinNA3 r 26. [x x tuq]-ma-ti-šu₂-nu# ša₂-pal-šu₂ [x x x]
+AššNB1 r 14'. qa₂#-du tu[q-ma-ti-šu₂-nu x x x x x x]
+HuzNA1 r 45. [x x tuq]-ma#-ti-šu-[nu] ša₂-pal-šu ik-[b]u-us
+HuzNA3 r 20'. [x x tuq-ma-ti-š]u₂-nu ša₂#-p[a]l-šu i[k]-bu#-us#
+BorNB1 r 3'. qa₂-du tuq-ma-t[i-šu₂-nu x x x ik]-b[u]-uš#
+
+#tr.en: As for Qingu, who was trying to be great among them,
+119. %n u qingu (||) ša irtabbû | ina birīšun
+NinNA2 r 36. u₃ {d}qin#-gu ša₂ ir-ta-bu-u₂ b[i-ri-šu₂-un]
+NinNA3 r 27. [x x x x] ša₂ ir-tab#-bu#-u ina b[i-ri-šu₂-un]
+AššNB1 r 15'. u₃# (x) [(x) x x x x x x x x x x x x x]
+HuzNA1 r 46. [x {d}qin]-gu# ša₂# ir#-[t]ab-bu-u i-na bi#-[ri-šu₂]-un
+HuzNA3 r 21'. [x x x x x x x x x i]-na bi-ri-š[u]-un
+BorNB1 r 4'. u₃ {d}qin-gu ša₂ ir-[tab-bu-u x x bi-ri]-šu-un
+BabaNB1 r 1'. [x x x x x x x x x x x bi-r]i-šu#-un#
+
+#tr.en: He bound him and reckoned him among the doomed gods.
+120. %n ikmīšū-ma | itti uggê || šuātu | imnīšu
+NinNA2 r 37. [ik-m]i-šu-ma it-ti {d}UG₅.GA-e šu-a-[tu x x x]
+AššNB1 r 16'. [ik-mi]-šu#-m[a x x x x x x x x x x x x]
+HuzNA1 r 47. [ik-mi-šu-m]a it#-[t]i {d}UG₅.GA-MEŠ š[u-a-tu₂ im-n]i-šu
+HuzNA3 r 22'. [x x x x it]-ti# {d}UG₅#.GA#-MEŠ šu-a-ta# im-ni-šu
+BorNB1 r 5'. ik-mi-šu-ma it-ti {d}UG₅#.[GA-MEŠ x x x i]m-ni-šu
+BabaNB1 r 2'. [x x x x x x x x x x x x x] im-ni-šu
+
+#tr.en: He took away from him the tablet of destinies, which he had no right to,
+121. %n īkimšū-ma (||) tuppi šīmāti | lā simātīšu
+NinNA2 r 38. [i-ki]m-šu-ma DUB NAM-MEŠ la si-m[at!?-ti-šu]
+AššNB1 r 17'. [i]-kim#-šu#-ma# [x x x x x x x x]
+HuzNA1 r 48. [i-kim-šu]-ma [DUB] NAM#-MEŠ la s[i-m]a-ti-šu#
+HuzNA3 r 23'. [x x x x DU]B N[AM-MEŠ l]a si-ma-ti#-šu
+HuzNA4b r 1'. [x x x x x x x x si]-ma?#-[ti-šu]
+BorNB1 r 6'. i-kim-šu-ma DUB NAM-MEŠ & [x si-m]a-ti-šu
+BabaNB1 r 3'. [x x x x x x x x si-m]a-ti-šu
+BabaNB4 r 1'. [i-kim-šu-m]a? D[UB? x x x x x x x]
+
+#tr.en: He sealed it with a seal and affixed it to his chest.
+122. %n ina kišibbi | iknukam-ma || irtuš | itmuh
+NinNA2 r 39. [x x k]i-[š]ib-bi ik-nu-kam₂-ma ir-t[uš x x]
+HuzNA1 r 49. [x x x x i]k-nu-kam₂-ma i[r-tuš i]t-muh
+HuzNA3 r 24'. [x x x x i]k-nu-k[am₂]-ma# ir#-tuš it-muh
+HuzNA4b r 2'. [x x x x x x x x] ir-tuš it#-[muh]
+BorNB1 r 7'. i-na ki-šib-bi ik-nu-kam@v-ma & ir-tu#-uš# it-mu-uh₂
+BabaNB1 r 4'. [x x x x x x x x x ir-tu-u]š it-mu-uh₂
+BabaNB4 r 2'. i#-na# ki#-ši-bi i[k-nu-kam@v-ma x x x x x x]
+
+#tr.en: Having captured his enemies and triumphed,
+123. %n ištu (|) lemnīšu || ikmû | isādu
+// L I.2 SB "I" 73
+NinNA2 r 40. [ul-t]u lem-ne₂-e-šu₂ ik-mu-[u₂ x x x]
+HuzNA1 r 50. [x x x x x i]k-mu-u₂ i-sa-du
+HuzNA3 r 25'. [x x x x x i]k-m[u]-u₂# i-sa-du
+HuzNA4b r 3'. [x x x x x x x x] i-[s]a-[du]
+BorNB1 r 8'. iš-tu lem-ni-šu & ik-mu-u₂ i-sa-du
+BabaNB1 r 5'. [x x x x x x x x] i#-sa#-du
+BabaNB4 r 3'. iš-tu# lem-ni#-šu# [x x x x x x]
+
+#tr.en: Having shown the vaunted foe subservient(?),
+124. %n ayyāba | muttaʾda || ušāpû | šūrīšam
+NinNA2 r 41. [a-a]-bi mut-ta-du u₂-ša₂-p[u-u x x x]
+HuzNA1 r 51. [x x x x x x x] u₂-ša₂-pu-u šu-[ri]-šam
+HuzNA3 r 26'. [x x x x x x x x] u₂#-ša₂-pu-u# šu-ri#-šam
+HuzNA4b r 4'. [x x x x x x x x u₂-ša₂-pu]-u₂# šu-ri-[šam]
+BorNB1 r 9'. a-a-bu mut-ta-ʾ-du & u₂-ša-pu-u₂ šu-ri-šam
+BabaNB1 r 6'. [x x x x x x x x x x x šu-r]i-šam
+NinNACom1 o 22. !qt [a-a-bu mut-ta-ʾ-du] u₂#-ša₂#-[p]u-u₂ šu-r[i-šam ( : ) !bs mut]-ta-du !cm dan-nu !bs šu-pu-u₂ !zz pa [x x x x x x x]
+BabaNB4 r 4'. a-a-<bu> mut-ta-ʾ#-[du x x x x x x x]
+
+#tr.en: Having brought about Anshar's victory over all his enemies,
+125. %n ernitti anšar | eli nakirī || kalîš | ušzizzu
+// cf. L I.2 SB "I" 74
+NinNA2 r 42. [er-ni]t-ti an-šar₂ UGU na-ki-ri k[a-liš x x x x]
+HuzNA1 r 52. [x x x x x U]GU na#-ki#-ri ka-l[iš uš-z]i-iz-za
+HuzNA3 r 27'. [x x x x x] U[GU n]a-ki#-ri# ka-liš [uš]-zi-iz-za
+HuzNA4b r 5'. [x x x an]-šar₂ UG[U x x x k]a-liš uš-zi-[iz-za]
+BorNB1 r 10'. er-nit-ti an-šar₂ e-li na-ki-ru ka-li-iš uš-zi-zu
+BabaNB1 r 7'. [x x x x x x x x x x x x x uš-z]i-zu#
+BabaNB4 r 5'. er#-nit#-ti an-ša[r₂ x x x x x x x x x x x]
+
+#tr.en: Having attained what Nudimmud desired, young Marduk
+126. %n nizmat (|) nudimmud | ikšudu || marduk | qardu
+NinNA2 r 43. [ni-i]z-mat {d}nu-dim₂-mud i[k-šu-du x x x x x]
+HuzNA1 r 53. [x (x) x {d}nu-di]m₂-mud ik-šu#-du [x x x qar]-du#
+HuzNA3 r 28'. [x x x {d}nu-dim₂-m]ud ik-šu-du {d#}[AMAR.UT]U qar-du
+HuzNA4b r 6'. [x x x {d}nu]-dim₂-mud i[k-šu-du {d#}]AMAR#.UTU# qar-[du]
+BorNB1 r 11'. ni-iz-mat {d}nu-dim₂-mud ik-šu-du {d}AMAR.UTU qar-du
+
+#tr.en: Made firm his hold over the captured gods,
+127. %n eli ilī | kamûti || ṣibittašu | udannin-ma
+NinNA2 r 44. [x x] DINGIR.DINGIR ka-mu-u₂-ti ṣi-b[it-ta-šu x x x x]
+HuzNA1 r 54. [x x x x k]a-mu-ti ṣi-[bit-ta-šu x x x x]
+HuzNA3 r 29'. [x x x x ka-mu-t]i ṣi-b[i]t-ta-šu u₂-d[an]-nin-ma
+HuzNA4b r 7'. [x x DINGIR.DIN]GIR ka-mu-t[i] ṣi-bit#-ta#-šu u₂-dan-nin-[ma]
+BorNB1 r 12'. e-li DINGIR-MEŠ ka-mu-tu₄ & ṣi-bit-ta-šu u₂-dan#-nin#-ma
+BabaNB4 r 6'. e#-li# DINGIR.DINGIR k[a-mu-tu₄ x x x x x x x x]
+
+#tr.en: Then turned back to Tiamat whom he had rendered helpless.
+128. %n ṣēriš (|) tiāmti | ša ikmû || itūra | arkiš
+NinNA2 r 45. [ṣe-r]iš ti-a₃-wa-ti ša₂ ik-mu-[u₂ x x x x x]
+HuzNA1 r 55. [x x ta]-a₃#-wa#-ti# ša₂ i[k-mu-u₂ x x x x x]
+HuzNA3 r 30'. [x x x x x x] ša₂ ik-mu-u₂ i-tu-ru# ar-kiš
+HuzNA4b r 8'. [x x t]a-a₃-wa-t[i] ša₂# ik-mu-u₂ i-tu-ra ar-[kiš]
+BorNB1 r 13'. ṣe-ri-iš ti-amti ša₂ ik-mu-u₂ & i-tu-ra ar-ki-iš
+BabaNB4 r 7'. ṣe#-ri#-iš ti#-[amti x x x x x x x x x x]
+
+#tr.en: The Lord trampled upon the frame of Tiamat,
+129. %n ikbus-ma | bēlu || ša tiāmti | išissa
+NinNA2 r 46. [ik-bu-us]-ma?# [x x x t]i-amti# [x x x]
+HuzNA1 r 56. [x x x] be-lu₄ ša₂ t[i-amti x x x]
+HuzNA3 r 31'. [x x x x be-l]u₄ ša₂ ta#-a₃-wa-ti i-šid-sa
+HuzNA4b r 9'. [ik-bu-u]s-ma be-lu₄!?# t[a]-a₃#-wa-ti i-šid-[sa]
+BorNB1 r 14'. ik-bu-us-ma be-lu₄ & ša₂ ti-a-ma-tu₄ i-šid-sa
+BabaNB4 r 8'. ik#-bu#-us#-[ma x x x x (x x) x x x x]
+$ rest of side broken
+
+#tr.en: With his merciless mace he crushed her skull.
+130. %n ina miṭṭīšu | lā pādî || ulatti | muhha
+HuzNA1 r 57. [x x x x l]a pa-di-i u₂-[lat-t]i muh-ha#
+HuzNA3 r 32'. [x x x x la p]a-di-i u₂#-lat-ti muh-ha
+HuzNA4b r 10'. [ina mi-ṭ]i-šu la pa#-di-i u₂-lat-ti muh-[ha]
+BorNB1 r 15'. {(10)} i-na mi-ṭi-šu la pa-di-i & u₂-lat-ti mu-uh₂-ha
+
+#tr.en: He cut open the arteries of her blood,
+131. %n uparriʾ-ma (||) ušlāt (|) dāmīša
+HuzNA1 r 58. [u₂-par-ri-ʾ]-ma uš-lat d[a]-mi-ša₂
+HuzNA3 r 33'. [x x x x x] uš-lat da-mi-ša₂
+HuzNA4b r 11'. [u₂-par]-ri-ʾ-m[a] uš-lat da-mi-[ša₂]
+BorNB1 r 16'. u₂-par-ri-ʾ-ma & uš-la-at da-mi-ša
+NinNACom1 o 23a. !qt [x x x x x x (x) da-mi-š]a₂
+$ line continues
+BabaNBCom2 o 5a. !qt [u₂-par-r]i-iʾ-ma uš?-l[a?-tu₂?] UŠ₂-MEŠ-ša₂
+$ line continues
+
+#tr.en: He let the North Wind bear (it) away as glad tidings.
+132. %n šāra | iltāna || ana busrati | uštābil
+// cf. L I.2 SB "IV" 32
+// cf. L I.10 SB "II" 18
+HuzNA1 r 59. [x x {im}SI.S]A₂ a-na# bu#-su₂#-ra-t[i u]š-ta-bil
+HuzNA3 r 34'. [x x x x x a-n]a bu-su₂#-ra#-ti uš-ta-bil
+HuzNA4b r 12'. [x x] {im#}SI.[S]A₂ a-na bu-su₂#-ra-tu₂ u[š-ta-bil]
+BorNB1 r 17'. ša-a-ru il-ta-nu a-na bu-us-rat uš-ta-bil
+NinNACom1 o 23b-24. !qt ša₂-a-ru il-ta-a#-[nu x bu]-us#-ra#-a-ti uš-ta-bil !cm li-is-mu ša₂ U₄.4.KAM₂ M[A? x x x x x x] | [(x x) x x x x x x x x x x x x š]ak?-nu sa-a-ma ša₂ lab-šu₂ uš x [(x : ) x x x x] E₃#-e šu-nu-tu₂ um-ta-ʾe-er x x [x x x x x x x]
+BabaNBCom2 o 5b-7. !qt IM {im}SI.SA₂ ana b[u-us-ra-ti x x x x (x)] | [(x x) !bs IM ( : ) !cm š]a-ru M[U l]i-is-mu ša₂ ina {iti}GAN U₄.4.KAM₂ [...] | [(x x) x x k]i! li#-li ša₂ ra[k-s]u! kap-pi-šu₂ [x x x x x x ...]
+
+#tr.en: When his fathers saw, they rejoiced and were glad,
+133. %n īmurū-ma | abbūšu || ihdû | irīšū
+HuzNA1 r 60. [x x x x AD].AD-šu ih-du-u i#-ri-šu
+HuzNA3 r 35'. [x x x x AD.AD-š]u ih-du-u i-ri-šu
+HuzNA4b r 13'. [x x x x AD].AD#-[š]u ih-du-u₂ i-ri-[šu]
+BorNB1 r 18'. i-mu-ru-ma ab-bu-šu ih-du-u₂ i-ri-šu
+
+#tr.en: They brought him gifts and presents.
+134. %n igisê šulmāna | ušābilū || šunu | ana šâšu
+HuzNA1 r 61. [x x x šu]l-ma-ni u₂-ša₂-bi-lu šu-nu# ana ša₂-a-šu
+HuzNA3 r 36'. [x x x x x x u₂]-ša₂-bi-lu šu-nu ana ša₂-a-šu₂#
+HuzNA4b r 14'. [x x x x x x] u₂#-ša₂-bi-lu šu-nu a-na ša₂-a-[šu]
+BorNB1 r 19'. IGI.SA₂-e šul-ma-nu u₂-ša-bi-lu šu-nu a-na ša-a-šu
+
+#tr.en: The Lord calmed down, he began inspecting her carcass,
+135. %n inūh-ma | bēlu || šalamtaš | ibarri
+HuzNA1 r 62. [i-nu-uh-m]a be-lu₄ ša₂-lam-taš i-bar-ri
+HuzNA3 r 37'. [x x x x x x ša₂]-lam#-taš i-bar-ri#
+HuzNA4b r 15'. [i-nu-uh-m]a be-lu₄ ša₂-lam-taš i-bar-[ri]
+BorNB1 r 20'. i-nu-uh₂-ma be-lu₄ & ša-lam-tu-uš i-bar-ri
+
+#tr.en: That he might divide the brine and fashion artful things.
+136. %n šerkuppa | uzāz || ibannâ | niklāti
+#note: The first word of the line, traditionally interpreted as “the foetus”, is in all likelihood the same word explained in @i{Malku} II 37: @akk{se-er-ku₃-pu} = @i{tâmtu}. See @bib{fromebllab0009}.
+NinNA4 r 1'. [x x x x x x x x x x x ni]k-la#-a#-[ti]
+HuzNA1 r 63. [x x] u₂#-za-ʾ-a-za i-ban-na-a nik-la₂-a-ti
+HuzNA3 r 38'. [x x x x x x x] i-ban-na-a nik-la₂-[a]-ti
+HuzNA4b r 16'. [x x u₂-z]a-ʾ-a-za i-ban-na-a nik-la₂-a-[ti]
+BorNB1 r 21'. šer-ku-pu u₂-za-a-zu i-ban-na-a nik-la-a-ti
+
+#tr.en: He split her in two, like a fish for drying,
+137. %n ihpīšī-ma | kīma nūn (||) mašṭê | ana šinīšu
+NinNA4 r 2'. [x x x x x x x x x x x] a#-na# ši#-ni-[šu]
+HuzNA1 r 64. [ih-pi-ši]-ma ki-ma nu-un maš-ṭe-e a-na ši-ni-šu
+HuzNA3 r 39'. [x x x x x x x x maš]-ṭe-e a-na ši-ni-šu
+HuzNA4b r 17'. [x x x x x x x x] maš!#-ṭe-e a-[n]a ši-ni-[šu]
+BorNB1 r 22'. ih-pi-ši-ma ki-ma nu-nu maš-ṭe-e a-na MIN-šu
+
+#tr.en: Half of her he set up and made as a cover, heaven.
+138. %n mišlušša | iškunam-ma || šamāmī | uṣṣallil
+// cf. L I.2 SB "V" 62
+NinNA4 r 3'. [x x x x x x x x x ša₂-ma-m]i u₂-ṣal-l[il]
+HuzNA1 r 65. [mi-iš-lu-u]š-ša₂ iš-ku!-nam-ma ša₂-ma-mi uṣ-ṣal-lil
+HuzNA3 r 40'. [x x x x x x x x x š]a-ma#-mi uṣ-ṣal-lil
+HuzNA4b r 18'. [x x x x x x x x x x x x uṣ-ṣ]al-[lil]
+HuzNA4c r 1'. [x x x x x i]š-ku#-nam#-[ma x x x x x x]
+BorNB1 r 23'. mi-iš-lu-uš-ša iš-ku-nam-ma ša-ma-ma u₂-ṣa-al-lil
+
+#tr.en: He stretched out the hide, assigned watchmen,
+139. %n išdud | maška || maṣṣara | ušaṣbit
+NinNA4 r 4'. [x x x x x x x x x] u₂-ša₂-aṣ-[bit]
+HuzNA1 r 66. [iš-du-u]d maš-ka ma-aṣ-ṣa-ra u₂-ša₂-aṣ-bit#
+HuzNA3 r 41'. [x x x x x x x x x] u₂#-ša₂-aṣ-bit
+HuzNA4b r 19'. [x x x x x x x x x] u₂#-ša₂-a[ṣ-bit]
+HuzNA4c r 2'. [x x x ma]š-ka ma-aṣ-ṣa-r[a x x x x]
+BorNB1 r 24'. iš-du-ud maš-ku ma-aṣ-ṣa-ru u₂-ša-aṣ-bi-it
+
+#tr.en: Them he ordered not to let her waters escape.
+140. %n mêša | lā šūṣâ || šunūti | umtaʾʾir
+NinNA4 r 5'. [x x x x x x x x x x] um-ta-ʾ-[ir]
+HuzNA1 r 67. [x x x l]a šu-ṣa-a šu-nu-tu₂ um-ta-ʾ-ir
+HuzNA3 r 42'. [x x x x x x x x x x] um-ta-ʾ-ir
+HuzNA4c r 3'. [x x x x š]u-ṣa-a# [x x x x x x x]
+BorNB1 r 25'. {(10)} me-e-ša la šu-ṣa-a šu-nu-ti um-ta-ʾ-ir
+
+#tr.en: He crossed heaven, he inspected the firmament,
+141. %n šamê | ībir || ašrata | ihīṭam-ma
+NinNA4 r 6'. [x x x x x x x x] i-hi-ṭa[m-ma]
+HuzNA1 r 68. [x x i-bi-r]i aš₂-ra-ta i-hi-ṭam-ma
+HuzNA3 r 43'. [x x x x x x x x] i#-hi-ṭam-ma
+HuzNA4c r 4'. [x x i-bi-i]r aš₂-[r]a-ta [x x x x]
+BorNB1 r 26'. AN-e i-bi-ir aš-ra-tu₄ i-hi-ṭam-ma
+
+#tr.en: He made it a counterpart to Apsu, the dwelling of Nudimmud.
+142. %n uštamhir | mehret (|) apsî || šubat (|) nudimmud
+NinNA4 r 7'. [x x x x x x x x x šu]-bat {d}nu-d[im₂-mud]
+HuzNA1 r 69. [x x x m]e₂-eh-ret ap-si-i šu-bat {d}nu-dim₂-mud
+HuzNA3 r 44'. [x x x x x x x x x x x] {d#}nu-dim₂-mud
+HuzNA4c r 5'. [x x x me₂]-eh-ret ap-si-i# [x x x x x x]
+BorNB1 r 27'. uš-tam-hi-ir me₂-eh-rat ABZU šu-bat {d}nu-dim₂-mud
+
+#tr.en: The Lord measured the construction of Apsu,
+143. %n imšuh-ma | bēlu || ša apsî | binûtuššu
+NinNA4 r 8'. [x x x x x x x x x] bi-nu-[tuš-šu₂]
+HuzNA1 r 70. [x x x b]e-lu₄ ša₂ ap-si-i bi-nu-tuš-šu
+HuzNA3 r 45'. [x x x x x x x x x bi-nu-tu]-uš#-[šu]
+HuzNA4c r 6'. [x x x b]e-lu₄# ša₂ ap-[si-i x x x x]
+BorNB1 r 28'. im-šu-uh₂-ma be-lu₄ ša₂ ABZU bi-nu-tu-uš-šu
+
+#tr.en: He founded the Great Sanctuary, the likeness of Esharra
+144. %n ešgalla | tamšīlašu || ukīn | ešarra
+NinNA4 r 9'. [x x x x x x x u₂-ki]n e₂-šar₂#-[ra]
+HuzNA1 r 71. [x x x tam-š]i-la-šu u₂-kin e₂-šar₂-ra
+HuzNA4c r 7'. [x x x tam-ši-l]a-šu u₂#-[kin x x x]
+BorNB1 r 29'. eš₃-gal-la tam-ši-la-šu u₂-ki-in e₂-šar₂-ra
+BabaNB5 o 1'. [x x x] tam#-ši#-la#-[šu x x x x x x]
+NinNACom1 o 25. !qt [x x x x x x x x x e₂]-šar₂-ra !cm E₂ ša₂ GIM me₂-e[h-ret x x x x K]I?-ti °\° na-du-u₂ [x x x x x x x x]
+
+#tr.en: (In) the Great Sanctuary, the Esharra he had built, (and in) heaven,
+145. %n ešgalla | ešarra || ša ibnû | šamāmī
+NinNA4 r 10'. [x x x x x x x ib-n]u-u ša₂-[ma-mi]
+HuzNA1 r 72. [x x x] e₂#-šar₂-ra ša₂ ib-nu-u# ša#-[m]a-mi
+BorNB1 r 30'. eš₃-gal-la e₂-šar₂-ra ša₂ ib-nu-u₂ ša-ma-mu
+BabaNB5 o 2'. [x x x] e₂#-šar₂-ra ša₂ i[b-nu-u₂ x x x]
+
+#tr.en: He made Ea, Enlil, and Anu dwell in their holy places.
+146. %n ānu (|) enlil (|) u ea || māhāzīšun | ušramma
+NinNA4 r 11'. [x x x x x x x x x ma-ha-zi-šu-u]n uš-[ram-ma]
+$ single ruling
+HuzNA1 r 73. [x x x x x x x] {d}e₂-a ma-ha-za-šu-un# [uš-r]am-ma
+$ double ruling
+BorNB1 r 31'. {d}a-num {d}+en-lil₂ u {d}e₂-a ma-ha-zi-šu-un uš-ram-ma
+$ single ruling
+BabaNB5 o 3'. [x x x {d}+en]-lil₂# u {d}e₂-a ma-ha-zi-š[u-un x x x]
+#note: BabaNB5 continues with L I.2. SB "V".
+$ single ruling
