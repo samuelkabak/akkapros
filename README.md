@@ -80,7 +80,6 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
 	- in `accent_xar`: replaced by `´` on the repaired segment in XAR orthography
 - in `accent_xar`, glottal letters `ʿ` and `ʾ` are removed in final output (Old Babylonian profile); glottal-cleanup rules are kept as a protective normalization when input includes forms from other Akkadian periods/regions (e.g., Old Akkadian, Standard Babylonian, Assyrian Akkadian)
-- for ASCII/diacritic-stripped post-processing, use this convention to preserve circumflex-vs-macron distinction: when diaeresis is removed from circumflex outputs, insert an apostrophe before the second vowel (`èë -> e'e`, `aä -> a'a`, `iï -> i'i`, `uü -> u'u`)
 - in IPA mode, spaces emit `⟨pause⟩ (.)`
 - in IPA mode, punctuation emits symbolic tags and a clustered punctuation pause `(..)`
 - in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
@@ -95,7 +94,6 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> àạ`, `î -> ìị`, `û -> ùụ`, `ê -> èẹ`
 - Processing order for XAR is: consonant substitution -> glottal cleanup rules -> vowel substitution.
 - Old Babylonian profile: `ʿ` and `ʾ` are removed in final XAR output. Cleanup rules are kept as protection for inputs from other Akkadian periods/regions.
-- If a later external normalization strips diacritics, preserve circumflex-vs-macron distinction by inserting apostrophes in the stripped form (e.g., `èë -> e'e`, `aä -> a'a`, `iï -> i'i`, `uü -> u'u`).
 
 ### Emphatic vowel coloring
 
