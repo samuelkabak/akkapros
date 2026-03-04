@@ -82,6 +82,10 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
 - content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
 
+### Emphatic vowel coloring
+
+In this system, the four plain vowel phonemes `/a, i, u, e/` undergo systematic allophonic variation when adjacent to emphatic consonants (including the uvular plosive `/q/`), based on the physical constraint of tongue root retraction (pharyngealization). Drawing on MRI evidence of articulatory constraints and validated by native Levantine Arabic speaker intuition, the resulting emphatic allophones are: `/a/ → [ɑ]` (backed, unrounded), `/i/ → [ɨ]` (centralized/backed), `/u/ → [ʊ]` (slightly lowered), and `/e/ → [ɛ]` (lowered and backed). This mapping prioritizes physiological plausibility over dialectal variation, ensuring consistent and natural emphatic coloring across the inventory.
+
 ### Usage
 
 ```bash
