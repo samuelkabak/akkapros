@@ -90,8 +90,9 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
 - Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
-	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> aạ`, `î -> iị`, `û -> uụ`, `ê -> eẹ`
-	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> àạ`, `î -> ìị`, `û -> ùụ`, `ê -> èẹ`
+	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> ea`, `î -> ei`, `û -> iu`, `ê -> ae`
+	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> èa`, `î -> èi`, `û -> ìu`, `ê -> àe`
+- Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded with mixed pairs to preserve class contrast in a keyboard-friendly way. This keeps a readable distinction between the two long-vowel classes with minimal diacritic load; if a reader realizes them as long monophthongs the intended value is preserved, and if they are read with slight diphthongal coloring the output remains phonetically acceptable for XAR reading.
 - Processing order for XAR is: consonant substitution -> glottal cleanup rules -> vowel substitution.
 - Old Babylonian profile: `ʿ` and `ʾ` are removed in final XAR output. Cleanup rules are kept as protection for inputs from other Akkadian periods/regions.
 

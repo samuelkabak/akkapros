@@ -25,7 +25,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["akkapros"]
+packages = ["akkapros", "akkatts"]
 package-dir = {"" = "src"}
 
 [tool.pytest.ini_options]
