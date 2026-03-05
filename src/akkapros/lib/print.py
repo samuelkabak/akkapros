@@ -76,13 +76,13 @@ XAR_CONSONANT_MAP = {
 XAR_VOWELS_DEFAULT = {
     'a': 'a', 'i': 'i', 'u': 'u', 'e': 'e',
     'ā': 'aa', 'ī': 'ii', 'ū': 'uu', 'ē': 'ee',
-    'â': 'ea', 'î': 'ei', 'û': 'iu', 'ê': 'ae',
+    'â': 'eâ', 'î': 'eî', 'û': 'iû', 'ê': 'aê',
 }
 
 XAR_VOWELS_EMPHATIC = {
     'a': 'à', 'i': 'ì', 'u': 'ù', 'e': 'è',
     'ā': 'àa', 'ī': 'ìi', 'ū': 'ùu', 'ē': 'èe',
-    'â': 'èa', 'î': 'èi', 'û': 'ìu', 'ê': 'àe',
+    'â': 'èâ', 'î': 'èî', 'û': 'ìû', 'ê': 'àê',
 }
 
 IPA_SYMBOL_TAGS = {
@@ -883,35 +883,35 @@ def run_tests() -> bool:
         ("ʾa", "xar", "a"),
         ("uʾa", "xar", "ua"),
         ("kūʾa", "xar", "kuaa"),
-        ("baʾk", "xar", "beak"),
-        ("abʿd", "xar", "eabd"),
+        ("baʾk", "xar", "beâk"),
+        ("abʿd", "xar", "eâbd"),
         ("ʾka", "xar", "ka"),
-        ("bakʾ", "xar", "beak"),
+        ("bakʾ", "xar", "beâk"),
         ("bākʾ", "xar", "baak"),
-        ("biʾd", "xar", "beid"),
-        ("buʾd", "xar", "biud"),
-        ("beʾd", "xar", "baed"),
-        ("takʾ", "xar", "teak"),
-        ("tikʾ", "xar", "teik"),
-        ("tukʾ", "xar", "tiuk"),
-        ("tekʾ", "xar", "taek"),
+        ("biʾd", "xar", "beîd"),
+        ("buʾd", "xar", "biûd"),
+        ("beʾd", "xar", "baêd"),
+        ("takʾ", "xar", "teâk"),
+        ("tikʾ", "xar", "teîk"),
+        ("tukʾ", "xar", "tiûk"),
+        ("tekʾ", "xar", "taêk"),
         ("tīkʾ", "xar", "tiik"),
         ("bā", "xar", "baa"),
         ("bī", "xar", "bii"),
         ("bū", "xar", "buu"),
         ("bē", "xar", "bee"),
-        ("bâ", "xar", "bea"),
-        ("bî", "xar", "bei"),
-        ("bû", "xar", "biu"),
-        ("bê", "xar", "bae"),
+        ("bâ", "xar", "beâ"),
+        ("bî", "xar", "beî"),
+        ("bû", "xar", "biû"),
+        ("bê", "xar", "baê"),
         ("qā", "xar", "ꝗàa"),
         ("qī", "xar", "ꝗìi"),
         ("qū", "xar", "ꝗùu"),
         ("qē", "xar", "ꝗèe"),
-        ("qâ", "xar", "ꝗèa"),
-        ("qî", "xar", "ꝗèi"),
-        ("qû", "xar", "ꝗìu"),
-        ("qê", "xar", "ꝗàe"),
+        ("qâ", "xar", "ꝗèâ"),
+        ("qî", "xar", "ꝗèî"),
+        ("qû", "xar", "ꝗìû"),
+        ("qê", "xar", "ꝗàê"),
         ("qa", "ipa", "qɑ"),
         ("qi", "ipa", "qɨ"),
         ("qu", "ipa", "qʊ"),
@@ -1139,6 +1139,58 @@ def run_tests() -> bool:
                 f"\n  bold_exists: {out_bold.exists()}"
             )
 
+    # IPA mode switch checks: ipa-ob vs ipa-strict.
+    ipa_mode_cases = [
+        ("ʾa", "a", "ʔa"),
+        ("ʿa", "a", "ʔa"),
+        ("ʾ~a", "ˈaː", "ˈʔːa"),
+        ("ʿa+ʾi", "a i", "ʔa ʔi"),
+    ]
+
+    for inp, exp_ob, exp_strict in ipa_mode_cases:
+        got_ob = convert_line(inp, 'ipa', ipa_mode='ipa-ob')
+        if got_ob == exp_ob:
+            extra_passed += 1
+        else:
+            print(
+                "FAILED [ipa mode ob]"
+                f"\n  in : {inp}"
+                f"\n  got: {got_ob}"
+                f"\n  exp: {exp_ob}"
+            )
+
+        got_strict = convert_line(inp, 'ipa', ipa_mode='ipa-strict')
+        if got_strict == exp_strict:
+            extra_passed += 1
+        else:
+            print(
+                "FAILED [ipa mode strict]"
+                f"\n  in : {inp}"
+                f"\n  got: {got_strict}"
+                f"\n  exp: {exp_strict}"
+            )
+
+    _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
+    if got_ipa_ob == "a ⟨pause⟩ (.) a\n":
+        extra_passed += 1
+    else:
+        print(
+            "FAILED [convert_text ipa mode ob]"
+            f"\n  got: {got_ipa_ob}"
+            "\n  exp: a ⟨pause⟩ (.) a"
+        )
+
+    _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
+    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʔa\n":
+        extra_passed += 1
+    else:
+        print(
+            "FAILED [convert_text ipa mode strict]"
+            f"\n  got: {got_ipa_strict}"
+            "\n  exp: ʔa ⟨pause⟩ (.) ʔa"
+        )
+
+    total_extra += (len(ipa_mode_cases) * 2) + 2
     total = len(tests) + total_extra
     passed += extra_passed
     print(f"print.py tests: {passed}/{total} passed")

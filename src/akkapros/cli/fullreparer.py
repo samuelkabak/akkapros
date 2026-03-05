@@ -42,6 +42,56 @@ from akkapros.lib.utils import simple_safe_filename
 __version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metrics-{metrics_version}"
 
 
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
+    """Resolve whether IPA output is requested and which IPA mode to use."""
+    output_ipa = args.ipa or args.ipa_ob or args.ipa_strict
+
+    # --ipa is an alias for --ipa-strict.
+    if args.ipa_ob:
+        ipa_mode = 'ipa-ob'
+    elif args.ipa_strict:
+        ipa_mode = 'ipa-strict'
+    elif args.ipa:
+        ipa_mode = 'ipa-strict'
+    else:
+        ipa_mode = 'ipa-ob'
+
+    return output_ipa, ipa_mode
+
+
+def run_tests() -> bool:
+    """Run fullreparer CLI resolution tests only (no pipeline execution)."""
+    class _Args:
+        def __init__(self, ipa: bool, ipa_ob: bool, ipa_strict: bool) -> None:
+            self.ipa = ipa
+            self.ipa_ob = ipa_ob
+            self.ipa_strict = ipa_strict
+
+    cases = [
+        (_Args(False, False, False), False, 'ipa-ob'),
+        (_Args(True, False, False), True, 'ipa-strict'),
+        (_Args(False, True, False), True, 'ipa-ob'),
+        (_Args(False, False, True), True, 'ipa-strict'),
+        (_Args(False, True, True), True, 'ipa-ob'),
+    ]
+
+    passed = 0
+    for args, exp_write, exp_mode in cases:
+        got_write, got_mode = _resolve_ipa_options(args)
+        if got_write == exp_write and got_mode == exp_mode:
+            passed += 1
+        else:
+            print(
+                "FAILED [fullreparer cli ipa mode]"
+                f"\n  in : ipa={args.ipa}, ipa_ob={args.ipa_ob}, ipa_strict={args.ipa_strict}"
+                f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}"
+                f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}"
+            )
+
+    print(f"fullreparer.py cli tests: {passed}/{len(cases)} passed")
+    return passed == len(cases)
+
+
 def run_pipeline(
     input_file: Path,
     outdir: Path,
@@ -63,6 +113,7 @@ def run_pipeline(
     output_bold: bool,
     output_ipa: bool,
     output_xar: bool,
+    ipa_mode: str = 'ipa-ob',
 ) -> int:
     """Execute syllabify -> repair -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
@@ -143,6 +194,7 @@ def run_pipeline(
         write_bold=output_bold,
         write_ipa=output_ipa,
         write_xar=output_xar,
+        ipa_mode=ipa_mode,
     )
 
     if output_acute:
@@ -208,7 +260,11 @@ Versions: {__version__}
     parser.add_argument('--bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt')
+                        help='Write <prefix>_accent_ipa.txt (alias for --ipa-strict)')
+    parser.add_argument('--ipa-ob', action='store_true', dest='ipa_ob',
+                        help='Write IPA output with Old Babylonian cleanup (remove pharyngeals/glottals for TTS)')
+    parser.add_argument('--ipa-strict', action='store_true', dest='ipa_strict',
+                        help='Write IPA output with strict phonetic inventory (preserve all IPA symbols)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
 
@@ -218,6 +274,7 @@ Versions: {__version__}
     parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
     parser.add_argument('--test-metrics', action='store_true', help='Run metrics library tests')
     parser.add_argument('--test-print', action='store_true', help='Run print library tests')
+    parser.add_argument('--test-cli', action='store_true', help='Run fullreparer CLI option-resolution tests')
     parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, repair, diphthongs, metrics and print')
 
     args = parser.parse_args()
@@ -229,9 +286,10 @@ Versions: {__version__}
         ok = test_diphthong_restoration() and ok
         ok = run_metrics_tests() and ok
         ok = accent_print.run_tests() and ok
+        ok = run_tests() and ok
         sys.exit(0 if ok else 1)
 
-    if args.test_syllabify or args.test_repair or args.test_diphthongs or args.test_metrics or args.test_print:
+    if args.test_syllabify or args.test_repair or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
         ok = True
         if args.test_syllabify:
             ok = syllabify.run_tests() and ok
@@ -243,6 +301,8 @@ Versions: {__version__}
             ok = run_metrics_tests() and ok
         if args.test_print:
             ok = accent_print.run_tests() and ok
+        if args.test_cli:
+            ok = run_tests() and ok
         sys.exit(0 if ok else 1)
 
     if not args.input:
@@ -262,7 +322,7 @@ Versions: {__version__}
     output_csv = args.csv
     output_acute = args.acute
     output_bold = args.bold
-    output_ipa = args.ipa
+    output_ipa, ipa_mode = _resolve_ipa_options(args)
     output_xar = args.xar
 
     # Match metricser behavior: default to table if no explicit format selected.
@@ -297,6 +357,7 @@ Versions: {__version__}
         output_bold=output_bold,
         output_ipa=output_ipa,
         output_xar=output_xar,
+        ipa_mode=ipa_mode,
     )
     sys.exit(code)
 

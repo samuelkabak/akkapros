@@ -99,9 +99,9 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
 - Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
-	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> ea`, `î -> ei`, `û -> iu`, `ê -> ae`
-	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> èa`, `î -> èi`, `û -> ìu`, `ê -> àe`
-- Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded with mixed pairs to preserve class contrast in a keyboard-friendly way. This keeps a readable distinction between the two long-vowel classes with minimal diacritic load; if a reader realizes them as long monophthongs the intended value is preserved, and if they are read with slight diphthongal coloring the output remains phonetically acceptable for XAR reading.
+	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`
+	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> èâ`, `î -> èî`, `û -> ìû`, `ê -> àê`
+- Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded as mixed pairs where the second slot carries the circumflex (`eâ/eî/iû/aê`). This gives a visual cue that the second vowel is dominant while preserving a clear keyboard-friendly contrast between macron and circumflex series.
 - Processing order for XAR is: consonant substitution -> glottal cleanup rules -> vowel substitution.
 - Old Babylonian profile: `ʿ` and `ʾ` are removed in final XAR output. Cleanup rules are kept as protection for inputs from other Akkadian periods/regions.
 
@@ -137,6 +137,10 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 python3 src/akkapros/cli/printer.py --test
 ```
 
+`--test` runs both:
+- printer CLI option-resolution checks (including `--ipa`, `--ipa-ob`, `--ipa-strict` precedence)
+- `akkapros.lib.print.run_tests()` conversion checks
+
 ---
 
 ## ⚡ Full Pipeline CLI (`fullreparer.py`)
@@ -166,6 +170,7 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 - **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
 - **Printer**: `--acute`, `--bold`, `--ipa`, `--xar`
+	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
 
 ### Examples
 
@@ -191,7 +196,15 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --ou
 # Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all
 
+# Run fullreparer CLI option-resolution tests only
+python3 src/akkapros/cli/fullreparer.py --test-cli
+
 ```
+
+### Internal testing policy
+
+- Project tests for the printer/IPA mode logic are implemented in built-in `run_tests()` functions.
+- No pytest module is required for validating `--ipa-ob` / `--ipa-strict` behavior.
 
 ---
 

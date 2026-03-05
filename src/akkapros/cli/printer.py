@@ -19,6 +19,60 @@ from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
 
 
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
+    """Resolve whether IPA output is requested and which IPA mode to use."""
+    write_ipa = args.ipa or args.ipa_ob or args.ipa_strict
+
+    # --ipa is an alias for --ipa-strict.
+    if args.ipa_ob:
+        ipa_mode = 'ipa-ob'
+    elif args.ipa_strict:
+        ipa_mode = 'ipa-strict'
+    elif args.ipa:
+        ipa_mode = 'ipa-strict'
+    else:
+        ipa_mode = 'ipa-ob'
+
+    return write_ipa, ipa_mode
+
+
+def run_tests() -> bool:
+    """Run printer CLI resolution tests and delegated library tests."""
+    ok = True
+
+    class _Args:
+        def __init__(self, ipa: bool, ipa_ob: bool, ipa_strict: bool) -> None:
+            self.ipa = ipa
+            self.ipa_ob = ipa_ob
+            self.ipa_strict = ipa_strict
+
+    cases = [
+        (_Args(False, False, False), False, 'ipa-ob'),
+        (_Args(True, False, False), True, 'ipa-strict'),
+        (_Args(False, True, False), True, 'ipa-ob'),
+        (_Args(False, False, True), True, 'ipa-strict'),
+        (_Args(False, True, True), True, 'ipa-ob'),
+    ]
+
+    passed = 0
+    for args, exp_write, exp_mode in cases:
+        got_write, got_mode = _resolve_ipa_options(args)
+        if got_write == exp_write and got_mode == exp_mode:
+            passed += 1
+        else:
+            ok = False
+            print(
+                "FAILED [printer cli ipa mode]"
+                f"\n  in : ipa={args.ipa}, ipa_ob={args.ipa_ob}, ipa_strict={args.ipa_strict}"
+                f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}"
+                f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}"
+            )
+
+    print(f"printer.py cli tests: {passed}/{len(cases)} passed")
+    ok = accent_print.run_tests() and ok
+    return ok
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs'
@@ -33,7 +87,11 @@ def main() -> None:
     parser.add_argument('--bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt')
+                        help='Write <prefix>_accent_ipa.txt (alias for --ipa-strict)')
+    parser.add_argument('--ipa-ob', action='store_true', dest='ipa_ob',
+                        help='Write IPA output with Old Babylonian cleanup (remove pharyngeals/glottals for TTS)')
+    parser.add_argument('--ipa-strict', action='store_true', dest='ipa_strict',
+                        help='Write IPA output with strict phonetic inventory (preserve all IPA symbols)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
@@ -41,7 +99,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
-        ok = accent_print.run_tests()
+        ok = run_tests()
         sys.exit(0 if ok else 1)
 
     if not args.input:
@@ -62,8 +120,9 @@ def main() -> None:
 
     write_acute = args.acute
     write_bold = args.bold
-    write_ipa = args.ipa
+    write_ipa, ipa_mode = _resolve_ipa_options(args)
     write_xar = args.xar
+
     if not (write_acute or write_bold or write_ipa or write_xar):
         write_acute = True
         write_bold = True
@@ -83,6 +142,7 @@ def main() -> None:
         write_bold=write_bold,
         write_ipa=write_ipa,
         write_xar=write_xar,
+        ipa_mode=ipa_mode,
     )
 
     print(f"Input: {input_path}")

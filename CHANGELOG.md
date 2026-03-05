@@ -27,6 +27,8 @@
 - **print.py IPA behavior**: punctuation clusters emit one `(..)` pause, spaces emit `⟨pause⟩ (.)`, and bracketed chunks emit `⟨escape:[...]⟩`
 - **acute naming standardization**: renamed `accute` to `acute` across printer/fullreparer CLI flags, printer library API, tests, and output filename suffix (`_accent_acute.txt`)
 - **phonetic constants scope**: extra-long vowels (`àìùè`) are now metrics-internal only
+- **XAR circumflex mapping readability**: circumflex series now keeps the circumflex on the second member of mixed pairs (`â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`; emphatic: `èâ`, `èî`, `ìû`, `àê`) to make second-vowel dominance visually explicit
+- **IPA mode test coverage moved to internal tests**: key `--ipa-ob` / `--ipa-strict` checks are now in `print.py run_tests()`, with CLI option-resolution tests in `printer.py --test` and `fullreparer.py --test-cli`
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite
