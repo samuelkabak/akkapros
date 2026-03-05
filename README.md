@@ -85,6 +85,15 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
 - content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
 
+### IPA modes (`--ipa-ob` vs `--ipa-strict`)
+
+- `--ipa-ob`: Old Babylonian profile. Letter glottals (`ʾ`, `ʿ`) are removed in IPA output.
+- `--ipa-strict`: keeps full IPA symbols (including letter glottals).
+- `--ipa` is an alias of `--ipa-strict`.
+- Implied glottal stops inserted by the repair/stress process are treated separately from letter glottals; repaired onset glottals are preserved.
+
+Historical rationale: these weak consonants were already largely lost in Old Babylonian connected speech, while they are older in Old Akkadian. Their later written presence can be conservative scribal traditionalism rather than direct phonetic realization.
+
 ### XAR orthography profile
 
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
@@ -114,6 +123,12 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 
 # write only IPA output
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa
+
+# write IPA in Old Babylonian profile (drop letter glottals)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa-ob
+
+# write strict IPA (preserve letter glottals)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa-strict
 
 # write only XAR output
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --xar

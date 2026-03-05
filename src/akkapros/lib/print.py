@@ -49,7 +49,7 @@ IPA_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'χ', 'ḫ': 'χ', 'ʿ': 'ʕ', 'ʾ': 'ʕ',
+    'r': 'r', 'ḥ': 'χ', 'ḫ': 'χ', 'ʿ': 'ʔ', 'ʾ': 'ʔ',
     'w': 'w', 'y': 'j', 't': 't',
 }
 
@@ -219,7 +219,12 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
 
 
 def remove_glottals_ipa(text: str) -> str:
-    """Remove merged IPA glottal symbol from output for TTS-friendly inventory."""
+    """Legacy IPA cleanup for non-canonical merged glottal symbols in ipa-ob mode.
+
+    Canonical glottal stop ʔ is handled upstream with source-aware logic:
+    - remove letter glottals (ʾ/ʿ from input text)
+    - keep inserted implied glottals (including stressed/repaired ones)
+    """
     text = re.sub(r'ʕː([aeiouɑɨʊɛ])', r'\1ː', text)
     text = re.sub(r'ʕ([aeiouɑɨʊɛ])', r'\1', text)
     return text.replace('ʕ', '')
@@ -372,6 +377,7 @@ def _flush_syllable(
     mode: str,
     source_text: str = '',
     source_indices=None,
+    ipa_mode: str = 'ipa-ob',
 ) -> str:
     if not syllable_text:
         return ''
@@ -396,7 +402,16 @@ def _flush_syllable(
                     )
                 )
             elif char in IPA_MAP:
-                converted.append(IPA_MAP[char])
+                if char in {'ʾ', 'ʿ'} and ipa_mode == 'ipa-ob':
+                    # Remove only letter glottals in ipa-ob.
+                    # Inserted implied glottals carry source index -1.
+                    # Keep them only for repaired/stressed syllables.
+                    if source_indices is not None and source_indices[idx] == -1 and repaired:
+                        converted.append(IPA_MAP[char])
+                    else:
+                        continue
+                else:
+                    converted.append(IPA_MAP[char])
             elif char == TILDE:
                 converted.append(IPA_LENGTH)
             else:
@@ -404,6 +419,14 @@ def _flush_syllable(
 
         ipa_syllable = ''.join(converted)
         if repaired and ipa_syllable:
+            # For stressed vowel-initial syllables, reorder so glottal comes first
+            # ːʔa → ʔaː (length marker moves to end, after vowel)
+            ipa_syllable = re.sub(r'^ː+(\u0294)([aeiou\u0251\u0268\u028a\u025b])(.*)$', 
+                                  r'\1\2' + IPA_LENGTH + r'\3', ipa_syllable)
+            # For stressed vowel-initial syllables without onset glottal (e.g.,
+            # letter glottal removed in ipa-ob): ːa -> aː
+            ipa_syllable = re.sub(r'^ː+([aeiou\u0251\u0268\u028a\u025b])(.*)$',
+                                  r'\1' + IPA_LENGTH + r'\2', ipa_syllable)
             return f"{IPA_STRESS}{ipa_syllable}"
         return ipa_syllable
 
@@ -437,7 +460,7 @@ def _flush_syllable(
     return clean
 
 
-def _convert_word(word: str, mode: str) -> str:
+def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
     """Convert one Akkadian word token."""
     if mode == 'xar':
         return _convert_word_xar(word)
@@ -459,7 +482,7 @@ def _convert_word(word: str, mode: str) -> str:
             if source_index_map is not None:
                 source_text = source_word
                 source_indices = [
-                    source_index_map[idx] if 0 <= source_index_map[idx] < len(source_word) else 0
+                    source_index_map[idx]
                     for idx in current_indices
                 ]
             out.append(
@@ -468,6 +491,7 @@ def _convert_word(word: str, mode: str) -> str:
                     mode,
                     source_text=source_text,
                     source_indices=source_indices,
+                    ipa_mode=ipa_mode,
                 )
             )
             current_syllable.clear()
@@ -496,7 +520,7 @@ def _convert_word(word: str, mode: str) -> str:
 
     flush_current()
     result = ''.join(out)
-    if mode == 'ipa':
+    if mode == 'ipa' and ipa_mode == 'ipa-ob':
         return remove_glottals_ipa(result)
     return result
 
@@ -508,17 +532,17 @@ def _is_word_char(char: str) -> bool:
     return char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN, TILDE}
 
 
-def _convert_non_bracket_part(part: str, mode: str) -> str:
+def _convert_non_bracket_part(part: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
     """Convert a string part that is outside square brackets."""
     if mode == 'ipa':
-        return _convert_non_bracket_part_ipa(part)
+        return _convert_non_bracket_part_ipa(part, ipa_mode)
 
     out = []
     current_word = []
 
     def flush_word() -> None:
         if current_word:
-            out.append(_convert_word(''.join(current_word), mode))
+            out.append(_convert_word(''.join(current_word), mode, ipa_mode))
             current_word.clear()
 
     for char in part:
@@ -532,7 +556,7 @@ def _convert_non_bracket_part(part: str, mode: str) -> str:
     return ''.join(out)
 
 
-def _convert_non_bracket_part_ipa(part: str) -> str:
+def _convert_non_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
     tokens = []
     index = 0
 
@@ -574,7 +598,7 @@ def _convert_non_bracket_part_ipa(part: str) -> str:
         token_type = token['type']
 
         if token_type == 'word':
-            out.append(_convert_word(token['text'], 'ipa'))
+            out.append(_convert_word(token['text'], 'ipa', ipa_mode))
 
             j = i + 1
             while j < token_count and tokens[j]['type'] == 'space':
@@ -653,7 +677,7 @@ def _append_non_word_char(out: list, char: str, mode: str) -> None:
     out.append(char)
 
 
-def _convert_mixed_bracket_part_ipa(part: str) -> str:
+def _convert_mixed_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
     """Convert IPA in mixed parts: emit [ ... ] content as escale tags, process outside text."""
     out = []
     current_word = []
@@ -662,7 +686,7 @@ def _convert_mixed_bracket_part_ipa(part: str) -> str:
 
     def flush_word() -> None:
         if current_word:
-            out.append(_convert_word(''.join(current_word), 'ipa'))
+            out.append(_convert_word(''.join(current_word), 'ipa', ipa_mode))
             current_word.clear()
 
     for char in part:
@@ -694,8 +718,14 @@ def _convert_mixed_bracket_part_ipa(part: str) -> str:
     return ''.join(out)
 
 
-def convert_line(line: str, mode: str) -> str:
-    """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format."""
+def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
+    """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format.
+    
+    Args:
+        line: Input line in *_tilde format
+        mode: 'acute', 'bold', 'ipa', or 'xar'
+        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+    """
     if mode not in {'acute', 'bold', 'ipa', 'xar'}:
         raise ValueError("mode must be 'acute', 'bold', 'ipa' or 'xar'")
 
@@ -705,17 +735,17 @@ def convert_line(line: str, mode: str) -> str:
         for part in parts:
             if '[' in part and ']' in part:
                 if mode == 'ipa':
-                    converted.append(_convert_mixed_bracket_part_ipa(part))
+                    converted.append(_convert_mixed_bracket_part_ipa(part, ipa_mode))
                 else:
                     converted.append(part)
             else:
-                converted.append(_convert_non_bracket_part(part, mode))
+                converted.append(_convert_non_bracket_part(part, mode, ipa_mode))
         result = ''.join(converted)
         if mode == 'ipa':
             return _normalize_ipa_spacing(result)
         return result
 
-    result = _convert_non_bracket_part(line, mode)
+    result = _convert_non_bracket_part(line, mode, ipa_mode)
     if mode == 'ipa':
         return _normalize_ipa_spacing(result)
     return result
@@ -727,19 +757,29 @@ def convert_text(text: str) -> Tuple[str, str]:
     return acute_text, bold_text
 
 
-def convert_text_with_ipa(text: str) -> Tuple[str, str, str]:
-    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text)."""
-    acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(text)
+def convert_text_with_ipa(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str, str]:
+    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text).
+    
+    Args:
+        text: Full text in *_tilde format
+        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+    """
+    acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(text, ipa_mode)
     return acute_text, bold_text, ipa_text
 
 
-def convert_text_with_ipa_xar(text: str) -> Tuple[str, str, str, str]:
-    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text)."""
+def convert_text_with_ipa_xar(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str, str, str]:
+    """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text).
+    
+    Args:
+        text: Full text in *_tilde format
+        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+    """
     lines = text.splitlines(keepends=True)
-    acute_lines = [convert_line(line, mode='acute') for line in lines]
-    bold_lines = [convert_line(line, mode='bold') for line in lines]
-    ipa_lines = [convert_line(line, mode='ipa') for line in lines]
-    xar_lines = [convert_line(line, mode='xar') for line in lines]
+    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode) for line in lines]
+    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode) for line in lines]
+    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode) for line in lines]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
 
 
@@ -753,12 +793,26 @@ def process_file(
     write_bold: bool = True,
     write_ipa: bool = False,
     write_xar: bool = False,
+    ipa_mode: str = 'ipa-ob',
 ) -> None:
-    """Read *_tilde input and write selected output files."""
+    """Read *_tilde input and write selected output files.
+    
+    Args:
+        input_file: Path to *_tilde.txt file
+        output_acute_file: Path for accent_acute.txt output
+        output_bold_file: Path for accent_bold.md output
+        output_ipa_file: Path for accent_ipa.txt output
+        output_xar_file: Path for accent_xar.txt output
+        write_acute: Whether to write acute output
+        write_bold: Whether to write bold output
+        write_ipa: Whether to write IPA output
+        write_xar: Whether to write XAR output
+        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+    """
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    acute_text, bold_text, ipa_text, xar_text = convert_text_with_ipa_xar(text)
+    acute_text, bold_text, ipa_text, xar_text = convert_text_with_ipa_xar(text, ipa_mode)
 
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
@@ -806,9 +860,9 @@ def run_tests() -> bool:
         ("nû~k", "ipa", "ˈnuːːk"),
         ("šar~·ri", "ipa", "ˈʃarː.ri"),
         ("k~a·pin", "ipa", "ˈkːa.pin"),
-        ("~a·pil", "ipa", "ˈaː.pil"),
+        ("~a·pil", "ipa", "ˈʔːa.pil"),
         ("k~a", "ipa", "ˈkːa"),
-        ("~a", "ipa", "ˈaː"),
+        ("~a", "ipa", "ˈʔːa"),
         ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir ˈdadː.meː"),
@@ -876,14 +930,14 @@ def run_tests() -> bool:
         ("î", "ipa", "iː"),
         ("û", "ipa", "uː"),
         ("ê", "ipa", "eː"),
-        ("ā~", "ipa", "ˈaːː"),
-        ("ī~", "ipa", "ˈiːː"),
-        ("ū~", "ipa", "ˈuːː"),
-        ("ē~", "ipa", "ˈeːː"),
-        ("â~", "ipa", "ˈaːː"),
-        ("î~", "ipa", "ˈiːː"),
-        ("û~", "ipa", "ˈuːː"),
-        ("ê~", "ipa", "ˈeːː"),
+        ("ā~", "ipa", "ˈʔaːː"),
+        ("ī~", "ipa", "ˈʔiːː"),
+        ("ū~", "ipa", "ˈʔuːː"),
+        ("ē~", "ipa", "ˈʔeːː"),
+        ("â~", "ipa", "ˈʔaːː"),
+        ("î~", "ipa", "ˈʔiːː"),
+        ("û~", "ipa", "ˈʔuːː"),
+        ("ê~", "ipa", "ˈʔeːː"),
         ("qa~", "ipa", "ˈqɑː"),
         ("qi~", "ipa", "ˈqɨː"),
         ("qu~", "ipa", "ˈqʊː"),
@@ -931,7 +985,7 @@ def run_tests() -> bool:
         ("q~a", "bold", "**qa**"),
         ("~aq", "acute", "´aq"),
         ("~aq", "bold", "**aq**"),
-        ("~aq", "ipa", "ˈɑːq"),
+        ("~aq", "ipa", "ˈʔːɑq"),
         ("qaq·qa·di", "ipa", "qɑq.qɑ.di"),
         ("ṣal·mā~t", "ipa", "sˤɑl.ˈmaːːt"),
         ("ḫaṭ~·ṭi", "ipa", "ˈχɑtˤː.tˤɨ"),
@@ -974,7 +1028,7 @@ def run_tests() -> bool:
     text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
-    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈaː.pil\n"
+    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈʔːa.pil\n"
     expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
     total_extra = 7
@@ -1020,7 +1074,7 @@ def run_tests() -> bool:
             f"\n  exp: {expected_xar}"
         )
 
-    forbidden_ipa = {'ħ', 'ʕ', 'ʔ'}
+    forbidden_ipa = {'ħ', 'ʕ'}
     ipa_inventory_ok = True
     for inp, mode, _ in tests:
         if mode != 'ipa':
@@ -1070,7 +1124,7 @@ def run_tests() -> bool:
             out_acute.exists()
             and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
             and out_ipa.exists()
-            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈaː.pil"
+            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈʔːa.pil"
             and not out_bold.exists()
         )
         if file_ok:
