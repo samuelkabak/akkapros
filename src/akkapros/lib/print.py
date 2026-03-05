@@ -49,7 +49,7 @@ IPA_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'ħ', 'ḫ': 'χ', 'ʿ': 'ʕ', 'ʾ': 'ʔ',
+    'r': 'r', 'ḥ': 'χ', 'ḫ': 'χ', 'ʿ': 'ʕ', 'ʾ': 'ʕ',
     'w': 'w', 'y': 'j', 't': 't',
 }
 
@@ -216,6 +216,13 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
     if emphatic_context:
         return XAR_VOWELS_EMPHATIC.get(vowel, vowel)
     return XAR_VOWELS_DEFAULT.get(vowel, vowel)
+
+
+def remove_glottals_ipa(text: str) -> str:
+    """Remove merged IPA glottal symbol from output for TTS-friendly inventory."""
+    text = re.sub(r'ʕː([aeiouɑɨʊɛ])', r'\1ː', text)
+    text = re.sub(r'ʕ([aeiouɑɨʊɛ])', r'\1', text)
+    return text.replace('ʕ', '')
 
 
 def remove_glottals(text: str) -> str:
@@ -488,7 +495,10 @@ def _convert_word(word: str, mode: str) -> str:
             current_indices.append(idx)
 
     flush_current()
-    return ''.join(out)
+    result = ''.join(out)
+    if mode == 'ipa':
+        return remove_glottals_ipa(result)
+    return result
 
 
 def _is_word_char(char: str) -> bool:
@@ -796,9 +806,9 @@ def run_tests() -> bool:
         ("nû~k", "ipa", "ˈnuːːk"),
         ("šar~·ri", "ipa", "ˈʃarː.ri"),
         ("k~a·pin", "ipa", "ˈkːa.pin"),
-        ("~a·pil", "ipa", "ˈʔːa.pil"),
+        ("~a·pil", "ipa", "ˈaː.pil"),
         ("k~a", "ipa", "ˈkːa"),
-        ("~a", "ipa", "ˈʔːa"),
+        ("~a", "ipa", "ˈaː"),
         ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir ˈdadː.meː"),
@@ -853,27 +863,27 @@ def run_tests() -> bool:
         ("qu", "ipa", "qʊ"),
         ("qe", "ipa", "qɛ"),
         ("ṭe", "ipa", "tˤɛ"),
-        ("iṣ", "ipa", "ʔɨsˤ"),
-        ("a", "ipa", "ʔa"),
-        ("i", "ipa", "ʔi"),
-        ("u", "ipa", "ʔu"),
-        ("e", "ipa", "ʔe"),
-        ("ā", "ipa", "ʔaː"),
-        ("ī", "ipa", "ʔiː"),
-        ("ū", "ipa", "ʔuː"),
-        ("ē", "ipa", "ʔeː"),
-        ("â", "ipa", "ʔaː"),
-        ("î", "ipa", "ʔiː"),
-        ("û", "ipa", "ʔuː"),
-        ("ê", "ipa", "ʔeː"),
-        ("ā~", "ipa", "ˈʔaːː"),
-        ("ī~", "ipa", "ˈʔiːː"),
-        ("ū~", "ipa", "ˈʔuːː"),
-        ("ē~", "ipa", "ˈʔeːː"),
-        ("â~", "ipa", "ˈʔaːː"),
-        ("î~", "ipa", "ˈʔiːː"),
-        ("û~", "ipa", "ˈʔuːː"),
-        ("ê~", "ipa", "ˈʔeːː"),
+        ("iṣ", "ipa", "ɨsˤ"),
+        ("a", "ipa", "a"),
+        ("i", "ipa", "i"),
+        ("u", "ipa", "u"),
+        ("e", "ipa", "e"),
+        ("ā", "ipa", "aː"),
+        ("ī", "ipa", "iː"),
+        ("ū", "ipa", "uː"),
+        ("ē", "ipa", "eː"),
+        ("â", "ipa", "aː"),
+        ("î", "ipa", "iː"),
+        ("û", "ipa", "uː"),
+        ("ê", "ipa", "eː"),
+        ("ā~", "ipa", "ˈaːː"),
+        ("ī~", "ipa", "ˈiːː"),
+        ("ū~", "ipa", "ˈuːː"),
+        ("ē~", "ipa", "ˈeːː"),
+        ("â~", "ipa", "ˈaːː"),
+        ("î~", "ipa", "ˈiːː"),
+        ("û~", "ipa", "ˈuːː"),
+        ("ê~", "ipa", "ˈeːː"),
         ("qa~", "ipa", "ˈqɑː"),
         ("qi~", "ipa", "ˈqɨː"),
         ("qu~", "ipa", "ˈqʊː"),
@@ -886,16 +896,28 @@ def run_tests() -> bool:
         ("qî~", "ipa", "ˈqɨːː"),
         ("qû~", "ipa", "ˈqʊːː"),
         ("qê~", "ipa", "ˈqɛːː"),
-        ("ʾa", "ipa", "ʔa"),
+        ("ʾa", "ipa", "a"),
+        ("ʿa", "ipa", "a"),
+        ("ʾi", "ipa", "i"),
+        ("ʿu", "ipa", "u"),
+        ("ʿē", "ipa", "eː"),
+        ("ʾ~a", "ipa", "ˈaː"),
+        ("ʿ~a", "ipa", "ˈaː"),
+        ("a+ē", "ipa", "a eː"),
+        ("a-ē", "ipa", "a-eː"),
+        ("ḫa", "ipa", "χa"),
+        ("ḥa", "ipa", "χa"),
+        ("ʿa+ʾi", "ipa", "a i"),
+        ("ʾa-ʿi", "ipa", "a-i"),
         (
             "ana+se·bet·ti qar·rā~d lā+ša·nān — nan~·di·qā kak·kī·kun",
             "ipa",
-            "ʔana se.bet.ti ⟨pause⟩ (.) qɑr.ˈraːːd ⟨pause⟩ (.) laː ʃa.naːn ⟨emdash⟩ (..) ˈnanː.dɨ.qɑː ⟨pause⟩ (.) kak.kiː.kun",
+            "ana se.bet.ti ⟨pause⟩ (.) qɑr.ˈraːːd ⟨pause⟩ (.) laː ʃa.naːn ⟨emdash⟩ (..) ˈnanː.dɨ.qɑː ⟨pause⟩ (.) kak.kiː.kun",
         ),
         (
             "ṣal·mā~t qaq·qa·di ana+šu·mut·ti — šum·qu·tu bū~l šak·kan",
             "ipa",
-            "sˤɑl.ˈmaːːt ⟨pause⟩ (.) qɑq.qɑ.di ⟨pause⟩ (.) ʔana ʃu.mut.ti ⟨emdash⟩ (..) ʃum.qʊ.tu ⟨pause⟩ (.) ˈbuːːl ⟨pause⟩ (.) ʃak.kan",
+            "sˤɑl.ˈmaːːt ⟨pause⟩ (.) qɑq.qɑ.di ⟨pause⟩ (.) ana ʃu.mut.ti ⟨emdash⟩ (..) ʃum.qʊ.tu ⟨pause⟩ (.) ˈbuːːl ⟨pause⟩ (.) ʃak.kan",
         ),
         ("ba", "ipa", "ba"),
         ("bā", "ipa", "baː"),
@@ -909,13 +931,13 @@ def run_tests() -> bool:
         ("q~a", "bold", "**qa**"),
         ("~aq", "acute", "´aq"),
         ("~aq", "bold", "**aq**"),
-        ("~aq", "ipa", "ˈʔːɑq"),
+        ("~aq", "ipa", "ˈɑːq"),
         ("qaq·qa·di", "ipa", "qɑq.qɑ.di"),
         ("ṣal·mā~t", "ipa", "sˤɑl.ˈmaːːt"),
         ("ḫaṭ~·ṭi", "ipa", "ˈχɑtˤː.tˤɨ"),
         ("qā·tā~·šu", "ipa", "qɑː.ˈtaːː.ʃu"),
-        ("a·na+ē·kal·lim", "ipa", "ʔa.na ʔeː.kal.lim"),
-        ("bēl-ē·riš", "ipa", "beːl-ʔeː.riʃ"),
+        ("a·na+ē·kal·lim", "ipa", "a.na eː.kal.lim"),
+        ("bēl-ē·riš", "ipa", "beːl-eː.riʃ"),
         ("šar gi·mir", "ipa", "ʃar ⟨pause⟩ (.) gi.mir"),
         ("šar, gi·mir", "ipa", "ʃar ⟨comma⟩ (..) gi.mir"),
         ("šar. gi·mir", "ipa", "ʃar ⟨period⟩ (..) gi.mir"),
@@ -952,10 +974,10 @@ def run_tests() -> bool:
     text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
-    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈʔːa.pil\n"
+    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈaː.pil\n"
     expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
-    total_extra = 5
+    total_extra = 7
     extra_passed = 0
 
     if got_acute == expected_acute:
@@ -998,6 +1020,35 @@ def run_tests() -> bool:
             f"\n  exp: {expected_xar}"
         )
 
+    forbidden_ipa = {'ħ', 'ʕ', 'ʔ'}
+    ipa_inventory_ok = True
+    for inp, mode, _ in tests:
+        if mode != 'ipa':
+            continue
+        ipa_out = convert_line(inp, 'ipa')
+        bad = sorted(ch for ch in forbidden_ipa if ch in ipa_out)
+        if bad:
+            ipa_inventory_ok = False
+            print(
+                "FAILED [ipa inventory]"
+                f"\n  in : {inp}"
+                f"\n  got: {ipa_out}"
+                f"\n  forbidden: {''.join(bad)}"
+            )
+
+    if ipa_inventory_ok:
+        extra_passed += 1
+
+    text_inventory_ok = not any(ch in got_ipa for ch in forbidden_ipa)
+    if text_inventory_ok:
+        extra_passed += 1
+    else:
+        print(
+            "FAILED [convert_text ipa inventory]"
+            f"\n  in : {text_in}"
+            f"\n  got: {got_ipa}"
+        )
+
     with tempfile.TemporaryDirectory() as tmpdir:
         in_path = Path(tmpdir) / "sample_tilde.txt"
         out_acute = Path(tmpdir) / "sample_accent_acute.txt"
@@ -1019,7 +1070,7 @@ def run_tests() -> bool:
             out_acute.exists()
             and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
             and out_ipa.exists()
-            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈʔːa.pil"
+            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈaː.pil"
             and not out_bold.exists()
         )
         if file_ok:
