@@ -1,0 +1,166 @@
+# Akkadian Prosody Repair Algorithm (LOB/SOB)
+
+## Purpose
+This document describes the `akkapros` moraic repair algorithm for scholars of Akkadian and Assyriology. It explains how the system moves from syllabified text to repaired prosodic output, with explicit attention to:
+
+- accent models (`LOB`, `SOB`)
+- repair decision hierarchy
+- forward and backward merging
+- explicit `+` linking (construct/prosodic linking)
+- function-word behavior
+- diphthong processing and restoration
+
+The goal is reproducible, linguistically constrained rhythm reconstruction, not arbitrary stress assignment.
+
+## Input and Output
+
+### Input format (`*_syl.txt`)
+The repair stage reads syllabified text where:
+
+- `.` marks syllable boundaries
+- `-` marks internal/prosodic boundaries preserved from input
+- `¦` marks word end
+- `+` can explicitly link words into a forced prosodic unit
+- `[...]` style escaped punctuation/chunks are passed through as non-lexical material
+
+### Output format (`*_tilde.txt`)
+The repair stage writes repaired text where:
+
+- `~` marks the repaired (accented) moraic target
+- `+` marks merged/prosodically linked words (no pause)
+- spaces mark ordinary word boundaries
+
+## Core Principle: Bimoraic Well-Formedness
+Each prosodic unit should resolve to an even mora count. If a standalone word is odd and cannot be resolved internally, the algorithm merges prosodically with neighboring material and retries repair.
+
+## Syllable Typology and Mora Values
+The engine classifies syllables into the standard types used in the project:
+
+- light: `CV`, `V` (1 mora)
+- heavy: `CVC`, `VC`, `CVV`, `VV` (2 morae)
+- superheavy: `CVVC`, `VVC` (3 morae)
+
+This classification drives repair eligibility and model priorities.
+
+## Legal Repair Operations
+The engine adds exactly one mora per repair event.
+
+1. `lengthen_vowel`
+- allowed on: `CVV`, `VV`, `CVVC`, `VVC`
+- effect: add `~` after the long vowel symbol
+
+2. `geminate_coda`
+- allowed on: `CVC`, `VC` when syllable is not word-final in the active unit
+- effect: add `~` at syllable end
+
+3. last-resort onset repair
+- if no legal candidate exists: geminate onset (`C~V`) or glottal onset for vowel-initial (`~V`)
+
+## Accent Models and Decision Hierarchy
+`LOB` and `SOB` share operations but differ in candidate priority.
+
+### LOB (Literary Old Babylonian)
+Priority order:
+
+1. final superheavy (including circumflex finals treated as superheavy-like)
+2. rightmost non-final heavy
+3. final heavy
+
+### SOB (Standard Old Babylonian)
+Priority order:
+
+1. rightmost non-final heavy
+2. final heavy
+
+In both models, the algorithm chooses the first candidate in the ordered priority list.
+
+## Word-Level Decision Flow
+For each lexical word (unless function-word logic applies):
+
+1. compute repaired mora parity
+2. if already even: keep unchanged
+3. if odd: try internal repair by model hierarchy
+4. if internal repair fails: attempt prosodic merge (forward first)
+5. if unresolved: apply last-resort onset/glottal repair
+
+## Merge Forward and Merge Backward
+
+### Merge forward (default repair expansion)
+If a word cannot be repaired internally and remains odd:
+
+1. merge with following word
+2. recompute unit parity/candidates
+3. continue extending rightward until:
+- unit becomes even without repair, or
+- a legal repair candidate appears
+
+If successful, the unit is emitted with `+` between merged words.
+
+### Merge backward (function-word edge case)
+Backward merge is primarily used when trailing function words occur before punctuation/end and need a content host. In that case, the algorithm may roll back prior local repair and rebuild a larger prosodic unit including the preceding content word plus trailing function words.
+
+## Explicit `+` Linking (Construct/Forced Prosodic Unit)
+The input `+` is treated as an explicit user instruction that the linked sequence forms one mandatory repair domain.
+
+### Strict mode (default, `only_last=True`)
+Repair candidates before the linked tail are locked. Operationally, only the last linked word domain is eligible for repair targeting.
+
+### Relaxed mode (`--relax-last`, `only_last=False`)
+Repair may propagate right-to-left across the linked chain; the rightmost legal site in the full explicit group is chosen.
+
+### If explicit group is still unresolved
+If no candidate is legal inside the explicit group, the engine merges further rightward until punctuation/end or successful repair. If still unresolved, it applies last resort on the first syllable of the last word in the merged explicit group.
+
+## Function Words
+Function words are not repaired as independent stress-bearing units.
+
+- consecutive function words are grouped
+- when followed by content, they attach forward to that content word with `+`
+- if stranded at line end/punctuation, they are attached backward to previous content material
+
+This enforces clitic-like prosodic dependence.
+
+## Diphthong Processing and Restoration
+Diphthongs are handled in two phases across pipeline stages.
+
+### Phase 1 (syllabification stage)
+Adjacent vowels are split with glottal insertion (for unambiguous syllable parsing), for example `ua` -> `u.ʾa`.
+
+### Phase 2 (repair postprocess)
+After repair, optional restoration collapses the split patterns back to diphthongal forms via ordered regex rules. The restoration preserves repair marks where applicable (for example `u.ʾā~` -> `uā~`).
+
+This keeps repair computation explicit while allowing diphthongal surface output.
+
+## Punctuation and Escaped Segments
+Non-lexical escaped chunks are preserved and passed through. They do not participate in moraic repair, but they delimit where forward merge can continue.
+
+## Why This Matters for Philology
+The implementation encodes a testable bridge between lexical stress eligibility and connected-speech timing:
+
+- model-specific stress targeting (`LOB` vs `SOB`)
+- constrained, language-internal repair operations
+- explicit representation of prosodic grouping (`+`)
+- reproducible outputs suitable for corpus-scale comparison
+
+## Minimal Worked Example
+Input (`*_syl.txt`):
+
+```text
+gi.mir¦dad.mē¦
+```
+
+Possible output (`*_tilde.txt`, model-dependent target):
+
+```text
+gi.mir+dad~.mē
+```
+
+Interpretation:
+
+- first word cannot resolve independently
+- unit merges forward
+- repair target selected by hierarchy
+- one mora added at the selected syllable (`~`)
+
+## Implementation Note
+Current behavior corresponds to `src/akkapros/lib/repair.py` and CLI orchestration in `fullreparer.py`.

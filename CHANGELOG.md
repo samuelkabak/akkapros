@@ -17,6 +17,7 @@
 - **repair.py tests**: Added strict-default and relaxed-mode regression cases for explicit `+` groups
 - **syllabifier.py / fullreparer.py**: Added `-n/--preserve-lines` to keep original line breaks in syllabification
 - **syllabify.py tests**: Added preprocessing regression tests for newline normalization, connector split-merge, and Markdown structural boundaries
+- **printer.py / fullreparer.py**: Added `--ipa-glottals {preserve,remove}` policy option (default `preserve`) for IPA output
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)
@@ -31,6 +32,7 @@
 - **phonetic constants scope**: extra-long vowels (`àìùè`) are now metrics-internal only
 - **XAR circumflex mapping readability**: circumflex series now keeps the circumflex on the second member of mixed pairs (`â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`; emphatic: `èâ`, `èî`, `ìû`, `àê`) to make second-vowel dominance visually explicit
 - **IPA mode test coverage moved to internal tests**: key `--ipa-ob` / `--ipa-strict` checks are now in `print.py run_tests()`, with CLI option-resolution tests in `printer.py --test` and `fullreparer.py --test-cli`
+- **IPA CLI interface simplified**: IPA output is now enabled with `--ipa`, and glottal handling is selected via `--ipa-glottals preserve|remove` (mapping to strict vs OB cleanup behavior)
 - **syllabify.py line preprocessing**: default mode now normalizes single newlines to spaces and collapses 2+ newlines to a single paragraph newline
 - **syllabify.py Markdown-aware normalization**: default line normalization now preserves single-newline boundaries for Markdown structure (headings, lists, blockquotes, horizontal rules, tables, fenced code blocks)
 - **Connector split-merge safety**: cross-line `-` / `+` rejoin now applies only when connector is attached to the previous Akkadian letter (prevents spaced punctuation false merges)

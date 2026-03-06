@@ -44,17 +44,8 @@ __version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metric
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
     """Resolve whether IPA output is requested and which IPA mode to use."""
-    output_ipa = args.ipa or args.ipa_ob or args.ipa_strict
-
-    # --ipa is an alias for --ipa-strict.
-    if args.ipa_ob:
-        ipa_mode = 'ipa-ob'
-    elif args.ipa_strict:
-        ipa_mode = 'ipa-strict'
-    elif args.ipa:
-        ipa_mode = 'ipa-strict'
-    else:
-        ipa_mode = 'ipa-ob'
+    output_ipa = args.ipa
+    ipa_mode = 'ipa-strict' if args.ipa_glottals == 'preserve' else 'ipa-ob'
 
     return output_ipa, ipa_mode
 
@@ -62,17 +53,15 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
 def run_tests() -> bool:
     """Run fullreparer CLI resolution tests only (no pipeline execution)."""
     class _Args:
-        def __init__(self, ipa: bool, ipa_ob: bool, ipa_strict: bool) -> None:
+        def __init__(self, ipa: bool, ipa_glottals: str) -> None:
             self.ipa = ipa
-            self.ipa_ob = ipa_ob
-            self.ipa_strict = ipa_strict
+            self.ipa_glottals = ipa_glottals
 
     cases = [
-        (_Args(False, False, False), False, 'ipa-ob'),
-        (_Args(True, False, False), True, 'ipa-strict'),
-        (_Args(False, True, False), True, 'ipa-ob'),
-        (_Args(False, False, True), True, 'ipa-strict'),
-        (_Args(False, True, True), True, 'ipa-ob'),
+        (_Args(False, 'preserve'), False, 'ipa-strict'),
+        (_Args(False, 'remove'), False, 'ipa-ob'),
+        (_Args(True, 'preserve'), True, 'ipa-strict'),
+        (_Args(True, 'remove'), True, 'ipa-ob'),
     ]
 
     passed = 0
@@ -83,7 +72,7 @@ def run_tests() -> bool:
         else:
             print(
                 "FAILED [fullreparer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_ob={args.ipa_ob}, ipa_strict={args.ipa_strict}"
+                f"\n  in : ipa={args.ipa}, ipa_glottals={args.ipa_glottals}"
                 f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}"
                 f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}"
             )
@@ -264,11 +253,9 @@ Versions: {__version__}
     parser.add_argument('--bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt (alias for --ipa-strict)')
-    parser.add_argument('--ipa-ob', action='store_true', dest='ipa_ob',
-                        help='Write IPA output with Old Babylonian cleanup (remove pharyngeals/glottals for TTS)')
-    parser.add_argument('--ipa-strict', action='store_true', dest='ipa_strict',
-                        help='Write IPA output with strict phonetic inventory (preserve all IPA symbols)')
+                        help='Write <prefix>_accent_ipa.txt')
+    parser.add_argument('--ipa-glottals', choices=['preserve', 'remove'], default='preserve',
+                        help='IPA glottal handling policy (default: preserve)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
 

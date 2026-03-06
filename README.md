@@ -124,11 +124,11 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 # write only IPA output
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa
 
-# write IPA in Old Babylonian profile (drop letter glottals)
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa-ob
+# write IPA and preserve glottals (default)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-glottals preserve
 
-# write strict IPA (preserve letter glottals)
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa-strict
+# write IPA with glottal cleanup (Old Babylonian/TTS-oriented)
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-glottals remove
 
 # write only XAR output
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --xar
@@ -138,7 +138,7 @@ python3 src/akkapros/cli/printer.py --test
 ```
 
 `--test` runs both:
-- printer CLI option-resolution checks (including `--ipa`, `--ipa-ob`, `--ipa-strict` precedence)
+- printer CLI option-resolution checks (including `--ipa-glottals preserve|remove`)
 - `akkapros.lib.print.run_tests()` conversion checks
 
 ---
@@ -169,7 +169,7 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 - **Syllabification**: `--merge-hyphen`, `-n/--preserve-lines`
 - **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
-- **Printer**: `--acute`, `--bold`, `--ipa`, `--xar`
+- **Printer**: `--acute`, `--bold`, `--ipa`, `--ipa-glottals {preserve,remove}`, `--xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
 
 ### Line handling (default vs preserve)
