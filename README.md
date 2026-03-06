@@ -107,7 +107,7 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 
 ### Emphatic vowel coloring
 
-In this system, the four plain vowel phonemes `/a, i, u, e/` undergo systematic allophonic variation when adjacent to emphatic consonants (including the uvular plosive `/q/`), based on the physical constraint of tongue root retraction (pharyngealization). Drawing on MRI evidence of articulatory constraints and validated by native Levantine Arabic speaker intuition, the resulting emphatic allophones are: `/a/ → [ɑ]` (backed, unrounded), `/i/ → [ɨ]` (centralized/backed), `/u/ → [ʊ]` (slightly lowered), and `/e/ → [ɛ]` (lowered and backed). This mapping prioritizes physiological plausibility over dialectal variation, ensuring consistent and natural emphatic coloring across the inventory.
+In this system, the four plain vowel phonemes `/a, i, u, e/` undergo systematic allophonic variation only in **post-emphatic position** (after emphatic consonants, including `/q/`). Vowels before emphatics remain plain. The emphatic allophones are: `/a/ → [ɑ]`, `/i/ → [ɨ]`, `/u/ → [ʊ]`, and `/e/ → [ɛ]`.
 
 ### Usage
 
