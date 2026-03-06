@@ -220,7 +220,7 @@ python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir ou
 ### `--ipa` output (`*_accent_ipa.txt`)
 
 > ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
-> ʃa ʔɛtˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
+> ʃa ʔetˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
 
 IPA mode selection is controlled with `--ipa-pharyngeal {preserve,remove}`:
 - `preserve` (`ipa-strict`): Old Akkadian distinctions (`ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`)
@@ -229,7 +229,7 @@ IPA mode selection is controlled with `--ipa-pharyngeal {preserve,remove}`:
 Line breaks are rendered as a long pause (`⟨linebreak⟩ (..)`) in IPA. If a line already ends in strong punctuation (for example `.`), pause deduplication prevents double long pauses: a sequence like `sar.\n` yields one long pause block, not `⟨period⟩ (..) (..)`. 
 
 ### Note on vowel coloring in IPA
-The IPA renderer applies context-sensitive vowel coloring near emphatic consonants (notably `q`, `ṣ`, `ṭ`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`ɑ ɨ ʊ ɛ`) in emphatic environments. In the example above, `eṭla` is rendered with colored vowel quality (`ʔɛtˤ.la`), reflecting this phonetic conditioning.
+The IPA renderer applies context-sensitive vowel coloring **post-emphatic only** (notably after `q`, `ṣ`, `ṭ`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`ɑ ɨ ʊ ɛ`) only when the preceding consonant is emphatic. Vowels before emphatics remain plain.
 
 ## Implementation Note
 Current behavior corresponds to `src/akkapros/lib/repair.py` and CLI orchestration in `fullreparer.py`.

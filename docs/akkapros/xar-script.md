@@ -117,28 +117,30 @@ Why this matters:
 
 Operational rule:
 
-- any vowel directly adjacent to an emphatic consonant must be colored,
-- if no adjacent emphatic is present, the vowel must remain plain.
+- vowel coloring is **post-emphatic only**: a vowel is colored only when the
+	preceding consonant is emphatic (`q`, `ṣ`, `ṭ`),
+- vowels before emphatics remain plain,
+- if no preceding emphatic is present, the vowel must remain plain.
 
 #### Word-Initial Contexts (`# + V + C`)
 
 | Left | Vowel | Right | Status |
 | --- | --- | --- | --- |
 | `#` | Plain | Plain | LEGAL |
-| `#` | Plain | Emphatic | ILLEGAL |
+| `#` | Plain | Emphatic | LEGAL |
 | `#` | Colored | Plain | ILLEGAL |
-| `#` | Colored | Emphatic | LEGAL |
+| `#` | Colored | Emphatic | ILLEGAL |
 
 #### Word-Medial Contexts (`C + V + C`)
 
 | Left | Vowel | Right | Status |
 | --- | --- | --- | --- |
 | Plain | Plain | Plain | LEGAL |
-| Plain | Plain | Emphatic | ILLEGAL |
+| Plain | Plain | Emphatic | LEGAL |
 | Emphatic | Plain | Plain | ILLEGAL |
 | Emphatic | Plain | Emphatic | ILLEGAL |
 | Plain | Colored | Plain | ILLEGAL |
-| Plain | Colored | Emphatic | LEGAL |
+| Plain | Colored | Emphatic | ILLEGAL |
 | Emphatic | Colored | Plain | LEGAL |
 | Emphatic | Colored | Emphatic | LEGAL |
 

@@ -6,6 +6,7 @@ Converts *_tilde text into:
 - <prefix>_accent_bold.md
 - <prefix>_accent_ipa.txt
 - <prefix>_accent_xar.txt
+- <prefix>_accent_mbrola.txt
 """
 
 import sys
@@ -76,11 +77,13 @@ def main() -> None:
     parser.add_argument('--bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt')
+                        help='Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only)')
     parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
                         help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger (default: preserve)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
+    parser.add_argument('--mbrola', action='store_true',
+                        help='Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols)')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -109,8 +112,9 @@ def main() -> None:
     write_bold = args.bold
     write_ipa, ipa_mode = _resolve_ipa_options(args)
     write_xar = args.xar
+    write_mbrola = args.mbrola
 
-    if not (write_acute or write_bold or write_ipa or write_xar):
+    if not (write_acute or write_bold or write_ipa or write_xar or write_mbrola):
         write_acute = True
         write_bold = True
 
@@ -118,6 +122,7 @@ def main() -> None:
     bold_out = outdir / f"{prefix}_accent_bold.md"
     ipa_out = outdir / f"{prefix}_accent_ipa.txt"
     xar_out = outdir / f"{prefix}_accent_xar.txt"
+    mbrola_out = outdir / f"{prefix}_accent_mbrola.txt"
 
     accent_print.process_file(
         input_file=str(input_path),
@@ -125,10 +130,12 @@ def main() -> None:
         output_bold_file=str(bold_out),
         output_ipa_file=str(ipa_out),
         output_xar_file=str(xar_out),
+        output_mbrola_file=str(mbrola_out),
         write_acute=write_acute,
         write_bold=write_bold,
         write_ipa=write_ipa,
         write_xar=write_xar,
+        write_mbrola=write_mbrola,
         ipa_mode=ipa_mode,
     )
 
@@ -141,6 +148,8 @@ def main() -> None:
         print(f"Written: {ipa_out}")
     if write_xar:
         print(f"Written: {xar_out}")
+    if write_mbrola:
+        print(f"Written: {mbrola_out}")
 
 
 if __name__ == '__main__':

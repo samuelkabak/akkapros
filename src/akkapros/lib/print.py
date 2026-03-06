@@ -73,6 +73,27 @@ IPA_VOWELS_EMPHATIC = {
     'â': 'ɑː', 'î': 'ɨː', 'û': 'ʊː', 'ê': 'ɛː',
 }
 
+MBROLA_CONSONANT_MAP = {
+    "'": '?', 'ʾ': '?',
+    'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
+    'q': 'q', 'ṭ': 't.', 'ṣ': 's.', 'š': 'S',
+    's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
+    'r': 'r', 'ḥ': 'X', 'ḫ': 'x', 'ʿ': 'H',
+    'w': 'w', 'y': 'j', 't': 't',
+}
+
+MBROLA_VOWELS_DEFAULT = {
+    'a': 'a', 'i': 'i', 'u': 'u', 'e': 'e',
+    'ā': 'a a', 'ī': 'i i', 'ū': 'u u', 'ē': 'e e',
+    'â': 'a a', 'î': 'i i', 'û': 'u u', 'ê': 'e e',
+}
+
+MBROLA_VOWELS_EMPHATIC = {
+    'a': 'a.', 'i': 'i.', 'u': 'u.', 'e': 'e.',
+    'ā': 'a. a.', 'ī': 'i. i.', 'ū': 'u. u.', 'ē': 'e. e.',
+    'â': 'a. a.', 'î': 'i. i.', 'û': 'u. u.', 'ê': 'e. e.',
+}
+
 XAR_CONSONANT_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'ꝗ', 'ṭ': 'ꞓ', 'ṣ': 'ɉ', 'š': 'x̌',
@@ -196,7 +217,7 @@ def _insert_glottal_stops_with_indices(word: str) -> Tuple[str, list]:
 
 
 def _is_emphatic_adjacent(text: str, index: int, skip_chars=None) -> bool:
-    """True when a vowel has adjacent q/ṣ/ṭ (optionally skipping separators)."""
+    """True when a vowel is post-emphatic (previous consonant is q/ṣ/ṭ)."""
 
     if skip_chars is None:
         skip_chars = {TILDE}
@@ -210,8 +231,7 @@ def _is_emphatic_adjacent(text: str, index: int, skip_chars=None) -> bool:
         return ''
 
     left = get_neighbor(-1)
-    right = get_neighbor(1)
-    return left in EMPHATIC_CONSONANTS or right in EMPHATIC_CONSONANTS
+    return left in EMPHATIC_CONSONANTS
 
 
 def _to_ipa_vowel(vowel: str, emphatic_context: bool) -> str:
@@ -224,6 +244,12 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
     if emphatic_context:
         return XAR_VOWELS_EMPHATIC.get(vowel, vowel)
     return XAR_VOWELS_DEFAULT.get(vowel, vowel)
+
+
+def _to_mbrola_vowel(vowel: str, emphatic_context: bool) -> str:
+    if emphatic_context:
+        return MBROLA_VOWELS_EMPHATIC.get(vowel, vowel)
+    return MBROLA_VOWELS_DEFAULT.get(vowel, vowel)
 
 
 def remove_glottals(text: str) -> str:
@@ -450,6 +476,30 @@ def _flush_syllable(
 
         return ''.join(converted)
 
+    if mode == 'mbrola':
+        converted = []
+
+        context_text = source_text if source_text else syllable_text
+        context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
+
+        for idx, char in enumerate(syllable_text):
+            if char in ALL_VOWELS:
+                context_index = source_indices[idx] if source_indices else idx
+                converted.append(
+                    _to_mbrola_vowel(
+                        char,
+                        _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
+                    )
+                )
+            elif char in MBROLA_CONSONANT_MAP:
+                converted.append(MBROLA_CONSONANT_MAP[char])
+            elif char == TILDE:
+                converted.append(ACUTE_MARK)
+            else:
+                converted.append(char)
+
+        return ' '.join([item for item in converted if item])
+
     clean = syllable_text.replace(TILDE, '')
     if TILDE in syllable_text and clean:
         return f"**{clean}**"
@@ -498,6 +548,8 @@ def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
             flush_current()
             if mode == 'ipa':
                 out.append(' ')
+            elif mode == 'mbrola':
+                out.append(' ')
             else:
                 out.append(WORD_LINKER_OUT)
         elif char == TILDE:
@@ -507,6 +559,8 @@ def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
             flush_current()
             if mode == 'ipa':
                 out.append('.')
+            elif mode == 'mbrola':
+                out.append(' ')
         elif char == HYPHEN:
             flush_current()
             out.append(HYPHEN)
@@ -720,8 +774,8 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
-    if mode not in {'acute', 'bold', 'ipa', 'xar'}:
-        raise ValueError("mode must be 'acute', 'bold', 'ipa' or 'xar'")
+    if mode not in {'acute', 'bold', 'ipa', 'xar', 'mbrola'}:
+        raise ValueError("mode must be 'acute', 'bold', 'ipa', 'xar' or 'mbrola'")
 
     had_newline = line.endswith('\n')
     core_line = line[:-1] if had_newline else line
@@ -788,16 +842,38 @@ def convert_text_with_ipa_xar(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str,
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
 
 
+def convert_text_with_ipa_xar_mbrola(
+    text: str,
+    ipa_mode: str = 'ipa-ob',
+) -> Tuple[str, str, str, str, str]:
+    """Convert full text and return acute, bold, ipa, xar, and mbrola outputs."""
+    lines = text.splitlines(keepends=True)
+    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode) for line in lines]
+    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode) for line in lines]
+    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode) for line in lines]
+    mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode) for line in lines]
+    return (
+        ''.join(acute_lines),
+        ''.join(bold_lines),
+        ''.join(ipa_lines),
+        ''.join(xar_lines),
+        ''.join(mbrola_lines),
+    )
+
+
 def process_file(
     input_file: str,
     output_acute_file: str,
     output_bold_file: str,
     output_ipa_file: str = '',
     output_xar_file: str = '',
+    output_mbrola_file: str = '',
     write_acute: bool = True,
     write_bold: bool = True,
     write_ipa: bool = False,
     write_xar: bool = False,
+    write_mbrola: bool = False,
     ipa_mode: str = 'ipa-ob',
 ) -> None:
     """Read *_tilde input and write selected output files.
@@ -808,17 +884,19 @@ def process_file(
         output_bold_file: Path for accent_bold.md output
         output_ipa_file: Path for accent_ipa.txt output
         output_xar_file: Path for accent_xar.txt output
+        output_mbrola_file: Path for accent_mbrola.txt output
         write_acute: Whether to write acute output
         write_bold: Whether to write bold output
         write_ipa: Whether to write IPA output
         write_xar: Whether to write XAR output
+        write_mbrola: Whether to write MBROLA output
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    acute_text, bold_text, ipa_text, xar_text = convert_text_with_ipa_xar(text, ipa_mode)
+    acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(text, ipa_mode)
 
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
@@ -843,6 +921,13 @@ def process_file(
         Path(output_xar_file).parent.mkdir(parents=True, exist_ok=True)
         with open(output_xar_file, 'w', encoding='utf-8') as f:
             f.write(xar_text)
+
+    if write_mbrola:
+        if not output_mbrola_file:
+            raise ValueError("output_mbrola_file is required when write_mbrola is True")
+        Path(output_mbrola_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_mbrola_file, 'w', encoding='utf-8') as f:
+            f.write(mbrola_text)
 
 
 def run_tests() -> bool:
@@ -918,12 +1003,32 @@ def run_tests() -> bool:
         ("qî", "xar", "ꝗèî"),
         ("qû", "xar", "ꝗìû"),
         ("qê", "xar", "ꝗàê"),
+        ("ʾ", "mbrola", "?"),
+        ("ʿ", "mbrola", "H"),
+        ("ḥ", "mbrola", "X"),
+        ("ḫ", "mbrola", "x"),
+        ("š", "mbrola", "S"),
+        ("ṣ", "mbrola", "s."),
+        ("ṭ", "mbrola", "t."),
+        ("qa", "mbrola", "q a."),
+        ("aq", "mbrola", "a q"),
+        ("ā", "mbrola", "a a"),
+        ("qā", "mbrola", "q a. a."),
+        ("ṭe", "mbrola", "t. e."),
+        ("aq", "xar", "aꝗ"),
+        ("taq", "xar", "taꝗ"),
+        ("qat", "xar", "ꝗàt"),
         ("qa", "ipa", "qɑ"),
+        ("aq", "ipa", "aq"),
+        ("taq", "ipa", "taq"),
+        ("qat", "ipa", "qɑt"),
+        ("iṭ", "ipa", "itˤ"),
+        ("ṭi", "ipa", "tˤɨ"),
         ("qi", "ipa", "qɨ"),
         ("qu", "ipa", "qʊ"),
         ("qe", "ipa", "qɛ"),
         ("ṭe", "ipa", "tˤɛ"),
-        ("iṣ", "ipa", "ɨsˤ"),
+        ("iṣ", "ipa", "isˤ"),
         ("a", "ipa", "a"),
         ("i", "ipa", "i"),
         ("u", "ipa", "u"),
@@ -972,7 +1077,7 @@ def run_tests() -> bool:
         (
             "ana+se·bet·ti qar·rā~d lā+ša·nān — nan~·di·qā kak·kī·kun",
             "ipa",
-            "ana se.bet.ti ⟨pause⟩ (.) qɑr.ˈraːːd ⟨pause⟩ (.) laː ʃa.naːn ⟨emdash⟩ (..) ˈnanː.dɨ.qɑː ⟨pause⟩ (.) kak.kiː.kun",
+            "ana se.bet.ti ⟨pause⟩ (.) qɑr.ˈraːːd ⟨pause⟩ (.) laː ʃa.naːn ⟨emdash⟩ (..) ˈnanː.di.qɑː ⟨pause⟩ (.) kak.kiː.kun",
         ),
         (
             "ṣal·mā~t qaq·qa·di ana+šu·mut·ti — šum·qu·tu bū~l šak·kan",
@@ -981,7 +1086,7 @@ def run_tests() -> bool:
         ),
         ("ba", "ipa", "ba"),
         ("bā", "ipa", "baː"),
-        ("baq", "ipa", "bɑq"),
+        ("baq", "ipa", "baq"),
         ("qab", "ipa", "qɑb"),
         ("qaq", "ipa", "qɑq"),
         ("qā", "ipa", "qɑː"),
@@ -991,10 +1096,10 @@ def run_tests() -> bool:
         ("q~a", "bold", "**qa**"),
         ("~aq", "acute", "´aq"),
         ("~aq", "bold", "**aq**"),
-        ("~aq", "ipa", "ˈʔːɑq"),
+        ("~aq", "ipa", "ˈʔːaq"),
         ("qaq·qa·di", "ipa", "qɑq.qɑ.di"),
         ("ṣal·mā~t", "ipa", "sˤɑl.ˈmaːːt"),
-        ("ḫaṭ~·ṭi", "ipa", "ˈχɑtˤː.tˤɨ"),
+        ("ḫaṭ~·ṭi", "ipa", "ˈχatˤː.tˤɨ"),
         ("qā·tā~·šu", "ipa", "qɑː.ˈtaːː.ʃu"),
         ("a·na+ē·kal·lim", "ipa", "a.na eː.kal.lim"),
         ("bēl-ē·riš", "ipa", "beːl-eː.riʃ"),
