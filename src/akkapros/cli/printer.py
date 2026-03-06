@@ -22,7 +22,7 @@ from akkapros.lib.utils import simple_safe_filename
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
     """Resolve whether IPA output is requested and which IPA mode to use."""
     write_ipa = args.ipa
-    ipa_mode = 'ipa-strict' if args.ipa_glottals == 'preserve' else 'ipa-ob'
+    ipa_mode = 'ipa-strict' if args.ipa_pharyngeal == 'preserve' else 'ipa-ob'
 
     return write_ipa, ipa_mode
 
@@ -32,9 +32,9 @@ def run_tests() -> bool:
     ok = True
 
     class _Args:
-        def __init__(self, ipa: bool, ipa_glottals: str) -> None:
+        def __init__(self, ipa: bool, ipa_pharyngeal: str) -> None:
             self.ipa = ipa
-            self.ipa_glottals = ipa_glottals
+            self.ipa_pharyngeal = ipa_pharyngeal
 
     cases = [
         (_Args(False, 'preserve'), False, 'ipa-strict'),
@@ -52,7 +52,7 @@ def run_tests() -> bool:
             ok = False
             print(
                 "FAILED [printer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_glottals={args.ipa_glottals}"
+                f"\n  in : ipa={args.ipa}, ipa_pharyngeal={args.ipa_pharyngeal}"
                 f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}"
                 f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}"
             )
@@ -77,8 +77,8 @@ def main() -> None:
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt')
-    parser.add_argument('--ipa-glottals', choices=['preserve', 'remove'], default='preserve',
-                        help='IPA glottal handling policy (default: preserve)')
+    parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
+                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger (default: preserve)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
     parser.add_argument('--test', action='store_true', help='Run internal tests')

@@ -222,6 +222,10 @@ python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir ou
 > ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
 > ʃa ʔɛtˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
 
+IPA mode selection is controlled with `--ipa-pharyngeal {preserve,remove}`:
+- `preserve` (`ipa-strict`): Old Akkadian distinctions (`ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`)
+- `remove` (`ipa-ob`): Old Babylonian merger (`ḥ -> χ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ`)
+
 Line breaks are rendered as a long pause (`⟨linebreak⟩ (..)`) in IPA. If a line already ends in strong punctuation (for example `.`), pause deduplication prevents double long pauses: a sequence like `sar.\n` yields one long pause block, not `⟨period⟩ (..) (..)`. 
 
 ### Note on vowel coloring in IPA

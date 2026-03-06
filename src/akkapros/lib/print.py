@@ -45,7 +45,15 @@ GLOTTAL_STOP = 'ʾ'
 ALL_VOWELS = set('aeiuāēīūâêîû')
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
 
-IPA_MAP = {
+IPA_MAP_STRICT = {
+    'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
+    'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
+    's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
+    'r': 'r', 'ḥ': 'ħ', 'ḫ': 'χ', 'ʿ': 'ʕ', 'ʾ': 'ʔ',
+    'w': 'w', 'y': 'j', 't': 't',
+}
+
+IPA_MAP_OB = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
@@ -218,18 +226,6 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
     return XAR_VOWELS_DEFAULT.get(vowel, vowel)
 
 
-def remove_glottals_ipa(text: str) -> str:
-    """Legacy IPA cleanup for non-canonical merged glottal symbols in ipa-ob mode.
-
-    Canonical glottal stop ʔ is handled upstream with source-aware logic:
-    - remove letter glottals (ʾ/ʿ from input text)
-    - keep inserted implied glottals (including stressed/repaired ones)
-    """
-    text = re.sub(r'ʕː([aeiouɑɨʊɛ])', r'\1ː', text)
-    text = re.sub(r'ʕ([aeiouɑɨʊɛ])', r'\1', text)
-    return text.replace('ʕ', '')
-
-
 def remove_glottals(text: str) -> str:
     """Remove mapped glottal apostrophes in XAR using diphthong-preserving replacements."""
     short_to_circumflex = {'a': 'â', 'i': 'î', 'u': 'û', 'e': 'ê'}
@@ -388,6 +384,7 @@ def _flush_syllable(
     if mode == 'ipa':
         repaired = TILDE in syllable_text
         converted = []
+        ipa_map = IPA_MAP_STRICT if ipa_mode == 'ipa-strict' else IPA_MAP_OB
 
         context_text = source_text if source_text else syllable_text
         context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
@@ -401,17 +398,17 @@ def _flush_syllable(
                         _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
                     )
                 )
-            elif char in IPA_MAP:
-                if char in {'ʾ', 'ʿ'} and ipa_mode == 'ipa-ob':
-                    # Remove only letter glottals in ipa-ob.
-                    # Inserted implied glottals carry source index -1.
-                    # Keep them only for repaired/stressed syllables.
-                    if source_indices is not None and source_indices[idx] == -1 and repaired:
-                        converted.append(IPA_MAP[char])
-                    else:
-                        continue
-                else:
-                    converted.append(IPA_MAP[char])
+            elif char in ipa_map:
+                # Keep implied/injected glottal onset silent unless this is a repaired syllable.
+                # Explicit source letters (ʾ/ʿ) are still mapped by mode-specific inventories.
+                if (
+                    char == GLOTTAL_STOP
+                    and source_indices is not None
+                    and source_indices[idx] == -1
+                    and not repaired
+                ):
+                    continue
+                converted.append(ipa_map[char])
             elif char == TILDE:
                 converted.append(IPA_LENGTH)
             else:
@@ -423,8 +420,7 @@ def _flush_syllable(
             # ːʔa → ʔaː (length marker moves to end, after vowel)
             ipa_syllable = re.sub(r'^ː+(\u0294)([aeiou\u0251\u0268\u028a\u025b])(.*)$', 
                                   r'\1\2' + IPA_LENGTH + r'\3', ipa_syllable)
-            # For stressed vowel-initial syllables without onset glottal (e.g.,
-            # letter glottal removed in ipa-ob): ːa -> aː
+            # For stressed vowel-initial syllables without onset glottal: ːa -> aː
             ipa_syllable = re.sub(r'^ː+([aeiou\u0251\u0268\u028a\u025b])(.*)$',
                                   r'\1' + IPA_LENGTH + r'\2', ipa_syllable)
             return f"{IPA_STRESS}{ipa_syllable}"
@@ -519,10 +515,7 @@ def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
             current_indices.append(idx)
 
     flush_current()
-    result = ''.join(out)
-    if mode == 'ipa' and ipa_mode == 'ipa-ob':
-        return remove_glottals_ipa(result)
-    return result
+    return ''.join(out)
 
 
 def _is_word_char(char: str) -> bool:
@@ -724,7 +717,8 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
     Args:
         line: Input line in *_tilde format
         mode: 'acute', 'bold', 'ipa', or 'xar'
-        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
+              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     if mode not in {'acute', 'bold', 'ipa', 'xar'}:
         raise ValueError("mode must be 'acute', 'bold', 'ipa' or 'xar'")
@@ -771,7 +765,8 @@ def convert_text_with_ipa(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str
     
     Args:
         text: Full text in *_tilde format
-        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
+              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(text, ipa_mode)
     return acute_text, bold_text, ipa_text
@@ -782,7 +777,8 @@ def convert_text_with_ipa_xar(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str,
     
     Args:
         text: Full text in *_tilde format
-        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
+              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     lines = text.splitlines(keepends=True)
     acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode) for line in lines]
@@ -816,7 +812,8 @@ def process_file(
         write_bold: Whether to write bold output
         write_ipa: Whether to write IPA output
         write_xar: Whether to write XAR output
-        ipa_mode: 'ipa-ob' (cleanup glottals for TTS) or 'ipa-strict' (preserve all IPA symbols)
+        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
+              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -959,19 +956,19 @@ def run_tests() -> bool:
         ("qî~", "ipa", "ˈqɨːː"),
         ("qû~", "ipa", "ˈqʊːː"),
         ("qê~", "ipa", "ˈqɛːː"),
-        ("ʾa", "ipa", "a"),
-        ("ʿa", "ipa", "a"),
-        ("ʾi", "ipa", "i"),
-        ("ʿu", "ipa", "u"),
-        ("ʿē", "ipa", "eː"),
-        ("ʾ~a", "ipa", "ˈaː"),
-        ("ʿ~a", "ipa", "ˈaː"),
+        ("ʾa", "ipa", "ʔa"),
+        ("ʿa", "ipa", "ʔa"),
+        ("ʾi", "ipa", "ʔi"),
+        ("ʿu", "ipa", "ʔu"),
+        ("ʿē", "ipa", "ʔeː"),
+        ("ʾ~a", "ipa", "ˈʔːa"),
+        ("ʿ~a", "ipa", "ˈʔːa"),
         ("a+ē", "ipa", "a eː"),
         ("a-ē", "ipa", "a-eː"),
         ("ḫa", "ipa", "χa"),
         ("ḥa", "ipa", "χa"),
-        ("ʿa+ʾi", "ipa", "a i"),
-        ("ʾa-ʿi", "ipa", "a-i"),
+        ("ʿa+ʾi", "ipa", "ʔa ʔi"),
+        ("ʾa-ʿi", "ipa", "ʔa-ʔi"),
         (
             "ana+se·bet·ti qar·rā~d lā+ša·nān — nan~·di·qā kak·kī·kun",
             "ipa",
@@ -1152,10 +1149,12 @@ def run_tests() -> bool:
 
     # IPA mode switch checks: ipa-ob vs ipa-strict.
     ipa_mode_cases = [
-        ("ʾa", "a", "ʔa"),
-        ("ʿa", "a", "ʔa"),
-        ("ʾ~a", "ˈaː", "ˈʔːa"),
-        ("ʿa+ʾi", "a i", "ʔa ʔi"),
+        ("ḥa", "χa", "ħa"),
+        ("ḫa", "χa", "χa"),
+        ("ʿa", "ʔa", "ʕa"),
+        ("ʾa", "ʔa", "ʔa"),
+        ("ʾ~a", "ˈʔːa", "ˈʔːa"),
+        ("ʿa+ʾi", "ʔa ʔi", "ʕa ʔi"),
     ]
 
     for inp, exp_ob, exp_strict in ipa_mode_cases:
@@ -1182,23 +1181,23 @@ def run_tests() -> bool:
             )
 
     _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
-    if got_ipa_ob == "a ⟨pause⟩ (.) a ⟨linebreak⟩ (..)\n":
+    if got_ipa_ob == "ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode ob]"
             f"\n  got: {got_ipa_ob}"
-            "\n  exp: a ⟨pause⟩ (.) a ⟨linebreak⟩ (..)"
+            "\n  exp: ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)"
         )
 
     _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
-    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)\n":
+    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʕa ⟨linebreak⟩ (..)\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode strict]"
             f"\n  got: {got_ipa_strict}"
-            "\n  exp: ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)"
+            "\n  exp: ʔa ⟨pause⟩ (.) ʕa ⟨linebreak⟩ (..)"
         )
 
     total_extra += (len(ipa_mode_cases) * 2) + 2
