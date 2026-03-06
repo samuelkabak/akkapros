@@ -729,7 +729,10 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
     if mode not in {'acute', 'bold', 'ipa', 'xar'}:
         raise ValueError("mode must be 'acute', 'bold', 'ipa' or 'xar'")
 
-    parts = split_by_brackets_level3(line)
+    had_newline = line.endswith('\n')
+    core_line = line[:-1] if had_newline else line
+
+    parts = split_by_brackets_level3(core_line)
     if len(parts) > 1:
         converted = []
         for part in parts:
@@ -741,13 +744,19 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
             else:
                 converted.append(_convert_non_bracket_part(part, mode, ipa_mode))
         result = ''.join(converted)
-        if mode == 'ipa':
-            return _normalize_ipa_spacing(result)
+    else:
+        result = _convert_non_bracket_part(core_line, mode, ipa_mode)
+
+    if mode == 'ipa':
+        result = _normalize_ipa_spacing(result)
+        if had_newline and not re.search(r'\(\.\.\)\s*$', result):
+            result = _normalize_ipa_spacing(result + ' ⟨linebreak⟩ (..)')
+        if had_newline:
+            result += '\n'
         return result
 
-    result = _convert_non_bracket_part(line, mode, ipa_mode)
-    if mode == 'ipa':
-        return _normalize_ipa_spacing(result)
+    if had_newline:
+        result += '\n'
     return result
 
 
@@ -995,6 +1004,8 @@ def run_tests() -> bool:
         ("šar gi·mir", "ipa", "ʃar ⟨pause⟩ (.) gi.mir"),
         ("šar, gi·mir", "ipa", "ʃar ⟨comma⟩ (..) gi.mir"),
         ("šar. gi·mir", "ipa", "ʃar ⟨period⟩ (..) gi.mir"),
+        ("šar\n", "ipa", "ʃar ⟨linebreak⟩ (..)\n"),
+        ("šar.\n", "ipa", "ʃar ⟨period⟩ (..) \n"),
         ("šar? gi·mir", "ipa", "ʃar ⟨question⟩ (..) gi.mir"),
         ("šar! gi·mir", "ipa", "ʃar ⟨exclamation⟩ (..) gi.mir"),
         ("šar: gi·mir", "ipa", "ʃar ⟨colon⟩ (..) gi.mir"),
@@ -1028,7 +1039,7 @@ def run_tests() -> bool:
     text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
-    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː\nˈʔːa.pil\n"
+    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː ⟨linebreak⟩ (..)\nˈʔːa.pil ⟨linebreak⟩ (..)\n"
     expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
     total_extra = 7
@@ -1171,23 +1182,23 @@ def run_tests() -> bool:
             )
 
     _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
-    if got_ipa_ob == "a ⟨pause⟩ (.) a\n":
+    if got_ipa_ob == "a ⟨pause⟩ (.) a ⟨linebreak⟩ (..)\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode ob]"
             f"\n  got: {got_ipa_ob}"
-            "\n  exp: a ⟨pause⟩ (.) a"
+            "\n  exp: a ⟨pause⟩ (.) a ⟨linebreak⟩ (..)"
         )
 
     _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
-    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʔa\n":
+    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode strict]"
             f"\n  got: {got_ipa_strict}"
-            "\n  exp: ʔa ⟨pause⟩ (.) ʔa"
+            "\n  exp: ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)"
         )
 
     total_extra += (len(ipa_mode_cases) * 2) + 2

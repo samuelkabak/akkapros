@@ -30,6 +30,24 @@ The repair stage writes repaired text where:
 - `+` marks merged/prosodically linked words (no pause)
 - spaces mark ordinary word boundaries
 
+### Rendering repaired text (`printer.py`)
+After repair (`*_tilde.txt`), the text is typically rendered in one of three reading outputs:
+
+1. `--acute`
+- output file: `*_accent_acute.txt`
+- rendering: `~` is converted to acute accent (`´`) on the repaired syllable
+- use case: compact philological reading with explicit repaired prominence
+
+2. `--bold` (often cited as markdown output, `--md`)
+- output file: `*_accent_bold.md`
+- rendering: repaired syllable is bolded (`**...**`), `~` removed
+- use case: publication-ready visual emphasis in markdown documents
+
+3. `--ipa`
+- output file: `*_accent_ipa.txt`
+- rendering: IPA transliteration with stress/length marking and pause tags
+- use case: phonetic interpretation, prosodic timing inspection, and TTS-oriented workflows
+
 ## Core Principle: Bimoraic Well-Formedness
 Each prosodic unit should resolve to an even mora count. If a standalone word is odd and cannot be resolved internally, the algorithm merges prosodically with neighboring material and retries repair.
 
@@ -161,6 +179,61 @@ Interpretation:
 - unit merges forward
 - repair target selected by hierarchy
 - one mora added at the selected syllable (`~`)
+
+## Worked Example: *Erra and Išum* (lines 21-22)
+
+### Source lines (transliteration)
+
+```text
+engidudu bēlu muttallik mūši muttarrû rubê
+ša eṭla u ardata ina šulmi ittanarrû unammaru kīma ūmi
+```
+
+### Translation
+
+```text
+O Engidudu, lord who wanders in the night, who guides the princes,
+Who leads safely lad and girl, illuminating them like the light of day!
+```
+
+### Command used
+
+```bash
+python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir outputs --preserve-lines --acute --bold --ipa
+```
+
+### Repaired pivot (`*_tilde.txt`)
+
+```text
+en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
+ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
+```
+
+### `--acute` output (`*_accent_acute.txt`)
+
+```text
+en´gidudu bē´lu muttallik mū´ši muttarrû rubê´
+ša‿eṭla u‿ardata ina‿šulmi ittanar´rû unam´maru kī´ma ū´mi
+```
+
+### `--bold` output (`*_accent_bold.md`)
+
+```markdown
+**en**gidudu **bē**lu muttallik **mū**ši muttarrû ru**bê**
+ša‿eṭla u‿ardata ina‿šulmi itta**nar**rû u**nam**maru **kī**ma **ū**mi
+```
+
+### `--ipa` output (`*_accent_ipa.txt`)
+
+```text
+ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
+ʃa ʔɛtˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
+```
+
+Line breaks are rendered as a long pause (`⟨linebreak⟩ (..)`) in IPA. If a line already ends in strong punctuation (for example `.`), pause deduplication prevents double long pauses: a sequence like `sar.\n` yields one long pause block, not `⟨period⟩ (..) (..)`. 
+
+### Note on vowel coloring in IPA
+The IPA renderer applies context-sensitive vowel coloring near emphatic consonants (notably `q`, `ṣ`, `ṭ`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`ɑ ɨ ʊ ɛ`) in emphatic environments. In the example above, `eṭla` is rendered with colored vowel quality (`ʔɛtˤ.la`), reflecting this phonetic conditioning.
 
 ## Implementation Note
 Current behavior corresponds to `src/akkapros/lib/repair.py` and CLI orchestration in `fullreparer.py`.
