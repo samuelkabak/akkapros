@@ -27,7 +27,14 @@ from akkapros.lib.utils import simple_safe_filename
 __version__ = syllabify.__version__
 
 
-def process_file(input_file: str, output_file: str, extra_vowels: str = '', extra_consonants: str = '', merge_hyphen: bool = False):
+def process_file(
+    input_file: str,
+    output_file: str,
+    extra_vowels: str = '',
+    extra_consonants: str = '',
+    merge_hyphen: bool = False,
+    preserve_lines: bool = False,
+):
     """Read input, syllabify and write output."""
     print(f"Reading: {input_file}")
     if extra_vowels:
@@ -35,12 +42,19 @@ def process_file(input_file: str, output_file: str, extra_vowels: str = '', extr
     if extra_consonants:
         print(f"Extra consonants: '{extra_consonants}'")
     print(f"Hyphen mode: {'MERGE TO DOTS' if merge_hyphen else 'PRESERVE'}")
+    print(f"Line mode: {'PRESERVE ORIGINAL LINES' if preserve_lines else 'NORMALIZE (1 newline=space, 2+=paragraph break)'}")
 
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
 
     print("Processing...")
-    result = syllabify.syllabify_text(content, extra_vowels=extra_vowels, extra_consonants=extra_consonants, merge_hyphen=merge_hyphen)
+    result = syllabify.syllabify_text(
+        content,
+        extra_vowels=extra_vowels,
+        extra_consonants=extra_consonants,
+        merge_hyphen=merge_hyphen,
+        preserve_lines=preserve_lines,
+    )
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(result)
@@ -64,6 +78,8 @@ def main():
     parser.add_argument('--extra-vowels', default='', help='Extra vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra consonants')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
+    parser.add_argument('-n', '--preserve-lines', action='store_true',
+                        help='Preserve original line breaks (default normalizes 1 newline to space, 2+ to paragraph break)')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -96,7 +112,14 @@ def main():
     print(f"Output directory: {outdir}")
     print(f"Output prefix: {prefix}")
 
-    process_file(str(input_path), str(output_path), extra_vowels=args.extra_vowels, extra_consonants=args.extra_consonants, merge_hyphen=args.merge_hyphen)
+    process_file(
+        str(input_path),
+        str(output_path),
+        extra_vowels=args.extra_vowels,
+        extra_consonants=args.extra_consonants,
+        merge_hyphen=args.merge_hyphen,
+        preserve_lines=args.preserve_lines,
+    )
 
 
 if __name__ == '__main__':

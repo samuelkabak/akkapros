@@ -163,7 +163,13 @@ def preprocess_diphthongs(text: str) -> str:
     return text
 
 
-def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str = '', extra_consonants: str = '') -> str:
+def text_preprocess_boundaries(
+    text: str,
+    warnings: List[str],
+    extra_vowels: str = '',
+    extra_consonants: str = '',
+    preserve_lines: bool = False,
+) -> str:
     """Preprocess text prior to syllabification.
 
     The function performs the following steps:
@@ -172,8 +178,9 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
     2. Expand diphthongs by inserting glottal stops.
     3. Trim trailing whitespace on each line (preserve leading spaces).
     4. Merge words split across lines by hyphenation.
-    5. Preserve paragraph structure (newlines).
-    6. Warn about tabs occurring between Akkadian words.
+    5. Normalize line breaks by default: single newline -> space, 2+ newlines -> one newline.
+    6. Preserve line breaks exactly when ``preserve_lines=True``.
+    7. Warn about tabs occurring between Akkadian words.
     """
     if not isinstance(warnings, list):
         raise TypeError("Expected a list in text_preprocess_boundaries")
@@ -188,11 +195,60 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
     processed_lines = []
     tab_warning_issued = False
     i = 0
+
+    markdown_header_re = re.compile(r'^\s{0,3}#{1,6}\s+\S')
+    markdown_list_re = re.compile(r'^\s{0,3}(?:[*+-]|\d+[.)])\s+\S')
+    markdown_blockquote_re = re.compile(r'^\s{0,3}>\s?\S?')
+    markdown_hr_re = re.compile(r'^\s{0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})\s*$')
+    markdown_table_sep_re = re.compile(r'^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$')
+
+    def _is_markdown_fence(line: str) -> bool:
+        stripped = line.lstrip()
+        return stripped.startswith('```') or stripped.startswith('~~~')
+
+    def _is_markdown_table_row(line: str) -> bool:
+        stripped = line.strip()
+        if not stripped:
+            return False
+        if markdown_table_sep_re.match(stripped):
+            return True
+        return stripped.startswith('|') and stripped.endswith('|') and stripped.count('|') >= 2
+
+    def _is_markdown_structural_line(line: str) -> bool:
+        stripped = line.strip()
+        if not stripped:
+            return False
+        return bool(
+            markdown_header_re.match(stripped)
+            or markdown_list_re.match(stripped)
+            or markdown_blockquote_re.match(stripped)
+            or markdown_hr_re.match(stripped)
+            or _is_markdown_table_row(stripped)
+        )
+
+    def _is_markdown_boundary(prev_text: str, curr_text: str, in_fence: bool) -> bool:
+        if in_fence:
+            return True
+        if _is_markdown_fence(prev_text) or _is_markdown_fence(curr_text):
+            return True
+        if _is_markdown_structural_line(prev_text) or _is_markdown_structural_line(curr_text):
+            return True
+        return False
+
+    def _line_has_attached_trailing_connector(raw_line: str, connector: str) -> bool:
+        """Return True when a line ends with an attached '-' or '+'."""
+        stripped = raw_line.rstrip()
+        if not stripped.endswith(connector):
+            return False
+        if len(stripped) < 2:
+            return False
+        return is_akkadian_letter(stripped[-2])
+
     while i < len(lines):
         line = lines[i].rstrip('\n')
         original_line = line
         line = line.rstrip()
-        if original_line.rstrip().endswith(HYPHEN) and i + 1 < len(lines):
+        if _line_has_attached_trailing_connector(original_line, HYPHEN) and i + 1 < len(lines):
             next_line = lines[i + 1]
             next_line_stripped = next_line.lstrip()
             if next_line_stripped and is_word_char(next_line_stripped[0]):
@@ -204,7 +260,7 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
                 processed_lines.append(rest or '')
                 i += 2
                 continue
-        if original_line.rstrip().endswith(WORD_LINKER) and i + 1 < len(lines):
+        if _line_has_attached_trailing_connector(original_line, WORD_LINKER) and i + 1 < len(lines):
             next_line = lines[i + 1]
             next_line_stripped = next_line.lstrip()
             if next_line_stripped and is_word_char(next_line_stripped[0]):
@@ -220,7 +276,28 @@ def text_preprocess_boundaries(text: str, warnings: List[str], extra_vowels: str
         i += 1
     if '\t' in text and not tab_warning_issued:
         warnings.append("Tabs detected: tabs between Akkadian words are treated as spaces and eliminated")
-    return '\n'.join(processed_lines)
+
+    if preserve_lines:
+        return '\n'.join(processed_lines)
+
+    # Default behavior treats a single newline as visual line-wrap continuation,
+    # while 2+ newlines keep a paragraph boundary.
+    nonblank_entries = [(idx, line.strip()) for idx, line in enumerate(processed_lines) if line.strip()]
+    if not nonblank_entries:
+        return ''
+
+    normalized = nonblank_entries[0][1]
+    prev_idx, prev_text = nonblank_entries[0]
+    in_fence = _is_markdown_fence(prev_text)
+    for curr_idx, curr_text in nonblank_entries[1:]:
+        same_paragraph_gap = (curr_idx - prev_idx) == 1
+        markdown_boundary = _is_markdown_boundary(prev_text, curr_text, in_fence)
+        separator = ' ' if (same_paragraph_gap and not markdown_boundary) else '\n'
+        normalized += separator + curr_text
+        if _is_markdown_fence(curr_text):
+            in_fence = not in_fence
+        prev_idx, prev_text = curr_idx, curr_text
+    return normalized
 
 # ---------------------------------------------------------------------------
 # Syllabification logic
@@ -329,14 +406,26 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
     return tokens
 
 
-def syllabify_text(text: str, extra_vowels: str = '', extra_consonants: str = '', merge_hyphen: bool = False) -> str:
+def syllabify_text(
+    text: str,
+    extra_vowels: str = '',
+    extra_consonants: str = '',
+    merge_hyphen: bool = False,
+    preserve_lines: bool = False,
+) -> str:
     """Return the fully syllabified version of ``text``.
 
     The returned string uses the global ``SYL_WORD_ENDING`` marker at the end
     of every word and preserves line breaks.
     """
     warnings: List[str] = []
-    text = text_preprocess_boundaries(text, warnings, extra_vowels, extra_consonants)
+    text = text_preprocess_boundaries(
+        text,
+        warnings,
+        extra_vowels,
+        extra_consonants,
+        preserve_lines=preserve_lines,
+    )
     lines = text.split('\n')
     result_lines: List[str] = []
     for line in lines:
@@ -422,6 +511,19 @@ def run_tests() -> bool:
     print("\n" + "="*80)
     print("AKKADIAN SYLLABIFIER — COMPREHENSIVE TESTS")
     print("="*80)
+    preprocess_tests = [
+        ("Preprocess single newline", "šar\ngimir", "šar gimir", False),
+        ("Preprocess double newline", "šar\n\ngimir", "šar\ngimir", False),
+        ("Preprocess markdown heading", "šar\n# Title\ngimir", "šar\n# Title\ngimir", False),
+        ("Preprocess markdown numbered list", "šar\n1. item one\n2. item two", "šar\n1. item one\n2. item two", False),
+        ("Preprocess markdown bullets", "šar\n- item one\n* item two", "šar\n- item one\n* item two", False),
+        ("Preprocess markdown table", "| A | B |\n| --- | --- |\n| šar | gimir |", "| A | B |\n| --- | --- |\n| šar | gimir |", False),
+        ("Preprocess markdown fence", "```\na\nb\n```\nšar", "```\na\nb\n```\nšar", False),
+        ("Preprocess preserve lines", "šar\ngimir", "šar\ngimir", True),
+        ("Preprocess hyphen before markdown", "šar-\nma\n# Title", "šar-ma\n# Title", False),
+        ("Preprocess plus before markdown", "šar+\nma\n# Title", "šar+ma\n# Title", False),
+    ]
+
     tests = [
         # ===== SYLLABLE TYPES =====
         ("CV", "ša", "ša¦"),
@@ -481,16 +583,19 @@ def run_tests() -> bool:
         ("Single space between words", "šar gimir", "šar¦gi·mir¦"),
         ("Multiple spaces between words", "šar   gimir", "šar¦gi·mir¦"),
         ("Tab between words", "šar\tgimir", "šar¦gi·mir¦"),
-        ("Newline between words", "šar\ngimir", "šar¦\ngi·mir¦"),
-        ("Hyphen split across lines merge", "ḫendur-\nsanga", "ḫen·dur·san·ga¦\n", True),
-        ("Word linker split across lines", "apil+\nellil", "a·pil+el·lil¦\n"),
-        ("Double newline", "šar\n\ngimir", "šar¦\n\ngi·mir¦"),
+        ("Newline between words", "šar\ngimir", "šar¦gi·mir¦"),
+        ("Hyphen split across lines merge", "ḫendur-\nsanga", "ḫen·dur·san·ga¦", True),
+        ("Spaced hyphen across lines no merge", "ḫendur -\nsanga", "ḫen·dur¦‹ - ›san·ga¦"),
+        ("Word linker split across lines", "apil+\nellil", "a·pil+el·lil¦"),
+        ("Spaced linker across lines no merge", "apil +\nellil", "a·pil¦‹ + ›el·lil¦"),
+        ("Double newline", "šar\n\ngimir", "šar¦\ngi·mir¦"),
+        ("Preserve lines single newline", "šar\ngimir", "šar¦\ngi·mir¦", False, True),
         
         # ===== NUMBERS AND NON-AKKADIAN =====
         ("Number between words", "šar 123 gimir", "šar¦‹ 123 ›gi·mir¦"),
         ("Number with commas", "šar 12,345 gimir", "šar¦‹ 12,345 ›gi·mir¦"),
-        ("Number with newline", "šar 123\n456 gimir", "šar¦‹ 123›\n‹456 ›gi·mir¦"),
-        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦‹ 123›\n‹  456 ›gi·mir¦"),
+        ("Number with newline", "šar 123\n456 gimir", "šar¦‹ 123 456 ›gi·mir¦"),
+        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦‹ 123 456 ›gi·mir¦"),
         ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar¦‹ 123  \t-  456 ›gi·mir¦"),
         
         # ===== PUNCTUATION =====
@@ -517,15 +622,29 @@ def run_tests() -> bool:
     ]
     
     passed = 0
-    total = len(tests)
+    total = len(preprocess_tests) + len(tests)
     print(f"\nRunning {total} tests...\n")
+
+    for name, inp, expected, preserve in preprocess_tests:
+        result = text_preprocess_boundaries(inp, [], preserve_lines=preserve)
+        if result == expected:
+            print(f"✅ {name}")
+            passed += 1
+        else:
+            print(f"❌ {name}")
+            print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
+
     for test in tests:
         if len(test) == 3:
             name, inp, expected = test
             merge = False
-        else:
+            preserve_lines = False
+        elif len(test) == 4:
             name, inp, expected, merge = test
-        result = syllabify_text(inp, merge_hyphen=merge)
+            preserve_lines = False
+        else:
+            name, inp, expected, merge, preserve_lines = test
+        result = syllabify_text(inp, merge_hyphen=merge, preserve_lines=preserve_lines)
         if result == expected:
             print(f"✅ {name}")
             passed += 1

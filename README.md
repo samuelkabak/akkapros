@@ -166,11 +166,22 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 
 ### Stage-specific options
 
-- **Syllabification**: `--merge-hyphen`
+- **Syllabification**: `--merge-hyphen`, `-n/--preserve-lines`
 - **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
 - **Printer**: `--acute`, `--bold`, `--ipa`, `--xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
+
+### Line handling (default vs preserve)
+
+- Default mode (no `-n`):
+	- single newline is treated as line-wrap continuation and normalized to one space
+	- two or more consecutive newlines are treated as paragraph boundaries and normalized to one newline
+- Markdown-aware exception in default mode:
+	- structural Markdown lines are not merged across a single newline (headings, list items, blockquotes, horizontal rules, table rows/separators, fenced code blocks)
+- `-n/--preserve-lines`:
+	- keeps original line structure exactly as provided
+- Hyphen/plus split rejoin still runs before line normalization in both modes.
 
 ### Examples
 
@@ -192,6 +203,9 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outd
 
 # Allow explicit + repair propagation before the last linked word
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style sob --relax-last --table
+
+# Preserve original line breaks in the syllabification stage
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_lines --outdir outputs --preserve-lines --table
 
 # Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all
