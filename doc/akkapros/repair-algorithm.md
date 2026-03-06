@@ -204,31 +204,23 @@ python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir ou
 
 ### Repaired pivot (`*_tilde.txt`)
 
-```text
-en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
-ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
-```
+> en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
+> ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
 
 ### `--acute` output (`*_accent_acute.txt`)
 
-```text
-en´gidudu bē´lu muttallik mū´ši muttarrû rubê´
-ša‿eṭla u‿ardata ina‿šulmi ittanar´rû unam´maru kī´ma ū´mi
-```
+> en´gidudu bē´lu muttallik mū´ši muttarrû rubê´
+> ša‿eṭla u‿ardata ina‿šulmi ittanar´rû unam´maru kī´ma ū´mi
 
 ### `--bold` output (`*_accent_bold.md`)
 
-```markdown
-**en**gidudu **bē**lu muttallik **mū**ši muttarrû ru**bê**
-ša‿eṭla u‿ardata ina‿šulmi itta**nar**rû u**nam**maru **kī**ma **ū**mi
-```
+> **en**gidudu **bē**lu muttallik **mū**ši muttarrû ru**bê**
+> ša‿eṭla u‿ardata ina‿šulmi itta**nar**rû u**nam**maru **kī**ma **ū**mi
 
 ### `--ipa` output (`*_accent_ipa.txt`)
 
-```text
-ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
-ʃa ʔɛtˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
-```
+> ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
+> ʃa ʔɛtˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
 
 Line breaks are rendered as a long pause (`⟨linebreak⟩ (..)`) in IPA. If a line already ends in strong punctuation (for example `.`), pause deduplication prevents double long pauses: a sequence like `sar.\n` yields one long pause block, not `⟨period⟩ (..) (..)`. 
 
