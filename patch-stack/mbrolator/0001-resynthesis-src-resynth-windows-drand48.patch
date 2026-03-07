@@ -1,0 +1,41 @@
+﻿# patch to circumvent drand48 not available in Windows
+
+diff --git a/Resynthesis/Src/resynth.c b/Resynthesis/Src/resynth.c
+index b1efefa..98a0e95 100644
+--- a/Resynthesis/Src/resynth.c
++++ b/Resynthesis/Src/resynth.c
+@@ -20,6 +20,34 @@ char ProgramInfo[]=
+  #define LITTLE_ENDIAN
+ #endif
+ 
++/*
++ * Windows/MinGW fallback for the drand48 family used by legacy code.
++ * Keep this fallback local to Windows builds to avoid redefinition on
++ * platforms that already provide drand48/lrand48/mrand48/srand48.
++ */
++#if defined(_WIN32) && !defined(HAVE_DRAND48)
++static double mbr_drand48(void) {
++	return rand() / (RAND_MAX + 1.0);
++}
++
++static long int mbr_lrand48(void) {
++	return rand();
++}
++
++static long int mbr_mrand48(void) {
++	return rand() > RAND_MAX / 2 ? rand() : -rand();
++}
++
++static void mbr_srand48(long int seedval) {
++	srand((unsigned int)seedval);
++}
++
++#define drand48 mbr_drand48
++#define lrand48 mbr_lrand48
++#define mrand48 mbr_mrand48
++#define srand48 mbr_srand48
++#endif
++
+ 
+ #define BUFFER_SIZE 400 /* resynthesis buffer for a frame  */
+ #define MAX_HARMO 80

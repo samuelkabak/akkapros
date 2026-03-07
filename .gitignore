@@ -2,6 +2,7 @@
 sandbox/
 *.bak
 .github/
+externtools/
 
 # IDE
 .vscode/
