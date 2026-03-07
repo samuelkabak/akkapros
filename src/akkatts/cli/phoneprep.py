@@ -977,13 +977,15 @@ def write_script(words_with_patterns: List[Tuple[List[str], int]],
                  filename: str, 
                  coverage: int):
     """Write the script to a file."""
+    out_path = Path(filename)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Group by pattern
     pattern1_words = [(w, p) for w, p in words_with_patterns if p == 1]
     pattern2_words = [(w, p) for w, p in words_with_patterns if p == 2]
     pattern3_words = [(w, p) for w, p in words_with_patterns if p == 3]
     
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(out_path, 'w', encoding='utf-8') as f:
         f.write("# ============================================\n")
         f.write(f"# AKKADIAN DIPHONE RECORDING SCRIPT\n")
         f.write(f"# Target coverage: {coverage}\n")
@@ -1040,6 +1042,8 @@ def write_script_batched(
     coverage: int,
 ) -> None:
     """Write output grouped as two explicit recording batches."""
+    out_path = Path(filename)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     def _write_pattern_group(fh, words_with_patterns: List[Tuple[List[str], int]], title: str):
         fh.write(f"# ===== {title} =====\n")
@@ -1071,7 +1075,7 @@ def write_script_batched(
 
         fh.write("\n")
 
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(out_path, 'w', encoding='utf-8') as f:
         f.write("# ============================================\n")
         f.write("# AKKADIAN DIPHONE RECORDING SCRIPT (TWO BATCHES)\n")
         f.write(f"# Target coverage: {coverage}\n")
@@ -1146,7 +1150,7 @@ def main():
                        help="Generate two batches: plain-only, then alternating plain/emphatic with mixed vowels (post-emphatic legality)")
     parser.add_argument("--no-sidecars", action="store_true",
                        help="Do not write manifest/diphone cursor sidecar files")
-    parser.add_argument("--output", "-o", type=str, default="akkadian_script.txt",
+    parser.add_argument("--output", "-o", type=str, default="outputs/akkadian_script.txt",
                        help="Output filename")
     parser.add_argument("--seed", type=int, default=42,
                        help="Random seed for reproducibility")

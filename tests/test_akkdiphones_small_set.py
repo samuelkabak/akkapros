@@ -12,7 +12,7 @@ SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from akkarpos.cli import mbrolatortext as gen  # noqa: E402
+from akkatts.cli import phoneprep as gen  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
