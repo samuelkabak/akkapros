@@ -33,7 +33,7 @@ def process_file(
     extra_vowels: str = '',
     extra_consonants: str = '',
     merge_hyphen: bool = False,
-    preserve_lines: bool = False,
+    preserve_lines: bool = True,
 ):
     """Read input, syllabify and write output."""
     print(f"Reading: {input_file}")
@@ -78,8 +78,8 @@ def main():
     parser.add_argument('--extra-vowels', default='', help='Extra vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra consonants')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
-    parser.add_argument('-n', '--preserve-lines', action='store_true',
-                        help='Preserve original line breaks (default normalizes 1 newline to space, 2+ to paragraph break)')
+    parser.add_argument('--merge-lines', action='store_true',
+                        help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -118,7 +118,7 @@ def main():
         extra_vowels=args.extra_vowels,
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
-        preserve_lines=args.preserve_lines,
+        preserve_lines=not args.merge_lines,
     )
 
 

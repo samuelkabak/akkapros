@@ -199,7 +199,7 @@ Who leads safely lad and girl, illuminating them like the light of day!
 ### Command used
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir outputs --preserve-lines --acute --bold --ipa
+python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir outputs --acute --bold --ipa
 ```
 
 ### Repaired pivot (`*_tilde.txt`)

@@ -226,8 +226,8 @@ Versions: {__version__}
     parser.add_argument('--extra-vowels', default='', help='Extra characters to treat as vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra characters to treat as consonants')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphens into syllable separators in syllabification')
-    parser.add_argument('-n', '--preserve-lines', action='store_true',
-                        help='Preserve original line breaks (default normalizes 1 newline to space, 2+ to paragraph break)')
+    parser.add_argument('--merge-lines', action='store_true',
+                        help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
 
     # Repairer options
     parser.add_argument('--style', choices=['lob', 'sob'], default='sob', help='Repair accent style')
@@ -334,7 +334,7 @@ Versions: {__version__}
         extra_vowels=args.extra_vowels,
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
-        preserve_lines=args.preserve_lines,
+        preserve_lines=not args.merge_lines,
         style=args.style,
         only_last=only_last,
         restore_diphthongs=args.restore_diphthongs,

@@ -15,7 +15,7 @@
 - **printer.py / print.py**: Added IPA output path (`<prefix>_accent_ipa.txt`) with punctuation/pause tagging and bracket escape tags
 - **repairer.py**: Added `-r/--relax-last` to enable non-tail propagation for explicit `+` links
 - **repair.py tests**: Added strict-default and relaxed-mode regression cases for explicit `+` groups
-- **syllabifier.py / fullreparer.py**: Added `-n/--preserve-lines` to keep original line breaks in syllabification
+- **syllabifier.py / fullreparer.py**: Line handling now preserves original lines by default; use `--merge-lines` to normalize single newlines to spaces (and 2+ to paragraph breaks)
 - **syllabify.py tests**: Added preprocessing regression tests for newline normalization, connector split-merge, and Markdown structural boundaries
 - **printer.py / fullreparer.py**: Added `--ipa-pharyngeal {preserve,remove}` policy option (default `preserve`) for IPA output
 

@@ -166,21 +166,23 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 
 ### Stage-specific options
 
-- **Syllabification**: `--merge-hyphen`, `-n/--preserve-lines`
+- **Syllabification**: `--merge-hyphen`, `--merge-lines`
 - **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
 - **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
 - **Printer**: `--acute`, `--bold`, `--ipa`, `--ipa-pharyngeal {preserve,remove}`, `--xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
 
-### Line handling (default vs preserve)
+### Line handling (default vs merge)
 
-- Default mode (no `-n`):
+- Default mode (no flag):
+	- original input lines are preserved as-is
+	- no newline normalization is applied
+	- useful when line boundaries encode phrasing/verse structure
+- `--merge-lines` mode:
 	- single newline is treated as line-wrap continuation and normalized to one space
 	- two or more consecutive newlines are treated as paragraph boundaries and normalized to one newline
-- Markdown-aware exception in default mode:
+- Markdown-aware exception in merge mode:
 	- structural Markdown lines are not merged across a single newline (headings, list items, blockquotes, horizontal rules, table rows/separators, fenced code blocks)
-- `-n/--preserve-lines`:
-	- keeps original line structure exactly as provided
 - Hyphen/plus split rejoin still runs before line normalization in both modes.
 
 ### Examples
@@ -204,8 +206,8 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outd
 # Allow explicit + repair propagation before the last linked word
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style sob --relax-last --table
 
-# Preserve original line breaks in the syllabification stage
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_lines --outdir outputs --preserve-lines --table
+# Merge lines in the syllabification stage (default is preserve)
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_lines --outdir outputs --merge-lines --table
 
 # Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all
