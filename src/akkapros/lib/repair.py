@@ -595,6 +595,22 @@ class RepairEngine:
             syllable.repaired_morae = syllable.morae
             syllable.repaired_text = syllable.text
 
+    def rollback_repair_stats(self, word: Word) -> None:
+        """Revert repair counters for repairs that are being rolled back."""
+        repaired_in_word = 0
+        for syllable in word.syllables:
+            if syllable.is_repaired:
+                repaired_in_word += 1
+                self.stats['repaired_syllables'] = max(0, self.stats['repaired_syllables'] - 1)
+                repair_type = syllable.repair_type
+                if repair_type and repair_type in self.stats['repair_types']:
+                    self.stats['repair_types'][repair_type] = max(
+                        0, self.stats['repair_types'][repair_type] - 1
+                    )
+
+        if repaired_in_word > 0:
+            self.stats['words_repaired'] = max(0, self.stats['words_repaired'] - 1)
+
     def _get_explicit_group_repair(self, unit: MergedUnit) -> Optional[Dict]:
         """Pick repair site for explicit '+' groups.
 
@@ -788,6 +804,7 @@ class RepairEngine:
                                 if not isinstance(prev_token, str) and not prev_token.is_function_word:
                                     if prev_token.get_text() in part or prev_token.get_text_flat() in part:
                                         # Rollback any repairs on this word
+                                        self.rollback_repair_stats(prev_token)
                                         self.rollback_repair(prev_token)
                                         break
                             
