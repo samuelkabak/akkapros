@@ -37,6 +37,7 @@ from akkapros.lib.metrics import (
 )
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
 __version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metrics-{metrics_version}"
@@ -44,8 +45,8 @@ __version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metric
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
     """Resolve whether IPA output is requested and which IPA mode to use."""
-    output_ipa = args.ipa
-    ipa_mode = 'ipa-strict' if args.ipa_pharyngeal == 'preserve' else 'ipa-ob'
+    output_ipa = args.print_ipa
+    ipa_mode = 'ipa-strict' if args.print_ipa_pharyngeal == 'preserve' else 'ipa-ob'
 
     return output_ipa, ipa_mode
 
@@ -53,9 +54,9 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
 def run_tests() -> bool:
     """Run fullreparer CLI resolution tests only (no pipeline execution)."""
     class _Args:
-        def __init__(self, ipa: bool, ipa_pharyngeal: str) -> None:
-            self.ipa = ipa
-            self.ipa_pharyngeal = ipa_pharyngeal
+        def __init__(self, print_ipa: bool, print_ipa_pharyngeal: str) -> None:
+            self.print_ipa = print_ipa
+            self.print_ipa_pharyngeal = print_ipa_pharyngeal
 
     cases = [
         (_Args(False, 'preserve'), False, 'ipa-strict'),
@@ -72,7 +73,7 @@ def run_tests() -> bool:
         else:
             print(
                 "FAILED [fullreparer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_pharyngeal={args.ipa_pharyngeal}"
+                f"\n  in : print_ipa={args.print_ipa}, print_ipa_pharyngeal={args.print_ipa_pharyngeal}"
                 f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}"
                 f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}"
             )
@@ -92,10 +93,9 @@ def run_pipeline(
     style: str,
     only_last: bool,
     restore_diphthongs: bool,
-    only_restore_diphthongs: bool,
     wpm: float,
     pause_ratio: float,
-    punct_weight: float,
+    long_punct_weight: float,
     output_table: bool,
     output_json: bool,
     output_csv: bool,
@@ -146,14 +146,18 @@ def run_pipeline(
         str(syl_file),
         str(tilde_file),
         restore_diphthongs=restore_diphthongs,
-        only_restore_diphthongs=only_restore_diphthongs,
     )
     print(f"Written: {tilde_file}")
 
     # 3) Metrics
     print("\n[3/4] Computing metrics...")
     update_character_sets(extra_consonants, extra_vowels)
-    metrics_result = process_metrics_file(str(tilde_file), wpm, pause_ratio, punct_weight)
+    metrics_result = process_metrics_file(
+        str(tilde_file),
+        wpm,
+        pause_ratio,
+        long_punct_weight,
+    )
 
     if output_json:
         json_file = metrics_base.with_suffix('.json')
@@ -167,7 +171,20 @@ def run_pipeline(
         print(f"CSV saved to: {csv_file}")
 
     if output_table:
-        table = format_table(metrics_result)
+        table_context = {
+            'cli': 'fullreparer.py',
+            'wpm_words_per_min': wpm,
+            'pause_ratio_percent': pause_ratio,
+            'short_pause_punct_weight_unitless': 1.0,
+            'long_pause_punct_weight_unitless': long_punct_weight,
+            'extra_consonants': extra_consonants,
+            'extra_vowels': extra_vowels,
+            'repair_style': style,
+            'repair_relax_last': not only_last,
+            'repair_restore_diphthongs': restore_diphthongs,
+            'input': str(tilde_file),
+        }
+        table = format_table(metrics_result, run_context=table_context)
         table_file = metrics_base.with_name(metrics_base.name + '_metrics.txt')
         with open(table_file, 'w', encoding='utf-8') as f:
             f.write(table)
@@ -204,12 +221,12 @@ def run_pipeline(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='Run full Akkadian pipeline: syllabify -> repair -> metrics',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDefaultsHelpFormatter,
         epilog=f"""
 EXAMPLES:
-  python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --style lob --table
-  python fullreparer.py outputs/erra_proc.txt -p erra --restore-diphthongs --json --csv
-        python fullreparer.py outputs/erra_proc.txt -p erra --acute --bold --ipa --xar
+    python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --repair-style lob --metrics-table
+    python fullreparer.py outputs/erra_proc.txt -p erra --repair-restore-diphthongs --metrics-json --metrics-csv
+    python fullreparer.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
     python fullreparer.py --test-all
 
 Versions: {__version__}
@@ -220,43 +237,41 @@ Versions: {__version__}
     # Input/output (shared)
     parser.add_argument('input', nargs='?', help='Input Akkadian file (typically *_proc.txt)')
     parser.add_argument('-p', '--prefix', help='Shared output prefix for all generated files')
-    parser.add_argument('--outdir', default='.', help='Shared output directory (default: .)')
+    parser.add_argument('--outdir', default='.', help='Shared output directory')
 
     # Syllabifier options
     parser.add_argument('--extra-vowels', default='', help='Extra characters to treat as vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra characters to treat as consonants')
-    parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphens into syllable separators in syllabification')
-    parser.add_argument('--merge-lines', action='store_true',
+    parser.add_argument('--syl-merge-hyphens', action='store_true', help='Merge hyphens into syllable separators in syllabification')
+    parser.add_argument('--syl-merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
 
     # Repairer options
-    parser.add_argument('--style', choices=['lob', 'sob'], default='sob', help='Repair accent style')
-    parser.add_argument('-r', '--relax-last', action='store_true',
+    parser.add_argument('--repair-style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
+    parser.add_argument('--repair-relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
-    parser.add_argument('--restore-diphthongs', action='store_true',
-                        help='Restore diphthongs after repair (or restoration-only mode)')
-    parser.add_argument('--only-restore-diphthongs', action='store_true',
-                        help='Skip repair and only restore diphthongs on syllabified text')
+    parser.add_argument('--repair-restore-diphthongs', action='store_true',
+                        help='Restore diphthongs after repair')
 
     # Metricser options
-    parser.add_argument('--csv', action='store_true', help='Write CSV metrics output')
-    parser.add_argument('--table', action='store_true', help='Write human-readable metrics table output')
-    parser.add_argument('--json', action='store_true', help='Write JSON metrics output')
-    parser.add_argument('--wpm', type=float, default=165, help='Words per minute for speech-rate estimation')
-    parser.add_argument('--pause-ratio', type=float, default=35, help='Pause ratio percentage')
-    parser.add_argument('--punct-weight', type=float, default=2.0,
-                        help='Punctuation pause multiplier relative to space pauses')
+    parser.add_argument('--metrics-csv', action='store_true', help='Write CSV metrics output')
+    parser.add_argument('--metrics-table', action='store_true', help='Write human-readable metrics table output')
+    parser.add_argument('--metrics-json', action='store_true', help='Write JSON metrics output')
+    parser.add_argument('--metrics-wpm', type=float, default=165, help='Words per minute [words/min] for speech-rate estimation')
+    parser.add_argument('--metrics-pause-ratio', type=float, default=35, help='Pause ratio [percent of total time]')
+    parser.add_argument('--metrics-long-punct-weight', type=float, default=2.0,
+                        help='Long pause punctuation weight relative to short pause punctuation [unitless]')
 
     # Printer options
-    parser.add_argument('--acute', action='store_true',
+    parser.add_argument('--print-acute', action='store_true',
                         help='Write <prefix>_accent_acute.txt')
-    parser.add_argument('--bold', action='store_true',
+    parser.add_argument('--print-bold', action='store_true',
                         help='Write <prefix>_accent_bold.md')
-    parser.add_argument('--ipa', action='store_true',
+    parser.add_argument('--print-ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt')
-    parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
-                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger (default: preserve)')
-    parser.add_argument('--xar', action='store_true',
+    parser.add_argument('--print-ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
+                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
+    parser.add_argument('--print-xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
 
     # Test controls (covering all grouped sub-components)
@@ -269,6 +284,8 @@ Versions: {__version__}
     parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, repair, diphthongs, metrics and print')
 
     args = parser.parse_args()
+
+    print_startup_banner('akkapros-fullreparer', __version__, args)
 
     if args.test_all:
         ok = True
@@ -308,13 +325,13 @@ Versions: {__version__}
     outdir = Path(args.outdir)
     prefix = args.prefix if args.prefix else input_path.stem.replace('_proc', '')
 
-    output_table = args.table
-    output_json = args.json
-    output_csv = args.csv
-    output_acute = args.acute
-    output_bold = args.bold
+    output_table = args.metrics_table
+    output_json = args.metrics_json
+    output_csv = args.metrics_csv
+    output_acute = args.print_acute
+    output_bold = args.print_bold
     output_ipa, ipa_mode = _resolve_ipa_options(args)
-    output_xar = args.xar
+    output_xar = args.print_xar
 
     # Match metricser behavior: default to table if no explicit format selected.
     if not (output_table or output_json or output_csv):
@@ -325,7 +342,7 @@ Versions: {__version__}
         output_acute = True
         output_bold = True
 
-    only_last = not args.relax_last
+    only_last = not args.repair_relax_last
 
     code = run_pipeline(
         input_file=input_path,
@@ -333,15 +350,14 @@ Versions: {__version__}
         prefix=prefix,
         extra_vowels=args.extra_vowels,
         extra_consonants=args.extra_consonants,
-        merge_hyphen=args.merge_hyphen,
-        preserve_lines=not args.merge_lines,
-        style=args.style,
+        merge_hyphen=args.syl_merge_hyphens,
+        preserve_lines=not args.syl_merge_lines,
+        style=args.repair_style,
         only_last=only_last,
-        restore_diphthongs=args.restore_diphthongs,
-        only_restore_diphthongs=args.only_restore_diphthongs,
-        wpm=args.wpm,
-        pause_ratio=args.pause_ratio,
-        punct_weight=args.punct_weight,
+        restore_diphthongs=args.repair_restore_diphthongs,
+        wpm=args.metrics_wpm,
+        pause_ratio=args.metrics_pause_ratio,
+        long_punct_weight=args.metrics_long_punct_weight,
         output_table=output_table,
         output_json=output_json,
         output_csv=output_csv,

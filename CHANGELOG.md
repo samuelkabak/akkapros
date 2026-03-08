@@ -18,6 +18,12 @@
 - **syllabifier.py / fullreparer.py**: Line handling now preserves original lines by default; use `--merge-lines` to normalize single newlines to spaces (and 2+ to paragraph breaks)
 - **syllabify.py tests**: Added preprocessing regression tests for newline normalization, connector split-merge, and Markdown structural boundaries
 - **printer.py / fullreparer.py**: Added `--ipa-pharyngeal {preserve,remove}` policy option (default `preserve`) for IPA output
+- **fullreparer.py CLI namespaced options**: stage-prefixed flags now disambiguate pipeline stages:
+	- syllabify: `--syl-merge-hyphens`, `--syl-merge-lines`
+	- repair: `--repair-style`, `--repair-relax-last`, `--repair-restore-diphthongs`
+	- metrics: `--metrics-*`
+	- printer: `--print-*`
+	- removed ambiguous `--only-restore-diphthongs` from `fullreparer.py`
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)

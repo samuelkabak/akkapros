@@ -8,8 +8,8 @@ Computes comprehensive metrics from Akkadian text with proper handling of:
 - Consonant gemination: marked with : (e.g., mas:ta)
 - Glottal stops: ʾ for initial vowels
 - Distance-based ΔC calculation
-- Word boundaries marked with $
-- Pause metrics for spaces and punctuation
+- Punctuation boundaries marked with $
+- Pause metrics for punctuation only (short vs long pause classes)
 """
 
 import re
@@ -71,6 +71,20 @@ PROCESSING_VOWELS = EXTRA_LONG_VOWELS
 
 LENGTH_MARKER = ':'
 WORD_BOUNDARY = '$'
+
+# Pause class configuration (scientific, explicit, and centralized)
+# Short pause punctuation: minor/inner punctuation marks.
+SHORT_PAUSE_PUNCTUATION_CHARS = {',', ':', ';', '|', '…'}
+SHORT_PAUSE_PUNCTUATION_PATTERNS = ('...', '…')
+
+# Long pause punctuation: final/major boundaries.
+LONG_PAUSE_PUNCTUATION_CHARS = {'.', '?', '!'}
+LONG_PAUSE_INCLUDES_NEWLINE = True
+LONG_PAUSE_INCLUDES_FINAL_EOF = True
+
+# Pause weights: long is expressed relative to short.
+SHORT_PAUSE_PUNCT_WEIGHT = 1.0
+DEFAULT_LONG_PAUSE_PUNCT_WEIGHT = 2.0
 
 # All possible syllable types
 SYLLABLE_TYPES = [
@@ -665,6 +679,10 @@ def compute_acoustic_metrics(text: str) -> Dict:
 def preprocess_text(text: str) -> str:
     """
     Complete preprocessing pipeline using tokenization.
+
+    Connected-speech rule for acoustic distances:
+    - spaces and WORD_LINKER (+) do not create WORD_BOUNDARY ($)
+    - punctuation creates WORD_BOUNDARY ($)
     """
     # Remove bracketed content first
     text = re.sub(r'\[[^\]]*\]', '', text)
@@ -688,8 +706,6 @@ def preprocess_text(text: str) -> str:
         for typ, val in tokens:
             if typ == 'WORD':
                 processed = process_word(val)
-                if prev_was_word:
-                    result_parts.append(WORD_BOUNDARY)
                 result_parts.append(processed)
                 prev_was_word = True
             elif typ == 'SPACES':
@@ -761,18 +777,39 @@ def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) 
 # ------------------------------------------------------------
 # Pause metrics
 # ------------------------------------------------------------
+def _gap_has_long_pause(gap: str) -> bool:
+    """Return True when a boundary gap contains long-pause punctuation cues."""
+    if LONG_PAUSE_INCLUDES_NEWLINE and '\n' in gap:
+        return True
+    return any(ch in LONG_PAUSE_PUNCTUATION_CHARS for ch in gap)
+
+
+def _gap_has_short_pause(gap: str) -> bool:
+    """Return True when a boundary gap contains short-pause punctuation cues."""
+    if any(pattern in gap for pattern in SHORT_PAUSE_PUNCTUATION_PATTERNS):
+        return True
+    punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
+    if not punctuation_chars:
+        return False
+    if _gap_has_long_pause(gap):
+        return False
+    # Remaining punctuation cues are short pauses by default.
+    return any(ch in SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars) or True
+
+
 def count_spaces_and_punctuation(text: str) -> Dict:
     """
     Count pause events between words.
-    
-    A pause event is:
-    - SPACE: only spaces between two words (no punctuation)
-    - PUNCT: any punctuation with surrounding spaces (all captured as one unit)
+
+    In the updated model, spaces and WORD_LINKER do not create pauses.
+    Only punctuation creates pauses, split into short and long classes.
     """
     word_pattern = build_word_pattern()
     
-    spaces = 0
+    spaces = 0  # Kept for compatibility; always remains 0 in pause model.
     punctuation = 0
+    short_punctuation = 0
+    long_punctuation = 0
     merged_boundaries = 0
     
     i = 0
@@ -800,30 +837,40 @@ def count_spaces_and_punctuation(text: str) -> Dict:
             while i < n and not word_pattern.match(text[i:]):
                 i += 1
             
-            # Determine if this gap contains any punctuation
+            # Determine pause class for the gap.
             gap = text[start:i]
-            has_punctuation = any(c not in ' \t' for c in gap)
-            
-            if has_punctuation:
-                punctuation += 1  # One punctuation pause (includes all spaces)
+            if _gap_has_long_pause(gap):
+                long_punctuation += 1
+                punctuation += 1
+            elif _gap_has_short_pause(gap):
+                short_punctuation += 1
+                punctuation += 1
             else:
-                spaces += 1  # Pure spaces pause
+                # Pure spacing/linking gap: connected speech with no pause.
+                pass
             
             last_was_word = False
         else:
             # Skip anything at start (shouldn't happen in valid text)
             i += 1
+
+    # Treat file end after a final word as an implicit line-end pause.
+    if LONG_PAUSE_INCLUDES_FINAL_EOF and last_was_word:
+        long_punctuation += 1
+        punctuation += 1
     
     return {
         'spaces': spaces,
         'punctuation': punctuation,
+        'short_punctuation': short_punctuation,
+        'long_punctuation': long_punctuation,
         'merged_boundaries': merged_boundaries
     }
 
 
 def compute_pause_metrics(text: str, stats: Dict) -> Dict:
     """
-    Compute space and punctuation ratios per syllable.
+    Compute punctuation pause ratios per syllable.
     
     Args:
         text: Original text (before preprocessing)
@@ -831,8 +878,8 @@ def compute_pause_metrics(text: str, stats: Dict) -> Dict:
     
     Returns:
         {
-            'spaces_per_syllable': float,
-            'punctuation_per_syllable': float,
+            'short_punctuation_per_syllable': float,
+            'long_punctuation_per_syllable': float,
             'total_boundaries': int,
             'pauseable_boundaries': int
         }
@@ -844,41 +891,53 @@ def compute_pause_metrics(text: str, stats: Dict) -> Dict:
         return {
             'spaces_per_syllable': 0,
             'punctuation_per_syllable': 0,
+            'short_punctuation_per_syllable': 0,
+            'long_punctuation_per_syllable': 0,
             'total_boundaries': 0,
             'pauseable_boundaries': 0,
             'raw_counts': counts
         }
     
-    spaces_per_syllable = counts['spaces'] / total_syllables
+    spaces_per_syllable = 0.0
     punctuation_per_syllable = counts['punctuation'] / total_syllables
+    short_punctuation_per_syllable = counts['short_punctuation'] / total_syllables
+    long_punctuation_per_syllable = counts['long_punctuation'] / total_syllables
     total_boundaries = counts['spaces'] + counts['punctuation'] + counts['merged_boundaries']
-    pauseable_boundaries = counts['spaces'] + counts['punctuation']  # Merged boundaries have no pause
+    pauseable_boundaries = counts['punctuation']  # spaces/linkers do not pause
     
     return {
         'spaces_per_syllable': spaces_per_syllable,
         'punctuation_per_syllable': punctuation_per_syllable,
+        'short_punctuation_per_syllable': short_punctuation_per_syllable,
+        'long_punctuation_per_syllable': long_punctuation_per_syllable,
         'total_boundaries': total_boundaries,
         'pauseable_boundaries': pauseable_boundaries,
         'raw_counts': counts
     }
 
 
-def compute_pause_durations(pause_metrics: Dict, speech_metrics: Dict, pause_ratio: float, punct_weight: float = 2.0) -> Dict:
+def compute_pause_durations(
+    pause_metrics: Dict,
+    speech_metrics: Dict,
+    pause_ratio: float,
+    long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
+) -> Dict:
     """
-    Compute duration per space and per punctuation based on pause ratio.
+    Compute duration per short and long punctuation pause based on pause ratio.
     
     Args:
         pause_metrics: Output from compute_pause_metrics
         speech_metrics: Output from compute_speech_rate
         pause_ratio: Total pause ratio percentage
-        punct_weight: How many times longer punctuation is than space
+        long_punct_weight: Relative weight for long punctuation pauses,
+            normalized by short pause weight (=1.0)
     
     Returns:
         Dictionary with space and punctuation durations
     """
     # Get metrics
-    spaces_per_syllable = pause_metrics['spaces_per_syllable']
-    punct_per_syllable = pause_metrics['punctuation_per_syllable']
+    short_per_syllable = pause_metrics['short_punctuation_per_syllable']
+    long_per_syllable = pause_metrics['long_punctuation_per_syllable']
     
     # Speech metrics
     syllable_duration = speech_metrics['syllable_duration']
@@ -890,36 +949,46 @@ def compute_pause_durations(pause_metrics: Dict, speech_metrics: Dict, pause_rat
     # Pause time per syllable
     pause_time_per_syllable = total_time_per_syllable - syllable_duration
     
-    # Distribute pause time using the weight
-    total_pause_units = spaces_per_syllable + punct_per_syllable * punct_weight
+    # Distribute pause time using short/long punctuation weights.
+    total_pause_units = (
+        short_per_syllable * SHORT_PAUSE_PUNCT_WEIGHT
+        + long_per_syllable * long_punct_weight
+    )
     if total_pause_units == 0:
-        space_duration = 0
-        punct_duration = 0
-        space_contribution = 0
-        punct_contribution = 0
+        short_duration = 0
+        long_duration = 0
+        short_contribution = 0
+        long_contribution = 0
     else:
-        space_duration = pause_time_per_syllable / total_pause_units
-        punct_duration = space_duration * punct_weight
-        space_contribution = spaces_per_syllable * space_duration
-        punct_contribution = punct_per_syllable * punct_duration
+        unit_duration = pause_time_per_syllable / total_pause_units
+        short_duration = unit_duration * SHORT_PAUSE_PUNCT_WEIGHT
+        long_duration = unit_duration * long_punct_weight
+        short_contribution = short_per_syllable * short_duration
+        long_contribution = long_per_syllable * long_duration
     
     return {
-        'space_duration': space_duration,
-        'punctuation_duration': punct_duration,
+        'short_punctuation_duration': short_duration,
+        'long_punctuation_duration': long_duration,
         'total_pause_time': pause_time_per_syllable,
         'pause_time_per_syllable': pause_time_per_syllable,
-        'space_contribution': space_contribution,
-        'punct_contribution': punct_contribution,
-        'space_percent': (space_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'punct_percent': (punct_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'punct_weight': punct_weight
+        'short_punctuation_contribution': short_contribution,
+        'long_punctuation_contribution': long_contribution,
+        'short_punctuation_percent': (short_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
+        'long_punctuation_percent': (long_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
+        'short_punct_weight': SHORT_PAUSE_PUNCT_WEIGHT,
+        'long_punct_weight': long_punct_weight
     }
 
 
 # ------------------------------------------------------------
 # Main processing
 # ------------------------------------------------------------
-def process_file(filename: str, wpm: float, pause_ratio: float, punct_weight: float = 2.0) -> Dict:
+def process_file(
+    filename: str,
+    wpm: float,
+    pause_ratio: float,
+    long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
+) -> Dict:
     """Process a single file and return all metrics."""
     with open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -954,7 +1023,12 @@ def process_file(filename: str, wpm: float, pause_ratio: float, punct_weight: fl
     
     # Compute pause metrics
     pause_metrics = compute_pause_metrics(text, repaired_stats)
-    pause_durations = compute_pause_durations(pause_metrics, speech_repaired, pause_ratio, punct_weight)
+    pause_durations = compute_pause_durations(
+        pause_metrics,
+        speech_repaired,
+        pause_ratio,
+        long_punct_weight,
+    )
 
     return {
         'file': filename,
@@ -973,12 +1047,17 @@ def process_file(filename: str, wpm: float, pause_ratio: float, punct_weight: fl
     }
 
 
-def format_table(result: Dict) -> str:
+def format_table(result: Dict, run_context: Dict | None = None) -> str:
     """Format results as human-readable table."""
     lines = []
     lines.append("="*80)
     lines.append(f"METRICS SUMMARY: {result['file']}")
     lines.append("="*80)
+
+    if run_context:
+        lines.append("\n--- RUN CONFIGURATION ---")
+        for key in sorted(run_context.keys()):
+            lines.append(f"  {key}: {run_context[key]}")
     
     # --- ORIGINAL TEXT ---
     lines.append("\n--- ORIGINAL TEXT ---")
@@ -990,25 +1069,25 @@ def format_table(result: Dict) -> str:
         count = orig['stats']['syllable_counts'].get(typ, 0)
         pct = orig['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
-            lines.append(f"  {typ:6}: {count:4d} ({pct:5.2f}%)")
+            lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
-    lines.append(f"  Mean morae per syllable: {orig['stats']['mora_stats']['mean']:.3f}")
-    lines.append(f"  Std dev morae per syllable: {orig['stats']['mora_stats']['std']:.3f}")
+    lines.append(f"  Mean morae per syllable: {orig['stats']['mora_stats']['mean']:.3f} mora/syllable")
+    lines.append(f"  Std dev morae per syllable: {orig['stats']['mora_stats']['std']:.3f} mora/syllable")
     
     # Word statistics
     lines.append(f"\nWord statistics:")
-    lines.append(f"  Total words: {orig['stats']['word_stats']['total_words']}")
-    lines.append(f"  Syllables per word: {orig['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['syllables_per_word']['std']:.3f}")
-    lines.append(f"  Morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f}")
+    lines.append(f"  Total words: {orig['stats']['word_stats']['total_words']} words")
+    lines.append(f"  Syllables per word: {orig['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
+    lines.append(f"  Morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
     
     # Acoustic metrics (original)
     lines.append(f"\nAcoustic metrics (original):")
     lines.append(f"  %V: {orig['acoustic']['percent_v']:.2f}%")
-    lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f}")
-    lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f}")    
-    lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f}")
+    lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
+    lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
+    lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f} %")
     
     # --- REPAIRED TEXT ---
     lines.append("\n--- REPAIRED TEXT ---")
@@ -1020,66 +1099,88 @@ def format_table(result: Dict) -> str:
         count = rep['stats']['syllable_counts'].get(typ, 0)
         pct = rep['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
-            lines.append(f"  {typ:6}: {count:4d} ({pct:5.2f}%)")
+            lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
-    lines.append(f"  Mean morae per syllable: {rep['stats']['mora_stats']['mean']:.3f}")
-    lines.append(f"  Std dev morae per syllable: {rep['stats']['mora_stats']['std']:.3f}")
+    lines.append(f"  Mean morae per syllable: {rep['stats']['mora_stats']['mean']:.3f} mora/syllable")
+    lines.append(f"  Std dev morae per syllable: {rep['stats']['mora_stats']['std']:.3f} mora/syllable")
     
     # Word statistics
     lines.append(f"\nWord statistics:")
-    lines.append(f"  Total words: {rep['stats']['word_stats']['total_words']}")
-    lines.append(f"  Syllables per word: {rep['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['syllables_per_word']['std']:.3f}")
-    lines.append(f"  Morae per word: {rep['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['morae_per_word']['std']:.3f}")
+    lines.append(f"  Total words: {rep['stats']['word_stats']['total_words']} words")
+    lines.append(f"  Syllables per word: {rep['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
+    lines.append(f"  Morae per word: {rep['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
     
     # Merge statistics
     lines.append(f"\nMerge statistics:")
-    lines.append(f"  Merged words: {rep['stats']['merge_stats']['total_merged_words']}")
-    lines.append(f"  Merged units: {rep['stats']['merge_stats']['merged_units']}")
+    lines.append(f"  Merged words: {rep['stats']['merge_stats']['total_merged_words']} words")
+    lines.append(f"  Merged units: {rep['stats']['merge_stats']['merged_units']} units")
     lines.append(f"  Average unit size: {rep['stats']['merge_stats']['avg_unit_size']:.2f} words")
     
     # Acoustic metrics (repaired)
     lines.append(f"\nAcoustic metrics (repaired):")
     lines.append(f"  %V: {rep['acoustic']['percent_v']:.2f}%")
-    lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f}")
-    lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f}")    
-    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f}")
+    lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
+    lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
+    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f} %")
     
     # Speech rate
     lines.append(f"\nSpeech rate (repaired text only):")
-    lines.append(f"  WPM: {rep['speech']['wpm']}")
+    lines.append(f"  WPM: {rep['speech']['wpm']} words/min")
     lines.append(f"  Pause ratio: {rep['speech']['pause_ratio']}%")
-    lines.append(f"  SPS (speech): {rep['speech']['sps_speech']:.3f}")
-    lines.append(f"  SPS (articulation): {rep['speech']['sps_articulation']:.3f}")
-    lines.append(f"  Syllable duration: {rep['speech']['syllable_duration']:.3f}s")
-    lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f}s")
-    lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f}s")
+    lines.append(f"  SPS (speech): {rep['speech']['sps_speech']:.3f} syllable/s")
+    lines.append(f"  SPS (articulation): {rep['speech']['sps_articulation']:.3f} syllable/s")
+    lines.append(f"  Average syllable duration: {rep['speech']['syllable_duration']:.3f} s/syllable")
+    lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f} s/mora")
+    lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f} s/word")
     
     # Pause metrics
     pm = rep['pause_metrics']
     pd = rep['pause_durations']
+    # Keep ratio audit-consistent with displayed durations by using the same rounded values.
+    avg_syllable_duration_display = round(rep['speech']['syllable_duration'], 3)
+    short_punctuation_duration_display = round(pd['short_punctuation_duration'], 3)
+    long_punctuation_duration_display = round(pd['long_punctuation_duration'], 3)
+    short_pause_syllable_ratio = (
+        short_punctuation_duration_display / avg_syllable_duration_display
+        if avg_syllable_duration_display > 0 else 0
+    )
+    long_pause_syllable_ratio = (
+        long_punctuation_duration_display / avg_syllable_duration_display
+        if avg_syllable_duration_display > 0 else 0
+    )
     
     lines.append(f"\nPause metrics:")
-    lines.append(f"  Spaces per syllable: {pm['spaces_per_syllable']:.3f}")
-    lines.append(f"  Punctuation per syllable: {pm['punctuation_per_syllable']:.3f}")
-    lines.append(f"  Total boundaries: {pm['total_boundaries']}")
-    lines.append(f"  Pauseable boundaries: {pm['pauseable_boundaries']}")
+    lines.append(f"  Short pause punctuation per syllable: {pm['short_punctuation_per_syllable']:.3f} pause/syllable")
+    lines.append(f"  Long pause punctuation per syllable: {pm['long_punctuation_per_syllable']:.3f} pause/syllable")
+    lines.append(f"  Total punctuation pauses per syllable: {pm['punctuation_per_syllable']:.3f} pause/syllable")
+    lines.append(f"  Total boundaries: {pm['total_boundaries']} boundaries")
+    lines.append(f"  Pauseable boundaries: {pm['pauseable_boundaries']} boundaries")
     
-    lines.append(f"\nPause duration allocation (total pause: {pd['pause_time_per_syllable']:.4f}s per syllable):")
-    lines.append(f"  Punctuation weight: {pd['punct_weight']:.1f}× space")
-    lines.append(f"  Space duration: {pd['space_duration']:.4f}s per space ({pd['space_percent']:.1f}% of pause)")
-    lines.append(f"  Punctuation duration: {pd['punctuation_duration']:.4f}s per punctuation ({pd['punct_percent']:.1f}% of pause)")
+    lines.append(f"\nPause duration allocation (total pause: {pd['pause_time_per_syllable']:.3f} s/syllable):")
+    lines.append(f"  Short pause punctuation weight: always {pd['short_punct_weight']:.1f} (no unit)")
+    lines.append(f"  Long pause punctuation weight relative to short: {pd['long_punct_weight']:.1f} (no unit)")
+    lines.append(
+        f"  Short pause punctuation duration: {short_punctuation_duration_display:.3f} s/pause "
+        f"({short_pause_syllable_ratio:.4f} average syllable duration) "
+        f"({pd['short_punctuation_percent']:.1f}% of pause time)"
+    )
+    lines.append(
+        f"  Long pause punctuation duration: {long_punctuation_duration_display:.3f} s/pause "
+        f"({long_pause_syllable_ratio:.4f} average syllable duration) "
+        f"({pd['long_punctuation_percent']:.1f}% of pause time)"
+    )
 
     # --- REPAIR STATISTICS ---
     lines.append("\n--- REPAIR STATISTICS ---")
     rs = result['repair_stats']
-    lines.append(f"  Repaired syllables: {rs['repaired_syllables']}")
+    lines.append(f"  Repaired syllables: {rs['repaired_syllables']} syllables")
     lines.append(f"  Repair rate: {rs['repair_rate']:.2f}%")
     lines.append(f"\n  Repair types:")
     for typ, count in rs['repair_types'].items():
         if count > 0:
-            lines.append(f"    {typ:8}: {count:4d}")
+            lines.append(f"    {typ:8}: {count:4d} syllables")
     
     lines.append("\n" + "="*80)
     return '\n'.join(lines)
@@ -1192,18 +1293,20 @@ def format_csv(results: List[Dict], output_file: Path):
             pm = r['repaired']['pause_metrics']
             pd = r['repaired']['pause_durations']
             
-            values = [f"{pm['spaces_per_syllable']:.3f}" for r in results]
-            add_row("spaces_per_syllable", values)
+            values = [f"{pm['short_punctuation_per_syllable']:.3f}" for r in results]
+            add_row("short_pause_punct_per_syllable", values)
+            values = [f"{pm['long_punctuation_per_syllable']:.3f}" for r in results]
+            add_row("long_pause_punct_per_syllable", values)
             values = [f"{pm['punctuation_per_syllable']:.3f}" for r in results]
-            add_row("punct_per_syllable", values)
-            values = [f"{pd['space_duration']:.4f}" for r in results]
-            add_row("space_duration", values)
-            values = [f"{pd['punctuation_duration']:.4f}" for r in results]
-            add_row("punct_duration", values)
-            values = [f"{pd['space_percent']:.1f}" for r in results]
-            add_row("space_percent", values)
-            values = [f"{pd['punct_percent']:.1f}" for r in results]
-            add_row("punct_percent", values)
+            add_row("total_punct_per_syllable", values)
+            values = [f"{pd['short_punctuation_duration']:.4f}" for r in results]
+            add_row("short_pause_punct_duration", values)
+            values = [f"{pd['long_punctuation_duration']:.4f}" for r in results]
+            add_row("long_pause_punct_duration", values)
+            values = [f"{pd['short_punctuation_percent']:.1f}" for r in results]
+            add_row("short_pause_punct_percent", values)
+            values = [f"{pd['long_punctuation_percent']:.1f}" for r in results]
+            add_row("long_pause_punct_percent", values)
             break  # Only do once since we're looping over results
         
         # --- REPAIR STATISTICS ---
@@ -1467,12 +1570,12 @@ def run_tests():
         {
             'name': 'Simple line',
             'input': 'at·tā ā·lik',
-            'expected': 'ʾat·tā$ʾā·lik'
+            'expected': 'ʾat·tāʾā·lik'
         },
         {
             'name': 'Line with repairs',
             'input': 'maḫ·rim~-ma dad~',
-            'expected': 'maḫ·rim:-ma$dad:'
+            'expected': 'maḫ·rim:-madad:'
         },
         {
             'name': 'Complex line with punctuation',
@@ -1482,22 +1585,22 @@ def run_tests():
         {
             'name': 'Line with merged words',
             'input': 'ana+kâ·ša lu·ṣī-ma',
-            'expected': 'ʾana+kâ·ša$lu·ṣī-ma'
+            'expected': 'ʾana+kâ·šalu·ṣī-ma'
         },
         {
             'name': 'Line with multiple spaces',
             'input': 'at·tā   ā·lik',
-            'expected': 'ʾat·tā$ʾā·lik'
+            'expected': 'ʾat·tāʾā·lik'
         },
         {
             'name': 'Line with leading spaces',
             'input': '  at·tā ā·lik',
-            'expected': 'ʾat·tā$ʾā·lik'
+            'expected': 'ʾat·tāʾā·lik'
         },
         {
             'name': 'Line with trailing spaces',
             'input': 'at·tā ā·lik  ',
-            'expected': 'ʾat·tā$ʾā·lik'
+            'expected': 'ʾat·tāʾā·lik'
         },
     ]
     
@@ -1595,6 +1698,11 @@ def run_tests():
             'input': 'rā~',
             'expected_distances': [3]
         },
+        {
+            'name': 'Across space behaves as connected speech',
+            'input': 'mas ta',
+            'expected_distances': [1, 0, 1]
+        },
     ]
     
     passed = True
@@ -1618,13 +1726,19 @@ def run_tests():
     pause_metrics = compute_pause_metrics(test_text, stats)
 
     # Expected counts:
-    # - spaces: between šar and gi.mir_dad~.mē, between bā.nû and kib.rā~.ti = 2 spaces
-    # - punctuation: || and ... = 2 punctuation units
+    # - short punctuation: || and ... = 2 punctuation units
+    # - long punctuation: none in this sample
     # - merged boundaries: _ in gi.mir_dad~.mē = 1
 
     passed = True
-    if pause_metrics['raw_counts']['spaces'] != 2:
-        print(f"  ❌ Space count: got {pause_metrics['raw_counts']['spaces']}, expected 2")
+    if pause_metrics['raw_counts']['spaces'] != 0:
+        print(f"  ❌ Space pause count: got {pause_metrics['raw_counts']['spaces']}, expected 0")
+        passed = False
+    if pause_metrics['raw_counts']['short_punctuation'] != 2:
+        print(f"  ❌ Short punctuation count: got {pause_metrics['raw_counts']['short_punctuation']}, expected 2")
+        passed = False
+    if pause_metrics['raw_counts']['long_punctuation'] != 0:
+        print(f"  ❌ Long punctuation count: got {pause_metrics['raw_counts']['long_punctuation']}, expected 0")
         passed = False
     if pause_metrics['raw_counts']['punctuation'] != 2:
         print(f"  ❌ Punctuation count: got {pause_metrics['raw_counts']['punctuation']}, expected 2")

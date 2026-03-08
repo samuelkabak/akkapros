@@ -23,6 +23,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros.lib.utils import simple_safe_filename
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 __version__ = syllabify.__version__
 
@@ -69,12 +70,15 @@ def run_tests() -> bool:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Syllabify Akkadian text")
+    parser = argparse.ArgumentParser(
+        description="Syllabify Akkadian text",
+        formatter_class=RawDefaultsHelpFormatter,
+    )
     parser.add_argument('--version', action='version', version=f'akkapros-syllabifier {__version__}')
     parser.add_argument('input', nargs='?', help='Input file')
-    parser.add_argument('-p', '--prefix', help='Output file prefix (default: input filename stem)')
+    parser.add_argument('-p', '--prefix', help='Output file prefix')
     parser.add_argument('--outdir', default='.',
-                        help='Output directory (default: current directory)')
+                        help='Output directory')
     parser.add_argument('--extra-vowels', default='', help='Extra vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra consonants')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
@@ -84,6 +88,7 @@ def main():
 
     args = parser.parse_args()
     if args.test:
+        print_startup_banner('akkapros-syllabifier', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
 
@@ -107,6 +112,7 @@ def main():
     output_path = outdir / f"{prefix}_syl.txt"
 
     # display configuration
+    print_startup_banner('akkapros-syllabifier', __version__, args)
     print(f"Input: {input_path}")
     print(f"Output: {output_path}")
     print(f"Output directory: {outdir}")

@@ -18,6 +18,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
@@ -65,12 +66,13 @@ def run_tests() -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs'
+        description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs',
+        formatter_class=RawDefaultsHelpFormatter,
     )
     parser.add_argument('--version', action='version', version=f'akkapros-printer {accent_print.__version__}')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (shared for all selected outputs)')
-    parser.add_argument('--outdir', default='.', help='Output directory (default: .)')
+    parser.add_argument('--outdir', default='.', help='Output directory')
 
     parser.add_argument('--acute', action='store_true',
                         help='Write <prefix>_accent_acute.txt')
@@ -79,7 +81,7 @@ def main() -> None:
     parser.add_argument('--ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only)')
     parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
-                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger (default: preserve)')
+                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
     parser.add_argument('--mbrola', action='store_true',
@@ -89,6 +91,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
+        print_startup_banner('akkapros-printer', accent_print.__version__, args)
         ok = run_tests()
         sys.exit(0 if ok else 1)
 
@@ -107,6 +110,8 @@ def main() -> None:
 
     default_prefix = input_path.stem.replace('_tilde', '')
     prefix = simple_safe_filename(args.prefix if args.prefix else default_prefix)
+
+    print_startup_banner('akkapros-printer', accent_print.__version__, args)
 
     write_acute = args.acute
     write_bold = args.bold

@@ -24,6 +24,7 @@ from akkapros.lib.repair import (
     run_tests,
     test_diphthong_restoration,
 )
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
 def simple_safe_filename(text: str) -> str:
@@ -41,12 +42,15 @@ def simple_safe_filename(text: str) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Apply moraic repair to syllabified Akkadian text')
+    parser = argparse.ArgumentParser(
+        description='Apply moraic repair to syllabified Akkadian text',
+        formatter_class=RawDefaultsHelpFormatter,
+    )
     parser.add_argument('--version', action='version', version=f'akkapros-repairer {__version__}')
     parser.add_argument('input', nargs='?', help='Input *_syl.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
     parser.add_argument('--outdir', default='.', help='Output directory')
-    parser.add_argument('--style', choices=['lob', 'sob'], default='sob', help='Accent style')
+    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
     parser.add_argument('-r', '--relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
     parser.add_argument('--restore-diphthongs', action='store_true',
@@ -59,10 +63,12 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
+        print_startup_banner('akkapros-repairer', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
 
     if args.test_diphthongs:
+        print_startup_banner('akkapros-repairer', __version__, args)
         success = test_diphthong_restoration()
         sys.exit(0 if success else 1)
 
@@ -87,6 +93,8 @@ def main() -> None:
 
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     style = style_map[args.style]
+
+    print_startup_banner('akkapros-repairer', __version__, args)
 
     engine = RepairEngine(style=style, only_last=not args.relax_last)
     engine.process_file(

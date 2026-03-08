@@ -23,6 +23,7 @@ from akkapros.lib.metrics import (
     format_csv,
     run_tests,
 )
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
 def simple_safe_filename(text: str) -> str:
@@ -42,13 +43,13 @@ def simple_safe_filename(text: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='Compute metrics for Akkadian text',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDefaultsHelpFormatter,
         epilog=f"""
 EXAMPLES:
     python metricser.py erra_tilde.txt --table
     python metricser.py --test
     python metricser.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
-    python metricser.py erra_tilde.txt --punct-weight 2.5  # punctuation 2.5x longer than spaces
+    python metricser.py erra_tilde.txt --long-punct-weight 2.5
 
 Version {__version__}
 """
@@ -58,15 +59,15 @@ Version {__version__}
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('--input-list', help='File containing list of input files (one per line)')
     parser.add_argument('-p', '--prefix', help='Output prefix')
-    parser.add_argument('--outdir', default='.', help='Output directory (default: .)')
+    parser.add_argument('--outdir', default='.', help='Output directory')
     parser.add_argument('--csv', action='store_true', help='Output CSV format')
     parser.add_argument('--table', action='store_true', help='Output human-readable table')
     parser.add_argument('--json', action='store_true', help='Output JSON format')
-    parser.add_argument('--wpm', type=float, default=165, help='Words per minute (default: 165)')
+    parser.add_argument('--wpm', type=float, default=165, help='Words per minute [words/min]')
     parser.add_argument('--pause-ratio', type=float, default=35,
-                        help='Pause ratio percentage (default: 35)')
-    parser.add_argument('--punct-weight', type=float, default=2.0,
-                        help='How many times longer punctuation pause is than space (default: 2.0)')
+                        help='Pause ratio [percent of total time]')
+    parser.add_argument('--long-punct-weight', type=float, default=2.0,
+                        help='Long pause punctuation weight relative to short pause punctuation [unitless]')
     parser.add_argument('--extra-consonants', default='',
                         help='Extra characters to treat as consonants')
     parser.add_argument('--extra-vowels', default='',
@@ -74,6 +75,8 @@ Version {__version__}
     parser.add_argument('--test', action='store_true', help='Run unit tests')
 
     args = parser.parse_args()
+
+    print_startup_banner('akkapros-metrics', __version__, args)
 
     if args.test:
         success = run_tests()
@@ -102,7 +105,12 @@ Version {__version__}
     results = []
     for input_file in input_files:
         print(f"Processing: {input_file}")
-        result = process_file(input_file, args.wpm, args.pause_ratio, args.punct_weight)
+        result = process_file(
+            input_file,
+            args.wpm,
+            args.pause_ratio,
+            args.long_punct_weight,
+        )
         results.append(result)
 
     if args.outdir != '.':
@@ -133,7 +141,17 @@ Version {__version__}
 
     if args.table:
         if len(results) == 1:
-            table = format_table(results[0])
+            table_context = {
+                'cli': 'metricser.py',
+                'wpm_words_per_min': args.wpm,
+                'pause_ratio_percent': args.pause_ratio,
+                'short_pause_punct_weight_unitless': 1.0,
+                'long_pause_punct_weight_unitless': args.long_punct_weight,
+                'extra_consonants': args.extra_consonants,
+                'extra_vowels': args.extra_vowels,
+                'input': input_files[0],
+            }
+            table = format_table(results[0], run_context=table_context)
             if args.prefix:
                 table_file = base.with_name(base.name + '_metrics.txt')
             else:
@@ -144,7 +162,17 @@ Version {__version__}
             print(f"Table saved to: {table_file}")
         else:
             for result in results:
-                table = format_table(result)
+                table_context = {
+                    'cli': 'metricser.py',
+                    'wpm_words_per_min': args.wpm,
+                    'pause_ratio_percent': args.pause_ratio,
+                    'short_pause_punct_weight_unitless': 1.0,
+                    'long_pause_punct_weight_unitless': args.long_punct_weight,
+                    'extra_consonants': args.extra_consonants,
+                    'extra_vowels': args.extra_vowels,
+                    'input': result['file'],
+                }
+                table = format_table(result, run_context=table_context)
                 safe_stem = simple_safe_filename(Path(result['file']).stem)
                 table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
                 with open(table_file, 'w', encoding='utf-8') as f:

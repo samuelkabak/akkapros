@@ -799,6 +799,7 @@ class RepairEngine:
                         if isinstance(part, str) and not part.endswith(WORD_LINKER) and not part.startswith(WORD_LINKER):
                             # Found a content word - need to rollback if it was repaired
                             # Find the original word object for this content
+                            matched_prev_word: Union[Word, None] = None
                             for word_idx in range(i-1, -1, -1):
                                 prev_token = tokens[word_idx]
                                 if not isinstance(prev_token, str) and not prev_token.is_function_word:
@@ -806,13 +807,15 @@ class RepairEngine:
                                         # Rollback any repairs on this word
                                         self.rollback_repair_stats(prev_token)
                                         self.rollback_repair(prev_token)
+                                        matched_prev_word = prev_token
                                         break
                             
                             # Remove this content word and everything after it from result_parts
                             result_parts = result_parts[:idx]
                             
                             # Now add it back with underscores and all function words
-                            result_parts.append(prev_token.get_text() + WORD_LINKER)
+                            base_part = matched_prev_word.get_text() if matched_prev_word else part
+                            result_parts.append(base_part + WORD_LINKER)
                             for w in func_group:
                                 result_parts.append(w.get_text_flat())
                                 result_parts.append(WORD_LINKER)

@@ -123,7 +123,7 @@ The input `+` is treated as an explicit user instruction that the linked sequenc
 ### Strict mode (default, `only_last=True`)
 Repair candidates before the linked tail are locked. Operationally, only the last linked word domain is eligible for repair targeting.
 
-### Relaxed mode (`--relax-last`, `only_last=False`)
+### Relaxed mode (`--repair-relax-last`, `only_last=False`)
 Repair may propagate right-to-left across the linked chain; the rightmost legal site in the full explicit group is chosen.
 
 ### If explicit group is still unresolved
@@ -199,7 +199,7 @@ Who leads safely lad and girl, illuminating them like the light of day!
 ### Command used
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir outputs --acute --bold --ipa
+python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir outputs --print-acute --print-bold --print-ipa
 ```
 
 ### Repaired pivot (`*_tilde.txt`)
@@ -207,26 +207,26 @@ python src/akkapros/cli/fullreparer.py outputs/demo_proc.txt -p demo --outdir ou
 > en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
 > ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
 
-### `--acute` output (`*_accent_acute.txt`)
+### `--print-acute` output (`*_accent_acute.txt`)
 
 > en´gidudu bē´lu muttallik mū´ši muttarrû rubê´
 > ša‿eṭla u‿ardata ina‿šulmi ittanar´rû unam´maru kī´ma ū´mi
 
-### `--bold` output (`*_accent_bold.md`)
+### `--print-bold` output (`*_accent_bold.md`)
 
 > **en**gidudu **bē**lu muttallik **mū**ši muttarrû ru**bê**
 > ša‿eṭla u‿ardata ina‿šulmi itta**nar**rû u**nam**maru **kī**ma **ū**mi
 
-### `--ipa` output (`*_accent_ipa.txt`)
+### `--print-ipa` output (`*_accent_ipa.txt`)
 
-> ˈʔenː.gi.du.du ⟨pause⟩ (.) ˈbeːː.lu ⟨pause⟩ (.) mut.tal.lik ⟨pause⟩ (.) ˈmuːː.ʃi ⟨pause⟩ (.) mut.tar.ruː ⟨pause⟩ (.) ru.ˈbeːː ⟨linebreak⟩ (..)
-> ʃa ʔetˤ.la ⟨pause⟩ (.) ʔu ʔar.da.ta ⟨pause⟩ (.) ʔina ʃul.mi ⟨pause⟩ (.) ʔit.ta.ˈnarː.ruː ⟨pause⟩ (.) ʔu.ˈnamː.ma.ru ⟨pause⟩ (.) ˈkiːː.ma ⟨pause⟩ (.) ˈʔuːː.mi ⟨linebreak⟩ (..)
+> ˈʔenː.gi.du.du.ˈbeːː.lu.mut.tal.lik.ˈmuːː.ʃi.mut.tar.ruː.ru.ˈbeːː ⟨linebreak⟩ ‖
+> ʃa.ʔetˤ.la.ʔu.ʔar.da.ta.ʔina.ʃul.mi.ʔit.ta.ˈnarː.ruː.ʔu.ˈnamː.ma.ru.ˈkiːː.ma.ˈʔuːː.mi ⟨linebreak⟩ ‖
 
-IPA mode selection is controlled with `--ipa-pharyngeal {preserve,remove}`:
+IPA mode selection is controlled with `--print-ipa-pharyngeal {preserve,remove}`:
 - `preserve` (`ipa-strict`): Old Akkadian distinctions (`ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`)
 - `remove` (`ipa-ob`): Old Babylonian merger (`ḥ -> χ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ`)
 
-Line breaks are rendered as a long pause (`⟨linebreak⟩ (..)`) in IPA. If a line already ends in strong punctuation (for example `.`), pause deduplication prevents double long pauses: a sequence like `sar.\n` yields one long pause block, not `⟨period⟩ (..) (..)`. 
+In IPA output, spaces and linkers (`+`/`‿`) do not add pauses. Punctuation emits tags plus a prosodic marker: weak punctuation uses `|`, strong punctuation (including line break) uses `‖`. If a line already ends in strong punctuation, line-break deduplication prevents duplicate strong markers.
 
 ### Note on vowel coloring in IPA
 The IPA renderer applies context-sensitive vowel coloring **post-emphatic only** (notably after `q`, `ṣ`, `ṭ`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`ɑ ɨ ʊ ɛ`) only when the preceding consonant is emphatic. Vowels before emphatics remain plain.

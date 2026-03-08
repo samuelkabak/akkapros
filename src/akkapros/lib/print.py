@@ -41,6 +41,8 @@ HYPHEN = '-'
 IPA_LENGTH = 'ː'
 IPA_STRESS = 'ˈ'
 GLOTTAL_STOP = 'ʾ'
+IPA_PROSODY_WEAK = '|'
+IPA_PROSODY_STRONG = '‖'
 
 ALL_VOWELS = set('aeiuāēīūâêîû')
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
@@ -374,15 +376,16 @@ def _append_ipa_tag(out: list, tag: str) -> None:
         out.append(f' ⟨{tag}⟩ ')
 
 
+def _is_strong_ipa_tag(tag: str) -> bool:
+    return tag in {'period', 'question', 'exclamation', 'linebreak'}
+
+
 def _append_ipa_tag_cluster(out: list, tags: list) -> None:
     for tag in tags:
         _append_ipa_tag(out, tag)
     if tags:
-        out.append('(..) ')
-
-
-def _append_ipa_pause(out: list) -> None:
-    out.append(' ⟨pause⟩ (.) ')
+        marker = IPA_PROSODY_STRONG if any(_is_strong_ipa_tag(t) for t in tags) else IPA_PROSODY_WEAK
+        out.append(f' {marker} ')
 
 
 def _append_ipa_escape(out: list, escaped_text: str) -> None:
@@ -390,8 +393,10 @@ def _append_ipa_escape(out: list, escaped_text: str) -> None:
 
 
 def _normalize_ipa_spacing(text: str) -> str:
-    text = re.sub(r'\(\.\.\)\s+⟨pause⟩ \(\.\)\s+', '(..) ', text)
-    return re.sub(r' {2,}', ' ', text)
+    text = re.sub(r' {2,}', ' ', text)
+    text = re.sub(r'\s*\.\s*', '.', text)
+    text = re.sub(r'\.{2,}', '.', text)
+    return text.strip()
 
 
 def _flush_syllable(
@@ -547,7 +552,7 @@ def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
         if char == WORD_LINKER:
             flush_current()
             if mode == 'ipa':
-                out.append(' ')
+                out.append('.')
             elif mode == 'mbrola':
                 out.append(' ')
             else:
@@ -648,56 +653,48 @@ def _convert_non_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
             out.append(_convert_word(token['text'], 'ipa', ipa_mode))
 
             j = i + 1
-            while j < token_count and tokens[j]['type'] == 'space':
+            while j < token_count and tokens[j]['type'] in {'space', 'linker'}:
                 j += 1
 
-            punctuation_tags = []
+            punct_tags = []
             k = j
             while k < token_count and tokens[k]['type'] == 'punct':
-                punctuation_tags.append(tokens[k]['tag'])
+                punct_tags.append(tokens[k]['tag'])
                 k += 1
-                while k < token_count and tokens[k]['type'] == 'space':
+                while k < token_count and tokens[k]['type'] in {'space', 'linker'}:
                     k += 1
 
-            if punctuation_tags and k < token_count and tokens[k]['type'] == 'word':
-                _append_ipa_tag_cluster(out, punctuation_tags)
+            if punct_tags:
+                _append_ipa_tag_cluster(out, punct_tags)
                 i = k
                 continue
 
-            i += 1
-            continue
-
-        if token_type == 'space':
-            j = i + 1
-            while j < token_count and tokens[j]['type'] == 'space':
-                j += 1
-            if j < token_count and tokens[j]['type'] == 'punct':
-                i += 1
+            if j < token_count and tokens[j]['type'] == 'word':
+                out.append('.')
+                i = j
                 continue
-            _append_ipa_pause(out)
+
             i += 1
             continue
 
-        if token_type == 'linker':
-            out.append(' ')
+        if token_type in {'space', 'linker'}:
             i += 1
             continue
 
         if token_type == 'punct':
-            punctuation_tags = [token['tag']]
+            punct_tags = [token['tag']]
             j = i + 1
             while j < token_count:
                 next_type = tokens[j]['type']
-                if next_type == 'space':
+                if next_type in {'space', 'linker'}:
                     j += 1
                     continue
                 if next_type == 'punct':
-                    punctuation_tags.append(tokens[j]['tag'])
+                    punct_tags.append(tokens[j]['tag'])
                     j += 1
                     continue
                 break
-
-            _append_ipa_tag_cluster(out, punctuation_tags)
+            _append_ipa_tag_cluster(out, punct_tags)
             i = j
             continue
 
@@ -710,13 +707,13 @@ def _convert_non_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
 def _append_non_word_char(out: list, char: str, mode: str) -> None:
     if mode == 'ipa':
         if char == ' ':
-            _append_ipa_pause(out)
+            return
         elif char == WORD_LINKER_OUT:
-            out.append(' ')
+            return
         else:
             tag, _ = _detect_ipa_tag(char, 0)
             if tag:
-                _append_ipa_tag(out, tag)
+                _append_ipa_tag_cluster(out, [tag])
             else:
                 out.append(char)
         return
@@ -797,8 +794,8 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
 
     if mode == 'ipa':
         result = _normalize_ipa_spacing(result)
-        if had_newline and not re.search(r'\(\.\.\)\s*$', result):
-            result = _normalize_ipa_spacing(result + ' ⟨linebreak⟩ (..)')
+        if had_newline and not re.search(rf'{IPA_PROSODY_STRONG}\s*$', result):
+            result = _normalize_ipa_spacing(result + ' ⟨linebreak⟩ ‖')
         if had_newline:
             result += '\n'
         return result
@@ -956,7 +953,7 @@ def run_tests() -> bool:
         ("~a", "ipa", "ˈʔːa"),
         ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
-        ("gi·mir+dad~·mē", "ipa", "gi.mir ˈdadː.meː"),
+        ("gi·mir+dad~·mē", "ipa", "gi.mir.ˈdadː.meː"),
         ("qa", "xar", "ꝗà"),
         ("qi", "xar", "ꝗì"),
         ("qu", "xar", "ꝗù"),
@@ -1068,21 +1065,21 @@ def run_tests() -> bool:
         ("ʿē", "ipa", "ʔeː"),
         ("ʾ~a", "ipa", "ˈʔːa"),
         ("ʿ~a", "ipa", "ˈʔːa"),
-        ("a+ē", "ipa", "a eː"),
+        ("a+ē", "ipa", "a.eː"),
         ("a-ē", "ipa", "a-eː"),
         ("ḫa", "ipa", "χa"),
         ("ḥa", "ipa", "χa"),
-        ("ʿa+ʾi", "ipa", "ʔa ʔi"),
+        ("ʿa+ʾi", "ipa", "ʔa.ʔi"),
         ("ʾa-ʿi", "ipa", "ʔa-ʔi"),
         (
             "ana+se·bet·ti qar·rā~d lā+ša·nān — nan~·di·qā kak·kī·kun",
             "ipa",
-            "ana se.bet.ti ⟨pause⟩ (.) qɑr.ˈraːːd ⟨pause⟩ (.) laː ʃa.naːn ⟨emdash⟩ (..) ˈnanː.di.qɑː ⟨pause⟩ (.) kak.kiː.kun",
+            "ana.se.bet.ti.qɑr.ˈraːːd.laː.ʃa.naːn ⟨emdash⟩ | ˈnanː.di.qɑː.kak.kiː.kun",
         ),
         (
             "ṣal·mā~t qaq·qa·di ana+šu·mut·ti — šum·qu·tu bū~l šak·kan",
             "ipa",
-            "sˤɑl.ˈmaːːt ⟨pause⟩ (.) qɑq.qɑ.di ⟨pause⟩ (.) ana ʃu.mut.ti ⟨emdash⟩ (..) ʃum.qʊ.tu ⟨pause⟩ (.) ˈbuːːl ⟨pause⟩ (.) ʃak.kan",
+            "sˤɑl.ˈmaːːt.qɑq.qɑ.di.ana.ʃu.mut.ti ⟨emdash⟩ | ʃum.qʊ.tu.ˈbuːːl.ʃak.kan",
         ),
         ("ba", "ipa", "ba"),
         ("bā", "ipa", "baː"),
@@ -1101,26 +1098,26 @@ def run_tests() -> bool:
         ("ṣal·mā~t", "ipa", "sˤɑl.ˈmaːːt"),
         ("ḫaṭ~·ṭi", "ipa", "ˈχatˤː.tˤɨ"),
         ("qā·tā~·šu", "ipa", "qɑː.ˈtaːː.ʃu"),
-        ("a·na+ē·kal·lim", "ipa", "a.na eː.kal.lim"),
+        ("a·na+ē·kal·lim", "ipa", "a.na.eː.kal.lim"),
         ("bēl-ē·riš", "ipa", "beːl-eː.riʃ"),
-        ("šar gi·mir", "ipa", "ʃar ⟨pause⟩ (.) gi.mir"),
-        ("šar, gi·mir", "ipa", "ʃar ⟨comma⟩ (..) gi.mir"),
-        ("šar. gi·mir", "ipa", "ʃar ⟨period⟩ (..) gi.mir"),
-        ("šar\n", "ipa", "ʃar ⟨linebreak⟩ (..)\n"),
-        ("šar.\n", "ipa", "ʃar ⟨period⟩ (..) \n"),
-        ("šar? gi·mir", "ipa", "ʃar ⟨question⟩ (..) gi.mir"),
-        ("šar! gi·mir", "ipa", "ʃar ⟨exclamation⟩ (..) gi.mir"),
-        ("šar: gi·mir", "ipa", "ʃar ⟨colon⟩ (..) gi.mir"),
-        ("šar; gi·mir", "ipa", "ʃar ⟨semicolon⟩ (..) gi.mir"),
-        ("šar—gi·mir", "ipa", "ʃar ⟨emdash⟩ (..) gi.mir"),
-        ("šar–gi·mir", "ipa", "ʃar ⟨endash⟩ (..) gi.mir"),
-        ("“šar,” gi·mir", "ipa", " ⟨opening-dblquote⟩ (..) ʃar ⟨comma⟩ ⟨closing-dblquote⟩ (..) gi.mir"),
-        ("(šar) [gi·mir]", "ipa", " ⟨opening-parenthese⟩ (..) ʃar ⟨closing-parenthese⟩ (..) ⟨escape:[gi·mir]⟩ "),
-        ("§ 42%", "ipa", " ⟨section⟩ ⟨number⟩ ⟨percent⟩ (..) "),
-        ("šar... gi·mir", "ipa", "ʃar ⟨ellipsis⟩ (..) gi.mir"),
-        ("šar… gi·mir", "ipa", "ʃar ⟨ellipsis⟩ (..) gi.mir"),
-        ("123 gi·mir", "ipa", " ⟨number⟩ (..) gi.mir"),
-        ("$€£", "ipa", " ⟨dollar⟩ ⟨euro⟩ ⟨pound⟩ (..) "),
+        ("šar gi·mir", "ipa", "ʃar.gi.mir"),
+        ("šar, gi·mir", "ipa", "ʃar ⟨comma⟩ | gi.mir"),
+        ("šar. gi·mir", "ipa", "ʃar ⟨period⟩ ‖ gi.mir"),
+        ("šar\n", "ipa", "ʃar ⟨linebreak⟩ ‖\n"),
+        ("šar.\n", "ipa", "ʃar ⟨period⟩ ‖\n"),
+        ("šar? gi·mir", "ipa", "ʃar ⟨question⟩ ‖ gi.mir"),
+        ("šar! gi·mir", "ipa", "ʃar ⟨exclamation⟩ ‖ gi.mir"),
+        ("šar: gi·mir", "ipa", "ʃar ⟨colon⟩ | gi.mir"),
+        ("šar; gi·mir", "ipa", "ʃar ⟨semicolon⟩ | gi.mir"),
+        ("šar—gi·mir", "ipa", "ʃar ⟨emdash⟩ | gi.mir"),
+        ("šar–gi·mir", "ipa", "ʃar ⟨endash⟩ | gi.mir"),
+        ("“šar,” gi·mir", "ipa", "⟨opening-dblquote⟩ | ʃar ⟨comma⟩ ⟨closing-dblquote⟩ | gi.mir"),
+        ("(šar) [gi·mir]", "ipa", "⟨opening-parenthese⟩ | ʃar ⟨closing-parenthese⟩ | ⟨escape:[gi·mir]⟩"),
+        ("§ 42%", "ipa", "⟨section⟩ ⟨number⟩ ⟨percent⟩ |"),
+        ("šar... gi·mir", "ipa", "ʃar ⟨ellipsis⟩ | gi.mir"),
+        ("šar… gi·mir", "ipa", "ʃar ⟨ellipsis⟩ | gi.mir"),
+        ("123 gi·mir", "ipa", "⟨number⟩ | gi.mir"),
+        ("$€£", "ipa", "⟨dollar⟩ ⟨euro⟩ ⟨pound⟩ |"),
         ("er~·ra", "acute", "er´ra"),
         ("er~·ra", "bold", "**er**ra"),
         ("nā~š", "bold", "**nāš**"),
@@ -1141,7 +1138,7 @@ def run_tests() -> bool:
     text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
     expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
-    expected_ipa = "ʃar ⟨pause⟩ (.) ⟨escape:[https://ex.am/ple+uri]⟩ ⟨pause⟩ (.) gi.mir ˈdadː.meː ⟨linebreak⟩ (..)\nˈʔːa.pil ⟨linebreak⟩ (..)\n"
+    expected_ipa = "ʃar ⟨escape:[https://ex.am/ple+uri]⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
     expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
     total_extra = 7
@@ -1237,7 +1234,7 @@ def run_tests() -> bool:
             out_acute.exists()
             and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
             and out_ipa.exists()
-            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin ⟨pause⟩ (.) ⟨pause⟩ (.) ˈʔːa.pil"
+            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin.ˈʔːa.pil"
             and not out_bold.exists()
         )
         if file_ok:
@@ -1259,7 +1256,7 @@ def run_tests() -> bool:
         ("ʿa", "ʔa", "ʕa"),
         ("ʾa", "ʔa", "ʔa"),
         ("ʾ~a", "ˈʔːa", "ˈʔːa"),
-        ("ʿa+ʾi", "ʔa ʔi", "ʕa ʔi"),
+        ("ʿa+ʾi", "ʔa.ʔi", "ʕa.ʔi"),
     ]
 
     for inp, exp_ob, exp_strict in ipa_mode_cases:
@@ -1286,23 +1283,23 @@ def run_tests() -> bool:
             )
 
     _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
-    if got_ipa_ob == "ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)\n":
+    if got_ipa_ob == "ʔa.ʔa ⟨linebreak⟩ ‖\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode ob]"
             f"\n  got: {got_ipa_ob}"
-            "\n  exp: ʔa ⟨pause⟩ (.) ʔa ⟨linebreak⟩ (..)"
+            "\n  exp: ʔa.ʔa ⟨linebreak⟩ ‖"
         )
 
     _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
-    if got_ipa_strict == "ʔa ⟨pause⟩ (.) ʕa ⟨linebreak⟩ (..)\n":
+    if got_ipa_strict == "ʔa.ʕa ⟨linebreak⟩ ‖\n":
         extra_passed += 1
     else:
         print(
             "FAILED [convert_text ipa mode strict]"
             f"\n  got: {got_ipa_strict}"
-            "\n  exp: ʔa ⟨pause⟩ (.) ʕa ⟨linebreak⟩ (..)"
+            "\n  exp: ʔa.ʕa ⟨linebreak⟩ ‖"
         )
 
     total_extra += (len(ipa_mode_cases) * 2) + 2

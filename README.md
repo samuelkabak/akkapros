@@ -19,6 +19,9 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 4. **Compute** acoustic metrics (%V, ΔC, VarcoC)
 5. **Generate** outputs for publication and speech synthesis
 
+For release planning/versioning, see `docs/akkapros/release-strategy.md`.
+For metrics methodology and formulas, see `docs/akkapros/metrics-computation.md`.
+
 ---
 
 ## 🔧 Tools Included
@@ -51,7 +54,7 @@ python3 src/repairer.py erra_proc.txt -p erra --outdir outputs
 python3 src/akkapros/cli/metricser.py erra.tilde > erra_metrics.txt
 
 # Full pipeline in one command (writes _syl, _tilde, metrics, and accent outputs)
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --metrics-table
 
 # Accent rendering from *_tilde.txt (writes both outputs by default)
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
@@ -80,8 +83,10 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
 	- in `accent_xar`: replaced by `´` on the repaired segment in XAR orthography
 - in `accent_xar`, glottal letters `ʿ` and `ʾ` are removed in final output (Old Babylonian profile); glottal-cleanup rules are kept as a protective normalization when input includes forms from other Akkadian periods/regions (e.g., Old Akkadian, Standard Babylonian, Assyrian Akkadian)
-- in IPA mode, spaces emit `⟨pause⟩ (.)`
-- in IPA mode, punctuation emits symbolic tags and a clustered punctuation pause `(..)`
+- in IPA mode, spaces and `+` are connected speech boundaries and are rendered as syllable separators (`.`)
+- in IPA mode, punctuation emits symbolic tags and prosody markers:
+	- weak/inner punctuation -> `|`
+	- strong/final punctuation -> `‖`
 - in IPA mode, bracket chunks are emitted as `⟨escape:[...]⟩`
 - content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
 
@@ -96,7 +101,7 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 
 ### XAR orthography profile
 
-- XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --xar`.
+- XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --print-xar`.
 - Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
 	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`
@@ -153,10 +158,10 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 - **Always written**:
 	- `<prefix>_syl.txt`
 	- `<prefix>_tilde.txt`
-- **Metrics outputs**: selected by flags (`--table`, `--json`, `--csv`)
-	- If no metrics format is selected, `--table` is used by default.
-- **Accent outputs**: selected by flags (`--acute`, `--bold`, `--ipa`, `--xar`)
-	- If no accent format is selected, `--acute` and `--bold` are used by default.
+- **Metrics outputs**: selected by flags (`--metrics-table`, `--metrics-json`, `--metrics-csv`)
+	- If no metrics format is selected, `--metrics-table` is used by default.
+- **Accent outputs**: selected by flags (`--print-acute`, `--print-bold`, `--print-ipa`, `--print-xar`)
+	- If no accent format is selected, `--print-acute` and `--print-bold` are used by default.
 
 ### Shared options (deduplicated)
 
@@ -166,10 +171,10 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 
 ### Stage-specific options
 
-- **Syllabification**: `--merge-hyphen`, `--merge-lines`
-- **Repair**: `--style {lob,sob}` (default: `sob`), `-r/--relax-last`, `--restore-diphthongs`, `--only-restore-diphthongs`
-- **Metrics**: `--wpm`, `--pause-ratio`, `--punct-weight`, `--table`, `--json`, `--csv`
-- **Printer**: `--acute`, `--bold`, `--ipa`, `--ipa-pharyngeal {preserve,remove}`, `--xar`
+- **Syllabification**: `--syl-merge-hyphens`, `--syl-merge-lines`
+- **Repair**: `--repair-style {lob,sob}` (default: `sob`), `--repair-relax-last`, `--repair-restore-diphthongs`
+- **Metrics**: `--metrics-wpm`, `--metrics-pause-ratio`, `--metrics-weak-punct-weight`, `--metrics-strong-punct-weight`, `--metrics-table`, `--metrics-json`, `--metrics-csv`
+- **Printer**: `--print-acute`, `--print-bold`, `--print-ipa`, `--print-ipa-pharyngeal {preserve,remove}`, `--print-xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
 
 ### Line handling (default vs merge)
@@ -178,7 +183,7 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 	- original input lines are preserved as-is
 	- no newline normalization is applied
 	- useful when line boundaries encode phrasing/verse structure
-- `--merge-lines` mode:
+- `--syl-merge-lines` mode:
 	- single newline is treated as line-wrap continuation and normalized to one space
 	- two or more consecutive newlines are treated as paragraph boundaries and normalized to one newline
 - Markdown-aware exception in merge mode:
@@ -189,25 +194,25 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 
 ```bash
 # SOB style (default), metrics table output
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --metrics-table
 
 # SOB style with JSON and CSV metrics
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outdir outputs --style sob --json --csv
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outdir outputs --repair-style sob --metrics-json --metrics-csv
 
 # Restore diphthongs in repair stage
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --restore-diphthongs --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --repair-restore-diphthongs --metrics-table
 
 # Write only IPA accent output (skip acute/bold)
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_ipa --outdir outputs --ipa --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_ipa --outdir outputs --print-ipa --metrics-table
 
 # Write only XAR accent output (skip acute/bold/ipa)
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outdir outputs --xar --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outdir outputs --print-xar --metrics-table
 
 # Allow explicit + repair propagation before the last linked word
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --style sob --relax-last --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_relax --outdir outputs --repair-style sob --repair-relax-last --metrics-table
 
 # Merge lines in the syllabification stage (default is preserve)
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_lines --outdir outputs --merge-lines --table
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_lines --outdir outputs --syl-merge-lines --metrics-table
 
 # Run integrated tests for all stages
 python3 src/akkapros/cli/fullreparer.py --test-all

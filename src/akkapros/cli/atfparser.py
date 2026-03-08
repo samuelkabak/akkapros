@@ -25,6 +25,7 @@ from pathlib import Path
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 __version__ = "1.0.0"
 __author__ = "Samuel KABAK"
@@ -64,7 +65,7 @@ def save_output(results: dict, prefix: str, outdir: Path):
 def main():
     parser = argparse.ArgumentParser(
         description='Convert eBL ATF files to clean Akkadian text',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDefaultsHelpFormatter,
         epilog=f"""
 SOURCE:
   This parser is STRICTLY designed for ATF files from the
@@ -123,15 +124,15 @@ MIT License (c) 2026 Samuel KABAK
                        version=f'akkapros-parser {__version__}')
     parser.add_argument('input', nargs='?', help='eBL ATF file (must contain %%n lines)')
     parser.add_argument('-p', '--prefix', 
-                       help='Output prefix (default: input filename without extension)')
+                       help='Output prefix')
     parser.add_argument('--outdir', default='.',
-                       help='Output directory (default: current directory .)')
+                       help='Output directory')
     parser.add_argument('--remove-hyphens', action='store_true',
                     help='Remove hyphens (cuneiform sign boundaries) for cleaner reading text')
     parser.add_argument('--preserve-case', action='store_true',
-                       help='Preserve original case (default: convert to lowercase)')
+                       help='Preserve original case')
     parser.add_argument('--preserve-h', action='store_true',
-                       help='Preserve original [h,H] (default: convert to [ḫ,Ḫ]})')
+                       help='Preserve original [h,H]')
     parser.add_argument('--strict', action='store_true',
                        help='Enable warnings for informational purposes')
     parser.add_argument('--test', action='store_true', help='Run self-test suite')
@@ -140,6 +141,7 @@ MIT License (c) 2026 Samuel KABAK
     
     # Handle test mode
     if args.test:
+        print_startup_banner('akkapros-atfparser', __version__, args)
         print("\n" + "="*80)
         print("AKKADIAN PROSODY TOOLKIT — SELF-TEST SUITE")
         print("="*80)
@@ -169,6 +171,8 @@ MIT License (c) 2026 Samuel KABAK
         prefix = input_path.stem
     
     outdir = Path(args.outdir)
+
+    print_startup_banner('akkapros-atfparser', __version__, args)
     
     print(f"\nInput: {args.input}")
     print(f"Output directory: {outdir}")
