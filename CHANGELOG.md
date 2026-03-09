@@ -13,11 +13,15 @@
 - Placeholder __init__.py files
 - **fullreparer.py**: New combined CLI pipeline (syllabify → repair → metrics → print) with deduplicated shared options and unified outputs
 - **printer.py / print.py**: Added IPA output path (`<prefix>_accent_ipa.txt`) with punctuation/pause tagging and bracket escape tags
+- **printer.py / print.py**: Added speculative circumflex hiatus mode (`--circ-hiatus`) for IPA splitting (e.g., `qû -> qʊ.ʊ`)
+- **fullreparer.py**: Added `--print-circ-hiatus` and propagated it through the print stage
 - **repairer.py**: Added `-r/--relax-last` to enable non-tail propagation for explicit `+` links
 - **repair.py tests**: Added strict-default and relaxed-mode regression cases for explicit `+` groups
 - **syllabifier.py / fullreparer.py**: Line handling now preserves original lines by default; use `--merge-lines` to normalize single newlines to spaces (and 2+ to paragraph breaks)
 - **syllabify.py tests**: Added preprocessing regression tests for newline normalization, connector split-merge, and Markdown structural boundaries
 - **printer.py / fullreparer.py**: Added `--ipa-pharyngeal {preserve,remove}` policy option (default `preserve`) for IPA output
+- **phoneprep.py**: Added `--with-html-recording-helper` and `--recording-max-words` for chunked recording guidance and logging helper generation
+- **docs/akkapros**: Added CLI docs for `repairer.py`, `metricser.py`, `fullreparer.py`, `atfparser.py`, `syllabifier.py`, and `printer.py`
 - **fullreparer.py CLI namespaced options**: stage-prefixed flags now disambiguate pipeline stages:
 	- syllabify: `--syl-merge-hyphens`, `--syl-merge-lines`
 	- repair: `--repair-style`, `--repair-relax-last`, `--repair-restore-diphthongs`
@@ -42,6 +46,9 @@
 - **syllabify.py line preprocessing**: default mode now normalizes single newlines to spaces and collapses 2+ newlines to a single paragraph newline
 - **syllabify.py Markdown-aware normalization**: default line normalization now preserves single-newline boundaries for Markdown structure (headings, lists, blockquotes, horizontal rules, tables, fenced code blocks)
 - **Connector split-merge safety**: cross-line `-` / `+` rejoin now applies only when connector is attached to the previous Akkadian letter (prevents spaced punctuation false merges)
+- **metrics.py / metricser.py**: `%V` reporting now exposes two values: articulate (`percent_v_articulate`) and pause-inclusive speech (`percent_v_speech`); CSV/table outputs were updated accordingly
+- **atfparse.py / atfparser.py**: `||` and `‡` now normalize to `:`, editorial dashes normalize to `:`, and broken-sign `x` sequences collapse to a single ellipsis (`…`)
+- **docs/akkapros/metrics-computation.md**: `%V` section updated to document articulate vs normal-speech formulas
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite

@@ -182,13 +182,21 @@ How computed:
 Unit:
 - `%`
 
-### 3.14 %V
+### 3.14 %V (Two Values)
 
 What it designates:
 - Proportion of vocalic duration proxy in the moraic stream.
 
 How computed:
-- `percent_v = vowel_morae / total_morae * 100`.
+- Articulate (no pauses): `percent_v_articulate = vowel_morae / total_morae * 100`.
+- Normal speech (including pauses): `percent_v_speech = percent_v_articulate / (1 + pause_ratio/100)`.
+
+Rationale:
+- Acoustic %V from real speech includes pause time in the denominator.
+- To compare moraic text metrics with speech metrics, pause ratio expands total moraic time by `x(1 + pause_ratio/100)`.
+
+Implementation note:
+- `metricser.py` and `fullreparer.py` table/CSV outputs expose both values as separate fields.
 
 Unit:
 - `%`

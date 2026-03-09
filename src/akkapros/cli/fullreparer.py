@@ -43,39 +43,46 @@ from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_ban
 __version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metrics-{metrics_version}"
 
 
-def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
-    """Resolve whether IPA output is requested and which IPA mode to use."""
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
+    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     output_ipa = args.print_ipa
     ipa_mode = 'ipa-strict' if args.print_ipa_pharyngeal == 'preserve' else 'ipa-ob'
+    circ_hiatus = args.print_circ_hiatus
 
-    return output_ipa, ipa_mode
+    return output_ipa, ipa_mode, circ_hiatus
 
 
 def run_tests() -> bool:
     """Run fullreparer CLI resolution tests only (no pipeline execution)."""
     class _Args:
-        def __init__(self, print_ipa: bool, print_ipa_pharyngeal: str) -> None:
+        def __init__(self, print_ipa: bool, print_ipa_pharyngeal: str, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
             self.print_ipa_pharyngeal = print_ipa_pharyngeal
+            self.print_circ_hiatus = print_circ_hiatus
 
     cases = [
-        (_Args(False, 'preserve'), False, 'ipa-strict'),
-        (_Args(False, 'remove'), False, 'ipa-ob'),
-        (_Args(True, 'preserve'), True, 'ipa-strict'),
-        (_Args(True, 'remove'), True, 'ipa-ob'),
+        (_Args(False, 'preserve', False), False, 'ipa-strict', False),
+        (_Args(False, 'remove', False), False, 'ipa-ob', False),
+        (_Args(True, 'preserve', False), True, 'ipa-strict', False),
+        (_Args(True, 'remove', False), True, 'ipa-ob', False),
+        (_Args(True, 'remove', True), True, 'ipa-ob', True),
     ]
 
     passed = 0
-    for args, exp_write, exp_mode in cases:
-        got_write, got_mode = _resolve_ipa_options(args)
-        if got_write == exp_write and got_mode == exp_mode:
+    for args, exp_write, exp_mode, exp_circ_hiatus in cases:
+        got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
+        if (
+            got_write == exp_write
+            and got_mode == exp_mode
+            and got_circ_hiatus == exp_circ_hiatus
+        ):
             passed += 1
         else:
             print(
                 "FAILED [fullreparer cli ipa mode]"
-                f"\n  in : print_ipa={args.print_ipa}, print_ipa_pharyngeal={args.print_ipa_pharyngeal}"
-                f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}"
-                f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}"
+                f"\n  in : print_ipa={args.print_ipa}, print_ipa_pharyngeal={args.print_ipa_pharyngeal}, print_circ_hiatus={args.print_circ_hiatus}"
+                f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}, print_circ_hiatus={got_circ_hiatus}"
+                f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}, print_circ_hiatus={exp_circ_hiatus}"
             )
 
     print(f"fullreparer.py cli tests: {passed}/{len(cases)} passed")
@@ -104,6 +111,7 @@ def run_pipeline(
     output_ipa: bool,
     output_xar: bool,
     ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
 ) -> int:
     """Execute syllabify -> repair -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
@@ -203,6 +211,7 @@ def run_pipeline(
         write_ipa=output_ipa,
         write_xar=output_xar,
         ipa_mode=ipa_mode,
+        circ_hiatus=circ_hiatus,
     )
 
     if output_acute:
@@ -271,6 +280,8 @@ Versions: {__version__}
                         help='Write <prefix>_accent_ipa.txt')
     parser.add_argument('--print-ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
                         help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
+    parser.add_argument('--print-circ-hiatus', action='store_true',
+                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
     parser.add_argument('--print-xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
 
@@ -330,7 +341,7 @@ Versions: {__version__}
     output_csv = args.metrics_csv
     output_acute = args.print_acute
     output_bold = args.print_bold
-    output_ipa, ipa_mode = _resolve_ipa_options(args)
+    output_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
     output_xar = args.print_xar
 
     # Match metricser behavior: default to table if no explicit format selected.
@@ -366,6 +377,7 @@ Versions: {__version__}
         output_ipa=output_ipa,
         output_xar=output_xar,
         ipa_mode=ipa_mode,
+        circ_hiatus=circ_hiatus,
     )
     sys.exit(code)
 

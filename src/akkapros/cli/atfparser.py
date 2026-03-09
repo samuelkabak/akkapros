@@ -83,13 +83,13 @@ SOURCE:
   * < > angle brackets - KEEP content, remove brackets
   * {{ }} braces - REMOVE entirely (determinatives)
   * | single pipe - CONVERT to space (word boundary)
-  * || double pipe - PRESERVE (major division/phrase boundary)
-  * ‡ Glossenkeil - REPLACE with ':' (word divider)
+    * || double pipe - REPLACE with ':' (major division/phrase boundary)
+    * ‡ Glossenkeil - REPLACE with ':' (phrase divider)
   * ' single quote - PRESERVE (emendation marker)
-  * x broken sign - REPLACE with a SINGLE '...' (multiple x's collapse)
+    * x broken sign - REPLACE with a SINGLE '…' (multiple x's collapse)
   * 0-9 numerals - PRESERVE
   * ? ! * ° - REMOVE (editorial signs)
-  * ... - PRESERVE (ellipsis)
+    * … - PRESERVE (ellipsis)
   * Hyphens - PRESERVE (part of transliteration)
 
   MULTI-LINE HANDLING:

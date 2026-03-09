@@ -15,6 +15,7 @@ Computes comprehensive metrics from Akkadian text with proper handling of:
 import re
 import random
 import statistics
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
@@ -396,6 +397,17 @@ def compute_percent_v_from_stats(stats: Dict) -> float:
     
     return (vowel_morae / total_morae * 100) if total_morae > 0 else 0
 
+
+def compute_percent_v_with_pauses(percent_v_articulate: float, pause_ratio: float) -> float:
+    """Convert articulate %V to normal-speech %V by adding pause morae to denominator.
+
+    If pause_ratio is 35, total morae are scaled by x1.35, so %V is divided by 1.35.
+    """
+    scale = 1.0 + (pause_ratio / 100.0)
+    if scale <= 0:
+        return percent_v_articulate
+    return percent_v_articulate / scale
+
 def analyze_text(text: str, is_repaired: bool = False) -> Dict:
     """
     Analyze a text and compute all metrics.
@@ -645,6 +657,8 @@ def compute_acoustic_metrics(text: str) -> Dict:
     if total_segments == 0:
         return {
             'percent_v': 0.0,
+            'percent_v_articulate': 0.0,
+            'percent_v_speech': 0.0,
             'delta_c': 0.0,
             'mean_interval': 0.0,
             'varco_c': 0.0,
@@ -666,6 +680,8 @@ def compute_acoustic_metrics(text: str) -> Dict:
     
     return {
         'percent_v': percent_v,
+        'percent_v_articulate': percent_v,
+        'percent_v_speech': percent_v,
         'delta_c': delta_c,
         'mean_interval': mean_interval,
         'varco_c': varco_c,
@@ -1014,9 +1030,13 @@ def process_file(
     acoustic_original = compute_acoustic_metrics(preprocessed_original)
     acoustic_repaired = compute_acoustic_metrics(preprocessed_repaired)
     
-    # Override %V with the correct value from syllable stats
+    # Override %V with mora-based values and expose both speaking conditions.
     acoustic_original['percent_v'] = original_percent_v
+    acoustic_original['percent_v_articulate'] = original_percent_v
+    acoustic_original['percent_v_speech'] = compute_percent_v_with_pauses(original_percent_v, pause_ratio)
     acoustic_repaired['percent_v'] = repaired_percent_v
+    acoustic_repaired['percent_v_articulate'] = repaired_percent_v
+    acoustic_repaired['percent_v_speech'] = compute_percent_v_with_pauses(repaired_percent_v, pause_ratio)
     
     # Compute speech rate for repaired text
     speech_repaired = compute_speech_rate(preprocessed_repaired, repaired_stats, wpm, pause_ratio)
@@ -1084,7 +1104,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     
     # Acoustic metrics (original)
     lines.append(f"\nAcoustic metrics (original):")
-    lines.append(f"  %V: {orig['acoustic']['percent_v']:.2f}%")
+    lines.append(f"  %V (articulate): {orig['acoustic']['percent_v_articulate']:.2f}%")
+    lines.append(f"  %V (normal speech, incl. pauses): {orig['acoustic']['percent_v_speech']:.2f}%")
     lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
     lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
     lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f} %")
@@ -1120,7 +1141,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     
     # Acoustic metrics (repaired)
     lines.append(f"\nAcoustic metrics (repaired):")
-    lines.append(f"  %V: {rep['acoustic']['percent_v']:.2f}%")
+    lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
+    lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
     lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
     lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
     lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f} %")
@@ -1229,7 +1251,8 @@ def format_csv(results: List[Dict], output_file: Path):
         
         # Acoustic metrics (original)
         ac = [r['original']['acoustic'] for r in results]
-        add_row("%V", [f"{a['percent_v']:.2f}" for a in ac])
+        add_row("%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac])
+        add_row("%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac])
         add_row("ΔC", [f"{a['delta_c']:.4f}" for a in ac])
         add_row("VarcoC", [f"{a['varco_c']:.2f}" for a in ac])
         
@@ -1274,7 +1297,8 @@ def format_csv(results: List[Dict], output_file: Path):
         
         # Acoustic metrics (repaired)
         ac_rep = [r['repaired']['acoustic'] for r in results]
-        add_row("rep_%V", [f"{a['percent_v']:.2f}" for a in ac_rep])
+        add_row("rep_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
+        add_row("rep_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
         add_row("rep_ΔC", [f"{a['delta_c']:.4f}" for a in ac_rep])
         add_row("rep_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
         
@@ -1752,6 +1776,40 @@ def run_tests():
         tests_passed += 1
     else:
         print(f"  Raw counts: {pause_metrics['raw_counts']}")
+
+    # ===== TEST 8: %V with pauses =====
+    print("\n--- Test 8: %V with pauses ---")
+    tests_total += 1
+
+    passed = True
+    articulate = 80.0
+    speech = compute_percent_v_with_pauses(articulate, 35.0)
+    expected = articulate / 1.35
+    if abs(speech - expected) > 1e-9:
+        print(f"  ❌ %V conversion: got {speech}, expected {expected}")
+        passed = False
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        sample = Path(tmpdir) / "sample_tilde.txt"
+        sample.write_text("šar gi·mir+dad~·mē\n", encoding='utf-8')
+        result = process_file(str(sample), wpm=165, pause_ratio=35.0)
+
+        for key in ('original', 'repaired'):
+            acoustic = result[key]['acoustic']
+            if abs(acoustic['percent_v'] - acoustic['percent_v_articulate']) > 1e-9:
+                print(f"  ❌ {key}: percent_v alias mismatch")
+                passed = False
+            expected_speech = acoustic['percent_v_articulate'] / 1.35
+            if abs(acoustic['percent_v_speech'] - expected_speech) > 1e-9:
+                print(
+                    f"  ❌ {key}: %V speech mismatch "
+                    f"(got {acoustic['percent_v_speech']}, expected {expected_speech})"
+                )
+                passed = False
+
+    if passed:
+        print("  ✅ %V articulate/speech tests passed")
+        tests_passed += 1
 
     # Summary
     print(f"\n{'='*80}")

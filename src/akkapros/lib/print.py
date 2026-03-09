@@ -405,6 +405,7 @@ def _flush_syllable(
     source_text: str = '',
     source_indices=None,
     ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
 ) -> str:
     if not syllable_text:
         return ''
@@ -423,12 +424,20 @@ def _flush_syllable(
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
                 context_index = source_indices[idx] if source_indices else idx
-                converted.append(
-                    _to_ipa_vowel(
-                        char,
-                        _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
-                    )
-                )
+                emphatic = _is_emphatic_adjacent(context_text, context_index, context_skip_chars)
+                if circ_hiatus and char in {'â', 'î', 'û', 'ê'}:
+                    short_base = {
+                        'â': 'a',
+                        'î': 'i',
+                        'û': 'u',
+                        'ê': 'e',
+                    }[char]
+                    # Speculative mode: circumflex vowels are split into two hiatus syllables.
+                    converted.append(_to_ipa_vowel(short_base, emphatic))
+                    converted.append('.')
+                    converted.append(_to_ipa_vowel(short_base, emphatic))
+                else:
+                    converted.append(_to_ipa_vowel(char, emphatic))
             elif char in ipa_map:
                 # Keep implied/injected glottal onset silent unless this is a repaired syllable.
                 # Explicit source letters (ʾ/ʿ) are still mapped by mode-specific inventories.
@@ -511,7 +520,12 @@ def _flush_syllable(
     return clean
 
 
-def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
+def _convert_word(
+    word: str,
+    mode: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> str:
     """Convert one Akkadian word token."""
     if mode == 'xar':
         return _convert_word_xar(word)
@@ -543,6 +557,7 @@ def _convert_word(word: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
                     source_text=source_text,
                     source_indices=source_indices,
                     ipa_mode=ipa_mode,
+                    circ_hiatus=circ_hiatus,
                 )
             )
             current_syllable.clear()
@@ -584,17 +599,22 @@ def _is_word_char(char: str) -> bool:
     return char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN, TILDE}
 
 
-def _convert_non_bracket_part(part: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
+def _convert_non_bracket_part(
+    part: str,
+    mode: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> str:
     """Convert a string part that is outside square brackets."""
     if mode == 'ipa':
-        return _convert_non_bracket_part_ipa(part, ipa_mode)
+        return _convert_non_bracket_part_ipa(part, ipa_mode, circ_hiatus=circ_hiatus)
 
     out = []
     current_word = []
 
     def flush_word() -> None:
         if current_word:
-            out.append(_convert_word(''.join(current_word), mode, ipa_mode))
+            out.append(_convert_word(''.join(current_word), mode, ipa_mode, circ_hiatus=circ_hiatus))
             current_word.clear()
 
     for char in part:
@@ -608,7 +628,11 @@ def _convert_non_bracket_part(part: str, mode: str, ipa_mode: str = 'ipa-ob') ->
     return ''.join(out)
 
 
-def _convert_non_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
+def _convert_non_bracket_part_ipa(
+    part: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> str:
     tokens = []
     index = 0
 
@@ -650,7 +674,7 @@ def _convert_non_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
         token_type = token['type']
 
         if token_type == 'word':
-            out.append(_convert_word(token['text'], 'ipa', ipa_mode))
+            out.append(_convert_word(token['text'], 'ipa', ipa_mode, circ_hiatus=circ_hiatus))
 
             j = i + 1
             while j < token_count and tokens[j]['type'] in {'space', 'linker'}:
@@ -721,7 +745,11 @@ def _append_non_word_char(out: list, char: str, mode: str) -> None:
     out.append(char)
 
 
-def _convert_mixed_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
+def _convert_mixed_bracket_part_ipa(
+    part: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> str:
     """Convert IPA in mixed parts: emit [ ... ] content as escale tags, process outside text."""
     out = []
     current_word = []
@@ -730,7 +758,7 @@ def _convert_mixed_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
 
     def flush_word() -> None:
         if current_word:
-            out.append(_convert_word(''.join(current_word), 'ipa', ipa_mode))
+            out.append(_convert_word(''.join(current_word), 'ipa', ipa_mode, circ_hiatus=circ_hiatus))
             current_word.clear()
 
     for char in part:
@@ -762,7 +790,12 @@ def _convert_mixed_bracket_part_ipa(part: str, ipa_mode: str = 'ipa-ob') -> str:
     return ''.join(out)
 
 
-def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
+def convert_line(
+    line: str,
+    mode: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> str:
     """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format.
     
     Args:
@@ -783,14 +816,14 @@ def convert_line(line: str, mode: str, ipa_mode: str = 'ipa-ob') -> str:
         for part in parts:
             if '[' in part and ']' in part:
                 if mode == 'ipa':
-                    converted.append(_convert_mixed_bracket_part_ipa(part, ipa_mode))
+                    converted.append(_convert_mixed_bracket_part_ipa(part, ipa_mode, circ_hiatus=circ_hiatus))
                 else:
                     converted.append(part)
             else:
-                converted.append(_convert_non_bracket_part(part, mode, ipa_mode))
+                converted.append(_convert_non_bracket_part(part, mode, ipa_mode, circ_hiatus=circ_hiatus))
         result = ''.join(converted)
     else:
-        result = _convert_non_bracket_part(core_line, mode, ipa_mode)
+        result = _convert_non_bracket_part(core_line, mode, ipa_mode, circ_hiatus=circ_hiatus)
 
     if mode == 'ipa':
         result = _normalize_ipa_spacing(result)
@@ -811,7 +844,11 @@ def convert_text(text: str) -> Tuple[str, str]:
     return acute_text, bold_text
 
 
-def convert_text_with_ipa(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str, str]:
+def convert_text_with_ipa(
+    text: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> Tuple[str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text).
     
     Args:
@@ -819,11 +856,19 @@ def convert_text_with_ipa(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
-    acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(text, ipa_mode)
+    acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(
+        text,
+        ipa_mode,
+        circ_hiatus=circ_hiatus,
+    )
     return acute_text, bold_text, ipa_text
 
 
-def convert_text_with_ipa_xar(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str, str, str, str]:
+def convert_text_with_ipa_xar(
+    text: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> Tuple[str, str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text).
     
     Args:
@@ -832,24 +877,25 @@ def convert_text_with_ipa_xar(text: str, ipa_mode: str = 'ipa-ob') -> Tuple[str,
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     lines = text.splitlines(keepends=True)
-    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode) for line in lines]
-    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode) for line in lines]
-    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode) for line in lines]
-    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode) for line in lines]
+    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
 
 
 def convert_text_with_ipa_xar_mbrola(
     text: str,
     ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
 ) -> Tuple[str, str, str, str, str]:
     """Convert full text and return acute, bold, ipa, xar, and mbrola outputs."""
     lines = text.splitlines(keepends=True)
-    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode) for line in lines]
-    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode) for line in lines]
-    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode) for line in lines]
-    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode) for line in lines]
-    mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode) for line in lines]
+    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     return (
         ''.join(acute_lines),
         ''.join(bold_lines),
@@ -872,6 +918,7 @@ def process_file(
     write_xar: bool = False,
     write_mbrola: bool = False,
     ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
 ) -> None:
     """Read *_tilde input and write selected output files.
     
@@ -893,7 +940,11 @@ def process_file(
     with open(input_file, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(text, ipa_mode)
+    acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(
+        text,
+        ipa_mode,
+        circ_hiatus=circ_hiatus,
+    )
 
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
@@ -1302,7 +1353,35 @@ def run_tests() -> bool:
             "\n  exp: ʔa.ʕa ⟨linebreak⟩ ‖"
         )
 
-    total_extra += (len(ipa_mode_cases) * 2) + 2
+    circ_hiatus_cases = [
+        ("qû", "qʊ.ʊ"),
+        ("bû", "bu.u"),
+        ("qâ", "qɑ.ɑ"),
+        ("qû~", "ˈqʊ.ʊː"),
+    ]
+    for inp, expected in circ_hiatus_cases:
+        got = convert_line(inp, 'ipa', circ_hiatus=True)
+        if got == expected:
+            extra_passed += 1
+        else:
+            print(
+                "FAILED [ipa circ-hiatus]"
+                f"\n  in : {inp}"
+                f"\n  got: {got}"
+                f"\n  exp: {expected}"
+            )
+
+    # Ensure default remains unchanged when circ-hiatus is disabled.
+    if convert_line("qû", 'ipa') == "qʊː":
+        extra_passed += 1
+    else:
+        print(
+            "FAILED [ipa circ-hiatus default-off]"
+            f"\n  got: {convert_line('qû', 'ipa')}"
+            "\n  exp: qʊː"
+        )
+
+    total_extra += (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
     total = len(tests) + total_extra
     passed += extra_passed
     print(f"print.py tests: {passed}/{total} passed")

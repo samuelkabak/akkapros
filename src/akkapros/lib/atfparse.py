@@ -69,13 +69,13 @@ class ATFParser:
     - < > angle brackets - KEEP content, remove brackets
     - { } braces - REMOVE entirely (determinatives)
     - | single pipe - CONVERT to space (word boundary)
-    - || double pipe - PRESERVE (major division/phrase boundary)
-    - ‡ Glossenkeil - REPLACE with ':' (word divider)
+    - || double pipe - REPLACE with ':' (major division/phrase boundary)
+    - ‡ Glossenkeil - REPLACE with ':' (phrase divider)
     - ' single quote - PRESERVE (emendation marker)
-    - x broken sign - REPLACE with a SINGLE '...' (multiple x's collapse)
+    - x broken sign - REPLACE with a SINGLE '…' (multiple x's collapse)
     - 0-9 numerals - PRESERVE
     - ? ! * ° - REMOVE (editorial signs)
-    - ... - PRESERVE (ellipsis)
+    - … - PRESERVE (ellipsis)
     - Hyphens - PRESERVE (part of transliteration)
     """
     
@@ -123,7 +123,7 @@ class ATFParser:
     def clean_line(self, line: str, for_test: bool = False) -> str:
         """
         Clean a line of Akkadian text for reading aloud.
-        Output guarantees proper spacing around … and —.
+        Output guarantees proper spacing around … and :.
         """
         original = line
         text = line
@@ -146,9 +146,13 @@ class ATFParser:
         # Replace tabs with spaces
         text = text.replace('\t', ' ')
         
-        # Convert both || and ‡ to em-dash (no spaces yet)
-        text = text.replace('||', '—')
-        text = text.replace('‡', '—')
+        # Convert both || and ‡ to colon phrase separator (no spaces yet)
+        text = text.replace('||', ':')
+        text = text.replace('‡', ':')
+
+        # Normalize editorial dash separators to colon phrase separator.
+        text = text.replace('—', ':')
+        text = text.replace('–', ':')
         
         # Handle single pipes (convert to space)
         text = text.replace('|', ' ')
@@ -158,8 +162,10 @@ class ATFParser:
         for char in editorial_chars:
             text = text.replace(char, '')
         
-        # Handle broken sign 'x' - remove completely
-        text = re.sub(r'x', '', text)
+        # Handle broken sign x/xx/... -> one ellipsis marker.
+        # Collapse repeated broken-sign tokens (e.g., x x x) to a single ellipsis.
+        text = re.sub(r'\bx+\b(?:\s+\bx+\b)+', '…', text)
+        text = re.sub(r'\bx+\b', '…', text)
         
         # Remove all types of brackets, keep content
         text = re.sub(r'\(([^)]+)\)', r'\1', text)
@@ -192,9 +198,9 @@ class ATFParser:
         text = text.replace('...', '…')
         text = re.sub(r'\.{2,}', '…', text)
         
-        # ALWAYS add spaces around … and —
+        # ALWAYS add spaces around … and :
         text = re.sub(r'…', ' … ', text)
-        text = re.sub(r'—', ' — ', text)
+        text = re.sub(r':', ' : ', text)
         
         # Normalize spaces (collapse multiple spaces)
         text = re.sub(r' +', ' ', text)
@@ -324,16 +330,16 @@ def run_tests() -> bool:
     else:
         tests_failed += 1
     
-    # Test 3: Double pipe to em-dash
+    # Test 3: Double pipe to colon
     test3 = parser.clean_line("libbašu || epēš", for_test=True)
-    if test3 == "libbašu — epēš":
+    if test3 == "libbašu : epēš":
         tests_passed += 1
     else:
         tests_failed += 1
     
-    # Test 4: Glossenkeil to em-dash
+    # Test 4: Glossenkeil to colon
     test4 = parser.clean_line("iqabbīku‡ ana kâša", for_test=True)
-    if test4 == "iqabbīku — ana kâša":
+    if test4 == "iqabbīku : ana kâša":
         tests_passed += 1
     else:
         tests_failed += 1
@@ -373,9 +379,9 @@ def run_tests() -> bool:
     else:
         tests_failed += 1
     
-    # Test 10: Multiple x's removed
+    # Test 10: Multiple x's collapse to one ellipsis
     test10 = parser.clean_line("kib-ra-a-ti x x x", for_test=True)
-    if test10 == "kib-rā-ti":
+    if test10 == "kib-rā-ti …":
         tests_passed += 1
     else:
         tests_failed += 1

@@ -21,12 +21,13 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
-def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str]:
-    """Resolve whether IPA output is requested and which IPA mode to use."""
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
+    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     write_ipa = args.ipa
     ipa_mode = 'ipa-strict' if args.ipa_pharyngeal == 'preserve' else 'ipa-ob'
+    circ_hiatus = args.circ_hiatus
 
-    return write_ipa, ipa_mode
+    return write_ipa, ipa_mode, circ_hiatus
 
 
 def run_tests() -> bool:
@@ -34,29 +35,35 @@ def run_tests() -> bool:
     ok = True
 
     class _Args:
-        def __init__(self, ipa: bool, ipa_pharyngeal: str) -> None:
+        def __init__(self, ipa: bool, ipa_pharyngeal: str, circ_hiatus: bool) -> None:
             self.ipa = ipa
             self.ipa_pharyngeal = ipa_pharyngeal
+            self.circ_hiatus = circ_hiatus
 
     cases = [
-        (_Args(False, 'preserve'), False, 'ipa-strict'),
-        (_Args(False, 'remove'), False, 'ipa-ob'),
-        (_Args(True, 'preserve'), True, 'ipa-strict'),
-        (_Args(True, 'remove'), True, 'ipa-ob'),
+        (_Args(False, 'preserve', False), False, 'ipa-strict', False),
+        (_Args(False, 'remove', False), False, 'ipa-ob', False),
+        (_Args(True, 'preserve', False), True, 'ipa-strict', False),
+        (_Args(True, 'remove', False), True, 'ipa-ob', False),
+        (_Args(True, 'remove', True), True, 'ipa-ob', True),
     ]
 
     passed = 0
-    for args, exp_write, exp_mode in cases:
-        got_write, got_mode = _resolve_ipa_options(args)
-        if got_write == exp_write and got_mode == exp_mode:
+    for args, exp_write, exp_mode, exp_circ_hiatus in cases:
+        got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
+        if (
+            got_write == exp_write
+            and got_mode == exp_mode
+            and got_circ_hiatus == exp_circ_hiatus
+        ):
             passed += 1
         else:
             ok = False
             print(
                 "FAILED [printer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_pharyngeal={args.ipa_pharyngeal}"
-                f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}"
-                f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}"
+                f"\n  in : ipa={args.ipa}, ipa_pharyngeal={args.ipa_pharyngeal}, circ_hiatus={args.circ_hiatus}"
+                f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}, circ_hiatus={got_circ_hiatus}"
+                f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}, circ_hiatus={exp_circ_hiatus}"
             )
 
     print(f"printer.py cli tests: {passed}/{len(cases)} passed")
@@ -82,6 +89,8 @@ def main() -> None:
                         help='Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only)')
     parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
                         help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
+    parser.add_argument('--circ-hiatus', action='store_true',
+                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
     parser.add_argument('--xar', action='store_true',
                         help='Write <prefix>_accent_xar.txt')
     parser.add_argument('--mbrola', action='store_true',
@@ -115,7 +124,7 @@ def main() -> None:
 
     write_acute = args.acute
     write_bold = args.bold
-    write_ipa, ipa_mode = _resolve_ipa_options(args)
+    write_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
     write_xar = args.xar
     write_mbrola = args.mbrola
 
@@ -142,6 +151,7 @@ def main() -> None:
         write_xar=write_xar,
         write_mbrola=write_mbrola,
         ipa_mode=ipa_mode,
+        circ_hiatus=circ_hiatus,
     )
 
     print(f"Input: {input_path}")
