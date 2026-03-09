@@ -36,26 +36,36 @@ __ebl_url__ = "https://www.ebl.lmu.de/"
 
 
 def save_output(results: dict, prefix: str, outdir: Path):
-    """Save all output files."""
+    """Save all output files. If append is True, append to files, ensuring a newline before new content if needed."""
+    append = results.get('append', False)
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
-    
+
+    def write_or_append(path, lines):
+        mode = 'a' if append else 'w'
+        # Always ensure file ends with a newline before appending
+        if append and path.exists():
+            with open(path, 'rb+') as f:
+                f.seek(-1, 2)
+                last = f.read(1)
+                if last != b'\n':
+                    f.write(b'\n')
+        with open(path, mode, encoding='utf-8') as f:
+            f.write('\n'.join(lines) + '\n')
+
     # Original Akkadian lines (with ATF markup preserved)
     orig_file = outdir / f"{prefix}_orig.txt"
-    with open(orig_file, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(results['original_akkadian_lines']))
-    
+    write_or_append(orig_file, results['original_akkadian_lines'])
+
     # Cleaned text file
     proc_file = outdir / f"{prefix}_proc.txt"
-    with open(proc_file, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(results['cleaned_lines']))
-    
+    write_or_append(proc_file, results['cleaned_lines'])
+
     # English translation if present
     if results['english_translations']:
         trans_file = outdir / f"{prefix}_trans.txt"
-        with open(trans_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(results['english_translations']))
-    
+        write_or_append(trans_file, results['english_translations'])
+
     return orig_file, proc_file
 
 
@@ -136,6 +146,7 @@ MIT License (c) 2026 Samuel KABAK
     parser.add_argument('--strict', action='store_true',
                        help='Enable warnings for informational purposes')
     parser.add_argument('--test', action='store_true', help='Run self-test suite')
+    parser.add_argument('--append', action='store_true', help='Append to output files instead of overwriting (each appended block starts on a new line)')
     
     args = parser.parse_args()
     
@@ -190,40 +201,41 @@ MIT License (c) 2026 Samuel KABAK
             strict_mode=args.strict
         )
         results = parser_obj.parse_file(str(input_path))
-        
+        # Pass append flag to save_output via results dict
+        results['append'] = args.append
         # Save outputs
         orig_file, proc_file = save_output(results, prefix, outdir)
-        
+
         print("\n" + "="*60)
         print("PARSING COMPLETE")
         print("="*60)
-        
+
         if results['title']:
             print(f"Title: {results['title']}")
-        
+
         print(f"\nEnglish translations: {len(results['english_translations'])}")
         print(f"Original Akkadian lines: {len(results['original_akkadian_lines'])}")
         print(f"Cleaned lines: {len(results['cleaned_lines'])}")
-        
+
         if args.strict and results['warnings']:
             print(f"\nWARNINGS ({len(results['warnings'])}):")
             for w in results['warnings'][:20]:
                 print(f"  * {w}")
             if len(results['warnings']) > 20:
                 print(f"  * ... and {len(results['warnings'])-20} more")
-        
+
         print("\n" + "-"*60)
         print("FIRST 5 ORIGINAL AKKADIAN LINES (with ATF markup):")
         print("-"*60)
         for i, line in enumerate(results['original_akkadian_lines'][:5]):
             print(f"{i+1:2d}. {line}")
-        
+
         print("\n" + "-"*60)
         print("FIRST 5 CLEANED LINES (ready for repair):")
         print("-"*60)
         for i, line in enumerate(results['cleaned_lines'][:5]):
             print(f"{i+1:2d}. {line}")
-        
+
         print("\n" + "="*60)
         print("FILES SAVED:")
         display_prefix = simple_safe_filename(prefix)

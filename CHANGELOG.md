@@ -49,6 +49,7 @@
 - **metrics.py / metricser.py**: `%V` reporting now exposes two values: articulate (`percent_v_articulate`) and pause-inclusive speech (`percent_v_speech`); CSV/table outputs were updated accordingly
 - **atfparse.py / atfparser.py**: `||` and `‡` now normalize to `:`, editorial dashes normalize to `:`, and broken-sign `x` sequences collapse to a single ellipsis (`…`)
 - **docs/akkapros/metrics-computation.md**: `%V` section updated to document articulate vs normal-speech formulas
+- Updated and fixed files in demo/ and all modified Python scripts. See commit for details.
 
 ### Stable
 - **atfparser.py**: Production-ready eBL ATF parser with comprehensive test suite
@@ -61,7 +62,7 @@
 - **src/akkapros/cli/format.py** (obsolete CLI formatter)
 
 ### Fixed
-- None (pre-release development)
+- Fixed repeated JavaScript syntax errors in phoneprep_recording_helper.html caused by raw newlines in string literals. All log lines and header now use '\n' for valid JS. Page regeneration and debugging attempts documented.
 
 ### Notes
 - Core algorithms (parser, syllabifier, repair, metrics) are stable and unit tested

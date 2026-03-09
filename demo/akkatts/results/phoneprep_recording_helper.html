@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Akkadian Recording Assistant</title>
+    <style>
+        :root {
+            --bg: #f7f3ea;
+            --ink: #1d221f;
+            --panel: #fffaf0;
+            --accent: #274c3f;
+            --warn: #8a2d1f;
+            --muted: #5a645f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            color: var(--ink);
+            background: radial-gradient(circle at 15% 20%, #efe6d2 0, var(--bg) 45%);
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: 56vh 44vh;
+        }
+        .top {
+            border-bottom: 2px solid #d8ccb5;
+            padding: 1.2rem 1.4rem;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: .8rem;
+            background: linear-gradient(180deg, #fff8e8, #f6f1e5);
+        }
+        .title { font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }
+        .instructions {
+            font-size: .96rem;
+            line-height: 1.35;
+            background: var(--panel);
+            border: 1px solid #dfd4bf;
+            padding: .8rem;
+            border-radius: 8px;
+        }
+        .word-wrap {
+            display: grid;
+            place-items: center;
+            border: 2px dashed #c8bea9;
+            border-radius: 12px;
+            background: rgba(255,255,255,.62);
+            min-height: 160px;
+        }
+        #word {
+            font-size: clamp(2rem, 5.5vw, 4.1rem);
+            line-height: 1.06;
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent);
+            padding: .6rem;
+            word-break: break-word;
+        }
+        .status {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            font-size: .95rem;
+        }
+        .warn { color: var(--warn); font-weight: 700; }
+        .muted { color: var(--muted); }
+        .bottom {
+            padding: 1rem 1.2rem 1.2rem;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: .6rem;
+            background: #fbf8f1;
+        }
+        #log {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            border: 1px solid #d3c8b1;
+            border-radius: 8px;
+            background: #fffdf8;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: .9rem;
+            padding: .7rem;
+            white-space: pre;
+            line-height: 1.25;
+        }
+        button {
+            border: 1px solid #b2a791;
+            background: #efe5cd;
+            color: #2d342f;
+            border-radius: 6px;
+            padding: .45rem .8rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        @media (max-width: 900px) {
+            body { grid-template-rows: auto auto; }
+            .word-wrap { min-height: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <section class="top">
+        <div class="title">Akkadian Recording Assistant</div>
+        <div class="instructions">
+            <div><strong>What you do:</strong> read each displayed word, press <strong>Right Arrow</strong> during silence to accept and advance, press <strong>Left Arrow</strong> for a read error and repeat the same word.</div>
+            <div><strong>Keyboard:</strong> <code>Space</code> start or stop a recording chunk, <code>Right</code> accept + next, <code>Left</code> error + repeat.</div>
+            <div class="muted">When stopping, save audio as <code>phoneprep_NNN.wav</code>. Final logs go to <code>phoneprep_segmanifest.txt</code>.</div>
+        </div>
+        <div class="word-wrap"><div id="word">Press space to start</div></div>
+        <div class="status">
+            <span id="progress">0 / 0</span>
+            <span id="errors">Errors on current word: 0</span>
+            <span id="accepted">Accepted in current recording: 0</span>
+            <span id="chunk">Recording index: 1</span>
+            <span id="hint" class="warn"></span>
+        </div>
+    </section>
+
+    <section class="bottom">
+        <div><strong>Log + Sidecars (timestamped):</strong></div>
+        <textarea id="log" spellcheck="false"></textarea>
+        <div>
+            <button id="copy" type="button">Copy Log</button>
+        </div>
+    </section>
+
+    <script>
+        const WORDS = ["_iχ.batˤ.yi_", "_ub.piz.me_", "_ey.zal.ru_", "_ak.ħiz.tˤɛ_", "_en.ʃitˤ.ħa_", "_ub.tˤʊr.ʔe_", "_aw.tˤɛg.ħu_", "_in.mul.qʊ_", "_aʕ.ʕag.li_", "_eq.kum.ma_", "_uʃ.pis.χe_", "_iq.des.tˤɑ_", "_et.mep.χa_", "_im.reħ.ze_", "_aq.diʕ.χi_", "_at.yeʕ.li_", "_aħ.χuʔ.tˤɨ_", "_ez.ʕuʃ.mu_", "_ag.ʔuʔ.re_", "_iʃ.tesˤ.bi_", "_eħ.tˤʊk.le_", "_ud.sˤɨm.tˤʊ_", "_it.par.qɨ_", "_ug.sˤɨχ.qʊ_", "_it.qɛp.sˤɨ_", "_iw.gub.ki_", "_al.χey.le_", "_in.buʔ.sˤɛ_", "_iy.suz.ri_", "_is.teg.ʕi_", "_as.qɛb.tu_", "_eʔ.lik.χu_", "_iz.sˤʊt.sˤɛ_", "_uχ.sˤɑs.ma_", "_at.tˤɛp.mu_", "_ib.sˤʊr.pa_", "_uχ.qɑsˤ.ʔu_", "_ay.qɛl.χi_", "_az.qɛr.wa_", "_ip.qʊg.li_", "_ab.qɨk.ʃa_", "_eʔ.ruy.tˤɑ_", "_il.tˤɑʔ.qɛ_", "_em.sˤɑtˤ.sˤɨ_", "_utˤ.sˤɛz.ʔe_", "_el.tˤɨb.na_", "_ep.pez.ʔu_", "_ir.sˤɑm.nu_", "_eχ.tiʔ.wi_", "_ed.beχ.ti_", "_ul.yuz.tˤɑ_", "_iħ.qɛʃ.bi_", "_ar.qɛʕ.ka_", "_un.dek.ka_", "_am.qɑħ.qɛ_", "_itˤ.ʕab.ħi_", "_iχ.zeʔ.ʔu_", "_iʕ.ħek.ne_", "_uʕ.matˤ.la_", "_iy.ħeg.pa_", "_iʔ.sˤɨw.ya_", "_eʕ.pup.we_", "_ik.qʊʃ.zi_", "_un.sˤɑχ.tˤɛ_", "_aħ.tˤɨp.li_", "_ag.sˤɑr.ʕi_", "_esˤ.mid.ʕu_", "_uk.qɑp.da_", "_eb.dit.ni_", "_an.sˤɨn.le_", "_aʃ.sˤɛp.sa_", "_uk.wak.ʕu_", "_uw.sˤɑʃ.χi_", "_ip.kim.tu_", "_iq.tˤɨsˤ.ħi_", "_aʔ.sˤʊy.tˤɨ_", "_usˤ.sˤʊl.la_", "_us.qɛw.ya_", "_up.sˤʊm.yu_", "_eħ.gew.ma_", "_id.niħ.ku_", "_ad.sˤɨʔ.si_", "_iʕ.sˤʊm.ħu_", "_en.qʊtˤ.pi_", "_ut.dag.ga_", "_aʃ.tˤɨʕ.gu_", "_ey.sˤʊz.ħu_", "_aħ.sˤʊp.za_", "_ug.tˤɛħ.ti_", "_ak.red.tˤɑ_", "_im.sˤɛr.lu_", "_esˤ.tez.pu_", "_iʃ.qɨtˤ.ke_", "_ir.tˤɛy.qɑ_", "_usˤ.ʔig.mi_", "_em.ʔiʕ.qɑ_", "_ed.siʔ.ge_", "_etˤ.tˤɨk.ʔa_", "_al.sˤɑn.na_", "_aχ.yaʕ.nu_", "_ik.tˤʊl.ki_", "_um.zem.pa_", "_ir.mab.ʔu_", "_un.taħ.ʕa_", "_aw.biq.za_", "_ep.tˤʊw.pe_", "_et.kup.ru_", "_eb.tˤɛʔ.χi_", "_id.qɛʕ.mu_", "_uʃ.tˤʊr.ħa_", "_aχ.sˤɑr.ga_", "_eq.ħur.du_", "_ed.χut.ħu_", "_isˤ.tˤʊn.ya_", "_ud.ʔiχ.pu_", "_aw.zit.ʕi_", "_ep.qɑg.we_", "_us.tˤɨd.ru_", "_aħ.ħaʔ.ʕu_", "_uχ.kum.ʕe_", "_aʃ.rin.su_", "_an.tˤɨt.la_", "_eʕ.tˤʊw.qʊ_", "_il.qɨy.pu_", "_isˤ.qʊt.gi_", "_uz.sˤɛm.gu_", "_ag.ʃez.di_", "_ip.teχ.ni_", "_uʃ.ʕul.di_", "_as.sˤɛʃ.wi_", "_um.wen.ħe_", "_el.sˤɑd.ku_", "_etˤ.dis.ge_", "_ul.ʕaz.wu_", "_uk.duz.si_", "_aq.nasˤ.ʃa_", "_etˤ.χetˤ.si_", "_ib.lit.za_", "_iz.qɑʔ.ʕi_", "_eʔ.qɑs.zi_", "_uħ.wum.sa_", "_ur.tuz.ti_", "_ut.ʔasˤ.gi_", "_il.tis.sa_", "_usˤ.rat.si_", "_us.yis.ħa_", "_eg.qɛy.re_", "_el.beb.ʕu_", "_uq.ʃasˤ.we_", "_en.qɨħ.we_", "_al.qɨχ.re_", "_eb.sˤɑz.ka_", "_ag.daq.we_", "_uʔ.gis.bu_", "_aχ.wiʔ.pu_", "_uχ.mer.χa_", "_uw.ken.ke_", "_uq.yud.pi_", "_eb.muq.pe_", "_ey.bit.ru_", "_et.χas.ri_", "_etˤ.getˤ.ru_", "_iʕ.tal.wu_", "_uw.tut.ne_", "_it.ʃeq.li_", "_itˤ.tˤɛy.ku_", "_eχ.dusˤ.la_", "_ap.yir.yi_", "_asˤ.netˤ.zu_", "_aq.tˤɨz.ti_", "_eħ.ses.pa_", "_up.ʕid.ke_", "_ez.busˤ.ʕi_", "_esˤ.sˤɨr.ʕe_", "_usˤ.tˤɑm.da_", "_eħ.biħ.de_", "_aʔ.qɑħ.la_", "_up.bis.ʃa_", "_aq.tag.bu_", "_in.tˤɑl.su_", "_ay.tey.ma_", "_uq.nug.ni_", "_ek.gad.gu_", "_etˤ.qɛħ.ti_", "_ub.run.se_", "_uʕ.dal.ħa_", "_eʔ.nid.wa_", "_uk.pew.ku_", "_iχ.ged.ʃa_", "_aq.baq.gi_", "_ug.tˤɨb.be_", "_ew.sek.sa_", "_iʕ.sut.ʃi_", "_etˤ.gatˤ.ʔi_", "_iq.sˤɑd.ʃa_", "_az.ziw.ʃe_", "_ir.tˤɑt.ba_", "_im.sˤɛs.ʔe_", "_eχ.ʕuz.gu_", "_uw.χasˤ.ye_", "_aħ.ħib.χe_", "_ew.ʔup.gu_", "_ag.dig.zi_", "_aʃ.ħuʕ.tu_", "_an.tˤɛl.ni_", "_em.gun.ʔa_", "_at.waʔ.za_", "_ew.nusˤ.za_", "_uq.pul.zi_", "_itˤ.tem.ma_", "_iw.sˤʊq.ʃe_", "_un.ʃuw.wi_", "_isˤ.siʔ.de_", "_ag.χed.ʔu_", "_eʕ.ʃeχ.gu_", "_aχ.qʊd.tˤɨ_", "_eb.seq.ʕu_", "_eq.χuʔ.te_", "_uy.ʕem.ʔa_", "_ap.ħuħ.bu_", "_ay.sˤɑd.na_", "_iʕ.zaʕ.yu_", "_aħ.gaq.ra_", "_eχ.deq.ʔi_", "_atˤ.ʃip.li_", "_ik.yum.ʃa_", "_uk.sep.ʔu_", "_im.luk.pu_", "_aħ.qɨg.pe_", "_etˤ.paʃ.ʔi_", "_ud.muy.wa_", "_es.ʕiq.qɨ_", "_ey.ʔeχ.ʔe_", "_iw.rutˤ.ze_", "_ub.ʃun.ba_", "_eʕ.sˤɨr.pi_", "_aħ.muz.yu_", "_ak.maħ.ze_", "_ib.yasˤ.si_", "_ad.buk.ru_", "_isˤ.qɛʔ.ba_", "_eʃ.yusˤ.ya_", "_ed.qʊtˤ.mi_", "_eʔ.χad.te_", "_ut.ditˤ.na_", "_et.gap.ze_", "_ap.χen.wu_", "_eʕ.tˤɨʕ.ʕe_", "_us.liʃ.da_", "_ad.qʊb.ʔa_", "_ed.zag.ʕi_", "_ez.ʃel.we_", "_ud.tuy.ye_", "_ey.pek.zu_", "_et.tˤɑk.pe_", "_il.pit.pi_", "_iw.tˤɛk.gu_", "_iχ.wiʃ.ke_", "_aʃ.sˤɛd.wi_", "_ew.lug.gi_", "_uʃ.ʕaw.ʔi_", "_ek.muʔ.ye_", "_uχ.lutˤ.ʕi_", "_uw.ħuʕ.χu_", "_ab.tisˤ.di_", "_eq.biħ.ya_", "_aʔ.ʃuʃ.bu_", "_iʃ.ʃiq.ʔe_", "_ey.ʃam.ħa_", "_is.duy.su_", "_iw.tˤʊs.gu_", "_es.teq.te_", "_un.gaw.te_", "_eg.seʕ.tˤɛ_", "_il.tum.bu_", "_ag.tam.lu_", "_ik.tum.ru_", "_at.tˤɛn.pu_", "_uħ.pin.yu_", "_ul.ʕer.ra_", "_iʔ.kasˤ.ne_", "_uz.ʕed.lu_", "_iq.wan.re_", "_iy.nuz.yi_", "_at.χis.wi_", "_as.ʕaz.ga_", "_is.qɨy.ʃi_", "_el.ħuʕ.ra_", "_az.χut.ʔa_", "_uq.sew.ʕa_", "_ep.sum.ʕu_", "_ey.gel.ye_", "_aχ.betˤ.ki_", "_al.kiw.da_", "_aq.qɨχ.bi_", "_iz.ħul.ʃu_", "_atˤ.ʔiy.χi_", "_ay.tˤɛl.ri_", "_uʃ.sat.ʃe_", "_iʕ.bib.ʃu_", "_ez.qʊb.ʕi_", "_eʃ.ʔisˤ.wa_", "_eʕ.rit.za_", "_eʔ.muk.ya_", "_ar.kap.yi_", "_isˤ.taz.pa_", "_ag.dab.ga_", "_ib.qʊχ.ru_", "_uʕ.ʃuz.le_", "_ub.wetˤ.ku_", "_iy.key.zu_", "_ed.χen.ti_", "_eʕ.kuy.ti_", "_ur.ʃep.pe_", "_ak.χuʔ.be_", "_as.χib.lu_", "_uχ.nub.gu_", "_up.kus.ħa_", "_em.dez.zi_", "_ud.ħaʕ.nu_", "_eʔ.ʔeq.sˤɨ_", "_ut.kuʔ.se_", "_ur.zeħ.si_", "_itˤ.qɨt.tu_", "_iz.siq.gi_", "_aħ.nel.ʔi_", "_isˤ.beʔ.ʃu_", "_ir.waq.zi_", "_ak.neʕ.ʔe_", "_er.χetˤ.mu_", "_eχ.tˤɑχ.χe_", "_es.nas.di_", "_eħ.maq.ma_", "_uq.sˤɨg.χu_", "_aχ.zep.gu_", "_ar.ratˤ.bu_", "_er.sˤɨd.χu_", "_am.wul.pu_", "_aχ.ʃuʕ.di_", "_ep.neq.li_", "_ud.duʃ.gi_", "_ab.sab.se_", "_an.niʕ.wa_", "_is.ʔam.ba_", "_ud.piʕ.ye_", "_em.pen.χi_", "_ip.tiʔ.ku_", "_ep.ħeχ.ħe_", "_un.zar.ʔi_", "_uy.ħiy.ʔe_", "_ak.ʕutˤ.la_", "_esˤ.pen.wi_", "_ey.did.ze_", "_id.yal.zu_", "_ek.tuk.ʔa_", "_iʃ.χeʕ.pi_", "_ag.min.li_", "_ik.tˤɛz.ne_", "_ik.wuy.sˤɑ_", "_eʃ.luy.ri_", "_aχ.ʔuk.wa_", "_ug.rutˤ.ni_", "_etˤ.ʃuʃ.mu_", "_up.ritˤ.se_", "_iʃ.tiz.ʃa_", "_ir.deħ.re_", "_ig.yuk.ʃi_", "_ul.tˤɨb.wu_", "_aw.niw.ga_", "_ut.lis.ʃi_", "_eb.mim.za_", "_ar.suw.di_", "_iħ.χiz.ri_", "_iy.las.yu_", "_an.keg.ħe_", "_um.tˤʊn.mi_", "_eb.zesˤ.ma_", "_uy.χup.ri_", "_um.χug.ħu_", "_uħ.keq.ma_", "_uw.sˤʊp.ne_", "_ut.sˤʊʔ.ħe_", "_at.ʕuq.du_", "_eʃ.qɨʃ.χa_", "_aħ.liw.se_", "_uʃ.ħeħ.pe_", "_el.gan.ri_", "_iy.bip.ʕi_", "_uʕ.ħusˤ.le_", "_eʕ.leg.wu_", "_usˤ.gan.χu_", "_eq.ken.ta_", "_uw.maw.be_", "_up.ʃet.mu_", "_iχ.latˤ.wa_", "_iʃ.zey.yu_", "_er.lutˤ.ri_", "_ab.bez.ku_", "_eʔ.waʔ.li_", "_eq.qɨm.wu_", "_ab.deħ.ya_", "_es.baz.se_", "_uχ.sun.du_", "_ep.web.ye_", "_uw.ʃasˤ.ħu_", "_ey.wem.gu_", "_ud.sˤɑy.gi_", "_iq.ʔud.sa_", "_usˤ.new.lu_", "_ab.χeʃ.da_", "_ip.ʔub.ħu_", "_uχ.kid.me_", "_ad.tˤɛn.ħu_", "_iz.χaħ.ʃe_", "_es.kasˤ.bu_", "_ug.bad.ʕe_", "_im.kub.zu_", "_eq.yab.ra_", "_am.tum.ʃi_", "_um.suk.di_", "_aʃ.rel.ri_", "_esˤ.raħ.ʕa_", "_al.sus.gu_", "_ey.miz.te_", "_el.suħ.di_", "_ub.kak.ye_", "_ew.χur.ga_", "_iʃ.sˤɑs.ʕi_", "_eʔ.zug.ne_", "_iʃ.kes.tu_", "_eχ.yuʔ.pa_", "_es.waħ.ʕu_", "_eχ.ʕaq.yu_", "_ug.ʔug.ʃi_", "_es.per.ma_", "_asˤ.χal.bi_", "_ad.rum.ʕe_", "_em.nal.bi_", "_iʕ.bap.za_", "_ag.sisˤ.sˤɨ_", "_is.χak.ke_", "_ay.pub.ni_", "_usˤ.diʔ.di_", "_er.keʕ.ki_", "_iʔ.yetˤ.χu_", "_asˤ.zad.za_", "_iq.χul.di_", "_ep.yuʃ.nu_", "_isˤ.musˤ.we_", "_ut.ruw.ze_", "_ir.tˤʊʔ.ʕa_", "_et.ħeʕ.tu_", "_in.naʃ.we_", "_ag.kur.re_", "_id.ʕis.re_", "_ek.zeʃ.ħu_", "_ug.miw.ʕi_", "_aʕ.sˤʊd.su_", "_atˤ.yek.qɨ_", "_iy.zal.du_", "_utˤ.tisˤ.re_", "_eq.ʕey.ʕa_", "_ip.mer.be_", "_asˤ.ʃuk.ʃi_", "_eg.zig.ʃe_", "_ez.miχ.te_", "_id.guʔ.nu_", "_er.yaʃ.de_", "_esˤ.ʕaʔ.tˤɑ_", "_iw.pud.lu_", "_ap.des.zu_", "_uʕ.sˤɑr.da_", "_ak.bim.nu_", "_aʔ.tep.te_", "_em.ħez.di_", "_it.wuz.pu_", "_iʔ.mat.me_", "_iʃ.suw.gu_", "_iħ.qʊy.te_", "_ir.new.qɨ_", "_aʔ.guχ.pi_", "_eʕ.ħib.qɑ_", "_ul.sˤʊʃ.ba_", "_iʃ.peħ.le_", "_ik.kab.ʃu_", "_eʔ.ħay.wa_", "_iχ.men.li_", "_ez.buk.za_", "_utˤ.sˤɑb.di_", "_uq.pab.we_", "_ab.titˤ.di_", "_atˤ.ʃeʃ.wu_", "_up.wur.ʔu_", "_uʔ.zer.za_", "_in.qɛʃ.ʔu_", "_aχ.ħug.ta_", "_ip.baʕ.we_", "_uy.nig.bu_", "_ud.ħad.yi_", "_ib.petˤ.ba_", "_ek.guz.ya_", "_ap.siʕ.ze_", "_al.zuz.ka_", "_er.ʕiħ.sa_", "_al.ʃib.pi_", "_atˤ.ʕuħ.ʔe_", "_et.ħuz.wi_", "_eʕ.zaʃ.yu_", "_ap.ʃid.da_", "_iʃ.say.lu_", "_aχ.yad.lu_", "_uq.reʔ.ya_", "_eb.ʕiħ.χi_", "_atˤ.ħeʕ.ge_", "_as.mud.ʃi_", "_aʕ.las.bi_", "_itˤ.giy.ri_", "_un.dal.ʕu_", "_el.wuw.mu_", "_ek.ʕew.ra_", "_ut.gaz.zu_", "_el.mun.yu_", "_ip.qɛn.re_", "_aʃ.zuħ.zi_", "_ib.lek.le_", "_is.ren.ħe_", "_ew.war.yu_", "_up.kasˤ.χi_", "_eħ.ħiχ.ʕe_", "_ad.muy.du_", "_ud.nal.la_", "_un.kiz.ʔu_", "_usˤ.yeq.ʃu_", "_uy.ʃasˤ.ke_", "_iʃ.meħ.ba_", "_atˤ.mut.χi_", "_iʔ.pus.lu_", "_iħ.git.qʊ_", "_aχ.guz.wa_", "_etˤ.wen.wi_", "_iʕ.χir.qɑ_", "_eb.ħam.ze_", "_ik.nem.mi_", "_ig.ler.pe_", "_iw.χuz.mi_", "_iχ.zab.bi_", "_it.wet.wi_", "_eq.sew.la_", "_eʕ.sug.yu_", "_ar.bek.sa_", "_uʔ.nen.ʔu_", "_utˤ.rak.ma_", "_aq.tˤɛt.ge_", "_utˤ.tis.pi_", "_ap.χuw.ħa_", "_aʕ.qɛs.zi_", "_iw.yuk.ħu_", "_in.ziw.ħe_", "_al.lem.di_", "_uz.χel.ħu_", "_uʃ.nun.me_", "_uy.χim.pe_", "_im.yul.mu_", "_asˤ.ʃur.lu_", "_is.seg.su_", "_up.ħus.ʃa_", "_ud.ħur.ʃa_", "_uq.gaʃ.ʃe_", "_esˤ.diz.du_", "_al.ʃiħ.ra_", "_eħ.niw.ʃu_", "_uq.letˤ.li_", "_et.duħ.pu_", "_eb.mad.pa_", "_ug.χuʔ.ħi_", "_ep.gul.tu_", "_esˤ.gaq.ne_", "_ak.bit.ʔe_", "_un.sad.wi_", "_ap.χaʃ.pa_", "_ag.gab.χu_", "_ud.ruħ.wu_", "_ez.liw.bu_", "_al.niy.ʔi_", "_uʃ.qɑr.te_", "_uw.suw.we_", "_iʔ.ʔun.pu_", "_ul.ʔir.ħe_", "_iq.teg.te_", "_uw.dusˤ.pu_", "_at.tan.ga_", "_uħ.kasˤ.ze_", "_aw.sˤɑχ.ʔu_", "_iy.nuħ.ʃe_", "_uz.gaʔ.tˤɛ_", "_eg.naw.ki_", "_ay.yaʕ.ma_", "_az.ħuʕ.nu_", "_in.ʕuq.ʕe_", "_atˤ.tˤɛy.mi_", "_ay.sap.tˤɨ_", "_ed.ʔaʃ.la_", "_eʔ.kiχ.me_", "_um.saq.ra_", "_uk.ʔatˤ.wi_", "_iq.ʔut.su_", "_an.ʃeʃ.gi_", "_aw.zuħ.ta_", "_an.ʕes.ke_", "_iʕ.ʃab.ku_", "_iz.tˤʊtˤ.za_", "_iq.ʕit.ye_", "_er.ħuχ.tˤɨ_", "_en.χik.te_", "_eʃ.tetˤ.di_", "_iw.ʕay.qɨ_", "_iħ.duʃ.ke_", "_ey.ges.ni_", "_ed.tek.χu_", "_eʃ.ʕuʔ.da_", "_ir.keħ.ʔa_", "_eb.gasˤ.ħe_", "_isˤ.lap.mi_", "_ul.χiχ.li_", "_ad.dub.tˤʊ_", "_el.pul.ya_", "_iz.nir.nu_", "_uχ.kar.mu_", "_um.ʔut.na_", "_iʔ.χuy.χi_", "_am.kuy.ħu_", "_am.zet.zu_", "_eχ.wuʕ.ki_", "_is.yatˤ.ni_", "_es.ħeq.ka_", "_ik.waʕ.de_", "_iʃ.wiʔ.se_", "_im.luk.le_", "_ab.yim.ʔe_", "_esˤ.gutˤ.χa_", "_ew.risˤ.de_", "_um.lit.ra_", "_aʕ.baʕ.sˤɨ_", "_atˤ.ler.tu_", "_iχ.ruk.gu_", "_ut.paχ.di_", "_us.maχ.qʊ_", "_er.sˤɨħ.sˤɑ_", "_iz.tˤɛb.ʔa_", "_atˤ.sˤɛg.pi_", "_um.χiw.ʔa_", "_eʔ.leħ.gu_", "_uq.tˤɛp.ʕe_", "_esˤ.sasˤ.ʔa_", "_ur.χan.wu_", "_ak.datˤ.ki_", "_aʔ.reg.ze_", "_ig.piʕ.ye_", "_uw.neʔ.ʕa_", "_en.mud.ka_", "_ad.biħ.tu_", "_en.metˤ.si_", "_eχ.ʃin.pa_", "_iʔ.ʃatˤ.mi_", "_ey.keχ.ba_", "_uz.ʔes.we_", "_uħ.tˤɨr.gu_", "_eʔ.ʔim.tu_", "_ar.zas.ʔi_", "_uʔ.bez.qʊ_", "_at.lag.ra_", "_ug.kul.ge_", "_ew.tun.su_", "_uʔ.ʃet.ʕe_", "_iʔ.men.sˤɑ_", "_em.bid.sa_", "_uq.kiq.be_", "_ir.setˤ.ze_", "_uw.wan.ʔa_", "_uʕ.ʔuʃ.ti_", "_zu.wiħ.ʔaʕ_", "_gi.tim.qɛsˤ_", "_sˤɨ.mum.ʃek_", "_bu.tel.nel_", "_ʃa.χil.gaʃ_", "_la.sir.setˤ_", "_χu.sˤɑk.ber_", "_ye.sˤʊm.yam_", "_ku.nuk.sˤɛw_", "_ra.dip.nis_", "_ti.deχ.ħaz_", "_ʔi.yun.geħ_", "_ne.diq.ħeg_", "_mi.kir.ʃik_", "_du.tˤɨʔ.ħuy_", "_pe.luz.nan_", "_tˤɛ.χep.dum_", "_ʕi.tar.guʃ_", "_pu.riʃ.nud_", "_qɨ.wiħ.nib_", "_ze.mam.kisˤ_", "_re.zar.beʔ_", "_zi.ʕeχ.ʃug_", "_ke.wuz.laʔ_", "_se.tut.sˤʊd_", "_tˤʊ.ziχ.sip_", "_pu.pat.sur_", "_mi.waħ.ʃeʃ_", "_qɛ.ʔag.tˤɑq_", "_ʕu.qɑn.ʕeq_", "_χi.nuχ.χal_", "_qʊ.ʕig.kaw_", "_wa.sˤɑʕ.ʕab_", "_ʔu.puʔ.taχ_", "_sˤʊ.qɑl.ʔaq_", "_ya.dap.lan_", "_we.wet.bip_", "_tu.wuq.sut_", "_χu.kes.lim_", "_lu.qɨsˤ.paʔ_", "_bi.ʔip.tˤɑt_", "_ʃe.tˤʊp.ʃiz_", "_gi.qɛm.qʊz_", "_ge.sˤɨsˤ.keχ_", "_te.dan.zusˤ_", "_ka.kaħ.mak_", "_ʕu.gaʔ.tˤɨtˤ_", "_sˤɛ.qɨs.sˤɨtˤ_", "_mi.ʃaz.ʕet_", "_ʔu.ruʕ.gen_", "_ʃu.ses.nus_", "_ze.natˤ.qɛs_", "_na.sˤɑʕ.weʕ_", "_ya.ʃuħ.risˤ_", "_sa.tˤʊtˤ.wud_", "_gu.sil.mew_", "_ħu.per.niħ_", "_wa.ʕem.χaq_", "_du.tˤɑb.ziw_", "_χu.ħid.yir_", "_gi.gasˤ.qɨʕ_", "_tu.ras.say_", "_tˤɑ.qʊw.peb_", "_le.tˤɑʃ.gutˤ_", "_qɨ.ler.zaʃ_", "_qʊ.sˤɛtˤ.bis_", "_sˤɨ.qɑʃ.ʃer_", "_tˤɨ.qʊʃ.ley_", "_qɑ.qʊg.yet_", "_sˤɨ.qɛk.sˤɑn_", "_la.sˤɛk.sˤʊs_", "_ʔe.taw.qɨz_", "_na.qɛs.tˤʊs_", "_qʊ.sˤɛt.yitˤ_", "_tˤɨ.tis.sˤɛt_", "_qɨ.lusˤ.χuw_", "_tˤɨ.kisˤ.tˤɨs_", "_qɑ.wig.sˤɛd_", "_tˤɨ.yit.qɑw_", "_wu.luħ.sˤɛn_", "_de.tˤɨg.resˤ_", "_tˤɨ.qɨʃ.tˤʊχ_", "_da.sˤɑt.tid_", "_bi.tˤɑg.qɛg_", "_mu.qʊn.pew_", "_qɛ.qɛʕ.ʔas_", "_sˤʊ.yik.tˤɑħ_", "_tˤɨ.nuʕ.qɑz_", "_ma.sˤɛm.tˤɨħ_", "_tˤɛ.wiy.dab_", "_qɛ.sˤɛχ.χaq_", "_sˤɑ.wus.kun_", "_li.tˤɑp.sˤɑm_", "_tˤʊ.qɑʔ.waʃ_", "_tu.qʊg.qɑʕ_", "_tˤɨ.zeb.req_", "_ne.ħaχ.sˤʊʕ_", "_sa.sˤɑp.beχ_", "_wa.qɑg.ʔid_", "_de.kan.sˤɛʕ_", "_zu.ʔid.geb_", "_qʊ.sˤʊk.ħer_", "_si.sˤʊtˤ.puy_", "_ti.ʔit.nel_", "_ma.ʃul.kig_", "_χi.gaʃ.rus_", "_ye.nip.ʔen_", "_ti.rim.raʔ_", "_ta.ʃeg.kaħ_", "_da.riħ.yuχ_", "_yi.ʃusˤ.tub_", "_qɑ.ʔiq.zub_", "_ki.daq.χaq_", "_ħa.naz.ʃal_", "_qɑ.gay.bal_", "_me.kig.reʔ_", "_ke.sˤɛb.sˤɛʔ_", "_ga.tˤʊχ.niʔ_", "_lu.tesˤ.ʕeʕ_", "_ʔa.zeʕ.saħ_", "_be.mug.ʕiy_", "_sˤʊ.ʔiq.wag_", "_la.tˤɨtˤ.ʔiχ_", "_ne.yun.beg_", "_ʃu.ʔetˤ.ħil_", "_li.sˤɑʃ.yid_", "_ga.waz.ban_", "_pi.tak.ratˤ_", "_ʔi.req.ħatˤ_", "_na.ʕaχ.peʃ_", "_ka.meχ.seʕ_", "_nu.rub.niʕ_", "_se.gaʕ.puʔ_", "_be.ʃep.patˤ_", "_pa.ħaz.rub_", "_ʔe.ris.dusˤ_", "_gi.leq.matˤ_", "_ħi.sat.biy_", "_ge.pig.weʃ_", "_te.qɨtˤ.yiq_", "_tˤɛ.qʊt.qɑʕ_", "_ka.yeʕ.raʕ_", "_ħi.ʃiz.sˤɑʕ_", "_ʔu.gur.wuk_", "_pa.basˤ.kid_", "_sˤɛ.yuy.ʕel_", "_zi.sut.kasˤ_", "_ħi.i.ʔe.itˤ_", "_sa.u.le.eg_", "_tˤɨ.ɛ.de.uħ_", "_ħe.a.pi.uʕ_", "_qɑ.ɑ.ye.ay_", "_ra.a.bu.ey_", "_ba.u.sˤɛ.ɛχ_", "_lu.a.zu.ul_", "_ne.e.bu.up_", "_di.e.ħe.ib_", "_tˤʊ.ʊ.ʕa.ig_", "_ta.e.ʃa.aχ_", "_sˤɨ.ʊ.qɑ.ɨd_", "_qɑ.ɛ.yu.id_", "_tˤɨ.ɛ.ħa.ek_", "_ku.a.wi.ad_", "_qʊ.ɛ.tˤʊ.ɨs_", "_ba.a.pe.uy_", "_qɛ.ʊ.χi.ek_", "_de.e.qɛ.ɨr_", "_ʔi.a.tˤɑ.ʊħ_", "_gu.i.sˤɛ.ɨw_", "_tˤɨ.ɑ.ze.ul_", "_sˤɨ.ɛ.tˤɛ.ɑb_", "_da.i.tˤɑ.ɛb_", "_qʊ.ɑ.qʊ.ɑy_", "_tˤɨ.ɑ.sˤɑ.ɨp_", "_sˤɨ.ʊ.sˤʊ.ɑl_", "_tˤɛ.ʊ.bu.eʃ_", "_tˤʊ.ɛ.sˤʊ.ʊʔ_", "_qɨ.ɨ.ʃu.ug_", "_tˤɨ.ɨ.ħa.iħ_", "_qɑ.ɑ.tˤɨ.ʊk_", "_sˤɑ.ɛ.qɨ.ɑg_", "_χu.i.qɑ.ʊħ_", "_yi.i.qɛ.ɛb_", "_tˤɛ.ɑ.tˤʊ.ɛr_", "_sˤɑ.ʊ.ʔi.uχ_", "_qʊ.ɨ.pa.ul_", "_tˤɛ.ɑ.sˤʊ.ʊl_", "_si.a.qɑ.ɑb_", "_tˤɑ.ɨ.ni.iz_", "_tˤʊ.ɨ.ʔu.ak_", "_tˤɛ.ʊ.ħu.esˤ_", "_sˤɛ.ɛ.zi.aw_", "_ya.e.χe.iz_", "_li.e.ti.uʔ_", "_we.a.se.ab_", "_qɛ.ɨ.lu.it_", "_we.e.tˤɛ.ɑk_", "_la.u.sˤɨ.ɨk_"];
+        const MAX_WORDS_PER_RECORDING = 1000;
+        const PREFIX = "phoneprep";
+        const SEGMANIFEST = "phoneprep_segmanifest.txt";
+
+        let sessionStarted = false;
+        let startedAtMs = 0;
+        let recordingActive = false;
+        let currentIndex = 0;
+        let errorCountCurrentWord = 0;
+        let acceptedInCurrentRecording = 0;
+        let recordingIndex = 1;
+        let finished = false;
+
+        const wordEl = document.getElementById('word');
+        const progressEl = document.getElementById('progress');
+        const errorsEl = document.getElementById('errors');
+        const acceptedEl = document.getElementById('accepted');
+        const chunkEl = document.getElementById('chunk');
+        const hintEl = document.getElementById('hint');
+        const logEl = document.getElementById('log');
+
+        function nowIso() {
+            return new Date().toISOString();
+        }
+
+        function elapsedMs() {
+            if (!sessionStarted) return 0;
+            return Date.now() - startedAtMs;
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function msToClock(ms) {
+            const totalSec = Math.floor(ms / 1000);
+            const hh = Math.floor(totalSec / 3600);
+            const mm = Math.floor((totalSec % 3600) / 60);
+            const ss = totalSec % 60;
+            const mmm = ms % 1000;
+            return `${pad(hh)}:${pad(mm)}:${pad(ss)}.${String(mmm).padStart(3, '0')}`;
+        }
+
+        function chunkFileName(index) {
+            return `${PREFIX}_${String(index).padStart(3, '0')}.wav`;
+        }
+
+        function appendLog(eventName, meta = '') {
+            const idx1 = currentIndex + 1;
+            const word = WORDS[currentIndex] || '';
+            const row = [
+                nowIso(),
+                msToClock(elapsedMs()),
+                `rec=${recordingIndex}`,
+                `file=${chunkFileName(recordingIndex)}`,
+                `idx=${idx1}`,
+                `accepted=${acceptedInCurrentRecording}`,
+                `errors=${errorCountCurrentWord}`,
+                `event=${eventName}`,
+                `word=${word}`,
+                meta,
+            ].join('	');
+            logEl.value += row + '
+';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function refreshUi() {
+            progressEl.textContent = `${Math.min(currentIndex + 1, WORDS.length)} / ${WORDS.length}`;
+            errorsEl.textContent = `Errors on current word: ${errorCountCurrentWord}`;
+            acceptedEl.textContent = `Accepted in current recording: ${acceptedInCurrentRecording} / ${MAX_WORDS_PER_RECORDING}`;
+            chunkEl.textContent = `Recording index: ${recordingIndex} (${chunkFileName(recordingIndex)})`;
+        }
+
+        function showCurrentWord() {
+            if (currentIndex >= WORDS.length) {
+                finished = true;
+                wordEl.textContent = 'All words completed';
+                hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
+                return;
+            }
+            wordEl.textContent = WORDS[currentIndex];
+            refreshUi();
+        }
+
+        function startRecordingChunk() {
+            if (finished) return;
+            if (!sessionStarted) {
+                sessionStarted = true;
+                startedAtMs = Date.now();
+            }
+            recordingActive = true;
+            hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+            appendLog('RECORDING_START', `file=${chunkFileName(recordingIndex)}`);
+            showCurrentWord();
+        }
+
+        function stopRecordingChunk(reason) {
+            if (!recordingActive) return;
+            recordingActive = false;
+            const doneFile = chunkFileName(recordingIndex);
+            appendLog('RECORDING_STOP', `reason=${reason} save_audio=${doneFile}`);
+            hintEl.textContent = `Stop recording now. Save as ${doneFile}. Press Space to continue.`;
+            recordingIndex += 1;
+            acceptedInCurrentRecording = 0;
+            refreshUi();
+        }
+
+        function onSpaceToggle() {
+            if (recordingActive) {
+                stopRecordingChunk('manual-space-stop');
+            } else {
+                startRecordingChunk();
+            }
+        }
+
+        function acceptAndNext() {
+            if (!recordingActive || finished || currentIndex >= WORDS.length) return;
+
+            appendLog('ACCEPT_NEXT');
+            acceptedInCurrentRecording += 1;
+            currentIndex += 1;
+            errorCountCurrentWord = 0;
+
+            if (currentIndex >= WORDS.length) {
+                showCurrentWord();
+                return;
+            }
+
+            if (acceptedInCurrentRecording >= MAX_WORDS_PER_RECORDING) {
+                stopRecordingChunk(`chunk-limit-${MAX_WORDS_PER_RECORDING}`);
+            } else {
+                showCurrentWord();
+                appendLog('DISPLAY_NEXT');
+                hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+            }
+
+            refreshUi();
+        }
+
+        function markErrorRepeat() {
+            if (!recordingActive || finished || currentIndex >= WORDS.length) return;
+            errorCountCurrentWord += 1;
+            appendLog('ERROR_REPEAT');
+            hintEl.textContent = 'Repeat same word';
+            refreshUi();
+        }
+
+        document.addEventListener('keydown', (ev) => {
+            if (ev.code === 'Space') {
+                ev.preventDefault();
+                onSpaceToggle();
+                return;
+            }
+            if (ev.code === 'ArrowRight') {
+                ev.preventDefault();
+                acceptAndNext();
+                return;
+            }
+            if (ev.code === 'ArrowLeft') {
+                ev.preventDefault();
+                markErrorRepeat();
+            }
+        });
+
+        document.getElementById('copy').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(logEl.value);
+            } catch (_e) {}
+        });
+
+        refreshUi();
+        logEl.value = 'iso_time	elapsed	recording	file	index	accepted	errors	event	word	meta
+';
+        appendLog('READY', `press-space-to-start segmanifest=${SEGMANIFEST}`);
+    </script>
+</body>
+</html>

@@ -509,7 +509,7 @@ def run_tests() -> bool:
     Returns ``True`` if all tests pass, ``False`` otherwise.
     """
     print("\n" + "="*80)
-    print("AKKADIAN SYLLABIFIER — COMPREHENSIVE TESTS")
+    print("AKKADIAN SYLLABIFIER - COMPREHENSIVE TESTS")
     print("="*80)
     preprocess_tests = [
         ("Preprocess single newline", "šar\ngimir", "šar gimir", False),
@@ -628,10 +628,10 @@ def run_tests() -> bool:
     for name, inp, expected, preserve in preprocess_tests:
         result = text_preprocess_boundaries(inp, [], preserve_lines=preserve)
         if result == expected:
-            print(f"✅ {name}")
+            print(f"PASS {name}")
             passed += 1
         else:
-            print(f"❌ {name}")
+            print(f"FAIL {name}")
             print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
 
     for test in tests:
@@ -646,10 +646,10 @@ def run_tests() -> bool:
             name, inp, expected, merge, preserve_lines = test
         result = syllabify_text(inp, merge_hyphen=merge, preserve_lines=preserve_lines)
         if result == expected:
-            print(f"✅ {name}")
+            print(f"PASS {name}")
             passed += 1
         else:
-            print(f"❌ {name}")
+            print(f"FAIL {name}")
             print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
     print(f"\nPassed: {passed}/{total}")
     return passed == total

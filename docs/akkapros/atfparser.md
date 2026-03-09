@@ -52,6 +52,8 @@ python src/akkapros/cli/atfparser.py <input.atf> [options]
   - Enable strict warning mode.
 - `--test`
   - Run parser self-tests.
+- `--append`
+  - **Append to output files instead of overwriting.** If the output files already exist, new content is appended after a newline. Each appended block always starts at the beginning of a new line, never after the last character of the previous line. This ensures that every line in the output is properly separated, matching the line structure of the input ATF files.
 
 ## ATF Normalization Rules (Core)
 

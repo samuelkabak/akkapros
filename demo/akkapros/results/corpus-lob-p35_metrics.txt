@@ -1,0 +1,118 @@
+================================================================================
+METRICS SUMMARY: demo/akkapros/results/corpus-lob_tilde.txt
+================================================================================
+
+--- RUN CONFIGURATION ---
+  cli: metricser.py
+  extra_consonants: 
+  extra_vowels: 
+  input: demo/akkapros/results/corpus-lob_tilde.txt
+  long_pause_punct_weight_unitless: 2.0
+  pause_ratio_percent: 35.0
+  short_pause_punct_weight_unitless: 1.0
+  wpm_words_per_min: 165
+
+--- ORIGINAL TEXT ---
+
+Syllable types:
+  CV    : 50895 syllables (36.03%)
+  CVC   : 30910 syllables (21.88%)
+  CVV   : 30335 syllables (21.47%)
+  CVVC  : 4028 syllables ( 2.85%)
+  VC    : 8200 syllables ( 5.80%)
+  V     : 10173 syllables ( 7.20%)
+  VV    : 1858 syllables ( 1.32%)
+  VVC   :   36 syllables ( 0.03%)
+
+Mora statistics:
+  Mean morae per syllable: 2.478 mora/syllable
+  Std dev morae per syllable: 0.738 mora/syllable
+
+Word statistics:
+  Total words: 47063 words
+  Syllables per word: 3.002 ± 1.010 syllable/word
+  Morae per word: 7.438 ± 2.657 mora/word
+
+Acoustic metrics (original):
+  %V (articulate): 80.00%
+  %V (normal speech, incl. pauses): 59.26%
+  ΔC: 0.6815 mora (consonant-interval SD)
+  MeanC: 0.9950 mora (mean consonant interval)
+  VarcoC: 68.49 %
+
+--- REPAIRED TEXT ---
+
+Syllable types:
+  CV    : 50877 syllables (36.01%)
+  CVC   : 24224 syllables (17.15%)
+  CVV   : 21240 syllables (15.04%)
+  CVVC  : 2208 syllables ( 1.56%)
+  VC    : 6792 syllables ( 4.81%)
+  V     : 10173 syllables ( 7.20%)
+  VV    : 1415 syllables ( 1.00%)
+  VVC   :    9 syllables ( 0.01%)
+  C:V   :   37 syllables ( 0.03%)
+  CVC:  : 6667 syllables ( 4.72%)
+  CVV:  : 9095 syllables ( 6.44%)
+  CVV:C : 1820 syllables ( 1.29%)
+  VC:   : 1408 syllables ( 1.00%)
+  VV:   :  443 syllables ( 0.31%)
+  VV:C  :   27 syllables ( 0.02%)
+
+Mora statistics:
+  Mean morae per syllable: 2.478 mora/syllable
+  Std dev morae per syllable: 0.738 mora/syllable
+
+Word statistics:
+  Total words: 47063 words
+  Syllables per word: 3.002 ± 1.010 syllable/word
+  Morae per word: 7.438 ± 2.657 mora/word
+
+Merge statistics:
+  Merged words: 23226 words
+  Merged units: 10523 units
+  Average unit size: 2.21 words
+
+Acoustic metrics (repaired):
+  %V (articulate): 74.61%
+  %V (normal speech, incl. pauses): 55.27%
+  ΔC: 0.7716 mora (consonant-interval SD)
+  MeanC: 1.1001 mora (mean consonant interval)
+  VarcoC: 70.13 %
+
+Speech rate (repaired text only):
+  WPM: 165 words/min
+  Pause ratio: 35.0%
+  SPS (speech): 8.255 syllable/s
+  SPS (articulation): 12.699 syllable/s
+  Average syllable duration: 0.079 s/syllable
+  Mora duration: 0.032 s/mora
+  Word duration: 0.364 s/word
+
+Pause metrics:
+  Short pause punctuation per syllable: 0.054 pause/syllable
+  Long pause punctuation per syllable: 0.075 pause/syllable
+  Total punctuation pauses per syllable: 0.129 pause/syllable
+  Total boundaries: 30941 boundaries
+  Pauseable boundaries: 18238 boundaries
+
+Pause duration allocation (total pause: 0.042 s/syllable):
+  Short pause punctuation weight: always 1.0 (no unit)
+  Long pause punctuation weight relative to short: 2.0 (no unit)
+  Short pause punctuation duration: 0.208 s/pause (2.6329 average syllable duration) (26.5% of pause time)
+  Long pause punctuation duration: 0.416 s/pause (5.2658 average syllable duration) (73.5% of pause time)
+
+--- REPAIR STATISTICS ---
+  Repaired syllables: 19497 syllables
+  Repair rate: 13.80%
+
+  Repair types:
+    CVV:C   : 1820 syllables
+    VV:     :  443 syllables
+    VC:     : 1408 syllables
+    CVC:    : 6667 syllables
+    CVV:    : 9095 syllables
+    VV:C    :   27 syllables
+    C:V     :   37 syllables
+
+================================================================================
