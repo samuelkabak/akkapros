@@ -3,6 +3,9 @@ sandbox/
 *.bak
 .github/
 externtools/
+demo/akkapros/results
+demo/akkatts/results
+
 
 # IDE
 .vscode/
