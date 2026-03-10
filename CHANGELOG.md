@@ -7,7 +7,7 @@
 - pyproject.toml for project configuration
 - CONTRIBUTING.md with development guidelines
 - requirements.txt (empty, no runtime dependencies)
-- requirements-dev.txt with development tools (pytest, black, ruff, mypy, build, twine)
+- requirements-dev.txt with development tools (pytest, black, flake8, sox)
 - .gitignore for Python projects
 - Basic directory structure: src/ and tests/
 - Placeholder __init__.py files
