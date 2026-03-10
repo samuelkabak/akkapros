@@ -62,9 +62,6 @@
 ### Removed
 - **src/akkapros/cli/format.py** (obsolete CLI formatter)
 
-### Fixed
-- Fixed repeated JavaScript syntax errors in phoneprep_recording_helper.html caused by raw newlines in string literals. All log lines and header now use '\n' for valid JS. Page regeneration and debugging attempts documented.
-
 ### Notes
 - Core algorithms (parser, syllabifier, repair, metrics) are stable and unit tested
 - Package structure ready for implementation

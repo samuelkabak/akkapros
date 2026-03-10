@@ -28,6 +28,16 @@ dev = [
 packages = ["akkapros", "akkatts"]
 package-dir = {"" = "src"}
 
+[project.scripts]
+# Console entry points for installed CLIs
+akkapros-fullreparer = "akkapros.cli.fullreparer:main"
+akkapros-syllabifier = "akkapros.cli.syllabifier:main"
+akkapros-repairer = "akkapros.cli.repairer:main"
+akkapros-metricser = "akkapros.cli.metricser:main"
+akkapros-atfparser = "akkapros.cli.atfparser:main"
+akkapros-printer = "akkapros.cli.printer:main"
+akkatts-phoneprep = "akkatts.cli.phoneprep:main"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
