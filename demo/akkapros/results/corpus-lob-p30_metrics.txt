@@ -1,12 +1,12 @@
 ================================================================================
-METRICS SUMMARY: demo/akkapros/results/corpus-lob_tilde.txt
+METRICS SUMMARY: C:\Users\samue\YandexDisk\GED\08 CONLANG\AKKADIAN\akkapros\github-local-repo\demo\akkapros\results\corpus-lob_tilde.txt
 ================================================================================
 
 --- RUN CONFIGURATION ---
   cli: metricser.py
   extra_consonants: 
   extra_vowels: 
-  input: demo/akkapros/results/corpus-lob_tilde.txt
+  input: C:\Users\samue\YandexDisk\GED\08 CONLANG\AKKADIAN\akkapros\github-local-repo\demo\akkapros\results\corpus-lob_tilde.txt
   long_pause_punct_weight_unitless: 2.0
   pause_ratio_percent: 30.0
   short_pause_punct_weight_unitless: 1.0
@@ -15,104 +15,104 @@ METRICS SUMMARY: demo/akkapros/results/corpus-lob_tilde.txt
 --- ORIGINAL TEXT ---
 
 Syllable types:
-  CV    : 50895 syllables (36.03%)
-  CVC   : 30910 syllables (21.88%)
-  CVV   : 30335 syllables (21.47%)
-  CVVC  : 4028 syllables ( 2.85%)
-  VC    : 8200 syllables ( 5.80%)
-  V     : 10173 syllables ( 7.20%)
-  VV    : 1858 syllables ( 1.32%)
-  VVC   :   36 syllables ( 0.03%)
+  CV    : 5332 syllables (36.09%)
+  CVC   : 3227 syllables (21.84%)
+  CVV   : 3171 syllables (21.46%)
+  CVVC  :  420 syllables ( 2.84%)
+  VC    :  849 syllables ( 5.75%)
+  V     : 1065 syllables ( 7.21%)
+  VV    :  194 syllables ( 1.31%)
+  VVC   :    4 syllables ( 0.03%)
 
 Mora statistics:
-  Mean morae per syllable: 2.478 mora/syllable
-  Std dev morae per syllable: 0.738 mora/syllable
+  Mean morae per syllable: 2.479 mora/syllable
+  Std dev morae per syllable: 0.742 mora/syllable
 
 Word statistics:
-  Total words: 47063 words
-  Syllables per word: 3.002 ± 1.010 syllable/word
-  Morae per word: 7.438 ± 2.657 mora/word
+  Total words: 4916 words
+  Syllables per word: 3.006 ± 1.015 syllable/word
+  Morae per word: 7.451 ± 2.677 mora/word
 
 Acoustic metrics (original):
-  %V (articulate): 80.00%
-  %V (normal speech, incl. pauses): 61.54%
-  ΔC: 0.6815 mora (consonant-interval SD)
-  MeanC: 0.9950 mora (mean consonant interval)
-  VarcoC: 68.49 %
+  %V (articulate): 80.05%
+  %V (normal speech, incl. pauses): 61.57%
+  ΔC: 0.6816 mora (consonant-interval SD)
+  MeanC: 0.9964 mora (mean consonant interval)
+  VarcoC: 68.40 %
 
 --- REPAIRED TEXT ---
 
 Syllable types:
-  CV    : 50877 syllables (36.01%)
-  CVC   : 24224 syllables (17.15%)
-  CVV   : 21240 syllables (15.04%)
-  CVVC  : 2208 syllables ( 1.56%)
-  VC    : 6792 syllables ( 4.81%)
-  V     : 10173 syllables ( 7.20%)
-  VV    : 1415 syllables ( 1.00%)
-  VVC   :    9 syllables ( 0.01%)
-  C:V   :   37 syllables ( 0.03%)
-  CVC:  : 6667 syllables ( 4.72%)
-  CVV:  : 9095 syllables ( 6.44%)
-  CVV:C : 1820 syllables ( 1.29%)
-  VC:   : 1408 syllables ( 1.00%)
-  VV:   :  443 syllables ( 0.31%)
-  VV:C  :   27 syllables ( 0.02%)
+  CV    : 5330 syllables (36.07%)
+  CVC   : 2528 syllables (17.11%)
+  CVV   : 2221 syllables (15.03%)
+  CVVC  :  232 syllables ( 1.57%)
+  VC    :  701 syllables ( 4.74%)
+  V     : 1065 syllables ( 7.21%)
+  VV    :  148 syllables ( 1.00%)
+  VVC   :    1 syllables ( 0.01%)
+  C:V   :    4 syllables ( 0.03%)
+  CVC:  :  697 syllables ( 4.72%)
+  CVV:  :  950 syllables ( 6.43%)
+  CVV:C :  188 syllables ( 1.27%)
+  VC:   :  148 syllables ( 1.00%)
+  VV:   :   46 syllables ( 0.31%)
+  VV:C  :    3 syllables ( 0.02%)
 
 Mora statistics:
-  Mean morae per syllable: 2.478 mora/syllable
-  Std dev morae per syllable: 0.738 mora/syllable
+  Mean morae per syllable: 2.479 mora/syllable
+  Std dev morae per syllable: 0.742 mora/syllable
 
 Word statistics:
-  Total words: 47063 words
-  Syllables per word: 3.002 ± 1.010 syllable/word
-  Morae per word: 7.438 ± 2.657 mora/word
+  Total words: 4916 words
+  Syllables per word: 3.006 ± 1.015 syllable/word
+  Morae per word: 7.451 ± 2.677 mora/word
 
 Merge statistics:
-  Merged words: 23226 words
-  Merged units: 10523 units
+  Merged words: 2453 words
+  Merged units: 1108 units
   Average unit size: 2.21 words
 
 Acoustic metrics (repaired):
-  %V (articulate): 74.61%
-  %V (normal speech, incl. pauses): 57.39%
-  ΔC: 0.7716 mora (consonant-interval SD)
-  MeanC: 1.1001 mora (mean consonant interval)
-  VarcoC: 70.13 %
+  %V (articulate): 74.65%
+  %V (normal speech, incl. pauses): 57.42%
+  ΔC: 0.7711 mora (consonant-interval SD)
+  MeanC: 1.1015 mora (mean consonant interval)
+  VarcoC: 70.01 %
 
 Speech rate (repaired text only):
   WPM: 165 words/min
   Pause ratio: 30.0%
-  SPS (speech): 8.255 syllable/s
-  SPS (articulation): 11.792 syllable/s
+  SPS (speech): 8.266 syllable/s
+  SPS (articulation): 11.808 syllable/s
   Average syllable duration: 0.085 s/syllable
   Mora duration: 0.034 s/mora
   Word duration: 0.364 s/word
 
 Pause metrics:
-  Short pause punctuation per syllable: 0.054 pause/syllable
+  Short pause punctuation per syllable: 0.053 pause/syllable
   Long pause punctuation per syllable: 0.075 pause/syllable
-  Total punctuation pauses per syllable: 0.129 pause/syllable
-  Total boundaries: 30941 boundaries
-  Pauseable boundaries: 18238 boundaries
+  Total punctuation pauses per syllable: 0.127 pause/syllable
+  Total boundaries: 3227 boundaries
+  Pauseable boundaries: 1882 boundaries
 
 Pause duration allocation (total pause: 0.036 s/syllable):
   Short pause punctuation weight: always 1.0 (no unit)
   Long pause punctuation weight relative to short: 2.0 (no unit)
-  Short pause punctuation duration: 0.178 s/pause (2.0941 average syllable duration) (26.5% of pause time)
-  Long pause punctuation duration: 0.356 s/pause (4.1882 average syllable duration) (73.5% of pause time)
+  Short pause punctuation duration: 0.180 s/pause (2.1176 average syllable duration) (26.1% of pause time)
+  Long pause punctuation duration: 0.359 s/pause (4.2235 average syllable duration) (73.9% of pause time)
 
 --- REPAIR STATISTICS ---
-  Repaired syllables: 19497 syllables
-  Repair rate: 13.80%
+  Repaired syllables: 2036 syllables
+  Repair rate: 13.78%
 
   Repair types:
-    C:V     :   37 syllables
-    VV:C    :   27 syllables
-    CVV:C   : 1820 syllables
-    VV:     :  443 syllables
-    CVC:    : 6667 syllables
-    CVV:    : 9095 syllables
-    VC:     : 1408 syllables
+    CVC:    :  697 syllables
+    VV:     :   46 syllables
+    CVV:    :  950 syllables
+    VC:     :  148 syllables
+    C:V     :    4 syllables
+    VV:C    :    3 syllables
+    CVV:C   :  188 syllables
 
 ================================================================================

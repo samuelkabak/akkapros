@@ -22,6 +22,7 @@
 - **printer.py / fullreparer.py**: Added `--ipa-pharyngeal {preserve,remove}` policy option (default `preserve`) for IPA output
 - **phoneprep.py**: Added `--with-html-recording-helper` and `--recording-max-words` for chunked recording guidance and logging helper generation
 - **docs/akkapros**: Added CLI docs for `repairer.py`, `metricser.py`, `fullreparer.py`, `atfparser.py`, `syllabifier.py`, and `printer.py`
+ - **demo/**: Added `demo/README.md` describing demo scripts and example outputs (akkapros & akkatts)
 - **fullreparer.py CLI namespaced options**: stage-prefixed flags now disambiguate pipeline stages:
 	- syllabify: `--syl-merge-hyphens`, `--syl-merge-lines`
 	- repair: `--repair-style`, `--repair-relax-last`, `--repair-restore-diphthongs`

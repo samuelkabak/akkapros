@@ -19,7 +19,12 @@ echo "Demo pipeline complete."
 Write-Output "Parsing ATF samples with --append..."
 $repoRoot = Resolve-Path "$PSScriptRoot\..\.."
 $resultsDir = Join-Path $repoRoot 'demo\akkapros\results'
-if (!(Test-Path $resultsDir)) { New-Item -ItemType Directory -Path $resultsDir | Out-Null }
+if (Test-Path $resultsDir) {
+  Write-Output "Clearing existing results in $resultsDir"
+  Get-ChildItem -Path $resultsDir -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+  New-Item -ItemType Directory -Path $resultsDir | Out-Null
+}
 $sampleFiles = @(
   (Join-Path $repoRoot 'data\samples\L_I.5_Erra_and_Isum_SB_I.atf'),
   (Join-Path $repoRoot 'data\samples\L_III.3_Marduks_Address_to_the_Demons_SB.atf'),

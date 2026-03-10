@@ -188,8 +188,7 @@
                 `word=${word}`,
                 meta,
             ].join('	');
-            logEl.value += row + '
-';
+            logEl.value += row + "\n";
             logEl.scrollTop = logEl.scrollHeight;
         }
 
@@ -210,6 +209,8 @@
             }
             wordEl.textContent = WORDS[currentIndex];
             refreshUi();
+            // Log display event for segmenter (timestamp + sidecars)
+            appendLog('DISPLAY');
         }
 
         function startRecordingChunk() {
@@ -229,24 +230,82 @@
             recordingActive = false;
             const doneFile = chunkFileName(recordingIndex);
             appendLog('RECORDING_STOP', `reason=${reason} save_audio=${doneFile}`);
-            hintEl.textContent = `Stop recording now. Save as ${doneFile}. Press Space to continue.`;
+            hintEl.textContent = `Saved ${doneFile}. Press Space to start next recording.`;
             recordingIndex += 1;
             acceptedInCurrentRecording = 0;
             refreshUi();
         }
 
         function onSpaceToggle() {
-            if (recordingActive) {
-                stopRecordingChunk('manual-space-stop');
-            } else {
-                startRecordingChunk();
+            // Space behaves as:
+            // - when not recording: start recording + display current word (log DISPLAY, RECORDING_START)
+            // - when recording and no word visible: display current word (log DISPLAY)
+            // - when recording and word visible: accept current word + stop recording (log ACCEPT, RECORDING_STOP), clear display
+            if (typeof window._wordDisplayed === 'undefined') window._wordDisplayed = false;
+            if (finished) return;
+            if (!sessionStarted) {
+                sessionStarted = true;
+                startedAtMs = Date.now();
             }
+
+            if (!recordingActive) {
+                // Start a new recording chunk and display the current word
+                recordingActive = true;
+                hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+                appendLog('RECORDING_START', `file=${chunkFileName(recordingIndex)}`);
+                if (currentIndex >= WORDS.length) {
+                    finished = true;
+                    wordEl.textContent = 'All words completed';
+                    hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                    appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
+                    return;
+                }
+                showCurrentWord();
+                window._wordDisplayed = true;
+                return;
+            }
+
+            // recordingActive === true
+            if (!window._wordDisplayed) {
+                // Just display the current word (no accept)
+                if (currentIndex >= WORDS.length) {
+                    finished = true;
+                    wordEl.textContent = 'All words completed';
+                    hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                    appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
+                    return;
+                }
+                showCurrentWord();
+                window._wordDisplayed = true;
+                return;
+            }
+
+            // Word is displayed and user pressed Space: interpret as accept + stop recording
+            appendLog('ACCEPT');
+            acceptedInCurrentRecording += 1;
+            errorCountCurrentWord = 0;
+            currentIndex += 1;
+            // stop and save current chunk
+            stopRecordingChunk('space-stop');
+            // clear visible word
+            wordEl.textContent = '';
+            window._wordDisplayed = false;
+
+            if (currentIndex >= WORDS.length) {
+                finished = true;
+                wordEl.textContent = 'All words completed';
+                hintEl.textContent = `Saved final file as ${chunkFileName(recordingIndex-1)}`;
+                appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex-1)} save_log=${SEGMANIFEST}`);
+                return;
+            }
+
+            refreshUi();
         }
 
         function acceptAndNext() {
             if (!recordingActive || finished || currentIndex >= WORDS.length) return;
-
-            appendLog('ACCEPT_NEXT');
+            // Accept current word and display next (does not stop the recording chunk)
+            appendLog('ACCEPT');
             acceptedInCurrentRecording += 1;
             currentIndex += 1;
             errorCountCurrentWord = 0;
@@ -260,7 +319,6 @@
                 stopRecordingChunk(`chunk-limit-${MAX_WORDS_PER_RECORDING}`);
             } else {
                 showCurrentWord();
-                appendLog('DISPLAY_NEXT');
                 hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
             }
 
@@ -299,9 +357,8 @@
         });
 
         refreshUi();
-        logEl.value = 'iso_time	elapsed	recording	file	index	accepted	errors	event	word	meta
-';
-        appendLog('READY', `press-space-to-start segmanifest=${SEGMANIFEST}`);
+        // Start with empty log; entries are written when words are displayed/accepted/repeated
+        logEl.value = "";
     </script>
 </body>
 </html>

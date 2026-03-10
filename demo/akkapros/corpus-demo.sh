@@ -5,6 +5,12 @@ set -e
 echo "Parsing ATF samples with --append..."
 resultsDir="demo/akkapros/results"
 corpusBase="$resultsDir/corpus"
+if [ -d "$resultsDir" ]; then
+  echo "Clearing existing results in $resultsDir"
+  rm -rf "$resultsDir"/* "$resultsDir"/.[!.]* "$resultsDir"/?* 2>/dev/null || true
+else
+  mkdir -p "$resultsDir"
+fi
 sampleFiles=(
   "data/samples/L_I.5_Erra_and_Isum_SB_I.atf"
   "data/samples/L_III.3_Marduks_Address_to_the_Demons_SB.atf"

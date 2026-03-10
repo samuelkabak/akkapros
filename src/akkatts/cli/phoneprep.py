@@ -1004,57 +1004,58 @@ def write_recording_helper_html(
     helper_path = script_path.with_name(f"{script_path.stem}_recording_helper.html")
     segmanifest_name = f"{prefix}_segmanifest.txt"
 
-    html = f"""<!doctype html>
-<html lang=\"en\">
+    # Use a plain (non-f) string with placeholders to avoid f-string brace-escaping issues
+    html = """<!doctype html>
+<html lang="en">
 <head>
-    <meta charset=\"utf-8\" />
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Akkadian Recording Assistant</title>
     <style>
-        :root {{
+        :root {
             --bg: #f7f3ea;
             --ink: #1d221f;
             --panel: #fffaf0;
             --accent: #274c3f;
             --warn: #8a2d1f;
             --muted: #5a645f;
-        }}
-        * {{ box-sizing: border-box; }}
-        body {{
+        }
+        * { box-sizing: border-box; }
+        body {
             margin: 0;
-            font-family: Georgia, \"Times New Roman\", serif;
+            font-family: Georgia, "Times New Roman", serif;
             color: var(--ink);
             background: radial-gradient(circle at 15% 20%, #efe6d2 0, var(--bg) 45%);
             min-height: 100vh;
             display: grid;
             grid-template-rows: 56vh 44vh;
-        }}
-        .top {{
+        }
+        .top {
             border-bottom: 2px solid #d8ccb5;
             padding: 1.2rem 1.4rem;
             display: grid;
             grid-template-rows: auto auto 1fr auto;
             gap: .8rem;
             background: linear-gradient(180deg, #fff8e8, #f6f1e5);
-        }}
-        .title {{ font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }}
-        .instructions {{
+        }
+        .title { font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }
+        .instructions {
             font-size: .96rem;
             line-height: 1.35;
             background: var(--panel);
             border: 1px solid #dfd4bf;
             padding: .8rem;
             border-radius: 8px;
-        }}
-        .word-wrap {{
+        }
+        .word-wrap {
             display: grid;
             place-items: center;
             border: 2px dashed #c8bea9;
             border-radius: 12px;
             background: rgba(255,255,255,.62);
             min-height: 160px;
-        }}
-        #word {{
+        }
+        #word {
             font-size: clamp(2rem, 5.5vw, 4.1rem);
             line-height: 1.06;
             text-align: center;
@@ -1062,36 +1063,36 @@ def write_recording_helper_html(
             color: var(--accent);
             padding: .6rem;
             word-break: break-word;
-        }}
-        .status {{
+        }
+        .status {
             display: flex;
             gap: 1.2rem;
             flex-wrap: wrap;
             font-size: .95rem;
-        }}
-        .warn {{ color: var(--warn); font-weight: 700; }}
-        .muted {{ color: var(--muted); }}
-        .bottom {{
+        }
+        .warn { color: var(--warn); font-weight: 700; }
+        .muted { color: var(--muted); }
+        .bottom {
             padding: 1rem 1.2rem 1.2rem;
             display: grid;
             grid-template-rows: auto 1fr auto;
             gap: .6rem;
             background: #fbf8f1;
-        }}
-        #log {{
+        }
+        #log {
             width: 100%;
             height: 100%;
             resize: none;
             border: 1px solid #d3c8b1;
             border-radius: 8px;
             background: #fffdf8;
-            font-family: Consolas, \"Courier New\", monospace;
+            font-family: Consolas, "Courier New", monospace;
             font-size: .9rem;
             padding: .7rem;
             white-space: pre;
             line-height: 1.25;
-        }}
-        button {{
+        }
+        button {
             border: 1px solid #b2a791;
             background: #efe5cd;
             color: #2d342f;
@@ -1099,44 +1100,44 @@ def write_recording_helper_html(
             padding: .45rem .8rem;
             cursor: pointer;
             font-weight: 600;
-        }}
-        @media (max-width: 900px) {{
-            body {{ grid-template-rows: auto auto; }}
-            .word-wrap {{ min-height: 120px; }}
-        }}
+        }
+        @media (max-width: 900px) {
+            body { grid-template-rows: auto auto; }
+            .word-wrap { min-height: 120px; }
+        }
     </style>
 </head>
 <body>
-    <section class=\"top\">
-        <div class=\"title\">Akkadian Recording Assistant</div>
-        <div class=\"instructions\">
+    <section class="top">
+        <div class="title">Akkadian Recording Assistant</div>
+        <div class="instructions">
             <div><strong>What you do:</strong> read each displayed word, press <strong>Right Arrow</strong> during silence to accept and advance, press <strong>Left Arrow</strong> for a read error and repeat the same word.</div>
             <div><strong>Keyboard:</strong> <code>Space</code> start or stop a recording chunk, <code>Right</code> accept + next, <code>Left</code> error + repeat.</div>
-            <div class=\"muted\">When stopping, save audio as <code>{prefix}_NNN.wav</code>. Final logs go to <code>{segmanifest_name}</code>.</div>
+            <div class="muted">When stopping, save audio as <code>%%PREFIX_RAW%%_NNN.wav</code>. Final logs go to <code>%%SEGMANIFEST_RAW%%</code>.</div>
         </div>
-        <div class=\"word-wrap\"><div id=\"word\">Press space to start</div></div>
-        <div class=\"status\">
-            <span id=\"progress\">0 / 0</span>
-            <span id=\"errors\">Errors on current word: 0</span>
-            <span id=\"accepted\">Accepted in current recording: 0</span>
-            <span id=\"chunk\">Recording index: 1</span>
-            <span id=\"hint\" class=\"warn\"></span>
+        <div class="word-wrap"><div id="word">Press space to start</div></div>
+        <div class="status">
+            <span id="progress">0 / 0</span>
+            <span id="errors">Errors on current word: 0</span>
+            <span id="accepted">Accepted in current recording: 0</span>
+            <span id="chunk">Recording index: 1</span>
+            <span id="hint" class="warn"></span>
         </div>
     </section>
 
-    <section class=\"bottom\">
+    <section class="bottom">
         <div><strong>Log + Sidecars (timestamped):</strong></div>
-        <textarea id=\"log\" spellcheck=\"false\"></textarea>
+        <textarea id="log" spellcheck="false"></textarea>
         <div>
-            <button id=\"copy\" type=\"button\">Copy Log</button>
+            <button id="copy" type="button">Copy Log</button>
         </div>
     </section>
 
     <script>
-        const WORDS = {json.dumps(words, ensure_ascii=False)};
-        const MAX_WORDS_PER_RECORDING = {int(max_words_per_recording)};
-        const PREFIX = {json.dumps(prefix)};
-        const SEGMANIFEST = {json.dumps(segmanifest_name)};
+        const WORDS = %%WORDS%%;
+        const MAX_WORDS_PER_RECORDING = %%MAX_WORDS_PER_RECORDING%%;
+        const PREFIX = %%PREFIX_JSON%%;
+        const SEGMANIFEST = %%SEGMANIFEST_JSON%%;
 
         let sessionStarted = false;
         let startedAtMs = 0;
@@ -1155,161 +1156,228 @@ def write_recording_helper_html(
         const hintEl = document.getElementById('hint');
         const logEl = document.getElementById('log');
 
-        function nowIso() {{
+        function nowIso() {
             return new Date().toISOString();
-        }}
+        }
 
-        function elapsedMs() {{
+        function elapsedMs() {
             if (!sessionStarted) return 0;
             return Date.now() - startedAtMs;
-        }}
+        }
 
-        function pad(n) {{ return String(n).padStart(2, '0'); }}
+        function pad(n) { return String(n).padStart(2, '0'); }
 
-        function msToClock(ms) {{
+        function msToClock(ms) {
             const totalSec = Math.floor(ms / 1000);
             const hh = Math.floor(totalSec / 3600);
             const mm = Math.floor((totalSec % 3600) / 60);
             const ss = totalSec % 60;
             const mmm = ms % 1000;
-            return `${{pad(hh)}}:${{pad(mm)}}:${{pad(ss)}}.${{String(mmm).padStart(3, '0')}}`;
-        }}
+            return `${pad(hh)}:${pad(mm)}:${pad(ss)}.${String(mmm).padStart(3, '0')}`;
+        }
 
-        function chunkFileName(index) {{
-            return `${{PREFIX}}_${{String(index).padStart(3, '0')}}.wav`;
-        }}
+        function chunkFileName(index) {
+            return `${PREFIX}_${String(index).padStart(3, '0')}.wav`;
+        }
 
-        function appendLog(eventName, meta = '') {{
+        function appendLog(eventName, meta = '') {
             const idx1 = currentIndex + 1;
             const word = WORDS[currentIndex] || '';
             const row = [
                 nowIso(),
                 msToClock(elapsedMs()),
-                `rec=${{recordingIndex}}`,
-                `file=${{chunkFileName(recordingIndex)}}`,
-                `idx=${{idx1}}`,
-                `accepted=${{acceptedInCurrentRecording}}`,
-                `errors=${{errorCountCurrentWord}}`,
-                `event=${{eventName}}`,
-                `word=${{word}}`,
+                `rec=${recordingIndex}`,
+                `file=${chunkFileName(recordingIndex)}`,
+                `idx=${idx1}`,
+                `accepted=${acceptedInCurrentRecording}`,
+                `errors=${errorCountCurrentWord}`,
+                `event=${eventName}`,
+                `word=${word}`,
                 meta,
             ].join('\t');
-            logEl.value += row + '\n';
+            logEl.value += row + "\\n";
             logEl.scrollTop = logEl.scrollHeight;
-        }}
+        }
 
-        function refreshUi() {{
-            progressEl.textContent = `${{Math.min(currentIndex + 1, WORDS.length)}} / ${{WORDS.length}}`;
-            errorsEl.textContent = `Errors on current word: ${{errorCountCurrentWord}}`;
-            acceptedEl.textContent = `Accepted in current recording: ${{acceptedInCurrentRecording}} / ${{MAX_WORDS_PER_RECORDING}}`;
-            chunkEl.textContent = `Recording index: ${{recordingIndex}} (${{chunkFileName(recordingIndex)}})`;
-        }}
+        function refreshUi() {
+            progressEl.textContent = `${Math.min(currentIndex + 1, WORDS.length)} / ${WORDS.length}`;
+            errorsEl.textContent = `Errors on current word: ${errorCountCurrentWord}`;
+            acceptedEl.textContent = `Accepted in current recording: ${acceptedInCurrentRecording} / ${MAX_WORDS_PER_RECORDING}`;
+            chunkEl.textContent = `Recording index: ${recordingIndex} (${chunkFileName(recordingIndex)})`;
+        }
 
-        function showCurrentWord() {{
-            if (currentIndex >= WORDS.length) {{
+        function showCurrentWord() {
+            if (currentIndex >= WORDS.length) {
                 finished = true;
                 wordEl.textContent = 'All words completed';
-                hintEl.textContent = `Save final file as ${{chunkFileName(recordingIndex)}} and logs as ${{SEGMANIFEST}}`;
-                appendLog('COMPLETE', `save_audio=${{chunkFileName(recordingIndex)}} save_log=${{SEGMANIFEST}}`);
+                hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
                 return;
-            }}
+            }
             wordEl.textContent = WORDS[currentIndex];
             refreshUi();
-        }}
+            // Log display event for segmenter (timestamp + sidecars)
+            appendLog('DISPLAY');
+        }
 
-        function startRecordingChunk() {{
+        function startRecordingChunk() {
             if (finished) return;
-            if (!sessionStarted) {{
+            if (!sessionStarted) {
                 sessionStarted = true;
                 startedAtMs = Date.now();
-            }}
+            }
             recordingActive = true;
-            hintEl.textContent = `Recording: ${{chunkFileName(recordingIndex)}}`;
-            appendLog('RECORDING_START', `file=${{chunkFileName(recordingIndex)}}`);
+            hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+            appendLog('RECORDING_START', `file=${chunkFileName(recordingIndex)}`);
             showCurrentWord();
-        }}
+        }
 
-        function stopRecordingChunk(reason) {{
+        function stopRecordingChunk(reason) {
             if (!recordingActive) return;
             recordingActive = false;
             const doneFile = chunkFileName(recordingIndex);
-            appendLog('RECORDING_STOP', `reason=${{reason}} save_audio=${{doneFile}}`);
-            hintEl.textContent = `Stop recording now. Save as ${{doneFile}}. Press Space to continue.`;
+            appendLog('RECORDING_STOP', `reason=${reason} save_audio=${doneFile}`);
+            hintEl.textContent = `Saved ${doneFile}. Press Space to start next recording.`;
             recordingIndex += 1;
             acceptedInCurrentRecording = 0;
             refreshUi();
-        }}
+        }
 
-        function onSpaceToggle() {{
-            if (recordingActive) {{
-                stopRecordingChunk('manual-space-stop');
-            }} else {{
-                startRecordingChunk();
-            }}
-        }}
+        function onSpaceToggle() {
+            // Space behaves as:
+            // - when not recording: start recording + display current word (log DISPLAY, RECORDING_START)
+            // - when recording and no word visible: display current word (log DISPLAY)
+            // - when recording and word visible: accept current word + stop recording (log ACCEPT, RECORDING_STOP), clear display
+            if (typeof window._wordDisplayed === 'undefined') window._wordDisplayed = false;
+            if (finished) return;
+            if (!sessionStarted) {
+                sessionStarted = true;
+                startedAtMs = Date.now();
+            }
 
-        function acceptAndNext() {{
+            if (!recordingActive) {
+                // Start a new recording chunk and display the current word
+                recordingActive = true;
+                hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+                appendLog('RECORDING_START', `file=${chunkFileName(recordingIndex)}`);
+                if (currentIndex >= WORDS.length) {
+                    finished = true;
+                    wordEl.textContent = 'All words completed';
+                    hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                    appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
+                    return;
+                }
+                showCurrentWord();
+                window._wordDisplayed = true;
+                return;
+            }
+
+            // recordingActive === true
+            if (!window._wordDisplayed) {
+                // Just display the current word (no accept)
+                if (currentIndex >= WORDS.length) {
+                    finished = true;
+                    wordEl.textContent = 'All words completed';
+                    hintEl.textContent = `Save final file as ${chunkFileName(recordingIndex)} and logs as ${SEGMANIFEST}`;
+                    appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex)} save_log=${SEGMANIFEST}`);
+                    return;
+                }
+                showCurrentWord();
+                window._wordDisplayed = true;
+                return;
+            }
+
+            // Word is displayed and user pressed Space: interpret as accept + stop recording
+            appendLog('ACCEPT');
+            acceptedInCurrentRecording += 1;
+            errorCountCurrentWord = 0;
+            currentIndex += 1;
+            // stop and save current chunk
+            stopRecordingChunk('space-stop');
+            // clear visible word
+            wordEl.textContent = '';
+            window._wordDisplayed = false;
+
+            if (currentIndex >= WORDS.length) {
+                finished = true;
+                wordEl.textContent = 'All words completed';
+                hintEl.textContent = `Saved final file as ${chunkFileName(recordingIndex-1)}`;
+                appendLog('COMPLETE', `save_audio=${chunkFileName(recordingIndex-1)} save_log=${SEGMANIFEST}`);
+                return;
+            }
+
+            refreshUi();
+        }
+
+        function acceptAndNext() {
             if (!recordingActive || finished || currentIndex >= WORDS.length) return;
-
-            appendLog('ACCEPT_NEXT');
+            // Accept current word and display next (does not stop the recording chunk)
+            appendLog('ACCEPT');
             acceptedInCurrentRecording += 1;
             currentIndex += 1;
             errorCountCurrentWord = 0;
 
-            if (currentIndex >= WORDS.length) {{
+            if (currentIndex >= WORDS.length) {
                 showCurrentWord();
                 return;
-            }}
+            }
 
-            if (acceptedInCurrentRecording >= MAX_WORDS_PER_RECORDING) {{
-                stopRecordingChunk(`chunk-limit-${{MAX_WORDS_PER_RECORDING}}`);
-            }} else {{
+            if (acceptedInCurrentRecording >= MAX_WORDS_PER_RECORDING) {
+                stopRecordingChunk(`chunk-limit-${MAX_WORDS_PER_RECORDING}`);
+            } else {
                 showCurrentWord();
-                appendLog('DISPLAY_NEXT');
-                hintEl.textContent = `Recording: ${{chunkFileName(recordingIndex)}}`;
-            }}
+                hintEl.textContent = `Recording: ${chunkFileName(recordingIndex)}`;
+            }
 
             refreshUi();
-        }}
+        }
 
-        function markErrorRepeat() {{
+        function markErrorRepeat() {
             if (!recordingActive || finished || currentIndex >= WORDS.length) return;
             errorCountCurrentWord += 1;
             appendLog('ERROR_REPEAT');
             hintEl.textContent = 'Repeat same word';
             refreshUi();
-        }}
+        }
 
-        document.addEventListener('keydown', (ev) => {{
-            if (ev.code === 'Space') {{
+        document.addEventListener('keydown', (ev) => {
+            if (ev.code === 'Space') {
                 ev.preventDefault();
                 onSpaceToggle();
                 return;
-            }}
-            if (ev.code === 'ArrowRight') {{
+            }
+            if (ev.code === 'ArrowRight') {
                 ev.preventDefault();
                 acceptAndNext();
                 return;
-            }}
-            if (ev.code === 'ArrowLeft') {{
+            }
+            if (ev.code === 'ArrowLeft') {
                 ev.preventDefault();
                 markErrorRepeat();
-            }}
-        }});
+            }
+        });
 
-        document.getElementById('copy').addEventListener('click', async () => {{
-            try {{
+        document.getElementById('copy').addEventListener('click', async () => {
+            try {
                 await navigator.clipboard.writeText(logEl.value);
-            }} catch (_e) {{}}
-        }});
+            } catch (_e) {}
+        });
 
         refreshUi();
-        logEl.value = 'iso_time\telapsed\trecording\tfile\tindex\taccepted\terrors\tevent\tword\tmeta\n';
-        appendLog('READY', `press-space-to-start segmanifest=${{SEGMANIFEST}}`);
+        // Start with empty log; entries are written when words are displayed/accepted/repeated
+        logEl.value = "";
     </script>
 </body>
 </html>
 """
+    # Fill placeholders with proper JSON/string encodings
+    html = html.replace('%%WORDS%%', json.dumps(words, ensure_ascii=False))
+    html = html.replace('%%MAX_WORDS_PER_RECORDING%%', str(int(max_words_per_recording)))
+    html = html.replace('%%PREFIX_JSON%%', json.dumps(prefix))
+    html = html.replace('%%SEGMANIFEST_JSON%%', json.dumps(segmanifest_name))
+    # Raw values for visible text (not JSON-quoted)
+    html = html.replace('%%PREFIX_RAW%%', prefix)
+    html = html.replace('%%SEGMANIFEST_RAW%%', segmanifest_name)
     helper_path.write_text(html, encoding='utf-8')
     print(f"Recording helper HTML written to {helper_path}")
     return helper_path
