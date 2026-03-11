@@ -431,6 +431,28 @@ How computed:
 Unit:
 - `boundaries`
 
+### 3.27.1 Short Pauseable Boundaries
+
+What it designates:
+- Number of pauseable boundaries classified as short/inner punctuation events.
+
+How computed:
+- `short_pauseable_boundaries = N_short_pause`
+
+Unit:
+- `boundaries`
+
+### 3.27.2 Long Pauseable Boundaries
+
+What it designates:
+- Number of pauseable boundaries classified as long/final punctuation events.
+
+How computed:
+- `long_pauseable_boundaries = N_long_pause`
+
+Unit:
+- `boundaries`
+
 ### 3.28 Total Pause Time Per Syllable
 
 What it designates:
@@ -442,7 +464,7 @@ How computed:
 Unit:
 - `s/syllable`
 
-### 3.29 Short Pause Punctuation Duration
+### 3.29 Initial Short Pause Punctuation Duration
 
 What it designates:
 - Duration assigned to one short-pause event.
@@ -452,55 +474,94 @@ How computed:
 - `W_long = long_punct_weight` (parameter)
 - `units = short_pause_per_syll * W_short + long_pause_per_syll * W_long`
 - `unit_dur = total_pause_time_per_syll / units`
-- `short_pause_dur = unit_dur * W_short`
+- `initial_short_pause_dur = unit_dur * W_short`
 
 Unit:
 - `s/pause`
 
-### 3.30 Long Pause Punctuation Duration
+### 3.30 Initial Average Long Pause Punctuation Duration
 
 What it designates:
 - Duration assigned to one long-pause event.
 
 How computed:
-- `long_pause_dur = unit_dur * W_long`
+- `initial_long_pause_dur = unit_dur * W_long`
 
 Unit:
 - `s/pause`
 
-### 3.31 Short Pause Duration In Mean-Syllable Units
+### 3.31 Initial Short Pause Duration In Mean-Syllable Units
 
 What it designates:
 - Relative size of a short pause compared to one mean syllable.
 
 How computed:
-- `short_ratio = short_pause_dur / mean_syllable_duration`
+- `initial_short_ratio = initial_short_pause_dur / mean_syllable_duration`
 
 Unit:
 - `mean syllable duration` (dimensionless ratio)
 
-### 3.32 Long Pause Duration In Mean-Syllable Units
+### 3.32 Initial Long Pause Duration In Mean-Syllable Units
 
 What it designates:
 - Relative size of a long pause compared to one mean syllable.
 
 How computed:
-- `long_ratio = long_pause_dur / mean_syllable_duration`
+- `initial_long_ratio = initial_long_pause_dur / mean_syllable_duration`
 
 Unit:
 - `mean syllable duration` (dimensionless ratio)
 
-### 3.33 Pause Time Share By Class
+### 3.33 Initial Pause Time Share By Class
 
 What it designates:
 - How total pause budget is split between short and long classes.
 
 How computed:
-- `short_share = (short_pause_per_syll * short_pause_dur) / total_pause_time_per_syll * 100`
-- `long_share = (long_pause_per_syll * long_pause_dur) / total_pause_time_per_syll * 100`
+- `initial_short_share = (short_pause_per_syll * initial_short_pause_dur) / total_pause_time_per_syll * 100`
+- `initial_long_share = (long_pause_per_syll * initial_long_pause_dur) / total_pause_time_per_syll * 100`
 
 Unit:
 - `% of pause time`
+
+### 3.34 Corrected (Multiple-Of-2 Morae) Short Pause Punctuation Duration
+
+What it designates:
+- Short pause duration corrected to the closest multiple of `2*mora`.
+
+How computed:
+- `short_mora_ratio = initial_short_pause_dur / mora_dur`
+- `M_even = round(short_mora_ratio / 2) * 2`
+- `corrected_short_pause_dur = M_even * mora_dur`
+
+Unit:
+- `s/pause`
+
+### 3.35 Corrected Average Long Pause Punctuation Duration
+
+What it designates:
+- Long pause duration adjusted to conserve total punctuation pause time after short-pause correction.
+
+How computed:
+- Conservation equation:
+	- `corrected_short_pause_dur * N_short_pause + corrected_long_pause_dur * N_long_pause`
+	- `= initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause`
+- Rearranged:
+	- `corrected_long_pause_dur = (initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause - corrected_short_pause_dur * N_short_pause) / N_long_pause`
+
+Unit:
+- `s/pause`
+
+### 3.36 Corrected Average Long Pause Punctuation Weight Relative To Short
+
+What it designates:
+- Effective long/short pause weight after correction.
+
+How computed:
+- `corrected_long_weight = corrected_long_pause_dur / corrected_short_pause_dur`
+
+Unit:
+- `no unit`
 
 ## 4. Pause Classification Rules
 
@@ -556,6 +617,8 @@ This makes each metrics file self-describing and reproducible.
 - `--metrics-pause-ratio`
 - `--metrics-long-punct-weight`
 - `--metrics-table`, `--metrics-json`, `--metrics-csv`
+
+Note: the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
 
 ## 8. Versioning
 

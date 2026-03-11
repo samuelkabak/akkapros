@@ -130,6 +130,12 @@ Main families of metrics:
 - Acoustic/rhythmic metrics (`%V`, `DeltaC`, `MeanC`, `VarcoC`)
 - Speech and pause allocation metrics
 
+Pause output includes:
+- `short_pauseable_boundaries` and `long_pauseable_boundaries`
+- Initial pause durations/weights (before correction)
+- Corrected pause durations constrained to even-mora short pauses
+- Corrected long/short weight derived after conservation adjustment
+
 For formal definitions and equations, see:
 - `docs/akkapros/metrics-computation.md`
 
@@ -140,6 +146,14 @@ Current outputs expose both:
 - `%V (normal speech, incl. pauses)`
 
 This makes text-derived moraic `%V` directly comparable with pause-inclusive speech measurements.
+
+## Pause Duration Correction Note
+
+`metricser.py` now reports two pause-duration layers:
+- Initial: direct weighted allocation from `--long-punct-weight`
+- Corrected: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
+
+This correction affects table, JSON, and CSV outputs.
 
 ## Pipeline Position
 

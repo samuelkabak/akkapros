@@ -169,8 +169,19 @@ def run_pipeline(
 
     if output_json:
         json_file = metrics_base.with_suffix('.json')
+        # Deep-copy and prune 'distances' before writing JSON to avoid large lists in output
+        from copy import deepcopy
+        pruned = deepcopy(metrics_result)
+        try:
+            pruned.get('original', {}).get('acoustic', {}).pop('distances', None)
+        except Exception:
+            pass
+        try:
+            pruned.get('repaired', {}).get('acoustic', {}).pop('distances', None)
+        except Exception:
+            pass
         with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(metrics_result, f, indent=2, ensure_ascii=False)
+            json.dump(pruned, f, indent=2, ensure_ascii=False)
         print(f"JSON saved to: {json_file}")
 
     if output_csv:

@@ -46,14 +46,14 @@ Write-Output "Running repairer (SOB)..."
 python "$repoRoot\src\akkapros\cli\repairer.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
 Write-Output "Running metrics (LOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
 
 Write-Output "Running metrics (SOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 
 Write-Output "Running printer (LOB)..."
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir\corpus-lob_tilde.txt"

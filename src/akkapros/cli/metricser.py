@@ -8,6 +8,7 @@ metrics computation to ``akkapros.lib.metrics``.
 import sys
 import re
 import json
+from copy import deepcopy
 import argparse
 import unicodedata
 from pathlib import Path
@@ -126,16 +127,33 @@ Version {__version__}
             base = Path(args.outdir) / 'metrics'
 
     if args.json:
-        json_file = base.with_suffix('.json')
+        json_file = base.with_name(base.name + '_metrics.json')
+        # Deep-copy and prune large internal lists (e.g., 'distances') before writing
+        pruned = deepcopy(results[0] if len(results) == 1 else results)
+        def _prune_res(obj):
+            try:
+                if isinstance(obj, dict):
+                    orig = obj.get('original')
+                    rep = obj.get('repaired')
+                    if isinstance(orig, dict):
+                        orig.get('acoustic', {}).pop('distances', None)
+                    if isinstance(rep, dict):
+                        rep.get('acoustic', {}).pop('distances', None)
+            except Exception:
+                pass
+
+        if isinstance(pruned, list):
+            for r in pruned:
+                _prune_res(r)
+        else:
+            _prune_res(pruned)
+
         with open(json_file, 'w', encoding='utf-8') as f:
-            if len(results) == 1:
-                json.dump(results[0], f, indent=2, ensure_ascii=False)
-            else:
-                json.dump(results, f, indent=2, ensure_ascii=False)
+            json.dump(pruned, f, indent=2, ensure_ascii=False)
         print(f"JSON saved to: {json_file}")
 
     if args.csv:
-        csv_file = base.with_suffix('.csv')
+        csv_file = base.with_name(base.name + '_metrics.csv')
         format_csv(results, csv_file)
         print(f"CSV saved to: {csv_file}")
 
