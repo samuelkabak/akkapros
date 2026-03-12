@@ -6,6 +6,7 @@ Converts *_tilde text into:
 - <prefix>_accent_bold.md
 - <prefix>_accent_ipa.txt
 - <prefix>_accent_xar.txt
+- <prefix>_xar.txt
 - <prefix>_accent_mbrola.txt
 """
 
@@ -92,7 +93,7 @@ def main() -> None:
     parser.add_argument('--circ-hiatus', action='store_true',
                         help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
     parser.add_argument('--xar', action='store_true',
-                        help='Write <prefix>_accent_xar.txt')
+                        help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
     parser.add_argument('--mbrola', action='store_true',
                         help='Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols)')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
@@ -136,6 +137,7 @@ def main() -> None:
     bold_out = outdir / f"{prefix}_accent_bold.md"
     ipa_out = outdir / f"{prefix}_accent_ipa.txt"
     xar_out = outdir / f"{prefix}_accent_xar.txt"
+    xar_plain_out = outdir / f"{prefix}_xar.txt"
     mbrola_out = outdir / f"{prefix}_accent_mbrola.txt"
 
     accent_print.process_file(
@@ -144,6 +146,7 @@ def main() -> None:
         output_bold_file=str(bold_out),
         output_ipa_file=str(ipa_out),
         output_xar_file=str(xar_out),
+        output_xar_plain_file=str(xar_plain_out),
         output_mbrola_file=str(mbrola_out),
         write_acute=write_acute,
         write_bold=write_bold,
@@ -163,6 +166,7 @@ def main() -> None:
         print(f"Written: {ipa_out}")
     if write_xar:
         print(f"Written: {xar_out}")
+        print(f"Written: {xar_plain_out}")
     if write_mbrola:
         print(f"Written: {mbrola_out}")
 

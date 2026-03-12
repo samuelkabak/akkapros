@@ -30,6 +30,7 @@ AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 # consistent.
 SHORT_VOWELS = set('aeiu')
 LONG_VOWELS = set('āēīūâêîû')
+CIRCUMFLEX_VOWELS = set('âêîû')
 
 # Symbols
 GLOTTAL = 'ʾ'          # glottal stop symbol (U+02BE)
@@ -42,6 +43,10 @@ CLOSE_ESCAPE = '›'
 
 OPEN_IGNORE = '['
 CLOSE_IGNORE = ']'
+
+DIPH_SEPARATOR = '¨'
+
+AKKADIAN_CONSONANTS.add(DIPH_SEPARATOR)  # treat diphthongs as consonant clusters for syllabification
 
 
 # Backward compatibility alias (deprecated name)

@@ -53,10 +53,6 @@ def main() -> None:
     parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
     parser.add_argument('-r', '--relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
-    parser.add_argument('--restore-diphthongs', action='store_true',
-                        help='Restore original diphthongs by removing inserted glottal stops')
-    parser.add_argument('--only-restore-diphthongs', action='store_true',
-                        help='ONLY restore diphthongs without running repair algorithm')
     parser.add_argument('--test', action='store_true', help='Run standard tests')
     parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
 
@@ -97,12 +93,7 @@ def main() -> None:
     print_startup_banner('akkapros-repairer', __version__, args)
 
     engine = RepairEngine(style=style, only_last=not args.relax_last)
-    engine.process_file(
-        str(input_path),
-        str(output_file),
-        args.restore_diphthongs,
-        args.only_restore_diphthongs,
-    )
+    engine.process_file(str(input_path), str(output_file))
 
 
 if __name__ == "__main__":

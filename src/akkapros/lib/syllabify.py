@@ -48,7 +48,8 @@ from akkapros.lib.constants import (
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
     OPEN_IGNORE,
-    CLOSE_IGNORE
+    CLOSE_IGNORE,
+    DIPH_SEPARATOR
 )
 
 
@@ -126,11 +127,11 @@ def split_by_brackets_level3(text):
 
 
 def preprocess_diphthongs(text: str) -> str:
-    """Insert glottal stops between adjacent vowels (diphthong expansion).
+    """Insert DIPH_SEPARATOR between adjacent vowels (diphthong expansion).
 
     Warnings are printed to ``stderr`` when diphthongs are detected to help
     users spot them in their input data.  The function is idempotent in the
-    sense that once a glottal stop has been inserted it will no longer match
+    sense that once a DIPH_SEPARATOR has been inserted it will no longer match
     the regex pattern.
     """
 
@@ -156,8 +157,8 @@ def preprocess_diphthongs(text: str) -> str:
             end = min(len(text), pos + 10)
             context = text[start:end]
             print(f"   Diphthong '{diphthong}' at position {pos}: ...{context}...", file=sys.stderr)
-            print(f"     → Inserting glottal stop: {diphthong[0]}ʾ{diphthong[1]}", file=sys.stderr)
-        text = re.sub(vowels_pattern, r'\1' + GLOTTAL + r'\2', text)
+            print(f"     → Inserting DIPH_SEPARATOR: {diphthong[0]}{DIPH_SEPARATOR}{diphthong[1]}", file=sys.stderr)
+        text = re.sub(vowels_pattern, r'\1' + DIPH_SEPARATOR + r'\2', text)
         print(f"   Total diphthongs processed: {len(matches)}", file=sys.stderr)
         print(file=sys.stderr)
     return text
@@ -175,7 +176,7 @@ def text_preprocess_boundaries(
     The function performs the following steps:
 
     1. Update the global character sets with ``extra_vowels``/``extra_consonants``.
-    2. Expand diphthongs by inserting glottal stops.
+    2. Expand diphthongs by inserting ``DIPH_SEPARATOR`` between adjacent vowels.
     3. Trim trailing whitespace on each line (preserve leading spaces).
     4. Merge words split across lines by hyphenation.
     5. Normalize line breaks by default: single newline -> space, 2+ newlines -> one newline.

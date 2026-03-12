@@ -99,7 +99,6 @@ def run_pipeline(
     preserve_lines: bool,
     style: str,
     only_last: bool,
-    restore_diphthongs: bool,
     wpm: float,
     pause_ratio: float,
     long_punct_weight: float,
@@ -125,6 +124,7 @@ def run_pipeline(
     bold_file = outdir / f"{safe_prefix}_accent_bold.md"
     ipa_file = outdir / f"{safe_prefix}_accent_ipa.txt"
     xar_file = outdir / f"{safe_prefix}_accent_xar.txt"
+    xar_plain_file = outdir / f"{safe_prefix}_xar.txt"
 
     print(f"Input: {input_file}")
     print(f"Output directory: {outdir}")
@@ -150,11 +150,7 @@ def run_pipeline(
     print("\n[2/3] Repairing...")
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     engine = RepairEngine(style=style_map[style], only_last=only_last)
-    engine.process_file(
-        str(syl_file),
-        str(tilde_file),
-        restore_diphthongs=restore_diphthongs,
-    )
+    engine.process_file(str(syl_file), str(tilde_file))
     print(f"Written: {tilde_file}")
 
     # 3) Metrics
@@ -200,7 +196,7 @@ def run_pipeline(
             'extra_vowels': extra_vowels,
             'repair_style': style,
             'repair_relax_last': not only_last,
-            'repair_restore_diphthongs': restore_diphthongs,
+            'repair_restore_diphthongs': True,
             'input': str(tilde_file),
         }
         table = format_table(metrics_result, run_context=table_context)
@@ -217,6 +213,7 @@ def run_pipeline(
         output_bold_file=str(bold_file),
         output_ipa_file=str(ipa_file),
         output_xar_file=str(xar_file),
+        output_xar_plain_file=str(xar_plain_file),
         write_acute=output_acute,
         write_bold=output_bold,
         write_ipa=output_ipa,
@@ -233,6 +230,7 @@ def run_pipeline(
         print(f"Accent IPA saved to: {ipa_file}")
     if output_xar:
         print(f"Accent XAR saved to: {xar_file}")
+        print(f"XAR saved to: {xar_plain_file}")
 
     print("\nPipeline completed successfully.")
     return 0
@@ -245,7 +243,7 @@ def main() -> None:
         epilog=f"""
 EXAMPLES:
     python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --repair-style lob --metrics-table
-    python fullreparer.py outputs/erra_proc.txt -p erra --repair-restore-diphthongs --metrics-json --metrics-csv
+    python fullreparer.py outputs/erra_proc.txt -p erra --metrics-json --metrics-csv
     python fullreparer.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
     python fullreparer.py --test-all
 
@@ -270,8 +268,6 @@ Versions: {__version__}
     parser.add_argument('--repair-style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
     parser.add_argument('--repair-relax-last', action='store_true',
                         help='For explicit + links, allow repair propagation before the last linked word')
-    parser.add_argument('--repair-restore-diphthongs', action='store_true',
-                        help='Restore diphthongs after repair')
 
     # Metricser options
     parser.add_argument('--metrics-csv', action='store_true', help='Write CSV metrics output')
@@ -294,7 +290,7 @@ Versions: {__version__}
     parser.add_argument('--print-circ-hiatus', action='store_true',
                         help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
     parser.add_argument('--print-xar', action='store_true',
-                        help='Write <prefix>_accent_xar.txt')
+                        help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
 
     # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
@@ -376,7 +372,6 @@ Versions: {__version__}
         preserve_lines=not args.syl_merge_lines,
         style=args.repair_style,
         only_last=only_last,
-        restore_diphthongs=args.repair_restore_diphthongs,
         wpm=args.metrics_wpm,
         pause_ratio=args.metrics_pause_ratio,
         long_punct_weight=args.metrics_long_punct_weight,

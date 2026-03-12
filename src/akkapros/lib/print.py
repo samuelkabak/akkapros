@@ -7,6 +7,8 @@ Transforms *_tilde text into three reading-friendly outputs:
 - accent_acute text: ~ -> ´
 - accent_bold markdown: syllable containing ~ is bold, ~ removed
 - accent_ipa text: IPA transliteration with stress/length markers
+- accent_xar text: XAR transliteration with repaired accent mark
+- xar text: XAR transliteration without repaired accent mark
 
 Core marker handling:
 - WORD_LINKER '+' -> '‿'
@@ -254,62 +256,6 @@ def _to_mbrola_vowel(vowel: str, emphatic_context: bool) -> str:
     return MBROLA_VOWELS_DEFAULT.get(vowel, vowel)
 
 
-def remove_glottals(text: str) -> str:
-    """Remove mapped glottal apostrophes in XAR using diphthong-preserving replacements."""
-    short_to_circumflex = {'a': 'â', 'i': 'î', 'u': 'û', 'e': 'ê'}
-
-    replacements = [
-        (r"u'a", 'ua'),
-        (r"u'ā", 'uā'),
-        (r"u'â", 'uâ'),
-        (r"u'ā~", 'uā~'),
-        (r"u'â~", 'uâ~'),
-        (r"ū'a", 'uā'),
-        (r"û'a", 'uâ'),
-        (r"ū'ā", 'uā~'),
-        (r"û'ā", 'uâ~'),
-        (r"ū'â", 'uâ~'),
-        (r"û'â", 'uâ~'),
-        (r"ū'ā~", 'uā'),
-        (r"û'ā~", 'uâ'),
-        (r"ū'â~", 'uâ'),
-        (r"û'â~", 'uâ'),
-        (r"ū~'a", 'uā~'),
-        (r"û~'a", 'uâ~'),
-        (r"ū~'ā", 'uā'),
-        (r"û~'ā", 'uâ'),
-        (r"ū~'â", 'uâ'),
-        (r"û~'â", 'uâ'),
-        (r"ū~'ā~", 'uā~'),
-        (r"û~'ā~", 'uâ~'),
-        (r"ū~'â~", 'uâ~'),
-        (r"û~'â~", 'uâ~'),
-        (r"([^aeiu]?)u'a", r"\1ua"),
-        (r"([^aeiu]?)u'ā", r"\1uā"),
-        (r"([^aeiu]?)u'â", r"\1uâ"),
-    ]
-
-    for pattern, repl in replacements:
-        text = re.sub(pattern, repl, text)
-
-    # Residual glottals near consonants:
-    # (C|start) [aiue] ' (C|end) -> (C|start) [âîûê] (C|end)
-    text = re.sub(
-        r"(^|(?<=[^aeiuāēīūâêîû]))([aiue])'(?=[^aeiuāēīūâêîû]|$)",
-        lambda m: f"{m.group(1)}{short_to_circumflex[m.group(2)]}",
-        text,
-    )
-
-    # (C|start) [aiue] C ' -> (C|start) [âîûê] C
-    text = re.sub(
-        r"(^|(?<=[^aeiuāēīūâêîû]))([aiue])([^aeiuāēīūâêîû'])'",
-        lambda m: f"{m.group(1)}{short_to_circumflex[m.group(2)]}{m.group(3)}",
-        text,
-    )
-
-    return text.replace("'", "")
-
-
 def _convert_word_xar(word: str) -> str:
     """Convert one Akkadian word token to XAR with ordered transforms."""
     emphatic_flags = []
@@ -317,12 +263,11 @@ def _convert_word_xar(word: str) -> str:
         if char in ALL_VOWELS:
             emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR}))
 
-    step1 = ''.join(XAR_CONSONANT_MAP.get(char, char) for char in word)
-    step2 = remove_glottals(step1)
+    step = ''.join(XAR_CONSONANT_MAP.get(char, char) for char in word)
 
     out = []
     vowel_idx = 0
-    for char in step2:
+    for char in step:
         if char in ALL_VOWELS:
             emphatic_context = emphatic_flags[vowel_idx] if vowel_idx < len(emphatic_flags) else False
             out.append(_to_xar_vowel(char, emphatic_context))
@@ -911,6 +856,7 @@ def process_file(
     output_bold_file: str,
     output_ipa_file: str = '',
     output_xar_file: str = '',
+    output_xar_plain_file: str = '',
     output_mbrola_file: str = '',
     write_acute: bool = True,
     write_bold: bool = True,
@@ -928,6 +874,7 @@ def process_file(
         output_bold_file: Path for accent_bold.md output
         output_ipa_file: Path for accent_ipa.txt output
         output_xar_file: Path for accent_xar.txt output
+        output_xar_plain_file: Path for xar.txt output (same XAR conversion without accent marks)
         output_mbrola_file: Path for accent_mbrola.txt output
         write_acute: Whether to write acute output
         write_bold: Whether to write bold output
@@ -966,9 +913,27 @@ def process_file(
     if write_xar:
         if not output_xar_file:
             raise ValueError("output_xar_file is required when write_xar is True")
+
+        plain_xar_file = output_xar_plain_file
+        if not plain_xar_file:
+            base = Path(output_xar_file)
+            plain_name = (
+                base.name.replace('_accent_xar.txt', '_xar.txt')
+                if base.name.endswith('_accent_xar.txt')
+                else f"{base.stem}_xar.txt"
+            )
+            plain_xar_file = str(base.with_name(plain_name))
+
         Path(output_xar_file).parent.mkdir(parents=True, exist_ok=True)
         with open(output_xar_file, 'w', encoding='utf-8') as f:
             f.write(xar_text)
+
+        Path(plain_xar_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(plain_xar_file, 'w', encoding='utf-8') as f:
+            plain_xar_text = xar_text.replace(ACUTE_MARK, '')
+            # Pure XAR restores word boundaries where visible linkers were used.
+            plain_xar_text = re.sub(r'\s*' + re.escape(WORD_LINKER_OUT) + r'\s*', ' ', plain_xar_text)
+            f.write(plain_xar_text)
 
     if write_mbrola:
         if not output_mbrola_file:
@@ -1014,27 +979,27 @@ def run_tests() -> bool:
         ("ša", "xar", "x̌a"),
         ("ḥa", "xar", "ḫa"),
         ("ya", "xar", "ja"),
-        ("ʿa", "xar", "a"),
+        ("ʿa", "xar", "'a"),
         ("qā~", "xar", "ꝗàa´"),
         ("šar~", "xar", "x̌ar´"),
         ("q~a", "xar", "ꝗ´à"),
-        ("ʾa ʿa", "xar", "a a"),
-        ("ʾa", "xar", "a"),
-        ("uʾa", "xar", "ua"),
-        ("kūʾa", "xar", "kuaa"),
-        ("baʾk", "xar", "beâk"),
-        ("abʿd", "xar", "eâbd"),
-        ("ʾka", "xar", "ka"),
-        ("bakʾ", "xar", "beâk"),
-        ("bākʾ", "xar", "baak"),
-        ("biʾd", "xar", "beîd"),
-        ("buʾd", "xar", "biûd"),
-        ("beʾd", "xar", "baêd"),
-        ("takʾ", "xar", "teâk"),
-        ("tikʾ", "xar", "teîk"),
-        ("tukʾ", "xar", "tiûk"),
-        ("tekʾ", "xar", "taêk"),
-        ("tīkʾ", "xar", "tiik"),
+        ("ʾa ʿa", "xar", "'a 'a"),
+        ("ʾa", "xar", "'a"),
+        ("uʾa", "xar", "u'a"),
+        ("kūʾa", "xar", "kuu'a"),
+        ("baʾk", "xar", "ba'k"),
+        ("abʿd", "xar", "ab'd"),
+        ("ʾka", "xar", "'ka"),
+        ("bakʾ", "xar", "bak'"),
+        ("bākʾ", "xar", "baak'"),
+        ("biʾd", "xar", "bi'd"),
+        ("buʾd", "xar", "bu'd"),
+        ("beʾd", "xar", "be'd"),
+        ("takʾ", "xar", "tak'"),
+        ("tikʾ", "xar", "tik'"),
+        ("tukʾ", "xar", "tuk'"),
+        ("tekʾ", "xar", "tek'"),
+        ("tīkʾ", "xar", "tiik'"),
         ("bā", "xar", "baa"),
         ("bī", "xar", "bii"),
         ("bū", "xar", "buu"),
@@ -1269,6 +1234,8 @@ def run_tests() -> bool:
         out_acute = Path(tmpdir) / "sample_accent_acute.txt"
         out_bold = Path(tmpdir) / "sample_accent_bold.md"
         out_ipa = Path(tmpdir) / "sample_accent_ipa.txt"
+        out_xar = Path(tmpdir) / "sample_accent_xar.txt"
+        out_xar_plain = Path(tmpdir) / "sample_xar.txt"
         in_path.write_text("k~a·pin + ~a·pil", encoding='utf-8')
 
         process_file(
@@ -1276,9 +1243,12 @@ def run_tests() -> bool:
             output_acute_file=str(out_acute),
             output_bold_file=str(out_bold),
             output_ipa_file=str(out_ipa),
+            output_xar_file=str(out_xar),
+            output_xar_plain_file=str(out_xar_plain),
             write_acute=True,
             write_bold=False,
             write_ipa=True,
+            write_xar=True,
         )
 
         file_ok = (
@@ -1286,6 +1256,10 @@ def run_tests() -> bool:
             and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
             and out_ipa.exists()
             and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin.ˈʔːa.pil"
+            and out_xar.exists()
+            and out_xar.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
+            and out_xar_plain.exists()
+            and out_xar_plain.read_text(encoding='utf-8') == "kapin apil"
             and not out_bold.exists()
         )
         if file_ok:
@@ -1297,6 +1271,10 @@ def run_tests() -> bool:
                 f"\n  acute_text: {out_acute.read_text(encoding='utf-8') if out_acute.exists() else ''}"
                 f"\n  ipa_exists: {out_ipa.exists()}"
                 f"\n  ipa_text: {out_ipa.read_text(encoding='utf-8') if out_ipa.exists() else ''}"
+                f"\n  xar_exists: {out_xar.exists()}"
+                f"\n  xar_text: {out_xar.read_text(encoding='utf-8') if out_xar.exists() else ''}"
+                f"\n  xar_plain_exists: {out_xar_plain.exists()}"
+                f"\n  xar_plain_text: {out_xar_plain.read_text(encoding='utf-8') if out_xar_plain.exists() else ''}"
                 f"\n  bold_exists: {out_bold.exists()}"
             )
 

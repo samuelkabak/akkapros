@@ -25,10 +25,10 @@
  - **demo/**: Added `demo/README.md` describing demo scripts and example outputs (akkapros & akkatts)
 - **fullreparer.py CLI namespaced options**: stage-prefixed flags now disambiguate pipeline stages:
 	- syllabify: `--syl-merge-hyphens`, `--syl-merge-lines`
-	- repair: `--repair-style`, `--repair-relax-last`, `--repair-restore-diphthongs`
+	- repair: `--repair-style`, `--repair-relax-last`
 	- metrics: `--metrics-*`
 	- printer: `--print-*`
-	- removed ambiguous `--only-restore-diphthongs` from `fullreparer.py`
+	- removed diphthong restoration toggles; restoration is now systematic in repair output
 
 ### Changed
 - Reorganized codebase into proper Python package structure (`src/akkapros/`)

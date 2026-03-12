@@ -18,7 +18,7 @@ It is not meant to replace philological transliteration in critical editions. It
 5. Explicit vowel coloring near emphatics.
 6. Historical memory for circumflex vowels.
 7. Compatibility with modern punctuation habits.
-8. OB-oriented phonological output: pharyngeals and glottals are neutralized in final text.
+8. Stable practical output policy for glottal letters.
 
 ## Why XAR Is Different from Standard Academic Transliteration
 
@@ -29,7 +29,7 @@ Key differences:
 - XAR intentionally uses visually marked letters for sounds that differ from common Latin expectations.
 - XAR encodes long vowels as doubled vowels (`aa`, `ii`, `uu`, `ee`) to prevent intuitive shortening by readers from languages where accent marks do not imply length.
 - XAR uses grave accents for emphatic vowel coloring to make the coloring visible even when speakers cannot produce full emphatic consonants.
-- XAR removes pharyngeal and glottal symbols in final output for OB-aligned reading fluency.
+- XAR currently maps glottal/pharyngeal letters `ʿ` and `ʾ` to apostrophe (`'`) in final output.
 
 ## Letter System
 
@@ -55,10 +55,8 @@ Additional consonant handling:
 - `y -> j`
 - `ḥ -> ḫ`
 - `ḫ -> ḫ`
-- `ʿ -> '` (intermediate stage)
-- `ʾ -> '` (intermediate stage)
-
-In final XAR output, apostrophes are removed by rule; see the OB policy below.
+- `ʿ -> '`
+- `ʾ -> '`
 
 ### Vowels
 
@@ -180,9 +178,9 @@ This keeps XAR operable on plain keyboards while maintaining a coherent one-to-o
 
 XAR is aligned with an Old Babylonian reading profile:
 
-- pharyngeals and glottals are neutralized in the final practical text,
-- no apostrophe is required in final output,
-- intermediate apostrophe handling exists only as a transformation stage.
+- pharyngeal and glottal letters are represented by apostrophe (`'`) in final practical text,
+- apostrophe is retained to keep output reversible and avoid hidden deletions,
+- both accented and plain XAR outputs follow the same consonant mapping.
 
 This makes the script easier for continuous reading while preserving enough structure for conversion pipelines.
 
@@ -203,7 +201,7 @@ This improves accessibility for both academic readers and conlang communities.
 | Long vowels | Macron (`ā ī ū ē`) | Doubling (`aa ii uu ee`) |
 | Circumflex vowels | Single circumflex letter (`â î û ê`) | Two-vowel memory forms (`eâ eî iû aê`) |
 | Emphatic coloring | Usually implicit/analytical | Explicit via grave accent (`à ì ù è`) |
-| Pharyngeals/glottals in final reader text | Preserved in transliteration | Neutralized for OB-oriented practical reading |
+| Pharyngeals/glottals in final reader text | Preserved in transliteration | Mapped to apostrophe (`'`) |
 | Punctuation behavior | Philological/editorial conventions | English-like practical punctuation |
 
 ## Practical Outcome
@@ -217,3 +215,51 @@ XAR gives Akkadian a practical reading script that is:
 - useful for both trained Assyriologists and advanced conlang practitioners.
 
 In short: XAR keeps linguistic discipline while making Akkadian easier to read aloud consistently.
+
+## Example: Academic, XAR, and English translation
+
+The following short passage is shown in three parallel forms: standard academic Akkadian, the XAR reading orthography, and an English translation.
+
+**Academic Akkadian:**
+```
+ukappit-ma : tiāmtu pitiqša
+tāḫāza iktaṣar : ana ilī niprīša
+aḫrâtaš eli apsî : ulammin tiāmtu
+ananta kī iṣmidu : ana ea iptašrū
+išmē-ma ea : amāta šuāti
+kummiš ušḫarrir-ma : šaqummiš ušba
+ištu imtalkū-ma : uzzašu inūḫu
+muttiš anšar abīšu : šū uštardi
+īrum-ma maḫru abi : ālidīšu anšar
+mimmû tiāmtu ikpudu : ušannâ ana šâšu
+```
+
+**XAR Script:**
+```
+ukappit-ma : tiaamtu pitiꝗx̌a
+taaḫaaza iktaɉàr : ana ilii nipriix̌a
+aḫreâtax̌ eli apseî : ulammin tiaamtu
+ananta kii iɉmidu : ana ea iptax̌ruu
+ix̌mee-ma ea : amaata x̌uaati
+kummix̌ ux̌ḫarrir-ma : x̌aꝗùmmix̌ ux̌ba
+ix̌tu imtalkuu-ma : uzzax̌u inuuḫu
+muttix̌ anx̌ar abiix̌u : x̌uu ux̌tardi
+iirum-ma maḫru abi : aalidiix̌u anx̌ar
+mimmiû tiaamtu ikpudu : ux̌anneâ ana x̌eâx̌u
+```
+
+**English translation:**
+```
+Tiamat assembled her creatures,
+Drew up for battle against the gods her brood.
+Thereafter Tiamat, more than Apsu, was become an evildoer.
+She informed Ea that she was ready for battle.
+When Ea heard this,
+He fell silent in his chamber and sat stock still.
+After he had taken thought and his anger had calmed,
+He made straight his way to Anshar his grandfather.
+He came in before his grandfather, Anshar,
+All that Tiamat plotted he recounted to him,
+```
+
+This example demonstrates how XAR maps academic transliteration into a readable, speech-oriented orthography while preserving phonetic structure.

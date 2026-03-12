@@ -15,12 +15,16 @@ __version__ = "1.0.0"
 from akkapros.lib.constants import (
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
+    LONG_VOWELS,
+    SHORT_VOWELS,
     GLOTTAL,
     SYL_WORD_ENDING,
     SYL_SEPARATOR,
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
-    WORD_LINKER
+    WORD_LINKER,
+    CIRCUMFLEX_VOWELS,
+    DIPH_SEPARATOR,
 )
 
 HYPHEN = '-'
@@ -28,11 +32,11 @@ HYPHEN = '-'
 # ------------------------------------------------------------
 # Phonetic inventory
 # ------------------------------------------------------------
-LONG = set('āēīūâêîû')
-SHORT = set('aeiu')
+LONG = set(LONG_VOWELS)
+SHORT = set(SHORT_VOWELS)
 V = LONG | SHORT
-C = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
-CIRCUMFLEX = set('âêîû')
+C = set(AKKADIAN_CONSONANTS)
+CIRCUMFLEX = set(CIRCUMFLEX_VOWELS)
 
 
 
@@ -485,76 +489,28 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
 
 
 # ------------------------------------------------------------
-# Diphthong Restoration (when --restore-diphthongs is used)
+# Diphthong restoration (always applied in repair output)
 # ------------------------------------------------------------
 
-# Vowel mappings
-SHORT_VOWELS = {'a', 'i', 'u', 'e'}
-MACRON_VOWELS = {'ā', 'ī', 'ū', 'ē'}
-CIRCUMFLEX_VOWELS = {'â', 'î', 'û', 'ê'}
-
-# Mapping from base vowel to long forms
-MACRON_MAP = {'a': 'ā', 'i': 'ī', 'u': 'ū', 'e': 'ē'}
-CIRCUMFLEX_MAP = {'a': 'â', 'i': 'î', 'u': 'û', 'e': 'ê'}
-
-# For extra-long (with ~)
-EXTRA_LONG_MACRON_MAP = {'a': 'ā~', 'i': 'ī~', 'u': 'ū~', 'e': 'ē~'}
-EXTRA_LONG_CIRCUMFLEX_MAP = {'a': 'â~', 'i': 'î~', 'u': 'û~', 'e': 'ê~'}
-
-import re
+from akkapros.lib.diphthongs import ALL_REPLACEMENTS
 
 def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
     """
-    Restore diphthongs using regex replacements.
+    Restore diphthongs using generated regex patterns.
+
+    Any residual DIPH_SEPARATOR characters are removed as a final safeguard,
+    so repaired output never exposes diphthong split markers.
     """
-    print("\n⚠️  RESTORING DIPHTHONGS")
-    
-    # Replacement patterns based on your table
-    replacements = [
-        # Basic patterns
-        (r'u\.ʾa', 'ua'),
-        (r'u\.ʾā', 'uā'),
-        (r'u\.ʾâ', 'uâ'),
-        (r'u\.ʾā~', 'uā~'),
-        (r'u\.ʾâ~', 'uâ~'),
-        
-        # First vowel long
-        (r'ū\.ʾa', 'uā'),
-        (r'û\.ʾa', 'uâ'),
-        (r'ū\.ʾā', 'uā~'),
-        (r'û\.ʾā', 'uâ~'),
-        (r'ū\.ʾâ', 'uâ~'),
-        (r'û\.ʾâ', 'uâ~'),
-        (r'ū\.ʾā~', 'uā'),
-        (r'û\.ʾā~', 'uâ'),
-        (r'ū\.ʾâ~', 'uâ'),
-        (r'û\.ʾâ~', 'uâ'),
-        
-        # First vowel extra-long
-        (r'ū~\.ʾa', 'uā~'),
-        (r'û~\.ʾa', 'uâ~'),
-        (r'ū~\.ʾā', 'uā'),
-        (r'û~\.ʾā', 'uâ'),
-        (r'ū~\.ʾâ', 'uâ'),
-        (r'û~\.ʾâ', 'uâ'),
-        (r'ū~\.ʾā~', 'uā~'),
-        (r'û~\.ʾā~', 'uâ~'),
-        (r'ū~\.ʾâ~', 'uâ~'),
-        (r'û~\.ʾâ~', 'uâ~'),
-        
-        # With consonant
-        (r'([^aeiu]?)u\.ʾa', r'\1ua'),
-        (r'([^aeiu]?)u\.ʾā', r'\1uā'),
-        (r'([^aeiu]?)u\.ʾâ', r'\1uâ'),
-    ]
     
     new_lines = []
     for line in output_lines:
-        for pattern, repl in replacements:
+        for pattern, repl in ALL_REPLACEMENTS:
             line = re.sub(pattern, repl, line)
+        line = line.replace(DIPH_SEPARATOR, '')
         new_lines.append(line)
     
     return new_lines
+
 
 #------------------------
 
@@ -912,9 +868,7 @@ class RepairEngine:
         
         return assemble_line(result_parts, tokens)
     
-    def process_file(self, input_file: str, output_file: str, 
-                    restore_diphthongs: bool = False,
-                    only_restore_diphthongs: bool = False):
+    def process_file(self, input_file: str, output_file: str):
         
         print(f"\n{'='*80}")
         print(f"AKKADIAN PROSODY TOOLKIT — REPAIR ENGINE v{__version__}")
@@ -922,13 +876,9 @@ class RepairEngine:
         print(f"Input:  {input_file}")
         print(f"Output: {output_file}")
         
-        if only_restore_diphthongs:
-            print(f"Mode:   DIPHTHONG RESTORATION ONLY")
-        else:
-            print(f"Style:  {self.style.value.upper()}")
-            print(f"Explicit + mode: {'ONLY LAST LINKED WORD' if self.only_last else 'ALLOW PROPAGATION'}")
-            if restore_diphthongs:
-                print(f"Option: RESTORE DIPHTHONGS")
+        print(f"Style:  {self.style.value.upper()}")
+        print(f"Explicit + mode: {'ONLY LAST LINKED WORD' if self.only_last else 'ALLOW PROPAGATION'}")
+        print("Diphthongs: RESTORE ALWAYS")
         
         print(f"{'='*80}\n")
         
@@ -939,43 +889,26 @@ class RepairEngine:
         
         output_lines = []
         
-        if only_restore_diphthongs:
-            # MODE 1: Only restore diphthongs (no repair)
-            for line_num, line in enumerate(lines):
-                line = line.rstrip('\n')
-                if not line.strip():
-                    output_lines.append('')
-                    continue
-                # Just pass through the line as-is (diphthong restoration will happen after)
-                output_lines.append(line)
-                
-                if (line_num + 1) % 10 == 0:
-                    print(f"  Processed {line_num + 1}/{len(lines)} lines...")
-        else:
-            # MODE 2: Normal repair (with or without diphthong restoration)
-            for line_num, line in enumerate(lines):
-                line = line.rstrip('\n')
-                if not line.strip():
-                    output_lines.append('')
-                    continue
-                tokens = parse_syl_line(line)
-                repaired_line = self.repair_line(tokens)
-                output_lines.append(repaired_line)
-                
-                if (line_num + 1) % 10 == 0:
-                    print(f"  Processed {line_num + 1}/{len(lines)} lines...")
-        
-        # Restore diphthongs if requested (in either mode)
-        if restore_diphthongs or only_restore_diphthongs:
-            print(f"\nRestoring diphthongs...")
-            output_lines = postprocess_restore_diphthongs(output_lines)
+        for line_num, line in enumerate(lines):
+            line = line.rstrip('\n')
+            if not line.strip():
+                output_lines.append('')
+                continue
+            tokens = parse_syl_line(line)
+            repaired_line = self.repair_line(tokens)
+            output_lines.append(repaired_line)
+
+            if (line_num + 1) % 10 == 0:
+                print(f"  Processed {line_num + 1}/{len(lines)} lines...")
+
+        print("\nRestoring diphthongs...")
+        output_lines = postprocess_restore_diphthongs(output_lines)
         
         print(f"\nWriting output...")
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(output_lines))
         
-        if not only_restore_diphthongs:
-            self._print_stats()
+        self._print_stats()
 
     def _print_stats(self):
         print(f"\n{'='*80}")
@@ -1005,89 +938,23 @@ class RepairEngine:
 
 
 def test_diphthong_restoration() -> bool:
-    """Test diphthong restoration using regex replacements."""
+    """Test diphthong restoration using generated DIPH_SEPARATOR patterns."""
     print("\n" + "="*80)
     print("DIPHTHONG RESTORATION — REGEX TESTS")
     print("="*80)
-    
-    # Define the same replacements as in postprocess_restore_diphthongs
-    def apply_replacements(text: str) -> str:
-        """Apply replacements from most specific to least specific."""
-        result = text
-        
-        replacements = [
-            # 1. Patterns with tilde on BOTH vowels (rarest, most specific)
-            (r'ū~\.ʾā~', 'uā~'),
-            (r'û~\.ʾā~', 'uâ~'),
-            (r'ū~\.ʾâ~', 'uâ~'),
-            (r'û~\.ʾâ~', 'uâ~'),
-            
-            # 2. Patterns with tilde on first vowel
-            (r'ū~\.ʾā', 'uā'),
-            (r'û~\.ʾā', 'uâ'),
-            (r'ū~\.ʾâ', 'uâ'),
-            (r'û~\.ʾâ', 'uâ'),
-            (r'ū~\.ʾa', 'uā~'),
-            (r'û~\.ʾa', 'uâ~'),
-            
-            # 3. Patterns with tilde on second vowel
-            (r'ū\.ʾā~', 'uā'),
-            (r'û\.ʾā~', 'uâ'),
-            (r'ū\.ʾâ~', 'uâ'),
-            (r'û\.ʾâ~', 'uâ'),
-            (r'u\.ʾā~', 'uā~'),
-            (r'u\.ʾâ~', 'uâ~'),
-            
-            # 4. Patterns without tilde, both vowels long
-            (r'ū\.ʾā', 'uā~'),
-            (r'û\.ʾā', 'uâ~'),
-            (r'ū\.ʾâ', 'uâ~'),
-            (r'û\.ʾâ', 'uâ~'),
-            
-            # 5. Patterns with first vowel long, second short
-            (r'ū\.ʾa', 'uā'),
-            (r'û\.ʾa', 'uâ'),
-            
-            # 6. Patterns with first vowel short, second long
-            (r'u\.ʾā', 'uā'),
-            (r'u\.ʾâ', 'uâ'),
-            
-            # 7. Basic pattern both short
-            (r'u\.ʾa', 'ua'),
-            
-            # 8. With consonant (capture and preserve)
-            (r'([^aeiu]?)u\.ʾa', r'\1ua'),
-            (r'([^aeiu]?)u\.ʾā', r'\1uā'),
-            (r'([^aeiu]?)u\.ʾâ', r'\1uâ'),
-        ]
-        
-        for pattern, repl in replacements:
-            result = re.sub(pattern, repl, result)
-        
-        return result
+    def restore_one(text: str) -> str:
+        return postprocess_restore_diphthongs([text])[0]
 
     test_cases = [
-        # Basic cases
-        ("u.ʾa", "ua", "Simple u.ʾa → ua"),
-        ("u.ʾā", "uā", "u.ʾā → uā"),
-        ("u.ʾâ", "uâ", "u.ʾâ → uâ"),
-        ("u.ʾā~", "uā~", "u.ʾā~ → uā~"),
-        ("u.ʾâ~", "uâ~", "u.ʾâ~ → uâ~"),
-        
-        # First vowel long
-        ("ū.ʾa", "uā", "ū.ʾa → uā"),
-        ("û.ʾa", "uâ", "û.ʾa → uâ"),
-        ("ū.ʾā", "uā~", "ū.ʾā → uā~"),
-        ("û.ʾā", "uâ~", "û.ʾā → uâ~"),
-        ("ū.ʾâ", "uâ~", "ū.ʾâ → uâ~"),
-        ("û.ʾâ", "uâ~", "û.ʾâ → uâ~"),
-        ("ū.ʾā~", "uā", "ū.ʾā~ → uā"),
-        ("û.ʾā~", "uâ", "û.ʾā~ → uâ"),
-        ("ū.ʾâ~", "uâ", "ū.ʾâ~ → uâ"),
-        ("û.ʾâ~", "uâ", "û.ʾâ~ → uâ"),
-        
-        # With consonant
-        ("ku.ʾa", "kua", "ku.ʾa → kua"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "ua", "Simple short u+a"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "uā", "Short+long u+a"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "uā", "Long+short u+a"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "uā~", "Long+long u+a"),
+        (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "â", "Identical short vowels -> circumflex"),
+        (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a~", "â~", "Identical short+tilde -> circumflex+tilde"),
+        (f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "kua", "Consonant context preserved"),
+        (f"ba{DIPH_SEPARATOR}ru", "baru", "Residual separator is always removed"),
+        (f"ta{SYL_SEPARATOR}{DIPH_SEPARATOR}a ki", "tâ ki", "In-line restoration in phrase"),
     ]
     
     passed = 0
@@ -1096,7 +963,7 @@ def test_diphthong_restoration() -> bool:
     print(f"\nRunning {total} tests...\n")
     
     for i, (inp, expected, desc) in enumerate(test_cases, 1):
-        result = apply_replacements(inp)
+        result = restore_one(inp)
         if result == expected:
             print(f"✅ Test {i}: {desc}")
             passed += 1

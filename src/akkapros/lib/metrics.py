@@ -45,17 +45,6 @@ EXTRA_LONG_VOWELS = set('àìùè')
 # Phonetic inventory — Akkadian core
 # ------------------------------------------------------------
 
-#AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
-#AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
-
-# Vowel length categories
-#SHORT_VOWELS = set('aeiu')
-#LONG_VOWELS = set('āēīūâêîû')
-#EXTRA_LONG_VOWELS = set('àìùè')
-
-#GLOTTAL = 'ʾ'  # Glottal stop symbol (U+02BE)
-
-
 # Foreign characters (from command line)
 FOREIGN_VOWELS = set()
 FOREIGN_CONSONANTS = set()

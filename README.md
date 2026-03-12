@@ -71,6 +71,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
 - `<prefix>_accent_xar.txt`
+- `<prefix>_xar.txt`
 
 ### Marker behavior
 
@@ -82,7 +83,8 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 	- in `accent_bold`: removed and the host syllable is bolded
 	- in `accent_ipa`: converted to IPA length (`ː`) and stress (`ˈ`) markers
 	- in `accent_xar`: replaced by `´` on the repaired segment in XAR orthography
-- in `accent_xar`, glottal letters `ʿ` and `ʾ` are removed in final output (Old Babylonian profile); glottal-cleanup rules are kept as a protective normalization when input includes forms from other Akkadian periods/regions (e.g., Old Akkadian, Standard Babylonian, Assyrian Akkadian)
+- in `xar` (plain), repaired `´` marks are removed; this file keeps the same XAR transliteration otherwise
+- in XAR outputs, glottal letters `ʿ` and `ʾ` are currently represented as apostrophe (`'`) and are not stripped by cleanup
 - in IPA mode, spaces and `+` are connected speech boundaries and are rendered as syllable separators (`.`)
 - in IPA mode, punctuation emits symbolic tags and prosody markers:
 	- weak/inner punctuation -> `|`
@@ -102,13 +104,14 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 ### XAR orthography profile
 
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullreparer.py --print-xar`.
+- Selecting XAR writes two files: `<prefix>_accent_xar.txt` and `<prefix>_xar.txt`.
 - Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
 	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`
 	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> èâ`, `î -> èî`, `û -> ìû`, `ê -> àê`
 - Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded as mixed pairs where the second slot carries the circumflex (`eâ/eî/iû/aê`). This gives a visual cue that the second vowel is dominant while preserving a clear keyboard-friendly contrast between macron and circumflex series.
-- Processing order for XAR is: consonant substitution -> glottal cleanup rules -> vowel substitution.
-- Old Babylonian profile: `ʿ` and `ʾ` are removed in final XAR output. Cleanup rules are kept as protection for inputs from other Akkadian periods/regions.
+- Processing order for XAR is: consonant substitution -> vowel substitution -> accent-mark handling.
+- Current policy keeps apostrophe realizations for `ʿ` and `ʾ` in both XAR outputs.
 
 ### Emphatic vowel coloring
 
@@ -135,7 +138,7 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 # write IPA with Old Babylonian pharyngeal merger
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-pharyngeal remove
 
-# write only XAR output
+# write XAR outputs (accented and plain)
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --xar
 
 # run self-tests
@@ -172,7 +175,8 @@ Use `fullreparer.py` when you want to run the full pipeline (`syllabifier` → `
 ### Stage-specific options
 
 - **Syllabification**: `--syl-merge-hyphens`, `--syl-merge-lines`
-- **Repair**: `--repair-style {lob,sob}` (default: `sob`), `--repair-relax-last`, `--repair-restore-diphthongs`
+- **Repair**: `--repair-style {lob,sob}` (default: `sob`), `--repair-relax-last`
+	- Diphthong restoration is always applied after repair; split markers never appear in `_tilde.txt` output.
 - **Metrics**: `--metrics-wpm`, `--metrics-pause-ratio`, `--metrics-weak-punct-weight`, `--metrics-strong-punct-weight`, `--metrics-table`, `--metrics-json`, `--metrics-csv`
 - **Printer**: `--print-acute`, `--print-bold`, `--print-ipa`, `--print-ipa-pharyngeal {preserve,remove}`, `--print-xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
@@ -199,13 +203,13 @@ python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir o
 # SOB style with JSON and CSV metrics
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_sob --outdir outputs --repair-style sob --metrics-json --metrics-csv
 
-# Restore diphthongs in repair stage
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --repair-restore-diphthongs --metrics-table
+# Diphthongs are restored automatically in repair stage
+python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_diph --outdir outputs --metrics-table
 
 # Write only IPA accent output (skip acute/bold)
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_ipa --outdir outputs --print-ipa --metrics-table
 
-# Write only XAR accent output (skip acute/bold/ipa)
+# Write only XAR outputs (accented and plain; skip acute/bold/ipa)
 python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra_xar --outdir outputs --print-xar --metrics-table
 
 # Allow explicit + repair propagation before the last linked word

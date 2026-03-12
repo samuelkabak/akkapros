@@ -41,6 +41,7 @@ Optional print outputs:
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
 - `<prefix>_accent_xar.txt`
+- `<prefix>_xar.txt`
 
 ## Command Syntax
 
@@ -70,7 +71,10 @@ Notes:
 
 - `--repair-style {lob,sob}` (default: `lob`)
 - `--repair-relax-last`
-- `--repair-restore-diphthongs`
+
+Notes:
+- Diphthong restoration is always applied in the repair stage.
+- The temporary split marker is removed from final `_tilde.txt` output.
 
 ### Metricser Options
 
@@ -92,6 +96,7 @@ Defaults:
 - `--print-ipa-pharyngeal {preserve,remove}`
 - `--print-circ-hiatus`
 - `--print-xar`
+  - Writes both XAR files: accented (`<prefix>_accent_xar.txt`) and plain (`<prefix>_xar.txt`).
 
 Defaults:
 - If no print output is selected, `--print-acute` and `--print-bold` are enabled automatically.
@@ -129,13 +134,12 @@ python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
   --metrics-table
 ```
 
-Run with diphthong restoration and machine-readable metrics:
+Run with machine-readable metrics (diphthongs restore automatically):
 
 ```bash
 python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
   -p erra \
   --outdir outputs \
-  --repair-restore-diphthongs \
   --metrics-json --metrics-csv
 ```
 

@@ -27,6 +27,7 @@ Outputs (by selected flags):
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
 - `<prefix>_accent_xar.txt`
+- `<prefix>_xar.txt`
 - `<prefix>_accent_mbrola.txt`
 
 If no output flags are selected, default output is:
@@ -52,6 +53,7 @@ Output selectors:
 - `--bold`
 - `--ipa`
 - `--xar`
+  - Writes both XAR files: accented (`<prefix>_accent_xar.txt`) and plain (`<prefix>_xar.txt`).
 - `--mbrola`
 
 IPA-specific options:

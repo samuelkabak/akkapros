@@ -26,12 +26,12 @@ if (Test-Path $resultsDir) {
   New-Item -ItemType Directory -Path $resultsDir | Out-Null
 }
 $sampleFiles = @(
-  (Join-Path $repoRoot 'data\samples\L_I.5_Erra_and_Isum_SB_I.atf'),
-  (Join-Path $repoRoot 'data\samples\L_III.3_Marduks_Address_to_the_Demons_SB.atf'),
   (Join-Path $repoRoot 'data\samples\L_I.2_Poem_of_Creation_SB_II.atf'),
   (Join-Path $repoRoot 'data\samples\L_I.2_Poem_of_Creation_SB_IV.atf'),
   (Join-Path $repoRoot 'data\samples\L_I.2_Poem_of_Creation_SB_VI.atf'),
-  (Join-Path $repoRoot 'data\samples\L_I.2_Poem_of_Creation_SB_VII.atf')
+  (Join-Path $repoRoot 'data\samples\L_I.2_Poem_of_Creation_SB_VII.atf'),
+  (Join-Path $repoRoot 'data\samples\L_I.5_Erra_and_Isum_SB_I.atf'),
+  (Join-Path $repoRoot 'data\samples\L_III.3_Marduks_Address_to_the_Demons_SB.atf')
 )
 foreach ($f in $sampleFiles) {
   python "$repoRoot\src\akkapros\cli\atfparser.py" "$f" --append -p corpus --outdir "$resultsDir"
@@ -56,10 +56,10 @@ python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.t
 python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 
 Write-Output "Running printer (LOB)..."
-python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir\corpus-lob_tilde.txt"
+python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-lob_tilde.txt"
 
 Write-Output "Running printer (SOB)..."
-python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-sob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir\corpus-sob_tilde.txt"
+python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-sob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-sob_tilde.txt"
 
 Write-Output "Running fullreparer --test-all..."
 python "$repoRoot\src\akkapros\cli\fullreparer.py" --test-all 

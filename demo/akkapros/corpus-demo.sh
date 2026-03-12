@@ -12,12 +12,12 @@ else
   mkdir -p "$resultsDir"
 fi
 sampleFiles=(
-  "data/samples/L_I.5_Erra_and_Isum_SB_I.atf"
-  "data/samples/L_III.3_Marduks_Address_to_the_Demons_SB.atf"
   "data/samples/L_I.2_Poem_of_Creation_SB_II.atf"
   "data/samples/L_I.2_Poem_of_Creation_SB_IV.atf"
   "data/samples/L_I.2_Poem_of_Creation_SB_VI.atf"
   "data/samples/L_I.2_Poem_of_Creation_SB_VII.atf"
+  "data/samples/L_I.5_Erra_and_Isum_SB_I.atf"
+  "data/samples/L_III.3_Marduks_Address_to_the_Demons_SB.atf"
 )
 for f in "${sampleFiles[@]}"; do
   python src/akkapros/cli/atfparser.py "$f" --append -p corpus --outdir "$resultsDir"

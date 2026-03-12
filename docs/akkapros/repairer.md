@@ -41,10 +41,8 @@ python src/akkapros/cli/repairer.py <input_syl.txt> [options]
   - Default: `lob`.
 - `-r, --relax-last`
   - For explicit `+` links, allow repair propagation before the last linked word.
-- `--restore-diphthongs`
-  - Restore diphthongs by removing inserted glottal stops after repair.
-- `--only-restore-diphthongs`
-  - Only restore diphthongs, skip the repair algorithm.
+- Diphthongs are always restored after repair.
+  - Temporary split markers are removed systematically in output.
 - `--test`
   - Run standard repair tests.
 - `--test-diphthongs`
@@ -67,21 +65,11 @@ python src/akkapros/cli/repairer.py outputs/erra_syl.txt \
   --outdir outputs
 ```
 
-Run with diphthong restoration:
+Run repair with automatic diphthong restoration:
 
 ```bash
 python src/akkapros/cli/repairer.py outputs/erra_syl.txt \
-  --restore-diphthongs \
   -p erra \
-  --outdir outputs
-```
-
-Only restore diphthongs (no new repairs):
-
-```bash
-python src/akkapros/cli/repairer.py outputs/erra_syl.txt \
-  --only-restore-diphthongs \
-  -p erra_restored \
   --outdir outputs
 ```
 
