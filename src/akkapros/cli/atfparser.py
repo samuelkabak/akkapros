@@ -120,7 +120,7 @@ OPTIONS:
 
 OUTPUT FILES (created in --outdir):
   PREFIX_orig.txt    - Original %%n lines (with ATF markup preserved)
-  PREFIX_proc.txt    - Cleaned text for syllabification/repair
+    PREFIX_proc.txt    - Cleaned text for syllabification/prosody realization
   PREFIX_trans.txt   - English translation (if present)
 
 For more information, visit:
@@ -231,7 +231,7 @@ MIT License (c) 2026 Samuel KABAK
             print(f"{i+1:2d}. {line}")
 
         print("\n" + "-"*60)
-        print("FIRST 5 CLEANED LINES (ready for repair):")
+        print("FIRST 5 CLEANED LINES (ready for prosody realization):")
         print("-"*60)
         for i, line in enumerate(results['cleaned_lines'][:5]):
             print(f"{i+1:2d}. {line}")
@@ -240,7 +240,7 @@ MIT License (c) 2026 Samuel KABAK
         print("FILES SAVED:")
         display_prefix = simple_safe_filename(prefix)
         print(f"  {outdir / f'{display_prefix}_orig.txt'} (original, with ATF markup)")
-        print(f"  {outdir / f'{display_prefix}_proc.txt'} (cleaned, ready for repair)")
+        print(f"  {outdir / f'{display_prefix}_proc.txt'} (cleaned, ready for prosody realization)")
         if results['english_translations']:
             trans_file = outdir / f"{display_prefix}_trans.txt"
             print(f"  {trans_file}")

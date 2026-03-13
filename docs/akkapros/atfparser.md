@@ -1,4 +1,4 @@
-# ATF Parser CLI (`atfparser.py`)
+﻿# ATF Parser CLI (`atfparser.py`)
 
 This document explains what `atfparser.py` does, how to run it, and what files it produces.
 
@@ -25,7 +25,7 @@ Input:
 
 Outputs (in `--outdir`):
 - `<prefix>_orig.txt`: original Akkadian `%n` text with markup preserved.
-- `<prefix>_proc.txt`: cleaned Akkadian text for syllabification/repair.
+- `<prefix>_proc.txt`: cleaned Akkadian text for syllabification/prosody realization.
 - `<prefix>_trans.txt`: English translations, when present.
 
 ## Command Syntax
@@ -47,7 +47,7 @@ python src/akkapros/cli/atfparser.py <input.atf> [options]
 - `--preserve-case`
   - Keep original case (default behavior lowercases text).
 - `--preserve-h`
-  - Keep `h/H` unchanged (default maps to `ḫ/Ḫ`).
+  - Keep `h/H` unchanged (default maps to `á¸«/á¸ª`).
 - `--strict`
   - Enable strict warning mode.
 - `--test`
@@ -61,10 +61,10 @@ Within Akkadian `%n` lines:
 - `( )`, `[ ]`, `< >`: delimiters removed, content kept.
 - `{ }`: removed.
 - `|`: converted to space.
-- `||`, `‡`, `—`, `–`: normalized to `:` phrase separator.
-- `x` broken signs: collapsed to one `…` marker.
-- `? ! * °`: removed.
-- Ellipsis preserved as `…`.
+- `||`, `â€¡`, `â€”`, `â€“`: normalized to `:` phrase separator.
+- `x` broken signs: collapsed to one `â€¦` marker.
+- `? ! * Â°`: removed.
+- Ellipsis preserved as `â€¦`.
 - Numerals preserved.
 
 ## Typical Usage
@@ -72,7 +72,7 @@ Within Akkadian `%n` lines:
 Basic run:
 
 ```bash
-python src/akkapros/cli/atfparser.py data/samples/"L I.5 Erra and Išum SB I.atf" \
+python src/akkapros/cli/atfparser.py data/samples/"L I.5 Erra and IÅ¡um SB I.atf" \
   -p erra \
   --outdir outputs
 ```
@@ -96,11 +96,13 @@ python src/akkapros/cli/atfparser.py --test
 Typical pipeline order:
 1. `atfparser.py` -> `*_proc.txt`
 2. `syllabifier.py` -> `*_syl.txt`
-3. `repairer.py` -> `*_tilde.txt`
+3. `prosmaker.py` -> `*_tilde.txt`
 4. `metricser.py` and `printer.py`
 
 ## Notes
 
 - This parser intentionally removes most structural metadata.
 - Line breaks are preserved as meaningful textual structure for downstream processing.
-- For end-to-end one-command processing, see `fullreparer.py`.
+- For end-to-end one-command processing, see `fullprosmaker.py`.
+
+

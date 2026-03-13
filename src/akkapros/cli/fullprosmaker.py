@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-"""Akkadian Prosody Toolkit — Full Repair Pipeline (CLI wrapper)
+﻿#!/usr/bin/env python3
+"""Akkadian Prosody Toolkit - Full Prosody Pipeline (CLI wrapper)
 
 Runs the complete processing pipeline in one command:
 1) syllabify (from *_proc.txt to *_syl.txt)
-2) repair    (from *_syl.txt to *_tilde.txt)
+2) prosody realization (from *_syl.txt to *_tilde.txt)
 3) metrics   (from *_tilde.txt to selected metrics outputs)
 4) print     (from *_tilde.txt to selected accent outputs)
 
@@ -20,11 +20,11 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
-from akkapros.lib.repair import (
-    __version__ as repair_version,
+from akkapros.lib.prosody import (
+    __version__ as prosody_version,
     AccentStyle,
-    RepairEngine,
-    run_tests as run_repair_tests,
+    ProsodyEngine,
+    run_tests as run_prosody_tests,
     test_diphthong_restoration,
 )
 from akkapros.lib.metrics import (
@@ -40,7 +40,7 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
 
-__version__ = f"syllabify-{syllabify.__version__}|repair-{repair_version}|metrics-{metrics_version}"
+__version__ = f"syllabify-{syllabify.__version__}|prosody-{prosody_version}|metrics-{metrics_version}"
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
@@ -53,7 +53,7 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
 
 
 def run_tests() -> bool:
-    """Run fullreparer CLI resolution tests only (no pipeline execution)."""
+    """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
     class _Args:
         def __init__(self, print_ipa: bool, print_ipa_pharyngeal: str, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
@@ -79,13 +79,13 @@ def run_tests() -> bool:
             passed += 1
         else:
             print(
-                "FAILED [fullreparer cli ipa mode]"
+                "FAILED [fullprosmaker cli ipa mode]"
                 f"\n  in : print_ipa={args.print_ipa}, print_ipa_pharyngeal={args.print_ipa_pharyngeal}, print_circ_hiatus={args.print_circ_hiatus}"
                 f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}, print_circ_hiatus={got_circ_hiatus}"
                 f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}, print_circ_hiatus={exp_circ_hiatus}"
             )
 
-    print(f"fullreparer.py cli tests: {passed}/{len(cases)} passed")
+    print(f"fullprosmaker.py cli tests: {passed}/{len(cases)} passed")
     return passed == len(cases)
 
 
@@ -112,7 +112,7 @@ def run_pipeline(
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
 ) -> int:
-    """Execute syllabify -> repair -> metrics -> print and write all outputs."""
+    """Execute syllabify -> prosody realization -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
 
@@ -146,10 +146,10 @@ def run_pipeline(
         f.write(syl_text)
     print(f"Written: {syl_file}")
 
-    # 2) Repair using library engine
-    print("\n[2/3] Repairing...")
+    # 2) Prosody realization using library engine
+    print("\n[2/3] Applying prosody realization...")
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
-    engine = RepairEngine(style=style_map[style], only_last=only_last)
+    engine = ProsodyEngine(style=style_map[style], only_last=only_last)
     engine.process_file(str(syl_file), str(tilde_file))
     print(f"Written: {tilde_file}")
 
@@ -187,16 +187,16 @@ def run_pipeline(
 
     if output_table:
         table_context = {
-            'cli': 'fullreparer.py',
+            'cli': 'fullprosmaker.py',
             'wpm_words_per_min': wpm,
             'pause_ratio_percent': pause_ratio,
             'short_pause_punct_weight_unitless': 1.0,
             'long_pause_punct_weight_unitless': long_punct_weight,
             'extra_consonants': extra_consonants,
             'extra_vowels': extra_vowels,
-            'repair_style': style,
-            'repair_relax_last': not only_last,
-            'repair_restore_diphthongs': True,
+            'prosody_style': style,
+            'prosody_relax_last': not only_last,
+            'prosody_restore_diphthongs': True,
             'input': str(tilde_file),
         }
         table = format_table(metrics_result, run_context=table_context)
@@ -238,19 +238,19 @@ def run_pipeline(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Run full Akkadian pipeline: syllabify -> repair -> metrics',
+        description='Run full Akkadian pipeline: syllabify -> prosody realization -> metrics',
         formatter_class=RawDefaultsHelpFormatter,
         epilog=f"""
 EXAMPLES:
-    python fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --repair-style lob --metrics-table
-    python fullreparer.py outputs/erra_proc.txt -p erra --metrics-json --metrics-csv
-    python fullreparer.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
-    python fullreparer.py --test-all
+    python fullprosmaker.py outputs/erra_proc.txt -p erra --outdir outputs --prosody-style lob --metrics-table
+    python fullprosmaker.py outputs/erra_proc.txt -p erra --metrics-json --metrics-csv
+    python fullprosmaker.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
+    python fullprosmaker.py --test-all
 
 Versions: {__version__}
 """
     )
-    parser.add_argument('--version', action='version', version=f'akkapros-fullreparer {__version__}')
+    parser.add_argument('--version', action='version', version=f'akkapros-fullprosmaker {__version__}')
 
     # Input/output (shared)
     parser.add_argument('input', nargs='?', help='Input Akkadian file (typically *_proc.txt)')
@@ -264,10 +264,11 @@ Versions: {__version__}
     parser.add_argument('--syl-merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
 
-    # Repairer options
-    parser.add_argument('--repair-style', choices=['lob', 'sob'], default='lob', help='Repair accent style')
-    parser.add_argument('--repair-relax-last', action='store_true',
-                        help='For explicit + links, allow repair propagation before the last linked word')
+    # Prosmaker options
+    parser.add_argument('--prosody-style', dest='prosody_style', choices=['lob', 'sob'], default='lob',
+                        help='Prosody realization accent style')
+    parser.add_argument('--prosody-relax-last', dest='prosody_relax_last', action='store_true',
+                        help='For explicit + links, allow prosody realization propagation before the last linked word')
 
     # Metricser options
     parser.add_argument('--metrics-csv', action='store_true', help='Write CSV metrics output')
@@ -288,39 +289,40 @@ Versions: {__version__}
     parser.add_argument('--print-ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
                         help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
     parser.add_argument('--print-circ-hiatus', action='store_true',
-                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
+                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qu -> qu.u)')
     parser.add_argument('--print-xar', action='store_true',
                         help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
 
     # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
-    parser.add_argument('--test-repair', action='store_true', help='Run repair library tests')
+    parser.add_argument('--test-prosody', dest='test_prosody', action='store_true',
+                        help='Run prosody realization library tests')
     parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
     parser.add_argument('--test-metrics', action='store_true', help='Run metrics library tests')
     parser.add_argument('--test-print', action='store_true', help='Run print library tests')
-    parser.add_argument('--test-cli', action='store_true', help='Run fullreparer CLI option-resolution tests')
-    parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, repair, diphthongs, metrics and print')
+    parser.add_argument('--test-cli', action='store_true', help='Run fullprosmaker CLI option-resolution tests')
+    parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, prosody realization, diphthongs, metrics and print')
 
     args = parser.parse_args()
 
-    print_startup_banner('akkapros-fullreparer', __version__, args)
+    print_startup_banner('akkapros-fullprosmaker', __version__, args)
 
     if args.test_all:
         ok = True
         ok = syllabify.run_tests() and ok
-        ok = run_repair_tests() and ok
+        ok = run_prosody_tests() and ok
         ok = test_diphthong_restoration() and ok
         ok = run_metrics_tests() and ok
         ok = accent_print.run_tests() and ok
         ok = run_tests() and ok
         sys.exit(0 if ok else 1)
 
-    if args.test_syllabify or args.test_repair or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
+    if args.test_syllabify or args.test_prosody or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
         ok = True
         if args.test_syllabify:
             ok = syllabify.run_tests() and ok
-        if args.test_repair:
-            ok = run_repair_tests() and ok
+        if args.test_prosody:
+            ok = run_prosody_tests() and ok
         if args.test_diphthongs:
             ok = test_diphthong_restoration() and ok
         if args.test_metrics:
@@ -360,7 +362,7 @@ Versions: {__version__}
         output_acute = True
         output_bold = True
 
-    only_last = not args.repair_relax_last
+    only_last = not args.prosody_relax_last
 
     code = run_pipeline(
         input_file=input_path,
@@ -370,7 +372,7 @@ Versions: {__version__}
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.syl_merge_hyphens,
         preserve_lines=not args.syl_merge_lines,
-        style=args.repair_style,
+        style=args.prosody_style,
         only_last=only_last,
         wpm=args.metrics_wpm,
         pause_ratio=args.metrics_pause_ratio,
@@ -390,3 +392,4 @@ Versions: {__version__}
 
 if __name__ == '__main__':
     main()
+

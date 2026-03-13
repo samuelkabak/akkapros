@@ -1,4 +1,4 @@
-# Syllabifier CLI (`syllabifier.py`)
+﻿# Syllabifier CLI (`syllabifier.py`)
 
 This document explains what `syllabifier.py` does, how to run it, and what files it produces.
 
@@ -8,7 +8,7 @@ Implementation:
 
 ## Purpose
 
-`syllabifier.py` converts cleaned Akkadian text into syllabified form used by the repair stage.
+`syllabifier.py` converts cleaned Akkadian text into syllabified form used by the prosody realization stage.
 
 It inserts syllable boundaries and marks word endings in the toolkit internal format.
 
@@ -51,11 +51,11 @@ python src/akkapros/cli/syllabifier.py <input_proc.txt> [options]
 ## Output Format Markers
 
 Common markers used in `*_syl.txt`:
-- `·`: syllable separator.
-- `¦`: word-ending marker.
+- `Â·`: syllable separator.
+- `Â¦`: word-ending marker.
 - `-`: hyphen boundary (unless merged).
 - `+`: linker boundary.
-- `‹...›`: escaped punctuation/non-word segments.
+- `â€¹...â€º`: escaped punctuation/non-word segments.
 
 ## Typical Usage
 
@@ -79,7 +79,7 @@ Provide additional phonetic symbols:
 
 ```bash
 python src/akkapros/cli/syllabifier.py outputs/text_proc.txt \
-  --extra-vowels "ø" --extra-consonants "ɣ" \
+  --extra-vowels "Ã¸" --extra-consonants "É£" \
   -p text --outdir outputs
 ```
 
@@ -100,7 +100,9 @@ python src/akkapros/cli/syllabifier.py --test
 Typical pipeline order:
 1. `atfparser.py`
 2. `syllabifier.py`
-3. `repairer.py`
+3. `prosmaker.py`
 4. `metricser.py` / `printer.py`
 
-For a one-command run of all stages, use `fullreparer.py`.
+For a one-command run of all stages, use `fullprosmaker.py`.
+
+

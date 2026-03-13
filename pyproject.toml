@@ -7,8 +7,8 @@ name = "akkapros"
 version = "1.0.0"
 description = "Akkadian accentuation reconstruction toolkit"
 readme = "README.md"
-authors = [{name = "Samuel KABAK", email = "samuel.kabak@gmail.com"}]
-license = {text = "MIT License"}
+authors = [{ name = "Samuel KABAK", email = "samuel.kabak@gmail.com" }]
+license = { text = "MIT License" }
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -18,11 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Text Processing :: Linguistic",
 ]
-dependencies = [
-    # Only what your project directly needs
-    # DiaMoE-TTS is called externally, not imported
-    # "boto3",
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
@@ -32,17 +28,16 @@ dev = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["akkapros*"]
 
 [project.scripts]
-# Console entry points for installed CLIs
-akkapros-fullreparer = "akkapros.cli.fullreparer:main"
+akkapros-fullprosmaker = "akkapros.cli.fullprosmaker:main"
 akkapros-syllabifier = "akkapros.cli.syllabifier:main"
-akkapros-repairer = "akkapros.cli.repairer:main"
+akkapros-prosmaker = "akkapros.cli.prosmaker:main"
 akkapros-metricser = "akkapros.cli.metricser:main"
 akkapros-atfparser = "akkapros.cli.atfparser:main"
 akkapros-printer = "akkapros.cli.printer:main"

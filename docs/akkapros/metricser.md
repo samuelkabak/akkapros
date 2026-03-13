@@ -1,4 +1,4 @@
-# Metricser CLI (`metricser.py`)
+﻿# Metricser CLI (`metricser.py`)
 
 This document explains what the metrics CLI does, how to run it, and how to interpret its generated files.
 
@@ -9,7 +9,7 @@ Implementation:
 
 ## Purpose
 
-`metricser.py` computes rhythmic and structural metrics from repaired text (`*_tilde.txt`).
+`metricser.py` computes rhythmic and structural metrics from prosody-realized text (`*_tilde.txt`).
 
 It can output:
 - Human-readable text table
@@ -126,7 +126,7 @@ Main families of metrics:
 - Syllable-type distributions and counts
 - Mora statistics per syllable and per word
 - Merge statistics
-- Repair statistics
+- prosody realization statistics
 - Acoustic/rhythmic metrics (`%V`, `DeltaC`, `MeanC`, `VarcoC`)
 - Speech and pause allocation metrics
 
@@ -157,10 +157,13 @@ This correction affects table, JSON, and CSV outputs.
 
 ## Pipeline Position
 
-`metricser.py` is typically run after `repairer.py`:
+`metricser.py` is typically run after `prosmaker.py`:
 1. `atfparser.py`
 2. `syllabifier.py`
-3. `repairer.py` -> `*_tilde.txt`
+3. `prosmaker.py` -> `*_tilde.txt`
 4. `metricser.py`
 
-For all-in-one execution, see `fullreparer.py`.
+For all-in-one execution, see `fullprosmaker.py`.
+
+
+

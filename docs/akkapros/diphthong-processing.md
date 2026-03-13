@@ -1,10 +1,10 @@
-Diphthong Processing Workflow
+﻿Diphthong Processing Workflow
 =============================
 
 Overview
 --------
 This document explains how diphthongs are handled by the Akkapros pipeline: how
-they are split for syllabification, repaired (if necessary), and restored back
+they are split for syllabification, prosody-realized (if necessary), and restored back
 into canonical diphthong forms. The implementation lives in
 `src/akkapros/lib/_gen_diphthongs.py` and the generated replacement table is
 written to `src/akkapros/lib/diphthongs.py` (via
@@ -15,11 +15,11 @@ Why split diphthongs?
 To compute mora counts and apply moraic repairs, the syllabifier must treat
 adjacent vowels as separate syllables. The syllabifier therefore inserts an
 explicit separator between adjacent vowels (the module constants
-`SYL_SEPARATOR` and `DIPH_SEPARATOR`), making sequences like “uʾa” or
-“aʾā~” unambiguous for the repair algorithm.
+`SYL_SEPARATOR` and `DIPH_SEPARATOR`), making sequences like â€œuÊ¾aâ€ or
+â€œaÊ¾Ä~â€ unambiguous for the prosody realization algorithm.
 
-After repair, those two-vowel sequences must be mapped back to the correct
-orthographic diphthong (e.g. `uā`, `uâ`, `ua`, `uā~`, etc.). The mapping is
+After prosody realization, those two-vowel sequences must be mapped back to the correct
+orthographic diphthong (e.g. `uÄ`, `uÃ¢`, `ua`, `uÄ~`, etc.). The mapping is
 not trivial: it depends on vowel quality (short/long/circumflex), whether the
 second vowel carries a tilde (``~``), and interactions where circumflex
 forms take precedence.
@@ -28,9 +28,9 @@ High-level pipeline
 -------------------
 1. Syllabify: the syllabifier inserts `SYL_SEPARATOR + DIPH_SEPARATOR` between
    adjacent vowels (or an equivalent marker sequence used by the codebase).
-2. Repair: the repair stage may lengthen vowels or add tilde markers to signal
+2. prosody realization: the prosody realization stage may lengthen vowels or add tilde markers to signal
    added morae; it operates on the separated syllables.
-3. Restore: once repair is complete, a set of regex replacements is applied to
+3. Restore: once prosody realization is complete, a set of regex replacements is applied to
    convert the separated vowel pairs into final diphthong forms.
 
 Rules summary
@@ -69,14 +69,14 @@ Practical examples
 Here are representative mappings (informal):
 
 - Same-base examples (a + a):
-  - `a.SEP.ʾā~` -> `ā`        (short + long~ -> long without tilde)
-  - `ā.SEP.ʾâ~` -> `â~`       (long + circ~ -> circ with tilde)
-  - `a.SEP.ʾa` -> `â`         (short+short -> circumflex)
+  - `a.SEP.Ê¾Ä~` -> `Ä`        (short + long~ -> long without tilde)
+  - `Ä.SEP.Ê¾Ã¢~` -> `Ã¢~`       (long + circ~ -> circ with tilde)
+  - `a.SEP.Ê¾a` -> `Ã¢`         (short+short -> circumflex)
 
 - Mixed-base examples (u + a):
-  - `u.SEP.ʾā~` -> `uā~`      (short u + long~ a -> uā~)
-  - `ū.SEP.ʾā~` -> `uā`       (long ū + long~ a -> uā)
-  - `u.SEP.ʾa` -> `ua`        (short u + short a -> ua)
+  - `u.SEP.Ê¾Ä~` -> `uÄ~`      (short u + long~ a -> uÄ~)
+  - `Å«.SEP.Ê¾Ä~` -> `uÄ`       (long Å« + long~ a -> uÄ)
+  - `u.SEP.Ê¾a` -> `ua`        (short u + short a -> ua)
 
 Note: `SEP` above stands in for the actual `SYL_SEPARATOR + DIPH_SEPARATOR`
 sequence produced during syllabification.
@@ -112,5 +112,7 @@ Further reading
 
 Changelog
 ---------
-Created: 2026-03-13 — initial documentation describing generation rules and
-how the restoration fits into the syllabify/repair pipeline.
+Created: 2026-03-13 â€” initial documentation describing generation rules and
+how the restoration fits into the syllabify/prosody realization pipeline.
+
+

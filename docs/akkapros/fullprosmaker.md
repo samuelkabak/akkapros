@@ -1,22 +1,22 @@
-# Full Reparer CLI (`fullreparer.py`)
+﻿# Full Prosmaker CLI (`fullprosmaker.py`)
 
-This document explains what `fullreparer.py` does, how to run it, and what files it produces.
+This document explains what `fullprosmaker.py` does, how to run it, and what files it produces.
 
 Implementation:
-- CLI wrapper: `src/akkapros/cli/fullreparer.py`
+- CLI wrapper: `src/akkapros/cli/fullprosmaker.py`
 - Uses these libraries internally:
   - `src/akkapros/lib/syllabify.py`
-  - `src/akkapros/lib/repair.py`
+  - `src/akkapros/lib/prosody.py`
   - `src/akkapros/lib/metrics.py`
   - `src/akkapros/lib/print.py`
 
 ## Purpose
 
-`fullreparer.py` runs the complete Akkadian processing pipeline in one command.
+`fullprosmaker.py` runs the complete Akkadian processing pipeline in one command.
 
 Pipeline stages:
 1. Syllabify (`*_proc.txt` -> `*_syl.txt`)
-2. Repair (`*_syl.txt` -> `*_tilde.txt`)
+2. prosody realization (`*_syl.txt` -> `*_tilde.txt`)
 3. Metrics (`*_tilde.txt` -> table/json/csv)
 4. Print outputs (`*_tilde.txt` -> accent outputs)
 
@@ -46,7 +46,7 @@ Optional print outputs:
 ## Command Syntax
 
 ```bash
-python src/akkapros/cli/fullreparer.py <input_proc.txt> [options]
+python src/akkapros/cli/fullprosmaker.py <input_proc.txt> [options]
 ```
 
 ## Option Groups
@@ -67,13 +67,13 @@ python src/akkapros/cli/fullreparer.py <input_proc.txt> [options]
 Notes:
 - Default line behavior is preserve-lines (unless `--syl-merge-lines` is set).
 
-### Repairer Options
+### Prosmaker Options
 
-- `--repair-style {lob,sob}` (default: `lob`)
-- `--repair-relax-last`
+- `--prosody-style {lob,sob}` (default: `lob`)
+- `--prosody-relax-last`
 
 Notes:
-- Diphthong restoration is always applied in the repair stage.
+- Diphthong restoration is always applied in the prosody realization stage.
 - The temporary split marker is removed from final `_tilde.txt` output.
 
 ### Metricser Options
@@ -102,14 +102,14 @@ Defaults:
 - If no print output is selected, `--print-acute` and `--print-bold` are enabled automatically.
 
 `--print-circ-hiatus` note:
-- Speculative IPA mode for circumflex hiatus splitting (example: `qû -> qʊ.ʊ`).
+- Speculative IPA mode for circumflex hiatus splitting (example: `qÃ» -> qÊŠ.ÊŠ`).
 
 ## Test Modes
 
-`fullreparer.py` can run stage-specific tests without processing an input file.
+`fullprosmaker.py` can run stage-specific tests without processing an input file.
 
 - `--test-syllabify`
-- `--test-repair`
+- `--test-prosody realization`
 - `--test-diphthongs`
 - `--test-metrics`
 - `--test-print`
@@ -121,23 +121,23 @@ Defaults:
 Minimal full run:
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt -p erra --outdir outputs
 ```
 
-Run with explicit repair style and metrics table:
+Run with explicit prosody realization style and metrics table:
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
   -p erra \
   --outdir outputs \
-  --repair-style lob \
+  --prosody-style lob \
   --metrics-table
 ```
 
 Run with machine-readable metrics (diphthongs restore automatically):
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
   -p erra \
   --outdir outputs \
   --metrics-json --metrics-csv
@@ -146,7 +146,7 @@ python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
 Run with IPA and speculative circumflex hiatus mode:
 
 ```bash
-python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
   -p erra \
   --outdir outputs \
   --print-ipa \
@@ -157,16 +157,16 @@ python src/akkapros/cli/fullreparer.py outputs/erra_proc.txt \
 Run full test suite:
 
 ```bash
-python src/akkapros/cli/fullreparer.py --test-all
+python src/akkapros/cli/fullprosmaker.py --test-all
 ```
 
 ## Stage Order And Internal Behavior
 
 Execution order is fixed:
 1. Syllabification is always run first and saved.
-2. Repair is always run second and saved.
-3. Metrics are computed from repaired output.
-4. Print outputs are generated from repaired output.
+2. prosody realization is always run second and saved.
+3. Metrics are computed from prosody-realized output.
+4. Print outputs are generated from prosody-realized output.
 
 The command exits with non-zero status if any stage fails.
 
@@ -175,8 +175,12 @@ The command exits with non-zero status if any stage fails.
 Single-stage CLIs:
 - `atfparser.py`
 - `syllabifier.py`
-- `repairer.py`
+- `prosmaker.py`
 - `metricser.py`
 - `printer.py`
 
-Use those when you need isolated stage debugging; use `fullreparer.py` for one-command production runs.
+Use those when you need isolated stage debugging; use `fullprosmaker.py` for one-command production runs.
+
+
+
+

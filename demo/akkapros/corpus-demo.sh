@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 cd "$(dirname "$0")/../.."
 export PYTHONPATH="$PWD/src"
 set -e
@@ -24,10 +24,10 @@ for f in "${sampleFiles[@]}"; do
 done
 echo "Running syllabifier..."
 python src/akkapros/cli/syllabifier.py "$corpusBase"_proc.txt -p corpus --outdir "$resultsDir"
-echo "Running repairer (LOB)..."
-python src/akkapros/cli/repairer.py "$corpusBase"_syl.txt -p corpus-lob --outdir "$resultsDir" --style lob
-echo "Running repairer (SOB)..."
-python src/akkapros/cli/repairer.py "$corpusBase"_syl.txt -p corpus-sob --outdir "$resultsDir" --style sob
+echo "Running prosmaker (LOB)..."
+python src/akkapros/cli/prosmaker.py "$corpusBase"_syl.txt -p corpus-lob --outdir "$resultsDir" --style lob
+echo "Running prosmaker (SOB)..."
+python src/akkapros/cli/prosmaker.py "$corpusBase"_syl.txt -p corpus-sob --outdir "$resultsDir" --style sob
 echo "Running metrics (LOB, pause ratios 30/35/40)..."
 python src/akkapros/cli/metricser.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
 python src/akkapros/cli/metricser.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
@@ -40,6 +40,7 @@ echo "Running printer (LOB)..."
 python src/akkapros/cli/printer.py -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir/corpus-lob_tilde.txt"
 echo "Running printer (SOB)..."
 python src/akkapros/cli/printer.py -p corpus-sob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir/corpus-sob_tilde.txt"
-echo "Running fullreparer --test-all..."
-python src/akkapros/cli/fullreparer.py --test-all
+echo "Running fullprosmaker --test-all..."
+python src/akkapros/cli/fullprosmaker.py --test-all
 echo "Demo pipeline complete."
+

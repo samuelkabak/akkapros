@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Akkadian Prosody Toolkit — Moraic Repair System
+Akkadian Prosody Toolkit - Moraic Prosody Realization System
 Version: 1.0.0 - WITH HYPHEN SUPPORT
 """
 
@@ -514,7 +514,7 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
 
 #------------------------
 
-class RepairEngine:
+class ProsodyEngine:
     def __init__(self, style: AccentStyle = AccentStyle.SOB, only_last: bool = True):
         self.style = style
         self.only_last = only_last
@@ -980,7 +980,7 @@ def test_diphthong_restoration() -> bool:
 def run_tests():
     """Run comprehensive tests for all three accent models."""
     print("\n" + "="*80)
-    print("REPAIR TOOL — COMPREHENSIVE TESTS")
+    print("PROSODY REALIZATION TOOL — COMPREHENSIVE TESTS")
     print("="*80)
     
     test_cases = [
@@ -1171,7 +1171,7 @@ def run_tests():
     
     for style in [AccentStyle.LOB, AccentStyle.SOB]:
         print(f"\n--- Testing {style.value.upper()} ---")
-        engine = RepairEngine(style=style)
+        engine = ProsodyEngine(style=style)
         
         passed = 0
         total = 0
@@ -1236,7 +1236,7 @@ def run_tests():
 
     print("\n--- Testing RELAX_LAST mode ---")
     for style in [AccentStyle.LOB, AccentStyle.SOB]:
-        engine = RepairEngine(style=style, only_last=False)
+        engine = ProsodyEngine(style=style, only_last=False)
         for test in relaxed_cases:
             tokens = parse_syl_line(test['input'])
             result = engine.repair_line(tokens)
@@ -1259,4 +1259,6 @@ def run_tests():
     print(f"{'='*80}\n")
     
     return all_passed
+
+
 

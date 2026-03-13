@@ -1,9 +1,9 @@
-import pytest
+﻿import pytest
 
 from akkapros.lib import atfparse
 from akkapros.lib import metrics
 from akkapros.lib import print as printlib
-from akkapros.lib import repair
+from akkapros.lib import prosody
 from akkapros.lib import syllabify
 from akkapros.lib import utils
 
@@ -13,8 +13,8 @@ from akkapros.lib import utils
     [
         ("atfparse", atfparse.run_tests),
         ("syllabify", syllabify.run_tests),
-        ("repair", repair.run_tests),
-        ("repair_diphthongs", repair.test_diphthong_restoration),
+        ("prosody", prosody.run_tests),
+        ("prosody_diphthongs", prosody.test_diphthong_restoration),
         ("metrics", metrics.run_tests),
         ("print", printlib.run_tests),
         ("utils", utils.run_tests),
@@ -35,3 +35,4 @@ def test_metrics_refactored_chunks():
     assert metrics._test_distance_calculation()
     assert metrics._test_pause_metrics_grouping()
     assert metrics._test_unknown_punctuation_fallback()
+

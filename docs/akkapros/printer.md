@@ -1,4 +1,4 @@
-# Printer CLI (`printer.py`)
+﻿# Printer CLI (`printer.py`)
 
 This document explains what `printer.py` does, how to run it, and what output formats it writes.
 
@@ -8,7 +8,7 @@ Implementation:
 
 ## Purpose
 
-`printer.py` converts repaired pivot text (`*_tilde.txt`) into user-facing reading and phonetic outputs.
+`printer.py` converts prosody-realized pivot text (`*_tilde.txt`) into user-facing reading and phonetic outputs.
 
 Supported outputs:
 - Acute-mark text
@@ -62,7 +62,7 @@ IPA-specific options:
   - `remove`: OB-style pharyngeal merger.
 - `--circ-hiatus`
   - Speculative mode splitting circumflex vowels into hiatus in IPA.
-  - Example: `qû -> qʊ.ʊ`.
+  - Example: `qÃ» -> qÊŠ.ÊŠ`.
 
 Testing:
 - `--test`
@@ -109,10 +109,13 @@ python src/akkapros/cli/printer.py --test
 
 ## Pipeline Position
 
-`printer.py` is typically run after repair:
+`printer.py` is typically run after prosody realization:
 1. `atfparser.py`
 2. `syllabifier.py`
-3. `repairer.py` -> `*_tilde.txt`
+3. `prosmaker.py` -> `*_tilde.txt`
 4. `printer.py`
 
-For one-command processing with optional print stage included, see `fullreparer.py`.
+For one-command processing with optional print stage included, see `fullprosmaker.py`.
+
+
+

@@ -1,20 +1,20 @@
-# Metrics Computation
+﻿# Metrics Computation
 
 This document explains every metric reported by `akkapros` metrics output: what each metric designates, how it is computed, and which unit it uses.
 
 Implementation scope:
 - `src/akkapros/lib/metrics.py`
 - `src/akkapros/cli/metricser.py`
-- `src/akkapros/cli/fullreparer.py` (metrics stage)
+- `src/akkapros/cli/fullprosmaker.py` (metrics stage)
 
 ## 1. Input And Notation
 
-Metrics uses repaired text in `*_tilde.txt` format.
+Metrics uses prosody-realized text in `*_tilde.txt` format.
 
 Main symbols in input:
 - `.` and `-`: syllable separators
 - `+`: linker between words (no pause)
-- `~`: repair/accent marker
+- `~`: prosody realization/accent marker
 
 Main symbols in output formulas:
 - `N_x`: count of item `x`
@@ -27,7 +27,7 @@ Main symbols in output formulas:
 Base duration model:
 - short vowel (`a e i u`) = `1 mu`
 - long/circumflex vowel (`a- e- i- u-` macron/circumflex) = `2 mu`
-- repaired extra-long vowel = `3 mu`
+- prosody-realized extra-long vowel = `3 mu`
 - coda consonant contributes consonantal weight in interval computation
 
 These mora assignments are the basis for syllable weight, interval distances, and all derived timing estimates.
@@ -40,7 +40,7 @@ What it designates:
 - Number of syllables in the analyzed text.
 
 How computed:
-- Tokenize syllables from repaired stream and count all syllable nuclei.
+- Tokenize syllables from prosody-realized stream and count all syllable nuclei.
 
 Unit:
 - `syllables`
@@ -52,7 +52,7 @@ What it designates:
 
 How computed:
 - Each syllable is classified by consonant/vowel pattern.
-- Repaired patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `ʔ:V`).
+- prosody-realized patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `Ê”:V`).
 
 Unit:
 - Count: `syllables`
@@ -144,7 +144,7 @@ What it designates:
 - Number of words that participate in merged prosodic units.
 
 How computed:
-- Count words inside units linked by merge markers from repair stage.
+- Count words inside units linked by merge markers from prosody realization stage.
 
 Unit:
 - `words`
@@ -171,13 +171,13 @@ How computed:
 Unit:
 - `words`
 
-### 3.13 Repair Rate
+### 3.13 prosody realization rate
 
 What it designates:
-- Fraction of syllables modified by repair operations.
+- Fraction of syllables modified by prosody realization operations.
 
 How computed:
-- `repair_rate = repaired_syllables / total_syllables * 100`.
+- `prosody_realization_rate = prosody_realized_syllables / total_syllables * 100`.
 
 Unit:
 - `%`
@@ -196,7 +196,7 @@ Rationale:
 - To compare moraic text metrics with speech metrics, pause ratio expands total moraic time by `x(1 + pause_ratio/100)`.
 
 Implementation note:
-- `metricser.py` and `fullreparer.py` table/CSV outputs expose both values as separate fields.
+- `metricser.py` and `fullprosmaker.py` table/CSV outputs expose both values as separate fields.
 
 Unit:
 - `%`
@@ -251,7 +251,7 @@ Step-by-step algorithm in `metrics.py`:
 5. Convert each `vowels_after[i]` to mora distance with `vowel_length(...)`:
 - short vowel = `1`
 - long/circumflex vowel = `2`
-- extra-long repaired vowel = `3`
+- extra-long prosody-realized vowel = `3`
 - explicit length marker `:` contributes `+1`
 6. Build `consonant_intervals` with `compute_consonant_distances(...)`:
 - for each consonant except last: append `vowel_length(vowels_after[i])`
@@ -265,13 +265,13 @@ Important consequences:
 - `$` markers come from punctuation boundaries only, and are removed before interval distance is computed.
 
 Core interpretation rule:
-- If two consonants are separated by a vowel, the interval distance is the vowel mora count: `1`, `2`, or `3` (short, long, repaired extra-long).
+- If two consonants are separated by a vowel, the interval distance is the vowel mora count: `1`, `2`, or `3` (short, long, prosody-realized extra-long).
 - If two consonants are adjacent in a cluster, interval distance is `0`.
 
 Gemination clarification:
 - In `s-t`, distance `s -> t` is `0` if no vowel material appears between them.
 - In plain doubled writing `s-s` (two consonant tokens), distance between the two `s` values is computed the same way as any adjacent consonant pair.
-- In repaired `s:t` (length marker attached to first `s`), consonant count is not incremented by introducing a new consonant token.
+- In prosody-realized `s:t` (length marker attached to first `s`), consonant count is not incremented by introducing a new consonant token.
 - `s:t` is interpreted as consonant `s` followed by vowel/length material `:` before the next consonant (for example `t`), so distance `s -> t = 1`.
 
 Worked examples:
@@ -307,12 +307,12 @@ Example D: consonant cluster produces zero interval
 - Distances: `[1, 0, 1]`
 - Interpretation: `b` is followed directly by consonant `d`, so its vowel interval is zero.
 
-Example E: repaired length marker contributes mora
-- Input idea with repaired consonant length marker after vowel sequence
+Example E: prosody-realized length marker contributes mora
+- Input idea with prosody-realized consonant length marker after vowel sequence
 - If `vowels_after[i]` is `a:` then `vowel_length("a:") = 1 + 1 = 2`
 - This increases the corresponding interval even when no extra vowel letter appears.
 
-Example F: cluster vs repaired gemination (`s-t` vs `s:t`)
+Example F: cluster vs prosody-realized gemination (`s-t` vs `s:t`)
 - `s-t`: no vowel/length between `s` and `t` -> distance `0`.
 - `s:t`: `:` contributes `1` mora between `s` and `t` -> distance `1`.
 - Consonant tokens remain the same base sequence (`s`, `t`); the change is in interval weight, not extra consonant count.
@@ -380,10 +380,10 @@ What it designates:
 How computed:
 - Count punctuation gaps classified as short.
 - Short class includes these markers:
-	- `, ; : — … ( ) « » “ ” ‘ ’ " ' – / \ & † ‡ |`
+	- `, ; : â€” â€¦ ( ) Â« Â» â€œ â€ â€˜ â€™ " ' â€“ / \ & â€  â€¡ |`
 - Standalone ellipsis is short when it appears as missing-text punctuation:
 	- `' ...[ \n{END_OF_FILE}]'`
-	- `' …[ \n{END_OF_FILE}]'`
+	- `' â€¦[ \n{END_OF_FILE}]'`
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
 Unit:
@@ -401,7 +401,7 @@ How computed:
 	- paired rare marks: `[ ] { } < >`
 	- line-bullet style markers when they appear in pause gaps: `* +`
 	- hyphen acting as punctuation (not surrounded by words): `-`
-- Word-attached ellipsis is long (`{WORD}...` or `{WORD}…`).
+- Word-attached ellipsis is long (`{WORD}...` or `{WORD}â€¦`).
 - If a punctuation gap contains at least one long cue, the full gap is long.
 - If a punctuation gap is not matched as short or long explicitly, fallback is long.
 - Include newline boundaries when enabled.
@@ -599,8 +599,8 @@ Rules used by implementation:
 - EOF is treated as line-end long pause when enabled.
 
 Exact punctuation classes:
-- Short pause punctuation characters: `,`, `:`, `;`, `|`, `…`
-- Short pause multi-character patterns: `...`, `…`
+- Short pause punctuation characters: `,`, `:`, `;`, `|`, `â€¦`
+- Short pause multi-character patterns: `...`, `â€¦`
 - Long pause punctuation characters: `.`, `?`, `!`
 - Newline can trigger long pause when `LONG_PAUSE_INCLUDES_NEWLINE = True`.
 - Final EOF can trigger long pause when `LONG_PAUSE_INCLUDES_FINAL_EOF = True`.
@@ -637,14 +637,17 @@ This makes each metrics file self-describing and reproducible.
 - `--table`, `--json`, `--csv`
 - `--extra-consonants`, `--extra-vowels`
 
-`fullreparer.py` (metrics stage):
+`fullprosmaker.py` (metrics stage):
 - `--metrics-wpm`
 - `--metrics-pause-ratio`
 - `--metrics-long-punct-weight`
 - `--metrics-table`, `--metrics-json`, `--metrics-csv`
 
-Note: the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
+Note: the CLI writes metrics to files by default â€” JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
 
 ## 8. Versioning
 
 If formulas, constants, or pause classification rules change in `metrics.py`, update this document in the same commit.
+
+
+

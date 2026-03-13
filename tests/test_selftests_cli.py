@@ -1,4 +1,4 @@
-import os
+﻿import os
 import subprocess
 import sys
 
@@ -22,20 +22,21 @@ def _run_cli(args):
     [
         ["akkapros.cli.atfparser", "--test"],
         ["akkapros.cli.syllabifier", "--test"],
-        ["akkapros.cli.repairer", "--test"],
-        ["akkapros.cli.repairer", "--test-diphthongs"],
+        ["akkapros.cli.prosmaker", "--test"],
+        ["akkapros.cli.prosmaker", "--test-diphthongs"],
         ["akkapros.cli.metricser", "--test"],
         ["akkapros.cli.printer", "--test"],
-        ["akkapros.cli.fullreparer", "--test-cli"],
-        ["akkapros.cli.fullreparer", "--test-all"],
+        ["akkapros.cli.fullprosmaker", "--test-cli"],
+        ["akkapros.cli.fullprosmaker", "--test-all"],
         ["akkapros.cli.phoneprep", "--test"],
     ],
 )
 def test_cli_selftest_flags(module_args):
-    if module_args in (["akkapros.cli.syllabifier", "--test"], ["akkapros.cli.fullreparer", "--test-all"]):
+    if module_args in (["akkapros.cli.syllabifier", "--test"], ["akkapros.cli.fullprosmaker", "--test-all"]):
         pytest.xfail("Known diphthong-separator regression in syllabify self-tests")
     proc = _run_cli(module_args)
     assert proc.returncode == 0, (
         f"CLI self-test failed for {' '.join(module_args)}\n"
         f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
     )
+

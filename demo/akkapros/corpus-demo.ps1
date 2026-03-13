@@ -1,21 +1,9 @@
-# Ensure Unicode (UTF-8) output in PowerShell
+﻿# Ensure Unicode (UTF-8) output in PowerShell
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $OutputEncoding = [System.Text.UTF8Encoding]::UTF8
 chcp 65001 | Out-Null
-#[Unicode/UTF-8 output setup]
-[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
-$OutputEncoding = [System.Text.UTF8Encoding]::UTF8
-chcp 65001 | Out-Null
+
 # PowerShell demo script for Akkapros corpus pipeline
-echo "Running syllabifier..."
-echo "Running repairer (LOB)..."
-echo "Running repairer (SOB)..."
-echo "Running metrics (LOB, pause ratios 30/35/40)..."
-echo "Running metrics (SOB, pause ratios 30/35/40)..."
-echo "Running printer (LOB)..."
-echo "Running printer (SOB)..."
-echo "Running fullreparer --test-all..."
-echo "Demo pipeline complete."
 Write-Output "Parsing ATF samples with --append..."
 $repoRoot = Resolve-Path "$PSScriptRoot\..\.."
 $resultsDir = Join-Path $repoRoot 'demo\akkapros\results'
@@ -39,11 +27,11 @@ foreach ($f in $sampleFiles) {
 Write-Output "Running syllabifier..."
 python "$repoRoot\src\akkapros\cli\syllabifier.py" "$resultsDir\corpus_proc.txt" -p corpus --outdir "$resultsDir"
 
-Write-Output "Running repairer (LOB)..."
-python "$repoRoot\src\akkapros\cli\repairer.py" "$resultsDir\corpus_syl.txt" -p corpus-lob --outdir "$resultsDir" --style lob
+Write-Output "Running prosmaker (LOB)..."
+python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-lob --outdir "$resultsDir" --style lob
 
-Write-Output "Running repairer (SOB)..."
-python "$repoRoot\src\akkapros\cli\repairer.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
+Write-Output "Running prosmaker (SOB)..."
+python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
 Write-Output "Running metrics (LOB, pause ratios 30/35/40)..."
 python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
@@ -61,6 +49,7 @@ python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsD
 Write-Output "Running printer (SOB)..."
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-sob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-sob_tilde.txt"
 
-Write-Output "Running fullreparer --test-all..."
-python "$repoRoot\src\akkapros\cli\fullreparer.py" --test-all 
+Write-Output "Running fullprosmaker --test-all..."
+python "$repoRoot\src\akkapros\cli\fullprosmaker.py" --test-all 
 Write-Output "Demo pipeline complete."
+
