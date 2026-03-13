@@ -378,7 +378,12 @@ What it designates:
 - Density of short-pause punctuation events relative to syllable count.
 
 How computed:
-- Count punctuation in `SHORT_PAUSE_PUNCTUATION_CHARS`.
+- Count punctuation gaps classified as short.
+- Short class includes these markers:
+	- `, ; : — … ( ) « » “ ” ‘ ’ " ' – / \ & † ‡ |`
+- Standalone ellipsis is short when it appears as missing-text punctuation:
+	- `' ...[ \n{END_OF_FILE}]'`
+	- `' …[ \n{END_OF_FILE}]'`
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
 Unit:
@@ -390,7 +395,15 @@ What it designates:
 - Density of long-pause punctuation events relative to syllable count.
 
 How computed:
-- Count punctuation in `LONG_PAUSE_PUNCTUATION_CHARS`.
+- Count punctuation gaps classified as long.
+- Long class includes sentence-ending and major marks:
+	- `. ? !`
+	- paired rare marks: `[ ] { } < >`
+	- line-bullet style markers when they appear in pause gaps: `* +`
+	- hyphen acting as punctuation (not surrounded by words): `-`
+- Word-attached ellipsis is long (`{WORD}...` or `{WORD}…`).
+- If a punctuation gap contains at least one long cue, the full gap is long.
+- If a punctuation gap is not matched as short or long explicitly, fallback is long.
 - Include newline boundaries when enabled.
 - Include final EOF boundary when enabled and final character is word-final.
 - `long_pause_per_syll = N_long_pause / total_syllables`
@@ -405,6 +418,15 @@ What it designates:
 
 How computed:
 - `total_pause_per_syll = short_pause_per_syll + long_pause_per_syll`
+
+Pause grouping rule:
+- Punctuation is evaluated per inter-word gap, not per character.
+- Consecutive punctuation in the same gap creates one pause event.
+- Spaces inside that punctuation suite do not create additional pauses.
+- Examples:
+	- `?!!!` -> one long pause.
+	- `),` -> one short pause.
+	- if one long marker appears anywhere in a punctuation suite, the suite is long.
 
 Unit:
 - `pause/syllable`
@@ -427,6 +449,9 @@ What it designates:
 
 How computed:
 - Subset count of total boundaries that satisfy pauseability conditions.
+- The implementation also tracks `defaulted_long_punctuation` in raw counts:
+	punctuation suites that were not recognized in explicit classes and therefore
+	assigned to long by fallback policy.
 
 Unit:
 - `boundaries`

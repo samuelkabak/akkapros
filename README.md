@@ -37,29 +37,37 @@ For metrics methodology and formulas, see `docs/akkapros/metrics-computation.md`
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start — use the demo scripts
+
+The repository ships ready-to-run demo scripts that exercise the full
+pipeline on sample inputs. The demos read sources from `data/samples/` and
+write outputs to `demo/akkapros/results/`.
+
+Windows (PowerShell) demo:
+
+```powershell
+.\demo\akkapros\corpus-demo.ps1
+```
+
+Unix demo:
 
 ```bash
-# Clone the repository
-git clone https://github.com/samuelkabak/akkapros.git
-cd akkapros
-
-# Process an ATF file
-python3 src/atfparser.py texts/erra.atf -p erra --outdir outputs
-
-# Syllabify and repair
-python3 src/repairer.py erra_proc.txt -p erra --outdir outputs
-
-# Compute metrics
-python3 src/akkapros/cli/metricser.py erra.tilde > erra_metrics.txt
-
-# Full pipeline in one command (writes _syl, _tilde, metrics, and accent outputs)
-python3 src/akkapros/cli/fullreparer.py outputs/erra_proc.txt -p erra --outdir outputs --metrics-table
-
-# Accent rendering from *_tilde.txt (writes both outputs by default)
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
-
+./demo/akkapros/corpus-demo.sh
 ```
+
+The demo scripts run the full pipeline (parse → syllabify → repair → metrics
+→ outputs). Use `demo/akkapros/results/` to inspect generated `_syl`, `_tilde`,
+metrics and accent outputs.
+
+To prepare phone-level datasets (MBROLA, manifests) use the `akkatts` demo:
+
+```powershell
+.\demo\akkapros\corpus-demo.ps1   # runs akkapros pipeline
+.\demo\akkatts\phoneprep-demo.ps1 # runs akktts phoneprep and dataset prep
+```
+
+Source files for demos are under `data/samples/` and demo outputs are in
+`demo/akkapros/results/` and `demo/akkatts/results/`.
 
 ---
 

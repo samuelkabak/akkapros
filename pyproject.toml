@@ -21,7 +21,6 @@ dev = [
     "pytest>=7.0.0",
     "black",
     "flake8",
-    "sox",
 ]
 
 [tool.setuptools]

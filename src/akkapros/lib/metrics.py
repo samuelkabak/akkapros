@@ -65,11 +65,27 @@ WORD_BOUNDARY = '$'
 
 # Pause class configuration (scientific, explicit, and centralized)
 # Short pause punctuation: minor/inner punctuation marks.
-SHORT_PAUSE_PUNCTUATION_CHARS = {',', ':', ';', '|', '…'}
-SHORT_PAUSE_PUNCTUATION_PATTERNS = ('...', '…')
+SHORT_PAUSE_PUNCTUATION_CHARS = {
+    ',', ';', ':', '—', '–', '…',
+    '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'",
+    '/', '\\', '&', '†', '‡', '|'
+}
+# Standalone ellipsis (surrounded by spaces/newline/EOF) is treated as short,
+# typically representing missing words in source editions.
+SHORT_PAUSE_PUNCTUATION_PATTERNS = (
+    r'\s\.\.\.(?=\s|$)',
+    r'\s…(?=\s|$)',
+)
 
 # Long pause punctuation: final/major boundaries.
-LONG_PAUSE_PUNCTUATION_CHARS = {'.', '?', '!'}
+LONG_PAUSE_PUNCTUATION_CHARS = {
+    '.', '?', '!', '[', ']', '{', '}', '<', '>', '-', '*', '+'
+}
+# Ellipsis attached directly to a word ending is sentence-final/major.
+LONG_PAUSE_PUNCTUATION_PATTERNS = (
+    r'^\.\.\.',
+    r'^…',
+)
 LONG_PAUSE_INCLUDES_NEWLINE = True
 LONG_PAUSE_INCLUDES_FINAL_EOF = True
 
@@ -787,20 +803,30 @@ def _gap_has_long_pause(gap: str) -> bool:
     """Return True when a boundary gap contains long-pause punctuation cues."""
     if LONG_PAUSE_INCLUDES_NEWLINE and '\n' in gap:
         return True
-    return any(ch in LONG_PAUSE_PUNCTUATION_CHARS for ch in gap)
+    if any(re.search(pattern, gap) for pattern in LONG_PAUSE_PUNCTUATION_PATTERNS):
+        return True
+    # Standalone ellipsis tokens (space + .../… + space|EOF) are short pauses;
+    # remove them before char-level long-class checks.
+    sanitized_gap = re.sub(r'(?<=\s)\.\.\.(?=\s|$)', '', gap)
+    sanitized_gap = re.sub(r'(?<=\s)…(?=\s|$)', '', sanitized_gap)
+    return any(ch in LONG_PAUSE_PUNCTUATION_CHARS for ch in sanitized_gap)
 
 
 def _gap_has_short_pause(gap: str) -> bool:
     """Return True when a boundary gap contains short-pause punctuation cues."""
-    if any(pattern in gap for pattern in SHORT_PAUSE_PUNCTUATION_PATTERNS):
+    if any(re.search(pattern, gap) for pattern in SHORT_PAUSE_PUNCTUATION_PATTERNS):
         return True
     punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
     if not punctuation_chars:
         return False
     if _gap_has_long_pause(gap):
         return False
-    # Remaining punctuation cues are short pauses by default.
-    return any(ch in SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars) or True
+    return any(ch in SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars)
+
+
+def _gap_has_any_punctuation(gap: str) -> bool:
+    """Return True when a gap contains at least one non-space, non-linker marker."""
+    return any((not ch.isspace()) and ch != WORD_LINKER for ch in gap)
 
 
 def count_spaces_and_punctuation(text: str) -> Dict:
@@ -816,6 +842,7 @@ def count_spaces_and_punctuation(text: str) -> Dict:
     punctuation = 0
     short_punctuation = 0
     long_punctuation = 0
+    defaulted_long_punctuation = 0
     merged_boundaries = 0
     
     i = 0
@@ -851,6 +878,11 @@ def count_spaces_and_punctuation(text: str) -> Dict:
             elif _gap_has_short_pause(gap):
                 short_punctuation += 1
                 punctuation += 1
+            elif _gap_has_any_punctuation(gap):
+                # Fallback policy: unknown punctuation defaults to LONG pause.
+                long_punctuation += 1
+                defaulted_long_punctuation += 1
+                punctuation += 1
             else:
                 # Pure spacing/linking gap: connected speech with no pause.
                 pass
@@ -870,6 +902,7 @@ def count_spaces_and_punctuation(text: str) -> Dict:
         'punctuation': punctuation,
         'short_punctuation': short_punctuation,
         'long_punctuation': long_punctuation,
+        'defaulted_long_punctuation': defaulted_long_punctuation,
         'merged_boundaries': merged_boundaries
     }
 
@@ -1837,18 +1870,19 @@ def run_tests():
         print("  ✅ All distance tests passed")
         tests_passed += 1
 
-    # ===== TEST 7: Pause Metrics =====
-    print("\n--- Test 7: Pause Metrics ---")
+    # ===== TEST 7: Pause Metrics (grouping + class priority) =====
+    print("\n--- Test 7: Pause Metrics (grouping + class priority) ---")
     tests_total += 1
-    
-    test_text = "šar gi·mir+dad~·mē || bā·nû kib·rā~·ti ···"
+
+    test_text = "at·tā ?!!! ā·lik ), i·lī ... bā·nû"
     stats = analyze_text(test_text, is_repaired=True)
     pause_metrics = compute_pause_metrics(test_text, stats)
 
     # Expected counts:
-    # - short punctuation: || and ... = 2 punctuation units
-    # - long punctuation: none in this sample
-    # - merged boundaries: _ in gi.mir_dad~.mē = 1
+    # - "?!!!" = one LONG punctuation gap
+    # - ")," = one SHORT punctuation gap
+    # - " ... " (standalone ellipsis) = one SHORT punctuation gap
+    # - final EOF after terminal word = one LONG punctuation gap
 
     passed = True
     if pause_metrics['raw_counts']['spaces'] != 0:
@@ -1857,20 +1891,20 @@ def run_tests():
     if pause_metrics['raw_counts']['short_punctuation'] != 2:
         print(f"  ❌ Short punctuation count: got {pause_metrics['raw_counts']['short_punctuation']}, expected 2")
         passed = False
-    if pause_metrics['raw_counts']['long_punctuation'] != 0:
-        print(f"  ❌ Long punctuation count: got {pause_metrics['raw_counts']['long_punctuation']}, expected 0")
+    if pause_metrics['raw_counts']['long_punctuation'] != 2:
+        print(f"  ❌ Long punctuation count: got {pause_metrics['raw_counts']['long_punctuation']}, expected 2")
         passed = False
-    if pause_metrics['raw_counts']['punctuation'] != 2:
-        print(f"  ❌ Punctuation count: got {pause_metrics['raw_counts']['punctuation']}, expected 2")
+    if pause_metrics['raw_counts']['punctuation'] != 4:
+        print(f"  ❌ Punctuation count: got {pause_metrics['raw_counts']['punctuation']}, expected 4")
         passed = False
-    if pause_metrics['raw_counts']['merged_boundaries'] != 1:
-        print(f"  ❌ Merged boundaries: got {pause_metrics['raw_counts']['merged_boundaries']}, expected 1")
+    if pause_metrics['raw_counts']['merged_boundaries'] != 0:
+        print(f"  ❌ Merged boundaries: got {pause_metrics['raw_counts']['merged_boundaries']}, expected 0")
         passed = False
     if pause_metrics['short_pauseable_boundaries'] != 2:
         print(f"  ❌ Short pauseable boundaries: got {pause_metrics['short_pauseable_boundaries']}, expected 2")
         passed = False
-    if pause_metrics['long_pauseable_boundaries'] != 0:
-        print(f"  ❌ Long pauseable boundaries: got {pause_metrics['long_pauseable_boundaries']}, expected 0")
+    if pause_metrics['long_pauseable_boundaries'] != 2:
+        print(f"  ❌ Long pauseable boundaries: got {pause_metrics['long_pauseable_boundaries']}, expected 2")
         passed = False
 
     if passed:
@@ -1878,6 +1912,32 @@ def run_tests():
         tests_passed += 1
     else:
         print(f"  Raw counts: {pause_metrics['raw_counts']}")
+
+    # ===== TEST 7B: Unknown punctuation defaults to long =====
+    print("\n--- Test 7B: Unknown punctuation defaults to long ---")
+    tests_total += 1
+
+    test_text = "at·tā @ ā·lik"
+    stats = analyze_text(test_text, is_repaired=True)
+    pause_metrics = compute_pause_metrics(test_text, stats)
+
+    passed = True
+    if pause_metrics['raw_counts']['defaulted_long_punctuation'] != 1:
+        print(
+            "  ❌ Defaulted long punctuation count: "
+            f"got {pause_metrics['raw_counts']['defaulted_long_punctuation']}, expected 1"
+        )
+        passed = False
+    if pause_metrics['raw_counts']['short_punctuation'] != 0:
+        print(f"  ❌ Short punctuation count: got {pause_metrics['raw_counts']['short_punctuation']}, expected 0")
+        passed = False
+    if pause_metrics['raw_counts']['long_punctuation'] != 2:
+        print(f"  ❌ Long punctuation count: got {pause_metrics['raw_counts']['long_punctuation']}, expected 2")
+        passed = False
+
+    if passed:
+        print("  ✅ Unknown-punctuation fallback tests passed")
+        tests_passed += 1
 
     # ===== TEST 8: %V with pauses =====
     print("\n--- Test 8: %V with pauses ---")

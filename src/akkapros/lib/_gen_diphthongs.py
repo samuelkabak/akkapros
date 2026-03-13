@@ -1,52 +1,60 @@
-"""Generate diphthong regex replacements from two-vowel spec rules.
+"""Generate diphthong replacement patterns from a two-vowel specification.
 
-Diphthongs are a challenge to syllabificaiton.
+This module implements the rules and code used to restore diphthongs after
+syllabification and repair. The syllabifier inserts an explicit separator
+between adjacent vowels (controlled by `SYL_SEPARATOR` and
+`DIPH_SEPARATOR`) so that the repair stage can operate on distinct syllables.
+After repair, vowel pairs that originally formed diphthongs must be
+reconstructed from the repaired output; this module generates the
+regular-expression replacement patterns used to perform that reconstruction.
 
-To make it easy, the syllabier inserts a special separator between adjacent 
-vowels, and after reparation we apply regex replacements to convert these into 
-the correct diphthong forms.
+Key points
+- The generator enumerates all pairs of base vowels (a, i, u, e) and all
+    relevant forms for each vowel: short, long, and circumflex (circ). The
+    second vowel may also carry a tilde (``~``) that marks a repaired/moraic
+    lengthening.
+- Replacement logic distinguishes two cases: "same vowel" (e.g. a + a)
+    versus "different vowels" (e.g. u + a). Each case has deterministic rules
+    that encode (a) how circumflex forms win, (b) when a tilde must be preserved,
+    and (c) whether the result carries a tilde.
+- Patterns where the *second* vowel has a tilde are emitted first to avoid
+    regex clashes (longer / more specific matches must be applied before
+    shorter ones).
+- The generator groups identical replacements into alternations and sorts
+    by pattern length so the produced list is efficient and unambiguous.
 
-Rules are derived below
-- two cases: same vowel vs different vowels
-- second vowel with tilde MUST be emitted first to avoid regex clashes
-- circumflex wins where specified
+Public behavior
+- `generate_diphthongs_file(filename)` writes a file (by default
+    ``diphthongs.py``) that contains ``ALL_REPLACEMENTS`` — an ordered list of
+    (regex, replacement) tuples. That output is consumed by the restoration
+    stage of the pipeline to convert diæresis-separated vowel pairs back into
+    canonical diphthong forms.
 
-Examples with vowels a and u
+Implementation notes (mapping to functions)
+- `_char(base, form)` : map a base vowel and a form token (``short``,
+    ``long``, ``circ``, or variants that include ``~``) to the actual character
+    sequence used in patterns.
+- `_same_vowel_replacement(...)` and
+    `_different_vowel_replacement(...)` : implement the rule sets for same vs
+    different vowel pairs respectively. These encode precedence for circumflex
+    forms and the conditions under which a tilde is preserved or introduced.
+- `_build_entries()` : enumerate all combinations and produce raw
+    (pattern, replacement, second_has_tilde) tuples.
+- `_combine_entries()` : group patterns with identical replacements, build
+    alternations, and sort so that second-tilde patterns come first.
 
-1) same vowel, example a
-(r'a\.ʾā~', 'ā'), # 4 -> 2
-(r'a\.ʾâ~', 'â'),  # 4 -> 2
-(r'ā\.ʾā~', 'ā~'),  # 5 -> 3
-(r'â\.ʾâ~', 'â~'),  # 5 -> 3
-(r'ā\.ʾâ~', 'â~'),  # 5 -> 3 curcumflex win
-(r'â\.ʾā~', 'â~'),  # 5 -> 3 curcumflex win
-(r'a\.ʾā', 'ā~'), #  3 remains
-(r'a\.ʾâ', 'â~'),  # 3 remains
-(r'ā\.ʾā', 'ā'),  # 4 -> 2
-(r'â\.ʾâ', 'â'),  # 4 -> 2
-(r'ā\.ʾâ', 'â'),  # 4 -> 2 curcumflex win
-(r'â\.ʾā', 'â'),  # 4 -> 2 curcumflex win
-(r'a\.ʾa', 'â'),  # 2 remains curcumflex forced
+Why this is necessary
+---------------------
+The syllabifier expands diphthongs into two vowel units (often inserting a
+glottal marker) so that mora-counting and repair can operate deterministically.
+Once repairs (lengthenings/gemination) are applied, the original diphthong
+shapes must be reconstructed from the repaired tokens while preserving any
+tilde marks that indicate added morae. This generator codifies the
+phonologically motivated mapping between repaired vowel pairs and the final
+orthographic diphthong forms.
 
-When we have two different vowels, lets say the first is u and teh second is a
-
-(r'u\.ʾā~', 'uā~'), # 4 remains
-(r'u\.ʾâ~', 'uâ~'),  # 4 remains
-(r'ū\.ʾā~', 'uā'),  # 5 -> 3
-(r'û\.ʾâ~', 'uâ'),  # 5 -> 3
-(r'ū\.ʾâ~', 'uâ'),  # 5 -> 3 curcumflex win
-(r'û\.ʾā~', 'uâ'),  # 5 -> 3 curcumflex win
-(r'u\.ʾā', 'uā'), #  3 remains
-(r'u\.ʾâ', 'uâ'),  # 3 remains
-(r'ū\.ʾā', 'uā~'),  # 4 remains
-(r'û\.ʾâ', 'uâ~'),  # 4 remains
-(r'ū\.ʾâ', 'uâ~'),  # 4 remains curcumflex win
-(r'û\.ʾā', 'uâ'),  # 4 remains  curcumflex win
-(r'u\.ʾa', 'ua'),  # 2
-
-Optimized by grouping patterns with same replacement and second vowel tilde 
-status, and sorting by length to ensure longest match first.
-
+See docs/diphthong-processing.md for a human-readable explanation and
+examples of the rule set and how it maps to code.
 """
 
 from collections import defaultdict

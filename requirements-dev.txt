@@ -1,4 +1,4 @@
 pytest>=7.0.0
 black
 flake8
-sox
+# sox is a system dependency (not a pip package); install separately if needed
