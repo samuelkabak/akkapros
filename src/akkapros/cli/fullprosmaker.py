@@ -270,7 +270,7 @@ Versions: {__version__}
     parser.add_argument('--prosody-relax-last', dest='prosody_relax_last', action='store_true',
                         help='For explicit + links, allow prosody realization propagation before the last linked word')
 
-    # Metricser options
+    # Metricalc options
     parser.add_argument('--metrics-csv', action='store_true', help='Write CSV metrics output')
     parser.add_argument('--metrics-table', action='store_true', help='Write human-readable metrics table output')
     parser.add_argument('--metrics-json', action='store_true', help='Write JSON metrics output')
@@ -353,7 +353,7 @@ Versions: {__version__}
     output_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
     output_xar = args.print_xar
 
-    # Match metricser behavior: default to table if no explicit format selected.
+    # Match metricalc behavior: default to table if no explicit format selected.
     if not (output_table or output_json or output_csv):
         output_table = True
 

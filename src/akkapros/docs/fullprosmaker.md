@@ -173,11 +173,11 @@ The command exits with non-zero status if any stage fails.
 ## Related Commands
 
 Single-stage CLIs:
-`atfparser.py`
-`syllabifier.py`
-`prosmaker.py`
-`metricalc.py`
-`printer.py`
+- `atfparser.py`
+- `syllabifier.py`
+- `prosmaker.py`
+- `metricalc.py`
+- `printer.py`
 
 Use those when you need isolated stage debugging; use `fullprosmaker.py` for one-command production runs.
 

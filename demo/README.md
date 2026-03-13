@@ -3,14 +3,14 @@
 This folder documents the small demo scripts included with the project. Each demo has two launcher variants (POSIX shell and PowerShell) and writes outputs into its `results/` subfolder.
 
 **Akkapros Demo**
-- **Script (POSIX):** [demo/akkapros/corpus-demo.sh](demo/akkapros/corpus-demo.sh) â€” runs the `akkapros` demo pipeline on the example corpus and produces processed, syllabified, prosody-realized, and metric outputs.
-- **Script (PowerShell):** [demo/akkapros/corpus-demo.ps1](demo/akkapros/corpus-demo.ps1) â€” same as above for Windows PowerShell.
-- **Outputs (in results/):**
-  - **Processed text:** [demo/akkapros/results/corpus_proc.txt](demo/akkapros/results/corpus_proc.txt) â€” cleaned ATF â†’ plain Akkadian.
-  - **Syllabified:** [demo/akkapros/results/corpus_syl.txt](demo/akkapros/results/corpus_syl.txt) â€” syllabification output used by the prosmaker.
-  - **Tilde (prosody-realized):** [demo/akkapros/results/corpus-sob_tilde.txt](demo/akkapros/results/corpus-sob_tilde.txt) â€” prosody-realized (tilde-marked) pivot format.
-  - **Metrics:** [demo/akkapros/results/corpus-sob-p30_metrics.txt](demo/akkapros/results/corpus-sob-p30_metrics.txt) â€” example metrics report (VarcoC, %V, Î”C) for the SOB model.
-  - **Accent/IPA outputs:** [demo/akkapros/results/corpus-sob_accent_ipa.txt](demo/akkapros/results/corpus-sob_accent_ipa.txt) and [demo/akkapros/results/corpus-sob_accent_bold.md](demo/akkapros/results/corpus-sob_accent_bold.md).
+ - **Script (POSIX):** [demo/akkapros/prosmaker/corpus-demo.sh](demo/akkapros/prosmaker/corpus-demo.sh) â€” runs the `akkapros` demo pipeline on the example corpus and produces processed, syllabified, prosody-realized, and metric outputs.
+ - **Script (PowerShell):** [demo/akkapros/prosmaker/corpus-demo.ps1](demo/akkapros/prosmaker/corpus-demo.ps1) â€” same as above for Windows PowerShell.
+ - **Outputs (in results/):**
+  - **Processed text:** [demo/akkapros/prosmaker/results/corpus_proc.txt](demo/akkapros/prosmaker/results/corpus_proc.txt) â€” cleaned ATF â†’ plain Akkadian.
+  - **Syllabified:** [demo/akkapros/prosmaker/results/corpus_syl.txt](demo/akkapros/prosmaker/results/corpus_syl.txt) â€” syllabification output used by the prosmaker.
+  - **Tilde (prosody-realized):** [demo/akkapros/prosmaker/results/corpus-sob_tilde.txt](demo/akkapros/prosmaker/results/corpus-sob_tilde.txt) â€” prosody-realized (tilde-marked) pivot format.
+  - **Metrics:** [demo/akkapros/prosmaker/results/corpus-sob-p30_metrics.txt](demo/akkapros/prosmaker/results/corpus-sob-p30_metrics.txt) â€” example metrics report (VarcoC, %V, Î”C) for the SOB model.
+  - **Accent/IPA outputs:** [demo/akkapros/prosmaker/results/corpus-sob_accent_ipa.txt](demo/akkapros/prosmaker/results/corpus-sob_accent_ipa.txt) and [demo/akkapros/prosmaker/results/corpus-sob_accent_bold.md](demo/akkapros/prosmaker/results/corpus-sob_accent_bold.md).
 
 **Akkapros Phoneprep Demo**
 - **Script (POSIX):** [demo/akkapros/phoneprep/demo-phoneprep.sh](demo/akkapros/phoneprep/demo-phoneprep.sh) â€” runs the phone-preparation demo in the `akkapros` toolchain.
@@ -27,14 +27,14 @@ This folder documents the small demo scripts included with the project. Each dem
 On Unix-like systems (bash):
 
 ```bash
-sh demo/akkapros/corpus-demo.sh
+sh demo/akkapros/prosmaker/corpus-demo.sh
 sh demo/akkapros/phoneprep/demo-phoneprep.sh
 ```
 
 On Windows PowerShell:
 
 ```powershell
-.\demo\akkapros\corpus-demo.ps1
+.\demo\akkapros\prosmaker\corpus-demo.ps1
 .\demo\akkapros\phoneprep\demo-phoneprep.ps1
 ```
 

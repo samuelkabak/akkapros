@@ -1,15 +1,15 @@
-﻿# Metricser CLI (`metricser.py`)
+# Metricalc CLI (`metricalc.py`)
 
-This document explains what the metrics CLI does, how to run it, and how to interpret its generated files.
+This document explains what `metricalc.py` does, how to run it, and how to interpret its generated files.
 
 Implementation:
-- CLI wrapper: `src/akkapros/cli/metricser.py`
+- CLI wrapper: `src/akkapros/cli/metricalc.py`
 - Core logic: `src/akkapros/lib/metrics.py`
 - Metric definitions: `docs/akkapros/metrics-computation.md`
 
 ## Purpose
 
-`metricser.py` computes rhythmic and structural metrics from prosody-realized text (`*_tilde.txt`).
+`metricalc.py` computes rhythmic and structural metrics from prosody-realized text (`*_tilde.txt`).
 
 It can output:
 - Human-readable text table
@@ -37,13 +37,13 @@ Base naming:
 ## Command Syntax
 
 ```bash
-python src/akkapros/cli/metricser.py <input_tilde.txt> [options]
+python src/akkapros/cli/metricalc.py <input_tilde.txt> [options]
 ```
 
 Batch syntax:
 
 ```bash
-python src/akkapros/cli/metricser.py --input-list <list.txt> [options]
+python src/akkapros/cli/metricalc.py --input-list <list.txt> [options]
 ```
 
 ## Options
@@ -83,13 +83,13 @@ Default format behavior:
 Single file, default table output:
 
 ```bash
-python src/akkapros/cli/metricser.py outputs/erra_tilde.txt
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt
 ```
 
 Write table + JSON + CSV:
 
 ```bash
-python src/akkapros/cli/metricser.py outputs/erra_tilde.txt \
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
   --table --json --csv \
   -p erra \
   --outdir outputs
@@ -98,7 +98,7 @@ python src/akkapros/cli/metricser.py outputs/erra_tilde.txt \
 Custom timing parameters:
 
 ```bash
-python src/akkapros/cli/metricser.py outputs/erra_tilde.txt \
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
   --wpm 170 \
   --pause-ratio 35 \
   --long-punct-weight 2.5 \
@@ -108,7 +108,7 @@ python src/akkapros/cli/metricser.py outputs/erra_tilde.txt \
 Batch mode:
 
 ```bash
-python src/akkapros/cli/metricser.py \
+python src/akkapros/cli/metricalc.py \
   --input-list outputs/tilde_files.txt \
   --csv --json \
   --outdir outputs/compare
@@ -117,7 +117,7 @@ python src/akkapros/cli/metricser.py \
 Run tests:
 
 ```bash
-python src/akkapros/cli/metricser.py --test
+python src/akkapros/cli/metricalc.py --test
 ```
 
 ## What It Computes (Summary)
@@ -149,7 +149,7 @@ This makes text-derived moraic `%V` directly comparable with pause-inclusive spe
 
 ## Pause Duration Correction Note
 
-`metricser.py` now reports two pause-duration layers:
+`metricalc.py` now reports two pause-duration layers:
 - Initial: direct weighted allocation from `--long-punct-weight`
 - Corrected: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
 
@@ -157,13 +157,10 @@ This correction affects table, JSON, and CSV outputs.
 
 ## Pipeline Position
 
-`metricser.py` is typically run after `prosmaker.py`:
+`metricalc.py` is typically run after `prosmaker.py`:
 1. `atfparser.py`
 2. `syllabifier.py`
 3. `prosmaker.py` -> `*_tilde.txt`
-4. `metricser.py`
+4. `metricalc.py`
 
 For all-in-one execution, see `fullprosmaker.py`.
-
-
-

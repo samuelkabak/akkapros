@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Akkadian Prosody Toolkit — Metrics Calculator (CLI wrapper)
 
+Renamed from `metricser.py` to `metricalc.py`.
+
 This module provides the command-line interface and delegates all
 metrics computation to ``akkapros.lib.metrics``.
 """
@@ -47,10 +49,10 @@ def main() -> None:
         formatter_class=RawDefaultsHelpFormatter,
         epilog=f"""
 EXAMPLES:
-    python metricser.py erra_tilde.txt --table
-    python metricser.py --test
-    python metricser.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
-    python metricser.py erra_tilde.txt --long-punct-weight 2.5
+    python metricalc.py erra_tilde.txt --table
+    python metricalc.py --test
+    python metricalc.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
+    python metricalc.py erra_tilde.txt --long-punct-weight 2.5
 
 Version {__version__}
 """
@@ -128,7 +130,6 @@ Version {__version__}
 
     if args.json:
         json_file = base.with_name(base.name + '_metrics.json')
-        # Deep-copy and prune large internal lists (e.g., 'distances') before writing
         pruned = deepcopy(results[0] if len(results) == 1 else results)
         def _prune_res(obj):
             try:
@@ -160,7 +161,7 @@ Version {__version__}
     if args.table:
         if len(results) == 1:
             table_context = {
-                'cli': 'metricser.py',
+                'cli': 'metricalc.py',
                 'wpm_words_per_min': args.wpm,
                 'pause_ratio_percent': args.pause_ratio,
                 'short_pause_punct_weight_unitless': 1.0,
@@ -181,7 +182,7 @@ Version {__version__}
         else:
             for result in results:
                 table_context = {
-                    'cli': 'metricser.py',
+                    'cli': 'metricalc.py',
                     'wpm_words_per_min': args.wpm,
                     'pause_ratio_percent': args.pause_ratio,
                     'short_pause_punct_weight_unitless': 1.0,

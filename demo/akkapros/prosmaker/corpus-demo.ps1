@@ -1,12 +1,12 @@
-﻿# Ensure Unicode (UTF-8) output in PowerShell
+# Ensure Unicode (UTF-8) output in PowerShell
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $OutputEncoding = [System.Text.UTF8Encoding]::UTF8
 chcp 65001 | Out-Null
 
-# PowerShell demo script for Akkapros corpus pipeline
+# PowerShell demo script for Akkapros corpus pipeline (moved into prosmaker/)
 Write-Output "Parsing ATF samples with --append..."
-$repoRoot = Resolve-Path "$PSScriptRoot\..\.."
-$resultsDir = Join-Path $repoRoot 'demo\akkapros\results'
+$repoRoot = Resolve-Path "$PSScriptRoot\..\..\.."
+$resultsDir = Join-Path $repoRoot 'demo\akkapros\prosmaker\results'
 if (Test-Path $resultsDir) {
   Write-Output "Clearing existing results in $resultsDir"
   Get-ChildItem -Path $resultsDir -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
@@ -34,14 +34,14 @@ Write-Output "Running prosmaker (SOB)..."
 python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
 Write-Output "Running metrics (LOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
 
 Write-Output "Running metrics (SOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricser.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 
 Write-Output "Running printer (LOB)..."
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-lob_tilde.txt"
@@ -52,4 +52,3 @@ python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-sob --outdir "$resultsD
 Write-Output "Running fullprosmaker --test-all..."
 python "$repoRoot\src\akkapros\cli\fullprosmaker.py" --test-all 
 Write-Output "Demo pipeline complete."
-

@@ -1,0 +1,166 @@
+# Metricalc CLI (`metricalc.py`)
+
+This document explains what `metricalc.py` does, how to run it, and how to interpret its generated files.
+
+Implementation:
+- CLI wrapper: `src/akkapros/cli/metricalc.py`
+- Core logic: `src/akkapros/lib/metrics.py`
+- Metric definitions: `docs/akkapros/metrics-computation.md`
+
+## Purpose
+
+`metricalc.py` computes rhythmic and structural metrics from prosody-realized text (`*_tilde.txt`).
+
+It can output:
+- Human-readable text table
+- JSON
+- CSV
+
+It supports single-file and batch (`--input-list`) processing.
+
+## Input And Output
+
+Input:
+- One `*_tilde.txt` file, or
+- A list file containing one input path per line (`--input-list`).
+
+Output formats:
+- Table: `<base>_metrics.txt`
+- JSON: `<base>.json`
+- CSV: `<base>.csv`
+
+Base naming:
+- If `--prefix` is given: `<outdir>/<prefix>`
+- If single input and no prefix: `<outdir>/<input_stem>`
+- If multiple inputs and no prefix: `<outdir>/metrics`
+
+## Command Syntax
+
+```bash
+python src/akkapros/cli/metricalc.py <input_tilde.txt> [options]
+```
+
+Batch syntax:
+
+```bash
+python src/akkapros/cli/metricalc.py --input-list <list.txt> [options]
+```
+
+## Options
+
+- `--version`
+  - Print CLI version.
+- `--input-list <file>`
+  - File with one input path per line.
+- `-p, --prefix <name>`
+  - Output prefix.
+- `--outdir <dir>`
+  - Output directory. Default: current directory.
+- `--table`
+  - Write human-readable table output.
+- `--json`
+  - Write JSON output.
+- `--csv`
+  - Write CSV output.
+- `--wpm <float>`
+  - Words per minute used in speech-rate estimation. Default: `165`.
+- `--pause-ratio <float>`
+  - Pause ratio in percent of total time. Default: `35`.
+- `--long-punct-weight <float>`
+  - Relative weight of long punctuation pauses vs short pauses. Default: `2.0`.
+- `--extra-consonants <chars>`
+  - Additional consonant symbols to include in parsing.
+- `--extra-vowels <chars>`
+  - Additional vowel symbols to include in parsing.
+- `--test`
+  - Run metrics test suite.
+
+Default format behavior:
+- If none of `--table`, `--json`, `--csv` is specified, `--table` is enabled automatically.
+
+## Typical Usage
+
+Single file, default table output:
+
+```bash
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt
+```
+
+Write table + JSON + CSV:
+
+```bash
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
+  --table --json --csv \
+  -p erra \
+  --outdir outputs
+```
+
+Custom timing parameters:
+
+```bash
+python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
+  --wpm 170 \
+  --pause-ratio 35 \
+  --long-punct-weight 2.5 \
+  --table
+```
+
+Batch mode:
+
+```bash
+python src/akkapros/cli/metricalc.py \
+  --input-list outputs/tilde_files.txt \
+  --csv --json \
+  --outdir outputs/compare
+```
+
+Run tests:
+
+```bash
+python src/akkapros/cli/metricalc.py --test
+```
+
+## What It Computes (Summary)
+
+Main families of metrics:
+- Syllable-type distributions and counts
+- Mora statistics per syllable and per word
+- Merge statistics
+- prosody realization statistics
+- Acoustic/rhythmic metrics (`%V`, `DeltaC`, `MeanC`, `VarcoC`)
+- Speech and pause allocation metrics
+
+Pause output includes:
+- `short_pauseable_boundaries` and `long_pauseable_boundaries`
+- Initial pause durations/weights (before correction)
+- Corrected pause durations constrained to even-mora short pauses
+- Corrected long/short weight derived after conservation adjustment
+
+For formal definitions and equations, see:
+- `docs/akkapros/metrics-computation.md`
+
+## %V Note
+
+Current outputs expose both:
+- `%V (articulate)`
+- `%V (normal speech, incl. pauses)`
+
+This makes text-derived moraic `%V` directly comparable with pause-inclusive speech measurements.
+
+## Pause Duration Correction Note
+
+`metricalc.py` now reports two pause-duration layers:
+- Initial: direct weighted allocation from `--long-punct-weight`
+- Corrected: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
+
+This correction affects table, JSON, and CSV outputs.
+
+## Pipeline Position
+
+`metricalc.py` is typically run after `prosmaker.py`:
+1. `atfparser.py`
+2. `syllabifier.py`
+3. `prosmaker.py` -> `*_tilde.txt`
+4. `metricalc.py`
+
+For all-in-one execution, see `fullprosmaker.py`.

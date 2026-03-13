@@ -22,6 +22,9 @@ The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the
 For release planning/versioning, see `docs/akkapros/release-strategy.md`.
 For metrics methodology and formulas, see `docs/akkapros/metrics-computation.md`.
 
+Documentation
+- Full developer and CLI documentation is under `docs/akkapros/` and packaged CLI docs are copied into the installed package. A brief Getting Started guide is at `docs/GETTING_STARTED.md`.
+
 ---
 
 ## ðŸ”§ Tools Included
@@ -31,7 +34,7 @@ For metrics methodology and formulas, see `docs/akkapros/metrics-computation.md`
 | `atfparser.py` | 1.0.0 | Converts eBL ATF files to clean phonological text |
 | `syllabify.py` | 1.0.0 | Syllabifies Akkadian text following Huehnergard (2011) |
 | `prosmaker.py` | 1.0.0 | Applies accentuation prosody realization algorithm |
-| `metricser.py` | 1.0.0 | Computes acoustic metrics from prosody-realized text |
+| `metricalc.py` | 1.0.0 | Computes acoustic metrics from prosody-realized text |
 | `fullprosmaker.py` | 1.0.0 | Runs syllabify + prosody realization + metrics + print in one command |
 | `printer.py` | 1.0.0 | Converts `*_tilde.txt` to accent text, bold markdown, IPA, and XAR outputs |
 
@@ -41,33 +44,33 @@ For metrics methodology and formulas, see `docs/akkapros/metrics-computation.md`
 
 The repository ships ready-to-run demo scripts that exercise the full
 pipeline on sample inputs. The demos read sources from `data/samples/` and
-write outputs to `demo/akkapros/results/`.
+write outputs to `demo/akkapros/prosmaker/results/`.
 
 Windows (PowerShell) demo:
 
 ```powershell
-.\demo\akkapros\corpus-demo.ps1
+.\demo\akkapros\prosmaker\corpus-demo.ps1
 ```
 
 Unix demo:
 
 ```bash
-./demo/akkapros/corpus-demo.sh
+./demo/akkapros/prosmaker/corpus-demo.sh
 ```
 
 The demo scripts run the full pipeline (parse â†’ syllabify â†’ prosody realization â†’ metrics
-â†’ outputs). Use `demo/akkapros/results/` to inspect generated `_syl`, `_tilde`,
+â†’ outputs). Use `demo/akkapros/prosmaker/results/` to inspect generated `_syl`, `_tilde`,
 metrics and accent outputs.
 
 To prepare phone-level datasets (MBROLA, manifests) use the `akkapros` phoneprep demo:
 
 ```powershell
-.\demo\akkapros\corpus-demo.ps1   # runs akkapros pipeline
+.\demo\akkapros\prosmaker\corpus-demo.ps1   # runs akkapros pipeline
 .\demo\akkapros\phoneprep\phoneprep-demo.ps1 # runs akkapros phoneprep and dataset prep
 ```
 
 Source files for demos are under `data/samples/` and demo outputs are in
-`demo/akkapros/results/` and `demo/akkapros/phoneprep/results/`.
+`demo/akkapros/prosmaker/results/` and `demo/akkapros/phoneprep/results/`.
 
 ---
 
@@ -161,7 +164,7 @@ python3 src/akkapros/cli/printer.py --test
 
 ## âš¡ Full Pipeline CLI (`fullprosmaker.py`)
 
-Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â†’ `prosmaker` â†’ `metricser` â†’ `printer`) in one command.
+Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â†’ `prosmaker` â†’ `metricalc` â†’ `printer`) in one command.
 
 ### Input and outputs
 

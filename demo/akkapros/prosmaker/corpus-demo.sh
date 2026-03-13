@@ -1,9 +1,9 @@
-﻿#!/bin/bash
+#!/bin/bash
 cd "$(dirname "$0")/../.."
 export PYTHONPATH="$PWD/src"
 set -e
 echo "Parsing ATF samples with --append..."
-resultsDir="demo/akkapros/results"
+resultsDir="demo/akkapros/prosmaker/results"
 corpusBase="$resultsDir/corpus"
 if [ -d "$resultsDir" ]; then
   echo "Clearing existing results in $resultsDir"
@@ -29,13 +29,13 @@ python src/akkapros/cli/prosmaker.py "$corpusBase"_syl.txt -p corpus-lob --outdi
 echo "Running prosmaker (SOB)..."
 python src/akkapros/cli/prosmaker.py "$corpusBase"_syl.txt -p corpus-sob --outdir "$resultsDir" --style sob
 echo "Running metrics (LOB, pause ratios 30/35/40)..."
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
 echo "Running metrics (SOB, pause ratios 30/35/40)..."
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
-python src/akkapros/cli/metricser.py "$resultsDir/corpus-sob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
+python src/akkapros/cli/metricalc.py "$resultsDir/corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 echo "Running printer (LOB)..."
 python src/akkapros/cli/printer.py -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa "$resultsDir/corpus-lob_tilde.txt"
 echo "Running printer (SOB)..."
@@ -43,4 +43,3 @@ python src/akkapros/cli/printer.py -p corpus-sob --outdir "$resultsDir" --acute 
 echo "Running fullprosmaker --test-all..."
 python src/akkapros/cli/fullprosmaker.py --test-all
 echo "Demo pipeline complete."
-

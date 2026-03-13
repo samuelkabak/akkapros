@@ -24,7 +24,7 @@ def _run_cli(args):
         ["akkapros.cli.syllabifier", "--test"],
         ["akkapros.cli.prosmaker", "--test"],
         ["akkapros.cli.prosmaker", "--test-diphthongs"],
-        ["akkapros.cli.metricser", "--test"],
+        ["akkapros.cli.metricalc", "--test"],
         ["akkapros.cli.printer", "--test"],
         ["akkapros.cli.fullprosmaker", "--test-cli"],
         ["akkapros.cli.fullprosmaker", "--test-all"],

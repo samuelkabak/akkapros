@@ -29,16 +29,20 @@ dev = [
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["akkapros*"]
 
+[tool.setuptools.package-data]
+"akkapros" = ["docs/*.md"]
+
 [project.scripts]
 akkapros-fullprosmaker = "akkapros.cli.fullprosmaker:main"
 akkapros-syllabifier = "akkapros.cli.syllabifier:main"
 akkapros-prosmaker = "akkapros.cli.prosmaker:main"
-akkapros-metricser = "akkapros.cli.metricser:main"
+akkapros-metricalc = "akkapros.cli.metricalc:main"
 akkapros-atfparser = "akkapros.cli.atfparser:main"
 akkapros-printer = "akkapros.cli.printer:main"
 akkapros-phoneprep = "akkapros.cli.phoneprep:main"
