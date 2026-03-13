@@ -12,13 +12,13 @@ This folder documents the small demo scripts included with the project. Each dem
   - **Metrics:** [demo/akkapros/results/corpus-sob-p30_metrics.txt](demo/akkapros/results/corpus-sob-p30_metrics.txt) — example metrics report (VarcoC, %V, ΔC) for the SOB model.
   - **Accent/IPA outputs:** [demo/akkapros/results/corpus-sob_accent_ipa.txt](demo/akkapros/results/corpus-sob_accent_ipa.txt) and [demo/akkapros/results/corpus-sob_accent_bold.md](demo/akkapros/results/corpus-sob_accent_bold.md).
 
-**Akkatts (Phoneprep) Demo**
-- **Script (POSIX):** [demo/akkatts/demo-phoneprep.sh](demo/akkatts/demo-phoneprep.sh) — runs the phone-preparation demo for the `akkatts` toolchain.
-- **Script (PowerShell):** [demo/akkatts/demo-phoneprep.ps1](demo/akkatts/demo-phoneprep.ps1) — PowerShell variant.
+**Akkapros Phoneprep Demo**
+- **Script (POSIX):** [demo/akkapros/phoneprep/demo-phoneprep.sh](demo/akkapros/phoneprep/demo-phoneprep.sh) — runs the phone-preparation demo in the `akkapros` toolchain.
+- **Script (PowerShell):** [demo/akkapros/phoneprep/demo-phoneprep.ps1](demo/akkapros/phoneprep/demo-phoneprep.ps1) — PowerShell variant.
 - **Outputs (in results/):**
-  - **Phoneprep text:** [demo/akkatts/results/phoneprep.txt](demo/akkatts/results/phoneprep.txt) — the prepared phonetic sequence.
-  - **Diphones / manifests:** [demo/akkatts/results/phoneprep_diphones.tsv](demo/akkatts/results/phoneprep_diphones.tsv) and [demo/akkatts/results/phoneprep_manifest.tsv](demo/akkatts/results/phoneprep_manifest.tsv).
-  - **Recording helper HTML:** [demo/akkatts/results/phoneprep_recording_helper.html](demo/akkatts/results/phoneprep_recording_helper.html).
+  - **Phoneprep text:** [demo/akkapros/phoneprep/results/phoneprep.txt](demo/akkapros/phoneprep/results/phoneprep.txt) — the prepared phonetic sequence.
+  - **Diphones / manifests:** [demo/akkapros/phoneprep/results/phoneprep_diphones.tsv](demo/akkapros/phoneprep/results/phoneprep_diphones.tsv) and [demo/akkapros/phoneprep/results/phoneprep_manifest.tsv](demo/akkapros/phoneprep/results/phoneprep_manifest.tsv).
+  - **Recording helper HTML:** [demo/akkapros/phoneprep/results/phoneprep_recording_helper.html](demo/akkapros/phoneprep/results/phoneprep_recording_helper.html).
 
 **Where the inputs come from**
 - The demos use sample ATF files contained in `data/samples/` (see the repository root `data/samples/` directory).
@@ -28,14 +28,14 @@ On Unix-like systems (bash):
 
 ```bash
 sh demo/akkapros/corpus-demo.sh
-sh demo/akkatts/demo-phoneprep.sh
+sh demo/akkapros/phoneprep/demo-phoneprep.sh
 ```
 
 On Windows PowerShell:
 
 ```powershell
 .\demo\akkapros\corpus-demo.ps1
-.\demo\akkatts\demo-phoneprep.ps1
+.\demo\akkapros\phoneprep\demo-phoneprep.ps1
 ```
 
 **Notes**

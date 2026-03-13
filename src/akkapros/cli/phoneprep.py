@@ -8,6 +8,7 @@ import itertools
 import random
 import csv
 import json
+import sys
 from collections import defaultdict, Counter
 from typing import Callable, Dict, List, Set, Tuple, Optional
 import argparse
@@ -1540,6 +1541,32 @@ def validate_word_list(
     return issues
 
 
+def run_tests() -> bool:
+    """Run lightweight self-tests for core invariants."""
+    ok = True
+
+    if parse_symbol_list("a, b c") != ['a', 'b', 'c']:
+        print("FAILED [parse_symbol_list]")
+        ok = False
+
+    if not is_vv_class_legal('a', 'ē'):
+        print("FAILED [is_vv_class_legal plain/plain]")
+        ok = False
+
+    if is_vv_class_legal('a', 'ɑ'):
+        print("FAILED [is_vv_class_legal mixed class]")
+        ok = False
+
+    sample = ['a', 'm', 'n', 'a', 'm', 'n', 'a']
+    if not validate_pattern1(sample):
+        print("FAILED [validate_pattern1 sample]")
+        ok = False
+
+    if ok:
+        print("phoneprep.py tests: 4/4 passed")
+    return ok
+
+
 # ============================================
 # MAIN
 # ============================================
@@ -1586,8 +1613,12 @@ def main():
                        help="Override short colored vowels (comma/space separated)")
     parser.add_argument("--colored-vowels-long", type=str, default="",
                        help="Override long colored vowels (comma/space separated)")
+    parser.add_argument("--test", action="store_true", help="Run unit tests")
     
     args = parser.parse_args()
+
+    if args.test:
+        sys.exit(0 if run_tests() else 1)
 
     if not 0.0 < args.non_vv_target_ratio <= 1.0:
         parser.error("--non-vv-target-ratio must be in (0, 1]")

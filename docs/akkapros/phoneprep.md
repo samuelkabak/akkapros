@@ -1,18 +1,18 @@
-Phoneprep — akktts/phoneprep.py
+Phoneprep — akkapros/cli/phoneprep.py
 ================================
 
 Overview
 --------
 `phoneprep.py` prepares orthographic input for phone-level processing and dataset
-preparation used by `akkatts`. It normalizes input text, maps orthography to a
+preparation used by `akkapros`. It normalizes input text, maps orthography to a
 phoneme-friendly representation, and can emit MBROLA- or TTS-ready token lists.
 
-Typical usage (demo): see `demo/akkatts/phoneprep-demo.ps1` or
-`demo/akkapros/phoneprep-demo.sh`.
+Typical usage (demo): see `demo/akkapros/phoneprep/phoneprep-demo.ps1` or
+`demo/akkapros/phoneprep/phoneprep-demo.sh`.
 
 Inputs and outputs
 - Input: raw text files (one utterance per line) from `data/samples/`.
-- Output: prepared phone lists and manifests written under `demo/akkatts/results/`.
+- Output: prepared phone lists and manifests written under `demo/akkapros/phoneprep/results/`.
 
 Options
 - `--infile` : input text file
@@ -22,4 +22,4 @@ Options
 Notes
 - `phoneprep.py` is intended to be run from the demo scripts for reproducible
   dataset preparation. For details on MBROLA dataset preparation see
-  `docs/akkatts/mbrola-dataset-prep.md`.
+  `docs/akkapros/mbrola-dataset-prep.md`.

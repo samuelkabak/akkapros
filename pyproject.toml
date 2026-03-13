@@ -10,6 +10,14 @@ readme = "README.md"
 authors = [{name = "Samuel KABAK", email = "samuel.kabak@gmail.com"}]
 license = {text = "MIT License"}
 requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Text Processing :: Linguistic",
+]
 dependencies = [
     # Only what your project directly needs
     # DiaMoE-TTS is called externally, not imported
@@ -24,8 +32,11 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["akkapros", "akkatts"]
 package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["akkapros*"]
 
 [project.scripts]
 # Console entry points for installed CLIs
@@ -35,9 +46,11 @@ akkapros-repairer = "akkapros.cli.repairer:main"
 akkapros-metricser = "akkapros.cli.metricser:main"
 akkapros-atfparser = "akkapros.cli.atfparser:main"
 akkapros-printer = "akkapros.cli.printer:main"
-akkatts-phoneprep = "akkatts.cli.phoneprep:main"
+akkapros-phoneprep = "akkapros.cli.phoneprep:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
 python_files = "test_*.py"
+pythonpath = ["src"]
+addopts = "-ra"

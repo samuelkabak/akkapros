@@ -59,15 +59,15 @@ The demo scripts run the full pipeline (parse → syllabify → repair → metri
 → outputs). Use `demo/akkapros/results/` to inspect generated `_syl`, `_tilde`,
 metrics and accent outputs.
 
-To prepare phone-level datasets (MBROLA, manifests) use the `akkatts` demo:
+To prepare phone-level datasets (MBROLA, manifests) use the `akkapros` phoneprep demo:
 
 ```powershell
 .\demo\akkapros\corpus-demo.ps1   # runs akkapros pipeline
-.\demo\akkatts\phoneprep-demo.ps1 # runs akktts phoneprep and dataset prep
+.\demo\akkapros\phoneprep\phoneprep-demo.ps1 # runs akkapros phoneprep and dataset prep
 ```
 
 Source files for demos are under `data/samples/` and demo outputs are in
-`demo/akkapros/results/` and `demo/akkatts/results/`.
+`demo/akkapros/results/` and `demo/akkapros/phoneprep/results/`.
 
 ---
 
