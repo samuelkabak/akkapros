@@ -1,12 +1,17 @@
-# Demo: prepare phone dataset using akkapros phoneprep
-# Assumes a Python venv is active with this repo installed (editable)
+# Ensure Unicode (UTF-8) output in PowerShell
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+$OutputEncoding = [System.Text.UTF8Encoding]::UTF8
+chcp 65001 | Out-Null
 
-$in = "data/samples/sample_input.txt"   # adjust or point to data/samples/*.txt
-$out = "demo/akkapros/phoneprep/results"
+$repoRoot = Resolve-Path "$PSScriptRoot\..\..\.."
+$resultsDir = Join-Path $repoRoot 'demo\akkapros\phoneprep\results'
+if (Test-Path $resultsDir) {
+	Write-Output "Clearing existing results in $resultsDir"
+	Get-ChildItem -Path $resultsDir -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+	New-Item -ItemType Directory -Path $resultsDir | Out-Null
+}
 
-mkdir -Force $out | Out-Null
-
-# Run phoneprep via module entry point
-python -m akkapros.cli.phoneprep --coverage 3 --seed 100 --output "$out/phoneprep.txt"
-
-Write-Host "Phoneprep demo complete — outputs in" $out
+Write-Output "Running phoneprep.py..."
+python "$repoRoot\src\akkapros\cli\phoneprep.py" --coverage 3 --with-html-recording-helper --seed 100 --output "$resultsDir\phoneprep.txt"
+Write-Output "Demo complete."

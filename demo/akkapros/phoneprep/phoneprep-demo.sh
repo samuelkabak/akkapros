@@ -1,10 +1,14 @@
-#!/usr/bin/env bash
-# Demo: prepare phone dataset using akkapros phoneprep
-# Assumes a Python venv is active with this repo installed (editable)
-
-IN=data/samples/sample_input.txt
-OUT=demo/akkapros/phoneprep/results
-mkdir -p "$OUT"
-python -m akkapros.cli.phoneprep --coverage 3 --seed 100 --output "$OUT/phoneprep.txt"
-
-echo "Phoneprep demo complete — outputs in $OUT"
+#!/bin/bash
+cd "$(dirname "$0")/../../.."
+export PYTHONPATH="$PWD/src"
+set -e
+resultsDir="demo/akkapros/phoneprep/results"
+if [ -d "$resultsDir" ]; then
+  echo "Clearing existing results in $resultsDir"
+  rm -rf "$resultsDir"/* "$resultsDir"/.[!.]* "$resultsDir"/?* 2>/dev/null || true
+else
+  mkdir -p "$resultsDir"
+fi
+echo "Running phoneprep.py..."
+python src/akkapros/cli/phoneprep.py --coverage 3 --with-html-recording-helper --seed 100 --output "$resultsDir/phoneprep.txt"
+echo "Demo complete."
