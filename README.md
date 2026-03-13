@@ -86,29 +86,24 @@ Source files for demos are under `data/samples/` and demo outputs are in
 
 ### Marker behavior
 
-- `+` (`WORD_LINKER`) â†’ `â€¿`
-- `Â·` (`SYL_SEPARATOR`) removed in final output
-- `-` (`HYPHEN`) preserved
-- `~` marks the preceding syllable:
-	- in `accent_acute`: replaced by `Â´`
-	- in `accent_bold`: removed and the host syllable is bolded
-	- in `accent_ipa`: converted to IPA length (`Ë`) and stress (`Ëˆ`) markers
-	- in `accent_xar`: replaced by `Â´` on the prosody-realized segment in XAR orthography
-- in `xar` (plain), prosody-realized `Â´` marks are removed; this file keeps the same XAR transliteration otherwise
-- in XAR outputs, glottal letters `Ê¿` and `Ê¾` are currently represented as apostrophe (`'`) and are not stripped by cleanup
-- in IPA mode, spaces and `+` are connected speech boundaries and are rendered as syllable separators (`.`)
-- in IPA mode, punctuation emits symbolic tags and prosody markers:
-	- weak/inner punctuation -> `|`
-	- strong/final punctuation -> `â€–`
-- in IPA mode, bracket chunks are emitted as `âŸ¨escape:[...]âŸ©`
-- content inside square brackets `[ ... ]` remains untouched in non-IPA outputs (for markdown URI safety)
+- `+` (`WORD_LINKER`): emitted as `‿` (no prosodic pause) in final outputs.
+- `·` (`SYL_SEPARATOR`): removed from final text outputs (used only in intermediate/syllabified formats).
+- `-` (`HYPHEN`): preserved as an orthographic boundary; when the syllabifier is run with `--merge-hyphen` the hyphen may be treated as a syllable separator.
+- Prosody-realization marker `~` is rendered as `´` in XAR and as stress/length markers in IPA output.
+- In IPA mode, punctuation is emitted as tagged clusters followed by a prosody marker:
+  - weak/inner punctuation -> `|`
+  - strong/final punctuation -> `‖`
+- Bracketed chunks are emitted in IPA mode as `⟨escape:...⟩` so their contents are preserved verbatim.
+- Content inside square brackets (`[ ... ]`) is preserved verbatim in non-IPA outputs (useful for foreign-language glosses or editorial notes).
 
-### IPA modes (`--ipa-ob` vs `--ipa-strict`)
+### IPA mode selection
 
-- `--ipa-ob`: Old Babylonian profile. Letter glottals (`Ê¾`, `Ê¿`) are removed in IPA output.
-- `--ipa-strict`: keeps full IPA symbols (including letter glottals).
-- `--ipa` is an alias of `--ipa-strict`.
-- Implied glottal stops inserted by the prosody realization/stress process are treated separately from letter glottals; prosody-realized onset glottals are preserved.
+IPA output is enabled with `--ipa`. Use `--ipa-proto-semitic {preserve,replace}` to select the phonological profile that controls pharyngeal/glottal symbol mapping:
+
+- `preserve`: preserve Proto-Semitic/pharyngeal distinctions (keeps letter glottals and pharyngeal contrasts in IPA output).
+- `replace`: apply the Old Babylonian-style merger (map conservative pharyngeal symbols to merged IPA symbols).
+
+`--ipa` only enables IPA output; `--ipa-proto-semitic` chooses how symbols are mapped.
 
 Historical rationale: these weak consonants were already largely lost in Old Babylonian connected speech, while they are older in Old Akkadian. Their later written presence can be conservative scribal traditionalism rather than direct phonetic realization.
 
@@ -126,10 +121,7 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 
 ### Emphatic vowel coloring
 
-In this system, the four plain vowel phonemes `/a, i, u, e/` undergo systematic allophonic variation only in **post-emphatic position** (after emphatic consonants, including `/q/`). Vowels before emphatics remain plain. The emphatic allophones are: `/a/ â†’ [É‘]`, `/i/ â†’ [É¨]`, `/u/ â†’ [ÊŠ]`, and `/e/ â†’ [É›]`.
-
 ### Usage
-
 ```bash
 # write both outputs (default)
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs
@@ -144,10 +136,10 @@ python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outp
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa
 
 # write IPA with Old Akkadian pharyngeals preserved (default)
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-pharyngeal preserve
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-proto-semitic preserve
 
 # write IPA with Old Babylonian pharyngeal merger
-python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-pharyngeal remove
+python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --ipa --ipa-proto-semitic replace
 
 # write XAR outputs (accented and plain)
 python3 src/akkapros/cli/printer.py outputs/erra_tilde.txt -p erra --outdir outputs --xar
@@ -157,12 +149,10 @@ python3 src/akkapros/cli/printer.py --test
 ```
 
 `--test` runs both:
-- printer CLI option-resolution checks (including `--ipa-pharyngeal preserve|remove`)
+- printer CLI option-resolution checks (including `--ipa-proto-semitic preserve|replace`)
 - `akkapros.lib.print.run_tests()` conversion checks
 
 ---
-
-## âš¡ Full Pipeline CLI (`fullprosmaker.py`)
 
 Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â†’ `prosmaker` â†’ `metricalc` â†’ `printer`) in one command.
 
@@ -177,7 +167,6 @@ Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â�
 - **Accent outputs**: selected by flags (`--print-acute`, `--print-bold`, `--print-ipa`, `--print-xar`)
 	- If no accent format is selected, `--print-acute` and `--print-bold` are used by default.
 
-### Shared options (deduplicated)
 
 - `-p, --prefix`: shared prefix for all outputs
 - `--outdir`: shared output directory
@@ -189,7 +178,7 @@ Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â�
 - **prosody realization**: `--prosody-style {lob,sob}` (default: `sob`), `--prosody-relax-last`
 	- Diphthong restoration is always applied after prosody realization; split markers never appear in `_tilde.txt` output.
 - **Metrics**: `--metrics-wpm`, `--metrics-pause-ratio`, `--metrics-weak-punct-weight`, `--metrics-strong-punct-weight`, `--metrics-table`, `--metrics-json`, `--metrics-csv`
-- **Printer**: `--print-acute`, `--print-bold`, `--print-ipa`, `--print-ipa-pharyngeal {preserve,remove}`, `--print-xar`
+- **Printer**: `--print-acute`, `--print-bold`, `--print-ipa`, `--print-ipa-proto-semitic {preserve,replace}`, `--print-xar`
 	- Test flags: `--test` (all printer-side tests live in internal `run_tests()` flows)
 
 ### Line handling (default vs merge)
@@ -239,8 +228,8 @@ python3 src/akkapros/cli/fullprosmaker.py --test-cli
 
 ### Internal testing policy
 
-- Project tests for the printer/IPA mode logic are implemented in built-in `run_tests()` functions.
-- No pytest module is required for validating `--ipa-ob` / `--ipa-strict` behavior.
+-- Project tests for the printer/IPA profile logic are implemented in built-in `run_tests()` functions.
+-- No external pytest module is required for validating `--ipa-proto-semitic` profile mapping (see `printer.py` and `fullprosmaker.py` built-in tests).
 
 ---
 

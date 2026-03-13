@@ -93,7 +93,7 @@ Defaults:
 - `--print-acute`
 - `--print-bold`
 - `--print-ipa`
-- `--print-ipa-pharyngeal {preserve,remove}`
+- `--print-ipa-proto-semitic {preserve,replace}`
 - `--print-circ-hiatus`
 - `--print-xar`
   - Writes both XAR files: accented (`<prefix>_accent_xar.txt`) and plain (`<prefix>_xar.txt`).
@@ -150,7 +150,7 @@ python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
   -p erra \
   --outdir outputs \
   --print-ipa \
-  --print-ipa-pharyngeal remove \
+  --print-ipa-proto-semitic replace \
   --print-circ-hiatus
 ```
 

@@ -222,7 +222,7 @@ python src/akkapros/cli/fullprosmaker.py outputs/demo_proc.txt -p demo --outdir 
 > ËˆÊ”enË.gi.du.du.ËˆbeËË.lu.mut.tal.lik.ËˆmuËË.Êƒi.mut.tar.ruË.ru.ËˆbeËË âŸ¨linebreakâŸ© â€–
 > Êƒa.Ê”etË¤.la.Ê”u.Ê”ar.da.ta.Ê”ina.Êƒul.mi.Ê”it.ta.ËˆnarË.ruË.Ê”u.ËˆnamË.ma.ru.ËˆkiËË.ma.ËˆÊ”uËË.mi âŸ¨linebreakâŸ© â€–
 
-IPA mode selection is controlled with `--print-ipa-pharyngeal {preserve,remove}`:
+IPA mode selection is controlled with `--print-ipa-proto-semitic {preserve,replace}`:
 - `preserve` (`ipa-strict`): Old Akkadian distinctions (`á¸¥ -> Ä§`, `á¸« -> Ï‡`, `Ê¿ -> Ê•`, `Ê¾ -> Ê”`)
 - `remove` (`ipa-ob`): Old Babylonian merger (`á¸¥ -> Ï‡`, `á¸« -> Ï‡`, `Ê¿ -> Ê”`, `Ê¾ -> Ê”`)
 

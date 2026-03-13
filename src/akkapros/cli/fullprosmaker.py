@@ -46,7 +46,7 @@ __version__ = f"syllabify-{syllabify.__version__}|prosody-{prosody_version}|metr
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     output_ipa = args.print_ipa
-    ipa_mode = 'ipa-strict' if args.print_ipa_pharyngeal == 'preserve' else 'ipa-ob'
+    ipa_mode = 'ipa-strict' if getattr(args, 'print_ipa_proto_semitic', None) == 'preserve' else 'ipa-ob'
     circ_hiatus = args.print_circ_hiatus
 
     return output_ipa, ipa_mode, circ_hiatus
@@ -55,17 +55,17 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
 def run_tests() -> bool:
     """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
     class _Args:
-        def __init__(self, print_ipa: bool, print_ipa_pharyngeal: str, print_circ_hiatus: bool) -> None:
+        def __init__(self, print_ipa: bool, print_ipa_proto_semitic: str, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
-            self.print_ipa_pharyngeal = print_ipa_pharyngeal
+            self.print_ipa_proto_semitic = print_ipa_proto_semitic
             self.print_circ_hiatus = print_circ_hiatus
 
     cases = [
         (_Args(False, 'preserve', False), False, 'ipa-strict', False),
-        (_Args(False, 'remove', False), False, 'ipa-ob', False),
+        (_Args(False, 'replace', False), False, 'ipa-ob', False),
         (_Args(True, 'preserve', False), True, 'ipa-strict', False),
-        (_Args(True, 'remove', False), True, 'ipa-ob', False),
-        (_Args(True, 'remove', True), True, 'ipa-ob', True),
+        (_Args(True, 'replace', False), True, 'ipa-ob', False),
+        (_Args(True, 'replace', True), True, 'ipa-ob', True),
     ]
 
     passed = 0
@@ -286,8 +286,8 @@ Versions: {__version__}
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--print-ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt')
-    parser.add_argument('--print-ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
-                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
+    parser.add_argument('--print-ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
+                        help='IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger')
     parser.add_argument('--print-circ-hiatus', action='store_true',
                         help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qu -> qu.u)')
     parser.add_argument('--print-xar', action='store_true',

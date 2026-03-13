@@ -57,7 +57,7 @@ Output selectors:
 - `--mbrola`
 
 IPA-specific options:
-- `--ipa-pharyngeal {preserve,remove}`
+- `--ipa-proto-semitic {preserve,replace}`
   - `preserve`: strict mode (Old Akkadian distinctions).
   - `remove`: OB-style pharyngeal merger.
 - `--circ-hiatus`
@@ -81,7 +81,7 @@ IPA output with OB pharyngeal policy:
 
 ```bash
 python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-  --ipa --ipa-pharyngeal remove \
+  --ipa --ipa-proto-semitic replace \
   -p erra --outdir outputs
 ```
 

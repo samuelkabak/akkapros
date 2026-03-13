@@ -23,9 +23,14 @@ from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_ban
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
-    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
+    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting.
+
+    CLI option renamed: `--ipa-proto-semitic` (values: 'preserve', 'replace').
+    Internally this maps to existing IPA modes used by `print.py`.
+    """
     write_ipa = args.ipa
-    ipa_mode = 'ipa-strict' if args.ipa_pharyngeal == 'preserve' else 'ipa-ob'
+    # map new CLI values to existing internal ipa modes
+    ipa_mode = 'ipa-strict' if getattr(args, 'ipa_proto_semitic', None) == 'preserve' else 'ipa-ob'
     circ_hiatus = args.circ_hiatus
 
     return write_ipa, ipa_mode, circ_hiatus
@@ -36,17 +41,17 @@ def run_tests() -> bool:
     ok = True
 
     class _Args:
-        def __init__(self, ipa: bool, ipa_pharyngeal: str, circ_hiatus: bool) -> None:
+        def __init__(self, ipa: bool, ipa_proto_semitic: str, circ_hiatus: bool) -> None:
             self.ipa = ipa
-            self.ipa_pharyngeal = ipa_pharyngeal
+            self.ipa_proto_semitic = ipa_proto_semitic
             self.circ_hiatus = circ_hiatus
 
     cases = [
         (_Args(False, 'preserve', False), False, 'ipa-strict', False),
-        (_Args(False, 'remove', False), False, 'ipa-ob', False),
+        (_Args(False, 'replace', False), False, 'ipa-ob', False),
         (_Args(True, 'preserve', False), True, 'ipa-strict', False),
-        (_Args(True, 'remove', False), True, 'ipa-ob', False),
-        (_Args(True, 'remove', True), True, 'ipa-ob', True),
+        (_Args(True, 'replace', False), True, 'ipa-ob', False),
+        (_Args(True, 'replace', True), True, 'ipa-ob', True),
     ]
 
     passed = 0
@@ -88,8 +93,8 @@ def main() -> None:
                         help='Write <prefix>_accent_bold.md')
     parser.add_argument('--ipa', action='store_true',
                         help='Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only)')
-    parser.add_argument('--ipa-pharyngeal', choices=['preserve', 'remove'], default='preserve',
-                        help='IPA pharyngeal policy: preserve=Old Akkadian, remove=Old Babylonian merger')
+    parser.add_argument('--ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
+                        help='IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger')
     parser.add_argument('--circ-hiatus', action='store_true',
                         help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
     parser.add_argument('--xar', action='store_true',
