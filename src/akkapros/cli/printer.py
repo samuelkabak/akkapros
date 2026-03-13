@@ -67,7 +67,7 @@ def run_tests() -> bool:
             ok = False
             print(
                 "FAILED [printer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_pharyngeal={args.ipa_pharyngeal}, circ_hiatus={args.circ_hiatus}"
+                f"\n  in : ipa={args.ipa}, ipa_proto_semitic={args.ipa_proto_semitic}, circ_hiatus={args.circ_hiatus}"
                 f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}, circ_hiatus={got_circ_hiatus}"
                 f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}, circ_hiatus={exp_circ_hiatus}"
             )

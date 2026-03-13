@@ -13,8 +13,8 @@ This folder documents the small demo scripts included with the project. Each dem
   - **Accent/IPA outputs:** [demo/akkapros/prosmaker/results/corpus-sob_accent_ipa.txt](demo/akkapros/prosmaker/results/corpus-sob_accent_ipa.txt) and [demo/akkapros/prosmaker/results/corpus-sob_accent_bold.md](demo/akkapros/prosmaker/results/corpus-sob_accent_bold.md).
 
 **Akkapros Phoneprep Demo**
-- **Script (POSIX):** [demo/akkapros/phoneprep/demo-phoneprep.sh](demo/akkapros/phoneprep/demo-phoneprep.sh) â€” runs the phone-preparation demo in the `akkapros` toolchain.
-- **Script (PowerShell):** [demo/akkapros/phoneprep/demo-phoneprep.ps1](demo/akkapros/phoneprep/demo-phoneprep.ps1) â€” PowerShell variant.
+- **Script (POSIX):** [demo/akkapros/phoneprep/phoneprep-demo.sh](demo/akkapros/phoneprep/phoneprep-demo.sh) â€” runs the phone-preparation demo in the `akkapros` toolchain.
+- **Script (PowerShell):** [demo/akkapros/phoneprep/phoneprep-demo.ps1](demo/akkapros/phoneprep/phoneprep-demo.ps1) â€” PowerShell variant.
 - **Outputs (in results/):**
   - **Phoneprep text:** [demo/akkapros/phoneprep/results/phoneprep.txt](demo/akkapros/phoneprep/results/phoneprep.txt) â€” the prepared phonetic sequence.
   - **Diphones / manifests:** [demo/akkapros/phoneprep/results/phoneprep_diphones.tsv](demo/akkapros/phoneprep/results/phoneprep_diphones.tsv) and [demo/akkapros/phoneprep/results/phoneprep_manifest.tsv](demo/akkapros/phoneprep/results/phoneprep_manifest.tsv).
@@ -28,14 +28,14 @@ On Unix-like systems (bash):
 
 ```bash
 sh demo/akkapros/prosmaker/corpus-demo.sh
-sh demo/akkapros/phoneprep/demo-phoneprep.sh
+sh demo/akkapros/phoneprep/phoneprep-demo.sh
 ```
 
 On Windows PowerShell:
 
 ```powershell
 .\demo\akkapros\prosmaker\corpus-demo.ps1
-.\demo\akkapros\phoneprep\demo-phoneprep.ps1
+.\demo\akkapros\phoneprep\phoneprep-demo.ps1
 ```
 
 **Notes**

@@ -80,7 +80,7 @@ def run_tests() -> bool:
         else:
             print(
                 "FAILED [fullprosmaker cli ipa mode]"
-                f"\n  in : print_ipa={args.print_ipa}, print_ipa_pharyngeal={args.print_ipa_pharyngeal}, print_circ_hiatus={args.print_circ_hiatus}"
+                f"\n  in : print_ipa={args.print_ipa}, print_ipa_proto_semitic={args.print_ipa_proto_semitic}, print_circ_hiatus={args.print_circ_hiatus}"
                 f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}, print_circ_hiatus={got_circ_hiatus}"
                 f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}, print_circ_hiatus={exp_circ_hiatus}"
             )
