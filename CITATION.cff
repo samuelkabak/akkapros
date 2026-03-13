@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+authors:
+  - family-names: Kabak
+    given-names: Samuel
+    orcid: https://orcid.org/0000-0001-7976-5038
+title: "akkapros: Akkadian Prosody Reconstruction Toolkit"
+version: 1.0.0
+doi: 10.5281/zenodo.19010721
+date-released: 2026-03-14
+url: "https://github.com/samuelkabak/akkapros"
+repository-code: "https://github.com/samuelkabak/akkapros"
+license: MIT
+keywords:
+  - "akkadian"
+  - "assyriology"
+  - "prosody"
+  - "historical linguistics"
+  - "computational philology"
+  - "phonology"
+  - "cuneiform"
