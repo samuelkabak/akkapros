@@ -21,16 +21,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Issue templates for bug reports and feature requests
 - SHOWCASE.md for research promotion
 - .gitattributes for consistent line endings
+ - Packaging helpers: `scripts/sync_docs.py` and `scripts/build_package.py`
+ - Architectural Decision Records: `docs/adr/` (MADR bootstrap, 15 ADRs)
+ - Centralized package metadata: `src/akkapros/__init__.py` with `__version__` and standardized `--version` output for CLIs
+ - Synced documentation into package path `src/akkapros/docs/` for inclusion in sdist/wheel
 
 ### Changed
 - Updated README.md with professional badges and structure
 - Standardized all documentation to 4-space indentation for commands
 - Replaced triple backticks with indented code blocks in all docs
+ - Removed POSIX/PowerShell sync scripts in favor of a single Python sync tool (`scripts/sync_docs.py`)
+ - Reverted an attempted PEP 517 build-backend wrapper; build flow uses `scripts/build_package.py` pre-build wrapper and `setuptools.build_meta` for isolated builds
 
 ### Documentation
 - Comprehensive review and cleanup of all 15+ documentation files
 - Consistent formatting across all CLI docs
 - Fixed special character rendering issues
+ - Added package-level docs mirror at `src/akkapros/docs/` (kept in sync by `scripts/sync_docs.py`)
+ - Added ADRs under `docs/adr/` documenting major architectural decisions and release rationale
+
+### Fixed
+- Fixed a small CLI startup banner regression introduced during refactor (restored stable `--version` behavior across CLIs)
 
 ## [1.0.0] - 2026-03-13
 
