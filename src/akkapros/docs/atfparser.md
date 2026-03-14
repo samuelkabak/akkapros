@@ -1,4 +1,4 @@
-﻿# ATF Parser CLI (`atfparser.py`)
+# ATF Parser CLI (`atfparser.py`)
 
 This document explains what `atfparser.py` does, how to run it, and what files it produces.
 
@@ -47,7 +47,7 @@ python src/akkapros/cli/atfparser.py <input.atf> [options]
 - `--preserve-case`
   - Keep original case (default behavior lowercases text).
 - `--preserve-h`
-  - Keep `h/H` unchanged (default maps to `á¸«/á¸ª`).
+  - Keep `h/H` unchanged (default maps to `ḫ/Ḫ`).
 - `--strict`
   - Enable strict warning mode.
 - `--test`
@@ -61,10 +61,10 @@ Within Akkadian `%n` lines:
 - `( )`, `[ ]`, `< >`: delimiters removed, content kept.
 - `{ }`: removed.
 - `|`: converted to space.
-- `||`, `â€¡`, `â€”`, `â€“`: normalized to `:` phrase separator.
-- `x` broken signs: collapsed to one `â€¦` marker.
-- `? ! * Â°`: removed.
-- Ellipsis preserved as `â€¦`.
+- `||`, `‡`, `—`, `–`: normalized to `:` phrase separator.
+- `x` broken signs: collapsed to one `…` marker.
+- `? ! * °`: removed.
+- Ellipsis preserved as `…`.
 - Numerals preserved.
 
 ## Typical Usage
@@ -72,7 +72,7 @@ Within Akkadian `%n` lines:
 Basic run:
 
 ```bash
-python src/akkapros/cli/atfparser.py data/samples/"L I.5 Erra and IÅ¡um SB I.atf" \
+python src/akkapros/cli/atfparser.py data/samples/"L I.5 Erra and Išum SB I.atf" \
   -p erra \
   --outdir outputs
 ```

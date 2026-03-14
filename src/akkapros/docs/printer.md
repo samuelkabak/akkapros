@@ -1,4 +1,4 @@
-﻿# Printer CLI (`printer.py`)
+# Printer CLI (`printer.py`)
 
 This document explains what `printer.py` does, how to run it, and what output formats it writes.
 
@@ -62,7 +62,7 @@ IPA-specific options:
   - `remove`: OB-style pharyngeal merger.
 - `--circ-hiatus`
   - Speculative mode splitting circumflex vowels into hiatus in IPA.
-  - Example: `qÃ» -> qÊŠ.ÊŠ`.
+  - Example: `qû -> qʊ.ʊ`.
 
 Testing:
 - `--test`

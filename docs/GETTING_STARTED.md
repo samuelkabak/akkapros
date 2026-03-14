@@ -4,7 +4,6 @@ This short guide helps you run the basic pipeline on a sample file and inspect o
 
 Prerequisites
 - Python 3.8+
-- (optional) activate project venv: `sandbox\activate_project.ps1` on Windows
 
 Run the full pipeline on a sample file:
 

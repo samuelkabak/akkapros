@@ -1,4 +1,4 @@
-﻿# Full Prosmaker CLI (`fullprosmaker.py`)
+# Full Prosmaker CLI (`fullprosmaker.py`)
 
 This document explains what `fullprosmaker.py` does, how to run it, and what files it produces.
 
@@ -102,7 +102,7 @@ Defaults:
 - If no print output is selected, `--print-acute` and `--print-bold` are enabled automatically.
 
 `--print-circ-hiatus` note:
-- Speculative IPA mode for circumflex hiatus splitting (example: `qÃ» -> qÊŠ.ÊŠ`).
+- Speculative IPA mode for circumflex hiatus splitting (example: `qû -> qʊ.ʊ`).
 
 ## Test Modes
 

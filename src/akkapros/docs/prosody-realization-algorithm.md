@@ -1,4 +1,4 @@
-﻿# Akkadian Prosody prosody realization algorithm (LOB/SOB)
+# Akkadian Prosody prosody realization algorithm (LOB/SOB)
 
 ## Purpose
 This document describes the `akkapros` moraic prosody realization algorithm for scholars of Akkadian and Assyriology. It explains how the system moves from syllabified text to prosody-realized prosodic output, with explicit attention to:
@@ -19,7 +19,7 @@ The prosody realization stage reads syllabified text where:
 
 - `.` marks syllable boundaries
 - `-` marks internal/prosodic boundaries preserved from input
-- `Â¦` marks word end
+- `¦` marks word end
 - `+` can explicitly link words into a forced prosodic unit
 - `[...]` style escaped punctuation/chunks are passed through as non-lexical material
 
@@ -35,7 +35,7 @@ After prosody realization (`*_tilde.txt`), the text is typically rendered in one
 
 1. `--acute`
 - output file: `*_accent_acute.txt`
-- rendering: `~` is converted to acute accent (`Â´`) on the prosody-realized syllable
+- rendering: `~` is converted to acute accent (`´`) on the prosody-realized syllable
 - use case: compact philological reading with explicit prosody-realized prominence
 
 2. `--bold` (often cited as markdown output, `--md`)
@@ -142,10 +142,10 @@ This enforces clitic-like prosodic dependence.
 Diphthongs are handled in two phases across pipeline stages.
 
 ### Phase 1 (syllabification stage)
-Adjacent vowels are split with glottal insertion (for unambiguous syllable parsing), for example `ua` -> `u.Ê¾a`.
+Adjacent vowels are split with glottal insertion (for unambiguous syllable parsing), for example `ua` -> `u.ʾa`.
 
 ### Phase 2 (prosody realization postprocess)
-After prosody realization, optional restoration collapses the split patterns back to diphthongal forms via ordered regex rules. The restoration preserves prosody realization marks where applicable (for example `u.Ê¾Ä~` -> `uÄ~`).
+After prosody realization, optional restoration collapses the split patterns back to diphthongal forms via ordered regex rules. The restoration preserves prosody realization marks where applicable (for example `u.ʾā~` -> `uā~`).
 
 This keeps prosody realization computation explicit while allowing diphthongal surface output.
 
@@ -164,13 +164,13 @@ The implementation encodes a testable bridge between lexical stress eligibility 
 Input (`*_syl.txt`):
 
 ```text
-gi.mirÂ¦dad.mÄ“Â¦
+gi.mir¦dad.mē¦
 ```
 
 Possible output (`*_tilde.txt`, model-dependent target):
 
 ```text
-gi.mir+dad~.mÄ“
+gi.mir+dad~.mē
 ```
 
 Interpretation:
@@ -180,13 +180,13 @@ Interpretation:
 - prosody realization target selected by hierarchy
 - one mora added at the selected syllable (`~`)
 
-## Worked Example: *Erra and IÅ¡um* (lines 21-22)
+## Worked Example: *Erra and Išum* (lines 21-22)
 
 ### Source lines (transliteration)
 
 ```text
-engidudu bÄ“lu muttallik mÅ«Å¡i muttarrÃ» rubÃª
-Å¡a eá¹­la u ardata ina Å¡ulmi ittanarrÃ» unammaru kÄ«ma Å«mi
+engidudu bēlu muttallik mūši muttarrû rubê
+ša eṭla u ardata ina šulmi ittanarrû unammaru kīma ūmi
 ```
 
 ### Translation
@@ -204,32 +204,32 @@ python src/akkapros/cli/fullprosmaker.py outputs/demo_proc.txt -p demo --outdir 
 
 ### prosody-realized pivot (`*_tilde.txt`)
 
-> en~Â·giÂ·duÂ·du bÄ“~Â·lu mutÂ·talÂ·lik mÅ«~Â·Å¡i mutÂ·tarÂ·rÃ» ruÂ·bÃª~
-> Å¡a+eá¹­Â·la u+arÂ·daÂ·ta ina+Å¡ulÂ·mi itÂ·taÂ·nar~Â·rÃ» uÂ·nam~Â·maÂ·ru kÄ«~Â·ma Å«~Â·mi
+> en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
+> ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
 
 ### `--print-acute` output (`*_accent_acute.txt`)
 
-> enÂ´gidudu bÄ“Â´lu muttallik mÅ«Â´Å¡i muttarrÃ» rubÃªÂ´
-> Å¡aâ€¿eá¹­la uâ€¿ardata inaâ€¿Å¡ulmi ittanarÂ´rÃ» unamÂ´maru kÄ«Â´ma Å«Â´mi
+> en´gidudu bē´lu muttallik mū´ši muttarrû rubê´
+> ša‿eṭla u‿ardata ina‿šulmi ittanar´rû unam´maru kī´ma ū´mi
 
 ### `--print-bold` output (`*_accent_bold.md`)
 
-> **en**gidudu **bÄ“**lu muttallik **mÅ«**Å¡i muttarrÃ» ru**bÃª**
-> Å¡aâ€¿eá¹­la uâ€¿ardata inaâ€¿Å¡ulmi itta**nar**rÃ» u**nam**maru **kÄ«**ma **Å«**mi
+> **en**gidudu **bē**lu muttallik **mū**ši muttarrû ru**bê**
+> ša‿eṭla u‿ardata ina‿šulmi itta**nar**rû u**nam**maru **kī**ma **ū**mi
 
 ### `--print-ipa` output (`*_accent_ipa.txt`)
 
-> ËˆÊ”enË.gi.du.du.ËˆbeËË.lu.mut.tal.lik.ËˆmuËË.Êƒi.mut.tar.ruË.ru.ËˆbeËË âŸ¨linebreakâŸ© â€–
-> Êƒa.Ê”etË¤.la.Ê”u.Ê”ar.da.ta.Ê”ina.Êƒul.mi.Ê”it.ta.ËˆnarË.ruË.Ê”u.ËˆnamË.ma.ru.ËˆkiËË.ma.ËˆÊ”uËË.mi âŸ¨linebreakâŸ© â€–
+> ˈʔenː.gi.du.du.ˈbeːː.lu.mut.tal.lik.ˈmuːː.ʃi.mut.tar.ruː.ru.ˈbeːː ⟨linebreak⟩ ‖
+> ʃa.ʔetˤ.la.ʔu.ʔar.da.ta.ʔina.ʃul.mi.ʔit.ta.ˈnarː.ruː.ʔu.ˈnamː.ma.ru.ˈkiːː.ma.ˈʔuːː.mi ⟨linebreak⟩ ‖
 
 IPA mode selection is controlled with `--print-ipa-proto-semitic {preserve,replace}`:
-- `preserve` (`ipa-strict`): Old Akkadian distinctions (`á¸¥ -> Ä§`, `á¸« -> Ï‡`, `Ê¿ -> Ê•`, `Ê¾ -> Ê”`)
-- `remove` (`ipa-ob`): Old Babylonian merger (`á¸¥ -> Ï‡`, `á¸« -> Ï‡`, `Ê¿ -> Ê”`, `Ê¾ -> Ê”`)
+- `preserve` (`ipa-strict`): Old Akkadian distinctions (`ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`)
+- `remove` (`ipa-ob`): Old Babylonian merger (`ḥ -> χ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ`)
 
-In IPA output, spaces and linkers (`+`/`â€¿`) do not add pauses. Punctuation emits tags plus a prosodic marker: weak punctuation uses `|`, strong punctuation (including line break) uses `â€–`. If a line already ends in strong punctuation, line-break deduplication prevents duplicate strong markers.
+In IPA output, spaces and linkers (`+`/`‿`) do not add pauses. Punctuation emits tags plus a prosodic marker: weak punctuation uses `|`, strong punctuation (including line break) uses `‖`. If a line already ends in strong punctuation, line-break deduplication prevents duplicate strong markers.
 
 ### Note on vowel coloring in IPA
-The IPA renderer applies context-sensitive vowel coloring **post-emphatic only** (notably after `q`, `á¹£`, `á¹­`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`É‘ É¨ ÊŠ É›`) only when the preceding consonant is emphatic. Vowels before emphatics remain plain.
+The IPA renderer applies context-sensitive vowel coloring **post-emphatic only** (notably after `q`, `ṣ`, `ṭ`). As a result, default vowels (`a i u e`) may surface as backed/centralized/opened qualities (`ɑ ɨ ʊ ɛ`) only when the preceding consonant is emphatic. Vowels before emphatics remain plain.
 
 ## Implementation Note
 Current behavior corresponds to `src/akkapros/lib/prosody.py` and CLI orchestration in `fullprosmaker.py`.

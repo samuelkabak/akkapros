@@ -1,4 +1,4 @@
-﻿# Metrics Computation
+# Metrics Computation
 
 This document explains every metric reported by `akkapros` metrics output: what each metric designates, how it is computed, and which unit it uses.
 
@@ -52,7 +52,7 @@ What it designates:
 
 How computed:
 - Each syllable is classified by consonant/vowel pattern.
-- prosody-realized patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `Ê”:V`).
+- prosody-realized patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `ʔ:V`).
 
 Unit:
 - Count: `syllables`
@@ -380,10 +380,10 @@ What it designates:
 How computed:
 - Count punctuation gaps classified as short.
 - Short class includes these markers:
-	- `, ; : â€” â€¦ ( ) Â« Â» â€œ â€ â€˜ â€™ " ' â€“ / \ & â€  â€¡ |`
+	- `, ; : — … ( ) « » “ ” ‘ ’ " ' – / \ & † ‡ |`
 - Standalone ellipsis is short when it appears as missing-text punctuation:
 	- `' ...[ \n{END_OF_FILE}]'`
-	- `' â€¦[ \n{END_OF_FILE}]'`
+	- `' …[ \n{END_OF_FILE}]'`
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
 Unit:
@@ -401,7 +401,7 @@ How computed:
 	- paired rare marks: `[ ] { } < >`
 	- line-bullet style markers when they appear in pause gaps: `* +`
 	- hyphen acting as punctuation (not surrounded by words): `-`
-- Word-attached ellipsis is long (`{WORD}...` or `{WORD}â€¦`).
+- Word-attached ellipsis is long (`{WORD}...` or `{WORD}…`).
 - If a punctuation gap contains at least one long cue, the full gap is long.
 - If a punctuation gap is not matched as short or long explicitly, fallback is long.
 - Include newline boundaries when enabled.
@@ -599,8 +599,8 @@ Rules used by implementation:
 - EOF is treated as line-end long pause when enabled.
 
 Exact punctuation classes:
-- Short pause punctuation characters: `,`, `:`, `;`, `|`, `â€¦`
-- Short pause multi-character patterns: `...`, `â€¦`
+- Short pause punctuation characters: `,`, `:`, `;`, `|`, `…`
+- Short pause multi-character patterns: `...`, `…`
 - Long pause punctuation characters: `.`, `?`, `!`
 - Newline can trigger long pause when `LONG_PAUSE_INCLUDES_NEWLINE = True`.
 - Final EOF can trigger long pause when `LONG_PAUSE_INCLUDES_FINAL_EOF = True`.
@@ -643,7 +643,7 @@ This makes each metrics file self-describing and reproducible.
 - `--metrics-long-punct-weight`
 - `--metrics-table`, `--metrics-json`, `--metrics-csv`
 
-Note: the CLI writes metrics to files by default â€” JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
+Note: the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
 
 ## 8. Versioning
 

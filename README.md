@@ -1,23 +1,23 @@
-﻿# Akkadian Prosody Toolkit (akkapros)
+# Akkadian Prosody Toolkit (akkapros)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![DOI](https://zenodo.org/badge/1158133867.svg)](https://doi.org/10.5281/zenodo.19010721)
 
-A computational toolkit for reconstructing Babylonian accentuation. Processes phonological texts, applies a novel accentuation prosody realization algorithm, computes acoustic metrics (VarcoC, Î”C, %V), and generates publication-ready output in multiple formats.
+A computational toolkit for reconstructing Babylonian accentuation. Processes phonological texts, applies a novel accentuation prosody realization algorithm, computes acoustic metrics (VarcoC, ΔC, %V), and generates publication-ready output in multiple formats.
 
 Developed for Assyriologists, historical linguists, and digital humanities researchers working with Akkadian literary texts.
 
 ---
 
-## ðŸ“‹ Overview
+## 📋 Overview
 
 The Akkadian Prosody Toolkit addresses a fundamental problem in Assyriology: the standard moraic stress model describes *where* accent *could* fall, but not *how* it was realized in connected speech. This toolkit implements a computational solution:
 
 1. **Parse** ATF files from the electronic Babylonian Library (eBL)
 2. **Syllabify** according to standard Akkadian rules
 3. **prosody realization** accentuation patterns using a phrase-level algorithm
-4. **Compute** acoustic metrics (%V, Î”C, VarcoC)
+4. **Compute** acoustic metrics (%V, ΔC, VarcoC)
 5. **Generate** outputs for publication and speech synthesis
 
 For release planning/versioning, see `docs/akkapros/release-strategy.md`.
@@ -28,7 +28,7 @@ Documentation
 
 ---
 
-## ðŸ”§ Tools Included
+## 🔧 Tools Included
 
 | Program | Version | Description |
 |---------|---------|-------------|
@@ -41,7 +41,7 @@ Documentation
 
 ---
 
-## ðŸš€ Quick Start â€” use the demo scripts
+## 🚀 Quick Start — use the demo scripts
 
 The repository ships ready-to-run demo scripts that exercise the full
 pipeline on sample inputs. The demos read sources from `data/samples/` and
@@ -59,8 +59,8 @@ Unix demo:
 ./demo/akkapros/prosmaker/corpus-demo.sh
 ```
 
-The demo scripts run the full pipeline (parse â†’ syllabify â†’ prosody realization â†’ metrics
-â†’ outputs). Use `demo/akkapros/prosmaker/results/` to inspect generated `_syl`, `_tilde`,
+The demo scripts run the full pipeline (parse → syllabify → prosody realization → metrics
+→ outputs). Use `demo/akkapros/prosmaker/results/` to inspect generated `_syl`, `_tilde`,
 metrics and accent outputs.
 
 To prepare phone-level datasets (MBROLA, manifests) use the `akkapros` phoneprep demo:
@@ -75,7 +75,7 @@ Source files for demos are under `data/samples/` and demo outputs are in
 
 ---
 
-## ðŸ–¨ï¸ Accent Printer CLI (`printer.py`)
+## 🖨️ Accent Printer CLI (`printer.py`)
 
 `printer.py` reads `*_tilde.txt` and produces reading outputs:
 
@@ -93,7 +93,7 @@ Source files for demos are under `data/samples/` and demo outputs are in
 - Prosody-realization marker `~` is rendered as `´` in XAR and as stress/length markers in IPA output.
 - In IPA mode, punctuation is emitted as tagged clusters followed by a prosody marker:
   - weak/inner punctuation -> `|`
-  - strong/final punctuation -> `‖`
+	- strong/final punctuation -> `‖`
 - Bracketed chunks are emitted in IPA mode as `⟨escape:...⟩` so their contents are preserved verbatim.
 - Content inside square brackets (`[ ... ]`) is preserved verbatim in non-IPA outputs (useful for foreign-language glosses or editorial notes).
 
@@ -112,13 +112,13 @@ Historical rationale: these weak consonants were already largely lost in Old Bab
 
 - XAR output is available both in `printer.py --xar` and in the full pipeline `fullprosmaker.py --print-xar`.
 - Selecting XAR writes two files: `<prefix>_accent_xar.txt` and `<prefix>_xar.txt`.
-- Consonant remap includes distinct emphatic/base channels (e.g., `q -> ê—`, `á¹­ -> êž“`, `á¹£ -> É‰`, `Å¡ -> xÌŒ`).
+- Consonant remap includes distinct emphatic/base channels (e.g., `q -> ꝗ`, `ṭ -> ꞓ`, `ṣ -> ɉ`, `š -> x̌`).
 - Vowel strategy uses doubled notation for long vowels while preserving macron/circumflex classes:
-	- default: `Ä -> aa`, `Ä« -> ii`, `Å« -> uu`, `Ä“ -> ee`, `Ã¢ -> eÃ¢`, `Ã® -> eÃ®`, `Ã» -> iÃ»`, `Ãª -> aÃª`
-	- emphatic: `Ä -> Ã a`, `Ä« -> Ã¬i`, `Å« -> Ã¹u`, `Ä“ -> Ã¨e`, `Ã¢ -> Ã¨Ã¢`, `Ã® -> Ã¨Ã®`, `Ã» -> Ã¬Ã»`, `Ãª -> Ã Ãª`
-- Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded as mixed pairs where the second slot carries the circumflex (`eÃ¢/eÃ®/iÃ»/aÃª`). This gives a visual cue that the second vowel is dominant while preserving a clear keyboard-friendly contrast between macron and circumflex series.
+	- default: `ā -> aa`, `ī -> ii`, `ū -> uu`, `ē -> ee`, `â -> eâ`, `î -> eî`, `û -> iû`, `ê -> aê`
+	- emphatic: `ā -> àa`, `ī -> ìi`, `ū -> ùu`, `ē -> èe`, `â -> èâ`, `î -> èî`, `û -> ìû`, `ê -> àê`
+- Design rationale: macron vowels are written as pure doubled vowels (`aa/ii/uu/ee`), while circumflex vowels are encoded as mixed pairs where the second slot carries the circumflex (`eâ/eî/iû/aê`). This gives a visual cue that the second vowel is dominant while preserving a clear keyboard-friendly contrast between macron and circumflex series.
 - Processing order for XAR is: consonant substitution -> vowel substitution -> accent-mark handling.
-- Current policy keeps apostrophe realizations for `Ê¿` and `Ê¾` in both XAR outputs.
+- Current policy keeps apostrophe realizations for `ʿ` and `ʾ` in both XAR outputs.
 
 ### Emphatic vowel coloring
 
@@ -155,7 +155,7 @@ python3 src/akkapros/cli/printer.py --test
 
 ---
 
-Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` â†’ `prosmaker` â†’ `metricalc` â†’ `printer`) in one command.
+Use `fullprosmaker.py` when you want to run the full pipeline (`syllabifier` → `prosmaker` → `metricalc` → `printer`) in one command.
 
 ### Input and outputs
 
@@ -234,7 +234,7 @@ python3 src/akkapros/cli/fullprosmaker.py --test-cli
 
 ---
 
-## ðŸ§  Moraic prosody realization algorithm (Current Behavior)
+## 🧠 Moraic prosody realization algorithm (Current Behavior)
 
 ### 1) Syllable classification
 
@@ -242,14 +242,14 @@ Each syllable is classified by structure and mora count:
 
 | Type | Structure | Morae | Example |
 |---|---|---:|---|
-| `CV` | consonant + short vowel | 1 | `Å¡a` |
+| `CV` | consonant + short vowel | 1 | `ša` |
 | `V` | short vowel (initial) | 1 | `a` |
-| `CVC` | closed short | 2 | `Å¡ar` |
+| `CVC` | closed short | 2 | `šar` |
 | `VC` | closed short (initial) | 2 | `ap` |
-| `CVV` | open long | 2 | `bÄ` |
-| `VV` | open long (initial) | 2 | `Ä«` |
-| `CVVC` | closed long | 3 | `nÄÅ¡` |
-| `VVC` | closed long (initial) | 3 | `Än` |
+| `CVV` | open long | 2 | `bā` |
+| `VV` | open long (initial) | 2 | `ī` |
+| `CVVC` | closed long | 3 | `nāš` |
+| `VVC` | closed long (initial) | 3 | `ān` |
 
 ### 2) prosody realization operations
 
@@ -257,9 +257,9 @@ When a target syllable is selected, exactly one mora is added:
 
 | Operation | Applies to | Effect | Example |
 |---|---|---|---|
-| Vowel lengthening | `CVV`, `VV`, `CVVC`, `VVC` | long vowel becomes extra-long | `rÄ â†’ rÄ~` |
-| Coda gemination | `CVC`, `VC` (non-final in unit) | coda consonant geminated | `dad â†’ dad~` |
-| Onset gemination (last resort) | `CV`, `V` | onset geminated; for vowel-initial, glottal gemination | `ka â†’ k~a`, `a â†’ ~a` |
+| Vowel lengthening | `CVV`, `VV`, `CVVC`, `VVC` | long vowel becomes extra-long | `rā → rā~` |
+| Coda gemination | `CVC`, `VC` (non-final in unit) | coda consonant geminated | `dad → dad~` |
+| Onset gemination (last resort) | `CV`, `V` | onset geminated; for vowel-initial, glottal gemination | `ka → k~a`, `a → ~a` |
 
 ### 3) Accent styles
 
@@ -280,9 +280,9 @@ If an odd-mora content word cannot be prosody-realized internally:
 
 Function words are never stressed independently; they attach to neighboring content words:
 
-- `u + ana + Å¡arri â†’ u+ana+Å¡arÂ·ri`
+- `u + ana + šarri → u+ana+šar·ri`
 
-## ðŸ”§ Prosmaker CLI (`prosmaker.py`)
+## 🔧 Prosmaker CLI (`prosmaker.py`)
 
 `prosmaker.py` applies moraic prosody realization to `*_syl.txt` and writes `<prefix>_tilde.txt`.
 
@@ -296,8 +296,8 @@ Function words are never stressed independently; they attach to neighboring cont
 
 Examples:
 
-- Default: `bÄÂ·nÃ»+aÂ·pilÂ¦ â†’ bÄÂ·nÃ»+~aÂ·pil`
-- Relaxed (`--relax-last`): `bÄÂ·nÃ»+aÂ·pilÂ¦ â†’ bÄÂ·nÃ»~+aÂ·pil`
+- Default: `bā·nû+a·pil¦ → bā·nû+~a·pil`
+- Relaxed (`--relax-last`): `bā·nû+a·pil¦ → bā·nû~+a·pil`
 
 Usage:
 
@@ -322,7 +322,7 @@ Current prosody realization output conventions:
 
 - `~` after prosody-realized syllable
 - `+` between merged/linked words in prosodic units
-- `Â·` and `-` preserved as syllable/prosodic boundaries
+- `·` and `-` preserved as syllable/prosodic boundaries
 - spaces for non-merged word boundaries
 
 

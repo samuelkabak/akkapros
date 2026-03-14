@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Akkadian Prosody Toolkit — Metrics Calculator (CLI wrapper)
 
-Renamed from `metricser.py` to `metricalc.py`.
-
 This module provides the command-line interface and delegates all
 metrics computation to ``akkapros.lib.metrics``.
 """

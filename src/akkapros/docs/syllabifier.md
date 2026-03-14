@@ -1,4 +1,4 @@
-﻿# Syllabifier CLI (`syllabifier.py`)
+# Syllabifier CLI (`syllabifier.py`)
 
 This document explains what `syllabifier.py` does, how to run it, and what files it produces.
 
@@ -51,11 +51,11 @@ python src/akkapros/cli/syllabifier.py <input_proc.txt> [options]
 ## Output Format Markers
 
 Common markers used in `*_syl.txt`:
-- `Â·`: syllable separator.
-- `Â¦`: word-ending marker.
+- `·`: syllable separator.
+- `¦`: word-ending marker.
 - `-`: hyphen boundary (unless merged).
 - `+`: linker boundary.
-- `â€¹...â€º`: escaped punctuation/non-word segments.
+- `‹...›`: escaped punctuation/non-word segments.
 
 ## Typical Usage
 
@@ -79,7 +79,7 @@ Provide additional phonetic symbols:
 
 ```bash
 python src/akkapros/cli/syllabifier.py outputs/text_proc.txt \
-  --extra-vowels "Ã¸" --extra-consonants "É£" \
+  --extra-vowels "ø" --extra-consonants "ɣ" \
   -p text --outdir outputs
 ```
 
