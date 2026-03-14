@@ -19,7 +19,7 @@ The module also provides a small test harness for its routines; running
 import re
 import unicodedata
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 

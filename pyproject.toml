@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "akkapros"
-version = "1.0.0"
+version = "1.0.1"
 description = "Akkadian accentuation reconstruction toolkit"
 readme = "README.md"
 authors = [{ name = "Samuel KABAK", email = "samuel.kabak@gmail.com" }]

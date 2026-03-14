@@ -113,7 +113,7 @@ If you use akkapros in your research, please cite:
       title        = {akkapros: Akkadian Prosody Reconstruction Toolkit},
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {1.0.0},
+      version      = {1.0.1},
       doi          = {10.5281/zenodo.19010721},
       url          = {https://github.com/samuelkabak/akkapros}
     }

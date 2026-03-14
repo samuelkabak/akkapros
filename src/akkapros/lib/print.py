@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Accent Printer (Library)
-Version: 1.0.0
 
 Transforms *_tilde text into three reading-friendly outputs:
 - accent_acute text: ~ -> ´
@@ -30,7 +29,7 @@ from akkapros.lib.constants import (
 )
 from akkapros.lib.syllabify import split_by_brackets_level3
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 __project__ = "Akkadian Prosody"

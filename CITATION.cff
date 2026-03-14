@@ -5,7 +5,7 @@ authors:
     given-names: Samuel
     orcid: https://orcid.org/0000-0001-7976-5038
 title: "akkapros: Akkadian Prosody Reconstruction Toolkit"
-version: 1.0.0
+version: 1.0.1
 doi: 10.5281/zenodo.19010721
 date-released: 2026-03-14
 url: "https://github.com/samuelkabak/akkapros"

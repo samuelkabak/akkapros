@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — eBL ATF Parser (CLI)
-Version: 1.0.0
 
 COMMAND-LINE INTERFACE: Wraps library for CLI usage
 
@@ -27,7 +26,7 @@ from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 __project__ = "Akkadian Prosody"

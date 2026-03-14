@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit - Moraic Prosody Realization System
-Version: 1.0.0 - WITH HYPHEN SUPPORT
 """
 
 import re
 from enum import Enum
 from typing import List, Optional, Tuple, Union, Dict, Set
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 # shared constants

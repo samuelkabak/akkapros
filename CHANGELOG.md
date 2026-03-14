@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2026-03-14
+
+### Fixed
+- UTF-8 encoding issues in documentation files
+- Markdown formatting in multiple docs (arrows, code blocks)
+- Broken text boxes in documentation files
+
+### Added
+- CITATION.cff with DOI and ORCID
+- SUPPORT.md with user guidance
+- CONTRIBUTING.md with development guidelines
+- Issue templates for bug reports and feature requests
+- SHOWCASE.md for research promotion
+- .gitattributes for consistent line endings
+
+### Changed
+- Updated README.md with professional badges and structure
+- Standardized all documentation to 4-space indentation for commands
+- Replaced triple backticks with indented code blocks in all docs
+
+### Documentation
+- Comprehensive review and cleanup of all 15+ documentation files
+- Consistent formatting across all CLI docs
+- Fixed special character rendering issues
+
 ## [1.0.0] - 2026-03-13
 
 ### Added
