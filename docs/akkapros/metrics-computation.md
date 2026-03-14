@@ -2,405 +2,505 @@
 
 This document explains every metric reported by `akkapros` metrics output: what each metric designates, how it is computed, and which unit it uses.
 
-Implementation scope:
+**Implementation scope:**
 - `src/akkapros/lib/metrics.py`
 - `src/akkapros/cli/metricalc.py`
 - `src/akkapros/cli/fullprosmaker.py` (metrics stage)
 
-## 1. Input And Notation
+---
+
+## 1. Input and Notation
 
 Metrics uses prosody-realized text in `*_tilde.txt` format.
 
-Main symbols in input:
-- `.` and `-`: syllable separators
-- `+`: linker between words (no pause)
-- `~`: prosody realization/accent marker
+### Main Symbols in Input
 
-Main symbols in output formulas:
-- `N_x`: count of item `x`
-- `mu`: mora unit
-- `mean(x)`: arithmetic mean
-- `sd(x)`: standard deviation
+| Symbol | Meaning |
+|--------|---------|
+| `.`, `-` | Syllable separators |
+| `+` | Linker between words (no pause) |
+| `~` | Prosody realization / accent marker |
 
-## 2. Mora Rules Used By Metrics
+### Main Symbols in Output Formulas
+
+| Symbol | Meaning |
+|--------|---------|
+| `N_x` | Count of item `x` |
+| `mu` | Mora unit |
+| `mean(x)` | Arithmetic mean |
+| `sd(x)` | Standard deviation |
+
+---
+
+## 2. Mora Rules Used by Metrics
 
 Base duration model:
-- short vowel (`a e i u`) = `1 mu`
-- long/circumflex vowel (`a- e- i- u-` macron/circumflex) = `2 mu`
-- prosody-realized extra-long vowel = `3 mu`
-- coda consonant contributes consonantal weight in interval computation
+
+| Vowel Type | Mora Value |
+|------------|------------|
+| Short vowel (`a e i u`) | `1 mu` |
+| Long/circumflex vowel (`ā ē ī ū`) | `2 mu` |
+| Prosody-realized extra-long vowel (`ā~`, etc.) | `3 mu` |
+
+Coda consonants contribute consonantal weight in interval computation but do not add morae directly.
 
 These mora assignments are the basis for syllable weight, interval distances, and all derived timing estimates.
 
-## 3. Metric-By-Metric Reference
+---
+
+## 3. Metric-by-Metric Reference
 
 ### 3.1 Total Syllables
 
-What it designates:
+**What it designates:**
 - Number of syllables in the analyzed text.
 
-How computed:
+**How computed:**
 - Tokenize syllables from prosody-realized stream and count all syllable nuclei.
 
-Unit:
+**Unit:**
 - `syllables`
 
-### 3.2 Syllable Type Counts (`CV`, `CVC`, `CVV`, ...)
+---
 
-What it designates:
-- Structural distribution of syllables.
+### 3.2 Syllable Type Counts
 
-How computed:
+**What it designates:**
+- Structural distribution of syllables (CV, CVC, CVV, etc.).
+
+**How computed:**
 - Each syllable is classified by consonant/vowel pattern.
-- prosody-realized patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `ʔ:V`).
+- Prosody-realized patterns are reported separately (examples: `CVC:`, `CVV:`, `C:V`, `ʔ:V`).
 
-Unit:
+**Unit:**
 - Count: `syllables`
 - Share: `%`
 
+---
+
 ### 3.3 Mean Morae Per Syllable
 
-What it designates:
+**What it designates:**
 - Mean syllable weight across all syllables.
 
-How computed:
+**How computed:**
 - For each syllable `s`, compute `morae(s)`.
 - `mean_morae_per_syllable = mean(morae(s))`.
 
-Unit:
+**Unit:**
 - `mora/syllable`
+
+---
 
 ### 3.4 SD Morae Per Syllable
 
-What it designates:
+**What it designates:**
 - Dispersion of syllable weight around the mean.
 
-How computed:
+**How computed:**
 - `sd_morae_per_syllable = sd(morae(s))`.
 
-Unit:
+**Unit:**
 - `mora/syllable`
+
+---
 
 ### 3.5 Total Words
 
-What it designates:
+**What it designates:**
 - Number of lexical words after parsing word boundaries.
 
-How computed:
+**How computed:**
 - Count word tokens in analyzed text.
 
-Unit:
+**Unit:**
 - `words`
+
+---
 
 ### 3.6 Mean Syllables Per Word
 
-What it designates:
+**What it designates:**
 - Mean word length in syllables.
 
-How computed:
+**How computed:**
 - For each word `w`, let `syll_count(w)` be its syllable count.
 - `mean_syllables_per_word = mean(syll_count(w))`.
 
-Unit:
+**Unit:**
 - `syllable/word`
+
+---
 
 ### 3.7 SD Syllables Per Word
 
-What it designates:
+**What it designates:**
 - Variability of word length in syllables.
 
-How computed:
+**How computed:**
 - `sd_syllables_per_word = sd(syll_count(w))`.
 
-Unit:
+**Unit:**
 - `syllable/word`
+
+---
 
 ### 3.8 Mean Morae Per Word
 
-What it designates:
+**What it designates:**
 - Mean moraic load per word.
 
-How computed:
+**How computed:**
 - For each word `w`, compute `morae(w)`.
 - `mean_morae_per_word = mean(morae(w))`.
 
-Unit:
+**Unit:**
 - `mora/word`
+
+---
 
 ### 3.9 SD Morae Per Word
 
-What it designates:
+**What it designates:**
 - Dispersion of moraic load across words.
 
-How computed:
+**How computed:**
 - `sd_morae_per_word = sd(morae(w))`.
 
-Unit:
+**Unit:**
 - `mora/word`
+
+---
 
 ### 3.10 Merged Words
 
-What it designates:
+**What it designates:**
 - Number of words that participate in merged prosodic units.
 
-How computed:
+**How computed:**
 - Count words inside units linked by merge markers from prosody realization stage.
 
-Unit:
+**Unit:**
 - `words`
+
+---
 
 ### 3.11 Merged Units
 
-What it designates:
+**What it designates:**
 - Number of multi-word prosodic units produced by merging.
 
-How computed:
+**How computed:**
 - Count each merged group as one unit.
 
-Unit:
+**Unit:**
 - `units`
+
+---
 
 ### 3.12 Mean Merged Unit Size
 
-What it designates:
+**What it designates:**
 - Mean number of words per merged unit.
 
-How computed:
+**How computed:**
 - `mean_merged_unit_size = merged_words / merged_units` (if `merged_units > 0`).
 
-Unit:
+**Unit:**
 - `words`
 
-### 3.13 prosody realization rate
+---
 
-What it designates:
+### 3.13 Prosody Realization Rate
+
+**What it designates:**
 - Fraction of syllables modified by prosody realization operations.
 
-How computed:
+**How computed:**
 - `prosody_realization_rate = prosody_realized_syllables / total_syllables * 100`.
 
-Unit:
+**Unit:**
 - `%`
+
+---
 
 ### 3.14 %V (Two Values)
 
-What it designates:
+**What it designates:**
 - Proportion of vocalic duration proxy in the moraic stream.
 
-How computed:
-- Articulate (no pauses): `percent_v_articulate = vowel_morae / total_morae * 100`.
-- Normal speech (including pauses): `percent_v_speech = percent_v_articulate / (1 + pause_ratio/100)`.
+**How computed:**
 
-Rationale:
+- **Articulate (no pauses):**
+  `percent_v_articulate = vowel_morae / total_morae * 100`
+
+- **Normal speech (including pauses):**
+  `percent_v_speech = percent_v_articulate / (1 + pause_ratio/100)`
+
+**Rationale:**
 - Acoustic %V from real speech includes pause time in the denominator.
-- To compare moraic text metrics with speech metrics, pause ratio expands total moraic time by `x(1 + pause_ratio/100)`.
+- To compare moraic text metrics with speech metrics, pause ratio expands total moraic time by `(1 + pause_ratio/100)`.
 
-Implementation note:
+**Implementation note:**
 `metricalc.py` and `fullprosmaker.py` table/CSV outputs expose both values as separate fields.
 
-Unit:
+**Unit:**
 - `%`
+
+---
 
 ### 3.15 DeltaC
 
-What it designates:
+**What it designates:**
 - Absolute variability of consonant-to-consonant interval length.
 
-How computed:
+**How computed:**
 - Build sequence of consonant intervals measured in mora distance.
 - `DeltaC = sd(consonant_intervals)`.
 
-Unit:
+**Unit:**
 - `mora`
+
+---
 
 ### 3.16 MeanC
 
-What it designates:
+**What it designates:**
 - Mean consonant interval length.
 
-How computed:
+**How computed:**
 - `MeanC = mean(consonant_intervals)`.
 
-Unit:
+**Unit:**
 - `mora`
+
+---
 
 ### 3.17 VarcoC
 
-What it designates:
+**What it designates:**
 - Tempo-normalized variability of consonant intervals.
 
-How computed:
+**How computed:**
 - `VarcoC = 100 * DeltaC / MeanC`.
 
-Unit:
+**Unit:**
 - `%`
+
+---
 
 ### 3.17.1 How `consonant_intervals` Is Computed (Detailed)
 
-What this sequence designates:
+**What this sequence designates:**
 - `consonant_intervals` is the ordered list of vowel-mora distances attached to each consonant position in the preprocessed stream.
 - This list is the direct input for `DeltaC` and `MeanC`.
 
-Step-by-step algorithm in `metrics.py`:
-1. Preprocess text (`preprocess_text`) and insert word boundaries (`$`) only at punctuation boundaries.
+**Step-by-step algorithm in `metrics.py`:**
+
+1. **Preprocess text** (`preprocess_text`) and insert word boundaries (`$`) only at punctuation boundaries.
 2. Keep connected speech across spaces and `+` linkers: they do not create `$`.
 3. Remove boundary/separator symbols (`$`, `.`, `-`, `+`) and keep only phonetic segments.
-4. Build two parallel arrays with `extract_segments(...)`:
-- `consonants`: every consonant encountered in order.
-- `vowels_after[i]`: contiguous vowel/length-marker string immediately following consonant `consonants[i]`.
-5. Convert each `vowels_after[i]` to mora distance with `vowel_length(...)`:
-- short vowel = `1`
-- long/circumflex vowel = `2`
-- extra-long prosody-realized vowel = `3`
-- explicit length marker `:` contributes `+1`
-6. Build `consonant_intervals` with `compute_consonant_distances(...)`:
-- for each consonant except last: append `vowel_length(vowels_after[i])`
-- append trailing value for last consonant as well
+4. **Build two parallel arrays** with `extract_segments(...)`:
+   - `consonants`: every consonant encountered in order.
+   - `vowels_after[i]`: contiguous vowel/length-marker string immediately following consonant `consonants[i]`.
+5. **Convert each `vowels_after[i]` to mora distance** with `vowel_length(...)`:
+   - short vowel = `1`
+   - long/circumflex vowel = `2`
+   - extra-long prosody-realized vowel = `3`
+   - explicit length marker `:` contributes `+1`
+6. **Build `consonant_intervals`** with `compute_consonant_distances(...)`:
+   - for each consonant except last: append `vowel_length(vowels_after[i])`
+   - append trailing value for last consonant as well
 
-Important consequences:
+**Important consequences:**
+
 - Number of intervals equals number of consonants (not consonant-pairs).
 - Consonant clusters create `0` intervals where no vowel follows a consonant.
 - Final consonants can contribute terminal `0`.
 - Spaces and `+` linkers do not break interval continuity.
 - `$` markers come from punctuation boundaries only, and are removed before interval distance is computed.
 
-Core interpretation rule:
+**Core interpretation rule:**
+
 - If two consonants are separated by a vowel, the interval distance is the vowel mora count: `1`, `2`, or `3` (short, long, prosody-realized extra-long).
 - If two consonants are adjacent in a cluster, interval distance is `0`.
 
-Gemination clarification:
-- In `s-t`, distance `s -> t` is `0` if no vowel material appears between them.
+**Gemination clarification:**
+
+- In `s-t`, distance `s → t` is `0` if no vowel material appears between them.
 - In plain doubled writing `s-s` (two consonant tokens), distance between the two `s` values is computed the same way as any adjacent consonant pair.
 - In prosody-realized `s:t` (length marker attached to first `s`), consonant count is not incremented by introducing a new consonant token.
-- `s:t` is interpreted as consonant `s` followed by vowel/length material `:` before the next consonant (for example `t`), so distance `s -> t = 1`.
+- `s:t` is interpreted as consonant `s` followed by vowel/length material `:` before the next consonant (for example `t`), so distance `s → t = 1`.
 
-Worked examples:
+---
 
-Example A: simple open syllables
-- Input idea: `ba na`
-- After preprocessing (conceptually): `bana`
-- Segments: consonants = `[b, n]`, vowels_after = `[a, a]`
-- Distances: `[1, 1]`
-- Result: `MeanC = 1.0`, `DeltaC = 0.0`
+### Worked Examples
 
-Example B: long vowel affects one interval
-- Input idea: `ba na` with first vowel long (`ba-`)
-- Segments: consonants = `[b, n]`, vowels_after = `[a-, a]`
-- Distances: `[2, 1]`
-- Effect: interval variability increases because one consonant carries a longer vowel interval.
+#### Example A: Simple Open Syllables
 
-Example B2: punctuation inserts boundary but not distance
-- Input idea: `ba, na`
-- After preprocessing (conceptually): `ba$na`
-- `$` is removed before interval extraction, so distance logic remains vowel-based (`[1, 1]`).
+Input idea: `ba na`
 
-Example C: initial vowel word and terminal consonant
-- Input idea: `ab`
-- Processing adds initial glottal for vowel-initial words.
-- Segments: consonants = `[GLOTTAL, b]`, vowels_after = `[a, ""]`
-- Distances: `[1, 0]`
-- Interpretation: last consonant has no following vowel material, so terminal interval is `0`.
+After preprocessing (conceptually): `bana`
 
-Example D: consonant cluster produces zero interval
-- Input idea: `abdu`
-- Segments: consonants = `[GLOTTAL, b, d]`, vowels_after = `[a, "", u]`
-- Distances: `[1, 0, 1]`
-- Interpretation: `b` is followed directly by consonant `d`, so its vowel interval is zero.
+Segments: consonants = `[b, n]`, vowels_after = `[a, a]`
 
-Example E: prosody-realized length marker contributes mora
-- Input idea with prosody-realized consonant length marker after vowel sequence
-- If `vowels_after[i]` is `a:` then `vowel_length("a:") = 1 + 1 = 2`
-- This increases the corresponding interval even when no extra vowel letter appears.
+Distances: `[1, 1]`
 
-Example F: cluster vs prosody-realized gemination (`s-t` vs `s:t`)
-- `s-t`: no vowel/length between `s` and `t` -> distance `0`.
-- `s:t`: `:` contributes `1` mora between `s` and `t` -> distance `1`.
-- Consonant tokens remain the same base sequence (`s`, `t`); the change is in interval weight, not extra consonant count.
+Result: `MeanC = 1.0`, `DeltaC = 0.0`
 
-### 3.18 Speech Rate (`SPS`)
+#### Example B: Long Vowel Affects One Interval
 
-What it designates:
+Input idea: `ba na` with first vowel long (`bā na`)
+
+Segments: consonants = `[b, n]`, vowels_after = `[ā, a]`
+
+Distances: `[2, 1]`
+
+Effect: interval variability increases because one consonant carries a longer vowel interval.
+
+#### Example B2: Punctuation Inserts Boundary But Not Distance
+
+Input idea: `ba, na`
+
+After preprocessing (conceptually): `ba$na`
+
+`$` is removed before interval extraction, so distance logic remains vowel-based (`[1, 1]`).
+
+#### Example C: Initial Vowel Word and Terminal Consonant
+
+Input idea: `ab`
+
+Processing adds initial glottal for vowel-initial words.
+
+Segments: consonants = `[GLOTTAL, b]`, vowels_after = `[a, ""]`
+
+Distances: `[1, 0]`
+
+Interpretation: last consonant has no following vowel material, so terminal interval is `0`.
+
+#### Example D: Consonant Cluster Produces Zero Interval
+
+Input idea: `abdu`
+
+Segments: consonants = `[GLOTTAL, b, d]`, vowels_after = `[a, "", u]`
+
+Distances: `[1, 0, 1]`
+
+Interpretation: `b` is followed directly by consonant `d`, so its vowel interval is zero.
+
+#### Example E: Prosody-Realized Length Marker Contributes Mora
+
+Input idea with prosody-realized consonant length marker after vowel sequence.
+
+If `vowels_after[i]` is `a:` then `vowel_length("a:") = 1 + 1 = 2`
+
+This increases the corresponding interval even when no extra vowel letter appears.
+
+#### Example F: Cluster vs. Prosody-Realized Gemination (`s-t` vs `s:t`)
+
+- `s-t`: no vowel/length between `s` and `t` → distance `0`.
+- `s:t`: `:` contributes `1` mora between `s` and `t` → distance `1`.
+
+Consonant tokens remain the same base sequence (`s`, `t`); the change is in interval weight, not extra consonant count.
+
+---
+
+### 3.18 Speech Rate (SPS)
+
+**What it designates:**
 - Predicted syllables per second under chosen `wpm` and `pause_ratio`.
 
-How computed:
+**How computed:**
 - `SPS_speech = (WPM / 60) * mean_syllables_per_word`
 
-Unit:
+**Unit:**
 - `syllable/s`
 
-### 3.19 Articulation Rate (`SPS` Without Pauses)
+---
 
-What it designates:
+### 3.19 Articulation Rate (SPS Without Pauses)
+
+**What it designates:**
 - Predicted articulation-only rate (excluding pause time share).
 
-How computed:
+**How computed:**
 - `SPS_articulation = SPS_speech / (1 - pause_ratio/100)`
 
-Unit:
+**Unit:**
 - `syllable/s`
+
+---
 
 ### 3.20 Mean Syllable Duration
 
-What it designates:
+**What it designates:**
 - Mean time assigned to one articulated syllable.
 
-How computed:
+**How computed:**
 - `mean_syllable_duration = 1 / SPS_articulation`
 
-Unit:
+**Unit:**
 - `s/syllable`
+
+---
 
 ### 3.21 Mora Duration
 
-What it designates:
+**What it designates:**
 - Mean time assigned to one mora in the model.
 
-How computed:
+**How computed:**
 - `mora_dur = mean_syllable_duration / mean_morae_per_syllable`
 
-Unit:
+**Unit:**
 - `s/mora`
+
+---
 
 ### 3.22 Word Duration
 
-What it designates:
+**What it designates:**
 - Mean time per word at selected `WPM`.
 
-How computed:
+**How computed:**
 - `word_dur = 60 / WPM`
 
-Unit:
+**Unit:**
 - `s/word`
+
+---
 
 ### 3.23 Short Pause Punctuation Per Syllable
 
-What it designates:
+**What it designates:**
 - Density of short-pause punctuation events relative to syllable count.
 
-How computed:
+**How computed:**
 - Count punctuation gaps classified as short.
 - Short class includes these markers:
-	- `, ; : — … ( ) « » “ ” ‘ ’ " ' – / \ & † ‡ |`
+  `, ; : — … ( ) « » “ ” ‘ ’ " ' – / \ & † ‡ |`
 - Standalone ellipsis is short when it appears as missing-text punctuation:
-	- `' ...[ \n{END_OF_FILE}]'`
-	- `' …[ \n{END_OF_FILE}]'`
+  `' ...[ \n{END_OF_FILE}]'`
+  `' …[ \n{END_OF_FILE}]'`
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
-Unit:
+**Unit:**
 - `pause/syllable`
+
+---
 
 ### 3.24 Long Pause Punctuation Per Syllable
 
-What it designates:
+**What it designates:**
 - Density of long-pause punctuation events relative to syllable count.
 
-How computed:
+**How computed:**
 - Count punctuation gaps classified as long.
 - Long class includes sentence-ending and major marks:
-	- `. ? !`
-	- paired rare marks: `[ ] { } < >`
-	- line-bullet style markers when they appear in pause gaps: `* +`
-	- hyphen acting as punctuation (not surrounded by words): `-`
+  - `. ? !`
+  - paired rare marks: `[ ] { } < >`
+  - line-bullet style markers when they appear in pause gaps: `* +`
+  - hyphen acting as punctuation (not surrounded by words): `-`
 - Word-attached ellipsis is long (`{WORD}...` or `{WORD}…`).
 - If a punctuation gap contains at least one long cue, the full gap is long.
 - If a punctuation gap is not matched as short or long explicitly, fallback is long.
@@ -408,189 +508,223 @@ How computed:
 - Include final EOF boundary when enabled and final character is word-final.
 - `long_pause_per_syll = N_long_pause / total_syllables`
 
-Unit:
+**Unit:**
 - `pause/syllable`
+
+---
 
 ### 3.25 Total Punctuation Pauses Per Syllable
 
-What it designates:
+**What it designates:**
 - Combined punctuation pause density.
 
-How computed:
+**How computed:**
 - `total_pause_per_syll = short_pause_per_syll + long_pause_per_syll`
 
-Pause grouping rule:
+**Pause grouping rule:**
 - Punctuation is evaluated per inter-word gap, not per character.
 - Consecutive punctuation in the same gap creates one pause event.
 - Spaces inside that punctuation suite do not create additional pauses.
-- Examples:
-	- `?!!!` -> one long pause.
-	- `),` -> one short pause.
-	- if one long marker appears anywhere in a punctuation suite, the suite is long.
 
-Unit:
+**Examples:**
+- `?!!!` → one long pause.
+- `),` → one short pause.
+- If one long marker appears anywhere in a punctuation suite, the suite is long.
+
+**Unit:**
 - `pause/syllable`
+
+---
 
 ### 3.26 Total Boundaries
 
-What it designates:
+**What it designates:**
 - Number of detected boundary positions in text stream.
 
-How computed:
+**How computed:**
 - Count boundaries from parser boundary scan.
 
-Unit:
+**Unit:**
 - `boundaries`
+
+---
 
 ### 3.27 Pauseable Boundaries
 
-What it designates:
+**What it designates:**
 - Number of boundaries eligible for punctuation pause treatment.
 
-How computed:
+**How computed:**
 - Subset count of total boundaries that satisfy pauseability conditions.
-- The implementation also tracks `defaulted_long_punctuation` in raw counts:
-	punctuation suites that were not recognized in explicit classes and therefore
-	assigned to long by fallback policy.
+- The implementation also tracks `defaulted_long_punctuation` in raw counts: punctuation suites that were not recognized in explicit classes and therefore assigned to long by fallback policy.
 
-Unit:
+**Unit:**
 - `boundaries`
+
+---
 
 ### 3.27.1 Short Pauseable Boundaries
 
-What it designates:
+**What it designates:**
 - Number of pauseable boundaries classified as short/inner punctuation events.
 
-How computed:
+**How computed:**
 - `short_pauseable_boundaries = N_short_pause`
 
-Unit:
+**Unit:**
 - `boundaries`
+
+---
 
 ### 3.27.2 Long Pauseable Boundaries
 
-What it designates:
+**What it designates:**
 - Number of pauseable boundaries classified as long/final punctuation events.
 
-How computed:
+**How computed:**
 - `long_pauseable_boundaries = N_long_pause`
 
-Unit:
+**Unit:**
 - `boundaries`
+
+---
 
 ### 3.28 Total Pause Time Per Syllable
 
-What it designates:
+**What it designates:**
 - Pause-time budget allocated per syllable from configured `pause_ratio`.
 
-How computed:
+**How computed:**
 - Derived from speech/articulation timing model and pause ratio.
 
-Unit:
+**Unit:**
 - `s/syllable`
+
+---
 
 ### 3.29 Initial Short Pause Punctuation Duration
 
-What it designates:
+**What it designates:**
 - Duration assigned to one short-pause event.
 
-How computed:
+**How computed:**
 - `W_short = 1.0` (fixed)
 - `W_long = long_punct_weight` (parameter)
 - `units = short_pause_per_syll * W_short + long_pause_per_syll * W_long`
 - `unit_dur = total_pause_time_per_syll / units`
 - `initial_short_pause_dur = unit_dur * W_short`
 
-Unit:
+**Unit:**
 - `s/pause`
+
+---
 
 ### 3.30 Initial Average Long Pause Punctuation Duration
 
-What it designates:
+**What it designates:**
 - Duration assigned to one long-pause event.
 
-How computed:
+**How computed:**
 - `initial_long_pause_dur = unit_dur * W_long`
 
-Unit:
+**Unit:**
 - `s/pause`
+
+---
 
 ### 3.31 Initial Short Pause Duration In Mean-Syllable Units
 
-What it designates:
+**What it designates:**
 - Relative size of a short pause compared to one mean syllable.
 
-How computed:
+**How computed:**
 - `initial_short_ratio = initial_short_pause_dur / mean_syllable_duration`
 
-Unit:
+**Unit:**
 - `mean syllable duration` (dimensionless ratio)
+
+---
 
 ### 3.32 Initial Long Pause Duration In Mean-Syllable Units
 
-What it designates:
+**What it designates:**
 - Relative size of a long pause compared to one mean syllable.
 
-How computed:
+**How computed:**
 - `initial_long_ratio = initial_long_pause_dur / mean_syllable_duration`
 
-Unit:
+**Unit:**
 - `mean syllable duration` (dimensionless ratio)
+
+---
 
 ### 3.33 Initial Pause Time Share By Class
 
-What it designates:
+**What it designates:**
 - How total pause budget is split between short and long classes.
 
-How computed:
+**How computed:**
 - `initial_short_share = (short_pause_per_syll * initial_short_pause_dur) / total_pause_time_per_syll * 100`
 - `initial_long_share = (long_pause_per_syll * initial_long_pause_dur) / total_pause_time_per_syll * 100`
 
-Unit:
+**Unit:**
 - `% of pause time`
 
-### 3.34 Corrected (Multiple-Of-2 Morae) Short Pause Punctuation Duration
+---
 
-What it designates:
-- Short pause duration corrected to the closest multiple of `2*mora`.
+### 3.34 Corrected (Multiple-of-2 Morae) Short Pause Punctuation Duration
 
-How computed:
+**What it designates:**
+- Short pause duration corrected to the closest multiple of `2 * mora`.
+
+**How computed:**
 - `short_mora_ratio = initial_short_pause_dur / mora_dur`
 - `M_even = round(short_mora_ratio / 2) * 2`
 - `corrected_short_pause_dur = M_even * mora_dur`
 
-Unit:
+**Unit:**
 - `s/pause`
+
+---
 
 ### 3.35 Corrected Average Long Pause Punctuation Duration
 
-What it designates:
+**What it designates:**
 - Long pause duration adjusted to conserve total punctuation pause time after short-pause correction.
 
-How computed:
-- Conservation equation:
-	- `corrected_short_pause_dur * N_short_pause + corrected_long_pause_dur * N_long_pause`
-	- `= initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause`
-- Rearranged:
-	- `corrected_long_pause_dur = (initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause - corrected_short_pause_dur * N_short_pause) / N_long_pause`
+**How computed:**
 
-Unit:
+Conservation equation:
+
+    corrected_short_pause_dur * N_short_pause + corrected_long_pause_dur * N_long_pause
+    = initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause
+
+Rearranged:
+
+    corrected_long_pause_dur = (initial_short_pause_dur * N_short_pause + initial_long_pause_dur * N_long_pause - corrected_short_pause_dur * N_short_pause) / N_long_pause
+
+**Unit:**
 - `s/pause`
+
+---
 
 ### 3.36 Corrected Average Long Pause Punctuation Weight Relative To Short
 
-What it designates:
+**What it designates:**
 - Effective long/short pause weight after correction.
 
-How computed:
+**How computed:**
 - `corrected_long_weight = corrected_long_pause_dur / corrected_short_pause_dur`
 
-Unit:
+**Unit:**
 - `no unit`
+
+---
 
 ## 4. Pause Classification Rules
 
 Rules used by implementation:
+
 - Spaces are not pauses.
 - `+` linkers are not pauses.
 - Short and long punctuation classes are constant sets defined in `metrics.py`.
@@ -598,28 +732,36 @@ Rules used by implementation:
 - Long class weight is configurable with `--long-punct-weight`.
 - EOF is treated as line-end long pause when enabled.
 
-Exact punctuation classes:
-- Short pause punctuation characters: `,`, `:`, `;`, `|`, `…`
-- Short pause multi-character patterns: `...`, `…`
-- Long pause punctuation characters: `.`, `?`, `!`
-- Newline can trigger long pause when `LONG_PAUSE_INCLUDES_NEWLINE = True`.
-- Final EOF can trigger long pause when `LONG_PAUSE_INCLUDES_FINAL_EOF = True`.
+### Exact Punctuation Classes
+
+| Class | Characters / Patterns |
+|-------|----------------------|
+| **Short pause punctuation** | `,`, `:`, `;`, `|`, `…` |
+| **Short pause multi-character** | `...`, `…` |
+| **Long pause punctuation** | `.`, `?`, `!` |
+| **Newline** | Can trigger long pause when `LONG_PAUSE_INCLUDES_NEWLINE = True` |
+| **Final EOF** | Can trigger long pause when `LONG_PAUSE_INCLUDES_FINAL_EOF = True` |
+
+---
 
 ## 5. Precision Policy
 
-Internal computation:
+**Internal computation:**
 - Full floating-point precision.
 
-Display:
+**Display:**
 - Time values are printed at millisecond-scale precision.
 - Ratios and percentages use fixed display precision.
 
-Audit rule:
+**Audit rule:**
 - Displayed pause/syllable ratios are computed from displayed rounded values so manual checks match the visible table.
 
-## 6. Run Configuration In Output
+---
+
+## 6. Run Configuration in Output
 
 Each report includes effective parameters (run context), including:
+
 - input path
 - `wpm`
 - `pause_ratio`
@@ -628,26 +770,29 @@ Each report includes effective parameters (run context), including:
 
 This makes each metrics file self-describing and reproducible.
 
-## 7. CLI Parameters Used For Metrics
+---
 
-`metricalc.py`:
-- `--wpm`
-- `--pause-ratio`
-- `--long-punct-weight`
-- `--table`, `--json`, `--csv`
-- `--extra-consonants`, `--extra-vowels`
+## 7. CLI Parameters Used for Metrics
 
-`fullprosmaker.py` (metrics stage):
-- `--metrics-wpm`
-- `--metrics-pause-ratio`
-- `--metrics-long-punct-weight`
-- `--metrics-table`, `--metrics-json`, `--metrics-csv`
+### `metricalc.py`
 
-Note: the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
+    --wpm
+    --pause-ratio
+    --long-punct-weight
+    --table, --json, --csv
+    --extra-consonants, --extra-vowels
+
+### `fullprosmaker.py` (metrics stage)
+
+    --metrics-wpm
+    --metrics-pause-ratio
+    --metrics-long-punct-weight
+    --metrics-table, --metrics-json, --metrics-csv
+
+**Note:** the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
+
+---
 
 ## 8. Versioning
 
 If formulas, constants, or pause classification rules change in `metrics.py`, update this document in the same commit.
-
-
-

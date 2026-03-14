@@ -2,27 +2,34 @@
 
 This document explains what `printer.py` does, how to run it, and what output formats it writes.
 
-Implementation:
+**Implementation:**
 - CLI wrapper: `src/akkapros/cli/printer.py`
 - Core formatter library: `src/akkapros/lib/print.py`
 
-## Purpose
+---
+
+## 📋 Purpose
 
 `printer.py` converts prosody-realized pivot text (`*_tilde.txt`) into user-facing reading and phonetic outputs.
 
-Supported outputs:
-- Acute-mark text
-- Bold-mark text (Markdown)
-- IPA
-- XAR transliteration
-- MBROLA/X-SAMPA-like output
+### Supported Output Formats
 
-## Input And Output
+| Format | Description | File Extension |
+|--------|-------------|----------------|
+| **Acute** | Stress marked with acute accent after vowel | `_accent_acute.txt` |
+| **Bold** | Stress marked with bold in Markdown | `_accent_bold.md` |
+| **IPA** | International Phonetic Alphabet transcription | `_accent_ipa.txt` |
+| **XAR** | Specialized transliteration (accented and plain) | `_accent_xar.txt`, `_xar.txt` |
+| **MBROLA** | X-SAMPA-like format for speech synthesis | `_accent_mbrola.txt` |
 
-Input:
-- One `*_tilde.txt` file.
+---
 
-Outputs (by selected flags):
+## 📂 Input and Output
+
+### Input
+- One `*_tilde.txt` file (prosody-realized pivot format)
+
+### Outputs (by selected flags)
 - `<prefix>_accent_acute.txt`
 - `<prefix>_accent_bold.md`
 - `<prefix>_accent_ipa.txt`
@@ -30,92 +37,140 @@ Outputs (by selected flags):
 - `<prefix>_xar.txt`
 - `<prefix>_accent_mbrola.txt`
 
-If no output flags are selected, default output is:
-- acute + bold
+**Default behavior:** If no output flags are selected, acute + bold are generated.
 
-## Command Syntax
+---
 
-```bash
-python src/akkapros/cli/printer.py <input_tilde.txt> [options]
-```
+## 🚀 Command Syntax
 
-## Options
+    python src/akkapros/cli/printer.py <input_tilde.txt> [options]
 
-- `--version`
-  - Print CLI version.
-- `-p, --prefix <name>`
-  - Output prefix.
-- `--outdir <dir>`
-  - Output directory (default: current directory).
+---
 
-Output selectors:
-- `--acute`
-- `--bold`
-- `--ipa`
-- `--xar`
-  - Writes both XAR files: accented (`<prefix>_accent_xar.txt`) and plain (`<prefix>_xar.txt`).
-- `--mbrola`
+## ⚙️ Options
 
-IPA-specific options:
-- `--ipa-proto-semitic {preserve,replace}`
-  - `preserve`: strict mode (Old Akkadian distinctions).
-  - `remove`: OB-style pharyngeal merger.
-- `--circ-hiatus`
-  - Speculative mode splitting circumflex vowels into hiatus in IPA.
-  - Example: `qû -> qʊ.ʊ`.
+### General Options
 
-Testing:
-- `--test`
-  - Run CLI and library printer tests.
+| Option | Description |
+|--------|-------------|
+| `--version` | Print CLI version |
+| `-p, --prefix <name>` | Output prefix |
+| `--outdir <dir>` | Output directory (default: current directory) |
+| `--test` | Run CLI and library printer tests |
 
-## Typical Usage
+### Output Selectors
 
-Default outputs (acute + bold):
+| Option | Generates |
+|--------|-----------|
+| `--acute` | Acute-marked text |
+| `--bold` | Bold-marked Markdown |
+| `--ipa` | IPA transcription |
+| `--xar` | Both XAR files (accented and plain) |
+| `--mbrola` | MBROLA/X-SAMPA-like output |
 
-```bash
-python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-  -p erra --outdir outputs
-```
+### IPA-Specific Options
 
-IPA output with OB pharyngeal policy:
+| Option | Description |
+|--------|-------------|
+| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: strict mode (Old Akkadian distinctions)<br>• `replace`: OB-style pharyngeal merger (default) |
+| `--circ-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA<br>Example: `qû → qʊ.ʊ` |
 
-```bash
-python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-  --ipa --ipa-proto-semitic replace \
-  -p erra --outdir outputs
-```
+---
 
-IPA output with speculative circumflex hiatus:
+## 💡 Typical Usage Examples
 
-```bash
-python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-  --ipa --circ-hiatus \
-  -p erra --outdir outputs
-```
+### Default Outputs (Acute + Bold)
 
-Generate all display outputs:
+    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+      -p erra \
+      --outdir outputs
 
-```bash
-python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-  --acute --bold --ipa --xar --mbrola \
-  -p erra --outdir outputs
-```
+### IPA Output with OB Pharyngeal Policy
 
-Run tests:
+    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+      --ipa \
+      --ipa-proto-semitic replace \
+      -p erra \
+      --outdir outputs
 
-```bash
-python src/akkapros/cli/printer.py --test
-```
+### IPA Output with Speculative Circumflex Hiatus
 
-## Pipeline Position
+    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+      --ipa \
+      --circ-hiatus \
+      -p erra \
+      --outdir outputs
+
+### Generate All Display Outputs
+
+    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+      --acute --bold --ipa --xar --mbrola \
+      -p erra \
+      --outdir outputs
+
+### Run Tests
+
+    python src/akkapros/cli/printer.py --test
+
+---
+
+## 📝 Output Format Details
+
+### Acute Format (`_accent_acute.txt`)
+
+Stress is marked with an acute accent (`´`) placed **immediately after** the vowel of the prominent syllable.
+
+Example: `tāḫā´za ik´taṣar`
+
+### Bold Format (`_accent_bold.md`)
+
+Prominent syllables are wrapped in `**` for visual emphasis in Markdown.
+
+Example: `tā**ḫā**za **ik**taṣar`
+
+### IPA Format (`_accent_ipa.txt`)
+
+Full phonetic transcription with:
+
+| Feature | Marking |
+|---------|---------|
+| Stress | `ˈ` before prominent syllable |
+| Length | `ː` for long, `ːː` for extra-long |
+| Emphatic coloring | Vowel backing after `q`, `ṣ`, `ṭ` (e.g., `sˤɑr`) |
+| Prosodic boundaries | `|` for short pause, `‖` for long pause |
+
+Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
+
+### XAR Format (`_xar.txt` and `_accent_xar.txt`)
+
+Specialized transliteration with:
+- Consonant remapping for emphatics
+- Doubled notation for long vowels
+- Mixed pairs for circumflex vowels (e.g., `eâ`)
+
+Two files are generated:
+- `_accent_xar.txt`: with prominence marked
+- `_xar.txt`: plain version without accent markers
+
+### MBROLA Format (`_accent_mbrola.txt`)
+
+X-SAMPA-like format designed for speech synthesis, compatible with the MBROLA diphone synthesizer. Used with the 878-word recording script included in the toolkit.
+
+---
+
+## 🔗 Pipeline Position
 
 `printer.py` is typically run after prosody realization:
-1. `atfparser.py`
-2. `syllabifier.py`
-3. `prosmaker.py` -> `*_tilde.txt`
-4. `printer.py`
 
-For one-command processing with optional print stage included, see `fullprosmaker.py`.
+1. `atfparser.py` → `*_proc.txt`
+2. `syllabifier.py` → `*_syl.txt`
+3. `prosmaker.py` → `*_tilde.txt`
+4. **`printer.py`** → formatted outputs
 
+For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 
+---
 
+## ✅ Summary
+
+`printer.py` transforms the internal prosody-realized pivot format into multiple human-readable and machine-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), specialized transliteration (XAR), and speech synthesis preparation (MBROLA). The flexible flag system allows researchers to generate exactly the formats they need.

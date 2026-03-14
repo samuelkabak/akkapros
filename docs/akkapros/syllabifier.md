@@ -2,107 +2,128 @@
 
 This document explains what `syllabifier.py` does, how to run it, and what files it produces.
 
-Implementation:
+**Implementation:**
 - CLI wrapper: `src/akkapros/cli/syllabifier.py`
 - Core syllabification library: `src/akkapros/lib/syllabify.py`
 
-## Purpose
+---
+
+## 📋 Purpose
 
 `syllabifier.py` converts cleaned Akkadian text into syllabified form used by the prosody realization stage.
 
 It inserts syllable boundaries and marks word endings in the toolkit internal format.
 
-## Input And Output
+---
 
-Input:
-- Typically `<prefix>_proc.txt` from `atfparser.py`.
+## 📂 Input and Output
 
-Output:
-- `<prefix>_syl.txt` in `--outdir`.
+### Input
+- Typically `<prefix>_proc.txt` from `atfparser.py`
 
-By default, if no `--prefix` is provided, output prefix is derived from input stem.
+### Output
+- `<prefix>_syl.txt` in `--outdir`
 
-## Command Syntax
+By default, if no `--prefix` is provided, the output prefix is derived from the input filename stem.
 
-```bash
-python src/akkapros/cli/syllabifier.py <input_proc.txt> [options]
-```
+---
 
-## Options
+## 🚀 Command Syntax
 
-- `--version`
-  - Print CLI version.
-- `-p, --prefix <name>`
-  - Output prefix.
-- `--outdir <dir>`
-  - Output directory (default: current directory).
-- `--extra-vowels <chars>`
-  - Additional vowel characters.
-- `--extra-consonants <chars>`
-  - Additional consonant characters.
-- `--merge-hyphen`
-  - Merge hyphens into syllable separators.
-- `--merge-lines`
-  - Normalize line breaks (`1 newline -> space`, `2+ -> paragraph break`).
-  - Default behavior preserves original lines.
-- `--test`
-  - Run internal syllabifier tests.
+    python src/akkapros/cli/syllabifier.py <input_proc.txt> [options]
 
-## Output Format Markers
+---
 
-Common markers used in `*_syl.txt`:
-- `·`: syllable separator.
-- `¦`: word-ending marker.
-- `-`: hyphen boundary (unless merged).
-- `+`: linker boundary.
-- `‹...›`: escaped punctuation/non-word segments.
+## ⚙️ Options
 
-## Typical Usage
+| Option | Description |
+|--------|-------------|
+| `--version` | Print CLI version |
+| `-p, --prefix <name>` | Output prefix |
+| `--outdir <dir>` | Output directory (default: current directory) |
+| `--extra-vowels <chars>` | Additional vowel characters to recognize |
+| `--extra-consonants <chars>` | Additional consonant characters to recognize |
+| `--merge-hyphen` | Merge hyphens into syllable separators |
+| `--merge-lines` | Normalize line breaks (`1 newline → space`, `2+ newlines → paragraph break`) |
+| `--test` | Run internal syllabifier tests |
 
-Basic run:
+### Line Break Behavior
 
-```bash
-python src/akkapros/cli/syllabifier.py outputs/erra_proc.txt \
-  -p erra \
-  --outdir outputs
-```
+| Mode | Default | `--merge-lines` |
+|------|---------|-----------------|
+| Single newline | Preserved as line break | Converted to space |
+| Multiple newlines | Preserved as paragraph breaks | Converted to single newline |
 
-Merge hyphens and normalize line breaks:
+Default behavior preserves original line structure, which may encode verse boundaries.
 
-```bash
-python src/akkapros/cli/syllabifier.py outputs/erra_proc.txt \
-  --merge-hyphen --merge-lines \
-  -p erra --outdir outputs
-```
+---
 
-Provide additional phonetic symbols:
+## 🔤 Output Format Markers
 
-```bash
-python src/akkapros/cli/syllabifier.py outputs/text_proc.txt \
-  --extra-vowels "ø" --extra-consonants "ɣ" \
-  -p text --outdir outputs
-```
+The `*_syl.txt` file uses these markers:
 
-Run tests:
+| Marker | Meaning |
+|--------|---------|
+| `·` | Syllable separator |
+| `¦` | Word-ending marker |
+| `-` | Hyphen boundary (unless merged with `--merge-hyphen`) |
+| `+` | Linker boundary (prosodic attachment) |
+| `‹...›` | Escaped punctuation or non-word segments |
 
-```bash
-python src/akkapros/cli/syllabifier.py --test
-```
+---
 
-## Important Processing Notes
+## 💡 Typical Usage Examples
 
-- The library may insert glottal stops between adjacent vowels for diphthong expansion.
-- Hyphen and linker behavior is context-sensitive.
-- Punctuation is preserved as escaped material, not syllabified as Akkadian words.
+### Basic Syllabification
 
-## Pipeline Position
+    python src/akkapros/cli/syllabifier.py outputs/erra_proc.txt \
+      -p erra \
+      --outdir outputs
 
-Typical pipeline order:
-1. `atfparser.py`
-2. `syllabifier.py`
-3. `prosmaker.py`
-4. `metricalc.py` / `printer.py`
+### Merge Hyphens and Normalize Line Breaks
 
-For a one-command run of all stages, use `fullprosmaker.py`.
+    python src/akkapros/cli/syllabifier.py outputs/erra_proc.txt \
+      --merge-hyphen \
+      --merge-lines \
+      -p erra \
+      --outdir outputs
 
+### Provide Additional Phonetic Symbols
 
+    python src/akkapros/cli/syllabifier.py outputs/text_proc.txt \
+      --extra-vowels "ø" \
+      --extra-consonants "ɣ" \
+      -p text \
+      --outdir outputs
+
+### Run Tests
+
+    python src/akkapros/cli/syllabifier.py --test
+
+---
+
+## 📝 Important Processing Notes
+
+- **Diphthong handling**: The library may insert glottal stops between adjacent vowels for diphthong expansion (e.g., `ua` → `u·ʾa`). These are later restored by `prosmaker.py`.
+- **Hyphen and linker behavior** is context-sensitive and follows Akkadian morphological boundaries.
+- **Punctuation** is preserved as escaped material (`‹...›`) and is not syllabified as Akkadian words.
+- **Word endings** are explicitly marked with `¦` for downstream processing.
+
+---
+
+## 🔗 Pipeline Position
+
+The syllabifier is the **second step** in the akkapros pipeline:
+
+1. `atfparser.py` → `*_proc.txt`
+2. **`syllabifier.py`** → `*_syl.txt`
+3. `prosmaker.py` → `*_tilde.txt`
+4. `metricalc.py` and `printer.py` → metrics and formatted outputs
+
+For a one-command run of all stages, use **`fullprosmaker.py`**.
+
+---
+
+## ✅ Summary
+
+`syllabifier.py` transforms plain Akkadian text into the syllabified format required for prosodic analysis. It handles syllable boundaries, word endings, and special markers while preserving structural information for downstream stages.
