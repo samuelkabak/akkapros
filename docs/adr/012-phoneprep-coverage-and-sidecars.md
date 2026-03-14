@@ -1,0 +1,38 @@
+# 12. Phoneprep Coverage and Sidecars
+
+## Context and Problem Statement
+
+Building MBROLA-compatible resources requires broad diphone coverage and reliable segmentation metadata, not only a readable recording script.
+
+## Decision Drivers
+
+- Coverage-oriented recording material generation
+- Deterministic sidecar artifacts for segmentation
+- Human-friendly recording workflow support
+
+## Considered Options
+
+- Emit only a plain recording text
+- Emit script plus manifest/diphone/word sidecars and optional HTML helper
+
+## Decision Outcome
+
+Chosen option: Keep `phoneprep` as coverage optimizer with sidecar outputs and optional recording helper HTML for operational consistency.
+
+## Pros and Cons of the Options
+
+### Script + sidecars + helper
+
+- Good, because segmentation and downstream tooling become automatable
+- Good, because recording workflow is less error-prone
+- Bad, because output set is larger and more complex
+
+### Script only
+
+- Good, because minimal output surface
+- Bad, because downstream alignment must be recreated manually
+
+## Links
+
+- Related: `docs/akkapros/phoneprep.md`
+- Related: `docs/akkapros/mbrola-voice-prep.md`
