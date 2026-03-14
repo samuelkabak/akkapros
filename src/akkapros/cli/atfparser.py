@@ -21,16 +21,12 @@ import argparse
 import unicodedata
 from pathlib import Path
 
+from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
-__version__ = "1.0.1"
-__author__ = "Samuel KABAK"
-__license__ = "MIT"
-__project__ = "Akkadian Prosody"
-__repo__ = "akkapros"
 __ebl_url__ = "https://www.ebl.lmu.de/"
 
 
@@ -123,14 +119,13 @@ OUTPUT FILES (created in --outdir):
   PREFIX_trans.txt   - English translation (if present)
 
 For more information, visit:
-{__repo__}
+{__repo_url__}
 
 Part of Akkadian Prosody Toolkit v{__version__}
 MIT License (c) 2026 Samuel KABAK
 """
     )
-    parser.add_argument('--version', action='version',
-                       version=f'akkapros-parser {__version__}')
+    add_standard_version_argument(parser, 'akkapros-atfparser')
     parser.add_argument('input', nargs='?', help='eBL ATF file (must contain %%n lines)')
     parser.add_argument('-p', '--prefix', 
                        help='Output prefix')

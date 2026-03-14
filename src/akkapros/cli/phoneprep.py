@@ -14,6 +14,11 @@ from typing import Callable, Dict, List, Set, Tuple, Optional
 import argparse
 from pathlib import Path
 
+_repo_root = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(_repo_root / "src"))
+
+from akkapros.cli._cli_common import add_standard_version_argument
+
 # ============================================
 # PHONEME INVENTORY
 # ============================================
@@ -1573,6 +1578,7 @@ def run_tests() -> bool:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Akkadian diphone recording script")
+    add_standard_version_argument(parser, 'akkapros-phoneprep')
     parser.add_argument("--coverage", "-c", type=int, default=3, 
                        choices=[1, 2, 3, 4],
                        help="Target coverage for each diphone (default: 3)")

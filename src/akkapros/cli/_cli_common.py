@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 from typing import Any
 
+from akkapros import get_version_display
+
 
 class RawDefaultsHelpFormatter(
     argparse.ArgumentDefaultsHelpFormatter,
@@ -26,3 +28,13 @@ def print_startup_banner(program_title: str, version: str, args: argparse.Namesp
         print(f"  {key} = {value!r}")
 
     print("=" * 78)
+
+
+def add_standard_version_argument(parser: argparse.ArgumentParser, tool_name: str) -> None:
+    """Add a standardized multi-line --version/-v option to a CLI parser."""
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=get_version_display(tool_name),
+    )

@@ -22,10 +22,9 @@ _repo_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
+from akkapros import __version__
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
-
-__version__ = syllabify.__version__
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def process_file(
@@ -74,7 +73,7 @@ def main():
         description="Syllabify Akkadian text",
         formatter_class=RawDefaultsHelpFormatter,
     )
-    parser.add_argument('--version', action='version', version=f'akkapros-syllabifier {__version__}')
+    add_standard_version_argument(parser, 'akkapros-syllabifier')
     parser.add_argument('input', nargs='?', help='Input file')
     parser.add_argument('-p', '--prefix', help='Output file prefix')
     parser.add_argument('--outdir', default='.',

@@ -17,9 +17,10 @@ from pathlib import Path
 _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
+from akkapros import __version__
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
@@ -82,7 +83,7 @@ def main() -> None:
         description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs',
         formatter_class=RawDefaultsHelpFormatter,
     )
-    parser.add_argument('--version', action='version', version=f'akkapros-printer {accent_print.__version__}')
+    add_standard_version_argument(parser, 'akkapros-printer')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (shared for all selected outputs)')
     parser.add_argument('--outdir', default='.', help='Output directory')
@@ -106,7 +107,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
-        print_startup_banner('akkapros-printer', accent_print.__version__, args)
+        print_startup_banner('akkapros-printer', __version__, args)
         ok = run_tests()
         sys.exit(0 if ok else 1)
 
@@ -126,7 +127,7 @@ def main() -> None:
     default_prefix = input_path.stem.replace('_tilde', '')
     prefix = simple_safe_filename(args.prefix if args.prefix else default_prefix)
 
-    print_startup_banner('akkapros-printer', accent_print.__version__, args)
+    print_startup_banner('akkapros-printer', __version__, args)
 
     write_acute = args.acute
     write_bold = args.bold

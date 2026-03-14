@@ -20,15 +20,14 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
+from akkapros import __version__
 from akkapros.lib.prosody import (
-    __version__ as prosody_version,
     AccentStyle,
     ProsodyEngine,
     run_tests as run_prosody_tests,
     test_diphthong_restoration,
 )
 from akkapros.lib.metrics import (
-    __version__ as metrics_version,
     update_character_sets,
     process_file as process_metrics_file,
     format_table,
@@ -37,10 +36,7 @@ from akkapros.lib.metrics import (
 )
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
-
-
-__version__ = f"syllabify-{syllabify.__version__}|prosody-{prosody_version}|metrics-{metrics_version}"
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
@@ -247,10 +243,10 @@ EXAMPLES:
     python fullprosmaker.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
     python fullprosmaker.py --test-all
 
-Versions: {__version__}
+Version: {__version__}
 """
     )
-    parser.add_argument('--version', action='version', version=f'akkapros-fullprosmaker {__version__}')
+    add_standard_version_argument(parser, 'akkapros-fullprosmaker')
 
     # Input/output (shared)
     parser.add_argument('input', nargs='?', help='Input Akkadian file (typically *_proc.txt)')

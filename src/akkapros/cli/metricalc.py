@@ -16,15 +16,15 @@ from pathlib import Path
 _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
+from akkapros import __version__
 from akkapros.lib.metrics import (
-    __version__,
     update_character_sets,
     process_file,
     format_table,
     format_csv,
     run_tests,
 )
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner
+from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def simple_safe_filename(text: str) -> str:
@@ -55,8 +55,7 @@ EXAMPLES:
 Version {__version__}
 """
     )
-    parser.add_argument('--version', action='version',
-                        version=f'akkapros-metrics {__version__}')
+    add_standard_version_argument(parser, 'akkapros-metricalc')
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('--input-list', help='File containing list of input files (one per line)')
     parser.add_argument('-p', '--prefix', help='Output prefix')
