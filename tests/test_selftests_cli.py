@@ -40,3 +40,33 @@ def test_cli_selftest_flags(module_args):
         f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
     )
 
+
+@pytest.mark.parametrize(
+    "script_path",
+    [
+        os.path.join("src", "akkapros", "cli", "atfparser.py"),
+        os.path.join("src", "akkapros", "cli", "syllabifier.py"),
+        os.path.join("src", "akkapros", "cli", "prosmaker.py"),
+        os.path.join("src", "akkapros", "cli", "metricalc.py"),
+        os.path.join("src", "akkapros", "cli", "printer.py"),
+        os.path.join("src", "akkapros", "cli", "fullprosmaker.py"),
+        os.path.join("src", "akkapros", "cli", "phoneprep.py"),
+    ],
+)
+def test_cli_direct_script_version(script_path):
+    """Direct script execution should work without manual PYTHONPATH tweaks."""
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["PYTHONIOENCODING"] = "utf-8"
+    proc = subprocess.run(
+        [sys.executable, script_path, "--version"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, (
+        f"Direct CLI script failed for {script_path}\n"
+        f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+    )
+

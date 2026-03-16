@@ -21,6 +21,10 @@ import argparse
 import unicodedata
 from pathlib import Path
 
+# If executed directly as a script, ensure package imports resolve from repo src/.
+_repo_root = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(_repo_root / "src"))
+
 from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError

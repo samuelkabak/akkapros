@@ -15,10 +15,9 @@ providing a complete file path.
 import sys
 from pathlib import Path
 
-# if the script is executed directly (e.g. `python cli/syllabifier.py`),
-# the package root may not be on sys.path.  Prepend the "src" directory
-# relative to the repo root so that `akkapros.lib` can be imported.
-_repo_root = Path(__file__).resolve().parents[2]
+# If the script is executed directly, the package root may not be on
+# sys.path. Prepend repo/src so that `akkapros.*` imports resolve.
+_repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
