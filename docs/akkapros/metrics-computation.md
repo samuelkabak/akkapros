@@ -105,6 +105,23 @@ These mora assignments are the basis for syllable weight, interval distances, an
 
 ---
 
+### 3.4.1 Total Morae Number
+
+**What it designates:**
+- Total mora count over the analyzed text section (original or repaired).
+
+**How computed:**
+- For each syllable `s`, compute `morae(s)`.
+- `total_morae = sum_s morae(s)`.
+
+**Implementation detail:**
+- `morae(s)` is derived from the classified syllable type (CV, CVC, CVV, CVVC, and repaired types such as CVC:, CVV:, CVV:C), so repaired `~` operations increase total morae as expected.
+
+**Unit:**
+- `mora`
+
+---
+
 ### 3.5 Total Words
 
 **What it designates:**
@@ -261,6 +278,14 @@ These mora assignments are the basis for syllable weight, interval distances, an
 **Unit:**
 - `mora`
 
+**Additional table representation:**
+- `DeltaC_seconds = DeltaC * mora_duration`
+
+Where `mora_duration` is `mora_dur` from section 3.21.
+
+**Additional unit:**
+- `s`
+
 ---
 
 ### 3.16 MeanC
@@ -273,6 +298,14 @@ These mora assignments are the basis for syllable weight, interval distances, an
 
 **Unit:**
 - `mora`
+
+**Additional table representation:**
+- `MeanC_seconds = MeanC * mora_duration`
+
+Where `mora_duration` is `mora_dur` from section 3.21.
+
+**Additional unit:**
+- `s`
 
 ---
 
@@ -324,6 +357,14 @@ These mora assignments are the basis for syllable weight, interval distances, an
 
 - If two consonants are separated by a vowel, the interval distance is the vowel mora count: `1`, `2`, or `3` (short, long, prosody-realized extra-long).
 - If two consonants are adjacent in a cluster, interval distance is `0`.
+
+**Canonical pattern checks used by tests:**
+
+- `CC = 0`
+- `C:C = 1`
+- `CVC = 1`
+- `CVVC = 2`
+- `CVV:C = 3`
 
 **Gemination clarification:**
 

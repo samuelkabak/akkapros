@@ -101,6 +101,26 @@ SYLLABLE_TYPES = [
     'VC:', 'ʔ:V', 'VV:', 'VV:C'
 ]
 
+# Total morae per classified syllable type.
+SYLLABLE_MORA_TOTAL = {
+    'CV': 1,
+    'CVC': 2,
+    'CVV': 2,
+    'CVVC': 3,
+    'VC': 2,
+    'V': 1,
+    'VV': 2,
+    'VVC': 3,
+    'C:V': 2,
+    'CVC:': 3,
+    'CVV:': 3,
+    'CVV:C': 4,
+    'VC:': 3,
+    'ʔ:V': 2,
+    'VV:': 3,
+    'VV:C': 4,
+}
+
 
 def update_character_sets(extra_consonants='', extra_vowels=''):
     """Update global character sets with user-provided extras."""
@@ -448,18 +468,22 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
             # Classify syllable
             syl_type = classify_syllable(syl, is_repaired)
             syllable_counts[syl_type] = syllable_counts.get(syl_type, 0) + 1
-            
-            # Count morae
-            morae = 0
-            for c in syl:
-                if c in LONG_VOWELS:
-                    morae += 2
-                elif c in EXTRA_LONG_VOWELS:
-                    morae += 3
-                elif c == LENGTH_MARKER:
-                    morae += 1
-                elif c in SHORT_VOWELS or c in ALL_CONSONANTS or c == GLOTTAL:
-                    morae += 1
+
+            # Count morae from syllable type so totals stay consistent with %V and
+            # repaired categories (e.g., CVC:, CVV:, CVV:C).
+            morae = SYLLABLE_MORA_TOTAL.get(syl_type)
+            if morae is None:
+                # Fallback for unexpected/unclassified patterns.
+                morae = 0
+                for c in syl:
+                    if c in LONG_VOWELS:
+                        morae += 2
+                    elif c in EXTRA_LONG_VOWELS:
+                        morae += 3
+                    elif c == LENGTH_MARKER or c == '~':
+                        morae += 1
+                    elif c in SHORT_VOWELS:
+                        morae += 1
             morae_list.append(morae)
             word_mora_count += morae
         
@@ -478,9 +502,11 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
             syllable_percentages[typ] = 0.0
     
     # Mora statistics
+    total_morae = sum(morae_list)
     mora_stats = {
         'mean': statistics.mean(morae_list) if morae_list else 0,
         'std': statistics.stdev(morae_list) if len(morae_list) > 1 else 0,
+        'total': total_morae,
     }
     
     # Word statistics
@@ -1129,7 +1155,8 @@ def process_filetext(
     acoustic_repaired['percent_v_articulate'] = repaired_percent_v
     acoustic_repaired['percent_v_speech'] = compute_percent_v_with_pauses(repaired_percent_v, pause_ratio)
     
-    # Compute speech rate for repaired text
+    # Compute speech rate for original and repaired text
+    speech_original = compute_speech_rate(preprocessed_original, original_stats, wpm, pause_ratio)
     speech_repaired = compute_speech_rate(preprocessed_repaired, repaired_stats, wpm, pause_ratio)
     
     # Compute pause metrics
@@ -1145,6 +1172,7 @@ def process_filetext(
         'file': filesrc,
         'original': {
             'stats': original_stats,
+            'speech': speech_original,
             'acoustic': acoustic_original
         },
         'repaired': {
@@ -1186,6 +1214,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"\nMora statistics:")
     lines.append(f"  Mean morae per syllable: {orig['stats']['mora_stats']['mean']:.3f} mora/syllable")
     lines.append(f"  Std dev morae per syllable: {orig['stats']['mora_stats']['std']:.3f} mora/syllable")
+    lines.append(f"  Total morae number: {orig['stats']['mora_stats']['total']} mora")
     
     # Word statistics
     lines.append(f"\nWord statistics:")
@@ -1193,12 +1222,24 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Syllables per word: {orig['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
     lines.append(f"  Morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
     
+    # Speech rate (original)
+    lines.append(f"\nSpeech rate (original):")
+    lines.append(f"  WPM: {orig['speech']['wpm']} words/min")
+    lines.append(f"  Pause ratio: {orig['speech']['pause_ratio']}%")
+    lines.append(f"  SPS (speech): {orig['speech']['sps_speech']:.3f} syllable/s")
+    lines.append(f"  SPS (articulation): {orig['speech']['sps_articulation']:.3f} syllable/s")
+    lines.append(f"  Average syllable duration: {orig['speech']['syllable_duration']:.3f} s/syllable")
+    lines.append(f"  Mora duration: {orig['speech']['mora_duration']:.3f} s/mora")
+    lines.append(f"  Word duration: {orig['speech']['word_duration']:.3f} s/word")
+
     # Acoustic metrics (original)
+    orig_delta_c_seconds = orig['acoustic']['delta_c'] * orig['speech']['mora_duration']
+    orig_mean_c_seconds = orig['acoustic']['mean_interval'] * orig['speech']['mora_duration']
     lines.append(f"\nAcoustic metrics (original):")
     lines.append(f"  %V (articulate): {orig['acoustic']['percent_v_articulate']:.2f}%")
     lines.append(f"  %V (normal speech, incl. pauses): {orig['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
-    lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
+    lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f} mora ({orig_delta_c_seconds:.4f} s) (consonant-interval SD)")
+    lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora ({orig_mean_c_seconds:.4f} s) (mean consonant interval)")
     lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f} %")
     
     # --- REPAIRED TEXT ---
@@ -1217,6 +1258,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"\nMora statistics:")
     lines.append(f"  Mean morae per syllable: {rep['stats']['mora_stats']['mean']:.3f} mora/syllable")
     lines.append(f"  Std dev morae per syllable: {rep['stats']['mora_stats']['std']:.3f} mora/syllable")
+    lines.append(f"  Total morae number: {rep['stats']['mora_stats']['total']} mora")
     
     # Word statistics
     lines.append(f"\nWord statistics:")
@@ -1230,16 +1272,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Merged units: {rep['stats']['merge_stats']['merged_units']} units")
     lines.append(f"  Average unit size: {rep['stats']['merge_stats']['avg_unit_size']:.2f} words")
     
-    # Acoustic metrics (repaired)
-    lines.append(f"\nAcoustic metrics (repaired):")
-    lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
-    lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora (consonant-interval SD)")
-    lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f} mora (mean consonant interval)")
-    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f} %")
-    
-    # Speech rate
-    lines.append(f"\nSpeech rate (repaired text only):")
+    # Speech rate (repaired)
+    lines.append(f"\nSpeech rate (repaired):")
     lines.append(f"  WPM: {rep['speech']['wpm']} words/min")
     lines.append(f"  Pause ratio: {rep['speech']['pause_ratio']}%")
     lines.append(f"  SPS (speech): {rep['speech']['sps_speech']:.3f} syllable/s")
@@ -1247,6 +1281,16 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Average syllable duration: {rep['speech']['syllable_duration']:.3f} s/syllable")
     lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f} s/mora")
     lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f} s/word")
+
+    # Acoustic metrics (repaired)
+    rep_delta_c_seconds = rep['acoustic']['delta_c'] * rep['speech']['mora_duration']
+    rep_mean_c_seconds = rep['acoustic']['mean_interval'] * rep['speech']['mora_duration']
+    lines.append(f"\nAcoustic metrics (repaired):")
+    lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
+    lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
+    lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora ({rep_delta_c_seconds:.4f} s) (consonant-interval SD)")
+    lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f} mora ({rep_mean_c_seconds:.4f} s) (mean consonant interval)")
+    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f} %")
     
     # Pause metrics
     pm = rep['pause_metrics']
@@ -1352,6 +1396,8 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("mora_mean", values)
         values = [f"{r['original']['stats']['mora_stats']['std']:.3f}" for r in results]
         add_row("mora_std", values)
+        values = [r['original']['stats']['mora_stats']['total'] for r in results]
+        add_row("original_total_morae", values)
         
         # Word stats
         values = [r['original']['stats']['word_stats']['total_words'] for r in results]
@@ -1370,7 +1416,18 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac])
         add_row("%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac])
         add_row("ΔC", [f"{a['delta_c']:.4f}" for a in ac])
+        add_row("MeanC", [f"{a['mean_interval']:.4f}" for a in ac])
+        add_row("ΔC_seconds", [f"{(r['original']['acoustic']['delta_c'] * r['original']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("MeanC_seconds", [f"{(r['original']['acoustic']['mean_interval'] * r['original']['speech']['mora_duration']):.4f}" for r in results])
         add_row("VarcoC", [f"{a['varco_c']:.2f}" for a in ac])
+
+        # Speech rate (original)
+        sp_orig = [r['original']['speech'] for r in results]
+        add_row("orig_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_orig])
+        add_row("orig_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_orig])
+        add_row("orig_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_orig])
+        add_row("orig_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_orig])
+        add_row("orig_word_duration", [f"{s['word_duration']:.3f}" for s in sp_orig])
         
         # --- REPAIRED TEXT ---
         add_row("--- REPAIRED TEXT ---", [""] * len(results))
@@ -1390,6 +1447,8 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("rep_mora_mean", values)
         values = [f"{r['repaired']['stats']['mora_stats']['std']:.3f}" for r in results]
         add_row("rep_mora_std", values)
+        values = [r['repaired']['stats']['mora_stats']['total'] for r in results]
+        add_row("rep_total_morae", values)
         
         # Word stats (repaired)
         values = [r['repaired']['stats']['word_stats']['total_words'] for r in results]
@@ -1416,6 +1475,9 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("rep_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
         add_row("rep_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
         add_row("rep_ΔC", [f"{a['delta_c']:.4f}" for a in ac_rep])
+        add_row("rep_MeanC", [f"{a['mean_interval']:.4f}" for a in ac_rep])
+        add_row("rep_ΔC_seconds", [f"{(r['repaired']['acoustic']['delta_c'] * r['repaired']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("rep_MeanC_seconds", [f"{(r['repaired']['acoustic']['mean_interval'] * r['repaired']['speech']['mora_duration']):.4f}" for r in results])
         add_row("rep_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
         
         # Speech rate (repaired)
@@ -1425,6 +1487,11 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
         add_row("mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
         add_row("word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
+        add_row("rep_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_rep])
+        add_row("rep_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_rep])
+        add_row("rep_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
+        add_row("rep_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
+        add_row("rep_word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
         
         # Pause metrics
         add_row("--- PAUSE METRICS ---", [""] * len(results))
@@ -1668,6 +1735,62 @@ def _test_distance_calculation() -> bool:
     return True
 
 
+def _test_consonant_distance_definitions() -> bool:
+    """Regression test for core consonant-distance definitions used by DeltaC.
+
+    Target definitions (between two consonants):
+    - CC = 0
+    - C:C = 1
+    - CVC = 1
+    - CVVC = 2
+    - CVV:C = 3
+    """
+    # CC: use the s->t pair inside mas·ta (distances = [1, 0, 1]).
+    pre = preprocess_text('mas·ta')
+    cons, vows = extract_segments(pre)
+    d = compute_consonant_distances(cons, vows)
+    if len(d) < 2 or d[1] != 0:
+        return False
+
+    # C:C: s->t pair inside mas~·ta (mas:·ta after preprocessing).
+    pre = preprocess_text('mas~·ta')
+    cons, vows = extract_segments(pre)
+    d = compute_consonant_distances(cons, vows)
+    if len(d) < 2 or d[1] != 1:
+        return False
+
+    # CVC: m->s in ma·sa.
+    pre = preprocess_text('ma·sa')
+    cons, vows = extract_segments(pre)
+    d = compute_consonant_distances(cons, vows)
+    if not d or d[0] != 1:
+        return False
+
+    # CVVC: m->s in mā·sa.
+    pre = preprocess_text('mā·sa')
+    cons, vows = extract_segments(pre)
+    d = compute_consonant_distances(cons, vows)
+    if not d or d[0] != 2:
+        return False
+
+    # CVV:C: m->s in mà·sa.
+    pre = preprocess_text('mà·sa')
+    cons, vows = extract_segments(pre)
+    d = compute_consonant_distances(cons, vows)
+    if not d or d[0] != 3:
+        return False
+
+    return True
+
+
+def _test_punctuation_marks_segment_boundaries() -> bool:
+    """Punctuation must create WORD_BOUNDARY markers in preprocessing."""
+    pre = preprocess_text('ab,ta')
+    if WORD_BOUNDARY not in pre:
+        return False
+    return True
+
+
 def _test_pause_metrics_grouping() -> bool:
     text = "at·tā ?!!! ā·lik ), i·lī ... bā·nû"
     stats = analyze_text(text, is_repaired=True)
@@ -1690,6 +1813,80 @@ def _test_unknown_punctuation_fallback() -> bool:
     return True
 
 
+def _test_mora_totals_and_original_speech() -> bool:
+    """Unit test: total morae and original speech metrics are exposed."""
+    text = "tā·ḫā~·za ik~·ta·ṣar"
+    result = process_filetext(text, wpm=165, pause_ratio=35.0)
+
+    orig_total = result['original']['stats']['mora_stats']['total']
+    rep_total = result['repaired']['stats']['mora_stats']['total']
+    if not isinstance(orig_total, int) or not isinstance(rep_total, int):
+        return False
+    # Original (without ~): tā·ḫā·za ik·ta·ṣar = 10 morae.
+    if orig_total != 10:
+        return False
+    # Repaired (with two ~): tā·ḫā~·za ik~·ta·ṣar = 12 morae.
+    if rep_total != 12:
+        return False
+    if rep_total <= orig_total:
+        return False
+
+    orig_speech = result['original'].get('speech', {})
+    rep_speech = result['repaired'].get('speech', {})
+    required = {'wpm', 'pause_ratio', 'sps_speech', 'sps_articulation', 'syllable_duration', 'mora_duration', 'word_duration'}
+    if set(orig_speech.keys()) != required:
+        return False
+    if set(rep_speech.keys()) != required:
+        return False
+
+    # Morae per word must differ when repairs add morae.
+    orig_mpw = result['original']['stats']['word_stats']['morae_per_word']['mean']
+    rep_mpw = result['repaired']['stats']['word_stats']['morae_per_word']['mean']
+    if rep_mpw <= orig_mpw:
+        return False
+
+    return True
+
+
+def _test_table_and_csv_new_fields() -> bool:
+    """Unit test: table and CSV expose new CR-001 fields."""
+    text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
+    result = process_filetext(text, wpm=165, pause_ratio=35.0)
+
+    table = format_table(result)
+    if "Total morae number:" not in table:
+        return False
+    if "Speech rate (original):" not in table:
+        return False
+    if "Speech rate (repaired):" not in table:
+        return False
+    if "mora (" not in table or " s) (consonant-interval SD)" not in table:
+        return False
+
+    # Ordering checks: speech blocks should come before acoustic blocks.
+    if table.find("Speech rate (original):") > table.find("Acoustic metrics (original):"):
+        return False
+    if table.find("Speech rate (repaired):") > table.find("Acoustic metrics (repaired):"):
+        return False
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        csv_path = Path(tmpdir) / 'metrics_test.csv'
+        format_csv([result], csv_path)
+        csv_text = csv_path.read_text(encoding='utf-8')
+
+    required_rows = [
+        "original_total_morae,",
+        "rep_total_morae,",
+        "orig_sps_speech,",
+        "rep_sps_speech,",
+        "ΔC_seconds,",
+        "MeanC_seconds,",
+        "rep_ΔC_seconds,",
+        "rep_MeanC_seconds,",
+    ]
+    return all(row in csv_text for row in required_rows)
+
+
 def run_tests():
     """Run the full test suite by composing unit chunks.
 
@@ -1703,8 +1900,12 @@ def run_tests():
         (_test_preprocessing, "Preprocessing"),
         (_test_segment_extraction, "Segment extraction"),
         (_test_distance_calculation, "Distance calculation"),
+        (_test_consonant_distance_definitions, "Consonant distance definitions"),
+        (_test_punctuation_marks_segment_boundaries, "Punctuation segment boundaries"),
         (_test_pause_metrics_grouping, "Pause metrics grouping"),
         (_test_unknown_punctuation_fallback, "Unknown punctuation fallback"),
+        (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
+        (_test_table_and_csv_new_fields, "Table and CSV new fields"),
     ]
 
     print("\n" + "=" * 80)

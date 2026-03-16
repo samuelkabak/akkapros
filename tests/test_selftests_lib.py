@@ -33,6 +33,10 @@ def test_metrics_refactored_chunks():
     assert metrics._test_preprocessing()
     assert metrics._test_segment_extraction()
     assert metrics._test_distance_calculation()
+    assert metrics._test_consonant_distance_definitions()
+    assert metrics._test_punctuation_marks_segment_boundaries()
     assert metrics._test_pause_metrics_grouping()
     assert metrics._test_unknown_punctuation_fallback()
+    assert metrics._test_mora_totals_and_original_speech()
+    assert metrics._test_table_and_csv_new_fields()
 
