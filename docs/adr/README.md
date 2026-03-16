@@ -2,7 +2,7 @@
 
 This folder contains architecture and engineering decisions for `akkapros`.
 
-Canonical template: MADR (short form used in this project).
+[CR index](index.md) 
 
 ---------------------------------------------------------------------
 
