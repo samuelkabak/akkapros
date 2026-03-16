@@ -33,8 +33,8 @@ It supports single-file and batch (`--input-list`) processing.
 | Format | Output File |
 |--------|-------------|
 | Table | `<base>_metrics.txt` |
-| JSON | `<base>.json` |
-| CSV | `<base>.csv` |
+| JSON | `<base>_metrics.json` |
+| CSV | `<base>_metrics.csv` |
 
 ### Base Naming Rules
 
@@ -127,6 +127,18 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 | **Acoustic/rhythmic metrics** | `%V`, `DeltaC`, `MeanC`, `VarcoC` |
 | **Speech and pause allocation** | Durations, ratios, corrections |
 
+### Output Structure Highlights
+
+- **Mora statistics (original and repaired)** now include:
+    - `Total morae number`
+- **Speech rate** is reported for both sections:
+    - `Speech rate (original)`
+    - `Speech rate (repaired)`
+- In table output, each speech-rate block appears before its corresponding acoustic block.
+- **ΔC** and **MeanC** are shown in both:
+    - mora units
+    - seconds (`value_in_mora * mora_duration`)
+
 ### Pause Output Details
 
 The metrics include detailed pause information:
@@ -159,6 +171,14 @@ This makes text-derived moraic `%V` directly comparable with pause-inclusive spe
 2. **Corrected**: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
 
 This correction affects table, JSON, and CSV outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
+
+### New Fields Across Formats
+
+For both original and repaired outputs:
+
+- `mora_stats.total` (JSON) / `original_total_morae`, `rep_total_morae` (CSV)
+- speech metrics for original and repaired sections
+- `DeltaC` and `MeanC` in mora and seconds in the table
 
 ---
 

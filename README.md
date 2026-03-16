@@ -18,7 +18,7 @@ Developed for Assyriologists, historical linguists, and digital humanities resea
 |------|--------------|
 | **🔤 Syllabification** | Converts cleaned Akkadian text to syllabified format following standard Assyriological conventions |
 | **🎵 Prosody Realization** | Implements LOB (Literary Old Babylonian) and SOB (Standard Old Babylonian) accent styles with moraic algorithm |
-| **📊 Metrics** | Computes %V, ΔC, VarcoC, and related rhythmic metrics with configurable pause ratios (30–40%) |
+| **📊 Metrics** | Computes %V, ΔC, MeanC, VarcoC, total morae, and speech/pause timing metrics (original + realized) with configurable pause ratios |
 | **📝 Multiple Outputs** | Generates acute, bold (Markdown), IPA, XAR practical orthography, and MBROLA-ready formats |
 | **🧪 Reproducible** | Built-in tests, demo scripts, and full pipeline validation on a 4,917-word corpus |
 
