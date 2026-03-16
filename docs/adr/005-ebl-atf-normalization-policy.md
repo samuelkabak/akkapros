@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-10
+---
+
 # 5. eBL ATF Normalization Policy
 
 ## Context and Problem Statement

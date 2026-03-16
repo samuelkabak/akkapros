@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-03
+---
+
 # 11. Multi-Format Printer Outputs
 
 ## Context and Problem Statement

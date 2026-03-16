@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-10
+---
+
 # 4. Stage Pipeline and Pivot Format
 
 ## Context and Problem Statement

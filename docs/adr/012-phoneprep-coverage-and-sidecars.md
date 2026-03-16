@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-13
+---
+
 # 12. Phoneprep Coverage and Sidecars
 
 ## Context and Problem Statement

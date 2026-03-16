@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 2. Centralized Version Management
 
 ## Context and Problem Statement

@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 3. Output Prefix Convention
 
 ## Context and Problem Statement

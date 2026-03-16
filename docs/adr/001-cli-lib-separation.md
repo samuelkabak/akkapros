@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-10
+---
+
 # 1. CLI/Lib Separation
 
 ## Context and Problem Statement

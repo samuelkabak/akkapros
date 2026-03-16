@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-10
+---
+
 # 10. Metrics From Text and Dual Percent-V
 
 ## Context and Problem Statement

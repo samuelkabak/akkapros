@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-06
+---
+
 # 13. Canonical Docs Location and Build Sync
 
 ## Context and Problem Statement

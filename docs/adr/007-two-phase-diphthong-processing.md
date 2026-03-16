@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-12
+---
+
 # 7. Two-Phase Diphthong Processing
 
 ## Context and Problem Statement

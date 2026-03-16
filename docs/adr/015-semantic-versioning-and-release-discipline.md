@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 15. Semantic Versioning and Release Discipline
 
 ## Context and Problem Statement

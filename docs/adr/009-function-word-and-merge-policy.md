@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 9. Function Word and Merge Policy
 
 ## Context and Problem Statement

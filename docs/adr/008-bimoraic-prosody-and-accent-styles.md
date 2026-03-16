@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 8. Bimoraic Prosody and Accent Styles
 
 ## Context and Problem Statement

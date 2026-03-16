@@ -1,3 +1,8 @@
+#---
+Status: Accepted
+Date: 2026-03-14
+---
+
 # 14. CLI Built-In Self-Tests
 
 ## Context and Problem Statement
