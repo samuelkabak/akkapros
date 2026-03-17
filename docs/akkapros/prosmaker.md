@@ -123,7 +123,7 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 ## 📝 Important Notes
 
 - **Output prefix** is sanitized to a filesystem-safe filename.
-- The CLI name is `prosmaker.py` (not `reparer.py`—this has been updated).
+- The CLI name is `prosmaker.py` (not `repairer.py`—this has been updated).
 - All temporary markers from syllabification are resolved in the output.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
 

@@ -1,7 +1,7 @@
 # Change Request: Fix mora statistics when repairs add `~`
 
 CR-ID: CR-002
-Status: Draft
+Status: Done
 Priority: High
 Created: 2026-03-17
 Updated: 2026-03-17

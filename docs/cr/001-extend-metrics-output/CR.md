@@ -1,7 +1,7 @@
 # Change Request: Extend metrics output (table, JSON, CSV) and speech-rate fields
 
 CR-ID: CR-001
-Status: Draft
+Status: Done
 Priority: Medium
 Created: 2026-03-16
 Updated: 2026-03-16
@@ -100,7 +100,7 @@ Files to update (primary):
   - JSON pruning helper — ensure we do not remove the new `speech`/`mora_stats['total']` fields.
   - CLI help text examples (optional) to show new outputs.
 
-- Tests: `sandbox/` tests exercising metrics and formatters
+- Tests: tests exercising metrics and formatters
 
 Data flow notes:
 
@@ -118,7 +118,6 @@ Backward compatibility:
 
 src/akkapros/lib/metrics.py
 src/akkapros/cli/metricalc.py
-sandbox/test_*.py (metrics tests)
 docs/akkapros/metrics-computation.md
 docs/akkapros/metricalc.md
 docs/README.md (if CLI docs mention metrics outputs)
