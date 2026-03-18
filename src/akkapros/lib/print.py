@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Accent Printer (Library)
 
@@ -6,8 +6,8 @@ Transforms *_tilde text into three reading-friendly outputs:
 - accent_acute text: ~ -> ´
 - accent_bold markdown: syllable containing ~ is bold, ~ removed
 - accent_ipa text: IPA transliteration with stress/length markers
-- accent_xar text: XAR transliteration with repaired accent mark
-- xar text: XAR transliteration without repaired accent mark
+- accent_xar text: XAR transliteration with accent mark
+- xar text: XAR transliteration without accent mark
 
 Core marker handling:
 - WORD_LINKER '+' -> '‿'
@@ -358,7 +358,7 @@ def _flush_syllable(
         return syllable_text.replace(TILDE, ACUTE_MARK)
 
     if mode == 'ipa':
-        repaired = TILDE in syllable_text
+        accentuated = TILDE in syllable_text
         converted = []
         ipa_map = IPA_MAP_STRICT if ipa_mode == 'ipa-strict' else IPA_MAP_OB
 
@@ -383,13 +383,13 @@ def _flush_syllable(
                 else:
                     converted.append(_to_ipa_vowel(char, emphatic))
             elif char in ipa_map:
-                # Keep implied/injected glottal onset silent unless this is a repaired syllable.
+                # Keep implied/injected glottal onset silent unless this is an accentuated syllable.
                 # Explicit source letters (ʾ/ʿ) are still mapped by mode-specific inventories.
                 if (
                     char == GLOTTAL_STOP
                     and source_indices is not None
                     and source_indices[idx] == -1
-                    and not repaired
+                    and not accentuated
                 ):
                     continue
                 converted.append(ipa_map[char])
@@ -399,7 +399,7 @@ def _flush_syllable(
                 converted.append(char)
 
         ipa_syllable = ''.join(converted)
-        if repaired and ipa_syllable:
+        if accentuated and ipa_syllable:
             # For stressed vowel-initial syllables, reorder so glottal comes first
             # ːʔa → ʔaː (length marker moves to end, after vowel)
             ipa_syllable = re.sub(r'^ː+(\u0294)([aeiou\u0251\u0268\u028a\u025b])(.*)$', 
@@ -1363,3 +1363,4 @@ def run_tests() -> bool:
     passed += extra_passed
     print(f"print.py tests: {passed}/{total} passed")
     return passed == total
+

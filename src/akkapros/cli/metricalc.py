@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Akkadian Prosody Toolkit — Metrics Calculator (CLI wrapper)
 
 This module provides the command-line interface and delegates all
@@ -132,7 +132,7 @@ Version {__version__}
             try:
                 if isinstance(obj, dict):
                     orig = obj.get('original')
-                    rep = obj.get('repaired')
+                    rep = obj.get('accentuated')
                     if isinstance(orig, dict):
                         orig.get('acoustic', {}).pop('distances', None)
                     if isinstance(rep, dict):
@@ -198,3 +198,4 @@ Version {__version__}
 
 if __name__ == "__main__":
     main()
+

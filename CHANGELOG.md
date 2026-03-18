@@ -91,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Key results:
   - Original VarcoC: 69.09 (compatible with stress-timing)
   - Prominence rate: 13.63% (emerges from data, not design)
-  - Repaired VarcoC: 70.67 (remains consistent with stress-timing)
+  - Accentuated VarcoC: 70.67 (remains consistent with stress-timing)
   - 49.9% of words participate in prosodic merging
 
 ### Testing
@@ -102,6 +102,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+
+### Breaking Changes
+- CR-004 renamed terminology across code, outputs, and docs:
+  - `repaired` -> `accentuated`
+  - `repair` -> `accentuation`
+  - `repairs` -> `accentuations`
+- JSON/CSV consumers must migrate legacy keys, for example:
+  - `result['repaired']` -> `result['accentuated']`
+  - `rep_total_morae` -> `accentuated_total_morae`
+  - `rep_sps_speech` -> `accentuated_sps_speech`
+  - `rep_ΔC_seconds` -> `accentuated_ΔC_seconds`
 
 ### Planned
 - Segmentation tool for MBROLA voice creation

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — eBL ATF Parser (Library)
 
@@ -97,7 +97,7 @@ class ATFParser:
         self.title = None
         self.english_translations = []
         self.original_akkadian_lines = []   # Raw %n lines (with %n removed)
-        self.cleaned_lines = []              # Cleaned text for syllabification/repair
+        self.cleaned_lines = []              # Cleaned text for syllabification/accentuation
         self.warnings = []
         self.warning_counts = {
             'determinative': False,
@@ -400,3 +400,4 @@ def run_tests() -> bool:
         tests_failed += 1
     
     return tests_failed == 0
+

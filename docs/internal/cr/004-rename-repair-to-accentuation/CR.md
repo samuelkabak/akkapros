@@ -1,7 +1,7 @@
 # Change Request: Rename "repair" terminology to "accentuation"
 
 CR-ID: CR-004
-Status: Draft
+Status: Approved
 Priority: Medium
 Created: 2026-03-17
 Updated: 2026-03-17

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Metrics Calculator
 Version: 2.0.0
@@ -312,7 +312,7 @@ def count_merged_units(words: List[str]) -> Dict:
 # ------------------------------------------------------------
 # Syllable classification
 # ------------------------------------------------------------
-def classify_syllable(syl: str, is_repaired: bool = False) -> str:
+def classify_syllable(syl: str, is_accentuated: bool = False) -> str:
     """
     Classify a syllable into one of the types.
     """
@@ -434,7 +434,7 @@ def compute_percent_v_with_pauses(percent_v_articulate: float, pause_ratio: floa
         return percent_v_articulate
     return percent_v_articulate / scale
 
-def analyze_text(text: str, is_repaired: bool = False) -> Dict:
+def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     """
     Analyze a text and compute all metrics.
     """
@@ -466,11 +466,11 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
             word_syllable_count += 1
             
             # Classify syllable
-            syl_type = classify_syllable(syl, is_repaired)
+            syl_type = classify_syllable(syl, is_accentuated)
             syllable_counts[syl_type] = syllable_counts.get(syl_type, 0) + 1
 
             # Count morae from syllable type so totals stay consistent with %V and
-            # repaired categories (e.g., CVC:, CVV:, CVV:C).
+            # accentuated categories (e.g., CVC:, CVV:, CVV:C).
             morae = SYLLABLE_MORA_TOTAL.get(syl_type)
             if morae is None:
                 # Fallback for unexpected/unclassified patterns.
@@ -536,37 +536,37 @@ def analyze_text(text: str, is_repaired: bool = False) -> Dict:
 
 
 # ------------------------------------------------------------
-# Repair statistics
+# Accentuation statistics
 # ------------------------------------------------------------
-def compute_repair_stats(original_stats: Dict, repaired_stats: Dict) -> Dict:
+def compute_accentuation_stats(original_stats: Dict, accentuated_stats: Dict) -> Dict:
     """
-    Compute repair-specific statistics by comparing original and repaired.
+    Compute accentuation-specific statistics by comparing original and accentuated.
     """
-    # Count repaired syllables by comparing counts
-    repair_types = {}
-    total_repaired = 0
+    # Count accentuated syllables by comparing counts
+    accentuation_types = {}
+    total_accentuated = 0
     
-    all_types = set(original_stats['syllable_counts'].keys()) | set(repaired_stats['syllable_counts'].keys())
+    all_types = set(original_stats['syllable_counts'].keys()) | set(accentuated_stats['syllable_counts'].keys())
     
     for typ in all_types:
         orig_count = original_stats['syllable_counts'].get(typ, 0)
-        rep_count = repaired_stats['syllable_counts'].get(typ, 0)
-        if rep_count > orig_count:
-            # This type increased - repairs created it
-            diff = rep_count - orig_count
-            repair_types[typ] = diff
-            total_repaired += diff
+        accentuated_count = accentuated_stats['syllable_counts'].get(typ, 0)
+        if accentuated_count > orig_count:
+            # This type increased due to accentuation.
+            diff = accentuated_count - orig_count
+            accentuation_types[typ] = diff
+            total_accentuated += diff
     
-    # Repair rate
-    repair_rate = (total_repaired / original_stats['total_syllables'] * 100) if original_stats['total_syllables'] > 0 else 0
+    # Accentuation rate
+    accentuation_rate = (total_accentuated / original_stats['total_syllables'] * 100) if original_stats['total_syllables'] > 0 else 0
     
     return {
-        'repaired_syllables': total_repaired,
-        'repair_rate': repair_rate,
-        'repair_types': repair_types,
-        'merged_words': repaired_stats['merge_stats']['total_merged_words'],
-        'merged_units': repaired_stats['merge_stats']['merged_units'],
-        'avg_unit_size': repaired_stats['merge_stats']['avg_unit_size']
+        'accentuated_syllables': total_accentuated,
+        'accentuation_rate': accentuation_rate,
+        'accentuation_types': accentuation_types,
+        'merged_words': accentuated_stats['merge_stats']['total_merged_words'],
+        'merged_units': accentuated_stats['merge_stats']['merged_units'],
+        'avg_unit_size': accentuated_stats['merge_stats']['avg_unit_size']
     }
 
 
@@ -1127,43 +1127,43 @@ def process_filetext(
 ) -> Dict:
 
     # Analyze original (with ~ removed)
-    original_stats = analyze_text(text.replace('~', ''), is_repaired=False)
+    original_stats = analyze_text(text.replace('~', ''), is_accentuated=False)
     
-    # Analyze repaired (with ~ present)
-    repaired_stats = analyze_text(text, is_repaired=True)
+    # Analyze accentuated (with ~ present)
+    accentuated_stats = analyze_text(text, is_accentuated=True)
     
-    # Compute repair stats
-    repair_stats = compute_repair_stats(original_stats, repaired_stats)
+    # Compute accentuation stats
+    accentuation_stats = compute_accentuation_stats(original_stats, accentuated_stats)
     
     # Compute %V from syllable statistics
     original_percent_v = compute_percent_v_from_stats(original_stats)
-    repaired_percent_v = compute_percent_v_from_stats(repaired_stats)
+    accentuated_percent_v = compute_percent_v_from_stats(accentuated_stats)
     
     # Preprocess for acoustic metrics (ΔC, etc.)
     preprocessed_original = preprocess_text(text.replace('~', ''))
-    preprocessed_repaired = preprocess_text(text)
+    preprocessed_accentuated = preprocess_text(text)
     
     # Compute acoustic metrics (excluding %V)
     acoustic_original = compute_acoustic_metrics(preprocessed_original)
-    acoustic_repaired = compute_acoustic_metrics(preprocessed_repaired)
+    acoustic_accentuated = compute_acoustic_metrics(preprocessed_accentuated)
     
     # Override %V with mora-based values and expose both speaking conditions.
     acoustic_original['percent_v'] = original_percent_v
     acoustic_original['percent_v_articulate'] = original_percent_v
     acoustic_original['percent_v_speech'] = compute_percent_v_with_pauses(original_percent_v, pause_ratio)
-    acoustic_repaired['percent_v'] = repaired_percent_v
-    acoustic_repaired['percent_v_articulate'] = repaired_percent_v
-    acoustic_repaired['percent_v_speech'] = compute_percent_v_with_pauses(repaired_percent_v, pause_ratio)
+    acoustic_accentuated['percent_v'] = accentuated_percent_v
+    acoustic_accentuated['percent_v_articulate'] = accentuated_percent_v
+    acoustic_accentuated['percent_v_speech'] = compute_percent_v_with_pauses(accentuated_percent_v, pause_ratio)
     
-    # Compute speech rate for original and repaired text
+    # Compute speech rate for original and accentuated text
     speech_original = compute_speech_rate(preprocessed_original, original_stats, wpm, pause_ratio)
-    speech_repaired = compute_speech_rate(preprocessed_repaired, repaired_stats, wpm, pause_ratio)
+    speech_accentuated = compute_speech_rate(preprocessed_accentuated, accentuated_stats, wpm, pause_ratio)
     
     # Compute pause metrics
-    pause_metrics = compute_pause_metrics(text, repaired_stats)
+    pause_metrics = compute_pause_metrics(text, accentuated_stats)
     pause_durations = compute_pause_durations(
         pause_metrics,
-        speech_repaired,
+        speech_accentuated,
         pause_ratio,
         long_punct_weight,
     )
@@ -1175,14 +1175,14 @@ def process_filetext(
             'speech': speech_original,
             'acoustic': acoustic_original
         },
-        'repaired': {
-            'stats': repaired_stats,
-            'acoustic': acoustic_repaired,
-            'speech': speech_repaired,
+        'accentuated': {
+            'stats': accentuated_stats,
+            'acoustic': acoustic_accentuated,
+            'speech': speech_accentuated,
             'pause_metrics': pause_metrics,
             'pause_durations': pause_durations
         },
-        'repair_stats': repair_stats
+        'accentuation_stats': accentuation_stats
     }
 
 
@@ -1242,9 +1242,9 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora ({orig_mean_c_seconds:.4f} s) (mean consonant interval)")
     lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f} %")
     
-    # --- REPAIRED TEXT ---
-    lines.append("\n--- REPAIRED TEXT ---")
-    rep = result['repaired']
+    # --- ACCENTUATED TEXT ---
+    lines.append("\n--- ACCENTUATED TEXT ---")
+    rep = result['accentuated']
     
     # Syllable counts
     lines.append("\nSyllable types:")
@@ -1272,8 +1272,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Merged units: {rep['stats']['merge_stats']['merged_units']} units")
     lines.append(f"  Average unit size: {rep['stats']['merge_stats']['avg_unit_size']:.2f} words")
     
-    # Speech rate (repaired)
-    lines.append(f"\nSpeech rate (repaired):")
+    # Speech rate (accentuated)
+    lines.append(f"\nSpeech rate (accentuated):")
     lines.append(f"  WPM: {rep['speech']['wpm']} words/min")
     lines.append(f"  Pause ratio: {rep['speech']['pause_ratio']}%")
     lines.append(f"  SPS (speech): {rep['speech']['sps_speech']:.3f} syllable/s")
@@ -1282,10 +1282,10 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f} s/mora")
     lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f} s/word")
 
-    # Acoustic metrics (repaired)
+    # Acoustic metrics (accentuated)
     rep_delta_c_seconds = rep['acoustic']['delta_c'] * rep['speech']['mora_duration']
     rep_mean_c_seconds = rep['acoustic']['mean_interval'] * rep['speech']['mora_duration']
-    lines.append(f"\nAcoustic metrics (repaired):")
+    lines.append(f"\nAcoustic metrics (accentuated):")
     lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
     lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
     lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora ({rep_delta_c_seconds:.4f} s) (consonant-interval SD)")
@@ -1354,13 +1354,13 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
         f"  Corrected average long pause punctuation weight relative to short: {pd['corrected_long_punct_weight']:.1f} (no unit)"
     )
 
-    # --- REPAIR STATISTICS ---
-    lines.append("\n--- REPAIR STATISTICS ---")
-    rs = result['repair_stats']
-    lines.append(f"  Repaired syllables: {rs['repaired_syllables']} syllables")
-    lines.append(f"  Repair rate: {rs['repair_rate']:.2f}%")
-    lines.append(f"\n  Repair types:")
-    for typ, count in rs['repair_types'].items():
+    # --- ACCENTUATION STATISTICS ---
+    lines.append("\n--- ACCENTUATION STATISTICS ---")
+    rs = result['accentuation_stats']
+    lines.append(f"  Accentuated syllables: {rs['accentuated_syllables']} syllables")
+    lines.append(f"  Accentuation rate: {rs['accentuation_rate']:.2f}%")
+    lines.append(f"\n  Accentuation types:")
+    for typ, count in rs['accentuation_types'].items():
         if count > 0:
             lines.append(f"    {typ:8}: {count:4d} syllables")
     
@@ -1429,76 +1429,71 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("orig_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_orig])
         add_row("orig_word_duration", [f"{s['word_duration']:.3f}" for s in sp_orig])
         
-        # --- REPAIRED TEXT ---
-        add_row("--- REPAIRED TEXT ---", [""] * len(results))
+        # --- ACCENTUATED TEXT ---
+        add_row("--- ACCENTUATED TEXT ---", [""] * len(results))
         
-        # Syllable counts (repaired)
+        # Syllable counts (accentuated)
         for typ in SYLLABLE_TYPES:
-            values = [r['repaired']['stats']['syllable_counts'].get(typ, 0) for r in results]
-            add_row(f"rep_count_{typ}", values)
+            values = [r['accentuated']['stats']['syllable_counts'].get(typ, 0) for r in results]
+            add_row(f"accentuated_count_{typ}", values)
         
-        # Syllable percentages (repaired)
+        # Syllable percentages (accentuated)
         for typ in SYLLABLE_TYPES:
-            values = [f"{r['repaired']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
-            add_row(f"rep_pct_{typ}", values)
+            values = [f"{r['accentuated']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
+            add_row(f"accentuated_pct_{typ}", values)
         
-        # Mora stats (repaired)
-        values = [f"{r['repaired']['stats']['mora_stats']['mean']:.3f}" for r in results]
-        add_row("rep_mora_mean", values)
-        values = [f"{r['repaired']['stats']['mora_stats']['std']:.3f}" for r in results]
-        add_row("rep_mora_std", values)
-        values = [r['repaired']['stats']['mora_stats']['total'] for r in results]
-        add_row("rep_total_morae", values)
+        # Mora stats (accentuated)
+        values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
+        add_row("accentuated_mora_mean", values)
+        values = [f"{r['accentuated']['stats']['mora_stats']['std']:.3f}" for r in results]
+        add_row("accentuated_mora_std", values)
+        values = [r['accentuated']['stats']['mora_stats']['total'] for r in results]
+        add_row("accentuated_total_morae", values)
         
-        # Word stats (repaired)
-        values = [r['repaired']['stats']['word_stats']['total_words'] for r in results]
-        add_row("rep_total_words", values)
-        values = [f"{r['repaired']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
-        add_row("rep_spw_mean", values)
-        values = [f"{r['repaired']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
-        add_row("rep_spw_std", values)
-        values = [f"{r['repaired']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
-        add_row("rep_mpw_mean", values)
-        values = [f"{r['repaired']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
-        add_row("rep_mpw_std", values)
+        # Word stats (accentuated)
+        values = [r['accentuated']['stats']['word_stats']['total_words'] for r in results]
+        add_row("accentuated_total_words", values)
+        values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
+        add_row("accentuated_spw_mean", values)
+        values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
+        add_row("accentuated_spw_std", values)
+        values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
+        add_row("accentuated_mpw_mean", values)
+        values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
+        add_row("accentuated_mpw_std", values)
         
         # Merge stats
-        values = [r['repaired']['stats']['merge_stats']['total_merged_words'] for r in results]
+        values = [r['accentuated']['stats']['merge_stats']['total_merged_words'] for r in results]
         add_row("merged_words", values)
-        values = [r['repaired']['stats']['merge_stats']['merged_units'] for r in results]
+        values = [r['accentuated']['stats']['merge_stats']['merged_units'] for r in results]
         add_row("merged_units", values)
-        values = [f"{r['repaired']['stats']['merge_stats']['avg_unit_size']:.2f}" for r in results]
+        values = [f"{r['accentuated']['stats']['merge_stats']['avg_unit_size']:.2f}" for r in results]
         add_row("avg_unit_size", values)
         
-        # Acoustic metrics (repaired)
-        ac_rep = [r['repaired']['acoustic'] for r in results]
-        add_row("rep_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
-        add_row("rep_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
-        add_row("rep_ΔC", [f"{a['delta_c']:.4f}" for a in ac_rep])
-        add_row("rep_MeanC", [f"{a['mean_interval']:.4f}" for a in ac_rep])
-        add_row("rep_ΔC_seconds", [f"{(r['repaired']['acoustic']['delta_c'] * r['repaired']['speech']['mora_duration']):.4f}" for r in results])
-        add_row("rep_MeanC_seconds", [f"{(r['repaired']['acoustic']['mean_interval'] * r['repaired']['speech']['mora_duration']):.4f}" for r in results])
-        add_row("rep_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
+        # Acoustic metrics (accentuated)
+        ac_rep = [r['accentuated']['acoustic'] for r in results]
+        add_row("accentuated_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
+        add_row("accentuated_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
+        add_row("accentuated_ΔC", [f"{a['delta_c']:.4f}" for a in ac_rep])
+        add_row("accentuated_MeanC", [f"{a['mean_interval']:.4f}" for a in ac_rep])
+        add_row("accentuated_ΔC_seconds", [f"{(r['accentuated']['acoustic']['delta_c'] * r['accentuated']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("accentuated_MeanC_seconds", [f"{(r['accentuated']['acoustic']['mean_interval'] * r['accentuated']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("accentuated_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
         
-        # Speech rate (repaired)
-        sp_rep = [r['repaired']['speech'] for r in results]
-        add_row("sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_rep])
-        add_row("sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_rep])
-        add_row("syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
-        add_row("mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
-        add_row("word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
-        add_row("rep_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_rep])
-        add_row("rep_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_rep])
-        add_row("rep_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
-        add_row("rep_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
-        add_row("rep_word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
+        # Speech rate (accentuated)
+        sp_rep = [r['accentuated']['speech'] for r in results]
+        add_row("accentuated_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_rep])
+        add_row("accentuated_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_rep])
+        add_row("accentuated_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
+        add_row("accentuated_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
+        add_row("accentuated_word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
         
         # Pause metrics
         add_row("--- PAUSE METRICS ---", [""] * len(results))
         
         for r in results:
-            pm = r['repaired']['pause_metrics']
-            pd = r['repaired']['pause_durations']
+            pm = r['accentuated']['pause_metrics']
+            pd = r['accentuated']['pause_durations']
             
             values = [f"{pm['short_punctuation_per_syllable']:.3f}" for r in results]
             add_row("short_pause_punct_per_syllable", values)
@@ -1506,39 +1501,39 @@ def format_csv(results: List[Dict], output_file: Path):
             add_row("long_pause_punct_per_syllable", values)
             values = [f"{pm['punctuation_per_syllable']:.3f}" for r in results]
             add_row("total_punct_per_syllable", values)
-            values = [r['repaired']['pause_metrics']['short_pauseable_boundaries'] for r in results]
+            values = [r['accentuated']['pause_metrics']['short_pauseable_boundaries'] for r in results]
             add_row("short_pauseable_boundaries", values)
-            values = [r['repaired']['pause_metrics']['long_pauseable_boundaries'] for r in results]
+            values = [r['accentuated']['pause_metrics']['long_pauseable_boundaries'] for r in results]
             add_row("long_pauseable_boundaries", values)
-            values = [f"{r['repaired']['pause_durations']['initial_long_punct_weight']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['initial_long_punct_weight']:.4f}" for r in results]
             add_row("initial_long_pause_punct_weight_rel_to_short", values)
-            values = [f"{r['repaired']['pause_durations']['initial_short_punctuation_duration']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['initial_short_punctuation_duration']:.4f}" for r in results]
             add_row("initial_short_pause_punct_duration", values)
-            values = [f"{r['repaired']['pause_durations']['initial_long_punctuation_duration']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['initial_long_punctuation_duration']:.4f}" for r in results]
             add_row("initial_avg_long_pause_punct_duration", values)
-            values = [f"{r['repaired']['pause_durations']['corrected_short_punctuation_duration']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['corrected_short_punctuation_duration']:.4f}" for r in results]
             add_row("corrected_short_pause_punct_duration", values)
-            values = [f"{r['repaired']['pause_durations']['corrected_long_punctuation_duration']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['corrected_long_punctuation_duration']:.4f}" for r in results]
             add_row("corrected_avg_long_pause_punct_duration", values)
-            values = [f"{r['repaired']['pause_durations']['corrected_long_punct_weight']:.4f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['corrected_long_punct_weight']:.4f}" for r in results]
             add_row("corrected_avg_long_pause_punct_weight_rel_to_short", values)
-            values = [f"{r['repaired']['pause_durations']['corrected_short_punctuation_percent']:.1f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['corrected_short_punctuation_percent']:.1f}" for r in results]
             add_row("corrected_short_pause_punct_percent", values)
-            values = [f"{r['repaired']['pause_durations']['corrected_long_punctuation_percent']:.1f}" for r in results]
+            values = [f"{r['accentuated']['pause_durations']['corrected_long_punctuation_percent']:.1f}" for r in results]
             add_row("corrected_long_pause_punct_percent", values)
             break  # Only do once since we're looping over results
         
-        # --- REPAIR STATISTICS ---
-        add_row("--- REPAIR STATISTICS ---", [""] * len(results))
+        # --- ACCENTUATION STATISTICS ---
+        add_row("--- ACCENTUATION STATISTICS ---", [""] * len(results))
         
-        values = [r['repair_stats']['repaired_syllables'] for r in results]
-        add_row("repaired_syllables", values)
-        values = [f"{r['repair_stats']['repair_rate']:.2f}" for r in results]
-        add_row("repair_rate", values)
+        values = [r['accentuation_stats']['accentuated_syllables'] for r in results]
+        add_row("accentuated_syllables", values)
+        values = [f"{r['accentuation_stats']['accentuation_rate']:.2f}" for r in results]
+        add_row("accentuation_rate", values)
         
         for typ in SYLLABLE_TYPES:
-            values = [r['repair_stats']['repair_types'].get(typ, 0) for r in results]
-            add_row(f"repair_{typ}", values)
+            values = [r['accentuation_stats']['accentuation_types'].get(typ, 0) for r in results]
+            add_row(f"accentuation_{typ}", values)
 
 
 # ------------------------------------------------------------
@@ -1552,7 +1547,7 @@ def test_small_text():
     
     test_text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
     
-    # Expected original counts (without repairs)
+    # Expected original counts (without accentuation)
     expected_original = {
         'CV': 2,   # gi, ti
         'CVC': 4,  # šar, mir, dad, kib
@@ -1560,8 +1555,8 @@ def test_small_text():
         'total': 10
     }
     
-    # Expected repaired counts (with repairs)
-    expected_repaired = {
+    # Expected accentuated counts (with accentuation)
+    expected_accentuated = {
         'CV': 2,      # gi, ti
         'CVC': 3,     # šar, mir, kib
         'CVV': 3,     # mē, bā, nû
@@ -1574,7 +1569,7 @@ def test_small_text():
     
     # Test original
     print("\n--- ORIGINAL (without ~) ---")
-    original_stats = analyze_text(test_text.replace('~', ''), is_repaired=False)
+    original_stats = analyze_text(test_text.replace('~', ''), is_accentuated=False)
     
     print("Syllable counts:")
     for typ in ['CV', 'CVC', 'CVV', 'CVVC', 'VC', 'V', 'VV', 'VVC']:
@@ -1594,27 +1589,27 @@ def test_small_text():
     if total != expected_original['total']:
         print(f"  ❌ total: got {total}, expected {expected_original['total']}")
     
-    # Test repaired
-    print("\n--- REPAIRED (with ~) ---")
-    repaired_stats = analyze_text(test_text, is_repaired=True)
+    # Test accentuated
+    print("\n--- ACCENTUATED (with ~) ---")
+    accentuated_stats = analyze_text(test_text, is_accentuated=True)
     
     print("Syllable counts:")
     for typ in ['CV', 'CVC', 'CVV', 'CVC:', 'CVV:', 'VV:', 'VV:C' ,'CVV:', 'CVC:' ]:
-        count = repaired_stats['syllable_counts'].get(typ, 0)
+        count = accentuated_stats['syllable_counts'].get(typ, 0)
         if count > 0:
             print(f"  [{typ}]: {count}")
     
-    # Verify repaired counts
-    for typ, expected in expected_repaired.items():
+    # Verify accentuated counts
+    for typ, expected in expected_accentuated.items():
         if typ == 'total':
             continue
-        actual = repaired_stats['syllable_counts'].get(typ, 0)
+        actual = accentuated_stats['syllable_counts'].get(typ, 0)
         if actual != expected:
             print(f"  ❌ [{typ}]: got {actual}, expected {expected}")
     
-    total = sum(repaired_stats['syllable_counts'].values())
-    if total != expected_repaired['total']:
-        print(f"  ❌ total: got {total}, expected {expected_repaired['total']}")
+    total = sum(accentuated_stats['syllable_counts'].values())
+    if total != expected_accentuated['total']:
+        print(f"  ❌ total: got {total}, expected {expected_accentuated['total']}")
 
 def debug_mean_calculation(text: str, label: str):
     """Debug mean interval calculation."""
@@ -1793,7 +1788,7 @@ def _test_punctuation_marks_segment_boundaries() -> bool:
 
 def _test_pause_metrics_grouping() -> bool:
     text = "at·tā ?!!! ā·lik ), i·lī ... bā·nû"
-    stats = analyze_text(text, is_repaired=True)
+    stats = analyze_text(text, is_accentuated=True)
     pm = compute_pause_metrics(text, stats)
     if pm['raw_counts']['spaces'] != 0:
         return False
@@ -1806,7 +1801,7 @@ def _test_pause_metrics_grouping() -> bool:
 
 def _test_unknown_punctuation_fallback() -> bool:
     text = "at·tā @ ā·lik"
-    stats = analyze_text(text, is_repaired=True)
+    stats = analyze_text(text, is_accentuated=True)
     pm = compute_pause_metrics(text, stats)
     if pm['raw_counts']['defaulted_long_punctuation'] != 1:
         return False
@@ -1819,30 +1814,30 @@ def _test_mora_totals_and_original_speech() -> bool:
     result = process_filetext(text, wpm=165, pause_ratio=35.0)
 
     orig_total = result['original']['stats']['mora_stats']['total']
-    rep_total = result['repaired']['stats']['mora_stats']['total']
-    if not isinstance(orig_total, int) or not isinstance(rep_total, int):
+    accentuated_total = result['accentuated']['stats']['mora_stats']['total']
+    if not isinstance(orig_total, int) or not isinstance(accentuated_total, int):
         return False
     # Original (without ~): tā·ḫā·za ik·ta·ṣar = 10 morae.
     if orig_total != 10:
         return False
-    # Repaired (with two ~): tā·ḫā~·za ik~·ta·ṣar = 12 morae.
-    if rep_total != 12:
+    # Accentuated (with two ~): tā·ḫā~·za ik~·ta·ṣar = 12 morae.
+    if accentuated_total != 12:
         return False
-    if rep_total <= orig_total:
+    if accentuated_total <= orig_total:
         return False
 
     orig_speech = result['original'].get('speech', {})
-    rep_speech = result['repaired'].get('speech', {})
+    accentuated_speech = result['accentuated'].get('speech', {})
     required = {'wpm', 'pause_ratio', 'sps_speech', 'sps_articulation', 'syllable_duration', 'mora_duration', 'word_duration'}
     if set(orig_speech.keys()) != required:
         return False
-    if set(rep_speech.keys()) != required:
+    if set(accentuated_speech.keys()) != required:
         return False
 
-    # Morae per word must differ when repairs add morae.
+    # Morae per word must differ when accentuation adds morae.
     orig_mpw = result['original']['stats']['word_stats']['morae_per_word']['mean']
-    rep_mpw = result['repaired']['stats']['word_stats']['morae_per_word']['mean']
-    if rep_mpw <= orig_mpw:
+    accentuated_mpw = result['accentuated']['stats']['word_stats']['morae_per_word']['mean']
+    if accentuated_mpw <= orig_mpw:
         return False
 
     return True
@@ -1858,7 +1853,7 @@ def _test_table_and_csv_new_fields() -> bool:
         return False
     if "Speech rate (original):" not in table:
         return False
-    if "Speech rate (repaired):" not in table:
+    if "Speech rate (accentuated):" not in table:
         return False
     if "mora (" not in table or " s) (consonant-interval SD)" not in table:
         return False
@@ -1866,7 +1861,7 @@ def _test_table_and_csv_new_fields() -> bool:
     # Ordering checks: speech blocks should come before acoustic blocks.
     if table.find("Speech rate (original):") > table.find("Acoustic metrics (original):"):
         return False
-    if table.find("Speech rate (repaired):") > table.find("Acoustic metrics (repaired):"):
+    if table.find("Speech rate (accentuated):") > table.find("Acoustic metrics (accentuated):"):
         return False
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1876,13 +1871,13 @@ def _test_table_and_csv_new_fields() -> bool:
 
     required_rows = [
         "original_total_morae,",
-        "rep_total_morae,",
+        "accentuated_total_morae,",
         "orig_sps_speech,",
-        "rep_sps_speech,",
+        "accentuated_sps_speech,",
         "ΔC_seconds,",
         "MeanC_seconds,",
-        "rep_ΔC_seconds,",
-        "rep_MeanC_seconds,",
+        "accentuated_ΔC_seconds,",
+        "accentuated_MeanC_seconds,",
     ]
     return all(row in csv_text for row in required_rows)
 
@@ -1931,4 +1926,5 @@ def run_tests():
     print(f"Tests passed: {passed}/{total}")
     print(f"{'='*80}\n")
     return passed == total
+
 

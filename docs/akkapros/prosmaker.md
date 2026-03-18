@@ -74,8 +74,8 @@ The `+` marker in syllabified input indicates a forced prosodic unit.
 
 Example with `bā·nû+a·pil`:
 
-- Default: `bā·nû+~a·pil` (last word repaired)
-- Relaxed: `bā·nû~+a·pil` (repair propagates leftward)
+- Default: `bā·nû+~a·pil` (last word accentuated)
+- Relaxed: `bā·nû~+a·pil` (accentuation propagates leftward)
 
 ---
 

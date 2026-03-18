@@ -1,7 +1,7 @@
 # Change Request: Use rare bracket delimiters for escape markers (⟦ ⟧)
 
 CR-ID: CR-003
-Status: Draft
+Status: Done
 Priority: Medium
 Created: 2026-03-17
 Updated: 2026-03-17

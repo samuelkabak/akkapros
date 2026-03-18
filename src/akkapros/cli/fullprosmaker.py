@@ -169,7 +169,7 @@ def run_pipeline(
         except Exception:
             pass
         try:
-            pruned.get('repaired', {}).get('acoustic', {}).pop('distances', None)
+            pruned.get('accentuated', {}).get('acoustic', {}).pop('distances', None)
         except Exception:
             pass
         with open(json_file, 'w', encoding='utf-8') as f:
@@ -388,4 +388,5 @@ Version: {__version__}
 
 if __name__ == '__main__':
     main()
+
 

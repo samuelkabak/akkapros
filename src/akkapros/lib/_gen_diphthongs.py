@@ -1,17 +1,17 @@
-"""Generate diphthong replacement patterns from a two-vowel specification.
+﻿"""Generate diphthong replacement patterns from a two-vowel specification.
 
 This module implements the rules and code used to restore diphthongs after
-syllabification and repair. The syllabifier inserts an explicit separator
+syllabification and accentuation. The syllabifier inserts an explicit separator
 between adjacent vowels (controlled by `SYL_SEPARATOR` and
-`DIPH_SEPARATOR`) so that the repair stage can operate on distinct syllables.
-After repair, vowel pairs that originally formed diphthongs must be
-reconstructed from the repaired output; this module generates the
+`DIPH_SEPARATOR`) so that the accentuation stage can operate on distinct syllables.
+After accentuation, vowel pairs that originally formed diphthongs must be
+reconstructed from the accentuated output; this module generates the
 regular-expression replacement patterns used to perform that reconstruction.
 
 Key points
 - The generator enumerates all pairs of base vowels (a, i, u, e) and all
     relevant forms for each vowel: short, long, and circumflex (circ). The
-    second vowel may also carry a tilde (``~``) that marks a repaired/moraic
+    second vowel may also carry a tilde (``~``) that marks an accentuated/moraic
     lengthening.
 - Replacement logic distinguishes two cases: "same vowel" (e.g. a + a)
     versus "different vowels" (e.g. u + a). Each case has deterministic rules
@@ -46,11 +46,11 @@ Implementation notes (mapping to functions)
 Why this is necessary
 ---------------------
 The syllabifier expands diphthongs into two vowel units (often inserting a
-glottal marker) so that mora-counting and repair can operate deterministically.
-Once repairs (lengthenings/gemination) are applied, the original diphthong
-shapes must be reconstructed from the repaired tokens while preserving any
+glottal marker) so that mora-counting and accentuation can operate deterministically.
+Once accentuation operations (lengthenings/gemination) are applied, the original diphthong
+shapes must be reconstructed from the accentuated tokens while preserving any
 tilde marks that indicate added morae. This generator codifies the
-phonologically motivated mapping between repaired vowel pairs and the final
+phonologically motivated mapping between accentuated vowel pairs and the final
 orthographic diphthong forms.
 
 See docs/diphthong-processing.md for a human-readable explanation and

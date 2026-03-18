@@ -108,14 +108,14 @@ These mora assignments are the basis for syllable weight, interval distances, an
 ### 3.4.1 Total Morae Number
 
 **What it designates:**
-- Total mora count over the analyzed text section (original or repaired).
+- Total mora count over the analyzed text section (original or accentuated).
 
 **How computed:**
 - For each syllable `s`, compute `morae(s)`.
 - `total_morae = sum_s morae(s)`.
 
 **Implementation detail:**
-- `morae(s)` is derived from the classified syllable type (CV, CVC, CVV, CVVC, and repaired types such as CVC:, CVV:, CVV:C), so repaired `~` operations increase total morae as expected.
+- `morae(s)` is derived from the classified syllable type (CV, CVC, CVV, CVVC, and accentuated types such as CVC:, CVV:, CVV:C), so accentuated `~` operations increase total morae as expected.
 
 **Unit:**
 - `mora`

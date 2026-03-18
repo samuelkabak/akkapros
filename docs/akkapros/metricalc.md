@@ -123,17 +123,17 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 | **Syllable types** | Distributions and counts of CV, CVC, CVV, etc. |
 | **Mora statistics** | Per syllable and per word |
 | **Merge statistics** | Words merged, units formed, average unit size |
-| **Prosody realization** | Repair rate, repairs by type |
+| **Prosody realization** | Accentuation rate, accentuation types |
 | **Acoustic/rhythmic metrics** | `%V`, `DeltaC`, `MeanC`, `VarcoC` |
 | **Speech and pause allocation** | Durations, ratios, corrections |
 
 ### Output Structure Highlights
 
-- **Mora statistics (original and repaired)** now include:
+- **Mora statistics (original and accentuated)** now include:
     - `Total morae number`
 - **Speech rate** is reported for both sections:
     - `Speech rate (original)`
-    - `Speech rate (repaired)`
+    - `Speech rate (accentuated)`
 - In table output, each speech-rate block appears before its corresponding acoustic block.
 - **ΔC** and **MeanC** are shown in both:
     - mora units
@@ -174,10 +174,10 @@ This correction affects table, JSON, and CSV outputs. It ensures that short paus
 
 ### New Fields Across Formats
 
-For both original and repaired outputs:
+For both original and accentuated outputs:
 
-- `mora_stats.total` (JSON) / `original_total_morae`, `rep_total_morae` (CSV)
-- speech metrics for original and repaired sections
+- `mora_stats.total` (JSON) / `original_total_morae`, `accentuated_total_morae` (CSV)
+- speech metrics for original and accentuated sections
 - `DeltaC` and `MeanC` in mora and seconds in the table
 
 ---

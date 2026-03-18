@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit - Moraic Prosody Realization System
 """
@@ -79,12 +79,12 @@ class Syllable:
         self.original_text = text
         self.word_idx = word_idx
         self.position_in_word = position_in_word
-        self.is_repaired = False
-        self.repair_type = None
+        self.is_accentuated = False
+        self.accentuation_type = None
         
         self.type, self.morae = self._classify(text)
-        self.repaired_morae = self.morae
-        self.repaired_text = text
+        self.accentuated_morae = self.morae
+        self.accentuated_text = text
         self.has_circumflex = any(c in CIRCUMFLEX for c in text)
     
     def _classify(self, text: str) -> Tuple[str, int]:
@@ -122,43 +122,43 @@ class Syllable:
             return False
         for i, c in enumerate(self.text):
             if c in LONG:
-                self.repaired_text = self.text[:i+1] + '~' + self.text[i+1:]
-                self.repaired_morae = self.morae + 1
-                self.is_repaired = True
-                self.repair_type = 'lengthen_vowel'
+                self.accentuated_text = self.text[:i+1] + '~' + self.text[i+1:]
+                self.accentuated_morae = self.morae + 1
+                self.is_accentuated = True
+                self.accentuation_type = 'lengthen_vowel'
                 return True
         return False
     
     def geminate_coda(self) -> bool:
         if not self.can_geminate_coda():
             return False
-        self.repaired_text = self.text + '~'
-        self.repaired_morae = self.morae + 1
-        self.is_repaired = True
-        self.repair_type = 'geminate_coda'
+        self.accentuated_text = self.text + '~'
+        self.accentuated_morae = self.morae + 1
+        self.is_accentuated = True
+        self.accentuation_type = 'geminate_coda'
         return True
     
     def geminate_onset(self) -> bool:
         if self.text[0] in C:
-            self.repaired_text = self.text[0] + '~' + self.text[1:]
-            self.repaired_morae = self.morae + 1
-            self.is_repaired = True
-            self.repair_type = 'geminate_onset'
+            self.accentuated_text = self.text[0] + '~' + self.text[1:]
+            self.accentuated_morae = self.morae + 1
+            self.is_accentuated = True
+            self.accentuation_type = 'geminate_onset'
             return True
         elif self.text[0] in V:
-            self.repaired_text = '~' + self.text
-            self.repaired_morae = self.morae + 1
-            self.is_repaired = True
-            self.repair_type = 'geminate_glottal'
+            self.accentuated_text = '~' + self.text
+            self.accentuated_morae = self.morae + 1
+            self.is_accentuated = True
+            self.accentuation_type = 'geminate_glottal'
             return True
         return False
     
-    def last_resort_repair(self) -> bool:
+    def last_resort_accentuation(self) -> bool:
         return self.geminate_onset()
     
     def __repr__(self):
-        status = "~" if self.is_repaired else ""
-        return f"{self.text}{status}({self.morae}→{self.repaired_morae})"
+        status = "~" if self.is_accentuated else ""
+        return f"{self.text}{status}({self.morae}→{self.accentuated_morae})"
 
 
 class Word:
@@ -191,18 +191,18 @@ class Word:
         return sum(s.morae for s in self.syllables)
     
     @property
-    def repaired_morae(self) -> int:
-        return sum(s.repaired_morae for s in self.syllables)
+    def accentuated_morae(self) -> int:
+        return sum(s.accentuated_morae for s in self.syllables)
     
     @property
-    def needs_repair(self) -> bool:
-        return self.repaired_morae % 2 == 1
+    def needs_accentuation(self) -> bool:
+        return self.accentuated_morae % 2 == 1
     
     def has_heavy_syllable(self) -> bool:
         """Check if word has any heavy syllable (CVC, CVV, etc.)"""
         return any(s.morae >= 2 for s in self.syllables)
     
-    def get_repair_candidates(self, style: AccentStyle) -> List[Dict]:
+    def get_accentuation_candidates(self, style: AccentStyle) -> List[Dict]:
         if self.is_function_word:
             return []
         
@@ -266,37 +266,37 @@ class Word:
         candidates.sort(key=lambda x: x['priority'])
         return candidates
     
-    def get_best_repair(self, style: AccentStyle) -> Optional[Dict]:
-        candidates = self.get_repair_candidates(style)
+    def get_best_accentuation(self, style: AccentStyle) -> Optional[Dict]:
+        candidates = self.get_accentuation_candidates(style)
         return candidates[0] if candidates else None
     
-    def apply_repair(self, repair: Dict) -> bool:
-        if not repair:
+    def apply_accentuation(self, accentuation: Dict) -> bool:
+        if not accentuation:
             return False
-        position = repair['position']
+        position = accentuation['position']
         syl = self.syllables[position]
-        repair_type = repair['type']
+        accentuation_type = accentuation['type']
         
-        if repair_type == 'lengthen_vowel':
+        if accentuation_type == 'lengthen_vowel':
             return syl.lengthen_vowel()
-        elif repair_type == 'geminate_coda':
+        elif accentuation_type == 'geminate_coda':
             return syl.geminate_coda()
-        elif repair_type == 'geminate_onset':
+        elif accentuation_type == 'geminate_onset':
             return syl.geminate_onset()
         return False
     
     def get_text(self) -> str:
-        """Get the word text with repairs and original separators."""
+        """Get the word text with accentuations and original separators."""
         result = []
         for i, syl in enumerate(self.syllables):
-            result.append(syl.repaired_text)
+            result.append(syl.accentuated_text)
             if i < len(self.separators):
                 result.append(self.separators[i])
         return ''.join(result)
     
     def get_text_flat(self) -> str:
         """Get text without dots or hyphens (for function words)."""
-        return ''.join(s.repaired_text for s in self.syllables)
+        return ''.join(s.accentuated_text for s in self.syllables)
     
     def __repr__(self):
         status = " (FUNC)" if self.is_function_word else ""
@@ -317,17 +317,17 @@ class MergedUnit:
             pos += len(w.syllables)
 
         # Optional explicit-link locking: words before the explicit-link tail
-        # are ineligible for repair candidates.
+        # are ineligible for accentuation candidates.
         locked_prefix_words = max(0, min(locked_prefix_words, len(words)))
         ineligible_count = sum(len(w.syllables) for w in words[:locked_prefix_words])
         self.pre_linker_syllables = set(range(ineligible_count))
     
     @property
     def morae(self) -> int:
-        return sum(s.repaired_morae for s in self.syllables)
+        return sum(s.accentuated_morae for s in self.syllables)
     
     @property
-    def needs_repair(self) -> bool:
+    def needs_accentuation(self) -> bool:
         return self.morae % 2 == 1
     
     def is_syllable_final_in_word(self, syl_idx: int) -> bool:
@@ -336,7 +336,7 @@ class MergedUnit:
     def is_syllable_before_linker(self, syl_idx: int) -> bool:
         return syl_idx in self.pre_linker_syllables
     
-    def get_best_repair(self, style: AccentStyle) -> Optional[Dict]:
+    def get_best_accentuation(self, style: AccentStyle) -> Optional[Dict]:
         candidates = []
         n_syllables = len(self.syllables)
         
@@ -383,18 +383,18 @@ class MergedUnit:
         candidates.sort(key=lambda x: x['priority'])
         return candidates[0] if candidates else None
     
-    def apply_repair(self, repair: Dict) -> bool:
-        if not repair:
+    def apply_accentuation(self, accentuation: Dict) -> bool:
+        if not accentuation:
             return False
-        position = repair['position']
+        position = accentuation['position']
         syl = self.syllables[position]
-        repair_type = repair['type']
+        accentuation_type = accentuation['type']
         
-        if repair_type == 'lengthen_vowel':
+        if accentuation_type == 'lengthen_vowel':
             return syl.lengthen_vowel()
-        elif repair_type == 'geminate_coda':
+        elif accentuation_type == 'geminate_coda':
             return syl.geminate_coda()
-        elif repair_type == 'geminate_onset':
+        elif accentuation_type == 'geminate_onset':
             return syl.geminate_onset()
         return False
 
@@ -488,7 +488,7 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
 
 
 # ------------------------------------------------------------
-# Diphthong restoration (always applied in repair output)
+# Diphthong restoration (always applied in accentuation output)
 # ------------------------------------------------------------
 
 from akkapros.lib.diphthongs import ALL_REPLACEMENTS
@@ -498,7 +498,7 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
     Restore diphthongs using generated regex patterns.
 
     Any residual DIPH_SEPARATOR characters are removed as a final safeguard,
-    so repaired output never exposes diphthong split markers.
+    so accentuated output never exposes diphthong split markers.
     """
     
     new_lines = []
@@ -520,13 +520,13 @@ class ProsodyEngine:
         self.stats = {
             'words': 0,
             'function_words': 0,
-            'words_repaired': 0,
+            'words_accentuated': 0,
             'merged_forward': 0,
             'merged_backward': 0,
             'last_resort': 0,
             'total_syllables': 0,
-            'repaired_syllables': 0,
-            'repair_types': {
+            'accentuated_syllables': 0,
+            'accentuation_types': {
                 'lengthen_vowel': 0,
                 'geminate_coda': 0,
                 'geminate_onset': 0,
@@ -536,44 +536,44 @@ class ProsodyEngine:
     
     def _update_last_resort_stats(self, syllable: Syllable):
         self.stats['last_resort'] += 1
-        self.stats['repaired_syllables'] += 1
+        self.stats['accentuated_syllables'] += 1
         if syllable.text[0] in C:
-            self.stats['repair_types']['geminate_onset'] += 1
+            self.stats['accentuation_types']['geminate_onset'] += 1
         else:
-            self.stats['repair_types']['geminate_glottal'] += 1
+            self.stats['accentuation_types']['geminate_glottal'] += 1
     
-    def rollback_repair(self, word: Word) -> None:
-        """Remove all repairs from a word."""
+    def rollback_accentuation(self, word: Word) -> None:
+        """Remove all accentuations from a word."""
         for syllable in word.syllables:
-            syllable.is_repaired = False
-            syllable.repair_type = None
-            syllable.repaired_morae = syllable.morae
-            syllable.repaired_text = syllable.text
+            syllable.is_accentuated = False
+            syllable.accentuation_type = None
+            syllable.accentuated_morae = syllable.morae
+            syllable.accentuated_text = syllable.text
 
-    def rollback_repair_stats(self, word: Word) -> None:
-        """Revert repair counters for repairs that are being rolled back."""
-        repaired_in_word = 0
+    def rollback_accentuation_stats(self, word: Word) -> None:
+        """Revert accentuation counters for accentuations that are being rolled back."""
+        accentuated_in_word = 0
         for syllable in word.syllables:
-            if syllable.is_repaired:
-                repaired_in_word += 1
-                self.stats['repaired_syllables'] = max(0, self.stats['repaired_syllables'] - 1)
-                repair_type = syllable.repair_type
-                if repair_type and repair_type in self.stats['repair_types']:
-                    self.stats['repair_types'][repair_type] = max(
-                        0, self.stats['repair_types'][repair_type] - 1
+            if syllable.is_accentuated:
+                accentuated_in_word += 1
+                self.stats['accentuated_syllables'] = max(0, self.stats['accentuated_syllables'] - 1)
+                accentuation_type = syllable.accentuation_type
+                if accentuation_type and accentuation_type in self.stats['accentuation_types']:
+                    self.stats['accentuation_types'][accentuation_type] = max(
+                        0, self.stats['accentuation_types'][accentuation_type] - 1
                     )
 
-        if repaired_in_word > 0:
-            self.stats['words_repaired'] = max(0, self.stats['words_repaired'] - 1)
+        if accentuated_in_word > 0:
+            self.stats['words_accentuated'] = max(0, self.stats['words_accentuated'] - 1)
 
-    def _get_explicit_group_repair(self, unit: MergedUnit) -> Optional[Dict]:
-        """Pick repair site for explicit '+' groups.
+    def _get_explicit_group_accentuation(self, unit: MergedUnit) -> Optional[Dict]:
+        """Pick accentuation site for explicit '+' groups.
 
         - only_last=True: use standard model priorities, with pre-linker lock.
         - only_last=False: allow propagation and choose the rightmost legal site.
         """
         if self.only_last:
-            return unit.get_best_repair(self.style)
+            return unit.get_best_accentuation(self.style)
 
         n_syllables = len(unit.syllables)
         for i in range(n_syllables - 1, -1, -1):
@@ -603,7 +603,7 @@ class ProsodyEngine:
 
         return None
     
-    def repair_line(self, tokens: List[Union[Word, str]]) -> str:
+    def accentuation_line(self, tokens: List[Union[Word, str]]) -> str:
         if not tokens:
             return ""
         
@@ -652,14 +652,14 @@ class ProsodyEngine:
 
                 def resolve_group(words_group: List[Word]) -> Tuple[bool, bool]:
                     unit = MergedUnit(words_group, locked_prefix_words=explicit_tail_start)
-                    if not unit.needs_repair:
+                    if not unit.needs_accentuation:
                         return True, False
-                    repair = self._get_explicit_group_repair(unit)
-                    if repair:
-                        unit.apply_repair(repair)
-                        self.stats['words_repaired'] += 1
-                        self.stats['repaired_syllables'] += 1
-                        self.stats['repair_types'][repair['type']] += 1
+                    accentuation = self._get_explicit_group_accentuation(unit)
+                    if accentuation:
+                        unit.apply_accentuation(accentuation)
+                        self.stats['words_accentuated'] += 1
+                        self.stats['accentuated_syllables'] += 1
+                        self.stats['accentuation_types'][accentuation['type']] += 1
                         return True, True
                     return False, False
 
@@ -676,7 +676,7 @@ class ProsodyEngine:
                     i = j + 1
                     continue
 
-                # If explicit group cannot be repaired, keep merging forward
+                # If explicit group cannot be accentuated, keep merging forward
                 # with following words until punctuation or successful resolution.
                 k = j + 1
                 merged_forward_used = False
@@ -701,7 +701,7 @@ class ProsodyEngine:
                     # Still unresolved at punctuation/end: last resort on the
                     # first syllable of the last word in the merged explicit group.
                     last_word = merged_group[-1]
-                    if last_word.syllables and last_word.syllables[0].last_resort_repair():
+                    if last_word.syllables and last_word.syllables[0].last_resort_accentuation():
                         self._update_last_resort_stats(last_word.syllables[0])
                     append_group(merged_group)
                     if merged_forward_used:
@@ -752,16 +752,16 @@ class ProsodyEngine:
                     for idx in range(len(result_parts) - 1, -1, -1):
                         part = result_parts[idx]
                         if isinstance(part, str) and not part.endswith(WORD_LINKER) and not part.startswith(WORD_LINKER):
-                            # Found a content word - need to rollback if it was repaired
+                            # Found a content word - need to rollback if it was accentuated
                             # Find the original word object for this content
                             matched_prev_word: Union[Word, None] = None
                             for word_idx in range(i-1, -1, -1):
                                 prev_token = tokens[word_idx]
                                 if not isinstance(prev_token, str) and not prev_token.is_function_word:
                                     if prev_token.get_text() in part or prev_token.get_text_flat() in part:
-                                        # Rollback any repairs on this word
-                                        self.rollback_repair_stats(prev_token)
-                                        self.rollback_repair(prev_token)
+                                        # Rollback any accentuations on this word
+                                        self.rollback_accentuation_stats(prev_token)
+                                        self.rollback_accentuation(prev_token)
                                         matched_prev_word = prev_token
                                         break
                             
@@ -797,18 +797,18 @@ class ProsodyEngine:
             # ===== CONTENT WORD HANDLING =====
             
             # Check if word is already even
-            if not word.needs_repair:
+            if not word.needs_accentuation:
                 result_parts.append(word.get_text())
                 i += 1
                 continue
             
-            # Try internal repair
-            repair = word.get_best_repair(self.style)
-            if repair:
-                word.apply_repair(repair)
-                self.stats['words_repaired'] += 1
-                self.stats['repaired_syllables'] += 1
-                self.stats['repair_types'][repair['type']] += 1
+            # Try internal accentuation
+            accentuation = word.get_best_accentuation(self.style)
+            if accentuation:
+                word.apply_accentuation(accentuation)
+                self.stats['words_accentuated'] += 1
+                self.stats['accentuated_syllables'] += 1
+                self.stats['accentuation_types'][accentuation['type']] += 1
                 result_parts.append(word.get_text())
                 i += 1
                 continue
@@ -816,9 +816,9 @@ class ProsodyEngine:
             # Try merging forward
             merged = [word]
             j = i + 1
-            repaired = False
+            accentuated = False
             
-            while j < n and not repaired:
+            while j < n and not accentuated:
                 next_token = tokens[j]
                 if isinstance(next_token, str):
                     break
@@ -826,39 +826,39 @@ class ProsodyEngine:
                 merged.append(next_token)
                 unit = MergedUnit(merged)
                 
-                if not unit.needs_repair:
+                if not unit.needs_accentuation:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
                             result_parts.append(WORD_LINKER)
                     i = j + 1
-                    repaired = True
+                    accentuated = True
                     self.stats['merged_forward'] += 1
                     break
                 
-                repair = unit.get_best_repair(self.style)
-                if repair:
-                    unit.apply_repair(repair)
-                    self.stats['words_repaired'] += 1
-                    self.stats['repaired_syllables'] += 1
-                    self.stats['repair_types'][repair['type']] += 1
+                accentuation = unit.get_best_accentuation(self.style)
+                if accentuation:
+                    unit.apply_accentuation(accentuation)
+                    self.stats['words_accentuated'] += 1
+                    self.stats['accentuated_syllables'] += 1
+                    self.stats['accentuation_types'][accentuation['type']] += 1
                     
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
                             result_parts.append(WORD_LINKER)
                     i = j + 1
-                    repaired = True
+                    accentuated = True
                     self.stats['merged_forward'] += 1
                     break
                 
                 j += 1
             
-            if repaired:
+            if accentuated:
                 continue
             
             # Last resort
-            if word.syllables[-1].last_resort_repair():
+            if word.syllables[-1].last_resort_accentuation():
                 self._update_last_resort_stats(word.syllables[-1])
                 result_parts.append(word.get_text())
             else:
@@ -870,7 +870,7 @@ class ProsodyEngine:
     def process_file(self, input_file: str, output_file: str):
         
         print(f"\n{'='*80}")
-        print(f"AKKADIAN PROSODY TOOLKIT — REPAIR ENGINE v{__version__}")
+        print(f"AKKADIAN PROSODY TOOLKIT — ACCENTUATION ENGINE v{__version__}")
         print(f"{'='*80}")
         print(f"Input:  {input_file}")
         print(f"Output: {output_file}")
@@ -894,8 +894,8 @@ class ProsodyEngine:
                 output_lines.append('')
                 continue
             tokens = parse_syl_line(line)
-            repaired_line = self.repair_line(tokens)
-            output_lines.append(repaired_line)
+            accentuated_line = self.accentuation_line(tokens)
+            output_lines.append(accentuated_line)
 
             if (line_num + 1) % 10 == 0:
                 print(f"  Processed {line_num + 1}/{len(lines)} lines...")
@@ -911,28 +911,28 @@ class ProsodyEngine:
 
     def _print_stats(self):
         print(f"\n{'='*80}")
-        print("REPAIR STATISTICS")
+        print("ACCENTUATION STATISTICS")
         print(f"{'='*80}")
         print(f"Words processed:       {self.stats['words']:6d}")
         print(f"  Function words:      {self.stats['function_words']:6d}")
         print(f"  Content words:       {self.stats['words'] - self.stats['function_words']:6d}")
-        print(f"Words repaired:        {self.stats['words_repaired']:6d}")
+        print(f"Words accentuated:        {self.stats['words_accentuated']:6d}")
         print(f"Total syllables:       {self.stats['total_syllables']:6d}")
-        print(f"Repaired syllables:    {self.stats['repaired_syllables']:6d}")
+        print(f"Accentuated syllables:    {self.stats['accentuated_syllables']:6d}")
         
         if self.stats['total_syllables'] > 0:
-            rate = self.stats['repaired_syllables'] / self.stats['total_syllables'] * 100
-            print(f"Repair rate:           {rate:5.2f}%")
+            rate = self.stats['accentuated_syllables'] / self.stats['total_syllables'] * 100
+            print(f"Accentuation rate:           {rate:5.2f}%")
         
-        print(f"\nRepair types:")
-        for rtype, count in self.stats['repair_types'].items():
+        print(f"\nAccentuation types:")
+        for rtype, count in self.stats['accentuation_types'].items():
             if count > 0:
                 print(f"  {rtype:20s} {count:6d}")
         
         print(f"\nMerge operations:")
         print(f"  Forward merges:      {self.stats['merged_forward']:6d}")
         print(f"  Backward merges:     {self.stats['merged_backward']:6d}")
-        print(f"  Last resort repairs: {self.stats['last_resort']:6d}")
+        print(f"  Last resort accentuations: {self.stats['last_resort']:6d}")
         print(f"{'='*80}\n")
 
 
@@ -985,7 +985,7 @@ def run_tests():
     test_cases = [
         # ===== BASIC TESTS (original 6) =====
         {
-            'name': 'Basic line with merge and repair',
+            'name': 'Basic line with merge and accentuation',
             'input': 'šar¦gi·mir¦dad·mē¦bā·nû¦kib·rā·ti¦⟦ ···⟧',
             'expected': {
                 'lob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti ···',
@@ -993,7 +993,7 @@ def run_tests():
             }
         },
         {
-            'name': 'Line with multiple repairs',
+            'name': 'Line with multiple accentuation operations',
             'input': 'ḫen·dur·san·ga¦a·pil¦el·lil¦rēš·tû¦⟦ ···⟧',
             'expected': {
                 'lob': 'ḫen·dur·san~·ga a·pil+el~·lil rēš·tû~ ···',
@@ -1035,7 +1035,7 @@ def run_tests():
         
         # ===== HYPHEN TESTS =====
         {
-            'name': 'Word with hyphen - even morae (no repair)',
+            'name': 'Word with hyphen - even morae (no accentuation)',
             'input': 'kam-du·tûm-lû¦',  # 2+1+3+2 = 8 (EVEN)
             'expected': {
                 'lob': 'kam-du·tûm-lû',
@@ -1043,7 +1043,7 @@ def run_tests():
             }
         },
         {
-            'name': 'Word with hyphen - odd morae (repair needed)',
+            'name': 'Word with hyphen - odd morae (accentuation needed)',
             'input': 'kam-du·tûm-lû·ma¦',  # 2+1+3+2+1 = 9 (ODD)
             'expected': {
                 'lob': 'kam-du·tûm-lû~·ma',
@@ -1061,7 +1061,7 @@ def run_tests():
         
         # ===== ENCLITIC -MA TESTS =====
         {
-            'name': 'Word with -ma enclitic - even morae (no repair)',
+            'name': 'Word with -ma enclitic - even morae (no accentuation)',
             'input': 'ip-pa-lis-ma¦',  # ip-pa-lis-ma = 2+1+2+1 = 6 (EVEN)
             'expected': {
                 'lob': 'ip-pa-lis-ma',
@@ -1069,7 +1069,7 @@ def run_tests():
             }
         },
         {
-            'name': 'Word with -ma enclitic - odd morae (repair needed)',
+            'name': 'Word with -ma enclitic - odd morae (accentuation needed)',
             'input': 'ī·ris·sū-ma¦',  # ī·ris·sū-ma = 2+2+2+1 = 7 (ODD)
             'expected': {
                 'lob': 'ī·ris·sū~-ma',
@@ -1079,7 +1079,7 @@ def run_tests():
         
         # ===== MIXED SEPARATORS =====
         {
-            'name': 'Mixed dots and hyphens - odd morae (repair needed)',
+            'name': 'Mixed dots and hyphens - odd morae (accentuation needed)',
             'input': 'hen·dur-san·ga¦',  # hen·dur-san·ga = 2+2+2+1 = 7 (ODD)
             'expected': {
                 'lob': 'hen·dur-san~·ga',
@@ -1107,7 +1107,7 @@ def run_tests():
 
         # ===== EXPLICIT '+' FROM INPUT TESTS =====
         {
-            'name': 'Explicit plus forms one repair unit',
+            'name': 'Explicit plus forms one accentuation unit',
             'input': 'a·pil+el·lil¦',
             'expected': {
                 'lob': 'a·pil+el~·lil',
@@ -1115,7 +1115,7 @@ def run_tests():
             }
         },
         {
-            'name': 'Explicit plus keeps repair on linked tail (default strict)',
+            'name': 'Explicit plus keeps accentuation on linked tail (default strict)',
             'input': 'bā·nû+a·pil¦',
             'expected': {
                 'lob': 'bā·nû+~a·pil',
@@ -1178,7 +1178,7 @@ def run_tests():
         for test in test_cases:
             total += 1
             tokens = parse_syl_line(test['input'])
-            result = engine.repair_line(tokens)
+            result = engine.accentuation_line(tokens)
             expected = test['expected'][style.value]
             
             # Normalize spaces for comparison
@@ -1208,7 +1208,7 @@ def run_tests():
             }
         },
         {
-            'name': 'relax_last still allows final linked repair in 3-word chain',
+            'name': 'relax_last still allows final linked accentuation in 3-word chain',
             'input': 'bā·nû+a·pil+el·lil¦',
             'expected': {
                 'lob': 'bā·nû+a·pil+el~·lil',
@@ -1216,7 +1216,7 @@ def run_tests():
             }
         },
         {
-            'name': 'relax_last may repair before linked tail when legal',
+            'name': 'relax_last may place accentuation before linked tail when legal',
             'input': 'bā·nû+a·na·ku¦šar·ri¦',
             'expected': {
                 'lob': 'bā·nû~+a·na·ku šar~·ri',
@@ -1238,7 +1238,7 @@ def run_tests():
         engine = ProsodyEngine(style=style, only_last=False)
         for test in relaxed_cases:
             tokens = parse_syl_line(test['input'])
-            result = engine.repair_line(tokens)
+            result = engine.accentuation_line(tokens)
             expected = test['expected'][style.value]
 
             result = ' '.join(result.split())
@@ -1258,6 +1258,7 @@ def run_tests():
     print(f"{'='*80}\n")
     
     return all_passed
+
 
 
 
