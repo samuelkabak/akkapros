@@ -41,6 +41,13 @@ By participating in this project, you agree to abide by our Code of Conduct: be 
 
 ---
 
+## Docs Indexes
+
+- [ADR Index](docs/internal/adr/index.md) | Architecture Decision Records
+- [CR Index](docs/internal/cr/index.md) | Change Requests (after v1.0.1)
+- [Spec Index](docs/internal/specs/index.md) | Requirements and short specifications
+
+
 ## 🔧 Development Environment
 
 ### Prerequisites
