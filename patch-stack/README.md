@@ -81,3 +81,4 @@ Use this same patch-stack approach for research/open-source codebases that are n
 - Add one-line rationale in each patch header (problem and platform scope).
 - Add apply/revert helpers only when needed for repeated workflows.
 - Avoid redistributing modified upstream binaries unless required.
+

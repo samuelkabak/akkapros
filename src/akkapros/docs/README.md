@@ -13,3 +13,4 @@ Before packaging, docs are synced from `docs/akkapros/` into this directory by:
 
 - `python scripts/sync_docs.py`
 - `python scripts/build_package.py` (runs sync automatically, then builds)
+

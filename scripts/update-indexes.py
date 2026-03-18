@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Update docs/adr/index.md and docs/cr/index.md from source files.
+"""Update docs/internal/adr/index.md and docs/internal/cr/index.md from source files.
 
 Behavior:
-- ADR index: list markdown ADR files in `docs/adr/*.md` (excluding `index.md` and templates),
+- ADR index: list markdown ADR files in `docs/internal/adr/*.md` (excluding `index.md` and templates),
   extract title and Status header, sort by number descending and write lines like:
   - [015. Title](015-slug.md) - Accepted
 
-- CR index: list subdirectories in `docs/cr/` that contain `CR.md`, extract CR number,
+- CR index: list subdirectories in `docs/internal/cr/` that contain `CR.md`, extract CR number,
   title and Status, sort by number ascending and write lines like:
   [001. Title](001-slug/CR.md) - Draft
 
@@ -20,8 +20,9 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
-ADR_DIR = DOCS / "adr"
-CR_DIR = DOCS / "cr"
+ADR_DIR = DOCS / "internal" / "adr"
+CR_DIR = DOCS / "internal" / "cr"
+SPEC_DIR = DOCS / "internal" / "specs"
 
 
 def read_header(index_path, entry_starts):
@@ -145,12 +146,47 @@ def build_cr_index():
 
 
 def main():
-    if not ADR_DIR.exists() or not CR_DIR.exists():
-        print("Error: expected docs/adr and docs/cr directories under repo root.")
+    missing = [p for p in (ADR_DIR, CR_DIR, SPEC_DIR) if not p.exists()]
+    if missing:
+        print("Error: expected docs/internal/adr, docs/internal/cr and docs/internal/specs directories.")
+        for m in missing:
+            print("  Missing:", m)
         sys.exit(1)
     build_adr_index()
     build_cr_index()
+    build_spec_index()
+
+
+def build_spec_index():
+    index_path = SPEC_DIR / "index.md"
+    header = read_header(index_path, entry_starts=("- ",))
+
+    entries = []
+    for p in SPEC_DIR.glob("*.md"):
+        if p.name in ("index.md", "000-req-template.md"):
+            continue
+        m = re.match(r"^(\d{3})-(.+)\.md$", p.name)
+        if not m:
+            continue
+        num = int(m.group(1))
+        status = None
+        title = None
+        # extract Status and title
+        status, title = extract_status_and_title(p)
+        if title:
+            title = re.sub(r"^\d+\.\s*", "", title)
+        else:
+            title = m.group(2).replace("-", " ")
+        display = f"{num:03d}. {title}"
+        entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
+        entries.append((num, entry))
+
+    entries.sort(key=lambda x: x[0])
+    body = "\n".join(e for _, e in entries) + "\n"
+    index_path.write_text(header + body, encoding="utf-8")
+    print(f"Updated {index_path}")
 
 
 if __name__ == '__main__':
     main()
+

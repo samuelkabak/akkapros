@@ -157,7 +157,13 @@ Place test files in `tests/data/`. Use small, representative samples.
 2. **Run the full test suite** to ensure everything passes
 3. **Run formatters and linters** to ensure code quality
 4. **Update documentation** if your changes affect user-facing behavior
-5. **Update `CHANGELOG.md`** with your changes under the "Unreleased" section
+5. **Create or update ADRs/CRs and specs** when making design or API changes:
+       - Follow the ADR-first workflow: write an ADR to record the decision, then open a CR that implements it.
+       - Place ADRs and change requests under `docs/internal/adr/` and `docs/internal/cr/` respectively.
+       - Add or update a spec in `docs/internal/specs/` for detailed requirements and implementation notes.
+       - Run `python scripts/update-indexes.py` after adding or moving docs to regenerate indexes.
+
+6. **Update `CHANGELOG.md`** with your changes under the "Unreleased" section
 
 ### Submitting
 
