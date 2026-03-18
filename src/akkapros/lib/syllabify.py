@@ -570,13 +570,13 @@ def run_tests() -> bool:
         ("Word linker + preserve", "apilellil+gimirdadmē", "a·pi·lel·lil+gi·mir·dad·mē¦"),
         ("Word linker + with syllabic words", "apil+ellil", "a·pil+el·lil¦"),
         ("Mixed + and - separators", "apil+el-lil", "a·pil+el-lil¦"),
-        ("Hyphen at beginning", "-šar", "‹-›šar¦"),
-        ("Hyphen at end", "šar-", "šar‹-›¦"),
-        ("Linker at beginning", "+šar", "‹+›šar¦"),
-        ("Linker at end", "šar+", "šar‹+›¦"),
+        ("Hyphen at beginning", "-šar", "⟦-⟧šar¦"),
+        ("Hyphen at end", "šar-", "šar⟦-⟧¦"),
+        ("Linker at beginning", "+šar", "⟦+⟧šar¦"),
+        ("Linker at end", "šar+", "šar⟦+⟧¦"),
         
         # ===== DASH VS HYPHEN =====
-        ("Dash with spaces", "ḫendur - sanga", "ḫen·dur¦‹ - ›san·ga¦"),
+        ("Dash with spaces", "ḫendur - sanga", "ḫen·dur¦⟦ - ⟧san·ga¦"),
         ("Hyphen+space", "ḫendur- sanga", "ḫen·dur-¦san·ga¦"),
         ("Space+hyphen", "ḫendur -sanga", "ḫen·dur¦-san·ga¦"),
         
@@ -586,33 +586,33 @@ def run_tests() -> bool:
         ("Tab between words", "šar\tgimir", "šar¦gi·mir¦"),
         ("Newline between words", "šar\ngimir", "šar¦gi·mir¦"),
         ("Hyphen split across lines merge", "ḫendur-\nsanga", "ḫen·dur·san·ga¦", True),
-        ("Spaced hyphen across lines no merge", "ḫendur -\nsanga", "ḫen·dur¦‹ - ›san·ga¦"),
+        ("Spaced hyphen across lines no merge", "ḫendur -\nsanga", "ḫen·dur¦⟦ - ⟧san·ga¦"),
         ("Word linker split across lines", "apil+\nellil", "a·pil+el·lil¦"),
-        ("Spaced linker across lines no merge", "apil +\nellil", "a·pil¦‹ + ›el·lil¦"),
+        ("Spaced linker across lines no merge", "apil +\nellil", "a·pil¦⟦ + ⟧el·lil¦"),
         ("Double newline", "šar\n\ngimir", "šar¦\ngi·mir¦"),
         ("Preserve lines single newline", "šar\ngimir", "šar¦\ngi·mir¦", False, True),
         
         # ===== NUMBERS AND NON-AKKADIAN =====
-        ("Number between words", "šar 123 gimir", "šar¦‹ 123 ›gi·mir¦"),
-        ("Number with commas", "šar 12,345 gimir", "šar¦‹ 12,345 ›gi·mir¦"),
-        ("Number with newline", "šar 123\n456 gimir", "šar¦‹ 123 456 ›gi·mir¦"),
-        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦‹ 123 456 ›gi·mir¦"),
-        ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar¦‹ 123  \t-  456 ›gi·mir¦"),
+        ("Number between words", "šar 123 gimir", "šar¦⟦ 123 ⟧gi·mir¦"),
+        ("Number with commas", "šar 12,345 gimir", "šar¦⟦ 12,345 ⟧gi·mir¦"),
+        ("Number with newline", "šar 123\n456 gimir", "šar¦⟦ 123 456 ⟧gi·mir¦"),
+        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦⟦ 123 456 ⟧gi·mir¦"),
+        ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar¦⟦ 123  \t-  456 ⟧gi·mir¦"),
         
         # ===== PUNCTUATION =====
-        ("Comma after word", "šar, gimir", "šar¦‹, ›gi·mir¦"),
-        ("Period after word", "šar· gimir", "šar¦‹· ›gi·mir¦"),
-        ("Em-dash", "šar — gimir", "šar¦‹ — ›gi·mir¦"),
-        ("Ellipsis", "šar … gimir", "šar¦‹ … ›gi·mir¦"),
+        ("Comma after word", "šar, gimir", "šar¦⟦, ⟧gi·mir¦"),
+        ("Period after word", "šar· gimir", "šar¦⟦· ⟧gi·mir¦"),
+        ("Em-dash", "šar — gimir", "šar¦⟦ — ⟧gi·mir¦"),
+        ("Ellipsis", "šar … gimir", "šar¦⟦ … ⟧gi·mir¦"),
         
         # ===== FOREIGN CHARACTERS =====
-        ("Chinese characters", "šar 国王 gimir", "šar¦‹ 国王 ›gi·mir¦"),
-        ("Foreign character in word", "šar? gimir[test]done", "šar¦‹? ›gi·mir¦‹[test]›d¦‹o›ne¦"),
-        ("Mixed with brackets", "šar gimir [jamal@gmail·com] muḫḫi.", "šar¦gi·mir¦‹ [jamal@gmail·com] ›muḫ·ḫi¦‹.›"),
+        ("Chinese characters", "šar 国王 gimir", "šar¦⟦ 国王 ⟧gi·mir¦"),
+        ("Foreign character in word", "šar? gimir[test]done", "šar¦⟦? ⟧gi·mir¦⟦[test]⟧d¦⟦o⟧ne¦"),
+        ("Mixed with brackets", "šar gimir [jamal@gmail·com] muḫḫi.", "šar¦gi·mir¦⟦ [jamal@gmail·com] ⟧muḫ·ḫi¦⟦.⟧"),
         
         # ===== REAL EXAMPLES =====
         ("Complex line", "ikkaru ina muḫḫi … — ibakki ṣarpiš", 
-         "ik·ka·ru¦i·na¦muḫ·ḫi¦‹ … — ›i·bak·ki¦ṣar·piš¦"),
+         "ik·ka·ru¦i·na¦muḫ·ḫi¦⟦ … — ⟧i·bak·ki¦ṣar·piš¦"),
         
         # ===== DIPHTHONG TESTS =====
         ("Diphthong ua", "ua", "u·ʾa¦"),

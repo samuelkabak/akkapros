@@ -38,8 +38,8 @@ SYL_WORD_ENDING = '¦'       # marker used by the syllabifier
 SYL_SEPARATOR = '·'          # separator between syllables in the syllabifier output
 HYPHEN = '-'
 WORD_LINKER = '+'
-OPEN_ESCAPE = '‹'
-CLOSE_ESCAPE = '›'
+OPEN_ESCAPE = '⟦'
+CLOSE_ESCAPE = '⟧'
 
 OPEN_IGNORE = '['
 CLOSE_IGNORE = ']'

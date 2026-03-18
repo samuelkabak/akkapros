@@ -68,7 +68,7 @@ The `*_syl.txt` file uses these markers:
 | `¦` | Word-ending marker |
 | `-` | Hyphen boundary (unless merged with `--merge-hyphen`) |
 | `+` | Linker boundary (prosodic attachment) |
-| `‹...›` | Escaped punctuation or non-word segments |
+| `⟦...⟧` | Escaped punctuation or non-word segments |
 
 ---
 
@@ -106,7 +106,8 @@ The `*_syl.txt` file uses these markers:
 
 - **Diphthong handling**: The library may insert glottal stops between adjacent vowels for diphthong expansion (e.g., `ua` → `u·ʾa`). These are later restored by `prosmaker.py`.
 - **Hyphen and linker behavior** is context-sensitive and follows Akkadian morphological boundaries.
-- **Punctuation** is preserved as escaped material (`‹...›`) and is not syllabified as Akkadian words.
+- **Punctuation** is preserved as escaped material (`⟦...⟧`) and is not syllabified as Akkadian words.
+ - **Note:** The characters `‹` and `›` may legitimately appear in input text and are not used as escape delimiters; the syllabifier and pipeline reserve `⟦` and `⟧` for escaping punctuation or non-Akkadian material.
 - **Word endings** are explicitly marked with `¦` for downstream processing.
 
 ---

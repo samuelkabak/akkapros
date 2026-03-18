@@ -70,3 +70,40 @@ After running the command, check these files in the `outputs/` directory:
 - Check existing issues on GitHub
 - Open a new issue with your question
 - Include your operating system, Python version, and the exact command you ran
+
+---
+
+## Running Tests
+
+- Tests expect the `akkapros` package to be importable. In this repo we use a `src/` layout, so Python will not find `akkapros` unless you either install the package or add `src` to `PYTHONPATH`.
+
+- Recommended (editable install from project root):
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -e .
+python -m pytest -q
+```
+
+- Quick alternative (temporary):
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -m pytest -q
+```
+
+- Why this is necessary: an editable install (`-e .`) creates an importable package that points to the working tree, so tests can import `akkapros` while you continue editing code. Without it, imports fail during test collection because Python doesn't search `src/` by default.
+
+---
+
+### Pipeline CLI self-tests
+
+Several pipeline components include small module-level self-tests useful for quick verification. From the project root you can run these CLI test harnesses:
+
+```powershell
+python .\src\akkapros\cli\fullprosmaker.py --test-all
+python .\src\akkapros\cli\atfparser.py --test
+python .\src\akkapros\cli\phoneprep.py --test
+```
+
+Note: while these CLI tests exercise individual stages, the full `pytest` test-suite assumes the package is importable. We recommend installing the package (editable or regular) before running `pytest` as shown above.

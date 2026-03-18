@@ -59,7 +59,7 @@ Example
 ~~~~~~~
 Input: šar gimir {{English word, email@example.com}} bānû
 
-Output: šar¦gi·mir¦‹ {{English word, email@example.com}} ›bā·nû¦
+Output: šar¦gi·mir¦⟦ {{English word, email@example.com}} ⟧bā·nû¦
 
 Note: because this changes output format, document migration steps for users who programmatically parse existing pipeline outputs.
 
