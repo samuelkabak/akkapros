@@ -24,4 +24,12 @@ Commits since release `v1.0.1`:
 		- `rep_sps_speech` → `accentuated_sps_speech`
 		- `rep_ΔC_seconds` → `accentuated_ΔC_seconds`
 
+- `CR-005` (2026-03-18) — Escape syntax migration from bracket escapes to CR-005 forms:
+	- New preserved forms: `{{text}}` and `{tag{text}}` (tag regex `[0-9a-z_]{1,16}`)
+	- Internal tags begin with `_` and are reserved for pipeline-internal handling
+	- Nested escapes are intentionally unsupported
+	- `syllabify.py`, `prosody.py`, and `print.py` updated to parse/preserve new forms
+	- IPA printer now emits `⟨escape:{{...}}⟩` or `⟨escape:{tag{...}}⟩`
+	- Added migration helper: `scripts/migrate-escapes.py`
+
 

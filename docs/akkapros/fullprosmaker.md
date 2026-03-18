@@ -201,6 +201,13 @@ Execution order is **fixed** and cannot be changed:
 
 The command exits with non-zero status if any stage fails, making it suitable for scripting and batch processing.
 
+Escaped chunks are preserved through the full pipeline using CR-005 syntax:
+
+- `{{text}}`
+- `{tag{text}}` where `tag` matches `[0-9a-z_]{1,16}`
+
+Internal tags begin with `_` and are reserved for pipeline-internal handling conventions.
+
 ---
 
 ## 🔗 Related Commands

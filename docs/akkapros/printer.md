@@ -141,6 +141,13 @@ Full phonetic transcription with:
 
 Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
 
+Escaped chunks from earlier stages are preserved in IPA metadata as:
+
+- `⟨escape:{{text}}⟩`
+- `⟨escape:{tag{text}}⟩`
+
+Tags follow `[0-9a-z_]{1,16}`. Tags beginning with `_` are internal pipeline tags and are preserved verbatim unless a dedicated expansion rule is added.
+
 ### XAR Format (`_xar.txt` and `_accent_xar.txt`)
 
 Specialized transliteration with:

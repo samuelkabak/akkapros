@@ -482,8 +482,11 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
         if i < len(combined) - 1 and is_word(combined[i]) and is_word(combined[i + 1]):
             result.append(' ')
         i += 1
-    
-    return ''.join(result)
+
+    assembled = ''.join(result)
+    # Join-time normalization avoids duplicate spacing introduced by escaped chunks.
+    assembled = re.sub(r' {2,}', ' ', assembled)
+    return assembled.strip()
 
 
 

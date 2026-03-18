@@ -79,6 +79,15 @@ All results are fully reproducible using the included demo scripts.
 | [CR Index](docs/internal/cr/index.md) | Architecture Decision Records (after v1.0.1) |
 | [Spec Index](docs/internal/specs/index.md) | Requirements and short specifications |
 
+### Escape Syntax (CR-005)
+
+The pipeline now preserves escaped non-Akkadian chunks using:
+
+- `{{text}}` (plain)
+- `{tag{text}}` (tagged, `tag` matches `[0-9a-z_]{1,16}`)
+
+Internal tags begin with `_` and are reserved for pipeline-internal behavior. Nested escape blocks are intentionally unsupported.
+
 ---
 
 ## 🧪 Testing

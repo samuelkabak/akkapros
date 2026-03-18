@@ -70,6 +70,12 @@ The `*_syl.txt` file uses these markers:
 | `+` | Linker boundary (prosodic attachment) |
 | `⟦...⟧` | Escaped punctuation or non-word segments |
 
+Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
+
+- `{{text}}` (plain escaped chunk)
+- `{tag{text}}` (tagged escape, `tag` matches `[0-9a-z_]{1,16}`)
+- Internal tags start with `_` (for pipeline-internal commands), e.g. `{_mdf{---}}`
+
 ---
 
 ## 💡 Typical Usage Examples
@@ -107,7 +113,8 @@ The `*_syl.txt` file uses these markers:
 - **Diphthong handling**: The library may insert glottal stops between adjacent vowels for diphthong expansion (e.g., `ua` → `u·ʾa`). These are later restored by `prosmaker.py`.
 - **Hyphen and linker behavior** is context-sensitive and follows Akkadian morphological boundaries.
 - **Punctuation** is preserved as escaped material (`⟦...⟧`) and is not syllabified as Akkadian words.
- - **Note:** The characters `‹` and `›` may legitimately appear in input text and are not used as escape delimiters; the syllabifier and pipeline reserve `⟦` and `⟧` for escaping punctuation or non-Akkadian material.
+- **Escapes in source text**: `{{text}}` and `{tag{text}}` are preserved verbatim, wrapped as `⟦...⟧`, and excluded from Akkadian syllabification.
+- **Nested escapes** are intentionally unsupported; only `{{...}}` and one-level `{tag{...}}` are recognized.
 - **Word endings** are explicitly marked with `¦` for downstream processing.
 
 ---

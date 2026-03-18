@@ -26,8 +26,11 @@ from akkapros.lib.constants import (
     WORD_LINKER,
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
+    OPEN_PRESERVE,
+    CLOSE_PRESERVE,
+    TAG_PRESERVE_RE,
 )
-from akkapros.lib.syllabify import split_by_brackets_level3
+from akkapros.lib.syllabify import split_by_escape_segments
 
 __version__ = "1.0.1"
 __author__ = "Samuel KABAK"
@@ -689,49 +692,22 @@ def _append_non_word_char(out: list, char: str, mode: str) -> None:
     out.append(char)
 
 
-def _convert_mixed_bracket_part_ipa(
-    part: str,
-    ipa_mode: str = 'ipa-ob',
-    circ_hiatus: bool = False,
-) -> str:
-    """Convert IPA in mixed parts: emit [ ... ] content as escale tags, process outside text."""
-    out = []
-    current_word = []
-    inside_brackets = False
-    bracket_content = []
+def _is_escape_segment(segment: str) -> bool:
+    """Return True when segment matches one supported CR-005 escape form."""
+    if segment.startswith(OPEN_PRESERVE) and segment.endswith(CLOSE_PRESERVE):
+        return True
+    if re.fullmatch(rf'\{{{TAG_PRESERVE_RE}\{{[^{{}}]*\}}\}}', segment):
+        return True
+    return False
 
-    def flush_word() -> None:
-        if current_word:
-            out.append(_convert_word(''.join(current_word), 'ipa', ipa_mode, circ_hiatus=circ_hiatus))
-            current_word.clear()
 
-    for char in part:
-        if char == '[':
-            flush_word()
-            inside_brackets = True
-            bracket_content = ['[']
-            continue
-        if char == ']':
-            flush_word()
-            if inside_brackets:
-                bracket_content.append(']')
-                _append_ipa_escape(out, ''.join(bracket_content))
-                bracket_content = []
-                inside_brackets = False
-            else:
-                out.append(char)
-            continue
-
-        if inside_brackets:
-            bracket_content.append(char)
-        elif _is_word_char(char):
-            current_word.append(char)
-        else:
-            flush_word()
-            _append_non_word_char(out, char, 'ipa')
-
-    flush_word()
-    return ''.join(out)
+def _convert_escape_segment(segment: str, mode: str) -> str:
+    """Convert one recognized escape segment for a target mode."""
+    if mode == 'ipa':
+        out = []
+        _append_ipa_escape(out, segment)
+        return ''.join(out)
+    return segment
 
 
 def convert_line(
@@ -754,15 +730,12 @@ def convert_line(
     had_newline = line.endswith('\n')
     core_line = line[:-1] if had_newline else line
 
-    parts = split_by_brackets_level3(core_line)
-    if len(parts) > 1:
+    parts = split_by_escape_segments(core_line)
+    if len(parts) > 1 or (parts and parts[0][0]):
         converted = []
-        for part in parts:
-            if '[' in part and ']' in part:
-                if mode == 'ipa':
-                    converted.append(_convert_mixed_bracket_part_ipa(part, ipa_mode, circ_hiatus=circ_hiatus))
-                else:
-                    converted.append(part)
+        for is_escape, part in parts:
+            if is_escape and _is_escape_segment(part):
+                converted.append(_convert_escape_segment(part, mode))
             else:
                 converted.append(_convert_non_bracket_part(part, mode, ipa_mode, circ_hiatus=circ_hiatus))
         result = ''.join(converted)
@@ -1127,7 +1100,7 @@ def run_tests() -> bool:
         ("šar—gi·mir", "ipa", "ʃar ⟨emdash⟩ | gi.mir"),
         ("šar–gi·mir", "ipa", "ʃar ⟨endash⟩ | gi.mir"),
         ("“šar,” gi·mir", "ipa", "⟨opening-dblquote⟩ | ʃar ⟨comma⟩ ⟨closing-dblquote⟩ | gi.mir"),
-        ("(šar) [gi·mir]", "ipa", "⟨opening-parenthese⟩ | ʃar ⟨closing-parenthese⟩ | ⟨escape:[gi·mir]⟩"),
+        ("(šar) {{gi·mir}}", "ipa", "⟨opening-parenthese⟩ | ʃar ⟨closing-parenthese⟩ | ⟨escape:{{gi·mir}}⟩"),
         ("§ 42%", "ipa", "⟨section⟩ ⟨number⟩ ⟨percent⟩ |"),
         ("šar... gi·mir", "ipa", "ʃar ⟨ellipsis⟩ | gi.mir"),
         ("šar… gi·mir", "ipa", "ʃar ⟨ellipsis⟩ | gi.mir"),
@@ -1138,7 +1111,10 @@ def run_tests() -> bool:
         ("nā~š", "bold", "**nāš**"),
         ("ša+ana+na·šê", "acute", "ša‿ana‿našê"),
         ("ī·ris·sū~-ma", "bold", "īris**sū**-ma"),
-        ("šar [https://ex.am/ple+uri] gi·mir+dad~·mē", "bold", "šar [https://ex.am/ple+uri] gimir‿**dad**mē"),
+        ("šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē", "bold", "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē"),
+        ("šar {url{https://ex.am/ple+uri}} gi·mir", "ipa", "ʃar ⟨escape:{url{https://ex.am/ple+uri}}⟩ gi.mir"),
+        ("šar {_mdf{---}} gi·mir", "ipa", "ʃar ⟨escape:{_mdf{---}}⟩ gi.mir"),
+        ("šar{{x}}gi·mir", "ipa", "ʃar ⟨escape:{{x}}⟩ gi.mir"),
         ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir‿dad´mē"),
     ]
 
@@ -1150,11 +1126,11 @@ def run_tests() -> bool:
         else:
             print(f"FAILED [{mode}]\n  in : {inp}\n  got: {got}\n  exp: {expected}")
 
-    text_in = "šar [https://ex.am/ple+uri] gi·mir+dad~·mē\n~a·pil\n"
-    expected_acute = "šar [https://ex.am/ple+uri] gimir‿dad´mē\n´apil\n"
-    expected_bold = "šar [https://ex.am/ple+uri] gimir‿**dad**mē\n**a**pil\n"
-    expected_ipa = "ʃar ⟨escape:[https://ex.am/ple+uri]⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
-    expected_xar = "x̌ar [https://ex.am/ple+uri] gimir‿dad´mee\n´apil\n"
+    text_in = "šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē\n~a·pil\n"
+    expected_acute = "šar {{https://ex.am/ple+uri}} gimir‿dad´mē\n´apil\n"
+    expected_bold = "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē\n**a**pil\n"
+    expected_ipa = "ʃar ⟨escape:{{https://ex.am/ple+uri}}⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
+    expected_xar = "x̌ar {{https://ex.am/ple+uri}} gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
     total_extra = 7
     extra_passed = 0

@@ -2,7 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
-- [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Proposed
+- [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Accepted
 - [023. 023 — Rename "repair" terminology to "accentuation" and accept the compatibility break](023-rename-repair-to-accentuation.md) - Accepted
 - [022. Output Format Public Contract Boundaries](022-output-format-public-contract-boundaries.md) - Accepted
 - [021. Multi-Target Printer Architecture Contract](021-multi-target-printer-architecture-contract.md) - Accepted

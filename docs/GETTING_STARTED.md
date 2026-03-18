@@ -62,6 +62,17 @@ After running the command, check these files in the `outputs/` directory:
 - Use `--help` with any CLI tool to see all available options
 - The demo scripts in `demo/akkapros/prosmaker/` show batch processing examples
 - All outputs are fully reproducible given the same input and parameters
+- Escape syntax for non-Akkadian chunks is `{{text}}` or `{tag{text}}` (tag regex: `[0-9a-z_]{1,16}`)
+- Internal tags begin with `_`; nested escapes are intentionally unsupported
+
+### Migrating Older Bracket Escapes
+
+If older datasets used bracket escapes like `[text]`, migrate them to `{{text}}` before re-running the pipeline.
+
+```powershell
+python scripts/migrate-escapes.py outputs/old_syl.txt --in-place
+python scripts/migrate-escapes.py outputs/old_tilde.txt --in-place
+```
 
 ---
 

@@ -113,6 +113,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `rep_total_morae` -> `accentuated_total_morae`
   - `rep_sps_speech` -> `accentuated_sps_speech`
   - `rep_ΔC_seconds` -> `accentuated_ΔC_seconds`
+- CR-005 changed escaped non-Akkadian chunk syntax:
+  - `[text]` style escapes are replaced by `{{text}}` and `{tag{text}}`
+  - Tag regex is `[0-9a-z_]{1,16}` and tags starting with `_` are internal-only
+  - Nested escape blocks are intentionally unsupported
+  - Migration helper script: `scripts/migrate-escapes.py`
 
 ### Planned
 - Segmentation tool for MBROLA voice creation

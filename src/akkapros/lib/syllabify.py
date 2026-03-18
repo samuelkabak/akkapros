@@ -20,7 +20,7 @@ Copyright (c) 2026 Samuel KABAK
 
 import re
 import sys
-from typing import List
+from typing import List, Optional, Tuple
 
 __version__ = "1.2.0"
 __author__ = "Samuel KABAK"
@@ -47,8 +47,11 @@ from akkapros.lib.constants import (
     WORD_LINKER,
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
-    OPEN_IGNORE,
-    CLOSE_IGNORE,
+    OPEN_PRESERVE,
+    CLOSE_PRESERVE,
+    OPEN_PRESERVE_CHAR,
+    CLOSE_PRESERVE_CHAR,
+    TAG_PRESERVE_RE,
     DIPH_SEPARATOR
 )
 
@@ -118,12 +121,95 @@ def is_word_char(c: str, extra: str = '', before: str = '', after: str = '') -> 
 # Preprocessing helpers
 # ---------------------------------------------------------------------------
 
-def split_by_brackets_level3(text):
-    # Pattern for up to 3 levels of nesting
-    pattern = r'(\s*\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\]\s*)'
+ESCAPE_TAG_RE = re.compile(rf'^{TAG_PRESERVE_RE}$')
 
-    parts = re.split(pattern, text)
-    return [part for part in parts if part]
+
+def parse_escape_at(text: str, start: int) -> Optional[Tuple[str, int]]:
+    """Parse one escape token at ``start`` and return ``(token, next_index)``.
+
+    Supported forms:
+    - ``{{text}}``
+    - ``{tag{text}}`` where ``tag`` matches ``[0-9a-z_]{1,16}``
+
+    Nested escapes are intentionally unsupported.
+    """
+    n = len(text)
+    if start >= n:
+        return None
+
+    if text.startswith(OPEN_PRESERVE, start):
+        close_idx = text.find(CLOSE_PRESERVE, start + len(OPEN_PRESERVE))
+        if close_idx == -1:
+            return None
+        payload = text[start + len(OPEN_PRESERVE):close_idx]
+        if OPEN_PRESERVE_CHAR in payload or CLOSE_PRESERVE_CHAR in payload:
+            return None
+        payload = payload.strip()
+        return f"{OPEN_PRESERVE}{payload}{CLOSE_PRESERVE}", close_idx + len(CLOSE_PRESERVE)
+
+    if text[start] != OPEN_PRESERVE_CHAR:
+        return None
+
+    tag_end = text.find(OPEN_PRESERVE_CHAR, start + 1)
+    if tag_end == -1:
+        return None
+
+    tag = text[start + 1:tag_end]
+    if not ESCAPE_TAG_RE.fullmatch(tag):
+        return None
+
+    close_idx = text.find(CLOSE_PRESERVE, tag_end + 1)
+    if close_idx == -1:
+        return None
+
+    payload = text[tag_end + 1:close_idx]
+    if OPEN_PRESERVE_CHAR in payload or CLOSE_PRESERVE_CHAR in payload:
+        return None
+    payload = payload.strip()
+    return (
+        f"{OPEN_PRESERVE_CHAR}{tag}{OPEN_PRESERVE_CHAR}{payload}{CLOSE_PRESERVE}",
+        close_idx + len(CLOSE_PRESERVE),
+    )
+
+
+def split_by_escape_segments(text: str) -> List[Tuple[bool, str]]:
+    """Split text into ``(is_escape, segment)`` tuples.
+
+    This intentionally supports only ``{{...}}`` and ``{tag{...}}`` forms.
+    """
+    segments: List[Tuple[bool, str]] = []
+    i = 0
+    last = 0
+    n = len(text)
+
+    while i < n:
+        parsed = parse_escape_at(text, i)
+        if parsed is None:
+            i += 1
+            continue
+
+        token, next_i = parsed
+        if last < i:
+            segments.append((False, text[last:i]))
+        segments.append((True, token))
+        i = next_i
+        last = i
+
+    if last < n:
+        segments.append((False, text[last:]))
+
+    if not segments:
+        return [(False, text)]
+    return segments
+
+
+def split_by_brackets_level3(text):
+    """Deprecated compatibility alias.
+
+    CR-005 removes nested square-bracket parsing; this helper now delegates
+    to the simple escape splitter and returns only segment text.
+    """
+    return [seg for _, seg in split_by_escape_segments(text)]
 
 
 def preprocess_diphthongs(text: str) -> str:
@@ -135,12 +221,11 @@ def preprocess_diphthongs(text: str) -> str:
     the regex pattern.
     """
 
-    # try catching brackets escape
-    prepartition = split_by_brackets_level3(text)
-    if len(prepartition) > 1:
+    segments = split_by_escape_segments(text)
+    if len(segments) > 1 or (segments and segments[0][0]):
         prep = []
-        for part in prepartition:
-            if '[' in part:
+        for is_escape, part in segments:
+            if is_escape:
                 prep.append(part)
             else:
                 prep.append(preprocess_diphthongs(part))
@@ -362,20 +447,16 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
     """Split a line of text into word/punctuation tokens."""
     tokens = []
 
-    # try catching brackets escape
-    prepartition = split_by_brackets_level3(line)
-    if len(prepartition) > 1:
-        for part in prepartition:
-            if '[' in part:
-                tokens.append(('punct', part))
-            else:
-                subtokens = tokenize_line(part, extra)
-                tokens.extend(subtokens)                 
-        return tokens
-
     i = 0
     n = len(line)
     while i < n:
+        parsed_escape = parse_escape_at(line, i)
+        if parsed_escape is not None:
+            token, next_i = parsed_escape
+            tokens.append(('escape', token))
+            i = next_i
+            continue
+
         before = line[i-1] if i > 0 else ''
         after = line[i+1] if i+1 < n else ''
         if is_word_char(line[i], extra, before, after):
@@ -391,6 +472,8 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
         else:
             start = i
             while i < n:
+                if i > start and parse_escape_at(line, i) is not None:
+                    break
                 before_inner = line[i-1] if i > start else ''
                 after_inner = line[i+1] if i+1 < n else ''
                 if is_word_char(line[i], extra, before_inner, after_inner):
@@ -398,9 +481,10 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
                 i += 1
             punct = line[start:i]
             if punct.isspace():
-                prev_is_word = tokens and tokens[-1][0] == 'word'
+                prev_is_word = tokens and tokens[-1][0] in ('word', 'escape')
                 next_is_word = i < n and is_word_char(line[i], extra)
-                if prev_is_word and next_is_word:
+                next_is_escape = i < n and parse_escape_at(line, i) is not None
+                if prev_is_word and (next_is_word or next_is_escape):
                     continue
             if punct:
                 tokens.append(('punct', punct))
@@ -436,15 +520,13 @@ def syllabify_text(
             continue
         tokens = tokenize_line(line, '')
         current_line_parts: List[str] = []
-        in_brackets = False
         for i in range(len(tokens)):
             typ, token_text = tokens[i]
             if typ == 'word':
-                if in_brackets:
-                    current_line_parts.append(token_text + SYL_WORD_ENDING)
-                else:
-                    syllabified = syllabify_word(token_text, merge_hyphen)
-                    current_line_parts.append(syllabified + SYL_WORD_ENDING)
+                syllabified = syllabify_word(token_text, merge_hyphen)
+                current_line_parts.append(syllabified + SYL_WORD_ENDING)
+            elif typ == 'escape':
+                current_line_parts.append(f"{OPEN_ESCAPE} {token_text} {CLOSE_ESCAPE}")
             else:
                 # Treat "- " / "+ " as suffix boundary marker attached to previous word.
                 if (
@@ -453,7 +535,6 @@ def syllabify_text(
                     and current_line_parts[-1].endswith(SYL_WORD_ENDING)
                     and i + 1 < len(tokens)
                     and tokens[i + 1][0] == 'word'
-                    and not in_brackets
                 ):
                     previous = current_line_parts.pop()
                     current_line_parts.append(previous[:-1] + token_text[0] + SYL_WORD_ENDING)
@@ -464,7 +545,6 @@ def syllabify_text(
                     token_text in (f" {HYPHEN}", f" {WORD_LINKER}")
                     and i + 1 < len(tokens)
                     and tokens[i + 1][0] == 'word'
-                    and not in_brackets
                 ):
                     current_line_parts.append(token_text[1])
                     continue
@@ -481,14 +561,9 @@ def syllabify_text(
                     current_line_parts.append(f"{OPEN_ESCAPE}{token_text}{CLOSE_ESCAPE}")
                     current_line_parts.append(SYL_WORD_ENDING)
                     continue
-
-                if '[' in token_text:
-                    in_brackets = True
-                if ']' in token_text:
-                    in_brackets = False
                 current_line_parts.append(f"{OPEN_ESCAPE}{token_text}{CLOSE_ESCAPE}")
                 punct_not_final = i+1 < len(tokens)
-                if punct_not_final and not in_brackets and token_text != ']' and ' ' not in token_text :
+                if punct_not_final and ' ' not in token_text:
                     warnings.append(f"Punctuation part does not contain a space: '{token_text}' line '{line}")
         if current_line_parts:
             result_lines.append(''.join(current_line_parts))
@@ -609,6 +684,13 @@ def run_tests() -> bool:
         ("Chinese characters", "šar 国王 gimir", "šar¦⟦ 国王 ⟧gi·mir¦"),
         ("Foreign character in word", "šar? gimir[test]done", "šar¦⟦? ⟧gi·mir¦⟦[test]⟧d¦⟦o⟧ne¦"),
         ("Mixed with brackets", "šar gimir [jamal@gmail·com] muḫḫi.", "šar¦gi·mir¦⟦ [jamal@gmail·com] ⟧muḫ·ḫi¦⟦.⟧"),
+
+        # ===== CR-005 ESCAPE SYNTAX =====
+        ("Double-brace escape", "šar {{English word}} gimir", "šar¦⟦ {{English word}} ⟧gi·mir¦"),
+        ("Tagged escape", "šar {url{https://ex.am/ple}} gimir", "šar¦⟦ {url{https://ex.am/ple}} ⟧gi·mir¦"),
+        ("Internal tagged escape", "šar {_mdf{---}} gimir", "šar¦⟦ {_mdf{---}} ⟧gi·mir¦"),
+        ("Trim whitespace inside escape", "šar {{  hello world  }} gimir", "šar¦⟦ {{hello world}} ⟧gi·mir¦"),
+        ("Escape spacing like punctuation", "šar {{x}} gimir", "šar¦⟦ {{x}} ⟧gi·mir¦"),
         
         # ===== REAL EXAMPLES =====
         ("Complex line", "ikkaru ina muḫḫi … — ibakki ṣarpiš", 
@@ -652,5 +734,16 @@ def run_tests() -> bool:
         else:
             print(f"FAIL {name}")
             print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
+
+    nested = parse_escape_at("{{a{{b}}}}", 0)
+    if nested is None:
+        print("PASS Nested escapes are unsupported")
+        passed += 1
+        total += 1
+    else:
+        print("FAIL Nested escapes are unsupported")
+        print(f"   Expected: None\n   Got: {nested}")
+        total += 1
+
     print(f"\nPassed: {passed}/{total}")
     return passed == total

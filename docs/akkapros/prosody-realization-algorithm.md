@@ -25,7 +25,7 @@ The prosody realization stage reads syllabified text where:
 | `-` | Internal/prosodic boundaries preserved from input |
 | `¦` | Word end |
 | `+` | Explicit link between words (forced prosodic unit) |
-| `[...]` | Escaped punctuation/chunks (passed through as non-lexical material) |
+| `{{...}}` / `{tag{...}}` | Escaped chunks (passed through as non-lexical material) |
 
 ### Output format (`*_tilde.txt`)
 The prosody realization stage writes prosody-realized text where:
@@ -211,6 +211,10 @@ This keeps prosody realization computation explicit while allowing diphthongal s
 ## Punctuation and Escaped Segments
 
 Non-lexical escaped chunks are preserved and passed through. They do not participate in moraic prosody realization, but they delimit where forward merge can continue.
+
+- Plain form: `{{text}}`
+- Tagged form: `{tag{text}}`, where `tag` matches `[0-9a-z_]{1,16}`
+- Internal tags begin with `_` and are reserved for pipeline-internal handling
 
 ---
 

@@ -125,6 +125,8 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 - **Output prefix** is sanitized to a filesystem-safe filename.
 - The CLI name is `prosmaker.py` (not `repairer.py`—this has been updated).
 - All temporary markers from syllabification are resolved in the output.
+- Escaped non-Akkadian chunks (`{{text}}` or `{tag{text}}`) are carried through as non-lexical material.
+- Tags in `{tag{text}}` follow `[0-9a-z_]{1,16}`; tags starting with `_` are internal-only conventions.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
 
 ---

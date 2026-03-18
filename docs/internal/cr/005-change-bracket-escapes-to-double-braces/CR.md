@@ -1,7 +1,7 @@
 # Change Request: Change escaped-foreign-text delimiters from [ ] to {{ }}
 
 CR-ID: CR-005
-Status: Draft
+Status: Approved
 Priority: Medium
 Created: 2026-03-18
 Updated: 2026-03-18
@@ -20,7 +20,7 @@ Motivation
 
 Proposal
 --------
-1. Replace `OPEN_IGNORE = '['` and `CLOSE_IGNORE = ']'` with `OPEN_IGNORE = '{{'` and `CLOSE_IGNORE = '}}'` in shared constants.
+1. Replace IGNORE naming with PRESERVE naming in shared constants and parser variables (e.g., `OPEN_PRESERVE`, `CLOSE_PRESERVE`, `OPEN_PRESERVE_CHAR`, `CLOSE_PRESERVE_CHAR`).
 2. Extend the escape grammar to allow optional command tags using the syntax `{command{text}}` in addition to plain `{{text}}` escapes. The allowed forms are:
 
 - `{{text}}` — plain escaped segment (no command tag), preserves previous double-brace behaviour.
@@ -87,7 +87,7 @@ After (expected):
 	ʃar.gi.mir.ˈdadː.meː.baː.nuː ⟨escape:{{jugtvvv^èè}}⟩ kib.ˈraːː.ti ⟨ellipsis⟩ | ⟨linebreak⟩ ‖
 
 Notes:
-- Update the printer's escape-serialization code to look for the new `OPEN_IGNORE`/`CLOSE_IGNORE` constants and to avoid inserting extra spaces when serialising surrounding tokens.
+- Update the printer's escape-serialization code to look for the new PRESERVE constants and to avoid inserting extra spaces when serialising surrounding tokens.
 - Add a regression test for printer output that verifies `escape:{{...}}` appears exactly and that no duplicate spaces are introduced in adjacent IPA tokens.
 
 Rollout plan
