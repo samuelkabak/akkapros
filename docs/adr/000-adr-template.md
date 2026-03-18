@@ -5,6 +5,12 @@ Date: {YYYY-MM-DD when the decision was last updated}
 
 # 0. ADR Template
 
+## Plain Summary
+
+Provide a short, non-technical summary of the decision suitable for stakeholders and release notes.
+In 2–4 clear sentences state what was decided, why it matters, and the primary impact or trade-offs.
+Avoid technical jargon; if helpful add a one-line TL;DR at the top for readers who need a quick takeaway.
+
 ## Context and Problem Statement
 
 Describe the background and the problem that requires a decision. Keep it short and concrete — what constraints, stakeholders, and goals matter?

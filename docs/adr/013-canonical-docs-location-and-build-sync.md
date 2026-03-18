@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-06
 ---
 
 # 13. Canonical Docs Location and Build Sync
+
+## Plain Summary
+
+Keep the main docs in `docs/` and make sure generated docs match the code by syncing during builds.
+This makes documentation reliable and easy to update.
 
 ## Context and Problem Statement
 
@@ -37,8 +42,17 @@ Chosen option: Canonical docs live under `docs/`, and packaging sync copies `doc
 - Good, because no sync step required
 - Bad, because drift is likely and expensive to clean up
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `scripts/sync_docs.py`
 - Related: `scripts/build_package.py`
 - Related: `src/akkapros/docs/README.md`
+
+## Reviewed By
+
+- Akkapros maintainers

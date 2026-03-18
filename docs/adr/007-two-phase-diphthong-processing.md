@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-12
 ---
 
 # 7. Two-Phase Diphthong Processing
+
+## Plain Summary
+
+Split diphthongs during syllabification so syllables are clear, then restore them after prosody rules finish.
+This keeps syllable counts correct while allowing normal prosody work.
 
 ## Context and Problem Statement
 
@@ -38,7 +43,16 @@ Chosen option: Use a two-phase approach: split during syllabification, restore a
 - Bad, because syllable boundary detection is less robust
 - Bad, because downstream logic must handle more ambiguity
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/diphthong-processing.md`
 - Related: `docs/akkapros/prosmaker.md`
+
+## Reviewed By
+
+- Akkapros maintainers

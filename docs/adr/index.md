@@ -2,6 +2,13 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [022. Output Format Public Contract Boundaries](022-output-format-public-contract-boundaries.md) - Accepted
+- [021. Multi-Target Printer Architecture Contract](021-multi-target-printer-architecture-contract.md) - Accepted
+- [020. Deterministic Merge Traversal](020-deterministic-merge-traversal.md) - Accepted
+- [019. IPA Output Variant Policy](019-ipa-output-variant-policy.md) - Accepted
+- [018. Extensible Phonetic Inventory](018-extensible-phonetic-inventory.md) - Accepted
+- [017. Pause Modeling and Bimoraic Correction](017-pause-modeling-and-bimoraic-correction.md) - Accepted
+- [016. Diphthong Restoration Constraint System](016-diphthong-restoration-constraint-system.md) - Accepted
 - [015. Semantic Versioning and Release Discipline](015-semantic-versioning-and-release-discipline.md) - Accepted
 - [014. CLI Built-In Self-Tests](014-cli-built-in-self-tests.md) - Accepted
 - [013. Canonical Docs Location and Build Sync](013-canonical-docs-location-and-build-sync.md) - Accepted

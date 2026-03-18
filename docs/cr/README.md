@@ -192,14 +192,16 @@ docs/cr/005-add-webhook-support/
 
 docs/cr/000-cr-template/
 
-4. Update the content of:
+4. Refer to ADRs in docs/adr/* as architecture guidelines
+
+5. Update the content of:
 
 CR.md  
 tasks.md (optional)
 notes.md (optional)
 
 
-5. Link CR.md it in index.md, the latest CR first
+6. Link CR.md it in index.md, the latest CR first
 > Example:
 > [NNN. Short Kebab Title](NNN-short-kebab-title/CR.md) - Status
 

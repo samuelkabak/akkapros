@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-06
 ---
 
 # 6. Syllabifier Line and Hyphen Policy
+
+## Plain Summary
+
+Keep original line breaks and treat hyphens as special markers.
+This preserves prosodic information that matters later in the pipeline.
 
 ## Context and Problem Statement
 
@@ -38,7 +43,16 @@ Chosen option: Keep original lines by default and preserve hyphens unless explic
 - Bad, because meaningful boundaries may be erased
 - Bad, because reconstruction becomes harder
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/syllabifier.md`
 - Related: `src/akkapros/lib/syllabify.py`
+
+## Reviewed By
+
+- Akkapros maintainers

@@ -1,5 +1,6 @@
 # User specific
 sandbox/
+tmp/
 *.bak
 .github/
 externtools/

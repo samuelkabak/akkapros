@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-14
 ---
 
 # 2. Centralized Version Management
+
+## Plain Summary
+
+Keep one central place for the project version (one source of truth).
+This avoids mismatched version numbers and makes releases predictable.
 
 ## Context and Problem Statement
 
@@ -39,7 +44,16 @@ Chosen option: Centralize package metadata in `src/akkapros/__init__.py` and exp
 - Bad, because drift and inconsistent releases are likely
 - Bad, because manual edits scale poorly
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `src/akkapros/__init__.py`
 - Related: `src/akkapros/cli/_cli_common.py`
+
+## Reviewed By
+
+- Akkapros maintainers

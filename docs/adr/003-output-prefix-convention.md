@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-14
 ---
 
 # 3. Output Prefix Convention
+
+## Plain Summary
+
+Use consistent file name prefixes for outputs so files are easy to find and sort.
+This helps scripts and users locate generated files reliably.
 
 ## Context and Problem Statement
 
@@ -38,7 +43,16 @@ Chosen option: Standardize on `--prefix` + `--outdir`, with deterministic suffix
 - Bad, because hard to teach and script consistently
 - Bad, because artifact relationships are less obvious
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/fullprosmaker.md`
 - Related: `docs/akkapros/phoneprep.md`
+
+## Reviewed By
+
+- Akkapros maintainers

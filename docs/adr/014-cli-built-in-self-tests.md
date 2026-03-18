@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-14
 ---
 
 # 14. CLI Built-In Self-Tests
+
+## Plain Summary
+
+Add small quick tests to CLI tools so users can check that installation and basic features work.
+These are light checks for common problems.
 
 ## Context and Problem Statement
 
@@ -37,7 +42,16 @@ Chosen option: Maintain built-in CLI self-tests and keep pytest coverage for bro
 - Good, because one test system
 - Bad, because harder to run targeted checks from CLI tools
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `tests/test_selftests_cli.py`
 - Related: `tests/test_selftests_lib.py`
+
+## Reviewed By
+
+- Akkapros maintainers

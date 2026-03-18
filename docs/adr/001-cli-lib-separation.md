@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-10
 ---
 
 # 1. CLI/Lib Separation
+
+## Plain Summary
+
+We keep reusable code in `lib/` and keep command-line tools in `cli/`.
+This makes the core logic easy to import, test, and reuse.
 
 ## Context and Problem Statement
 
@@ -38,8 +43,17 @@ Chosen option: Separate `cli/` from `lib/`, because it keeps business logic impo
 - Bad, because hard to reuse and unit-test internals
 - Bad, because argument handling and logic become tightly coupled
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `src/akkapros/cli/`
 - Related: `src/akkapros/lib/`
 - Related ADR: [014-cli-built-in-self-tests.md](014-cli-built-in-self-tests.md)
+
+## Reviewed By
+
+- Akkapros maintainers

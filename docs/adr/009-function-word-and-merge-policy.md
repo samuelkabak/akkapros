@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-14
 ---
 
 # 9. Function Word and Merge Policy
+
+## Plain Summary
+
+Function words (like prepositions and particles) join nearby content words so they don't get their own stress.
+Merging keeps prosody natural and avoids isolated weak words.
 
 ## Context and Problem Statement
 
@@ -37,7 +42,16 @@ Chosen option: Support merge-forward and merge-backward logic, function-word con
 - Good, because simpler algorithm
 - Bad, because many real contexts remain unresolved or unnatural
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/prosody-realization-algorithm.md`
 - Related: `src/akkapros/lib/prosody.py`
+
+## Reviewed By
+
+- Akkapros maintainers

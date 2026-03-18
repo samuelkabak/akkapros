@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-10
 ---
 
 # 5. eBL ATF Normalization Policy
+
+## Plain Summary
+
+Clean ATF input to keep only the text needed for phonetic processing.
+Remove editorial markup but keep line breaks and morpheme markers that matter.
 
 ## Context and Problem Statement
 
@@ -38,7 +43,16 @@ Chosen option: Normalize ATF at parser stage with explicit transformations (reta
 - Bad, because every downstream stage repeats cleanup assumptions
 - Bad, because inconsistencies are more likely
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/atfparser.md`
 - Related: `src/akkapros/lib/atfparse.py`
+
+## Reviewed By
+
+- Akkapros maintainers

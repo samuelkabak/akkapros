@@ -5,7 +5,7 @@ Status: Draft | Approved | In Progress | Done
 Priority: Low | Medium | High
 Created: YYYY-MM-DD
 Updated: YYYY-MM-DD
-
+Implements: ADR-NNN, SPEC-NNN ... (only references)
 ---
 
 # Summary

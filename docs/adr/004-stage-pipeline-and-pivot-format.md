@@ -1,9 +1,14 @@
-#---
+---
 Status: Accepted
 Date: 2026-03-10
 ---
 
 # 4. Stage Pipeline and Pivot Format
+
+## Plain Summary
+
+Use a clear processing pipeline where each stage reads the previous stage's output.
+Keep a pivot format (`*_tilde.txt`) between stages so tools stay simple and testable.
 
 ## Context and Problem Statement
 
@@ -38,7 +43,16 @@ Chosen option: Use explicit stage-by-stage files with `*_tilde.txt` as a central
 - Bad, because harder to debug and validate stage logic
 - Bad, because feature additions affect a larger blast radius
 
+## Implications and Consequences
+
+- Keep implementation, tests, and docs aligned with this decision when related changes are introduced.
+- Treat changes that alter this decision's user-facing behavior as release-note-worthy updates.
+
 ## Links
 
 - Related: `docs/akkapros/fullprosmaker.md`
 - Related: `docs/akkapros/prosody-realization-algorithm.md`
+
+## Reviewed By
+
+- Akkapros maintainers
