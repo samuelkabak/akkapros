@@ -23,6 +23,7 @@ DOCS = ROOT / "docs"
 ADR_DIR = DOCS / "internal" / "adr"
 CR_DIR = DOCS / "internal" / "cr"
 SPEC_DIR = DOCS / "internal" / "specs"
+REVIEWS_DIR = DOCS / "internal" / "reviews"
 
 
 def read_header(index_path, entry_starts):
@@ -71,6 +72,8 @@ def extract_status_and_title(md_path):
 def build_adr_index():
     index_path = ADR_DIR / "index.md"
     header = read_header(index_path, entry_starts=("- ",))
+    if not header.strip():
+        header = "# ADR Index\n\nThis index lists architectural decision records (ADRs). It is maintained by `scripts/update-indexes.py`.\n\n| ID | Title | Status |\n|----|-------|--------|\n\n"
 
     entries = []
     for p in ADR_DIR.glob("*.md"):
@@ -100,6 +103,8 @@ def build_adr_index():
 def build_cr_index():
     index_path = CR_DIR / "index.md"
     header = read_header(index_path, entry_starts=("[", "- "))
+    if not header.strip():
+        header = "# CR Index\n\nThis index lists Change Requests. It is maintained by `scripts/update-indexes.py`.\n\n"
 
     entries = []
     for d in sorted(CR_DIR.iterdir()):
@@ -146,7 +151,7 @@ def build_cr_index():
 
 
 def main():
-    missing = [p for p in (ADR_DIR, CR_DIR, SPEC_DIR) if not p.exists()]
+    missing = [p for p in (ADR_DIR, CR_DIR, SPEC_DIR, REVIEWS_DIR) if not p.exists()]
     if missing:
         print("Error: expected docs/internal/adr, docs/internal/cr and docs/internal/specs directories.")
         for m in missing:
@@ -154,12 +159,54 @@ def main():
         sys.exit(1)
     build_adr_index()
     build_cr_index()
+    build_reviews_index()
     build_spec_index()
+
+
+def build_reviews_index():
+    index_path = REVIEWS_DIR / "index.md"
+    header = read_header(index_path, entry_starts=("- ",))
+    if not header.strip():
+        header = "# Review Index\n\nThis index lists review documents. It is maintained by `scripts/update-indexes.py`.\n\n"
+
+    entries = []
+    for p in REVIEWS_DIR.glob("*.md"):
+        if p.name == "index.md":
+            continue
+        # skip template or example review files (000-...)
+        if p.name.startswith("000-"):
+            continue
+        # Accept either 'review-001.md' or '001-review.md' naming conventions
+        m = re.match(r"^review-(\d{1,3})(?:-(.+))?\.md$", p.name)
+        if not m:
+            m2 = re.match(r"^(\d{1,3})-review(?:-(.+))?\.md$", p.name)
+            if not m2:
+                continue
+            num = int(m2.group(1))
+            remainder = m2.group(2)
+        else:
+            num = int(m.group(1))
+            remainder = m.group(2)
+        status, title = extract_status_and_title(p)
+        if title:
+            title = re.sub(r"^\d+\.\s*", "", title)
+        else:
+            title = (remainder or p.stem).replace("-", " ")
+        display = f"review-{num:03d}. {title}"
+        entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
+        entries.append((num, entry))
+
+    entries.sort(key=lambda x: x[0])
+    body = "\n".join(e for _, e in entries) + "\n" if entries else ""
+    index_path.write_text(header + body, encoding="utf-8")
+    print(f"Updated {index_path}")
 
 
 def build_spec_index():
     index_path = SPEC_DIR / "index.md"
     header = read_header(index_path, entry_starts=("- ",))
+    if not header.strip():
+        header = "# Spec Index\n\nThis index lists requirement/specification documents. It is maintained by `scripts/update-indexes.py`.\n\n| ID | Title | Status | Priority |\n|----|-------|--------|----------|\n\n"
 
     entries = []
     for p in SPEC_DIR.glob("*.md"):
