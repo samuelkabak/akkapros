@@ -6,11 +6,9 @@ metrics computation to ``akkapros.lib.metrics``.
 """
 
 import sys
-import re
 import json
 from copy import deepcopy
 import argparse
-import unicodedata
 from pathlib import Path
 
 _repo_root = Path(__file__).resolve().parents[3]
@@ -24,21 +22,12 @@ from akkapros.lib.metrics import (
     format_csv,
     run_tests,
 )
-from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
-
-
-def simple_safe_filename(text: str) -> str:
-    """Minimal safe filename conversion."""
-    if not text:
-        return "unnamed"
-
-    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
-    text = re.sub(r'[<>:"/\\|?*\s]', '_', text)
-    text = re.sub(r'[^\w\-.]', '_', text)
-    text = re.sub(r'_+', '_', text)
-    text = text.strip('._-')
-
-    return text or "unnamed"
+from akkapros.lib.utils import (
+    RawDefaultsHelpFormatter,
+    add_standard_version_argument,
+    print_startup_banner,
+    simple_safe_filename,
+)
 
 
 def main() -> None:
