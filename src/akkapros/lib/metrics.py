@@ -1360,12 +1360,12 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Accentuated syllables: {rs['accentuated_syllables']} syllables")
     lines.append(f"  Accentuation rate: {rs['accentuation_rate']:.2f}%")
     lines.append(f"\n  Accentuation types:")
-    for typ, count in rs['accentuation_types'].items():
+    for typ, count in sorted(rs['accentuation_types'].items()):
         if count > 0:
             lines.append(f"    {typ:8}: {count:4d} syllables")
     
     lines.append("\n" + "="*80)
-    return '\n'.join(lines)
+    return '\n'.join(lines) + '\n'
 
 
 def format_csv(results: List[Dict], output_file: Path):

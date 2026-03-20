@@ -56,7 +56,7 @@ def process_file(
     )
 
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(result)
+        f.write(result if result.endswith('\n') else result + '\n')
     print(f"Written: {output_file}")
 
 

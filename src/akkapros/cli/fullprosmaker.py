@@ -139,7 +139,7 @@ def run_pipeline(
         preserve_lines=preserve_lines,
     )
     with open(syl_file, 'w', encoding='utf-8') as f:
-        f.write(syl_text)
+        f.write(syl_text if syl_text.endswith('\n') else syl_text + '\n')
     print(f"Written: {syl_file}")
 
     # 2) Prosody realization using library engine
@@ -174,6 +174,7 @@ def run_pipeline(
             pass
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
+            f.write('\n')
         print(f"JSON saved to: {json_file}")
 
     if output_csv:

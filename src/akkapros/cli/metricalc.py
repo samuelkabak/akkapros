@@ -148,6 +148,7 @@ Version {__version__}
 
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
+            f.write('\n')
         print(f"JSON saved to: {json_file}")
 
     if args.csv:

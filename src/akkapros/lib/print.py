@@ -865,22 +865,24 @@ def process_file(
         circ_hiatus=circ_hiatus,
     )
 
+    def _write(text: str, path: str) -> None:
+        """Write text to path, ensuring a POSIX-compliant trailing newline."""
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text if text.endswith('\n') else text + '\n')
+
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_acute_file, 'w', encoding='utf-8') as f:
-            f.write(acute_text)
+        _write(acute_text, output_acute_file)
 
     if write_bold:
         Path(output_bold_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_bold_file, 'w', encoding='utf-8') as f:
-            f.write(bold_text)
+        _write(bold_text, output_bold_file)
 
     if write_ipa:
         if not output_ipa_file:
             raise ValueError("output_ipa_file is required when write_ipa is True")
         Path(output_ipa_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_ipa_file, 'w', encoding='utf-8') as f:
-            f.write(ipa_text)
+        _write(ipa_text, output_ipa_file)
 
     if write_xar:
         if not output_xar_file:
@@ -897,22 +899,19 @@ def process_file(
             plain_xar_file = str(base.with_name(plain_name))
 
         Path(output_xar_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_xar_file, 'w', encoding='utf-8') as f:
-            f.write(xar_text)
+        _write(xar_text, output_xar_file)
 
+        plain_xar_text = xar_text.replace(ACUTE_MARK, '')
+        # Pure XAR restores word boundaries where visible linkers were used.
+        plain_xar_text = re.sub(r'\s*' + re.escape(WORD_LINKER_OUT) + r'\s*', ' ', plain_xar_text)
         Path(plain_xar_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(plain_xar_file, 'w', encoding='utf-8') as f:
-            plain_xar_text = xar_text.replace(ACUTE_MARK, '')
-            # Pure XAR restores word boundaries where visible linkers were used.
-            plain_xar_text = re.sub(r'\s*' + re.escape(WORD_LINKER_OUT) + r'\s*', ' ', plain_xar_text)
-            f.write(plain_xar_text)
+        _write(plain_xar_text, plain_xar_file)
 
     if write_mbrola:
         if not output_mbrola_file:
             raise ValueError("output_mbrola_file is required when write_mbrola is True")
         Path(output_mbrola_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_mbrola_file, 'w', encoding='utf-8') as f:
-            f.write(mbrola_text)
+        _write(mbrola_text, output_mbrola_file)
 
 
 def run_tests() -> bool:
@@ -1228,13 +1227,13 @@ def run_tests() -> bool:
 
         file_ok = (
             out_acute.exists()
-            and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
+            and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil\n"
             and out_ipa.exists()
-            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin.ˈʔːa.pil"
+            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin.ˈʔːa.pil\n"
             and out_xar.exists()
-            and out_xar.read_text(encoding='utf-8') == "k´apin ‿ ´apil"
+            and out_xar.read_text(encoding='utf-8') == "k´apin ‿ ´apil\n"
             and out_xar_plain.exists()
-            and out_xar_plain.read_text(encoding='utf-8') == "kapin apil"
+            and out_xar_plain.read_text(encoding='utf-8') == "kapin apil\n"
             and not out_bold.exists()
         )
         if file_ok:
