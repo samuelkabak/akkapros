@@ -64,7 +64,7 @@ Users frequently forget passwords; self-service reset reduces support tickets an
 
 # Related
 - Related ADRs: [ADR-xxx](../adr/ADR-xxx.md)
-- Implementation CRs: [CR-xxx](../cr/xxx-change/CR.md)
+- Implementation CRs: [CR-xxx](../cr/xxx-change.md)
 
 # Non-Goals
 - What this requirement does NOT address (clarify scope)

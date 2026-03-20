@@ -1,7 +1,7 @@
 # Change Request: Add end-to-end integration test with gold-standard metrics
 
 CR-ID: CR-008
-Status: Draft
+Status: Done
 Priority: High
 Created: 2026-03-20
 Updated: 2026-03-20
@@ -95,8 +95,7 @@ Example assertions:
 # Files Likely Affected
 
 tests/test_integration.py
-docs/internal/cr/008-add-integration-test/CR.md
-docs/internal/cr/008-add-integration-test/tasks.md
+docs/internal/cr/008-add-integration-test.md
 
 ---
 
@@ -136,3 +135,11 @@ docs/internal/cr/008-add-integration-test/tasks.md
 # Related Issues
 
 - See review-001 recommendations (docs/internal/reviews/001-review.md)
+
+---
+
+- [ ] Draft CR document at `docs/internal/cr/008-add-integration-test.md`
+- [ ] Create `tests/test_integration.py` with reproducible pipeline run
+- [ ] Pin sample data and gold-standard metrics (VarcoC, accentuation rate)
+- [ ] Add assertions and tolerance levels
+- [ ] Run tests locally and in CI

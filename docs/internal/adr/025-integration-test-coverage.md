@@ -67,7 +67,7 @@ Specifically, the integration test MUST:
 ## Related Change Requests
 
 - CR-008: Add end-to-end integration test with gold-standard metrics
-  ([docs/internal/cr/008-add-integration-test/CR.md](docs/internal/cr/008-add-integration-test/CR.md))
+  ([docs/internal/cr/008-add-integration-test.md](docs/internal/cr/008-add-integration-test.md))
 
 ## Review
 

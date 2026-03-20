@@ -15,7 +15,7 @@ Commits since release `v1.0.1`:
 - `a2ff0eb` (2026-03-17) — Fix direct CLI script imports in atfparser and syllabifier
 - `f17aa59` (2026-03-16) — Add CR structure and template and update ADR dates and template
 
-- `CR-003` (2026-03-17) — Change escape delimiters from `‹ ›` to `⟦ ⟧` across the codebase and documentation; updated `OPEN_ESCAPE`/`CLOSE_ESCAPE` in constants, refactored usages in syllabification and prosody code, and updated tests and docs. See `docs/internal/cr/003-change-escape-delimiters/CR.md` for details. Migration note: downstream scripts that hardcode the previous delimiters should replace `‹` → `⟦` and `›` → `⟧` where they were intended as escape markers.
+- `CR-003` (2026-03-17) — Change escape delimiters from `‹ ›` to `⟦ ⟧` across the codebase and documentation; updated `OPEN_ESCAPE`/`CLOSE_ESCAPE` in constants, refactored usages in syllabification and prosody code, and updated tests and docs. See `docs/internal/cr/003-change-escape-delimiters.md` for details. Migration note: downstream scripts that hardcode the previous delimiters should replace `‹` → `⟦` and `›` → `⟧` where they were intended as escape markers.
 
 - `CR-004` (2026-03-18) — Rename terminology from `repair/repaired/repairs` to `accentuation/accentuated/accentuations` across source code, JSON/CSV keys, table headings, logs, tests, and user-facing docs. This is a deliberate breaking change (no compatibility aliases).
 	- Migration examples:

@@ -10,13 +10,13 @@ Principles / Workflow
 
 Directory layout
 - `adr/` — ADR documents and `index.md`. Use the ADR template `000-adr-template.md` and the numeric prefix to order decisions (e.g., `023-rename-repair-to-accentuation.md`).
-- `cr/` — Change Requests. Organize each CR in its own folder with a `CR.md` and related artifacts. Keep the `index.md` up-to-date.
+- `cr/` — Change Requests. Keep one file per CR using `NNN-short-kebab-title.md`, plus `index.md` and `000-cr-template.md`.
 - `specs/` — Short requirements and acceptance criteria. Use `000-req-template.md` when creating new specs. Specs are optional and may be added later.
 
 - `reviews/` — Project and code reviews. Use `000-review-template.md` as a starting point. Review files should use a numeric prefix for ordering (e.g., `001-review.md` or `review-001.md`). Files beginning with `000-` are reserved for templates and ignored by indexers.
 
 Naming & numbering
-- ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md` or `NNN-short-kebab-title/CR.md`.
+- ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md`.
 - Refer to ADRs/CRs by their canonical number (e.g., `ADR-023`, `CR-004`) in code, tests, and commit messages.
 
 Index generation

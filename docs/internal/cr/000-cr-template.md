@@ -163,3 +163,42 @@ Disable rate limiter via configuration flag.
 GitHub issues  
 PRs  
 other CRs
+
+---
+
+# Tasks
+
+## Implementation
+
+- [ ] Implement core feature
+- [ ] Integrate with existing system
+- [ ] Add configuration options
+
+## Tests
+
+- [ ] Unit tests
+- [ ] Integration tests
+
+## Documentation
+
+- [ ] Update README
+- [ ] Update API docs
+
+## Review
+
+- [ ] Code review
+- [ ] Verify acceptance criteria
+
+---
+
+# Notes for CR-XXX
+
+This document contains optional design notes related to the Change Request.
+
+Possible contents:
+
+- design discussions
+- architecture sketches
+- research
+- alternative approaches
+- links to references

@@ -1,5 +1,0 @@
-- [ ] Draft CR document at `docs/internal/cr/008-add-integration-test/CR.md`
-- [ ] Create `tests/test_integration.py` with reproducible pipeline run
-- [ ] Pin sample data and gold-standard metrics (VarcoC, accentuation rate)
-- [ ] Add assertions and tolerance levels
-- [ ] Run tests locally and in CI

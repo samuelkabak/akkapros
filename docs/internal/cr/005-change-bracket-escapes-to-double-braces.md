@@ -8,18 +8,18 @@ Updated: 2026-03-18
 Implements: ADR-024
 ---
 
-Summary
--------
+# Summary
+
 Change the pipeline's escaped-foreign-text delimiters from square brackets (`[` `]`) to double-braces (`{{` `}}`) to avoid conflicts with Markdown links and improve clarity in converted outputs. Include a small whitespace-normalization fix so escaped segments never introduce duplicate spaces in final repaired output.
 
-Motivation
-----------
+# Motivation
+
 - Square brackets frequently appear in Markdown and other contexts, causing accidental link parsing or ambiguous tokenisation.
 - Using `{{`/`}}` reduces collisions and reads clearly as an escape marker.
 - While making this mechanical change, fix the observed extra-space bug when bracketed segments appear adjacent to words.
 
-Proposal
---------
+# Proposal
+
 1. Replace IGNORE naming with PRESERVE naming in shared constants and parser variables (e.g., `OPEN_PRESERVE`, `CLOSE_PRESERVE`, `OPEN_PRESERVE_CHAR`, `CLOSE_PRESERVE_CHAR`).
 2. Extend the escape grammar to allow optional command tags using the syntax `{command{text}}` in addition to plain `{{text}}` escapes. The allowed forms are:
 
@@ -34,14 +34,14 @@ Proposal
 6. Add regression tests showing the previous extra-space case and examples with Markdown links to ensure no regressions. Add tests for the new `{tag{text}}` forms, including internal-tag cases beginning with `_`.
 7. Update documentation and release notes describing the migration and how to convert existing datasets (simple `sed` or small script included in CR tasks). Create a preparatory ADR describing the new command-escape functionality and rationale; reference that ADR in this CR.
 
-Scope & Impact
-----------------
+# Scope & Impact
+
 - Files impacted: `src/akkapros/lib/constants.py`, `src/akkapros/lib/syllabify.py`, `src/akkapros/lib/prosody.py`, tests in `tests/` and any CLI wrappers that parse/print escaped segments.
 - New parser/formatting logic: `src/akkapros/lib/constants.py`, `src/akkapros/lib/syllabify.py` (tokeniser), `src/akkapros/lib/prosody.py`, `src/akkapros/lib/printer.py` (escape-serialization), tests in `tests/`, and any CLI wrappers that parse/print escaped segments.
 - Backwards compatibility: This is a visible output change; users consuming existing `*_syl.txt` / `*_tilde.txt` files must be informed and provided a migration note.
 
-Acceptance criteria
--------------------
+# Acceptance criteria
+
 - New tests pass that assert `{{ ... }}` is preserved verbatim and no duplicated spaces appear in repaired output.
 - No remaining code references to `[`/`]` as ignore-delimiters (except migration docs).
 - Documentation and changelog updated with migration steps and rationale.
@@ -51,8 +51,8 @@ Acceptance criteria
  - Nested three-level bracket parsing (`split_by_brackets_level3`) is removed or disabled; tests demonstrate that nested escapes are not supported.
  - Documentation and changelog updated with migration steps and rationale; the new preparatory ADR is referenced.
 
-Documentation
--------------
+# Documentation
+
 Update all user-facing documentation (CLI help, GETTING_STARTED, README, and module docs) to explain the new escape syntax and its behavior. Specifically, document both `{{text}}` and `{tag{text}}` forms, describe tag rules and internal-tag conventions (leading `_`), and explain that escaped content will not be syllabified as Akkadian; it will be preserved verbatim through syllabification and prosody stages unless an internal tag triggers a defined expansion at print time. Provide examples:
 
 Example
@@ -97,3 +97,40 @@ Rollout plan
 3. Update docs and add a small migration helper script.
 4. Merge and announce breaking change in release notes.
 
+---
+
+# Tasks
+
+## Implementation
+
+- [x] [x] Draft CR (done) — create `CR.md` describing change and acceptance criteria.
+- [x] Add `tasks.md` (this file) listing actionable steps and tests.
+- [x] Repo scan: search for `OPEN_IGNORE`, `CLOSE_IGNORE`, `[` and `]` usages to enumerate affected modules.
+- [x] Implement constants change: update `src/akkapros/lib/constants.py` to set `OPEN_IGNORE='{{'` and `CLOSE_IGNORE='}}'`.
+- [x] Update tokenizer: update `src/akkapros/lib/syllabify.py` tokenisation to recognise `{{ ... }}` and the new `{tag{...}}` form, trimming surrounding whitespace when wrapping escape tokens. Do not implement multi-level nested bracket parsing — `split_by_brackets_level3()` may be removed/disabled.
+- [x] Fix whitespace bug: ensure `tokenize_line()`/`syllabify_text()` and `prosody.py` assemble output without duplicating spaces around escaped segments.
+- [x] Add migration helper: `scripts/migrate-escapes.py` showing how to update existing `*_syl.txt`/`*_tilde.txt` files.
+- [x] Open PR with implementation, link this CR, and request review.
+
+## Tests
+
+- [x] Add regression tests: include the reported extra-space example and Markdown-link adjacent cases in `tests/`.
+- [x] Add regression tests for `printer.py` to assert exact `⟨escape:...⟩` output and no duplicated spaces in IPA lines.
+- [x] Run full test suite and adjust until green.
+
+## Documentation
+
+- [x] Update docs: `GETTING_STARTED.md`, CLI help, and changelog/release notes.
+- [x] Update `docs/akkapros/`: `syllabifier.md`, `prosody-realization-algorithm.md`, `printer.md`, `prosmaker.md`, `fullprosmaker.md` to describe the `{tag{...}}` syntax, tag regex `[0-9a-z_]{0,16}`, and internal-tag convention (leading `_`).
+- [x] Document escape behaviour across all user-facing documentation and CLI help: explain that `{{text}}` and `{tag{...}}` forms are preserved verbatim (unless a known internal tag triggers an expansion) and will not be syllabified as Akkadian; add examples and migration guidance.
+- [x] Update `printer.py` (IPA output) to emit `⟨escape:{{...}}⟩` or `⟨escape:{tag{...}}⟩` metadata and avoid inserting duplicate spaces around escaped segments.
+
+## Review
+
+- [x] Code review
+- [x] Verify acceptance criteria
+
+## Notes
+
+- [x] This is a visible output format change; tag as a breaking change in release notes.
+- [x] Prefer to implement constants and whitespace fix together in a single PR to avoid mixed-format outputs in intermediate commits.

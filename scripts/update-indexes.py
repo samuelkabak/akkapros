@@ -6,9 +6,9 @@ Behavior:
   extract title and Status header, sort by number descending and write lines like:
   - [015. Title](015-slug.md) - Accepted
 
-- CR index: list subdirectories in `docs/internal/cr/` that contain `CR.md`, extract CR number,
-  title and Status, sort by number ascending and write lines like:
-  [001. Title](001-slug/CR.md) - Draft
+- CR index: list markdown files in `docs/internal/cr/*.md` (excluding `index.md` and templates),
+  extract CR number, title and Status, sort by number descending and write lines like:
+  [001. Title](001-slug.md) - Draft
 
 The script preserves the header portion of existing index files.
 """
@@ -107,25 +107,19 @@ def build_cr_index():
         header = "# CR Index\n\nThis index lists Change Requests. It is maintained by `scripts/update-indexes.py`.\n\n"
 
     entries = []
-    for d in sorted(CR_DIR.iterdir()):
-        if not d.is_dir():
+    for p in sorted(CR_DIR.glob("*.md")):
+        if p.name in ("index.md", "000-cr-template.md"):
             continue
-        # skip template or example directories
-        if d.name.startswith("000-"):
+        mname = re.match(r"^(\d{3})-(.+)\.md$", p.name)
+        if not mname:
             continue
-        cr_md = d / "CR.md"
-        if not cr_md.exists():
-            continue
-        # try to infer numeric id from directory name or CR-ID metadata
-        mdir = re.match(r"^(\d{3})-", d.name)
-        num = int(mdir.group(1)) if mdir else None
+
+        num = int(mname.group(1))
+        slug_title = mname.group(2).replace("-", " ")
         status = None
         title = None
-        text = cr_md.read_text(encoding="utf-8")
+        text = p.read_text(encoding="utf-8")
         for line in text.splitlines()[:40]:
-            m = re.match(r"\s*CR-ID:\s*CR-(\d{3})", line)
-            if m and num is None:
-                num = int(m.group(1))
             m2 = re.match(r"\s*Status:\s*(.+)", line)
             if m2:
                 status = m2.group(1).strip()
@@ -133,14 +127,9 @@ def build_cr_index():
             if m3:
                 title = m3.group(1).strip()
         if title is None:
-            # fallback: use directory label
-            title = re.sub(r"^\d+-", "", d.name).replace("-", " ")
-        if num is None:
-            # fallback numeric sort key: attempt to parse leading digits from dir
-            mo = re.match(r"^(\d{1,3})", d.name)
-            num = int(mo.group(1)) if mo else 0
+            title = slug_title
         display = f"{num:03d}. {title}"
-        entry = f"[{display}]({d.name}/CR.md) - {status or 'Unknown'}"
+        entry = f"[{display}]({p.name}) - {status or 'Unknown'}"
         entries.append((num, entry))
 
     # CRs: list latest first (descending numeric order)

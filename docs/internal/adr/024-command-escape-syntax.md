@@ -43,7 +43,7 @@ Examples:
 
 ## Links
 
-- Implementation CR: `docs/internal/cr/005-change-bracket-escapes-to-double-braces/CR.md`
+- Implementation CR: `docs/internal/cr/005-change-bracket-escapes-to-double-braces.md`
 
 ## Reviewed By
 
