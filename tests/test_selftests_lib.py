@@ -21,8 +21,6 @@ from akkapros.lib import utils
     ],
 )
 def test_library_selftests(name, runner):
-    if name == "syllabify":
-        pytest.xfail("Known diphthong-separator regression in syllabify self-tests")
     assert runner(), f"Library self-test failed: {name}"
 
 

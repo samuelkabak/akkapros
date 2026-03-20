@@ -5,3 +5,4 @@
 [003. Use rare bracket delimiters for escape markers (⟦ ⟧)](003-change-escape-delimiters/CR.md) - Done
 [004. Rename "repair" terminology to "accentuation"](004-rename-repair-to-accentuation/CR.md) - Approved
 [005. Change escaped-foreign-text delimiters from [ ] to {{ }}](005-change-bracket-escapes-to-double-braces/CR.md) - Approved
+[006. Fix xfail in syllabifier tests](006-fix-xfail-syllabifier-tests/CR.md) - Done

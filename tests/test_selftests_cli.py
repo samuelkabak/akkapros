@@ -14,7 +14,7 @@ def _run_cli(args):
     env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
     env["PYTHONIOENCODING"] = "utf-8"
     cmd = [sys.executable, "-m"] + args
-    return subprocess.run(cmd, cwd=REPO_ROOT, env=env, capture_output=True, text=True)
+    return subprocess.run(cmd, cwd=REPO_ROOT, env=env, capture_output=True, text=True, encoding="utf-8")
 
 
 @pytest.mark.parametrize(
@@ -32,8 +32,6 @@ def _run_cli(args):
     ],
 )
 def test_cli_selftest_flags(module_args):
-    if module_args in (["akkapros.cli.syllabifier", "--test"], ["akkapros.cli.fullprosmaker", "--test-all"]):
-        pytest.xfail("Known diphthong-separator regression in syllabify self-tests")
     proc = _run_cli(module_args)
     assert proc.returncode == 0, (
         f"CLI self-test failed for {' '.join(module_args)}\n"
@@ -64,6 +62,7 @@ def test_cli_direct_script_version(script_path):
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",
     )
     assert proc.returncode == 0, (
         f"Direct CLI script failed for {script_path}\n"

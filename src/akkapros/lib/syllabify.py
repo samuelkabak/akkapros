@@ -144,7 +144,6 @@ def parse_escape_at(text: str, start: int) -> Optional[Tuple[str, int]]:
         payload = text[start + len(OPEN_PRESERVE):close_idx]
         if OPEN_PRESERVE_CHAR in payload or CLOSE_PRESERVE_CHAR in payload:
             return None
-        payload = payload.strip()
         return f"{OPEN_PRESERVE}{payload}{CLOSE_PRESERVE}", close_idx + len(CLOSE_PRESERVE)
 
     if text[start] != OPEN_PRESERVE_CHAR:
@@ -165,7 +164,6 @@ def parse_escape_at(text: str, start: int) -> Optional[Tuple[str, int]]:
     payload = text[tag_end + 1:close_idx]
     if OPEN_PRESERVE_CHAR in payload or CLOSE_PRESERVE_CHAR in payload:
         return None
-    payload = payload.strip()
     return (
         f"{OPEN_PRESERVE_CHAR}{tag}{OPEN_PRESERVE_CHAR}{payload}{CLOSE_PRESERVE}",
         close_idx + len(CLOSE_PRESERVE),
@@ -453,8 +451,20 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
         parsed_escape = parse_escape_at(line, i)
         if parsed_escape is not None:
             token, next_i = parsed_escape
-            tokens.append(('escape', token))
-            i = next_i
+            # Escape segments behave like punctuation; preserve surrounding spaces
+            # exactly by absorbing adjacent whitespace into the same token.
+            prefix = ''
+            if tokens and tokens[-1][0] == 'punct' and tokens[-1][1].isspace():
+                prefix = tokens.pop()[1]
+
+            suffix = ''
+            j = next_i
+            while j < n and line[j].isspace():
+                suffix += line[j]
+                j += 1
+
+            tokens.append(('escape', f"{prefix}{token}{suffix}"))
+            i = j
             continue
 
         before = line[i-1] if i > 0 else ''
@@ -481,10 +491,11 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
                 i += 1
             punct = line[start:i]
             if punct.isspace():
-                prev_is_word = tokens and tokens[-1][0] in ('word', 'escape')
+                prev_is_word = tokens and (tokens[-1][0] == 'word' or tokens[-1][0] == 'escape')
                 next_is_word = i < n and is_word_char(line[i], extra)
-                next_is_escape = i < n and parse_escape_at(line, i) is not None
-                if prev_is_word and (next_is_word or next_is_escape):
+                # Keep spaces before escapes so they can be merged into the
+                # escape token and preserved inside ⟦...⟧.
+                if prev_is_word and next_is_word:
                     continue
             if punct:
                 tokens.append(('punct', punct))
@@ -526,7 +537,7 @@ def syllabify_text(
                 syllabified = syllabify_word(token_text, merge_hyphen)
                 current_line_parts.append(syllabified + SYL_WORD_ENDING)
             elif typ == 'escape':
-                current_line_parts.append(f"{OPEN_ESCAPE} {token_text} {CLOSE_ESCAPE}")
+                current_line_parts.append(f"{OPEN_ESCAPE}{token_text}{CLOSE_ESCAPE}")
             else:
                 # Treat "- " / "+ " as suffix boundary marker attached to previous word.
                 if (
@@ -682,14 +693,19 @@ def run_tests() -> bool:
         
         # ===== FOREIGN CHARACTERS =====
         ("Chinese characters", "šar 国王 gimir", "šar¦⟦ 国王 ⟧gi·mir¦"),
-        ("Foreign character in word", "šar? gimir[test]done", "šar¦⟦? ⟧gi·mir¦⟦[test]⟧d¦⟦o⟧ne¦"),
-        ("Mixed with brackets", "šar gimir [jamal@gmail·com] muḫḫi.", "šar¦gi·mir¦⟦ [jamal@gmail·com] ⟧muḫ·ḫi¦⟦.⟧"),
+        ("Foreign character in word 1", "šar? gimir{{test}}done", "šar¦⟦? ⟧gi·mir¦⟦{{test}}⟧d¦⟦o⟧ne¦"),
+        ("Foreign character in word 2", "šar? gimir{{test }}done", "šar¦⟦? ⟧gi·mir¦⟦{{test }}⟧d¦⟦o⟧ne¦"),
+        ("Foreign character in word 3", "šar? gimir{{ test }}done", "šar¦⟦? ⟧gi·mir¦⟦{{ test }}⟧d¦⟦o⟧ne¦"),
+        ("Foreign character in word 4", "šar? gimir {{test}}done", "šar¦⟦? ⟧gi·mir¦⟦ {{test}}⟧d¦⟦o⟧ne¦"),
+        ("Foreign character in word 5", "šar? gimir{{test}} done", "šar¦⟦? ⟧gi·mir¦⟦{{test}} ⟧d¦⟦o⟧ne¦"),
+        ("Foreign character in word 6", "šar? gimir {{test}} done", "šar¦⟦? ⟧gi·mir¦⟦ {{test}} ⟧d¦⟦o⟧ne¦"),
+        ("Mixed with reserve brackets", "šar gimir {{jamal@gmail·com}} muḫḫi.", "šar¦gi·mir¦⟦ {{jamal@gmail·com}} ⟧muḫ·ḫi¦⟦.⟧"),
 
         # ===== CR-005 ESCAPE SYNTAX =====
         ("Double-brace escape", "šar {{English word}} gimir", "šar¦⟦ {{English word}} ⟧gi·mir¦"),
         ("Tagged escape", "šar {url{https://ex.am/ple}} gimir", "šar¦⟦ {url{https://ex.am/ple}} ⟧gi·mir¦"),
         ("Internal tagged escape", "šar {_mdf{---}} gimir", "šar¦⟦ {_mdf{---}} ⟧gi·mir¦"),
-        ("Trim whitespace inside escape", "šar {{  hello world  }} gimir", "šar¦⟦ {{hello world}} ⟧gi·mir¦"),
+        ("Preserve whitespace inside escape", "šar {{  hello world  }} gimir", "šar¦⟦ {{  hello world  }} ⟧gi·mir¦"),
         ("Escape spacing like punctuation", "šar {{x}} gimir", "šar¦⟦ {{x}} ⟧gi·mir¦"),
         
         # ===== REAL EXAMPLES =====
@@ -697,11 +713,11 @@ def run_tests() -> bool:
          "ik·ka·ru¦i·na¦muḫ·ḫi¦⟦ … — ⟧i·bak·ki¦ṣar·piš¦"),
         
         # ===== DIPHTHONG TESTS =====
-        ("Diphthong ua", "ua", "u·ʾa¦"),
-        ("Diphthong ai", "ai", "a·ʾi¦"),
-        ("Diphthong iā", "iā", "i·ʾā¦"),
-        ("Multiple diphthongs", "ua iā", "u·ʾa¦i·ʾā¦"),
-        ("Diphthong with consonant", "šar ua", "šar¦u·ʾa¦"),
+        ("Diphthong ua", "ua", "u·¨a¦"),
+        ("Diphthong ai", "ai", "a·¨i¦"),
+        ("Diphthong iā", "iā", "i·¨ā¦"),
+        ("Multiple diphthongs", "ua iā", "u·¨a¦i·¨ā¦"),
+        ("Diphthong with consonant", "šar ua", "šar¦u·¨a¦"),
     ]
     
     passed = 0
