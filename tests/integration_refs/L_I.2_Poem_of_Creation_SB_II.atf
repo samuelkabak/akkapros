@@ -1,0 +1,26 @@
+&X000001 = L I.2 Poem of Creation (*Enūma eliš*) SB II
+#project: eblo
+#atf: lang akk-x-stdbab
+#atf: use unicode
+#atf: use math
+#atf: use legacy
+
+#tr.en: Tiamat assembled her creatures,
+1. %n ukappit-ma (||) tiāmtu | pitiqša
+#note: The expected st. c. would be derived from @i{pitēqu}. But the spellings in MSS BabaNB1, BabaNB3, and BabaNBQuo1 suggests that the st. c. is here derived secondary form @i{pitqu}.
+NinNA1 o ii 5'. u₂-ka[p-pit-ma x x x x x x x]
+BabaNB1 o 1. [u₂-kap-pit-m]a ti-a-ma-tu₄ pi-ti-iq-šu
+BabaNB2 o 1. [u₂-kap-pit-m]a? [x x x x x x]
+BabaNB3 o 1. [x x x x x x x x p]i-ti-iq-šu₂
+NinNACom1 o 12. !qt [u₂-kap-pi]t-ma ti-a₃-wa-ti pi-tiq-ša₂ !cm {kur}LAGAB k[up-p]u-tu₄ [(LAGAB) pu-u]h-hu-ru#
+NinNAQuo1 r 1'. u₂#-[kap-pit-ma x x x x x x]
+BabaNBQuo1 r 40'. u₂-kap-pit#-ma ti-a-ma-tu₄ [p]i-ti-iq-ša#
+BabaNBQuo2 r 2'. [x x x x] ti-[amtu x x x x]
+
+#tr.en: Drew up for battle against the gods her brood.
+2. %n tāhāza | iktaṣar || ana ilī | niprīša
+NinNA1 o ii 6'. ta-ha-z[u!? x x x x x x x x x x x]
+HuzNA1 o 1'. [x x x x x x x x x x] n[i-ip-ri-ša]
+BabaNB1 o 2. [x x x ik]-ta-ṣar a-na DINGIR.DINGIR ni-ip-ri-šu
+BabaNB2 o 2. [ta-ha]-zu# ik#-ta-[ṣar x x x x x x x x]
+BabaNB3 o 2. [x x x x x x a]n DINGIR.DINGIR ni-ip-ri-ša

@@ -143,8 +143,8 @@ def build_cr_index():
         entry = f"[{display}]({d.name}/CR.md) - {status or 'Unknown'}"
         entries.append((num, entry))
 
-    # CRs: keep ascending numeric order (older first)
-    entries.sort(key=lambda x: x[0])
+    # CRs: list latest first (descending numeric order)
+    entries.sort(key=lambda x: x[0], reverse=True)
     body = "\n".join(e for _, e in entries) + "\n"
     index_path.write_text(header + body, encoding="utf-8")
     print(f"Updated {index_path}")
@@ -196,7 +196,8 @@ def build_reviews_index():
         entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
         entries.append((num, entry))
 
-    entries.sort(key=lambda x: x[0])
+    # Reviews: list latest first (descending numeric order)
+    entries.sort(key=lambda x: x[0], reverse=True)
     body = "\n".join(e for _, e in entries) + "\n" if entries else ""
     index_path.write_text(header + body, encoding="utf-8")
     print(f"Updated {index_path}")
@@ -228,7 +229,8 @@ def build_spec_index():
         entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
         entries.append((num, entry))
 
-    entries.sort(key=lambda x: x[0])
+    # Specs: list latest first (descending numeric order)
+    entries.sort(key=lambda x: x[0], reverse=True)
     body = "\n".join(e for _, e in entries) + "\n"
     index_path.write_text(header + body, encoding="utf-8")
     print(f"Updated {index_path}")

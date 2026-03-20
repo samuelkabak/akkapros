@@ -1,0 +1,117 @@
+================================================================================
+METRICS SUMMARY: outputs/ref_stage/e2e_tilde.txt
+================================================================================
+
+--- RUN CONFIGURATION ---
+  cli: metricalc.py
+  extra_consonants: 
+  extra_vowels: 
+  input: outputs/ref_stage/e2e_tilde.txt
+  long_pause_punct_weight_unitless: 2.0
+  pause_ratio_percent: 35
+  short_pause_punct_weight_unitless: 1.0
+  wpm_words_per_min: 165
+
+--- ORIGINAL TEXT ---
+
+Syllable types:
+  CV    :    7 syllables (33.33%)
+  CVC   :    5 syllables (23.81%)
+  CVV   :    4 syllables (19.05%)
+  VC    :    1 syllables ( 4.76%)
+  V     :    2 syllables ( 9.52%)
+
+Mora statistics:
+  Mean morae per syllable: 1.619 mora/syllable
+  Std dev morae per syllable: 0.590 mora/syllable
+  Total morae number: 34 mora
+
+Word statistics:
+  Total words: 7 words
+  Syllables per word: 3.000 ± 0.577 syllable/word
+  Morae per word: 4.857 ± 0.690 mora/word
+
+Speech rate (original):
+  WPM: 165 words/min
+  Pause ratio: 35%
+  SPS (speech): 8.250 syllable/s
+  SPS (articulation): 12.692 syllable/s
+  Average syllable duration: 0.079 s/syllable
+  Mora duration: 0.049 s/mora
+  Word duration: 0.364 s/word
+
+Acoustic metrics (original):
+  %V (articulate): 79.31%
+  %V (normal speech, incl. pauses): 58.75%
+  ΔC: 0.7698 mora (0.0375 s) (consonant-interval SD)
+  MeanC: 1.0000 mora (0.0487 s) (mean consonant interval)
+  VarcoC: 76.98 %
+
+--- ACCENTUATED TEXT ---
+
+Syllable types:
+  CV    :    7 syllables (33.33%)
+  CVC   :    5 syllables (23.81%)
+  CVV   :    2 syllables ( 9.52%)
+  V     :    2 syllables ( 9.52%)
+  CVV:  :    2 syllables ( 9.52%)
+  VC:   :    1 syllables ( 4.76%)
+
+Mora statistics:
+  Mean morae per syllable: 1.810 mora/syllable
+  Std dev morae per syllable: 0.873 mora/syllable
+  Total morae number: 38 mora
+
+Word statistics:
+  Total words: 7 words
+  Syllables per word: 3.000 ± 0.577 syllable/word
+  Morae per word: 5.429 ± 0.787 mora/word
+
+Merge statistics:
+  Merged words: 2 words
+  Merged units: 1 units
+  Average unit size: 2.00 words
+
+Speech rate (accentuated):
+  WPM: 165 words/min
+  Pause ratio: 35%
+  SPS (speech): 8.250 syllable/s
+  SPS (articulation): 12.692 syllable/s
+  Average syllable duration: 0.079 s/syllable
+  Mora duration: 0.044 s/mora
+  Word duration: 0.364 s/word
+
+Acoustic metrics (accentuated):
+  %V (articulate): 74.19%
+  %V (normal speech, incl. pauses): 54.96%
+  ΔC: 0.9705 mora (0.0423 s) (consonant-interval SD)
+  MeanC: 1.1429 mora (0.0498 s) (mean consonant interval)
+  VarcoC: 84.92 %
+
+Pause metrics:
+  Short pause punctuation per syllable: 0.095 pause/syllable
+  Long pause punctuation per syllable: 0.095 pause/syllable
+  Total punctuation pauses per syllable: 0.190 pause/syllable
+  Total boundaries: 5 boundaries
+  Pauseable boundaries: 4 boundaries
+  Short pauseable boundaries: 2 boundaries
+  Long pauseable boundaries: 2 boundaries
+
+Pause duration allocation (total pause: 0.042 s/syllable):
+  Short pause punctuation weight: always 1.0 (no unit)
+  Initial long pause punctuation weight relative to short: 2.0 (no unit)
+  Initial short pause punctuation duration: 0.148 s/pause (1.8734 average syllable duration) (33.3% of pause time)
+  Initial average long pause punctuation duration: 0.297 s/pause (3.7595 average syllable duration) (66.7% of pause time)
+  Corrected (multiple of 2*morae) short pause punctuation duration: 0.174 s/pause (2.2025 average syllable duration) (39.1% of pause time)
+  Corrected average long pause punctuation duration: 0.271 s/pause (3.4304 average syllable duration) (60.9% of pause time)
+  Corrected average long pause punctuation weight relative to short: 1.6 (no unit)
+
+--- ACCENTUATION STATISTICS ---
+  Accentuated syllables: 3 syllables
+  Accentuation rate: 14.29%
+
+  Accentuation types:
+    CVV:    :    2 syllables
+    VC:     :    1 syllables
+
+================================================================================

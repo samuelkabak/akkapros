@@ -1,0 +1,26 @@
+⟦&X000001 = L I.2 Po⟧em¦⟦ of C⟧re·¨a·ti¦⟦o⟧n¦⟦ (*E⟧nū·ma¦e·liš¦⟦*) SB II⟧
+⟦#⟧pr¦⟦oj⟧e¦⟦c⟧t¦⟦: ⟧eb¦⟦o⟧
+⟦#⟧at¦⟦f: ⟧lan¦ak¦⟦-x-⟧stdbab¦
+⟦#⟧at¦⟦f: ⟧u·se¦u·ni¦⟦co⟧de¦
+⟦#⟧at¦⟦f: ⟧u·se¦mat¦⟦h⟧
+⟦#⟧at¦⟦f: ⟧u·se¦le·ga¦⟦c⟧y¦
+
+⟦#⟧tr¦⟦.⟧en¦⟦: T⟧i·¨a·mat¦as·sem·bled¦⟦ h⟧er¦⟦ c⟧re·¨a·tu·res¦⟦,⟧
+⟦1. %⟧n¦u·kap·pit-ma¦⟦ (||) ⟧ti·¨ām·tu¦⟦ | ⟧pi·tiq·ša¦
+⟦#⟧n¦⟦o⟧te¦⟦: Th⟧e¦e¦⟦x⟧pe¦⟦c⟧ted¦st¦⟦. c. ⟧w¦⟦o⟧ul¦be¦de·ri¦⟦v⟧ed¦⟦ f⟧r¦⟦o⟧m¦⟦ @⟧i¦⟦{⟧pi·tē·qu¦⟦}. B⟧ut¦t¦⟦h⟧e¦spel·lin¦in¦⟦ MSS B⟧a·ba¦⟦NB1, B⟧a·ba¦⟦NB3, ⟧an¦⟦ B⟧a·ba¦⟦NBQ⟧u¦⟦o1 ⟧sug·ges¦t¦⟦h⟧at¦t¦⟦h⟧e¦st¦⟦. c. ⟧is¦⟦ h⟧e·re¦de·ri¦⟦v⟧ed¦se¦⟦co⟧ndar¦⟦ fo⟧rm¦⟦ @⟧i¦⟦{⟧pit·qu¦⟦}.⟧
+⟦N⟧in¦⟦NA1 o ⟧i·¨i¦⟦ 5'. ⟧u¦⟦₂-⟧ka¦⟦[⟧p-pit-ma¦⟦ x x x x x x x]⟧
+⟦B⟧a·ba¦⟦NB1 o 1. [⟧u¦⟦₂-⟧kap-pit-m¦⟦]⟧a¦ti-a-ma-tu¦⟦₄ ⟧pi-ti-iq-šu¦
+⟦B⟧a·ba¦⟦NB2 o 1. [⟧u¦⟦₂-⟧kap-pit-m¦⟦]⟧a¦⟦? [x x x x x x]⟧
+⟦B⟧a·ba¦⟦NB3 o 1. [x x x x x x x x ⟧p¦⟦]⟧i-ti-iq-šu¦⟦₂⟧
+⟦N⟧in¦⟦NACo⟧m¦⟦1 o 12. !⟧qt¦⟦ [⟧u¦⟦₂-⟧kap-pi¦⟦]⟧t-ma¦ti-a¦⟦₃-⟧wa-ti¦pi-tiq-ša¦⟦₂ !c⟧m¦⟦ {⟧kur¦⟦}LAGAB ⟧k¦⟦[⟧up-p¦⟦]⟧u-tu¦⟦₄ [(LAGAB) ⟧pu-u¦⟦]h-h⟧u-ru¦⟦#⟧
+⟦N⟧in¦⟦NAQ⟧u¦⟦o1 ⟧r¦⟦ 1'. ⟧u¦⟦₂#-[⟧kap-pit-ma¦⟦ x x x x x x]⟧
+⟦B⟧a·ba¦⟦NBQ⟧u¦⟦o1 ⟧r¦⟦ 40'. ⟧u¦⟦₂-⟧kap-pit¦⟦#-⟧ma¦ti-a-ma-tu¦⟦₄ [⟧p¦⟦]⟧i-ti-iq-ša¦⟦#⟧
+⟦B⟧a·ba¦⟦NBQ⟧u¦⟦o2 ⟧r¦⟦ 2'. [x x x x] ⟧ti¦⟦-[⟧am·tu¦⟦ x x x x]⟧
+
+⟦#⟧tr¦⟦.⟧en¦⟦: D⟧rew¦up¦⟦ fo⟧r¦bat·tle¦a·ga·¨in¦t¦⟦h⟧e¦g¦⟦o⟧ds¦⟦ h⟧er¦br¦⟦oo⟧d¦⟦.⟧
+⟦2. %⟧n¦tā¦⟦h⟧ā·za¦⟦ | ⟧ik·ta·ṣar¦⟦ || ⟧a·na¦i·lī¦⟦ | ⟧nip·rī·ša¦
+⟦N⟧in¦⟦NA1 o ⟧i·¨i¦⟦ 6'. ⟧ta¦⟦-h⟧a-z¦⟦[⟧u¦⟦!? x x x x x x x x x x x]⟧
+⟦H⟧uz¦⟦NA1 o 1'. [x x x x x x x x x x] ⟧n¦⟦[⟧i-ip-ri-ša¦⟦]⟧
+⟦B⟧a·ba¦⟦NB1 o 2. [x x x ⟧ik¦⟦]-⟧ta-ṣar¦a-na¦⟦ DINGIR.DINGIR ⟧ni-ip-ri-šu¦
+⟦B⟧a·ba¦⟦NB2 o 2. [⟧ta¦⟦-h⟧a¦⟦]-⟧zu¦⟦# ⟧ik¦⟦#-⟧ta¦⟦-[⟧ṣar¦⟦ x x x x x x x x]⟧
+⟦B⟧a·ba¦⟦NB3 o 2. [x x x x x x ⟧a¦⟦]⟧n¦⟦ DINGIR.DINGIR ⟧ni-ip-ri-ša¦

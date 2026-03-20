@@ -1,0 +1,43 @@
+# ============================================
+# AKKADIAN DIPHONE RECORDING SCRIPT
+# Target coverage: 1
+# ============================================
+
+# Patterns:
+# Pattern 1: _ V C C V C C V _  -> VC.CVC.CV
+# Pattern 2: _ C V C V C C V C _  -> CV.CVC.CVC
+# Pattern 3: _ C V V C V V C _  -> CVV.CVVC
+
+# Instructions:
+# - Speak each line naturally
+# - Pause 1 second before and after each word
+# - Record at 16kHz, 16-bit, mono
+
+# ========== PATTERN 1 (VCCVCCV) ==========
+# 3 words
+
+# Block 1
+_am.qɑq.ma_
+_aq.qɑm.ma_
+_am.maq.qɑ_
+
+# ========== PATTERN 2 (CVCVCCVC) ==========
+# 1 words
+
+# Block 1
+_qɑ.maq.qɑm_
+
+# ========== PATTERN 3 (CVVCVVC) ==========
+# 2 words
+
+# Block 1
+_ma.a.ma.aq_
+_qɑ.ɑ.ma.aq_
+
+# ============================================
+# SUMMARY
+# ============================================
+# Total words: 6
+# Pattern 1: 3 words
+# Pattern 2: 1 words
+# Pattern 3: 2 words

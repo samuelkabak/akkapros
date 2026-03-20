@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [025. ADR 025: Integration Test Coverage for CLI and Outputs](025-integration-test-coverage.md) - Accepted
 - [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Accepted
 - [023. 023 — Rename "repair" terminology to "accentuation" and accept the compatibility break](023-rename-repair-to-accentuation.md) - Accepted
 - [022. Output Format Public Contract Boundaries](022-output-format-public-contract-boundaries.md) - Accepted

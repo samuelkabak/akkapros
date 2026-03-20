@@ -1,0 +1,26 @@
+&X000001 = L I.2 Poem of Crea·t~ion (*Enū~·ma e·l~iš*) SB II
+#proj~ect: ebo
+#atf: lan ak-x-stdbab
+#atf: u·se u·nicod~e
+#atf: u·se math
+#atf: u·se le·gacy
+
+#tr.en: Tia·mat as·sem·bled her crea·tu·r~es,
+1. %n u·kap·pit-ma (||) tiā~m·tu | pi·tiq·ša
+#not~e: The+exp~ected st. c. woul+be de·rived from @~i{pi·tē·qu}. But the+spel~·lin in MSS Ba·baNB1, Ba·baNB3, an Ba·ba NBQ+uo1 sug·ges that th~e st. c. is he·re de·rived s~econdar form @~i{pit~·qu}.
+NinNA1 o î 5'. +u₂-k~a[p-pit~-ma x x x x x x x]
+Ba·ba NB1 o 1. [+u₂-kap-pit-m]~a ti-a-ma-tu₄ pi-ti-iq~-šu
+Ba·ba NB2 o 1. [+u₂-kap-pit-m]~a? [x x x x x x]
+Ba·baNB3 o 1. [x x x x x x x x p]i-ti-iq~-šu₂
+NinNACom1 o 12. !qt [+u₂-kap~-pi]t~-ma ti-a₃-wa-ti pi-tiq-ša₂ !cm {kur}LAGAB k[up-p]u-tu₄ [(LAGAB) pu-u]h-hu-ru#
+Nin NAQ+uo1 r 1'. +u₂#-[kap-pit~-ma x x x x x x]
+Ba·ba NBQ+uo1 r 40'. +u₂-kap-pit#-m~a ti-a-ma-tu₄ [p]i-ti-iq~-ša#
+Ba·ba NBQ+uo2 r 2'. [x x x x] t~i-[am~·tu x x x x]
+
+#tr.en: Drew up for bat~·tle a·gain th~e gods her brood.
+2. %n tāhā~·za | ik~·ta·ṣar || ana+i·lī | nip·rī~·ša
+NinNA1 o î 6'. t~a-ha-z~ [+u!? x x x x x x x x x x x]
+HuzNA1 o 1'. [x x x x x x x x x x] n[i-ip~-ri-ša]
+Ba·baNB1 o 2. [x x x ik]-ta-ṣar+ana DINGIR.DINGIR ni-ip~-ri-šu
+Ba·baNB2 o 2. [t~a-h~a]-z~u# ik#-t~a-[ṣar x x x x x x x x]
+Ba·baNB3 o 2. [x x x x x x ~a]n DINGIR.DINGIR ni-ip~-ri-ša

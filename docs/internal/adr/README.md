@@ -34,5 +34,13 @@ Where:
 
 NNN is a sequential number.
 
+## Picking the next ADR number
+
+- When creating a new ADR, always assign the next unused sequential number
+	(NNN). To find the next number, list the files in this directory and pick
+	one greater than the highest existing NNN (e.g., if the highest ADR is
+	`024-...`, the next ADR should be `025-...`).
+- Do not reuse numbers.
+
 ---------------------------------------------------------------------
 

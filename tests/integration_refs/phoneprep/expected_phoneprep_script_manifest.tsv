@@ -1,0 +1,7 @@
+utterance_id	batch	pattern	word_spaced	word_script	diphone_count	diphones
+1	single	2	q a. m a q q a. m	_q a. m a q q a. m_	9	_-q q-a. a.-m m-a a-q q-q q-a. a.-m m-_
+2	single	3	m a a m a a q	_m a a m a a q_	8	_-m m-a a-a a-m m-a a-a a-q q-_
+3	single	1	a m q a. q m a	_a m q a. q m a_	8	_-a a-m m-q q-a. a.-q q-m m-a a-_
+4	single	1	a q q a. m m a	_a q q a. m m a_	8	_-a a-q q-q q-a. a.-m m-m m-a a-_
+5	single	3	q a. a. m a a q	_q a. a. m a a q_	8	_-q q-a. a.-a. a.-m m-a a-a a-q q-_
+6	single	1	a m m a q q a.	_a m m a q q a._	8	_-a a-m m-m m-a a-q q-q q-a. a.-_

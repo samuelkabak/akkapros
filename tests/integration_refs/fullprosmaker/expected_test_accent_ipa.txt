@@ -1,0 +1,26 @@
+⟨ampersand⟩ | X ⟨number⟩ | =LI ⟨period⟩ ⟨number⟩ ‖ PoemofCrea.ˈtːion ⟨opening-parenthese⟩ ⟨asterisk⟩ | Eˈnuːː.ma.e.ˈlːiʃ ⟨asterisk⟩ ⟨closing-parenthese⟩ | SBII ⟨linebreak⟩ ‖
+⟨hash⟩ | projˈʔːect ⟨colon⟩ | ebo ⟨linebreak⟩ ‖
+⟨hash⟩ | atf ⟨colon⟩ | lan.ak-x-stdbab ⟨linebreak⟩ ‖
+⟨hash⟩ | atf ⟨colon⟩ | u.se.u.nicoˈdːe ⟨linebreak⟩ ‖
+⟨hash⟩ | atf ⟨colon⟩ | u.se.math ⟨linebreak⟩ ‖
+⟨hash⟩ | atf ⟨colon⟩ | u.se.le.gacj ⟨linebreak⟩ ‖
+⟨linebreak⟩ ‖
+⟨hash⟩ | tr ⟨period⟩ ‖ en ⟨colon⟩ | Tia.mat.as.sem.bledhercrea.tu.ˈrːes ⟨comma⟩ | ⟨linebreak⟩ ‖
+⟨number⟩ ⟨period⟩ ⟨percent⟩ ‖ n.u.kap.pit-ma ⟨opening-parenthese⟩ | || ⟨closing-parenthese⟩ | ˈtiaːːm.tu|pi.tiq.ʃa ⟨linebreak⟩ ‖
+⟨hash⟩ | noˈtːe ⟨colon⟩ | The.exˈpːected.st ⟨period⟩ ‖ c ⟨period⟩ ‖ woul.be.de.rivedfrom ⟨punct⟩ | ˈʔːi ⟨opening-brace⟩ | pi.teː.qʊ ⟨closing-brace⟩ ⟨period⟩ ‖ But.the.ˈspelː.lin.inMSSBa.baNB ⟨number⟩ ⟨comma⟩ | Ba.baNB ⟨number⟩ ⟨comma⟩ | anBa.baNBQ.uo ⟨number⟩ | sug.ges.that.thˈʔːe.st ⟨period⟩ ‖ c ⟨period⟩ ‖ ishe.re.de.rived.ˈsːecondarform ⟨punct⟩ | ˈʔːi ⟨opening-brace⟩ | ˈpitː.qʊ ⟨closing-brace⟩ ⟨period⟩ ‖
+NinNA ⟨number⟩ | oiː ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ‖.u ⟨number⟩ | -ˈkːa ⟨opening-bracket⟩ | p-ˈpitː-maxxxxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖.u ⟨number⟩ | -kap-pit-m ⟨closing-bracket⟩ | ˈʔːa.ti-a-ma-tu ⟨number⟩ | pi-ti-ˈʔiqː-ʃu ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖.u ⟨number⟩ | -kap-pit-m ⟨closing-bracket⟩ | ˈʔːa ⟨question⟩ ⟨opening-bracket⟩ ‖ xxxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ xxxxxxxxp ⟨closing-bracket⟩ | i-ti-ˈʔiqː-ʃu ⟨number⟩ | ⟨linebreak⟩ ‖
+NinNACom ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨exclamation⟩ ‖ qt ⟨opening-bracket⟩ |.u ⟨number⟩ | -ˈkapː-pi ⟨closing-bracket⟩ | ˈtː-ma.ti-a ⟨number⟩ | -wa-ti.pi-tiq-ʃa ⟨number⟩ ⟨exclamation⟩ ‖ cm ⟨opening-brace⟩ | kur ⟨closing-brace⟩ | LAGABk ⟨opening-bracket⟩ | up-p ⟨closing-bracket⟩ | u-tu ⟨number⟩ ⟨opening-bracket⟩ ⟨opening-parenthese⟩ | LAGAB ⟨closing-parenthese⟩ | pu-u ⟨closing-bracket⟩ | h-hu-ru ⟨hash⟩ | ⟨linebreak⟩ ‖
+NinNAQ.uo ⟨number⟩ | r ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ‖.u ⟨number⟩ ⟨hash⟩ | - ⟨opening-bracket⟩ | kap-ˈpitː-maxxxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+Ba.baNBQ.uo ⟨number⟩ | r ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ‖.u ⟨number⟩ | -kap-pit ⟨hash⟩ | -ˈmːa.ti-a-ma-tu ⟨number⟩ ⟨opening-bracket⟩ | p ⟨closing-bracket⟩ | i-ti-ˈʔiqː-ʃa ⟨hash⟩ | ⟨linebreak⟩ ‖
+Ba.baNBQ.uo ⟨number⟩ | r ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ xxxx ⟨closing-bracket⟩ | ˈtːi- ⟨opening-bracket⟩ | ˈʔamː.tuxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+⟨linebreak⟩ ‖
+⟨hash⟩ | tr ⟨period⟩ ‖ en ⟨colon⟩ | Drew.upfor.ˈbatː.tle.a.gain.thˈʔːe.godsher.brood ⟨period⟩ ‖
+⟨number⟩ ⟨period⟩ ⟨percent⟩ ‖ n.taːhˈʔaːː.za|ˈʔikː.ta.sˤɑr||ana.i.liː|nip.ˈriːː.ʃa ⟨linebreak⟩ ‖
+NinNA ⟨number⟩ | oiː ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ‖ ˈtːa-ha-ˈzː ⟨opening-bracket⟩ |.u ⟨exclamation⟩ ⟨question⟩ ‖ xxxxxxxxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+HuzNA ⟨number⟩ | o ⟨number⟩ ⟨apostrophe⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ xxxxxxxxxx ⟨closing-bracket⟩ | n ⟨opening-bracket⟩ | i-ˈʔipː-ri-ʃa ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ xxxik ⟨closing-bracket⟩ | -ta-sˤɑr.anaDINGIR ⟨period⟩ ‖ DINGIRni-ˈʔipː-ri-ʃu ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ ˈtːa-hˈʔːa ⟨closing-bracket⟩ | -ˈzːu ⟨hash⟩ | ik ⟨hash⟩ | -ˈtːa- ⟨opening-bracket⟩ | sˤɑrxxxxxxxx ⟨closing-bracket⟩ | ⟨linebreak⟩ ‖
+Ba.baNB ⟨number⟩ | o ⟨number⟩ ⟨period⟩ ⟨opening-bracket⟩ ‖ xxxxxxˈʔːa ⟨closing-bracket⟩ | nDINGIR ⟨period⟩ ‖ DINGIRni-ˈʔipː-ri-ʃa ⟨linebreak⟩ ‖
