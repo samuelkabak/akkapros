@@ -24,7 +24,7 @@ from akkapros.lib.metrics import (
     format_csv,
     run_tests,
 )
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def simple_safe_filename(text: str) -> str:

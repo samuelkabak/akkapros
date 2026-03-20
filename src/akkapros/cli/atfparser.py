@@ -29,7 +29,7 @@ from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 __ebl_url__ = "https://www.ebl.lmu.de/"
 

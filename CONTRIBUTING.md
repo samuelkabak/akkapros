@@ -115,6 +115,13 @@ We follow these coding standards to maintain consistency:
 | Constants | UPPERCASE_WITH_UNDERSCORES | `MAX_ITERATIONS` |
 | Private members | _leading_underscore | `_internal_helper()` |
 
+### Code Generators (`_gencode`)
+
+- Place generator modules under `src/akkapros/_gencode/`.
+- Keep runtime modules under `src/akkapros/lib/`; generated runtime artifacts should be written there.
+- Diphthong table generator: `python -m akkapros._gencode.lib_diphthongs`
+- Build-hook entrypoint is documented in `pyproject.toml` under `[tool.build].generate`.
+
 ---
 
 ## 🧪 Testing

@@ -2,8 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[009. Reorganize CLI common code and add `_gencode` generators](009-reorganize-cli-gencode.md) - Draft
-[008. Add end-to-end integration test with gold-standard metrics](008-add-integration-test.md) - Draft
+[009. Reorganize CLI common code and add `_gencode` generators](009-reorganize-cli-gencode.md) - Done
+[008. Add end-to-end integration test with gold-standard metrics](008-add-integration-test.md) - Done
 [007. Enforce POSIX EOF newline in all program outputs](007-enforce-posix-eof.md) - Done
 [006. Fix xfail in syllabifier tests, clean CR-004 untracked files](006-fix-xfail-syllabifier-tests.md) - Done
 [005. Change escaped-foreign-text delimiters from [ ] to {{ }}](005-change-bracket-escapes-to-double-braces.md) - Approved

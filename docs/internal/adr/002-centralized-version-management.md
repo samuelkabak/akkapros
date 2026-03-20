@@ -52,7 +52,7 @@ Chosen option: Centralize package metadata in `src/akkapros/__init__.py` and exp
 ## Links
 
 - Related: `src/akkapros/__init__.py`
-- Related: `src/akkapros/cli/_cli_common.py`
+- Related: `src/akkapros/lib/utils.py`
 
 ## Reviewed By
 

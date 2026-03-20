@@ -4,7 +4,7 @@
 This document explains how diphthongs are handled by the Akkapros pipeline: how they are split for syllabification, prosody-realized (if necessary), and restored back into canonical diphthong forms.
 
 **Implementation:**
-- Generator: `src/akkapros/lib/_gen_diphthongs.py`
+- Generator: `src/akkapros/_gencode/lib_diphthongs.py`
 - Generated table: `src/akkapros/lib/diphthongs.py` (via `generate_diphthongs_file()`)
 
 ---
@@ -84,12 +84,12 @@ Here are representative mappings (informal):
 
 ## Regenerating the Replacement File
 
-To regenerate `diphthongs.py` from the generator, run the generator as a script from the repository root:
+To regenerate `diphthongs.py` from the generator, run the module from the repository root:
 
-    python src/akkapros/lib/_gen_diphthongs.py
+  python -m akkapros._gencode.lib_diphthongs
 
 This will:
-1. Write `diphthongs.py` next to the generator
+1. Write `src/akkapros/lib/diphthongs.py`
 2. Print a summary of how many combined regex rules were generated (counts for second-tilde vs plain patterns)
 
 ---
@@ -106,7 +106,7 @@ This will:
 
 ## Further Reading
 
-- Implementation: `src/akkapros/lib/_gen_diphthongs.py`
+- Implementation: `src/akkapros/_gencode/lib_diphthongs.py`
 - Generated table: `src/akkapros/lib/diphthongs.py` (contains the `ALL_REPLACEMENTS` table used at runtime)
 
 ---

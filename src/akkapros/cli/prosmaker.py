@@ -23,7 +23,7 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros import __version__
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def simple_safe_filename(text: str) -> str:

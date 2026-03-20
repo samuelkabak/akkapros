@@ -38,6 +38,11 @@ include = ["akkapros*"]
 [tool.setuptools.package-data]
 "akkapros" = ["docs/*.md"]
 
+[tool.build]
+generate = [
+    "python -m akkapros._gencode.lib_diphthongs",
+]
+
 [project.scripts]
 akkapros-fullprosmaker = "akkapros.cli.fullprosmaker:main"
 akkapros-syllabifier = "akkapros.cli.syllabifier:main"

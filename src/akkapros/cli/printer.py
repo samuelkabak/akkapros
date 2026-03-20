@@ -20,7 +20,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros import __version__
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.cli._cli_common import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:

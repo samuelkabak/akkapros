@@ -17,7 +17,7 @@ from pathlib import Path
 _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
-from akkapros.cli._cli_common import add_standard_version_argument
+from akkapros.lib.utils import add_standard_version_argument
 
 # ============================================
 # PHONEME INVENTORY
