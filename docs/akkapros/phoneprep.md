@@ -132,6 +132,8 @@ Two critical rules are enforced during generation:
 | **Post-emphatic coloring** | Colored vowels are legal only after emphatic consonants (`q`, `ṣ`, `ṭ`). Word-initial vowels must be plain. |
 | **V-V sequence class matching** | In vowel-vowel sequences, both vowels must belong to the same class (both plain or both colored). |
 
+**Emphatic vowel coloring**: In Semitic languages, emphatic consonants (`q`, `ṣ`, `ṭ`) retract the tongue body, lowering the second formant (F2) of following vowels. This "vowel coloring" persists across adjacent vowels, creating a consistent phonetic pattern that the generation system must respect. This is transcribed in IPA as vowel backing: plain `/a/` → `/ɑ/`, `/i/` → `/ɨ/`, `/u/` → `/ʉ/`, `/e/` → `/ɛ/`. Example: sˤɑr (plain sar would be /sar/).
+
 ### 3. Word Shape Patterns
 
 The generator samples legal words across three templates:

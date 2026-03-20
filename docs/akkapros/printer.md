@@ -141,6 +141,8 @@ Full phonetic transcription with:
 
 Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
 
+**Emphatic vowel coloring**: In Semitic languages, emphatic consonants (`q`, `ṣ`, `ṭ`) retract the tongue body, lowering the second formant (F2) of following vowels. This is transcribed in IPA as vowel backing: plain `/a/` → `/ɑ/`, `/i/` → `/ɨ/`, `/u/` → `/ʉ/`, `/e/` → `/ɛ/`. Example: sˤɑr (plain sar would be /sar/).
+
 Escaped chunks from earlier stages are preserved in IPA metadata as:
 
 - `⟨escape:{{text}}⟩`
