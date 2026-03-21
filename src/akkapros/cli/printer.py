@@ -20,7 +20,13 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros import __version__
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import (
+    FormatValidationError,
+    RawDefaultsHelpFormatter,
+    add_standard_version_argument,
+    print_startup_banner,
+    validate_intermediate_format,
+)
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
@@ -119,6 +125,16 @@ def main() -> None:
     if not input_path.exists():
         print(f"Error: File not found: {args.input}")
         sys.exit(1)
+
+    try:
+        validate_intermediate_format(input_path, expected_kind='tilde')
+    except FormatValidationError as exc:
+        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
+        print(
+            "Hint: expected prosody-realized *_tilde.txt content; re-run prosmaker if needed.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
 
     outdir = Path(args.outdir)
     if outdir != Path('.'):

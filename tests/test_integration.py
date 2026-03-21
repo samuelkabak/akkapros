@@ -12,11 +12,12 @@ STAGE_REF_DIR = INTREF_DIR / "stage_pipeline"
 FULL_REF_DIR = INTREF_DIR / "fullprosmaker"
 PHONEPREP_REF_DIR = INTREF_DIR / "phoneprep"
 INPUT_ATF = INTREF_DIR / "L_I.2_Poem_of_Creation_SB_II.atf"
+INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 
 # Gold-standard values from known-good output for this reference sample.
-GOLD_VARCOC_ACCENTUATED = 84.37
-GOLD_ACCENTUATION_RATE = 15.85
-GOLD_TILDE_SAMPLE_LINE = "1. %n u·kap·pit-ma (||) tiā~m·tu | pi·tiq·ša"
+GOLD_VARCOC_ACCENTUATED = 84.92
+GOLD_ACCENTUATION_RATE = 14.29
+GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma : tiā~m·tu pi·tiq·ša"
 
 
 def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
@@ -236,7 +237,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
 
     _run_cli(
         "akkapros.cli.fullprosmaker",
-        str(INPUT_ATF),
+        str(INPUT_PROC),
         "-p",
         prefix,
         "--outdir",

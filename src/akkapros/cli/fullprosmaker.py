@@ -36,7 +36,13 @@ from akkapros.lib.metrics import (
 )
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import (
+    FormatValidationError,
+    RawDefaultsHelpFormatter,
+    add_standard_version_argument,
+    print_startup_banner,
+    validate_intermediate_format,
+)
 
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
@@ -338,6 +344,16 @@ Version: {__version__}
     if not input_path.exists():
         print(f"Error: File not found: {args.input}")
         sys.exit(1)
+
+    try:
+        validate_intermediate_format(input_path, expected_kind='proc')
+    except FormatValidationError as exc:
+        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
+        print(
+            "Hint: expected cleaned *_proc.txt input from atfparser; fullprosmaker does not accept raw .atf.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
 
     outdir = Path(args.outdir)
     prefix = args.prefix if args.prefix else input_path.stem.replace('_proc', '')

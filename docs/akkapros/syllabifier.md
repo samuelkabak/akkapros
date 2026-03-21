@@ -116,6 +116,12 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 - **Escapes in source text**: `{{text}}` and `{tag{text}}` are preserved verbatim, wrapped as `⟦...⟧`, and excluded from Akkadian syllabification.
 - **Nested escapes** are intentionally unsupported; only `{{...}}` and one-level `{tag{...}}` are recognized.
 - **Word endings** are explicitly marked with `¦` for downstream processing.
+- By default, input format is validated at startup and reports precise source + line for obvious corruption or wrong stage input (for example raw ATF lines in a `*_proc.txt` input).
+
+### Validation Rules (Middle Strictness)
+
+Validation here is pragmatic: `syllabifier.py` verifies that input looks like cleaned `*_proc.txt` text and rejects obvious wrong-stage files (for example raw `%n`/`#tr.en:` ATF content), empty/binary files, and clearly corrupted structure. It does not enforce a strict grammar for every possible line. The purpose is to catch inputs that would likely cause hard downstream exceptions, not to block valid textual variation.
+The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ---
 

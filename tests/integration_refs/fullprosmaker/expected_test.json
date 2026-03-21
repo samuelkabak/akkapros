@@ -1,193 +1,175 @@
 {
-  "file": "outputs\\ref_full\\test_tilde.txt",
+  "file": "outputs\\integration_test\\new_fullproc\\test_tilde.txt",
   "original": {
     "stats": {
       "syllable_counts": {
-        "VC": 38,
-        "CVC": 34,
-        "CV": 82,
-        "???": 50,
-        "CVV": 5,
-        "V": 53,
-        "VV": 3
+        "V": 2,
+        "CVC": 5,
+        "CV": 7,
+        "???": 2,
+        "CVV": 4,
+        "VC": 1
       },
       "syllable_percentages": {
-        "VC": 14.339622641509434,
-        "CVC": 12.830188679245284,
-        "CV": 30.943396226415093,
-        "???": 18.867924528301888,
-        "CVV": 1.8867924528301887,
-        "V": 20.0,
-        "VV": 1.1320754716981132
+        "V": 9.523809523809524,
+        "CVC": 23.809523809523807,
+        "CV": 33.33333333333333,
+        "???": 9.523809523809524,
+        "CVV": 19.047619047619047,
+        "VC": 4.761904761904762
       },
-      "total_syllables": 265,
+      "total_syllables": 21,
       "mora_stats": {
-        "mean": 1.1660377358490566,
-        "std": 0.6761475644218813,
-        "total": 309
+        "mean": 1.619047619047619,
+        "std": 0.5895922723535711,
+        "total": 34
       },
       "word_stats": {
-        "total_words": 178,
+        "total_words": 7,
         "syllables_per_word": {
-          "mean": 1.4887640449438202,
-          "std": 0.707017001249519
+          "mean": 3,
+          "std": 0.5773502691896257
         },
         "morae_per_word": {
-          "mean": 1.7359550561797752,
-          "std": 1.3416194945010071
+          "mean": 4.857142857142857,
+          "std": 0.6900655593423543
         }
       },
       "merge_stats": {
-        "total_merged_words": 10,
-        "merged_units": 5,
+        "total_merged_words": 2,
+        "merged_units": 1,
         "avg_unit_size": 2.0
       }
     },
     "speech": {
       "wpm": 165,
       "pause_ratio": 35,
-      "sps_speech": 4.094101123595506,
-      "sps_articulation": 6.298617113223854,
-      "syllable_duration": 0.15876500857632933,
-      "mora_duration": 0.13615769343924683,
+      "sps_speech": 8.25,
+      "sps_articulation": 12.692307692307692,
+      "syllable_duration": 0.0787878787878788,
+      "mora_duration": 0.04866310160427808,
       "word_duration": 0.36363636363636365
     },
     "acoustic": {
-      "percent_v": 75.59322033898304,
-      "percent_v_articulate": 75.59322033898304,
-      "percent_v_speech": 55.994978028876325,
-      "delta_c": 0.5711838036337193,
-      "mean_interval": 0.6895424836601307,
-      "varco_c": 82.83518668811286
+      "percent_v": 79.3103448275862,
+      "percent_v_articulate": 79.3103448275862,
+      "percent_v_speech": 58.74840357598978,
+      "delta_c": 0.769800358919501,
+      "mean_interval": 1.0,
+      "varco_c": 76.98003589195011
     }
   },
   "accentuated": {
     "stats": {
       "syllable_counts": {
-        "VC": 30,
-        "CVC": 27,
-        "C:V": 14,
-        "???": 47,
+        "V": 2,
+        "CVC": 5,
+        "CV": 7,
+        "???": 2,
+        "CVV": 2,
         "CVV:": 2,
-        "CV": 70,
-        "V": 44,
-        "ʔ:V": 9,
-        "CVV": 3,
-        "VC:": 11,
-        "CVC:": 5,
-        "VV": 2,
-        "VV:": 1
+        "VC:": 1
       },
       "syllable_percentages": {
-        "VC": 11.320754716981133,
-        "CVC": 10.18867924528302,
-        "C:V": 5.283018867924529,
-        "???": 17.735849056603772,
-        "CVV:": 0.7547169811320755,
-        "CV": 26.41509433962264,
-        "V": 16.60377358490566,
-        "ʔ:V": 3.3962264150943398,
-        "CVV": 1.1320754716981132,
-        "VC:": 4.150943396226415,
-        "CVC:": 1.8867924528301887,
-        "VV": 0.7547169811320755,
-        "VV:": 0.37735849056603776
+        "V": 9.523809523809524,
+        "CVC": 23.809523809523807,
+        "CV": 33.33333333333333,
+        "???": 9.523809523809524,
+        "CVV": 9.523809523809524,
+        "CVV:": 9.523809523809524,
+        "VC:": 4.761904761904762
       },
-      "total_syllables": 265,
+      "total_syllables": 21,
       "mora_stats": {
-        "mean": 1.3396226415094339,
-        "std": 0.829005341997974,
-        "total": 355
+        "mean": 1.8095238095238095,
+        "std": 0.8728715609439696,
+        "total": 38
       },
       "word_stats": {
-        "total_words": 178,
+        "total_words": 7,
         "syllables_per_word": {
-          "mean": 1.4887640449438202,
-          "std": 0.707017001249519
+          "mean": 3,
+          "std": 0.5773502691896257
         },
         "morae_per_word": {
-          "mean": 1.9943820224719102,
-          "std": 1.5089083531500698
+          "mean": 5.428571428571429,
+          "std": 0.7867957924694432
         }
       },
       "merge_stats": {
-        "total_merged_words": 10,
-        "merged_units": 5,
+        "total_merged_words": 2,
+        "merged_units": 1,
         "avg_unit_size": 2.0
       }
     },
     "acoustic": {
-      "percent_v": 68.48484848484848,
-      "percent_v_articulate": 68.48484848484848,
-      "percent_v_speech": 50.72951739618406,
-      "delta_c": 0.6941881240550641,
-      "mean_interval": 0.822742474916388,
-      "varco_c": 84.37489800506674
+      "percent_v": 74.19354838709677,
+      "percent_v_articulate": 74.19354838709677,
+      "percent_v_speech": 54.958183990442045,
+      "delta_c": 0.9704632614370015,
+      "mean_interval": 1.1428571428571428,
+      "varco_c": 84.91553537573763
     },
     "speech": {
       "wpm": 165,
       "pause_ratio": 35,
-      "sps_speech": 4.094101123595506,
-      "sps_articulation": 6.298617113223854,
-      "syllable_duration": 0.15876500857632933,
-      "mora_duration": 0.11851472471190781,
+      "sps_speech": 8.25,
+      "sps_articulation": 12.692307692307692,
+      "syllable_duration": 0.0787878787878788,
+      "mora_duration": 0.04354066985645933,
       "word_duration": 0.36363636363636365
     },
     "pause_metrics": {
       "spaces_per_syllable": 0.0,
-      "punctuation_per_syllable": 0.569811320754717,
-      "short_punctuation_per_syllable": 0.05660377358490566,
-      "long_punctuation_per_syllable": 0.5132075471698113,
-      "total_boundaries": 156,
-      "pauseable_boundaries": 151,
-      "short_pauseable_boundaries": 15,
-      "long_pauseable_boundaries": 136,
+      "punctuation_per_syllable": 0.19047619047619047,
+      "short_punctuation_per_syllable": 0.09523809523809523,
+      "long_punctuation_per_syllable": 0.09523809523809523,
+      "total_boundaries": 5,
+      "pauseable_boundaries": 4,
+      "short_pauseable_boundaries": 2,
+      "long_pauseable_boundaries": 2,
       "raw_counts": {
         "spaces": 0,
-        "punctuation": 151,
-        "short_punctuation": 15,
-        "long_punctuation": 136,
-        "defaulted_long_punctuation": 41,
-        "merged_boundaries": 5
+        "punctuation": 4,
+        "short_punctuation": 2,
+        "long_punctuation": 2,
+        "defaulted_long_punctuation": 0,
+        "merged_boundaries": 1
       }
     },
     "pause_durations": {
-      "initial_short_punctuation_duration": 0.07893569844789357,
-      "initial_long_punctuation_duration": 0.15787139689578714,
-      "initial_short_punctuation_contribution": 0.004468058402710957,
-      "initial_long_punctuation_contribution": 0.08102079236915868,
-      "initial_short_punctuation_percent": 5.226480836236934,
-      "initial_long_punctuation_percent": 94.77351916376307,
+      "initial_short_punctuation_duration": 0.14848484848484847,
+      "initial_long_punctuation_duration": 0.29696969696969694,
+      "initial_short_punctuation_contribution": 0.014141414141414139,
+      "initial_long_punctuation_contribution": 0.028282828282828278,
+      "initial_short_punctuation_percent": 33.33333333333333,
+      "initial_long_punctuation_percent": 66.66666666666666,
       "short_punct_weight": 1.0,
       "initial_long_punct_weight": 2.0,
-      "short_mora_ratio_initial": 0.6660412757973734,
-      "corrected_short_mora_multiple": 0,
-      "corrected_short_punctuation_duration": 0.0,
-      "corrected_long_punctuation_duration": 0.16657754010695186,
-      "corrected_short_punctuation_contribution": 0.0,
-      "corrected_long_punctuation_contribution": 0.08548885077186963,
-      "corrected_short_punctuation_percent": 0.0,
-      "corrected_long_punctuation_percent": 100.0,
-      "corrected_long_punct_weight": 0.0,
-      "total_pause_time": 0.08548885077186963,
-      "pause_time_per_syllable": 0.08548885077186963,
-      "short_event_count": 15,
-      "long_event_count": 136
+      "short_mora_ratio_initial": 3.4102564102564097,
+      "corrected_short_mora_multiple": 4,
+      "corrected_short_punctuation_duration": 0.17416267942583732,
+      "corrected_long_punctuation_duration": 0.27129186602870814,
+      "corrected_short_punctuation_contribution": 0.016586921850079744,
+      "corrected_long_punctuation_contribution": 0.02583732057416268,
+      "corrected_short_punctuation_percent": 39.09774436090226,
+      "corrected_long_punctuation_percent": 60.902255639097746,
+      "corrected_long_punct_weight": 1.5576923076923077,
+      "total_pause_time": 0.04242424242424242,
+      "pause_time_per_syllable": 0.04242424242424242,
+      "short_event_count": 2,
+      "long_event_count": 2
     }
   },
   "accentuation_stats": {
-    "accentuated_syllables": 42,
-    "accentuation_rate": 15.849056603773585,
+    "accentuated_syllables": 3,
+    "accentuation_rate": 14.285714285714285,
     "accentuation_types": {
-      "CVV:": 2,
-      "CVC:": 5,
-      "VV:": 1,
-      "C:V": 14,
-      "ʔ:V": 9,
-      "VC:": 11
+      "VC:": 1,
+      "CVV:": 2
     },
-    "merged_words": 10,
-    "merged_units": 5,
+    "merged_words": 2,
+    "merged_units": 1,
     "avg_unit_size": 2.0
   }
 }

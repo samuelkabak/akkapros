@@ -29,7 +29,13 @@ from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import (
+    FormatValidationError,
+    RawDefaultsHelpFormatter,
+    add_standard_version_argument,
+    print_startup_banner,
+    validate_intermediate_format,
+)
 
 __ebl_url__ = "https://www.ebl.lmu.de/"
 
@@ -172,6 +178,16 @@ MIT License (c) 2026 Samuel KABAK
     if not input_path.exists():
         print(f"\nError: File '{args.input}' not found.")
         sys.exit(1)
+
+    try:
+        validate_intermediate_format(input_path, expected_kind='atf')
+    except FormatValidationError as exc:
+        print(f"\nError: Invalid input format: {exc}", file=sys.stderr)
+        print(
+            "Hint: expected ATF input with %n lines; verify line markup and rerun.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
     
     # Determine output prefix
     if args.prefix:

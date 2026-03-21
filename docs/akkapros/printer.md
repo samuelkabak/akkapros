@@ -183,3 +183,10 @@ For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 ## ✅ Summary
 
 `printer.py` transforms the internal prosody-realized pivot format into multiple human-readable and machine-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), specialized transliteration (XAR), and speech synthesis preparation (MBROLA). The flexible flag system allows researchers to generate exactly the formats they need.
+
+By default, input format is validated at startup and reports precise source + line details for obvious corruption in `*_tilde.txt` input.
+
+### Validation Rules (Middle Strictness)
+
+`printer.py` expects a `*_tilde.txt` file from the prosody stage. Validation checks for obvious format compatibility and corruption risks (readable text, expected prosodic structure markers, no binary/trivial truncation patterns). It does not try to validate every phonological detail before formatting. The purpose is to avoid processing inputs that are clearly from the wrong stage or likely to trigger major runtime exceptions.
+The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.

@@ -32,7 +32,7 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 ## 📂 Input and Core Outputs
 
 ### Input
-- One processed text file, typically `<prefix>_proc.txt` from `atfparser.py`
+- One processed text file, typically `<prefix>_proc.txt` from `atfparser.py`.
 
 ### Core Outputs (always written)
 
@@ -200,6 +200,13 @@ Execution order is **fixed** and cannot be changed:
 4. **Print outputs** generated from prosody-realized output (if requested)
 
 The command exits with non-zero status if any stage fails, making it suitable for scripting and batch processing.
+
+By default, the initial input is validated at startup and reports precise source + line details for obvious corruption or wrong stage input (`*_proc.txt` expected).
+
+### Validation Rules (Middle Strictness)
+
+`fullprosmaker.py` validates only the entry input (`*_proc.txt`) at startup with moderate strictness: enough to detect wrong-stage/corrupted files that would break the pipeline, but not so strict that normal textual variation becomes unusable. It does not auto-correct wrong input types (for example raw `.atf`); it fails fast with a precise error instead.
+The validator is gatekeeper-only: it never rewrites input files and never performs hidden precleaning; it only allows processing to continue or fails with a precise error.
 
 Escaped chunks are preserved through the full pipeline using CR-005 syntax:
 

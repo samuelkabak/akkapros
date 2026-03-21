@@ -123,11 +123,17 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 ## 📝 Important Notes
 
 - **Output prefix** is sanitized to a filesystem-safe filename.
+- By default, startup performs lightweight format validation on input files and fails fast on obviously partial/corrupted inputs with precise source + line error reporting.
 - The CLI name is `prosmaker.py` (not `repairer.py`—this has been updated).
 - All temporary markers from syllabification are resolved in the output.
 - Escaped non-Akkadian chunks (`{{text}}` or `{tag{text}}`) are carried through as non-lexical material.
 - Tags in `{tag{text}}` follow `[0-9a-z_]{1,16}`; tags starting with `_` are internal-only conventions.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
+
+### Validation Rules (Middle Strictness)
+
+`prosmaker.py` expects syllabified `*_syl.txt` input. Validation checks that input is text and contains expected syllable/word-structure markers (for example dots or `¦`), and rejects obvious corruption (empty/binary/truncated patterns). It is deliberately not ultra-strict: it will not validate every linguistic detail in advance. The key goal is to prevent processing clearly wrong stage input such as `*_proc.txt`, because that would produce wrong results or large exceptions.
+The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ---
 

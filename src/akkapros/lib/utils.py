@@ -19,6 +19,7 @@ The module also provides a small test harness for its routines; running
 import argparse
 import re
 import unicodedata
+from pathlib import Path
 from typing import Any
 
 from akkapros import get_version_display
@@ -96,6 +97,124 @@ def simple_safe_filename(text: str) -> str:
     text = text.strip('._-')
 
     return text or "unnamed"
+
+
+class FormatValidationError(ValueError):
+    """Structured input-format validation error with source and line details."""
+
+    def __init__(
+        self,
+        *,
+        source: str,
+        reason: str,
+        line_number: int | None = None,
+        line_text: str | None = None,
+    ) -> None:
+        self.source = source
+        self.reason = reason
+        self.line_number = line_number
+        self.line_text = line_text
+
+        if line_number is None:
+            msg = f"{source}: {reason}"
+        else:
+            excerpt = ""
+            if line_text is not None:
+                excerpt = f" | line content: {line_text!r}"
+            msg = f"{source}: line {line_number}: {reason}{excerpt}"
+        super().__init__(msg)
+
+
+def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> None:
+    """Validate obvious corruption in pipeline input files.
+
+    Args:
+        file_path: Input path.
+        expected_kind: One of ``atf``, ``proc``, ``syl``, or ``tilde``.
+
+    Raises:
+        FormatValidationError: When obvious corruption/partial content is found.
+        ValueError: For unknown kind values.
+    """
+
+    def fail(reason: str, line_number: int | None = None, line_text: str | None = None) -> None:
+        raise FormatValidationError(
+            source=str(path),
+            reason=reason,
+            line_number=line_number,
+            line_text=line_text,
+        )
+
+    if expected_kind not in {"atf", "proc", "syl", "tilde"}:
+        raise ValueError(f"Unknown expected_kind: {expected_kind!r}")
+
+    path = Path(file_path)
+    if not path.exists() or not path.is_file():
+        fail("file not found")
+
+    raw = path.read_bytes()
+    if not raw:
+        fail("file is empty")
+    if b"\x00" in raw:
+        fail("file contains NUL bytes (likely binary/corrupted)")
+
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        fail(f"file is not valid UTF-8 ({exc})")
+
+    if not text.strip():
+        fail("file contains only whitespace")
+
+    lines = text.splitlines()
+    if not lines:
+        fail("file has no readable lines")
+
+    # Fast sanity check for unprintable control characters.
+    for idx, line in enumerate(lines, start=1):
+        for ch in line:
+            if ord(ch) < 32 and ch not in ('\t',):
+                fail("contains unprintable control character", idx, line)
+
+    non_empty = [(idx, ln) for idx, ln in enumerate(lines, start=1) if ln.strip()]
+    if not non_empty:
+        fail("file has no non-empty content lines")
+
+    has_letter = any(ch.isalpha() for ch in text)
+    if not has_letter:
+        fail("file does not contain alphabetic content")
+
+    for idx, line in non_empty:
+        for opening, closing in (("(", ")"), ("[", "]"), ("{", "}"), ("<", ">")):
+            if line.count(opening) != line.count(closing):
+                fail(f"unbalanced {opening}{closing} markers", idx, line)
+
+    if expected_kind == "atf":
+        if not any("%n" in ln for _, ln in non_empty):
+            idx, ln = non_empty[0]
+            fail("missing %n Akkadian content lines", idx, ln)
+
+    elif expected_kind == "proc":
+        if any("%n" in ln or ln.startswith("#tr.en:") for _, ln in non_empty):
+            idx, ln = next((i, l) for i, l in non_empty if "%n" in l or l.startswith("#tr.en:"))
+            fail("appears to be raw ATF content, expected cleaned *_proc.txt text", idx, ln)
+
+    elif expected_kind == "syl":
+        has_structure = any(("." in ln) or ("\u00A6" in ln) or ("-" in ln) for _, ln in non_empty)
+        if not has_structure:
+            idx, ln = non_empty[0]
+            fail("missing syllable/word-boundary markers for *_syl.txt input", idx, ln)
+
+    elif expected_kind == "tilde":
+        has_structure = any(("." in ln) or ("_" in ln) or ("~" in ln) or ("-" in ln) for _, ln in non_empty)
+        if not has_structure:
+            idx, ln = non_empty[0]
+            fail("missing prosodic structure markers for *_tilde.txt input", idx, ln)
+
+    if not text.endswith("\n"):
+        last_idx, last_line = non_empty[-1]
+        if len(last_line.strip()) <= 1:
+            fail("file appears truncated at final line", last_idx, last_line)
 
 
 def run_tests() -> bool:

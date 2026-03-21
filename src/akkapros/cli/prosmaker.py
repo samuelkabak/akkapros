@@ -22,10 +22,12 @@ from akkapros.lib.prosody import (
 )
 from akkapros import __version__
 from akkapros.lib.utils import (
+    FormatValidationError,
     RawDefaultsHelpFormatter,
     add_standard_version_argument,
     print_startup_banner,
     simple_safe_filename,
+    validate_intermediate_format,
 )
 
 
@@ -64,6 +66,16 @@ def main() -> None:
     if not input_path.exists():
         print(f"Error: File not found: {args.input}")
         sys.exit(1)
+
+    try:
+        validate_intermediate_format(input_path, expected_kind='syl')
+    except FormatValidationError as exc:
+        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
+        print(
+            "Hint: upstream stage output may be partial/corrupted; re-run syllabifier.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
 
     outdir = Path(args.outdir)
     if outdir != Path('.'):

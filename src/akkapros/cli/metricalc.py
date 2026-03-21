@@ -23,10 +23,12 @@ from akkapros.lib.metrics import (
     run_tests,
 )
 from akkapros.lib.utils import (
+    FormatValidationError,
     RawDefaultsHelpFormatter,
     add_standard_version_argument,
     print_startup_banner,
     simple_safe_filename,
+    validate_intermediate_format,
 )
 
 
@@ -88,6 +90,17 @@ Version {__version__}
         if not Path(input_file).exists():
             print(f"Error: File not found: {input_file}")
             sys.exit(1)
+
+    for input_file in input_files:
+        try:
+            validate_intermediate_format(input_file, expected_kind='tilde')
+        except FormatValidationError as exc:
+            print(f"Error: Invalid input format: {exc}", file=sys.stderr)
+            print(
+                "Hint: upstream stage output may be partial/corrupted; re-run prosmaker.",
+                file=sys.stderr,
+            )
+            sys.exit(2)
 
     update_character_sets(args.extra_consonants, args.extra_vowels)
 

@@ -1,26 +1,2 @@
-&X000001 = L I.2 Poem of Crea**ti**on (*E**nū**ma e**liš***) SB II
-#proj**e**ct: ebo
-#atf: lan ak-x-stdbab
-#atf: use unico**de**
-#atf: use math
-#atf: use legacy
-
-#tr.en: Tiamat assembled her creatu**res**,
-1. %n ukappit-ma (||) **tiām**tu | pitiqša
-#no**te**: The‿ex**pe**cted st. c. woul‿be derived from @**i**{pitēqu}. But the‿**spel**lin in MSS BabaNB1, BabaNB3, an Baba NBQ‿uo1 sugges that th**e** st. c. is here derived **se**condar form @**i**{**pit**qu}.
-NinNA1 o î 5'. ‿u₂-**ka**[p-**pit**-ma x x x x x x x]
-Baba NB1 o 1. [‿u₂-kap-pit-m]**a** ti-a-ma-tu₄ pi-ti-**iq**-šu
-Baba NB2 o 1. [‿u₂-kap-pit-m]**a**? [x x x x x x]
-BabaNB3 o 1. [x x x x x x x x p]i-ti-**iq**-šu₂
-NinNACom1 o 12. !qt [‿u₂-**kap**-pi]**t**-ma ti-a₃-wa-ti pi-tiq-ša₂ !cm {kur}LAGAB k[up-p]u-tu₄ [(LAGAB) pu-u]h-hu-ru#
-Nin NAQ‿uo1 r 1'. ‿u₂#-[kap-**pit**-ma x x x x x x]
-Baba NBQ‿uo1 r 40'. ‿u₂-kap-pit#-**ma** ti-a-ma-tu₄ [p]i-ti-**iq**-ša#
-Baba NBQ‿uo2 r 2'. [x x x x] **ti**-[**am**tu x x x x]
-
-#tr.en: Drew up for **bat**tle again th**e** gods her brood.
-2. %n tāh**ā**za | **ik**taṣar || ana‿ilī | nip**rī**ša
-NinNA1 o î 6'. **ta**-ha-**z** [‿u!? x x x x x x x x x x x]
-HuzNA1 o 1'. [x x x x x x x x x x] n[i-**ip**-ri-ša]
-BabaNB1 o 2. [x x x ik]-ta-ṣar‿ana DINGIR.DINGIR ni-**ip**-ri-šu
-BabaNB2 o 2. [**ta**-h**a**]-**zu**# ik#-**ta**-[ṣar x x x x x x x x]
-BabaNB3 o 2. [x x x x x x **a**]n DINGIR.DINGIR ni-**ip**-ri-ša
+ukappit-ma : **tiām**tu pitiqša
+tā**ḫā**za **ik**taṣar : ana‿ilī nip**rī**ša

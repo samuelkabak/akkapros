@@ -155,6 +155,17 @@ For formal definitions and equations, see:
 
 ## 📝 Important Notes
 
+### Input Validation Guard
+
+By default, `metricalc.py` validates each input file at startup and fails fast on obviously partial/corrupted intermediate files (for example, empty/truncated files or files with missing prosodic structure markers), with precise source + line error details.
+
+Validation is always enforced at startup.
+
+### Validation Rules (Middle Strictness)
+
+`metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation checks for expected structural cues (for example syllable/prosody markers like `.`, `_`, `~`) and blocks clearly wrong/corrupted input (empty, binary, severe truncation). It is intentionally moderate rather than exhaustive: the purpose is to stop inputs likely to explode later, not to reject every unusual but processable text variation.
+The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
+
 ### %V Note
 
 Current outputs expose **both** values:

@@ -133,7 +133,13 @@ For end-to-end one-command processing, see **`fullprosmaker.py`**.
 
 - This parser intentionally removes most structural metadata. It is optimized for prosodic analysis, not for scholarly edition preservation.
 - **Line breaks are preserved** as meaningful structural information for downstream processing. Do not remove them manually.
+- By default, input format is validated at startup and reports precise source + line for obvious corruption (for example missing `%n` lines or unbalanced markers).
 - If you need to process multiple ATF files, consider using the demo scripts (`corpus-demo.sh` or `corpus-demo.ps1`) which handle batch processing.
+
+### Validation Rules (Middle Strictness)
+
+Validation is intentionally moderate: `atfparser.py` checks that the file is readable text and contains expected ATF content (`%n` lines), plus obvious corruption signatures (empty/binary content, unbalanced structural markers). It does not attempt full philological validation of every ATF edge case. The goal is to stop inputs that are clearly wrong enough to trigger major failures later, while keeping normal corpus workflows usable.
+The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ---
 

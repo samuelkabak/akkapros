@@ -23,7 +23,13 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros.lib import syllabify
 from akkapros import __version__
 from akkapros.lib.utils import simple_safe_filename
-from akkapros.lib.utils import RawDefaultsHelpFormatter, print_startup_banner, add_standard_version_argument
+from akkapros.lib.utils import (
+    FormatValidationError,
+    RawDefaultsHelpFormatter,
+    add_standard_version_argument,
+    print_startup_banner,
+    validate_intermediate_format,
+)
 
 
 def process_file(
@@ -98,6 +104,16 @@ def main():
     if not input_path.exists():
         print(f"Error: File '{args.input}' not found.")
         sys.exit(1)
+
+    try:
+        validate_intermediate_format(input_path, expected_kind='proc')
+    except FormatValidationError as exc:
+        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
+        print(
+            "Hint: expected cleaned *_proc.txt content; re-run atfparser if needed.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
 
     # choose prefix and output directory
     if args.prefix:
