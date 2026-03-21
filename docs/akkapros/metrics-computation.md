@@ -525,6 +525,10 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
   `' …[ \n{END_OF_FILE}]'`
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
+**Configuration controls:**
+- Extend short class by character with `--short-punct-chars`.
+- Extend short class by regex with repeatable `--short-punct-pattern`.
+
 **Unit:**
 - `pause/syllable`
 
@@ -544,10 +548,21 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
   - hyphen acting as punctuation (not surrounded by words): `-`
 - Word-attached ellipsis is long (`{WORD}...` or `{WORD}…`).
 - If a punctuation gap contains at least one long cue, the full gap is long.
-- If a punctuation gap is not matched as short or long explicitly, fallback is long.
+- If a punctuation gap is not matched as short or long explicitly, processing raises a strict punctuation configuration error.
 - Include newline boundaries when enabled.
 - Include final EOF boundary when enabled and final character is word-final.
 - `long_pause_per_syll = N_long_pause / total_syllables`
+
+**Configuration controls:**
+- Extend long class by character with `--long-punct-chars`.
+- Extend long class by regex with repeatable `--long-punct-pattern`.
+
+**Regex semantics:**
+- Patterns are Python regex compiled before processing starts (fail-fast).
+- `^` and `$` keep chunk-anchor meaning.
+- Line boundary pseudo-tokens are supported: `[:bol:]`, `[:eol:]`. EOF is normalized internally to EOL semantics.
+- Use `\\$` for a literal dollar sign.
+- The diphthong separator `¨` is a literal symbol and has no special regex role in punctuation matching.
 
 **Unit:**
 - `pause/syllable`
@@ -597,7 +612,7 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
 
 **How computed:**
 - Subset count of total boundaries that satisfy pauseability conditions.
-- The implementation also tracks `defaulted_long_punctuation` in raw counts: punctuation suites that were not recognized in explicit classes and therefore assigned to long by fallback policy.
+- `defaulted_long_punctuation` remains a compatibility field and should stay `0` under strict allowlist enforcement.
 
 **Unit:**
 - `boundaries`

@@ -22,6 +22,14 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
+from akkapros.lib.constants import (
+    REGEX_TOKEN_BOL,
+    REGEX_TOKEN_EOL,
+    REGEX_TOKEN_EOF,
+    REGEX_SENTINEL_SOL,
+    REGEX_SENTINEL_EOL,
+)
+
 from akkapros import get_version_display
 
 __version__ = "1.0.1"
@@ -97,6 +105,65 @@ def simple_safe_filename(text: str) -> str:
     text = text.strip('._-')
 
     return text or "unnamed"
+
+
+def compile_contextual_regex(pattern: str, option_name: str, item_index: int) -> re.Pattern:
+    """Compile regex supporting line/file pseudo-tokens.
+
+    Supported pseudo-tokens in ``pattern``:
+    - ``[:bol:]`` line start
+    - ``[:eol:]`` line end
+    - ``[:eof:]`` accepted as internal alias of line end
+    """
+    prepared = (
+        pattern
+        .replace(REGEX_TOKEN_BOL, REGEX_SENTINEL_SOL)
+        .replace(REGEX_TOKEN_EOL, REGEX_SENTINEL_EOL)
+        .replace(REGEX_TOKEN_EOF, REGEX_SENTINEL_EOL)
+    )
+    try:
+        return re.compile(prepared)
+    except re.error as exc:
+        raise ValueError(
+            f"Invalid regex for {option_name} (item {item_index}): {pattern!r}. Error: {exc}"
+        ) from exc
+
+
+def contextualize_for_regex(text: str, *, at_sol: bool, at_eol: bool, at_eof: bool) -> str:
+    """Attach boundary sentinels around text for contextual regex matching."""
+    prefix = REGEX_SENTINEL_SOL if at_sol else ''
+    # EOF is normalized to EOL semantics for punctuation matching.
+    suffix = REGEX_SENTINEL_EOL if (at_eof or at_eol) else ''
+    return f"{prefix}{text}{suffix}"
+
+
+def strip_regex_sentinels(text: str) -> str:
+    """Remove contextual boundary sentinels from text."""
+    return (
+        text
+        .replace(REGEX_SENTINEL_SOL, '')
+        .replace(REGEX_SENTINEL_EOL, '')
+    )
+
+
+def build_numeric_currency_pattern(
+    *,
+    number_pattern: str,
+    currency_symbols: str,
+) -> re.Pattern:
+    """Return compiled numeric/currency suite regex used by punctuation parsing."""
+    try:
+        re.compile(number_pattern)
+    except re.error as exc:
+        raise ValueError(f"Invalid number regex {number_pattern!r}. Error: {exc}") from exc
+
+    core = rf"(?:{number_pattern})"
+    pattern = (
+        rf"(?:[{re.escape(currency_symbols)}]\s*{core}"
+        rf"|{core}\s*[{re.escape(currency_symbols)}]"
+        rf"|{core})"
+    )
+    return re.compile(pattern)
 
 
 class FormatValidationError(ValueError):

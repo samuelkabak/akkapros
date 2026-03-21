@@ -72,6 +72,10 @@ Batch mode:
 | `--long-punct-weight <float>` | Relative weight of long punctuation pauses vs short pauses (default: `2.0`) |
 | `--extra-consonants <chars>` | Additional consonant symbols to include in parsing |
 | `--extra-vowels <chars>` | Additional vowel symbols to include in parsing |
+| `--short-punct-chars <chars>` | Additional characters to classify as short-pause punctuation |
+| `--long-punct-chars <chars>` | Additional characters to classify as long-pause punctuation |
+| `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments |
+| `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments |
 | `--test` | Run metrics test suite |
 
 ### Default Format Behavior
@@ -100,6 +104,15 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
       --pause-ratio 35 \
       --long-punct-weight 2.5 \
       --table
+
+### Extend Punctuation Classification
+
+        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
+            --short-punct-chars "·" \
+            --long-punct-chars "※" \
+            --short-punct-pattern "^\\s*[·]+\\s*$" \
+            --long-punct-pattern "^\\s*[※]+\\s*$" \
+            --table
 
 ### Batch Mode
 
@@ -161,6 +174,10 @@ By default, `metricalc.py` validates each input file at startup and fails fast o
 
 Validation is always enforced at startup.
 
+Regex validation for punctuation options is also fail-fast: invalid patterns stop execution before any file is processed.
+
+Regex anchor semantics use chunk-level `^`/`$`; boundary pseudo-tokens are also supported in patterns: `[:bol:]`, `[:eol:]`. EOF is normalized internally to EOL behavior.
+
 ### Validation Rules (Middle Strictness)
 
 `metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation checks for expected structural cues (for example syllable/prosody markers like `.`, `_`, `~`) and blocks clearly wrong/corrupted input (empty, binary, severe truncation). It is intentionally moderate rather than exhaustive: the purpose is to stop inputs likely to explode later, not to reject every unusual but processable text variation.
@@ -182,6 +199,10 @@ This makes text-derived moraic `%V` directly comparable with pause-inclusive spe
 2. **Corrected**: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
 
 This correction affects table, JSON, and CSV outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
+
+### Strict Punctuation Classification
+
+Pause punctuation is allowlist-based. If a punctuation suite is not matched by configured short or long classes (characters or regex patterns), `metricalc.py` now raises an error instead of defaulting that suite to long pause.
 
 ### New Fields Across Formats
 

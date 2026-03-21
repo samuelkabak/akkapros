@@ -82,6 +82,11 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |--------|-------------|
 | `--extra-vowels <chars>` | Additional vowel characters to recognize |
 | `--extra-consonants <chars>` | Additional consonant characters to recognize |
+| `--short-punct-chars <chars>` | Additional short-pause punctuation characters (passed to syllabifier and metrics) |
+| `--long-punct-chars <chars>` | Additional long-pause punctuation characters (passed to syllabifier and metrics) |
+| `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments (passed to syllabifier and metrics) |
+| `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments (passed to syllabifier and metrics) |
+| `--number-format <regex>` | Number regex passed to syllabifier stage (empty uses built-in English-grouping-compatible pattern) |
 | `--syl-merge-hyphens` | Merge hyphens into syllable separators |
 | `--syl-merge-lines` | Normalize line breaks (default preserves original lines) |
 
@@ -168,6 +173,16 @@ This generates:
       --outdir outputs \
       --metrics-json --metrics-csv
 
+### Full Pipeline with Punctuation Extensions
+
+    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+      -p erra \
+      --outdir outputs \
+      --short-punct-chars "·" \
+      --long-punct-chars "※" \
+      --short-punct-pattern "^\\s*[·]+\\s*$" \
+      --long-punct-pattern "^\\s*[※]+\\s*$"
+
 ### Run with IPA and Speculative Circumflex Hiatus
 
     python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
@@ -201,6 +216,8 @@ Execution order is **fixed** and cannot be changed:
 
 The command exits with non-zero status if any stage fails, making it suitable for scripting and batch processing.
 
+Punctuation regex options are pre-validated before any stage starts. Invalid regex aborts immediately.
+
 By default, the initial input is validated at startup and reports precise source + line details for obvious corruption or wrong stage input (`*_proc.txt` expected).
 
 ### Validation Rules (Middle Strictness)
@@ -214,6 +231,12 @@ Escaped chunks are preserved through the full pipeline using CR-005 syntax:
 - `{tag{text}}` where `tag` matches `[0-9a-z_]{1,16}`
 
 Internal tags begin with `_` and are reserved for pipeline-internal handling conventions.
+
+Regex semantics for punctuation patterns are standard Python regex: `^` anchors start, `$` anchors end, and a literal dollar requires `\\$`. The diphthong separator `¨` is treated as a plain character.
+
+Boundary pseudo-tokens are also available in punctuation patterns: `[:bol:]` (beginning of line), `[:eol:]` (end of line). EOF is normalized internally to end-of-line semantics.
+
+When lines are preserved (default, without `--syl-merge-lines`), newline boundaries are preserved in syllabifier output for punctuation, preserve blocks, and number/currency suites.
 
 ---
 

@@ -16,6 +16,8 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
 from akkapros.lib.metrics import (
+    PunctuationConfigError,
+    configure_pause_punctuation_rules,
     update_character_sets,
     process_file,
     format_table,
@@ -63,6 +65,12 @@ Version {__version__}
                         help='Extra characters to treat as consonants')
     parser.add_argument('--extra-vowels', default='',
                         help='Extra characters to treat as vowels')
+    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
+    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+    parser.add_argument('--short-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for short-pause punctuation segments')
+    parser.add_argument('--long-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for long-pause punctuation segments')
     parser.add_argument('--test', action='store_true', help='Run unit tests')
 
     args = parser.parse_args()
@@ -72,6 +80,17 @@ Version {__version__}
     if args.test:
         success = run_tests()
         sys.exit(0 if success else 1)
+
+    try:
+        configure_pause_punctuation_rules(
+            short_punct_chars=args.short_punct_chars,
+            long_punct_chars=args.long_punct_chars,
+            short_punct_patterns=args.short_punct_pattern,
+            long_punct_patterns=args.long_punct_pattern,
+        )
+    except PunctuationConfigError as exc:
+        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
+        sys.exit(2)
 
     if not (args.csv or args.table or args.json):
         args.table = True

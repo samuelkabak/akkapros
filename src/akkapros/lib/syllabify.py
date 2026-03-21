@@ -20,7 +20,7 @@ Copyright (c) 2026 Samuel KABAK
 
 import re
 import sys
-from typing import List, Optional, Tuple
+from typing import List, Optional, Pattern, Sequence, Tuple
 
 __version__ = "1.2.0"
 __author__ = "Samuel KABAK"
@@ -52,7 +52,21 @@ from akkapros.lib.constants import (
     OPEN_PRESERVE_CHAR,
     CLOSE_PRESERVE_CHAR,
     TAG_PRESERVE_RE,
-    DIPH_SEPARATOR
+    DIPH_SEPARATOR,
+    SHORT_PAUSE_PUNCTUATION_CHARS,
+    SHORT_PAUSE_PUNCTUATION_PATTERNS,
+    LONG_PAUSE_PUNCTUATION_CHARS,
+    LONG_PAUSE_PUNCTUATION_PATTERNS,
+    NUMBER_REGEX,
+    NUMBER_WITH_GROUPS_REGEX,
+    DEFAULT_NUMBER_PATTERN,
+    CURRENCY_SYMBOLS,
+)
+from akkapros.lib.utils import (
+    build_numeric_currency_pattern,
+    compile_contextual_regex,
+    contextualize_for_regex,
+    strip_regex_sentinels,
 )
 
 
@@ -64,6 +78,121 @@ EXTRA_CONSONANTS = set()
 ALL_VOWELS = AKKADIAN_VOWELS | FOREIGN_VOWELS | EXTRA_VOWELS 
 ALL_CONSONANTS = AKKADIAN_CONSONANTS | FOREIGN_CONSONANTS | EXTRA_CONSONANTS
 ALL_AKKADIAN = ALL_VOWELS | ALL_CONSONANTS
+
+
+class PunctuationConfigError(ValueError):
+    """Raised when punctuation configuration or punctuation tokens are invalid."""
+
+
+ACTIVE_SHORT_PUNCT_CHARS = set(SHORT_PAUSE_PUNCTUATION_CHARS)
+ACTIVE_LONG_PUNCT_CHARS = set(LONG_PAUSE_PUNCTUATION_CHARS)
+ACTIVE_SHORT_PUNCT_PATTERNS = tuple(SHORT_PAUSE_PUNCTUATION_PATTERNS)
+ACTIVE_LONG_PUNCT_PATTERNS = tuple(LONG_PAUSE_PUNCTUATION_PATTERNS)
+ACTIVE_SHORT_PUNCT_REGEX: List[Pattern[str]] = []
+ACTIVE_LONG_PUNCT_REGEX: List[Pattern[str]] = []
+
+NUMERIC_WITH_CURRENCY_PATTERN = build_numeric_currency_pattern(
+    number_pattern=DEFAULT_NUMBER_PATTERN,
+    currency_symbols=CURRENCY_SYMBOLS,
+)
+ACTIVE_NUMBER_CORE_REGEX = re.compile(DEFAULT_NUMBER_PATTERN)
+
+
+def _compile_regex_patterns(patterns: Sequence[str], option_name: str) -> List[Pattern[str]]:
+    compiled: List[Pattern[str]] = []
+    for idx, pattern in enumerate(patterns, start=1):
+        try:
+            compiled.append(compile_contextual_regex(pattern, option_name, idx))
+        except ValueError as exc:
+            raise PunctuationConfigError(
+                f"Invalid regex for {option_name} (item {idx}): {pattern!r}. Error: {exc}"
+            ) from exc
+    return compiled
+
+
+def configure_punctuation_rules(
+    *,
+    short_punct_chars: str = '',
+    long_punct_chars: str = '',
+    short_punct_patterns: Optional[Sequence[str]] = None,
+    long_punct_patterns: Optional[Sequence[str]] = None,
+) -> None:
+    """Configure punctuation whitelist and validate regex patterns eagerly.
+
+    This helper intentionally lives in the syllabifier module because punctuation
+    admission is part of the parser/tokenizer safety contract.
+    """
+    global ACTIVE_SHORT_PUNCT_CHARS, ACTIVE_LONG_PUNCT_CHARS
+    global ACTIVE_SHORT_PUNCT_PATTERNS, ACTIVE_LONG_PUNCT_PATTERNS
+    global ACTIVE_SHORT_PUNCT_REGEX, ACTIVE_LONG_PUNCT_REGEX
+
+    ACTIVE_SHORT_PUNCT_CHARS = set(SHORT_PAUSE_PUNCTUATION_CHARS) | set(short_punct_chars or '')
+    ACTIVE_LONG_PUNCT_CHARS = set(LONG_PAUSE_PUNCTUATION_CHARS) | set(long_punct_chars or '')
+
+    short_patterns = list(SHORT_PAUSE_PUNCTUATION_PATTERNS)
+    if short_punct_patterns:
+        short_patterns.extend(short_punct_patterns)
+    long_patterns = list(LONG_PAUSE_PUNCTUATION_PATTERNS)
+    if long_punct_patterns:
+        long_patterns.extend(long_punct_patterns)
+
+    # Compile before processing any input text so regex mistakes fail fast.
+    ACTIVE_SHORT_PUNCT_REGEX = _compile_regex_patterns(short_patterns, '--short-punct-pattern')
+    ACTIVE_LONG_PUNCT_REGEX = _compile_regex_patterns(long_patterns, '--long-punct-pattern')
+
+    ACTIVE_SHORT_PUNCT_PATTERNS = tuple(short_patterns)
+    ACTIVE_LONG_PUNCT_PATTERNS = tuple(long_patterns)
+
+
+def _find_undeclared_punctuation_chars(
+    segment: str,
+    *,
+    at_sol: bool = False,
+    at_eol: bool = False,
+    at_eof: bool = False,
+) -> List[str]:
+    """Return unknown punctuation chars after applying declared regex patterns."""
+    if not segment or segment.isspace():
+        return []
+
+    sanitized = contextualize_for_regex(segment, at_sol=at_sol, at_eol=at_eol, at_eof=at_eof)
+    for rx in ACTIVE_SHORT_PUNCT_REGEX:
+        sanitized = rx.sub('', sanitized)
+    for rx in ACTIVE_LONG_PUNCT_REGEX:
+        sanitized = rx.sub('', sanitized)
+    sanitized = NUMERIC_WITH_CURRENCY_PATTERN.sub('', sanitized)
+    sanitized = strip_regex_sentinels(sanitized)
+
+    declared = ACTIVE_SHORT_PUNCT_CHARS | ACTIVE_LONG_PUNCT_CHARS
+    unknown: List[str] = []
+    seen = set()
+    for ch in sanitized:
+        if ch.isspace():
+            continue
+        if ch in declared:
+            continue
+        if ch not in seen:
+            seen.add(ch)
+            unknown.append(ch)
+    return unknown
+
+
+def _contains_numeric_or_currency_suite(segment: str) -> bool:
+    """Return True if punctuation segment contains numeric/currency material."""
+    return bool(NUMERIC_WITH_CURRENCY_PATTERN.search(segment))
+
+
+def _numeric_fragments_respect_active_format(segment: str) -> bool:
+    """Return True when all numeric fragments match the active number regex."""
+    for match in re.finditer(r'-?[0-9][0-9,]*(?:\.[0-9]+)?', segment):
+        frag = match.group(0)
+        if not ACTIVE_NUMBER_CORE_REGEX.fullmatch(frag):
+            return False
+    return True
+
+
+# Initialize with default punctuation policy.
+configure_punctuation_rules()
 
 # ---------------------------------------------------------------------------
 # Character classification utilities
@@ -441,7 +570,7 @@ def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
     return ''.join(result)
 
 
-def tokenize_line(line: str, extra: str = '') -> List[tuple]:
+def tokenize_line(line: str, extra: str = '', line_number: Optional[int] = None) -> List[tuple]:
     """Split a line of text into word/punctuation tokens."""
     tokens = []
 
@@ -490,6 +619,11 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
                     break
                 i += 1
             punct = line[start:i]
+            token_at_sol = start == 0
+            token_at_eol = i == n
+
+            if token_at_sol and _contains_numeric_or_currency_suite(punct):
+                punct = re.sub(r'^[ \t]{2,}', ' ', punct)
             if punct.isspace():
                 prev_is_word = tokens and (tokens[-1][0] == 'word' or tokens[-1][0] == 'escape')
                 next_is_word = i < n and is_word_char(line[i], extra)
@@ -497,6 +631,54 @@ def tokenize_line(line: str, extra: str = '') -> List[tuple]:
                 # escape token and preserved inside ⟦...⟧.
                 if prev_is_word and next_is_word:
                     continue
+
+            prev_is_word = bool(tokens and tokens[-1][0] == 'word')
+            next_is_word = bool(i < n and is_word_char(line[i], extra))
+            has_left_space = bool(punct and punct[0].isspace())
+            has_right_space = bool(punct and punct[-1].isspace())
+
+            # Punctuation cannot be glued between two words with no spacing on
+            # either side (e.g., "ab?kat").
+            if prev_is_word and next_is_word and (not has_left_space) and (not has_right_space):
+                location = f" line {line_number}" if line_number is not None else ''
+                raise PunctuationConfigError(
+                    f"Invalid punctuation spacing{location}: token {punct!r} is attached to words on both sides. "
+                    "Insert spacing/newline around punctuation or use an explicit escape block."
+                )
+
+            contains_numeric_suite = _contains_numeric_or_currency_suite(punct)
+            contains_endash = '–' in punct
+            if contains_numeric_suite and not _numeric_fragments_respect_active_format(punct):
+                location = f" line {line_number}" if line_number is not None else ''
+                raise PunctuationConfigError(
+                    f"Invalid number format{location}: token {punct!r} does not match active number regex."
+                )
+            if contains_numeric_suite or contains_endash:
+                # Numeric/currency suites and en-dash punctuation require
+                # explicit boundaries on any side adjacent to a word.
+                if prev_is_word and not has_left_space:
+                    location = f" line {line_number}" if line_number is not None else ''
+                    raise PunctuationConfigError(
+                        f"Invalid punctuation spacing{location}: token {punct!r} must be separated from the previous word by space/newline."
+                    )
+                if next_is_word and not has_right_space:
+                    location = f" line {line_number}" if line_number is not None else ''
+                    raise PunctuationConfigError(
+                        f"Invalid punctuation spacing{location}: token {punct!r} must be separated from the next word by space/newline."
+                    )
+
+            unknown_chars = _find_undeclared_punctuation_chars(
+                punct,
+                at_sol=token_at_sol,
+                at_eol=token_at_eol,
+            )
+            if unknown_chars:
+                unknown_str = ''.join(unknown_chars)
+                location = f" line {line_number}" if line_number is not None else ''
+                raise PunctuationConfigError(
+                    f"Undeclared punctuation{location}: token {punct!r}, unknown chars {unknown_str!r}. "
+                    "Declare via --short-punct-chars/--long-punct-chars or matching --*-punct-pattern options."
+                )
             if punct:
                 tokens.append(('punct', punct))
     return tokens
@@ -508,12 +690,37 @@ def syllabify_text(
     extra_consonants: str = '',
     merge_hyphen: bool = False,
     preserve_lines: bool = False,
+    short_punct_chars: str = '',
+    long_punct_chars: str = '',
+    short_punct_patterns: Optional[Sequence[str]] = None,
+    long_punct_patterns: Optional[Sequence[str]] = None,
+    number_format: str = '',
 ) -> str:
     """Return the fully syllabified version of ``text``.
 
     The returned string uses the global ``SYL_WORD_ENDING`` marker at the end
     of every word and preserves line breaks.
     """
+    # Empty number_format means use built-in English-grouping-compatible default.
+    selected_number_pattern = number_format.strip() if number_format else DEFAULT_NUMBER_PATTERN
+
+    global NUMERIC_WITH_CURRENCY_PATTERN, ACTIVE_NUMBER_CORE_REGEX
+    try:
+        ACTIVE_NUMBER_CORE_REGEX = re.compile(selected_number_pattern)
+        NUMERIC_WITH_CURRENCY_PATTERN = build_numeric_currency_pattern(
+            number_pattern=selected_number_pattern,
+            currency_symbols=CURRENCY_SYMBOLS,
+        )
+    except (ValueError, re.error) as exc:
+        raise PunctuationConfigError(str(exc)) from exc
+
+    configure_punctuation_rules(
+        short_punct_chars=short_punct_chars,
+        long_punct_chars=long_punct_chars,
+        short_punct_patterns=short_punct_patterns,
+        long_punct_patterns=long_punct_patterns,
+    )
+
     warnings: List[str] = []
     text = text_preprocess_boundaries(
         text,
@@ -524,12 +731,12 @@ def syllabify_text(
     )
     lines = text.split('\n')
     result_lines: List[str] = []
-    for line in lines:
+    for line_idx, line in enumerate(lines, start=1):
         line = line.rstrip('\n')
         if not line:
             result_lines.append('')
             continue
-        tokens = tokenize_line(line, '')
+        tokens = tokenize_line(line, '', line_number=line_idx)
         current_line_parts: List[str] = []
         for i in range(len(tokens)):
             typ, token_text = tokens[i]
@@ -678,27 +885,33 @@ def run_tests() -> bool:
         ("Double newline", "šar\n\ngimir", "šar¦\ngi·mir¦"),
         ("Preserve lines single newline", "šar\ngimir", "šar¦\ngi·mir¦", False, True),
         
+        # ===== PUNCTUATION =====
+        ("Comma after word", "šar, gimir", "šar¦⟦, ⟧gi·mir¦"),
+        ("Em-dash", "šar — gimir", "šar¦⟦ — ⟧gi·mir¦"),
+        ("Ellipsis", "šar … gimir", "šar¦⟦ … ⟧gi·mir¦"),
+
         # ===== NUMBERS AND NON-AKKADIAN =====
         ("Number between words", "šar 123 gimir", "šar¦⟦ 123 ⟧gi·mir¦"),
         ("Number with commas", "šar 12,345 gimir", "šar¦⟦ 12,345 ⟧gi·mir¦"),
-        ("Number with newline", "šar 123\n456 gimir", "šar¦⟦ 123 456 ⟧gi·mir¦"),
-        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦⟦ 123 456 ⟧gi·mir¦"),
+        ("Number with newline", "šar 123\n456 gimir", "šar¦⟦ 123⟧\n⟦456 ⟧gi·mir¦", False, True),
+        ("Number with spaces and newline", "šar 123\n  456 gimir", "šar¦⟦ 123⟧\n⟦ 456 ⟧gi·mir¦", False, True),
         ("Number with tab and dash", "šar 123  \t-  456 gimir", "šar¦⟦ 123  \t-  456 ⟧gi·mir¦"),
-        
-        # ===== PUNCTUATION =====
-        ("Comma after word", "šar, gimir", "šar¦⟦, ⟧gi·mir¦"),
-        ("Period after word", "šar· gimir", "šar¦⟦· ⟧gi·mir¦"),
-        ("Em-dash", "šar — gimir", "šar¦⟦ — ⟧gi·mir¦"),
-        ("Ellipsis", "šar … gimir", "šar¦⟦ … ⟧gi·mir¦"),
+        ("Currency before number", "šar $123 gimir", "šar¦⟦ $123 ⟧gi·mir¦"),
+        ("Currency after number", "šar 123$ gimir", "šar¦⟦ 123$ ⟧gi·mir¦"),
+        ("En-dash with spaces", "šar – gimir", "šar¦⟦ – ⟧gi·mir¦"),
+        ("Punctuation newline preserved", "šar ,\ngimir", "šar¦⟦ ,⟧\ngi·mir¦", False, True),
+        ("Preserve block newline preserved", "šar {{x}}\ngimir", "šar¦⟦ {{x}}⟧\ngi·mir¦", False, True),
+        ("Hash at beginning of line", "šar\n# 123\ngimir", "šar¦\n⟦# 123⟧\ngi·mir¦", False, True),
+        ("Bullet at beginning of line", "šar\n- 123\ngimir", "šar¦\n⟦- 123⟧\ngi·mir¦", False, True),
         
         # ===== FOREIGN CHARACTERS =====
-        ("Chinese characters", "šar 国王 gimir", "šar¦⟦ 国王 ⟧gi·mir¦"),
-        ("Foreign character in word 1", "šar? gimir{{test}}done", "šar¦⟦? ⟧gi·mir¦⟦{{test}}⟧d¦⟦o⟧ne¦"),
-        ("Foreign character in word 2", "šar? gimir{{test }}done", "šar¦⟦? ⟧gi·mir¦⟦{{test }}⟧d¦⟦o⟧ne¦"),
-        ("Foreign character in word 3", "šar? gimir{{ test }}done", "šar¦⟦? ⟧gi·mir¦⟦{{ test }}⟧d¦⟦o⟧ne¦"),
-        ("Foreign character in word 4", "šar? gimir {{test}}done", "šar¦⟦? ⟧gi·mir¦⟦ {{test}}⟧d¦⟦o⟧ne¦"),
-        ("Foreign character in word 5", "šar? gimir{{test}} done", "šar¦⟦? ⟧gi·mir¦⟦{{test}} ⟧d¦⟦o⟧ne¦"),
-        ("Foreign character in word 6", "šar? gimir {{test}} done", "šar¦⟦? ⟧gi·mir¦⟦ {{test}} ⟧d¦⟦o⟧ne¦"),
+        ("Chinese characters", "šar {{国王}} gimir", "šar¦⟦ {{国王}} ⟧gi·mir¦"),
+        ("Foreign character in word 1", "šar? gimir{{test}}dun", "šar¦⟦? ⟧gi·mir¦⟦{{test}}⟧dun¦"),
+        ("Foreign character in word 2", "šar? gimir{{test }}dun", "šar¦⟦? ⟧gi·mir¦⟦{{test }}⟧dun¦"),
+        ("Foreign character in word 3", "šar? gimir{{ test }}dun", "šar¦⟦? ⟧gi·mir¦⟦{{ test }}⟧dun¦"),
+        ("Foreign character in word 4", "šar? gimir {{test}}dun", "šar¦⟦? ⟧gi·mir¦⟦ {{test}}⟧dun¦"),
+        ("Foreign character in word 5", "šar? gimir{{test}} dun", "šar¦⟦? ⟧gi·mir¦⟦{{test}} ⟧dun¦"),
+        ("Foreign character in word 6", "šar? gimir {{test}} dun", "šar¦⟦? ⟧gi·mir¦⟦ {{test}} ⟧dun¦"),
         ("Mixed with reserve brackets", "šar gimir {{jamal@gmail·com}} muḫḫi.", "šar¦gi·mir¦⟦ {{jamal@gmail·com}} ⟧muḫ·ḫi¦⟦.⟧"),
 
         # ===== CR-005 ESCAPE SYNTAX =====
@@ -719,9 +932,26 @@ def run_tests() -> bool:
         ("Multiple diphthongs", "ua iā", "u·¨a¦i·¨ā¦"),
         ("Diphthong with consonant", "šar ua", "šar¦u·¨a¦"),
     ]
+
+    error_tests = [
+        ("Period after word", "šar· gimir", "undeclared punctuation"),
+        ("Punctuation glued both sides", "ab?kat", "invalid punctuation spacing"),
+        ("Punctuation suite glued both sides", "ab?!kat", "invalid punctuation spacing"),
+        ("Number attached left", "ab123 kar", "invalid punctuation spacing"),
+        ("Number attached right", "ab 123kar", "invalid punctuation spacing"),
+        ("Currency attached left", "ab$123 kar", "invalid punctuation spacing"),
+        ("Currency attached right", "ab $123kar", "invalid punctuation spacing"),
+        ("En-dash attached left", "ab– kar", "invalid punctuation spacing"),
+        ("En-dash attached right", "ab –kar", "invalid punctuation spacing"),
+        ("Invalid number-format regex", "šar 12,345 gimir", "unterminated character set", False, False, "["),
+    ]
+
+    pattern_tests = [
+        ("BOL token accepted for hyphen line", [r'^[:bol:]\s*-\s+\d+[:eol:]$'], "- 123", True),
+    ]
     
     passed = 0
-    total = len(preprocess_tests) + len(tests)
+    total = len(preprocess_tests) + len(tests) + len(error_tests) + len(pattern_tests)
     print(f"\nRunning {total} tests...\n")
 
     for name, inp, expected, preserve in preprocess_tests:
@@ -738,18 +968,63 @@ def run_tests() -> bool:
             name, inp, expected = test
             merge = False
             preserve_lines = False
+            number_format = ''
         elif len(test) == 4:
             name, inp, expected, merge = test
             preserve_lines = False
-        else:
+            number_format = ''
+        elif len(test) == 5:
             name, inp, expected, merge, preserve_lines = test
-        result = syllabify_text(inp, merge_hyphen=merge, preserve_lines=preserve_lines)
+            number_format = ''
+        else:
+            name, inp, expected, merge, preserve_lines, number_format = test
+        result = syllabify_text(
+            inp,
+            merge_hyphen=merge,
+            preserve_lines=preserve_lines,
+            number_format=number_format,
+        )
         if result == expected:
             print(f"PASS {name}")
             passed += 1
         else:
             print(f"FAIL {name}")
             print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
+
+    for test in error_tests:
+        if len(test) == 3:
+            name, inp, expected_reason = test
+            merge = False
+            preserve_lines = False
+            number_regex = ''
+        else:
+            name, inp, expected_reason, merge, preserve_lines, number_regex = test
+        try:
+            _ = syllabify_text(inp, merge_hyphen=merge, preserve_lines=preserve_lines, number_format=number_regex)
+            print(f"FAIL {name}")
+            print(f"   Expected error containing: '{expected_reason}'\n   Got: success")
+        except PunctuationConfigError as exc:
+            if expected_reason in str(exc).lower():
+                print(f"PASS {name}")
+                passed += 1
+            else:
+                print(f"FAIL {name}")
+                print(f"   Expected reason: '{expected_reason}'\n   Got error: '{exc}'")
+
+    for name, custom_patterns, sample, should_match in pattern_tests:
+        try:
+            compiled = _compile_regex_patterns(custom_patterns, '--short-punct-pattern')
+            contextual = contextualize_for_regex(sample, at_sol=True, at_eol=True, at_eof=False)
+            match = any(rx.search(contextual) for rx in compiled)
+            if match == should_match:
+                print(f"PASS {name}")
+                passed += 1
+            else:
+                print(f"FAIL {name}")
+                print(f"   Expected match={should_match}\n   Got match={match}")
+        except Exception as exc:
+            print(f"FAIL {name}")
+            print(f"   Unexpected exception: {exc}")
 
     nested = parse_escape_at("{{a{{b}}}}", 0)
     if nested is None:

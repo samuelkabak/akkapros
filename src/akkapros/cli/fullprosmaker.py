@@ -28,6 +28,8 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros.lib.metrics import (
+    PunctuationConfigError as MetricsPunctuationConfigError,
+    configure_pause_punctuation_rules,
     update_character_sets,
     process_file as process_metrics_file,
     format_table,
@@ -99,6 +101,11 @@ def run_pipeline(
     extra_consonants: str,
     merge_hyphen: bool,
     preserve_lines: bool,
+    short_punct_chars: str,
+    long_punct_chars: str,
+    short_punct_patterns: list[str] | None,
+    long_punct_patterns: list[str] | None,
+    number_format: str,
     style: str,
     only_last: bool,
     wpm: float,
@@ -137,12 +144,23 @@ def run_pipeline(
     with open(input_file, 'r', encoding='utf-8') as f:
         source_text = f.read()
 
+    syllabify.configure_punctuation_rules(
+        short_punct_chars=short_punct_chars,
+        long_punct_chars=long_punct_chars,
+        short_punct_patterns=short_punct_patterns,
+        long_punct_patterns=long_punct_patterns,
+    )
+
     syl_text = syllabify.syllabify_text(
         source_text,
         extra_vowels=extra_vowels,
         extra_consonants=extra_consonants,
         merge_hyphen=merge_hyphen,
         preserve_lines=preserve_lines,
+        short_punct_chars=short_punct_chars,
+        long_punct_chars=long_punct_chars,
+        short_punct_patterns=short_punct_patterns,
+        long_punct_patterns=long_punct_patterns,
     )
     with open(syl_file, 'w', encoding='utf-8') as f:
         f.write(syl_text if syl_text.endswith('\n') else syl_text + '\n')
@@ -157,6 +175,12 @@ def run_pipeline(
 
     # 3) Metrics
     print("\n[3/4] Computing metrics...")
+    configure_pause_punctuation_rules(
+        short_punct_chars=short_punct_chars,
+        long_punct_chars=long_punct_chars,
+        short_punct_patterns=short_punct_patterns,
+        long_punct_patterns=long_punct_patterns,
+    )
     update_character_sets(extra_consonants, extra_vowels)
     metrics_result = process_metrics_file(
         str(tilde_file),
@@ -263,6 +287,14 @@ Version: {__version__}
     # Syllabifier options
     parser.add_argument('--extra-vowels', default='', help='Extra characters to treat as vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra characters to treat as consonants')
+    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
+    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+    parser.add_argument('--short-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for short-pause punctuation segments')
+    parser.add_argument('--long-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for long-pause punctuation segments')
+    parser.add_argument('--number-format', default='',
+                        help='Number regex for syllabifier stage; empty uses built-in English-grouping-compatible pattern')
     parser.add_argument('--syl-merge-hyphens', action='store_true', help='Merge hyphens into syllable separators in syllabification')
     parser.add_argument('--syl-merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
@@ -336,6 +368,23 @@ Version: {__version__}
             ok = run_tests() and ok
         sys.exit(0 if ok else 1)
 
+    try:
+        syllabify.configure_punctuation_rules(
+            short_punct_chars=args.short_punct_chars,
+            long_punct_chars=args.long_punct_chars,
+            short_punct_patterns=args.short_punct_pattern,
+            long_punct_patterns=args.long_punct_pattern,
+        )
+        configure_pause_punctuation_rules(
+            short_punct_chars=args.short_punct_chars,
+            long_punct_chars=args.long_punct_chars,
+            short_punct_patterns=args.short_punct_pattern,
+            long_punct_patterns=args.long_punct_pattern,
+        )
+    except (syllabify.PunctuationConfigError, MetricsPunctuationConfigError) as exc:
+        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
+        sys.exit(2)
+
     if not args.input:
         parser.print_help()
         sys.exit(1)
@@ -385,6 +434,11 @@ Version: {__version__}
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.syl_merge_hyphens,
         preserve_lines=not args.syl_merge_lines,
+        short_punct_chars=args.short_punct_chars,
+        long_punct_chars=args.long_punct_chars,
+        short_punct_patterns=args.short_punct_pattern,
+        long_punct_patterns=args.long_punct_pattern,
+        number_format=args.number_format,
         style=args.prosody_style,
         only_last=only_last,
         wpm=args.metrics_wpm,

@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[012. Enforce punctuation whitelist and configurable CLI extension](012-enforce-punctuation-whitelist-and-cli-extension.md) - Draft
 [011. Add format-validation guard to file-input CLIs](011-add-format-validation-guard.md) - Done
 [010. Refactor simple_safe_filename and phoneprep core](010-refactor-simple_safe_filename-and-phoneprep-core.md) - Done
 [009. Reorganize CLI common code and add `_gencode` generators](009-reorganize-cli-gencode.md) - Done

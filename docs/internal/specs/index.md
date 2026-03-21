@@ -15,6 +15,7 @@ This index lists requirement/specification documents. It is maintained by `scrip
 | [REQ-002](002-syllabification.md) | Akkadian Syllabification | Implemented | High |
 | [REQ-001](001-ebl-atf-parsing-and-normalization.md) | eBL ATF Parsing and Normalization | Implemented | High |
 
+- [011. Requirement: Punctuation Whitelist and CLI Extension for Syllabifier and Metrics](011-punctuation-whitelist-and-cli-extension.md) - Draft
 - [010. Requirement: Built-in Self-Tests and CLI Test Infrastructure](010-built-in-self-tests-and-test-infrastructure.md) - Implemented
 - [009. Requirement: Phonological Research Model and Corpus Scope](009-phonological-research-model-and-corpus-scope.md) - Implemented (research validated)
 - [008. Requirement: Accentuation Terminology Rename (CR-004 Migration)](008-accentuation-terminology-rename.md) - Approved (CR-004, pending full implementation)

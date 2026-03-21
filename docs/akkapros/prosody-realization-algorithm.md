@@ -215,6 +215,9 @@ Non-lexical escaped chunks are preserved and passed through. They do not partici
 - Plain form: `{{text}}`
 - Tagged form: `{tag{text}}`, where `tag` matches `[0-9a-z_]{1,16}`
 - Internal tags begin with `_` and are reserved for pipeline-internal handling
+- Syllabifier/metrics punctuation handling is strict allowlist-based; unclassified punctuation now raises an error instead of silent fallback.
+- CLI extension hooks: `--short-punct-chars`, `--long-punct-chars`, repeatable `--short-punct-pattern`, repeatable `--long-punct-pattern`.
+- Regex semantics are standard Python regex: `^` and `$` are anchors, literal dollar must be escaped as `\\$`, and `¨` is treated as a normal character.
 
 ---
 

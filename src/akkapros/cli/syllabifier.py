@@ -39,6 +39,11 @@ def process_file(
     extra_consonants: str = '',
     merge_hyphen: bool = False,
     preserve_lines: bool = True,
+    short_punct_chars: str = '',
+    long_punct_chars: str = '',
+    short_punct_patterns: list[str] | None = None,
+    long_punct_patterns: list[str] | None = None,
+    number_format: str = '',
 ):
     """Read input, syllabify and write output."""
     print(f"Reading: {input_file}")
@@ -59,6 +64,11 @@ def process_file(
         extra_consonants=extra_consonants,
         merge_hyphen=merge_hyphen,
         preserve_lines=preserve_lines,
+        short_punct_chars=short_punct_chars,
+        long_punct_chars=long_punct_chars,
+        short_punct_patterns=short_punct_patterns,
+        long_punct_patterns=long_punct_patterns,
+        number_format=number_format,
     )
 
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -85,6 +95,14 @@ def main():
                         help='Output directory')
     parser.add_argument('--extra-vowels', default='', help='Extra vowels')
     parser.add_argument('--extra-consonants', default='', help='Extra consonants')
+    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
+    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+    parser.add_argument('--short-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for short-pause punctuation segments')
+    parser.add_argument('--long-punct-pattern', action='append', default=[],
+                        help='Repeatable regex for long-pause punctuation segments')
+    parser.add_argument('--number-format', default='',
+                        help='Number regex; empty uses built-in English-grouping-compatible pattern')
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
     parser.add_argument('--merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
@@ -95,6 +113,17 @@ def main():
         print_startup_banner('akkapros-syllabifier', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
+
+    try:
+        syllabify.configure_punctuation_rules(
+            short_punct_chars=args.short_punct_chars,
+            long_punct_chars=args.long_punct_chars,
+            short_punct_patterns=args.short_punct_pattern,
+            long_punct_patterns=args.long_punct_pattern,
+        )
+    except syllabify.PunctuationConfigError as exc:
+        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
+        sys.exit(2)
 
     if not args.input:
         parser.print_help()
@@ -139,6 +168,11 @@ def main():
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
         preserve_lines=not args.merge_lines,
+        short_punct_chars=args.short_punct_chars,
+        long_punct_chars=args.long_punct_chars,
+        short_punct_patterns=args.short_punct_pattern,
+        long_punct_patterns=args.long_punct_pattern,
+        number_format=args.number_format,
     )
 
 

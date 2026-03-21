@@ -36,7 +36,14 @@ from akkapros.lib.constants import (
     WORD_LINKER,
     SHORT_VOWELS,
     LONG_VOWELS,
+    SHORT_PAUSE_PUNCTUATION_CHARS,
+    SHORT_PAUSE_PUNCTUATION_PATTERNS,
+    LONG_PAUSE_PUNCTUATION_CHARS,
+    LONG_PAUSE_PUNCTUATION_PATTERNS,
+    LONG_PAUSE_INCLUDES_NEWLINE,
+    LONG_PAUSE_INCLUDES_FINAL_EOF,
 )
+from akkapros.lib.utils import compile_contextual_regex
 
 HYPHEN = '-'
 EXTRA_LONG_VOWELS = set('àìùè')
@@ -63,31 +70,61 @@ PROCESSING_VOWELS = EXTRA_LONG_VOWELS
 LENGTH_MARKER = ':'
 WORD_BOUNDARY = '$'
 
-# Pause class configuration (scientific, explicit, and centralized)
-# Short pause punctuation: minor/inner punctuation marks.
-SHORT_PAUSE_PUNCTUATION_CHARS = {
-    ',', ';', ':', '—', '–', '…',
-    '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'",
-    '/', '\\', '&', '†', '‡', '|'
-}
-# Standalone ellipsis (surrounded by spaces/newline/EOF) is treated as short,
-# typically representing missing words in source editions.
-SHORT_PAUSE_PUNCTUATION_PATTERNS = (
-    r'\s\.\.\.(?=\s|$)',
-    r'\s…(?=\s|$)',
-)
+class PunctuationConfigError(ValueError):
+    """Raised when pause punctuation rules are invalid."""
 
-# Long pause punctuation: final/major boundaries.
-LONG_PAUSE_PUNCTUATION_CHARS = {
-    '.', '?', '!', '[', ']', '{', '}', '<', '>', '-', '*', '+'
-}
-# Ellipsis attached directly to a word ending is sentence-final/major.
-LONG_PAUSE_PUNCTUATION_PATTERNS = (
-    r'^\.\.\.',
-    r'^…',
-)
-LONG_PAUSE_INCLUDES_NEWLINE = True
-LONG_PAUSE_INCLUDES_FINAL_EOF = True
+
+ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS = set(SHORT_PAUSE_PUNCTUATION_CHARS)
+ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS = set(LONG_PAUSE_PUNCTUATION_CHARS)
+ACTIVE_SHORT_PAUSE_PUNCTUATION_PATTERNS = tuple(SHORT_PAUSE_PUNCTUATION_PATTERNS)
+ACTIVE_LONG_PAUSE_PUNCTUATION_PATTERNS = tuple(LONG_PAUSE_PUNCTUATION_PATTERNS)
+ACTIVE_SHORT_PAUSE_PUNCT_REGEX: List[re.Pattern] = []
+ACTIVE_LONG_PAUSE_PUNCT_REGEX: List[re.Pattern] = []
+
+
+def _compile_pause_patterns(patterns: List[str], option_name: str) -> List[re.Pattern]:
+    compiled: List[re.Pattern] = []
+    for idx, pattern in enumerate(patterns, start=1):
+        try:
+            compiled.append(compile_contextual_regex(pattern, option_name, idx))
+        except ValueError as exc:
+            raise PunctuationConfigError(
+                f"Invalid regex for {option_name} (item {idx}): {pattern!r}. Error: {exc}"
+            ) from exc
+    return compiled
+
+
+def configure_pause_punctuation_rules(
+    *,
+    short_punct_chars: str = '',
+    long_punct_chars: str = '',
+    short_punct_patterns: Optional[List[str]] = None,
+    long_punct_patterns: Optional[List[str]] = None,
+) -> None:
+    """Configure pause punctuation rules and validate regex before processing."""
+    global ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS, ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS
+    global ACTIVE_SHORT_PAUSE_PUNCTUATION_PATTERNS, ACTIVE_LONG_PAUSE_PUNCTUATION_PATTERNS
+    global ACTIVE_SHORT_PAUSE_PUNCT_REGEX, ACTIVE_LONG_PAUSE_PUNCT_REGEX
+
+    ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS = set(SHORT_PAUSE_PUNCTUATION_CHARS) | set(short_punct_chars or '')
+    ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS = set(LONG_PAUSE_PUNCTUATION_CHARS) | set(long_punct_chars or '')
+
+    short_patterns = list(SHORT_PAUSE_PUNCTUATION_PATTERNS)
+    if short_punct_patterns:
+        short_patterns.extend(short_punct_patterns)
+    long_patterns = list(LONG_PAUSE_PUNCTUATION_PATTERNS)
+    if long_punct_patterns:
+        long_patterns.extend(long_punct_patterns)
+
+    ACTIVE_SHORT_PAUSE_PUNCT_REGEX = _compile_pause_patterns(short_patterns, '--short-punct-pattern')
+    ACTIVE_LONG_PAUSE_PUNCT_REGEX = _compile_pause_patterns(long_patterns, '--long-punct-pattern')
+
+    ACTIVE_SHORT_PAUSE_PUNCTUATION_PATTERNS = tuple(short_patterns)
+    ACTIVE_LONG_PAUSE_PUNCTUATION_PATTERNS = tuple(long_patterns)
+
+
+# Initialize with default punctuation classes/patterns.
+configure_pause_punctuation_rules()
 
 # Pause weights: long is expressed relative to short.
 SHORT_PAUSE_PUNCT_WEIGHT = 1.0
@@ -829,25 +866,38 @@ def _gap_has_long_pause(gap: str) -> bool:
     """Return True when a boundary gap contains long-pause punctuation cues."""
     if LONG_PAUSE_INCLUDES_NEWLINE and '\n' in gap:
         return True
-    if any(re.search(pattern, gap) for pattern in LONG_PAUSE_PUNCTUATION_PATTERNS):
+    if any(rx.search(gap) for rx in ACTIVE_LONG_PAUSE_PUNCT_REGEX):
         return True
     # Standalone ellipsis tokens (space + .../… + space|EOF) are short pauses;
     # remove them before char-level long-class checks.
     sanitized_gap = re.sub(r'(?<=\s)\.\.\.(?=\s|$)', '', gap)
     sanitized_gap = re.sub(r'(?<=\s)…(?=\s|$)', '', sanitized_gap)
-    return any(ch in LONG_PAUSE_PUNCTUATION_CHARS for ch in sanitized_gap)
+    return any(ch in ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS for ch in sanitized_gap)
 
 
 def _gap_has_short_pause(gap: str) -> bool:
     """Return True when a boundary gap contains short-pause punctuation cues."""
-    if any(re.search(pattern, gap) for pattern in SHORT_PAUSE_PUNCTUATION_PATTERNS):
+    if any(rx.search(gap) for rx in ACTIVE_SHORT_PAUSE_PUNCT_REGEX):
         return True
     punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
     if not punctuation_chars:
         return False
     if _gap_has_long_pause(gap):
         return False
-    return any(ch in SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars)
+    return any(ch in ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars)
+
+
+def _unknown_gap_punctuation_chars(gap: str) -> List[str]:
+    """Return punctuation chars in a gap that are not declared in active rules."""
+    punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
+    declared = ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS | ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS
+    unknown: List[str] = []
+    seen = set()
+    for ch in punctuation_chars:
+        if ch not in declared and ch not in seen:
+            seen.add(ch)
+            unknown.append(ch)
+    return unknown
 
 
 def _gap_has_any_punctuation(gap: str) -> bool:
@@ -905,10 +955,13 @@ def count_spaces_and_punctuation(text: str) -> Dict:
                 short_punctuation += 1
                 punctuation += 1
             elif _gap_has_any_punctuation(gap):
-                # Fallback policy: unknown punctuation defaults to LONG pause.
-                long_punctuation += 1
-                defaulted_long_punctuation += 1
-                punctuation += 1
+                unknown = _unknown_gap_punctuation_chars(gap)
+                unknown_repr = ''.join(unknown) if unknown else gap
+                raise PunctuationConfigError(
+                    "Undeclared punctuation in metrics input gap "
+                    f"{gap!r} (unknown chars: {unknown_repr!r}). "
+                    "Declare via --short-punct-chars/--long-punct-chars or matching --*-punct-pattern options."
+                )
             else:
                 # Pure spacing/linking gap: connected speech with no pause.
                 pass
@@ -1799,13 +1852,14 @@ def _test_pause_metrics_grouping() -> bool:
     return True
 
 
-def _test_unknown_punctuation_fallback() -> bool:
+def _test_unknown_punctuation_raises() -> bool:
     text = "at·tā @ ā·lik"
     stats = analyze_text(text, is_accentuated=True)
-    pm = compute_pause_metrics(text, stats)
-    if pm['raw_counts']['defaulted_long_punctuation'] != 1:
+    try:
+        _ = compute_pause_metrics(text, stats)
         return False
-    return True
+    except PunctuationConfigError:
+        return True
 
 
 def _test_mora_totals_and_original_speech() -> bool:
@@ -1898,7 +1952,7 @@ def run_tests():
         (_test_consonant_distance_definitions, "Consonant distance definitions"),
         (_test_punctuation_marks_segment_boundaries, "Punctuation segment boundaries"),
         (_test_pause_metrics_grouping, "Pause metrics grouping"),
-        (_test_unknown_punctuation_fallback, "Unknown punctuation fallback"),
+        (_test_unknown_punctuation_raises, "Unknown punctuation strict error"),
         (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
         (_test_table_and_csv_new_fields, "Table and CSV new fields"),
     ]
