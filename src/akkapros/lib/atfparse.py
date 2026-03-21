@@ -143,7 +143,7 @@ class ATFParser:
         text = text.replace('\u00A0', ' ')
         
         # Replace tabs with spaces
-        text = text.replace('\t', ' ')
+        text = text.replace('\t', '  ')
         
         # Convert both || and ‡ to colon phrase separator (no spaces yet)
         text = text.replace('||', ':')

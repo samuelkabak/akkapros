@@ -361,18 +361,13 @@ def preprocess_diphthongs(text: str) -> str:
     vowels_pattern = f'([{re.escape("".join(ALL_VOWELS))}])([{re.escape("".join(ALL_VOWELS))}])'
     matches = list(re.finditer(vowels_pattern, text))
     if matches:
-        print("\n⚠️  DIPHTHONG WARNINGS:", file=sys.stderr)
         for match in matches:
             diphthong = match.group(0)
             pos = match.start()
             start = max(0, pos - 10)
             end = min(len(text), pos + 10)
             context = text[start:end]
-            print(f"   Diphthong '{diphthong}' at position {pos}: ...{context}...", file=sys.stderr)
-            print(f"     → Inserting DIPH_SEPARATOR: {diphthong[0]}{DIPH_SEPARATOR}{diphthong[1]}", file=sys.stderr)
         text = re.sub(vowels_pattern, r'\1' + DIPH_SEPARATOR + r'\2', text)
-        print(f"   Total diphthongs processed: {len(matches)}", file=sys.stderr)
-        print(file=sys.stderr)
     return text
 
 
@@ -406,7 +401,6 @@ def text_preprocess_boundaries(
     text = preprocess_diphthongs(text)
     lines = text.split('\n')
     processed_lines = []
-    tab_warning_issued = False
     i = 0
 
     markdown_header_re = re.compile(r'^\s{0,3}#{1,6}\s+\S')
@@ -467,7 +461,6 @@ def text_preprocess_boundaries(
             if next_line_stripped and is_word_char(next_line_stripped[0]):
                 base = original_line.rstrip().rstrip(HYPHEN)
                 merged = base + HYPHEN + next_line_stripped
-                warnings.append(f"Hyphen split across lines merged: '{original_line.rstrip()}' + '{next_line}' → '{merged}'")
                 processed_lines.append(merged)
                 rest = next_line[len(next_line_stripped):]
                 processed_lines.append(rest or '')
@@ -479,7 +472,6 @@ def text_preprocess_boundaries(
             if next_line_stripped and is_word_char(next_line_stripped[0]):
                 base = original_line.rstrip().rstrip(WORD_LINKER)
                 merged = base + WORD_LINKER + next_line_stripped
-                warnings.append(f"Word linker split across lines merged: '{original_line.rstrip()}' + '{next_line}' → '{merged}'")
                 processed_lines.append(merged)
                 rest = next_line[len(next_line_stripped):]
                 processed_lines.append(rest or '')
@@ -487,8 +479,6 @@ def text_preprocess_boundaries(
                 continue
         processed_lines.append(line)
         i += 1
-    if '\t' in text and not tab_warning_issued:
-        warnings.append("Tabs detected: tabs between Akkadian words are treated as spaces and eliminated")
 
     if preserve_lines:
         return '\n'.join(processed_lines)
@@ -781,8 +771,6 @@ def syllabify_text(
                     continue
                 current_line_parts.append(f"{OPEN_ESCAPE}{token_text}{CLOSE_ESCAPE}")
                 punct_not_final = i+1 < len(tokens)
-                if punct_not_final and ' ' not in token_text:
-                    warnings.append(f"Punctuation part does not contain a space: '{token_text}' line '{line}")
         if current_line_parts:
             result_lines.append(''.join(current_line_parts))
     if warnings:
