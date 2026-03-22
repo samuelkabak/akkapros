@@ -879,7 +879,12 @@ def _gap_has_short_pause(gap: str) -> bool:
     """Return True when a boundary gap contains short-pause punctuation cues."""
     if any(rx.search(gap) for rx in ACTIVE_SHORT_PAUSE_PUNCT_REGEX):
         return True
-    punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
+    # Ignore non-pause structural markers that may appear if word parsing
+    # leaves residual intra-word separators in a gap.
+    punctuation_chars = [
+        ch for ch in gap
+        if (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
+    ]
     if not punctuation_chars:
         return False
     if _gap_has_long_pause(gap):
@@ -889,7 +894,10 @@ def _gap_has_short_pause(gap: str) -> bool:
 
 def _unknown_gap_punctuation_chars(gap: str) -> List[str]:
     """Return punctuation chars in a gap that are not declared in active rules."""
-    punctuation_chars = [ch for ch in gap if (not ch.isspace()) and ch != WORD_LINKER]
+    punctuation_chars = [
+        ch for ch in gap
+        if (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
+    ]
     declared = ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS | ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS
     unknown: List[str] = []
     seen = set()
@@ -902,7 +910,10 @@ def _unknown_gap_punctuation_chars(gap: str) -> List[str]:
 
 def _gap_has_any_punctuation(gap: str) -> bool:
     """Return True when a gap contains at least one non-space, non-linker marker."""
-    return any((not ch.isspace()) and ch != WORD_LINKER for ch in gap)
+    return any(
+        (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
+        for ch in gap
+    )
 
 
 def count_spaces_and_punctuation(text: str) -> Dict:

@@ -178,9 +178,31 @@ Regex validation for punctuation options is also fail-fast: invalid patterns sto
 
 Regex anchor semantics use chunk-level `^`/`$`; boundary pseudo-tokens are also supported in patterns: `[:bol:]`, `[:eol:]`. EOF is normalized internally to EOL behavior.
 
+### Quick Intuition: `[:bol:]` and `[:eol:]` (Synthetic Examples)
+
+These examples are synthetic (not linguistic), only to explain boundary matching.
+
+Given a punctuation chunk like:
+
+    # pause
+
+- `^[:bol:]#(?:\s|$)` matches when `#` starts the line.
+- `^[ \t]+#` does not match because the chunk does not begin with spaces.
+
+Given a chunk ending a line:
+
+    ...
+
+- `\.\.\.(?=\s|[:eol:]|$)` matches when ellipsis is followed by line end.
+- `\.\.\.(?=\s)` requires a real whitespace character after `...` and may fail at line end.
+
+Mental model:
+- `[:bol:]` = line start (position `ln[0]`).
+- `[:eol:]` = boundary immediately before newline.
+
 ### Validation Rules (Middle Strictness)
 
-`metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation checks for expected structural cues (for example syllable/prosody markers like `.`, `_`, `~`) and blocks clearly wrong/corrupted input (empty, binary, severe truncation). It is intentionally moderate rather than exhaustive: the purpose is to stop inputs likely to explode later, not to reject every unusual but processable text variation.
+`metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation is intentionally permissive for short inputs: plain lines like `ku man su tal` are acceptable tilde-stage text. The guard mainly blocks clearly wrong/corrupted input (empty, binary) and rejects accidental `*_syl.txt` content (`¦` markers). A final trailing newline is not mandatory (missing newline is normalized in memory).
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ### %V Note

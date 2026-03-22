@@ -3,21 +3,21 @@ Shared constants for Akkadian Prosody Toolkit library modules.
 """
 
 # ---- Phonetic inventory ---------------------------------------------------
-AKKADIAN_VOWELS = set('\u0101\u0113\u012b\u016b\u00e2\u00ea\u00ee\u00fbaeiu')
-AKKADIAN_CONSONANTS = set('bdgkp\u1e6dq\u1e63sz\u0161lmnr\u1e25\u1e2b\u02bf\u02bewyt')
+AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
+AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 
 SHORT_VOWELS = set('aeiu')
-LONG_VOWELS = set('\u0101\u0113\u012b\u016b\u00e2\u00ea\u00ee\u00fb')
-CIRCUMFLEX_VOWELS = set('\u00e2\u00ea\u00ee\u00fb')
+LONG_VOWELS = set('āēīūâêîû')
+CIRCUMFLEX_VOWELS = set('âêîû')
 
 # Symbols
-GLOTTAL = '\u02be'
-SYL_WORD_ENDING = '\u00a6'
-SYL_SEPARATOR = '\u00b7'
+GLOTTAL = 'ʾ'
+SYL_WORD_ENDING = '¦'
+SYL_SEPARATOR = '·'
 HYPHEN = '-'
 WORD_LINKER = '+'
-OPEN_ESCAPE = '\u27e6'
-CLOSE_ESCAPE = '\u27e7'
+OPEN_ESCAPE = '⟦'
+CLOSE_ESCAPE = '⟧'
 
 OPEN_PRESERVE_CHAR = '{'
 CLOSE_PRESERVE_CHAR = '}'
@@ -28,7 +28,7 @@ CLOSE_PRESERVE_RE = CLOSE_PRESERVE_CHAR + CLOSE_PRESERVE_CHAR
 OPEN_PRESERVE = OPEN_PRESERVE_CHAR + OPEN_PRESERVE_CHAR
 CLOSE_PRESERVE = CLOSE_PRESERVE_CHAR + CLOSE_PRESERVE_CHAR
 
-DIPH_SEPARATOR = '\u00a8'
+DIPH_SEPARATOR = '¨'
 
 # Treat diphthongs as consonant clusters for syllabification.
 AKKADIAN_CONSONANTS.add(DIPH_SEPARATOR)
@@ -38,25 +38,23 @@ TIL_WORD_LINKER = WORD_LINKER
 
 # ---- Punctuation pause classes -------------------------------------------
 SHORT_PAUSE_PUNCTUATION_CHARS = {
-    ',', ';', ':',
-    '(', ')', '\u00ab', '\u00bb', '\u201c', '\u201d', '\u2018', '\u2019', '"', "'",
-    '/', '\\', '&', '\u2020', '\u2021', '|'
+    ',', ';', ':', '—', '–',
+    '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'",
+    '/', '\\', '&', '†', '‡', '|'
 }
 
 SHORT_PAUSE_PUNCTUATION_PATTERNS = (
-    r'(?:[:bol:]|^|[ \t]+)\.\.\.(?:[ \t]+|[:eol:]|$)',
-    r'(?:[:bol:]|^|[ \t]+)\u2026(?:[ \t]+|[:eol:]|$)',
-    r'(?:[:bol:]|^|[ \t]+)\u2014(?:[ \t]+|[:eol:]|$)',
-    r'(?:[:bol:]|^|[ \t]+)\u2013(?:[ \t]+|[:eol:]|$)',
-    r'(?:[:bol:]|^)#(?:[ \t]+|[:eol:]|$)',
+    r'\s\.\.\.(?=\s|[:eol:]|$)',
+    r'\s…(?=\s|[:eol:]|$)',
 )
 
 LONG_PAUSE_PUNCTUATION_CHARS = {
-    '.', '?', '!', '[', ']', '{', '}', '<', '>', '-', '*', '+'
+    '.', '?', '!', '[', ']', '{', '}', '<', '>', '-', '*', '+', '#'
 }
 
 LONG_PAUSE_PUNCTUATION_PATTERNS = (
-    r'[:bol:]\s*[\-\*\+]\s+(?=.)',
+    r'^(?:[:bol:])?\.\.\.',
+    r'^(?:[:bol:])?…',
 )
 
 LONG_PAUSE_INCLUDES_NEWLINE = True
@@ -69,8 +67,8 @@ REGEX_TOKEN_EOL = '[:eol:]'
 REGEX_TOKEN_EOF = '[:eof:]'
 
 # Sentinels used internally to materialize line/file boundaries for regex.
-REGEX_SENTINEL_SOL = '\u0002'
-REGEX_SENTINEL_EOL = '\u0003'
+REGEX_SENTINEL_SOL = '<<BOL>>'
+REGEX_SENTINEL_EOL = '<<EOL>>'
 
 # ---- Numeric / currency punctuation suites -------------------------------
 NUMBER_REGEX = r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?"

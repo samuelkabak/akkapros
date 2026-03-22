@@ -23,6 +23,10 @@ from pathlib import Path
 from typing import Any
 
 from akkapros.lib.constants import (
+    AKKADIAN_VOWELS,
+    AKKADIAN_CONSONANTS,
+    SYL_SEPARATOR,
+    SYL_WORD_ENDING,
     REGEX_TOKEN_BOL,
     REGEX_TOKEN_EOL,
     REGEX_TOKEN_EOF,
@@ -121,6 +125,7 @@ def compile_contextual_regex(pattern: str, option_name: str, item_index: int) ->
         .replace(REGEX_TOKEN_EOL, REGEX_SENTINEL_EOL)
         .replace(REGEX_TOKEN_EOF, REGEX_SENTINEL_EOL)
     )
+
     try:
         return re.compile(prepared)
     except re.error as exc:
@@ -230,6 +235,11 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
     except UnicodeDecodeError as exc:
         fail(f"file is not valid UTF-8 ({exc})")
 
+    # Accept files without a trailing newline by normalizing to the canonical
+    # in-memory shape used by downstream line-based processing.
+    if not text.endswith("\n"):
+        text = text + "\n"
+
     if not text.strip():
         fail("file contains only whitespace")
 
@@ -247,14 +257,15 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
     if not non_empty:
         fail("file has no non-empty content lines")
 
-    has_letter = any(ch.isalpha() for ch in text)
-    if not has_letter:
-        fail("file does not contain alphabetic content")
-
-    for idx, line in non_empty:
-        for opening, closing in (("(", ")"), ("[", "]"), ("{", "}"), ("<", ">")):
-            if line.count(opening) != line.count(closing):
-                fail(f"unbalanced {opening}{closing} markers", idx, line)
+    akkad_letters = (
+        set(AKKADIAN_VOWELS)
+        | set(AKKADIAN_CONSONANTS)
+        | {c.upper() for c in AKKADIAN_VOWELS}
+        | {c.upper() for c in AKKADIAN_CONSONANTS}
+    )
+    has_akkadian_letter = any(ch in akkad_letters for ch in text)
+    if not has_akkadian_letter:
+        fail("file does not contain Akkadian letters")
 
     if expected_kind == "atf":
         if not any("%n" in ln for _, ln in non_empty):
@@ -267,21 +278,18 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
             fail("appears to be raw ATF content, expected cleaned *_proc.txt text", idx, ln)
 
     elif expected_kind == "syl":
-        has_structure = any(("." in ln) or ("\u00A6" in ln) or ("-" in ln) for _, ln in non_empty)
-        if not has_structure:
+        # Syllabified stage must contain explicit end-of-word markers.
+        has_word_endings = any(SYL_WORD_ENDING in ln for _, ln in non_empty)
+        if not has_word_endings:
             idx, ln = non_empty[0]
-            fail("missing syllable/word-boundary markers for *_syl.txt input", idx, ln)
+            fail("missing SYL_WORD_ENDING markers for *_syl.txt input", idx, ln)
 
     elif expected_kind == "tilde":
-        has_structure = any(("." in ln) or ("_" in ln) or ("~" in ln) or ("-" in ln) for _, ln in non_empty)
-        if not has_structure:
-            idx, ln = non_empty[0]
-            fail("missing prosodic structure markers for *_tilde.txt input", idx, ln)
-
-    if not text.endswith("\n"):
-        last_idx, last_line = non_empty[-1]
-        if len(last_line.strip()) <= 1:
-            fail("file appears truncated at final line", last_idx, last_line)
+        # Tilde input can be a short plain sequence; only guard against
+        # accidentally passing a syllabified file.
+        if any(SYL_WORD_ENDING in ln for _, ln in non_empty):
+            idx, ln = next((i, l) for i, l in non_empty if SYL_WORD_ENDING in l)
+            fail("appears to be syllabified *_syl.txt content, expected *_tilde.txt", idx, ln)
 
 
 def run_tests() -> bool:

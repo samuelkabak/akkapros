@@ -188,5 +188,5 @@ By default, input format is validated at startup and reports precise source + li
 
 ### Validation Rules (Middle Strictness)
 
-`printer.py` expects a `*_tilde.txt` file from the prosody stage. Validation checks for obvious format compatibility and corruption risks (readable text, expected prosodic structure markers, no binary/trivial truncation patterns). It does not try to validate every phonological detail before formatting. The purpose is to avoid processing inputs that are clearly from the wrong stage or likely to trigger major runtime exceptions.
+`printer.py` expects a `*_tilde.txt` file from the prosody stage. Validation is intentionally moderate: readable short plain tilde lines are accepted, while obvious wrong-stage input (`*_syl.txt` markers like `¦`) and corruption risks (empty/binary) are rejected. A final trailing newline is not mandatory (missing newline is normalized in memory). It does not try to validate every phonological detail before formatting. The purpose is to avoid processing inputs that are clearly from the wrong stage or likely to trigger major runtime exceptions.
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.

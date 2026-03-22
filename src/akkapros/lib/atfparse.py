@@ -140,7 +140,7 @@ class ATFParser:
             text = text.replace('h', 'ḫ').replace('H', 'Ḫ')
         
         # Replace NBSP with normal space
-        text = text.replace('\u00A0', ' ')
+        text = text.replace(' ', ' ')
         
         # Replace tabs with spaces
         text = text.replace('\t', '  ')

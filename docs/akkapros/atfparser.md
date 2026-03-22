@@ -138,7 +138,7 @@ For end-to-end one-command processing, see **`fullprosmaker.py`**.
 
 ### Validation Rules (Middle Strictness)
 
-Validation is intentionally moderate: `atfparser.py` checks that the file is readable text and contains expected ATF content (`%n` lines), plus obvious corruption signatures (empty/binary content, unbalanced structural markers). It does not attempt full philological validation of every ATF edge case. The goal is to stop inputs that are clearly wrong enough to trigger major failures later, while keeping normal corpus workflows usable.
+Validation is intentionally moderate: `atfparser.py` checks that the file is readable text and contains expected ATF content (`%n` lines), plus obvious corruption signatures (empty/binary content, missing expected structural markers for each stage). It does not attempt full philological validation of every ATF edge case. The goal is to stop inputs that are clearly wrong enough to trigger major failures later, while keeping normal corpus workflows usable.
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ---

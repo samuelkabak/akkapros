@@ -14,7 +14,7 @@ from akkapros.lib.utils import FormatValidationError, validate_intermediate_form
 
 def test_validate_syl_ok(tmp_path):
     p = tmp_path / "ok_syl.txt"
-    p.write_text("gi.mir\nšar\u00A6\n", encoding="utf-8")
+    p.write_text("gi.mir\nšar¦\n", encoding="utf-8")
     validate_intermediate_format(p, expected_kind="syl")
 
 
@@ -34,22 +34,27 @@ def test_validate_empty_fails(tmp_path):
 def test_validate_syl_missing_markers_fails(tmp_path):
     p = tmp_path / "bad_syl.txt"
     p.write_text("akkadiantext\n", encoding="utf-8")
-    with pytest.raises(FormatValidationError, match="line 1"):
+    with pytest.raises(FormatValidationError, match="SYL_WORD_ENDING"):
         validate_intermediate_format(p, expected_kind="syl")
 
 
-def test_validate_tilde_missing_markers_fails(tmp_path):
-    p = tmp_path / "bad_tilde.txt"
-    p.write_text("akkadiantext\n", encoding="utf-8")
-    with pytest.raises(FormatValidationError, match="line 1"):
+def test_validate_tilde_plain_text_ok(tmp_path):
+    p = tmp_path / "plain_tilde.txt"
+    p.write_text("ku man su tal\n", encoding="utf-8")
+    validate_intermediate_format(p, expected_kind="tilde")
+
+
+def test_validate_tilde_rejects_syl_word_endings(tmp_path):
+    p = tmp_path / "not_tilde.txt"
+    p.write_text("gi.mir¦\n", encoding="utf-8")
+    with pytest.raises(FormatValidationError, match=r"syllabified .*_syl\.txt"):
         validate_intermediate_format(p, expected_kind="tilde")
 
 
-def test_validate_truncated_final_token_fails(tmp_path):
-    p = tmp_path / "truncated_syl.txt"
-    p.write_text("gi.mir\na", encoding="utf-8")
-    with pytest.raises(FormatValidationError, match="line 2"):
-        validate_intermediate_format(p, expected_kind="syl")
+def test_validate_missing_final_newline_is_accepted(tmp_path):
+    p = tmp_path / "no_final_newline.atf"
+    p.write_text("1. %n ku man su tal", encoding="utf-8")
+    validate_intermediate_format(p, expected_kind="atf")
 
 
 def test_validate_atf_ok(tmp_path):

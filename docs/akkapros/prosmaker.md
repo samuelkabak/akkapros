@@ -132,7 +132,7 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 
 ### Validation Rules (Middle Strictness)
 
-`prosmaker.py` expects syllabified `*_syl.txt` input. Validation checks that input is text and contains expected syllable/word-structure markers (for example dots or `¦`), and rejects obvious corruption (empty/binary/truncated patterns). It is deliberately not ultra-strict: it will not validate every linguistic detail in advance. The key goal is to prevent processing clearly wrong stage input such as `*_proc.txt`, because that would produce wrong results or large exceptions.
+`prosmaker.py` expects syllabified `*_syl.txt` input. Validation checks that input is text and that syllabified content includes explicit word-ending markers (`¦`). It rejects obvious corruption (empty/binary) but does not require a final trailing newline in the file (missing final newline is normalized in memory). It is deliberately not ultra-strict: it will not validate every linguistic detail in advance. The key goal is to prevent processing clearly wrong stage input such as `*_proc.txt`, because that would produce wrong results or large exceptions.
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 ---

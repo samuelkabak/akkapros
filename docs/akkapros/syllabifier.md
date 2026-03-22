@@ -169,6 +169,28 @@ Matches:
 - ` -- ` in `aba -- ana`
 - ` --` in `aba --\nana`
 
+### Quick Intuition: `[:bol:]` and `[:eol:]` (Synthetic Examples)
+
+These are intentionally fake examples to illustrate boundaries only.
+
+Assume one input line is exactly:
+
+    # note
+
+- Pattern `^[:bol:]#(?:\s|$)` matches because `#` is at column 0.
+- Pattern `^[ \t]+#` does not match because there is no leading space before `#`.
+
+Assume one input line is exactly:
+
+    word ...
+
+- Pattern `\s\.\.\.(?=\s|[:eol:]|$)` matches ` ...` at line end.
+- Pattern `\s\.\.\.(?=\s)` does not match if `...` is followed immediately by line end.
+
+Practical reading:
+- `[:bol:]` means start of the current line (index 0).
+- `[:eol:]` means line boundary right before `\n`.
+
 ### Number Regex Notes
 
 `--number-format` accepts a regex (core number shape). If empty, built-in English-grouping-compatible behavior is used.

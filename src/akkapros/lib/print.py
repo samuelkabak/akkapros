@@ -405,10 +405,10 @@ def _flush_syllable(
         if accentuated and ipa_syllable:
             # For stressed vowel-initial syllables, reorder so glottal comes first
             # ːʔa → ʔaː (length marker moves to end, after vowel)
-            ipa_syllable = re.sub(r'^ː+(\u0294)([aeiou\u0251\u0268\u028a\u025b])(.*)$', 
+            ipa_syllable = re.sub(r'^ː+(ʔ)([aeiouɑɨʊɛ])(.*)$', 
                                   r'\1\2' + IPA_LENGTH + r'\3', ipa_syllable)
             # For stressed vowel-initial syllables without onset glottal: ːa -> aː
-            ipa_syllable = re.sub(r'^ː+([aeiou\u0251\u0268\u028a\u025b])(.*)$',
+            ipa_syllable = re.sub(r'^ː+([aeiouɑɨʊɛ])(.*)$',
                                   r'\1' + IPA_LENGTH + r'\2', ipa_syllable)
             return f"{IPA_STRESS}{ipa_syllable}"
         return ipa_syllable

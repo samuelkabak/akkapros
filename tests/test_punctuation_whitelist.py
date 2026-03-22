@@ -58,6 +58,11 @@ def test_custom_long_pattern_two_dashes_space_or_eol():
     assert "⟦ --⟧\n" in out_newline
 
 
+def test_syllabify_accepts_repeated_ellipsis_chunk():
+    out = syllabify.syllabify_text("sar … … gimir")
+    assert "⟦ … … ⟧" in out
+
+
 def test_metrics_rejects_unknown_punctuation_gap():
     with pytest.raises(metrics.PunctuationConfigError):
         metrics.process_filetext("at·ta @ a·lik", wpm=165, pause_ratio=35.0)
