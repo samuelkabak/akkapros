@@ -75,3 +75,34 @@ NUMBER_REGEX = r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?"
 NUMBER_WITH_GROUPS_REGEX = r"-?(?:0|[1-9][0-9]{0,2}(?:,[0-9]{3})+)(?:\.[0-9]+)?"
 CURRENCY_SYMBOLS = "$€£¥₽₹₩₪₫₺₴"
 DEFAULT_NUMBER_PATTERN = rf"(?:{NUMBER_WITH_GROUPS_REGEX}|{NUMBER_REGEX})"
+
+# ---- Akkadian text-detection constants -----------------------------------
+# Distinctively Akkadian characters (rare in other writing systems).
+AKKADIAN_DISTINCTIVE: frozenset = frozenset('ṭṣšḥḫʿʾ')
+
+# Characters whose presence makes Akkadian identification impossible.
+NON_AKKADIAN_CHARS: frozenset = frozenset('ofxvjc')
+
+# Common Akkadian enclitics (without the prosodic hyphen).
+# Used for word-suffix detection when scoring likelihood of Akkadian text.
+# Source: Huehnergard (2011) §17–19; von Soden (1969) §§47–50.
+AKKADIAN_ENCLITICS: frozenset = frozenset({
+    'ma', 'mi',                             # coordinative / quotative
+    'šu', 'šū', 'šī', 'šunu', 'šina',      # 3rd-person object / possessive
+    'ya', 'ia',                             # 1st-person singular possessive
+    'ni',                                   # subjunctive suffix
+    'ku', 'ki', 'kunu', 'kina',             # 2nd-person possessive
+    'nu',                                   # 1st-person plural suffix
+})
+
+# Canonical Akkadian function-word list: prepositions, conjunctions, pronouns.
+# Shared by prosody realization (ADR-009) and text-detection scoring.
+# Canonical source: Huehnergard (2011); see also ADR-009.
+FUNCTION_WORDS: frozenset = frozenset({
+    'ana', 'ina', 'ištu', 'itti', 'eli',    # prepositions
+    'ul', 'ula', 'lā',                       # negations
+    'ša',                                    # relative / genitive particle
+    'u', 'ū', 'lū',                          # conjunctions / assertive
+    'anāku', 'nīnu', 'atta', 'atti', 'attunu', 'attina',   # pronouns
+    'šū', 'šī', 'šunu', 'šina',             # 3rd-person independent pronouns
+})

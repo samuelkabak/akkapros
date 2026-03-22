@@ -24,6 +24,7 @@ from akkapros.lib.constants import (
     WORD_LINKER,
     CIRCUMFLEX_VOWELS,
     DIPH_SEPARATOR,
+    FUNCTION_WORDS,
 )
 
 HYPHEN = '-'
@@ -39,17 +40,7 @@ CIRCUMFLEX = set(CIRCUMFLEX_VOWELS)
 
 
 
-# ------------------------------------------------------------
-# Function words
-# ------------------------------------------------------------
-FUNCTION_WORDS: Set[str] = {
-    'ana', 'ina', 'ištu', 'itti', 'eli',
-    'ul', 'ula', 'lā',
-    'ša',
-    'u', 'ū', 'lū',
-    'anāku', 'nīnu', 'atta', 'atti', 'attunu', 'attina',
-    'šū', 'šī', 'šunu', 'šina'
-}
+# FUNCTION_WORDS imported from akkapros.lib.constants (see ADR-009)
 
 
 def is_function_word(word_text: str) -> bool:
