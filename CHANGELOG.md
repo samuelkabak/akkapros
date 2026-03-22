@@ -102,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+**NOTICE: This Unreleased section includes breaking changes to the project's external interface (JSON/CSV field renames). Downstream consumers must migrate to the new keys before upgrading.**
 
 ### Breaking Changes
 - CR-004 renamed terminology across code, outputs, and docs:
@@ -117,6 +118,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `[text]` style escapes are replaced by `{{text}}` and `{tag{text}}`
   - Tag regex is `[0-9a-z_]{1,16}` and tags starting with `_` are internal-only
   - Nested escape blocks are intentionally unsupported
+
+### Notable Changes (concise)
+
+- `CR-012` — Enforce punctuation whitelist and add CLI extension options; strict punctuation validation in `syllabify` and `metrics`.
+- `CR-011` — Add format-validation guard for file-input CLIs (early validation of intermediate files).
+- `CR-010` — Refactor `simple_safe_filename()` and extract `phoneprep` core to `src/akkapros/lib/phoneprep.py`.
+- `CR-009` — Reorganize CLI common code into `src/akkapros/lib/` and add `_gencode` generators.
+- `CR-008` — Add end-to-end integration test with pinned gold-standard metrics (`tests/test_integration.py`).
+- `CR-007` — Enforce POSIX EOF newline normalization in program outputs.
+- `CR-006` — Fix syllabifier regressions (diphthong/tokenization) and remove `xfail` suppressions.
+
+Housekeeping:
+
+- Docs and tooling: moved ADR/CR/specs to `docs/internal/`, added indexer scripts and helper scripts (`scripts/update-indexes.py`, `scripts/update_unreleased.py`, `scripts/migrate-escapes.py`).
   - Migration helper script: `scripts/migrate-escapes.py`
 
 ### Planned
