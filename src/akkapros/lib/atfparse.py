@@ -22,7 +22,6 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 __project__ = "Akkadian Prosody"

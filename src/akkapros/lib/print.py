@@ -32,7 +32,6 @@ from akkapros.lib.constants import (
 )
 from akkapros.lib.syllabify import split_by_escape_segments
 
-__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 __project__ = "Akkadian Prosody"

@@ -50,7 +50,6 @@ from akkapros.lib.constants import (
 
 from akkapros import get_version_display
 
-__version__ = "1.0.1"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 
@@ -100,7 +99,6 @@ AKKASCORE_THRESHOLDS: dict = {
 # validate_intermediate_format fires; prevents false negatives on stub files.
 _VALIDATE_PROC_MIN_CHARS   = 50
 _VALIDATE_PROC_THRESHOLD   = 0.25
-__license__ = "MIT"
 
 
 class RawDefaultsHelpFormatter(

@@ -1,7 +1,6 @@
 # `lib/utils.py` — Contributor Reference
 
 **Module**: `akkapros.lib.utils`  
-**Version**: 1.0.1  
 **Location**: `src/akkapros/lib/utils.py`
 
 This document describes every public function in `lib/utils.py` for

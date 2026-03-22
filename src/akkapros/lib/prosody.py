@@ -7,7 +7,7 @@ import re
 from enum import Enum
 from typing import List, Optional, Tuple, Union, Dict, Set
 
-__version__ = "1.0.1"
+from akkapros import __version__
 
 
 # shared constants

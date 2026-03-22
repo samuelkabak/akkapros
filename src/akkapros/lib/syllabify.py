@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Syllabification (Library)
-Version: 1.2.0
 
 This module contains the core syllabification logic extracted from the
 command-line tool.  It exposes a simple API that can be used programmatically
@@ -22,7 +21,6 @@ import re
 import sys
 from typing import List, Optional, Pattern, Sequence, Tuple
 
-__version__ = "1.2.0"
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
 __project__ = "Akkadian Prosody"

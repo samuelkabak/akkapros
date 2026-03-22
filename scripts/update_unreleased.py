@@ -4,7 +4,7 @@
 Usage:
   python scripts/update_unreleased.py [--base TAG_OR_REF]
 
-Defaults to base tag `v1.0.1`. The script replaces the "Commits since release"
+Defaults to base tag `v2.0.0`. The script replaces the "Commits since release"
 section in `release-notes/unreleased.md` with a bullet list of commits
 (`- `hash` (YYYY-MM-DD) — message`).
 
@@ -78,7 +78,7 @@ def replace_section(mdtext: str, new_section: str) -> str:
 
 def main(argv: List[str] | None = None) -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--base", default="v1.0.1", help="Base ref/tag to list commits since (default: v1.0.1)")
+    p.add_argument("--base", default="v2.0.0", help="Base ref/tag to list commits since (default: v2.0.0)")
     args = p.parse_args(argv)
 
     if not os.path.isfile(RELEASE_FILE):

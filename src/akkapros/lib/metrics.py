@@ -1,7 +1,6 @@
 ﻿#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Metrics Calculator
-Version: 2.0.0
 
 Computes comprehensive metrics from Akkadian text with proper handling of:
 - Vowel length: short (a), long (ā/â), extra-long (à/ì/ù/è)
@@ -20,8 +19,6 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import math
-
-__version__ = "2.0.0"
 
 
 # shared constants

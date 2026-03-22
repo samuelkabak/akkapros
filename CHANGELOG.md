@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+- No unreleased changes yet.
+
+## [2.0.0] - 2026-03-23
+
+### Breaking Changes
+- Renamed external JSON/CSV terminology from `repair*` to `accentuated*` across outputs and docs.
+- Replaced legacy escaped foreign-text syntax with `{{text}}` and `{tag{text}}`.
+
+### Added
+- End-to-end integration testing with pinned gold-standard metrics.
+- Punctuation allowlist controls and early format-validation guards for file-input CLIs.
+- `akkadian_likelihood()`-based validation for `*_proc.txt` inputs.
+- Release/helper scripts for index generation, release-note updates, escape migration, and EOF normalization.
+
+### Changed
+- Reorganized shared CLI/common code into `src/akkapros/lib/` and added `_gencode` generators.
+- Refactored `phoneprep` core and `simple_safe_filename()`.
+- Restored ADR-002 centralized version management so packaging derives its version from `src/akkapros/__init__.py`.
+- Expanded project documentation, internal ADR/CR/spec/review indexes, and release documentation.
+
+### Fixed
+- Syllabifier regressions in tokenization and diphthong handling.
+- Punctuation regex validation errors and newline-normalization issues in generated outputs.
+
 ## [1.0.1] - 2026-03-14
 
 ### Fixed
@@ -98,47 +124,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built-in test suites for all components (`--test` flags)
 - Demo scripts for Windows (PowerShell) and Unix systems
 - Self-validating CLI options
-
----
-
-## [Unreleased]
-**NOTICE: This Unreleased section includes breaking changes to the project's external interface (JSON/CSV field renames). Downstream consumers must migrate to the new keys before upgrading.**
-
-### Breaking Changes
-- CR-004 renamed terminology across code, outputs, and docs:
-  - `repaired` -> `accentuated`
-  - `repair` -> `accentuation`
-  - `repairs` -> `accentuations`
-- JSON/CSV consumers must migrate legacy keys, for example:
-  - `result['repaired']` -> `result['accentuated']`
-  - `rep_total_morae` -> `accentuated_total_morae`
-  - `rep_sps_speech` -> `accentuated_sps_speech`
-  - `rep_ΔC_seconds` -> `accentuated_ΔC_seconds`
-- CR-005 changed escaped non-Akkadian chunk syntax:
-  - `[text]` style escapes are replaced by `{{text}}` and `{tag{text}}`
-  - Tag regex is `[0-9a-z_]{1,16}` and tags starting with `_` are internal-only
-  - Nested escape blocks are intentionally unsupported
-
-### Notable Changes (concise)
-
-- `CR-012` — Enforce punctuation whitelist and add CLI extension options; strict punctuation validation in `syllabify` and `metrics`.
-- `CR-011` — Add format-validation guard for file-input CLIs (early validation of intermediate files).
-- `CR-010` — Refactor `simple_safe_filename()` and extract `phoneprep` core to `src/akkapros/lib/phoneprep.py`.
-- `CR-009` — Reorganize CLI common code into `src/akkapros/lib/` and add `_gencode` generators.
-- `CR-008` — Add end-to-end integration test with pinned gold-standard metrics (`tests/test_integration.py`).
-- `CR-007` — Enforce POSIX EOF newline normalization in program outputs.
-- `CR-006` — Fix syllabifier regressions (diphthong/tokenization) and remove `xfail` suppressions.
-
-Housekeeping:
-
-- Docs and tooling: moved ADR/CR/specs to `docs/internal/`, added indexer scripts and helper scripts (`scripts/update-indexes.py`, `scripts/update_unreleased.py`, `scripts/migrate-escapes.py`).
-  - Migration helper script: `scripts/migrate-escapes.py`
-
-### Planned
-- Segmentation tool for MBROLA voice creation
-- Additional corpus validation on other genres
-- Enhanced visualization tools for metrics
-- Web-based demo interface
 
 ---
 
