@@ -1,2 +1,2 @@
-ukappit-ma : **tiām**tu pitiqša
+ukappit-ma : ti**ām**tu pitiqša
 tā**ḫā**za **ik**taṣar : ana‿ilī nip**rī**ša

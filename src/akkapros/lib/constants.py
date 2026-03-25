@@ -2,7 +2,9 @@
 Shared constants for Akkadian Prosody Toolkit library modules.
 """
 
-# ---- Phonetic inventory ---------------------------------------------------
+# ---- User-customizable character policy -----------------------------------
+# This section is intended for controlled extension of the toolkit's visible
+# character inventory and symbol policy.
 AKKADIAN_VOWELS = set('āēīūâêîûaeiu')
 AKKADIAN_CONSONANTS = set('bdgkpṭqṣszšlmnrḥḫʿʾwyt')
 
@@ -30,6 +32,10 @@ CLOSE_PRESERVE = CLOSE_PRESERVE_CHAR + CLOSE_PRESERVE_CHAR
 
 DIPH_SEPARATOR = '¨'
 
+# ---- Internally sensitive normalization hooks -----------------------------
+# Do not inline these mutations back into the base sets. Some downstream code
+# relies on the distinction between canonical inventory and internal parsing
+# hooks, even when the effective runtime set includes the same characters.
 # Treat diphthongs as consonant clusters for syllabification.
 AKKADIAN_CONSONANTS.add(DIPH_SEPARATOR)
 

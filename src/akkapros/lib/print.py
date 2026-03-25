@@ -12,6 +12,7 @@ Transforms *_tilde text into three reading-friendly outputs:
 Core marker handling:
 - WORD_LINKER '+' -> '‿'
 - SYL_SEPARATOR '·' removed in final outputs
+- DIPH_SEPARATOR '¨' removed in final outputs after syllable-sensitive rendering
 - Hyphen '-' preserved as boundary marker
 """
 
@@ -24,6 +25,7 @@ import re
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
     WORD_LINKER,
+    DIPH_SEPARATOR,
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
     OPEN_PRESERVE,
@@ -262,7 +264,7 @@ def _convert_word_xar(word: str) -> str:
     emphatic_flags = []
     for idx, char in enumerate(word):
         if char in ALL_VOWELS:
-            emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR}))
+            emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR}))
 
     step = ''.join(XAR_CONSONANT_MAP.get(char, char) for char in word)
 
@@ -276,6 +278,8 @@ def _convert_word_xar(word: str) -> str:
         elif char == WORD_LINKER:
             out.append(WORD_LINKER_OUT)
         elif char == SYL_SEPARATOR:
+            continue
+        elif char == DIPH_SEPARATOR:
             continue
         elif char == HYPHEN:
             out.append(HYPHEN)
@@ -365,7 +369,7 @@ def _flush_syllable(
         ipa_map = IPA_MAP_STRICT if ipa_mode == 'ipa-strict' else IPA_MAP_OB
 
         context_text = source_text if source_text else syllable_text
-        context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
+        context_skip_chars = {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR} if source_text else {TILDE}
 
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
@@ -416,7 +420,7 @@ def _flush_syllable(
         converted = []
 
         context_text = source_text if source_text else syllable_text
-        context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
+        context_skip_chars = {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR} if source_text else {TILDE}
 
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
@@ -440,7 +444,7 @@ def _flush_syllable(
         converted = []
 
         context_text = source_text if source_text else syllable_text
-        context_skip_chars = {TILDE, SYL_SEPARATOR} if source_text else {TILDE}
+        context_skip_chars = {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR} if source_text else {TILDE}
 
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
@@ -521,7 +525,7 @@ def _convert_word(
         elif char == TILDE:
             current_syllable.append(char)
             current_indices.append(idx)
-        elif char == SYL_SEPARATOR:
+        elif char in {SYL_SEPARATOR, DIPH_SEPARATOR}:
             flush_current()
             if mode == 'ipa':
                 out.append('.')
@@ -1106,6 +1110,7 @@ def run_tests() -> bool:
         ("$€£", "ipa", "⟨dollar⟩ ⟨euro⟩ ⟨pound⟩ |"),
         ("er~·ra", "acute", "er´ra"),
         ("er~·ra", "bold", "**er**ra"),
+        ("ti¨ā~m·tu", "bold", "ti**ām**tu"),
         ("nā~š", "bold", "**nāš**"),
         ("ša+ana+na·šê", "acute", "ša‿ana‿našê"),
         ("ī·ris·sū~-ma", "bold", "īris**sū**-ma"),

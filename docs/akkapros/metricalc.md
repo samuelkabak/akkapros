@@ -144,6 +144,10 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 
 - **Mora statistics (original and accentuated)** now include:
     - `Total morae number`
+- **Total syllables** are exposed across all formats:
+    - table: `Total syllables`
+    - JSON: `original.stats.total_syllables`, `accentuated.stats.total_syllables`
+    - CSV: `original_total_syllables`, `accentuated_total_syllables`
 - **Speech rate** is reported for both sections:
     - `Speech rate (original)`
     - `Speech rate (accentuated)`
@@ -205,6 +209,8 @@ Mental model:
 `metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation is intentionally permissive for short inputs: plain lines like `ku man su tal` are acceptable tilde-stage text. The guard mainly blocks clearly wrong/corrupted input (empty, binary) and rejects accidental `*_syl.txt` content (`¦` markers). A final trailing newline is not mandatory (missing newline is normalized in memory).
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
+The `_tilde` pivot may legitimately contain the diphthong marker `¨`. Metrics treats `¨` as an intra-word syllable boundary for syllable counting and classification, but not as a consonant in acoustic spacing.
+
 ### %V Note
 
 Current outputs expose **both** values:
@@ -231,6 +237,7 @@ Pause punctuation is allowlist-based. If a punctuation suite is not matched by c
 For both original and accentuated outputs:
 
 - `mora_stats.total` (JSON) / `original_total_morae`, `accentuated_total_morae` (CSV)
+- `stats.total_syllables` (JSON) / `original_total_syllables`, `accentuated_total_syllables` (CSV)
 - speech metrics for original and accentuated sections
 - `DeltaC` and `MeanC` in mora and seconds in the table
 

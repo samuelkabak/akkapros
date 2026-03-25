@@ -37,4 +37,6 @@ def test_metrics_refactored_chunks():
     assert metrics._test_unknown_punctuation_raises()
     assert metrics._test_mora_totals_and_original_speech()
     assert metrics._test_table_and_csv_new_fields()
+    assert metrics._test_small_corpus_metrics_consistency()
+    assert metrics._test_percent_v_fallback_safe()
 

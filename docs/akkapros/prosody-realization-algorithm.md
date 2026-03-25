@@ -273,7 +273,7 @@ The implementation encodes a testable bridge between lexical stress eligibility 
 ### Prosody-realized pivot (`*_tilde.txt`)
 
     en~·gi·du·du bē~·lu mut·tal·lik mū~·ši mut·tar·rû ru·bê~
-    ša+eṭ·la u+ar·da·ta ina+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
+    ša+eṭ·la u+a·rda·ta i·na+šul·mi it·ta·nar~·rû u·nam~·ma·ru kī~·ma ū~·mi
 
 ### `--print-acute` output (`*_accent_acute.txt`)
 

@@ -487,19 +487,28 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
 
 from akkapros.lib.diphthongs import ALL_REPLACEMENTS
 
+
+def _pivot_diphthong_replacement(replacement: str) -> str:
+    """Keep diphthong memory in *_tilde by reinserting DIPH_SEPARATOR."""
+    vowel_positions = [idx for idx, ch in enumerate(replacement) if ch in AKKADIAN_VOWELS]
+    if len(vowel_positions) < 2:
+        return replacement
+
+    second_vowel_idx = vowel_positions[1]
+    return replacement[:second_vowel_idx] + DIPH_SEPARATOR + replacement[second_vowel_idx:]
+
 def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
     """
     Restore diphthongs using generated regex patterns.
 
-    Any residual DIPH_SEPARATOR characters are removed as a final safeguard,
-    so accentuated output never exposes diphthong split markers.
+    The *_tilde pivot format keeps DIPH_SEPARATOR so downstream metrics and
+    print rendering can still see restored diphthong-internal syllable breaks.
     """
     
     new_lines = []
     for line in output_lines:
         for pattern, repl in ALL_REPLACEMENTS:
-            line = re.sub(pattern, repl, line)
-        line = line.replace(DIPH_SEPARATOR, '')
+            line = re.sub(pattern, _pivot_diphthong_replacement(repl), line)
         new_lines.append(line)
     
     return new_lines
@@ -637,10 +646,7 @@ class ProsodyEngine:
 
                 def append_group(words_group: List[Word]) -> None:
                     for k, linked_word in enumerate(words_group):
-                        if linked_word.is_function_word:
-                            result_parts.append(linked_word.get_text_flat())
-                        else:
-                            result_parts.append(linked_word.get_text())
+                        result_parts.append(linked_word.get_text())
                         if k < len(words_group) - 1:
                             result_parts.append(WORD_LINKER)
 
@@ -727,10 +733,7 @@ class ProsodyEngine:
                     
                     # Add all words with underscores
                     for k, w in enumerate(func_group):
-                        if w.is_function_word:
-                            result_parts.append(w.get_text_flat())
-                        else:
-                            result_parts.append(w.get_text())
+                        result_parts.append(w.get_text())
                         if k < len(func_group) - 1:
                             result_parts.append(WORD_LINKER)
                     
@@ -766,14 +769,14 @@ class ProsodyEngine:
                             base_part = matched_prev_word.get_text() if matched_prev_word else part
                             result_parts.append(base_part + WORD_LINKER)
                             for w in func_group:
-                                result_parts.append(w.get_text_flat())
+                                result_parts.append(w.get_text())
                                 result_parts.append(WORD_LINKER)
                             result_parts.pop()  # Remove last underscore
                             break
                     else:
                         # No content word found - just add function words
                         for w in func_group:
-                            result_parts.append(w.get_text_flat())
+                            result_parts.append(w.get_text())
                             result_parts.append(WORD_LINKER)
                         result_parts.pop()
                     
@@ -782,7 +785,7 @@ class ProsodyEngine:
                 
                 # Default: add function words with underscores
                 for w in func_group:
-                    result_parts.append(w.get_text_flat())
+                    result_parts.append(w.get_text())
                     result_parts.append(WORD_LINKER)
                 result_parts.pop()  # Remove trailing underscore
                 i = j
@@ -939,14 +942,14 @@ def test_diphthong_restoration() -> bool:
         return postprocess_restore_diphthongs([text])[0]
 
     test_cases = [
-        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "ua", "Simple short u+a"),
-        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "uā", "Short+long u+a"),
-        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "uā", "Long+short u+a"),
-        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "uā~", "Long+long u+a"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{DIPH_SEPARATOR}a", "Simple short u+a"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{DIPH_SEPARATOR}ā", "Short+long u+a"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{DIPH_SEPARATOR}ā", "Long+short u+a"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{DIPH_SEPARATOR}ā~", "Long+long u+a"),
         (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "â", "Identical short vowels -> circumflex"),
         (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a~", "â~", "Identical short+tilde -> circumflex+tilde"),
-        (f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "kua", "Consonant context preserved"),
-        (f"ba{DIPH_SEPARATOR}ru", "baru", "Residual separator is always removed"),
+        (f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"ku{DIPH_SEPARATOR}a", "Consonant context preserved"),
+        (f"ba{DIPH_SEPARATOR}ru", f"ba{DIPH_SEPARATOR}ru", "Existing diphthong memory is preserved"),
         (f"ta{SYL_SEPARATOR}{DIPH_SEPARATOR}a ki", "tâ ki", "In-line restoration in phrase"),
     ]
     
@@ -998,8 +1001,8 @@ def run_tests():
             'name': 'Function words merge forward with content',
             'input': 'u¦a·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+ana+šar·ri',
-                'sob': 'u+ana+šar·ri'
+                'lob': 'u+a·na+šar·ri',
+                'sob': 'u+a·na+šar·ri'
             }
         },
         {
@@ -1022,8 +1025,8 @@ def run_tests():
             'name': 'Multiple function words with content',
             'input': 'u¦a·na¦i·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+ana+ina+šar·ri',
-                'sob': 'u+ana+ina+šar·ri'
+                'lob': 'u+a·na+i·na+šar·ri',
+                'sob': 'u+a·na+i·na+šar·ri'
             }
         },
         
@@ -1094,8 +1097,8 @@ def run_tests():
             'name': 'Multiple hyphens and enclitics',
             'input': 'ī·tam·mi¦a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī·tam~·mi ana+kak·kī·šu — lit~·pa·tā i·mat+mū·ti',
-                'sob': 'ī·tam~·mi ana+kak·kī·šu — lit~·pa·tā i·mat+mū·ti'
+                'lob': 'ī·tam~·mi a·na+kak·kī·šu — lit~·pa·tā i·mat+mū·ti',
+                'sob': 'ī·tam~·mi a·na+kak·kī·šu — lit~·pa·tā i·mat+mū·ti'
             }
         },
 
@@ -1152,8 +1155,8 @@ def run_tests():
             'name': 'Explicit plus then function words with content',
             'input': 'šar+bā·nû¦u¦a·na¦i·na¦šar·ri¦',
             'expected': {
-                'lob': 'šar+bā·nû u+ana+ina+šar·ri',
-                'sob': 'šar+bā·nû u+ana+ina+šar·ri'
+                'lob': 'šar+bā·nû u+a·na+i·na+šar·ri',
+                'sob': 'šar+bā·nû u+a·na+i·na+šar·ri'
             }
         },
         

@@ -1,7 +1,7 @@
 # Diphthong Processing Workflow
 
 ## Overview
-This document explains how diphthongs are handled by the Akkapros pipeline: how they are split for syllabification, prosody-realized (if necessary), and restored back into canonical diphthong forms.
+This document explains how diphthongs are handled by the Akkapros pipeline: how they are split for syllabification, prosody-realized (if necessary), restored into `_tilde` with diphthong memory preserved, and finally rendered in user-facing print outputs.
 
 **Implementation:**
 - Generator: `src/akkapros/_gencode/lib_diphthongs.py`
@@ -13,7 +13,7 @@ This document explains how diphthongs are handled by the Akkapros pipeline: how 
 
 To compute mora counts and apply moraic prosody realization, the syllabifier must treat adjacent vowels as separate syllables. The syllabifier therefore inserts an explicit separator between adjacent vowels (the module constants `SYL_SEPARATOR` and `DIPH_SEPARATOR`), making sequences like `uʾa` or `aʾā~` unambiguous for the prosody realization algorithm.
 
-After prosody realization, those two-vowel sequences must be mapped back to the correct orthographic diphthong (e.g., `uā`, `uâ`, `ua`, `uā~`, etc.). The mapping is not trivial: it depends on:
+After prosody realization, those two-vowel sequences must be mapped back to the correct orthographic diphthong in the pivot format (e.g., `u¨ā`, `u¨â`, `u¨a`, `u¨ā~`, etc.). The mapping is not trivial: it depends on:
 
 - Vowel quality (short, long, circumflex)
 - Whether the second vowel carries a tilde (`~`)
@@ -23,11 +23,12 @@ After prosody realization, those two-vowel sequences must be mapped back to the 
 
 ## High-Level Pipeline
 
-The pipeline consists of three stages in sequence:
+The pipeline consists of four stages in sequence:
 
 1. **Syllabify** – The syllabifier inserts `SYL_SEPARATOR + DIPH_SEPARATOR` between adjacent vowels
 2. **Prosody Realization** – The algorithm operates on separated syllables, potentially adding tilde markers
-3. **Restore Diphthongs** – Regex replacements convert separated vowel pairs into final diphthong forms
+3. **Restore Diphthongs in `_tilde`** – Regex replacements convert separated vowel pairs into pivot diphthong forms while preserving `¨`
+4. **Print Surface Forms** – The printer removes `¨` only after syllable-sensitive rendering
 
 ---
 
@@ -64,7 +65,7 @@ Here are representative mappings (informal):
 
 ### Same-base examples (a + a)
 
-| Input | Output | Interpretation |
+| Input | `_tilde` Output | Interpretation |
 |-------|--------|----------------|
 | `a.SEP.ʾā~` | `ā` | short + long~ → long without tilde |
 | `ā.SEP.ʾâ~` | `â~` | long + circ~ → circ with tilde |
@@ -72,11 +73,11 @@ Here are representative mappings (informal):
 
 ### Mixed-base examples (u + a)
 
-| Input | Output | Interpretation |
+| Input | `_tilde` Output | Interpretation |
 |-------|--------|----------------|
-| `u.SEP.ʾā~` | `uā~` | short u + long~ a → uā~ |
-| `ū.SEP.ʾā~` | `uā` | long ū + long~ a → uā |
-| `u.SEP.ʾa` | `ua` | short u + short a → ua |
+| `u.SEP.ʾā~` | `u¨ā~` | short u + long~ a → uā~ with diphthong memory preserved |
+| `ū.SEP.ʾā~` | `u¨ā` | long ū + long~ a → uā with diphthong memory preserved |
+| `u.SEP.ʾa` | `u¨a` | short u + short a → ua with diphthong memory preserved |
 
 **Note:** `SEP` above stands in for the actual `SYL_SEPARATOR + DIPH_SEPARATOR` sequence produced during syllabification.
 
@@ -98,6 +99,7 @@ This will:
 
 - The generator produces **regex patterns**; the restoration stage must apply them using the same regex flavor and with the same notion of separators.
 - **Pattern ordering is critical**: always apply second-tilde patterns first to prevent incorrect substitutions.
+- `_tilde` is the pivot format: keep `¨` there, and let the printer remove it later for human-facing outputs.
 - If vowel inventories or form tokens are extended, update both:
   - The generator (`BASES`, `VOWELS`, `FIRST_FORMS`, `SECOND_FORMS`)
   - Tests that cover the new combinations

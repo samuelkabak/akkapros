@@ -97,7 +97,7 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 | `--prosody-style {lob,sob}` | Accent style (default: `lob`) |
 | `--prosody-relax-last` | Allow prosody realization propagation before last linked word |
 
-**Note:** Diphthong restoration is always applied automatically in the prosody realization stage. Temporary split markers are removed from the final `_tilde.txt` output.
+**Note:** Diphthong restoration is always applied automatically in the prosody realization stage. The final `_tilde.txt` pivot keeps the diphthong memory marker `¨`, while printer outputs remove it only at display time.
 
 ### Metricalc Options
 

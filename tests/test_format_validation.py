@@ -44,6 +44,12 @@ def test_validate_tilde_plain_text_ok(tmp_path):
     validate_intermediate_format(p, expected_kind="tilde")
 
 
+def test_validate_tilde_with_diphthong_separator_ok(tmp_path):
+    p = tmp_path / "diph_tilde.txt"
+    p.write_text("ti¨ā~m·tu\n", encoding="utf-8")
+    validate_intermediate_format(p, expected_kind="tilde")
+
+
 def test_validate_tilde_rejects_syl_word_endings(tmp_path):
     p = tmp_path / "not_tilde.txt"
     p.write_text("gi.mir¦\n", encoding="utf-8")

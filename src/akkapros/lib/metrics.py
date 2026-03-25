@@ -39,6 +39,7 @@ from akkapros.lib.constants import (
     LONG_PAUSE_PUNCTUATION_PATTERNS,
     LONG_PAUSE_INCLUDES_NEWLINE,
     LONG_PAUSE_INCLUDES_FINAL_EOF,
+    DIPH_SEPARATOR,
 )
 from akkapros.lib.utils import compile_contextual_regex
 
@@ -134,6 +135,8 @@ SYLLABLE_TYPES = [
     'C:V', 'CVC:', 'CVV:', 'CVV:C',
     'VC:', 'ʔ:V', 'VV:', 'VV:C'
 ]
+UNCLASSIFIED_SYLLABLE_TYPE = 'OTHER'
+DISPLAY_SYLLABLE_TYPES = SYLLABLE_TYPES + [UNCLASSIFIED_SYLLABLE_TYPE]
 
 # Total morae per classified syllable type.
 SYLLABLE_MORA_TOTAL = {
@@ -153,6 +156,25 @@ SYLLABLE_MORA_TOTAL = {
     'ʔ:V': 2,
     'VV:': 3,
     'VV:C': 4,
+}
+
+SYLLABLE_VOWEL_MORA_TOTAL = {
+    'CV': 1,
+    'CVC': 1,
+    'CVV': 2,
+    'CVVC': 2,
+    'VC': 1,
+    'V': 1,
+    'VV': 2,
+    'VVC': 2,
+    'C:V': 1,
+    'CVC:': 1,
+    'CVV:': 2,
+    'CVV:C': 3,
+    'VC:': 1,
+    'ʔ:V': 1,
+    'VV:': 2,
+    'VV:C': 3,
 }
 
 
@@ -181,12 +203,12 @@ def is_vowel_processing(c: str) -> bool:
 
 def is_consonant(c: str) -> bool:
     """Return True if character is a consonant."""
-    return c in ALL_CONSONANTS or c == GLOTTAL
+    return (c in ALL_CONSONANTS and c != DIPH_SEPARATOR) or c == GLOTTAL
 
 
 def is_consonant_processing(c: str) -> bool:
     """Return True if character is a consonant for processing purposes."""
-    return c in ALL_CONSONANTS or c == GLOTTAL
+    return (c in ALL_CONSONANTS and c != DIPH_SEPARATOR) or c == GLOTTAL
 
 
 def is_akkadian(c: str) -> bool:
@@ -285,6 +307,9 @@ def process_word(word: str) -> str:
     2. Replace remaining ~ with : (length marker)
     3. Add ʾ if word starts with a vowel
     """
+    # Diphthong memory is relevant for syllable statistics, not acoustic spacing.
+    word = word.replace(DIPH_SEPARATOR, '')
+
     # Step 1: Replace vowel + ~ with extra-long vowels
     replacements = [
         ('ā~', 'à'), ('â~', 'à'),
@@ -343,6 +368,55 @@ def count_merged_units(words: List[str]) -> Dict:
     }
 
 
+def _vowel_morae_in_syllable(syl: str) -> int:
+    replacements = [
+        ('ā~', 'à'), ('â~', 'à'),
+        ('ī~', 'ì'), ('î~', 'ì'),
+        ('ū~', 'ù'), ('û~', 'ù'),
+        ('ē~', 'è'), ('ê~', 'è'),
+    ]
+    for old, new in replacements:
+        syl = syl.replace(old, new)
+
+    total = 0
+    i = 0
+    n = len(syl)
+
+    while i < n:
+        ch = syl[i]
+        if ch not in ALL_VOWELS:
+            i += 1
+            continue
+
+        cluster_len = 1
+        cluster_has_extra = ch in EXTRA_LONG_VOWELS
+        cluster_has_length = False
+        single_vowel_morae = 3 if ch in EXTRA_LONG_VOWELS else 2 if ch in LONG_VOWELS else 1
+        i += 1
+
+        while i < n:
+            next_char = syl[i]
+            if next_char in ('~', LENGTH_MARKER):
+                cluster_has_length = True
+                i += 1
+                continue
+            if next_char in ALL_VOWELS:
+                cluster_len += 1
+                cluster_has_extra = cluster_has_extra or next_char in EXTRA_LONG_VOWELS
+                i += 1
+                continue
+            break
+
+        if cluster_len > 1:
+            total += 3 if cluster_has_extra or cluster_has_length else 2
+        else:
+            total += single_vowel_morae
+            if cluster_has_length and ch not in EXTRA_LONG_VOWELS:
+                total += 1
+
+    return total
+
+
 # ------------------------------------------------------------
 # Syllable classification
 # ------------------------------------------------------------
@@ -351,7 +425,7 @@ def classify_syllable(syl: str, is_accentuated: bool = False) -> str:
     Classify a syllable into one of the types.
     """
     if not syl:
-        return 'UNKNOWN'
+        return UNCLASSIFIED_SYLLABLE_TYPE
     
     # Replace vowel + ~ with extra-long vowels
     replacements = [
@@ -367,95 +441,105 @@ def classify_syllable(syl: str, is_accentuated: bool = False) -> str:
     syl = syl.replace('~', LENGTH_MARKER)
     
 
-    # Now classify : based on the processed syllable
-    if ':' in syl:
-        if syl.startswith(':'):   
-            # :V only V in SHORT 
-            return 'ʔ:V'
-        if syl.endswith(':'):
-            # CVC: and VC: only , CV:C; never happen
-            if len(syl) == 4:
+    if syl.startswith(':'):
+        return 'ʔ:V'
+
+    if len(syl) > 1 and syl[1] == ':' and is_consonant_processing(syl[0]):
+        return 'C:V'
+
+    core = syl.replace(LENGTH_MARKER, '')
+    vowel_positions = [idx for idx, ch in enumerate(core) if is_vowel_processing(ch)]
+    if not vowel_positions:
+        return UNCLASSIFIED_SYLLABLE_TYPE
+
+    first_vowel = vowel_positions[0]
+    last_vowel = vowel_positions[-1]
+    onset_present = any(is_consonant_processing(ch) for ch in core[:first_vowel])
+    coda_present = any(is_consonant_processing(ch) for ch in core[last_vowel + 1:])
+    vowel_morae = _vowel_morae_in_syllable(syl)
+    coda_geminated = syl.endswith(LENGTH_MARKER)
+
+    if coda_geminated:
+        if onset_present and coda_present:
+            if vowel_morae == 1:
                 return 'CVC:'
-            else:
+            if vowel_morae == 2:
+                return 'CVV:C'
+            return UNCLASSIFIED_SYLLABLE_TYPE
+        if onset_present and not coda_present:
+            if vowel_morae == 1:
+                return 'C:V'
+            if vowel_morae == 2:
+                return 'CVV:'
+            return UNCLASSIFIED_SYLLABLE_TYPE
+        if not onset_present and coda_present:
+            if vowel_morae == 1:
                 return 'VC:'
-        if ':' in syl[1:2]:
-            return 'C:V'
-        else:
-            pass # Never happen
-
-        
-    # Rest of classification 
-    clean = syl
-    if len(syl) == 1:
-        # āēīūâêîûaeiuàìùè
-        if syl[0] in SHORT_VOWELS: 
-            return 'V'
-        if syl[0] in LONG_VOWELS: 
-            return 'VV'
-        if syl[0] in EXTRA_LONG_VOWELS: 
+            if vowel_morae == 2:
+                return 'VV:C'
+            return UNCLASSIFIED_SYLLABLE_TYPE
+        if vowel_morae == 1:
+            return 'ʔ:V'
+        if vowel_morae == 2:
             return 'VV:'
-    elif  len(syl) == 2:
-        # c+āēīūâêîûaeiuàìùè or āēīūâêîûaeiuàìùè+C
-        if syl[0] in SHORT_VOWELS: 
-            return 'VC'
-        if syl[0] in LONG_VOWELS: 
-            return 'VVC'
-        if syl[0] in EXTRA_LONG_VOWELS: 
-            return 'VV:C'
-        if syl[1] in SHORT_VOWELS: 
-            return 'CV'
-        if syl[1] in LONG_VOWELS: 
-            return 'CVV'
-        if syl[1] in EXTRA_LONG_VOWELS: 
-            return 'CVV:'
-    elif  len(syl) == 3:
-        # c+āēīūâêîûaeiuàìùè+c
-        if syl[1] in SHORT_VOWELS: 
-            return 'CVC'
-        if syl[1] in LONG_VOWELS: 
-            return 'CVVC'
-        if syl[1] in EXTRA_LONG_VOWELS: 
-            return 'CVV:C'
-    else:
-        pass # Never happen
+        return UNCLASSIFIED_SYLLABLE_TYPE
 
-    return '???'
+    if onset_present and coda_present:
+        if vowel_morae == 1:
+            return 'CVC'
+        if vowel_morae == 2:
+            return 'CVVC'
+        if vowel_morae == 3:
+            return 'CVV:C'
+        return UNCLASSIFIED_SYLLABLE_TYPE
+    if onset_present and not coda_present:
+        if vowel_morae == 1:
+            return 'CV'
+        if vowel_morae == 2:
+            return 'CVV'
+        if vowel_morae == 3:
+            return 'CVV:'
+        return UNCLASSIFIED_SYLLABLE_TYPE
+    if not onset_present and coda_present:
+        if vowel_morae == 1:
+            return 'VC'
+        if vowel_morae == 2:
+            return 'VVC'
+        if vowel_morae == 3:
+            return 'VV:C'
+        return UNCLASSIFIED_SYLLABLE_TYPE
+    if vowel_morae == 1:
+        return 'V'
+    if vowel_morae == 2:
+        return 'VV'
+    if vowel_morae == 3:
+        return 'VV:'
+    return UNCLASSIFIED_SYLLABLE_TYPE
 
 # ------------------------------------------------------------
 # Text analysis
 # ------------------------------------------------------------
 def compute_percent_v_from_stats(stats: Dict) -> float:
     """Compute %V from syllable statistics."""
-    # Mora per syllable type: (vowel morae, total morae)
-    mora_table = {
-        'CV': (1, 1),
-        'CVC': (1, 2),
-        'CVV': (2, 2),
-        'CVVC': (2, 3),
-        'VC': (1, 2),
-        'V': (1, 1),
-        'VV': (2, 2),
-        'VVC': (2, 3),
-        'C:V': (1, 2),
-        'CVC:': (1, 3),
-        'CVV:': (2, 3),
-        'CVV:C': (3, 4),
-        'VC:': (1, 2),
-        'ʔ:V': (1, 2),
-        'VV:': (2, 3),
-        'VV:C': (3, 4),
-    }
-    
-    vowel_morae = 0
-    total_morae = 0
-    
-    for typ, count in stats['syllable_counts'].items():
-        if typ in mora_table:
-            v, t = mora_table[typ]
-            vowel_morae += v * count
-            total_morae += t * count
-    
-    return (vowel_morae / total_morae * 100) if total_morae > 0 else 0
+    syllable_counts = stats.get('syllable_counts', {})
+    total_morae = stats.get('mora_stats', {}).get('total', 0)
+    vowel_morae_total = stats.get('vowel_morae_total')
+    if total_morae > 0 and vowel_morae_total is not None:
+        return (vowel_morae_total / total_morae) * 100
+
+    if total_morae <= 0:
+        total_morae = sum(
+            SYLLABLE_MORA_TOTAL.get(typ, 0) * count
+            for typ, count in syllable_counts.items()
+        )
+
+    if vowel_morae_total is None:
+        vowel_morae_total = sum(
+            SYLLABLE_VOWEL_MORA_TOTAL.get(typ, 0) * count
+            for typ, count in syllable_counts.items()
+        )
+
+    return (vowel_morae_total / total_morae * 100) if total_morae > 0 else 0
 
 
 def compute_percent_v_with_pauses(percent_v_articulate: float, pause_ratio: float) -> float:
@@ -483,11 +567,12 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     morae_list = []
     syllables_per_word = []
     morae_per_word = []
+    vowel_morae_list = []
     
     # Process each word
     for word in words:
         # Split into syllables (on . or -)
-        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{WORD_LINKER}]+', word)
+        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{WORD_LINKER}\{DIPH_SEPARATOR}]+', word)
 
         # Count syllables in this word
         word_syllable_count = 0
@@ -518,6 +603,8 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
                         morae += 1
                     elif c in SHORT_VOWELS:
                         morae += 1
+            vowel_morae = _vowel_morae_in_syllable(syl)
+            vowel_morae_list.append(vowel_morae)
             morae_list.append(morae)
             word_mora_count += morae
         
@@ -563,6 +650,7 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
         'syllable_counts': syllable_counts,
         'syllable_percentages': syllable_percentages,
         'total_syllables': total_syllables,
+        'vowel_morae_total': sum(vowel_morae_list),
         'mora_stats': mora_stats,
         'word_stats': word_stats,
         'merge_stats': merge_stats
@@ -1265,11 +1353,13 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     
     # Syllable counts
     lines.append("\nSyllable types:")
-    for typ in SYLLABLE_TYPES:
+    for typ in DISPLAY_SYLLABLE_TYPES:
         count = orig['stats']['syllable_counts'].get(typ, 0)
         pct = orig['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
             lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
+
+    lines.append(f"\nTotal syllables: {orig['stats']['total_syllables']} syllables")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
@@ -1309,11 +1399,13 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     
     # Syllable counts
     lines.append("\nSyllable types:")
-    for typ in SYLLABLE_TYPES:
+    for typ in DISPLAY_SYLLABLE_TYPES:
         count = rep['stats']['syllable_counts'].get(typ, 0)
         pct = rep['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
             lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
+
+    lines.append(f"\nTotal syllables: {rep['stats']['total_syllables']} syllables")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
@@ -1443,14 +1535,17 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("--- ORIGINAL TEXT ---", [""] * len(results))
         
         # Syllable counts
-        for typ in SYLLABLE_TYPES:
+        for typ in DISPLAY_SYLLABLE_TYPES:
             values = [r['original']['stats']['syllable_counts'].get(typ, 0) for r in results]
             add_row(f"count_{typ}", values)
         
         # Syllable percentages
-        for typ in SYLLABLE_TYPES:
+        for typ in DISPLAY_SYLLABLE_TYPES:
             values = [f"{r['original']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
             add_row(f"pct_{typ}", values)
+
+        values = [r['original']['stats']['total_syllables'] for r in results]
+        add_row("original_total_syllables", values)
         
         # Mora stats
         values = [f"{r['original']['stats']['mora_stats']['mean']:.3f}" for r in results]
@@ -1494,14 +1589,17 @@ def format_csv(results: List[Dict], output_file: Path):
         add_row("--- ACCENTUATED TEXT ---", [""] * len(results))
         
         # Syllable counts (accentuated)
-        for typ in SYLLABLE_TYPES:
+        for typ in DISPLAY_SYLLABLE_TYPES:
             values = [r['accentuated']['stats']['syllable_counts'].get(typ, 0) for r in results]
             add_row(f"accentuated_count_{typ}", values)
         
         # Syllable percentages (accentuated)
-        for typ in SYLLABLE_TYPES:
+        for typ in DISPLAY_SYLLABLE_TYPES:
             values = [f"{r['accentuated']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
             add_row(f"accentuated_pct_{typ}", values)
+
+        values = [r['accentuated']['stats']['total_syllables'] for r in results]
+        add_row("accentuated_total_syllables", values)
         
         # Mora stats (accentuated)
         values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
@@ -1913,6 +2011,8 @@ def _test_table_and_csv_new_fields() -> bool:
     table = format_table(result)
     if "Total morae number:" not in table:
         return False
+    if "Total syllables:" not in table:
+        return False
     if "Speech rate (original):" not in table:
         return False
     if "Speech rate (accentuated):" not in table:
@@ -1932,7 +2032,9 @@ def _test_table_and_csv_new_fields() -> bool:
         csv_text = csv_path.read_text(encoding='utf-8')
 
     required_rows = [
+        "original_total_syllables,",
         "original_total_morae,",
+        "accentuated_total_syllables,",
         "accentuated_total_morae,",
         "orig_sps_speech,",
         "accentuated_sps_speech,",
@@ -1942,6 +2044,124 @@ def _test_table_and_csv_new_fields() -> bool:
         "accentuated_MeanC_seconds,",
     ]
     return all(row in csv_text for row in required_rows)
+
+
+def _test_small_corpus_metrics_consistency() -> bool:
+    """Unit test: all core metrics equations stay consistent on a small corpus."""
+    from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
+    from akkapros.lib.syllabify import syllabify_text
+
+    sample_proc = (
+        "appūnā-ma ištēn-ešret : kīma šuāti uštabši\n"
+        "ina ilī bukrīša : šūt iškunūši puḫra\n"
+        "ušašqi qingu : ina birīšunu šâšu ušrabbīš\n"
+        "ālikūt maḫri pān ummāni muʾerrūt puḫri\n"
+    )
+
+    syllabified = syllabify_text(sample_proc, preserve_lines=True)
+    engine = ProsodyEngine(style=AccentStyle.LOB)
+    accentuated_lines = []
+    for line in syllabified.splitlines():
+        if not line.strip():
+            accentuated_lines.append('')
+            continue
+        accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
+    tilde_text = '\n'.join(postprocess_restore_diphthongs(accentuated_lines)) + '\n'
+
+    result = process_filetext(tilde_text, wpm=165, pause_ratio=35.0)
+
+    for section in ('original', 'accentuated'):
+        stats = result[section]['stats']
+        speech = result[section]['speech']
+        total_syllables = stats['total_syllables']
+        total_words = stats['word_stats']['total_words']
+        total_morae = stats['mora_stats']['total']
+        if sum(stats['syllable_counts'].values()) != total_syllables:
+            return False
+        if total_words <= 0:
+            return False
+        if not math.isclose(
+            stats['word_stats']['syllables_per_word']['mean'],
+            total_syllables / total_words,
+            rel_tol=0.0,
+            abs_tol=1e-12,
+        ):
+            return False
+        if not math.isclose(
+            stats['word_stats']['morae_per_word']['mean'],
+            total_morae / total_words,
+            rel_tol=0.0,
+            abs_tol=1e-12,
+        ):
+            return False
+        if not math.isclose(
+            speech['sps_speech'],
+            (speech['wpm'] / 60.0) * stats['word_stats']['syllables_per_word']['mean'],
+            rel_tol=0.0,
+            abs_tol=1e-12,
+        ):
+            return False
+
+    pause_metrics = result['accentuated']['pause_metrics']
+    accentuated_total_syllables = result['accentuated']['stats']['total_syllables']
+    if not math.isclose(
+        pause_metrics['punctuation_per_syllable'],
+        pause_metrics['raw_counts']['punctuation'] / accentuated_total_syllables,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        return False
+
+    accentuation_stats = result['accentuation_stats']
+    original_total_syllables = result['original']['stats']['total_syllables']
+    if not math.isclose(
+        accentuation_stats['accentuation_rate'],
+        accentuation_stats['accentuated_syllables'] / original_total_syllables * 100.0,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        return False
+
+    table = format_table(result)
+    if f"Total syllables: {result['original']['stats']['total_syllables']} syllables" not in table:
+        return False
+    if f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" not in table:
+        return False
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        csv_path = Path(tmpdir) / 'metrics_consistency.csv'
+        format_csv([result], csv_path)
+        csv_text = csv_path.read_text(encoding='utf-8')
+    if 'original_total_syllables,' not in csv_text:
+        return False
+    if 'accentuated_total_syllables,' not in csv_text:
+        return False
+
+    return True
+
+
+def _test_percent_v_fallback_safe() -> bool:
+    """Unit test: %V fallback remains correct without cached mora totals."""
+    stats = {
+        'syllable_counts': {
+            'CV': 2,
+            'VC:': 1,
+            'VV:C': 1,
+            UNCLASSIFIED_SYLLABLE_TYPE: 5,
+        },
+        'mora_stats': {},
+    }
+
+    expected_vowel_morae = 2 * 1 + 1 * 1 + 1 * 3
+    expected_total_morae = 2 * 1 + 1 * 3 + 1 * 4
+    expected_percent_v = expected_vowel_morae / expected_total_morae * 100
+
+    return math.isclose(
+        compute_percent_v_from_stats(stats),
+        expected_percent_v,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    )
 
 
 def run_tests():
@@ -1963,6 +2183,8 @@ def run_tests():
         (_test_unknown_punctuation_raises, "Unknown punctuation strict error"),
         (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
         (_test_table_and_csv_new_fields, "Table and CSV new fields"),
+        (_test_small_corpus_metrics_consistency, "Small corpus metrics consistency"),
+        (_test_percent_v_fallback_safe, "%V fallback safety"),
     ]
 
     print("\n" + "=" * 80)

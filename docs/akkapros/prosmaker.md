@@ -50,7 +50,7 @@ It takes input produced by the syllabifier (`*_syl.txt`) and creates the prosody
 
 ### Important Note on Diphthongs
 
-Diphthongs are **always restored automatically** after prosody realization. Temporary split markers inserted during syllabification are systematically removed in the output.
+Diphthongs are **always restored automatically** after prosody realization. The `_tilde.txt` pivot output now keeps the diphthong memory marker `¨` (for example `ti¨ā~m·tu`) so metrics and printer can still see the internal syllable boundary. The printer removes `¨` only in final user-facing outputs.
 
 ---
 
