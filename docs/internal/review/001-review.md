@@ -183,7 +183,7 @@ docstring would suffice.
 
 ### 4.2 Gaps
 
-**`docs/internal/specs/` was empty before this review.**
+**`docs/internal/req/` was empty before this review.**
 The specs folder now contains 10 REQ documents (created as part of this review task).
 Going forward, specs should be written *before* implementation for new features, as
 recommended in `docs/internal/README.md`.

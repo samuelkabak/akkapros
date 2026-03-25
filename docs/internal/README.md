@@ -1,19 +1,19 @@
 # Internal Documentation — Development Cycle
 
 Purpose
-- Central place for machine-oriented project records: Architecture Decision Records (ADRs), Change Requests (CRs), and short Requirements/Specs.
+- Central place for machine-oriented project records: Architecture Decision Records (ADRs), Change Requests (CRs), short requirements, and reviews.
 
 Principles / Workflow
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
 - CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). Mark CR status clearly (Draft / Proposed / Accepted / Done).
-- Specs: short, testable requirement documents describing what to implement. It is acceptable for `specs/` to be empty until requirements are added.
+- Req: short, testable requirement documents describing what to implement. It is acceptable for `req/` to be empty until requirements are added.
 
 Directory layout
 - `adr/` — ADR documents and `index.md`. Use the ADR template `000-adr-template.md` and the numeric prefix to order decisions (e.g., `023-rename-repair-to-accentuation.md`).
 - `cr/` — Change Requests. Keep one file per CR using `NNN-short-kebab-title.md`, plus `index.md` and `000-cr-template.md`.
-- `specs/` — Short requirements and acceptance criteria. Use `000-req-template.md` when creating new specs. Specs are optional and may be added later.
+- `req/` — Short requirements and acceptance criteria. Use `000-req-template.md` when creating new requirement documents. Requirement docs are optional and may be added later.
 
-- `reviews/` — Project and code reviews. Use `000-review-template.md` as a starting point. Review files should use a numeric prefix for ordering (e.g., `001-review.md` or `review-001.md`). Files beginning with `000-` are reserved for templates and ignored by indexers.
+- `review/` — Project and code reviews. Use `000-review-template.md` as a starting point. Review files should use a numeric prefix for ordering (e.g., `001-review.md` or `review-001.md`). Files beginning with `000-` are reserved for templates and ignored by indexers.
 
 Naming & numbering
 - ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md`.
@@ -21,9 +21,9 @@ Naming & numbering
 
 Index generation
 - Index pages (`docs/internal/*/index.md`) are generated/updated by the repository script: `python scripts/update-indexes.py`.
-- Run the indexer after adding, renaming, or removing ADR/CR/Spec files to keep indexes consistent. Review generated `index.md` pages before committing.
+- Run the indexer after adding, renaming, or removing ADR/CR/Req files to keep indexes consistent. Review generated `index.md` pages before committing.
 
-Reviews: After adding or renaming review files, run `python scripts/update-indexes.py` to regenerate `docs/internal/reviews/index.md`. The indexer accepts both `review-001.md` and `001-review.md` naming patterns and will skip template files prefixed with `000-`.
+Reviews: After adding or renaming review files, run `python scripts/update-indexes.py` to regenerate `docs/internal/review/index.md`. The indexer accepts both `review-001.md` and `001-review.md` naming patterns and will skip template files prefixed with `000-`.
 
 Templates
 - Use the templates in this folder (`000-adr-template.md`, `000-cr-template.md`, `000-req-template.md`) as starting points. Keep templates minimal and focused on decision rationale and consequences.
@@ -40,7 +40,7 @@ Unicode & file-encoding policy
 Quick contributor checklist
 - Propose an ADR for large or breaking changes before implementation.
 - Create or update a CR when implementing an ADR or coordinating a breaking change.
-- Add specs when formalizing requirements (optional for now).
+- Add requirement documents when formalizing requirements (optional for now).
 - Run `python scripts/update-indexes.py` and verify the generated indexes.
 - Run the test suite for behavioral changes.
 

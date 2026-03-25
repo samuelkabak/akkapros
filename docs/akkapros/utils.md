@@ -306,4 +306,4 @@ Run `utils.run_tests()` and the full test suite after any adjustment.
 | [ADR-001](../internal/adr/001-cli-lib-separation.md) | lib/ vs cli/ separation |
 | [ADR-009](../internal/adr/009-function-word-and-merge-policy.md) | `FUNCTION_WORDS` canonical definition |
 | [CR-013](../internal/cr/013-migrate-akkascore-to-utils.md) | Migration from `akkascore.py` |
-| [SPEC-010](../internal/specs/010-built-in-self-tests-and-test-infrastructure.md) | Self-test infrastructure |
+| [SPEC-010](../internal/req/010-built-in-self-tests-and-test-infrastructure.md) | Self-test infrastructure |

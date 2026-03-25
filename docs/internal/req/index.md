@@ -1,6 +1,6 @@
-# Spec Index
+# Req Index
 
-This index lists requirement/specification documents. It is maintained by `scripts/update-indexes.py`.
+This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
 - [011. Requirement: Strict Punctuation Whitelist with CLI Extensions](011-punctuation-whitelist-and-cli-extension.md) - Draft
 - [010. Requirement: Built-in Self-Tests and CLI Test Infrastructure](010-built-in-self-tests-and-test-infrastructure.md) - Implemented

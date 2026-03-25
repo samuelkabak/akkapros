@@ -2,6 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[014. Rename Internal Documentation Folders to req and review](014-rename-internal-doc-folders-to-req-and-review.md) - Done
+[013. Add Akkadian text likehood for format-validation](013-add-akkadian-text-likehood-for-format-validation.md) - Approved
 [012. Enforce punctuation whitelist and configurable CLI extension](012-enforce-punctuation-whitelist-and-cli-extension.md) - Draft
 [011. Add format-validation guard to file-input CLIs](011-add-format-validation-guard.md) - Done
 [010. Refactor simple_safe_filename and phoneprep core](010-refactor-simple_safe_filename-and-phoneprep-core.md) - Done

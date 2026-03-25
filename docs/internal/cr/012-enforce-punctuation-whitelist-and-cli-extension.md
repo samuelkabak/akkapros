@@ -210,7 +210,7 @@ If strict enforcement causes unacceptable disruption:
 
 # Related Issues
 
-- Requirement: [REQ-011](../specs/011-punctuation-whitelist-and-cli-extension.md)
+- Requirement: [REQ-011](../req/011-punctuation-whitelist-and-cli-extension.md)
 - Prior validation hardening: [CR-011](011-add-format-validation-guard.md)
 
 ---

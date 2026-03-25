@@ -45,8 +45,8 @@ By participating in this project, you agree to abide by our Code of Conduct: be 
 
 - [ADR Index](docs/internal/adr/index.md) | Architecture Decision Records
 - [CR Index](docs/internal/cr/index.md) | Change Requests (after v1.0.1)
-- [Spec Index](docs/internal/specs/index.md) | Requirements and short specifications
-- [Review Index](docs/internal/reviews/index.md) | Code and documentation reviews
+- [Req Index](docs/internal/req/index.md) | Requirements and short specifications
+- [Review Index](docs/internal/review/index.md) | Code and documentation reviews
 
 
 ## 🔧 Development Environment
@@ -175,7 +175,7 @@ Place test files in `tests/data/`. Use small, representative samples.
 5. **Create or update ADRs/CRs and specs** when making design or API changes:
        - Follow the ADR-first workflow: write an ADR to record the decision, then open a CR that implements it.
        - Place ADRs and change requests under `docs/internal/adr/` and `docs/internal/cr/` respectively.
-       - Add or update a spec in `docs/internal/specs/` for detailed requirements and implementation notes.
+       - Add or update a requirement document in `docs/internal/req/` for detailed requirements and implementation notes.
        - Run `python scripts/update-indexes.py` after adding or moving docs to regenerate indexes.
 
 6. **Update `CHANGELOG.md`** with your changes under the "Unreleased" section

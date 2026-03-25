@@ -78,8 +78,8 @@ All results are fully reproducible using the included demo scripts.
 | [Release Notes](release-notes/v2.0.0.md) | Current release summary and upgrade notes |
 | [ADR Index](docs/internal/adr/index.md) | Architecture Decision Records |
 | [CR Index](docs/internal/cr/index.md) | Architecture Decision Records (after v1.0.1) |
-| [Spec Index](docs/internal/specs/index.md) | Requirements and short specifications |
-| [Review Index](docs/internal/reviews/index.md) | Code and documentation reviews |
+| [Req Index](docs/internal/req/index.md) | Requirements and short specifications |
+| [Review Index](docs/internal/review/index.md) | Code and documentation reviews |
 
 ### Escape Syntax (CR-005)
 

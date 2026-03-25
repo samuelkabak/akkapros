@@ -1,6 +1,6 @@
-# Requirements / Specs
+# Requirements
 
-This folder holds system-level requirements and short specifications for features or behaviors that need formal description before implementation.
+This folder holds system-level requirement documents for features or behaviors that need formal description before implementation.
 
 See the `index.md` for an auto-generated list of requirement documents. The
 index is ordered latest-first (highest numeric `NNN` at the top).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update docs/internal/adr/index.md and docs/internal/cr/index.md from source files.
+"""Update docs/internal indexes from source files.
 
 Behavior:
 - ADR index: list markdown ADR files in `docs/internal/adr/*.md` (excluding `index.md` and templates),
@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 ADR_DIR = DOCS / "internal" / "adr"
 CR_DIR = DOCS / "internal" / "cr"
-SPEC_DIR = DOCS / "internal" / "specs"
-REVIEWS_DIR = DOCS / "internal" / "reviews"
+REQ_DIR = DOCS / "internal" / "req"
+REVIEW_DIR = DOCS / "internal" / "review"
 
 
 def read_header(index_path, entry_starts):
@@ -140,26 +140,26 @@ def build_cr_index():
 
 
 def main():
-    missing = [p for p in (ADR_DIR, CR_DIR, SPEC_DIR, REVIEWS_DIR) if not p.exists()]
+    missing = [p for p in (ADR_DIR, CR_DIR, REQ_DIR, REVIEW_DIR) if not p.exists()]
     if missing:
-        print("Error: expected docs/internal/adr, docs/internal/cr and docs/internal/specs directories.")
+        print("Error: expected docs/internal/adr, docs/internal/cr, docs/internal/req, and docs/internal/review directories.")
         for m in missing:
             print("  Missing:", m)
         sys.exit(1)
     build_adr_index()
     build_cr_index()
-    build_reviews_index()
-    build_spec_index()
+    build_review_index()
+    build_req_index()
 
 
-def build_reviews_index():
-    index_path = REVIEWS_DIR / "index.md"
+def build_review_index():
+    index_path = REVIEW_DIR / "index.md"
     header = read_header(index_path, entry_starts=("- ",))
     if not header.strip():
         header = "# Review Index\n\nThis index lists review documents. It is maintained by `scripts/update-indexes.py`.\n\n"
 
     entries = []
-    for p in REVIEWS_DIR.glob("*.md"):
+    for p in REVIEW_DIR.glob("*.md"):
         if p.name == "index.md":
             continue
         # skip template or example review files (000-...)
@@ -182,7 +182,7 @@ def build_reviews_index():
         else:
             title = (remainder or p.stem).replace("-", " ")
         display = f"review-{num:03d}. {title}"
-        entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
+        entry = f"- [{display}]({p.name})"
         entries.append((num, entry))
 
     # Reviews: list latest first (descending numeric order)
@@ -192,14 +192,14 @@ def build_reviews_index():
     print(f"Updated {index_path}")
 
 
-def build_spec_index():
-    index_path = SPEC_DIR / "index.md"
+def build_req_index():
+    index_path = REQ_DIR / "index.md"
     header = read_header(index_path, entry_starts=("- ",))
     if not header.strip():
-        header = "# Spec Index\n\nThis index lists requirement/specification documents. It is maintained by `scripts/update-indexes.py`.\n\n| ID | Title | Status | Priority |\n|----|-------|--------|----------|\n\n"
+        header = "# Req Index\n\nThis index lists requirement documents. It is maintained by `scripts/update-indexes.py`.\n\n"
 
     entries = []
-    for p in SPEC_DIR.glob("*.md"):
+    for p in REQ_DIR.glob("*.md"):
         if p.name in ("index.md", "000-req-template.md"):
             continue
         m = re.match(r"^(\d{3})-(.+)\.md$", p.name)

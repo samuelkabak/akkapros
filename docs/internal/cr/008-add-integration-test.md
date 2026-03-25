@@ -134,7 +134,7 @@ docs/internal/cr/008-add-integration-test.md
 
 # Related Issues
 
-- See review-001 recommendations (docs/internal/reviews/001-review.md)
+- See review-001 recommendations (docs/internal/review/001-review.md)
 
 ---
 

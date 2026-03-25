@@ -1,5 +1,5 @@
 <!--
-Review template for `docs/internal/reviews`.
+Review template for `docs/internal/review`.
 Filename conventions:
 - Use a numeric prefix for stable ordering, e.g. `001-review.md` or `review-001.md`.
 - Reserve `000-...` files for templates (these are ignored by the indexer).
