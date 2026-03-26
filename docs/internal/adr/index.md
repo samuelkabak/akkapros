@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [026. Conservative Change Discipline for Research-Grade Computation](026-conservative-change-discipline-for-research-grade-computation.md) - Accepted
 - [025. ADR 025: Integration Test Coverage for CLI and Outputs](025-integration-test-coverage.md) - Accepted
 - [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Accepted
 - [023. 023 — Rename "repair" terminology to "accentuation" and accept the compatibility break](023-rename-repair-to-accentuation.md) - Accepted

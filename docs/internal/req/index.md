@@ -2,6 +2,8 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [013. Requirement: Lexical Output from Prosmaker](013-lexical-output-from-prosmaker.md) - Draft
+- [012. Requirement: Metrics Output Structure and Layout](012-metrics-output-structure-and-layout.md) - Draft
 - [011. Requirement: Strict Punctuation Whitelist with CLI Extensions](011-punctuation-whitelist-and-cli-extension.md) - Draft
 - [010. Requirement: Built-in Self-Tests and CLI Test Infrastructure](010-built-in-self-tests-and-test-infrastructure.md) - Implemented
 - [009. Requirement: Phonological Research Model and Corpus Scope](009-phonological-research-model-and-corpus-scope.md) - Implemented (research validated)

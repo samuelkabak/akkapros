@@ -2,6 +2,10 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[019. Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs](019-metrics-deltac-meanc-dual-lines-and-varcoc-unitless.md) - Draft
+[018. Add lexical output file `<prefix>_lex.txt` from prosmaker](018-lex-output.md) - Draft
+[017. Reorder Word/Mora statistics and inline stddev notation](017-word-mora-statistics-reorg.md) - Draft
+[016. Group syllable counts under "Syllable statistics"](016-syllable-statistics-grouping.md) - Draft
 [015. Fix Metrics Pivot Integrity for Syllable Totals, Linked Words, and Diphthongs](015-fix-metrics-syllables-per-word-and-syllable-totals.md) - Done
 [014. Rename Internal Documentation Folders to req and review](014-rename-internal-doc-folders-to-req-and-review.md) - Done
 [013. Add Akkadian text likehood for format-validation](013-add-akkadian-text-likehood-for-format-validation.md) - Approved
