@@ -1,7 +1,7 @@
 # Change Request: Group syllable counts under "Syllable statistics"
 
 CR-ID: CR-016
-Status: Draft
+Status: Done
 Priority: Medium
 Impact: Mutative
 Created: 2026-03-26

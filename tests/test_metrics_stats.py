@@ -58,16 +58,18 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     result = metrics.process_filetext(_build_sample_tilde(), wpm=165, pause_ratio=35.0)
 
     table = metrics.format_table(result)
+    assert table.count("Syllable statistics:") == 2
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
 
     csv_path = tmp_path / "sample_metrics.csv"
     metrics.format_csv([result], csv_path)
     csv_text = csv_path.read_text(encoding="utf-8")
-    assert "original_total_syllables," in csv_text
-    assert "accentuated_total_syllables," in csv_text
+    assert "original_syllable_statistics_count," in csv_text
+    assert "accentuated_syllable_statistics_count," in csv_text
 
     json_text = json.dumps(result, ensure_ascii=False)
+    assert '"syllable_statistics"' in json_text
     assert '"total_syllables"' in json_text
 
     original_other = result["original"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)

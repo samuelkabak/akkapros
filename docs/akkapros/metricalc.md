@@ -142,12 +142,18 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 
 ### Output Structure Highlights
 
+- **Syllable statistics** are grouped as one block in both table sections:
+    - `Syllable statistics`
+    - nested `Syllable types`
+    - nested `Total syllables`
+- The same grouping is mirrored in machine outputs:
+    - JSON: `original.stats.syllable_statistics.types`, `original.stats.syllable_statistics.count`,
+      `accentuated.stats.syllable_statistics.types`, `accentuated.stats.syllable_statistics.count`
+    - CSV rows: `original_syllable_statistics_types_count_*`,
+      `original_syllable_statistics_types_pct_*`, `original_syllable_statistics_count`,
+      plus matching `accentuated_*` rows
 - **Mora statistics (original and accentuated)** now include:
     - `Total morae number`
-- **Total syllables** are exposed across all formats:
-    - table: `Total syllables`
-    - JSON: `original.stats.total_syllables`, `accentuated.stats.total_syllables`
-    - CSV: `original_total_syllables`, `accentuated_total_syllables`
 - **Speech rate** is reported for both sections:
     - `Speech rate (original)`
     - `Speech rate (accentuated)`

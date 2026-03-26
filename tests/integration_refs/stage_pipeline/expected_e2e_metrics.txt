@@ -1,12 +1,12 @@
 ================================================================================
-METRICS SUMMARY: .\tests\integration_refs\stage_pipeline\expected_e2e_tilde.txt
+METRICS SUMMARY: tmp/cr016_refsync/e2e_tilde.txt
 ================================================================================
 
 --- RUN CONFIGURATION ---
   cli: metricalc.py
   extra_consonants: 
   extra_vowels: 
-  input: .\tests\integration_refs\stage_pipeline\expected_e2e_tilde.txt
+  input: tmp/cr016_refsync/e2e_tilde.txt
   long_pause_punct_weight_unitless: 2.0
   pause_ratio_percent: 35
   short_pause_punct_weight_unitless: 1.0
@@ -14,15 +14,15 @@ METRICS SUMMARY: .\tests\integration_refs\stage_pipeline\expected_e2e_tilde.txt
 
 --- ORIGINAL TEXT ---
 
-Syllable types:
-  CV    :    9 syllables (39.13%)
-  CVC   :    5 syllables (21.74%)
-  CVV   :    4 syllables (17.39%)
-  VC    :    1 syllables ( 4.35%)
-  V     :    3 syllables (13.04%)
-  VVC   :    1 syllables ( 4.35%)
-
-Total syllables: 23 syllables
+Syllable statistics:
+  Syllable types:
+    CV    :    9 syllables (39.13%)
+    CVC   :    5 syllables (21.74%)
+    CVV   :    4 syllables (17.39%)
+    VC    :    1 syllables ( 4.35%)
+    V     :    3 syllables (13.04%)
+    VVC   :    1 syllables ( 4.35%)
+  Total syllables: 23 syllables
 
 Mora statistics:
   Mean morae per syllable: 1.522 mora/syllable
@@ -52,16 +52,16 @@ Acoustic metrics (original):
 
 --- ACCENTUATED TEXT ---
 
-Syllable types:
-  CV    :    9 syllables (39.13%)
-  CVC   :    5 syllables (21.74%)
-  CVV   :    2 syllables ( 8.70%)
-  V     :    3 syllables (13.04%)
-  CVV:  :    2 syllables ( 8.70%)
-  VC:   :    1 syllables ( 4.35%)
-  VV:C  :    1 syllables ( 4.35%)
-
-Total syllables: 23 syllables
+Syllable statistics:
+  Syllable types:
+    CV    :    9 syllables (39.13%)
+    CVC   :    5 syllables (21.74%)
+    CVV   :    2 syllables ( 8.70%)
+    V     :    3 syllables (13.04%)
+    CVV:  :    2 syllables ( 8.70%)
+    VC:   :    1 syllables ( 4.35%)
+    VV:C  :    1 syllables ( 4.35%)
+  Total syllables: 23 syllables
 
 Mora statistics:
   Mean morae per syllable: 1.696 mora/syllable

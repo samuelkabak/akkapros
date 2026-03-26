@@ -7,6 +7,16 @@ This document explains every metric reported by `akkapros` metrics output: what 
 - `src/akkapros/cli/metricalc.py`
 - `src/akkapros/cli/fullprosmaker.py` (metrics stage)
 
+**Output grouping contract (CR-016):**
+- Table output groups syllable data under `Syllable statistics` with nested
+  `Syllable types` and `Total syllables` for both `ORIGINAL TEXT` and
+  `ACCENTUATED TEXT` sections.
+- JSON mirrors this grouping at
+  `original.stats.syllable_statistics.{types,count}` and
+  `accentuated.stats.syllable_statistics.{types,count}`.
+- CSV mirrors this grouping with prefixed metric rows:
+  `original_syllable_statistics_*` and `accentuated_syllable_statistics_*`.
+
 ---
 
 ## 1. Input and Notation

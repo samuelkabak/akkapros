@@ -1,7 +1,36 @@
 {
-  "file": ".\\tests\\integration_refs\\stage_pipeline\\expected_e2e_tilde.txt",
+  "file": "tmp/cr016_refsync/e2e_tilde.txt",
   "original": {
     "stats": {
+      "syllable_statistics": {
+        "types": {
+          "V": {
+            "count": 3,
+            "percent": 13.043478260869565
+          },
+          "CVC": {
+            "count": 5,
+            "percent": 21.73913043478261
+          },
+          "CV": {
+            "count": 9,
+            "percent": 39.130434782608695
+          },
+          "VVC": {
+            "count": 1,
+            "percent": 4.3478260869565215
+          },
+          "CVV": {
+            "count": 4,
+            "percent": 17.391304347826086
+          },
+          "VC": {
+            "count": 1,
+            "percent": 4.3478260869565215
+          }
+        },
+        "count": 23
+      },
       "syllable_counts": {
         "V": 3,
         "CVC": 5,
@@ -62,6 +91,39 @@
   },
   "accentuated": {
     "stats": {
+      "syllable_statistics": {
+        "types": {
+          "V": {
+            "count": 3,
+            "percent": 13.043478260869565
+          },
+          "CVC": {
+            "count": 5,
+            "percent": 21.73913043478261
+          },
+          "CV": {
+            "count": 9,
+            "percent": 39.130434782608695
+          },
+          "VV:C": {
+            "count": 1,
+            "percent": 4.3478260869565215
+          },
+          "CVV": {
+            "count": 2,
+            "percent": 8.695652173913043
+          },
+          "CVV:": {
+            "count": 2,
+            "percent": 8.695652173913043
+          },
+          "VC:": {
+            "count": 1,
+            "percent": 4.3478260869565215
+          }
+        },
+        "count": 23
+      },
       "syllable_counts": {
         "V": 3,
         "CVC": 5,
@@ -167,9 +229,9 @@
     "accentuated_syllables": 4,
     "accentuation_rate": 17.391304347826086,
     "accentuation_types": {
+      "VV:C": 1,
       "VC:": 1,
-      "CVV:": 2,
-      "VV:C": 1
+      "CVV:": 2
     },
     "merged_words": 2,
     "merged_units": 1,

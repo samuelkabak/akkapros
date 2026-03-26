@@ -621,6 +621,18 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
             syllable_percentages[typ] = (count / total_syllables) * 100
         else:
             syllable_percentages[typ] = 0.0
+
+    # Grouped syllable statistics for machine-readable outputs.
+    syllable_statistics = {
+        'types': {
+            typ: {
+                'count': count,
+                'percent': syllable_percentages.get(typ, 0.0),
+            }
+            for typ, count in syllable_counts.items()
+        },
+        'count': total_syllables,
+    }
     
     # Mora statistics
     total_morae = sum(morae_list)
@@ -647,6 +659,7 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     merge_stats = count_merged_units(words)
     
     return {
+        'syllable_statistics': syllable_statistics,
         'syllable_counts': syllable_counts,
         'syllable_percentages': syllable_percentages,
         'total_syllables': total_syllables,
@@ -1351,15 +1364,16 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append("\n--- ORIGINAL TEXT ---")
     orig = result['original']
     
-    # Syllable counts
-    lines.append("\nSyllable types:")
+    # Syllable statistics
+    lines.append("\nSyllable statistics:")
+    lines.append("  Syllable types:")
     for typ in DISPLAY_SYLLABLE_TYPES:
         count = orig['stats']['syllable_counts'].get(typ, 0)
         pct = orig['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
-            lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
+            lines.append(f"    {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
 
-    lines.append(f"\nTotal syllables: {orig['stats']['total_syllables']} syllables")
+    lines.append(f"  Total syllables: {orig['stats']['total_syllables']} syllables")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
@@ -1397,15 +1411,16 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append("\n--- ACCENTUATED TEXT ---")
     rep = result['accentuated']
     
-    # Syllable counts
-    lines.append("\nSyllable types:")
+    # Syllable statistics
+    lines.append("\nSyllable statistics:")
+    lines.append("  Syllable types:")
     for typ in DISPLAY_SYLLABLE_TYPES:
         count = rep['stats']['syllable_counts'].get(typ, 0)
         pct = rep['stats']['syllable_percentages'].get(typ, 0)
         if count > 0:
-            lines.append(f"  {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
+            lines.append(f"    {typ:6}: {count:4d} syllables ({pct:5.2f}%)")
 
-    lines.append(f"\nTotal syllables: {rep['stats']['total_syllables']} syllables")
+    lines.append(f"  Total syllables: {rep['stats']['total_syllables']} syllables")
     
     # Mora statistics
     lines.append(f"\nMora statistics:")
@@ -1534,18 +1549,18 @@ def format_csv(results: List[Dict], output_file: Path):
         # Original text metrics
         add_row("--- ORIGINAL TEXT ---", [""] * len(results))
         
-        # Syllable counts
+        # Syllable statistics
         for typ in DISPLAY_SYLLABLE_TYPES:
             values = [r['original']['stats']['syllable_counts'].get(typ, 0) for r in results]
-            add_row(f"count_{typ}", values)
+            add_row(f"original_syllable_statistics_types_count_{typ}", values)
         
         # Syllable percentages
         for typ in DISPLAY_SYLLABLE_TYPES:
             values = [f"{r['original']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
-            add_row(f"pct_{typ}", values)
+            add_row(f"original_syllable_statistics_types_pct_{typ}", values)
 
         values = [r['original']['stats']['total_syllables'] for r in results]
-        add_row("original_total_syllables", values)
+        add_row("original_syllable_statistics_count", values)
         
         # Mora stats
         values = [f"{r['original']['stats']['mora_stats']['mean']:.3f}" for r in results]
@@ -1588,18 +1603,18 @@ def format_csv(results: List[Dict], output_file: Path):
         # --- ACCENTUATED TEXT ---
         add_row("--- ACCENTUATED TEXT ---", [""] * len(results))
         
-        # Syllable counts (accentuated)
+        # Syllable statistics (accentuated)
         for typ in DISPLAY_SYLLABLE_TYPES:
             values = [r['accentuated']['stats']['syllable_counts'].get(typ, 0) for r in results]
-            add_row(f"accentuated_count_{typ}", values)
+            add_row(f"accentuated_syllable_statistics_types_count_{typ}", values)
         
         # Syllable percentages (accentuated)
         for typ in DISPLAY_SYLLABLE_TYPES:
             values = [f"{r['accentuated']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
-            add_row(f"accentuated_pct_{typ}", values)
+            add_row(f"accentuated_syllable_statistics_types_pct_{typ}", values)
 
         values = [r['accentuated']['stats']['total_syllables'] for r in results]
-        add_row("accentuated_total_syllables", values)
+        add_row("accentuated_syllable_statistics_count", values)
         
         # Mora stats (accentuated)
         values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
@@ -2009,6 +2024,8 @@ def _test_table_and_csv_new_fields() -> bool:
     result = process_filetext(text, wpm=165, pause_ratio=35.0)
 
     table = format_table(result)
+    if "Syllable statistics:" not in table:
+        return False
     if "Total morae number:" not in table:
         return False
     if "Total syllables:" not in table:
@@ -2032,9 +2049,9 @@ def _test_table_and_csv_new_fields() -> bool:
         csv_text = csv_path.read_text(encoding='utf-8')
 
     required_rows = [
-        "original_total_syllables,",
+        "original_syllable_statistics_count,",
         "original_total_morae,",
-        "accentuated_total_syllables,",
+        "accentuated_syllable_statistics_count,",
         "accentuated_total_morae,",
         "orig_sps_speech,",
         "accentuated_sps_speech,",
@@ -2123,6 +2140,8 @@ def _test_small_corpus_metrics_consistency() -> bool:
         return False
 
     table = format_table(result)
+    if "Syllable statistics:" not in table:
+        return False
     if f"Total syllables: {result['original']['stats']['total_syllables']} syllables" not in table:
         return False
     if f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" not in table:
@@ -2132,9 +2151,9 @@ def _test_small_corpus_metrics_consistency() -> bool:
         csv_path = Path(tmpdir) / 'metrics_consistency.csv'
         format_csv([result], csv_path)
         csv_text = csv_path.read_text(encoding='utf-8')
-    if 'original_total_syllables,' not in csv_text:
+    if 'original_syllable_statistics_count,' not in csv_text:
         return False
-    if 'accentuated_total_syllables,' not in csv_text:
+    if 'accentuated_syllable_statistics_count,' not in csv_text:
         return False
 
     return True
