@@ -3,6 +3,7 @@
 CR-ID: CR-014
 Status: Done
 Priority: Medium
+Impact: Additive
 Created: 2026-03-25
 Updated: 2026-03-25
 Implements: None

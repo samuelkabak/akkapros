@@ -19,4 +19,17 @@ Naming and conventions
 - Use `NNN-short-kebab-title.md` for filenames (e.g., `001-password-reset.md`).
 - Use the `REQ-` identifier inside the file for cross-references.
 
+## Impact field
+
+Each requirement file should include an `Impact:` header field (one of
+`Additive` or `Mutative`) immediately after `Priority:` in the file header.
+- `Additive` means the requirement only adds new behaviour or features and does
+	not change existing behaviour, APIs or output formats.
+- `Mutative` means the requirement may change existing behaviour, replace
+	outputs, or otherwise be breaking for downstream consumers.
+
+When creating or reviewing requirements, choose `Additive` when the change is
+purely additive; otherwise prefer `Mutative`. If the document does not provide
+enough information to make a determination, default to `Mutative`.
+
 ***

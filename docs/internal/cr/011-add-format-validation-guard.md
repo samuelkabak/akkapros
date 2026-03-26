@@ -3,6 +3,7 @@
 CR-ID: CR-011
 Status: Done
 Priority: Medium
+Impact: Mutative
 Created: 2026-03-20
 Updated: 2026-03-20
 Implements: ADR-001

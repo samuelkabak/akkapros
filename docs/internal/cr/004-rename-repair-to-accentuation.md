@@ -3,6 +3,7 @@
 CR-ID: CR-004
 Status: Approved
 Priority: Medium
+Impact: Mutative
 Created: 2026-03-17
 Updated: 2026-03-17
 Implements: ADR-023

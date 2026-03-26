@@ -3,6 +3,7 @@
 CR-ID: CR-007
 Status: Done
 Priority: Low
+Impact: Additive
 Created: 2026-03-20
 Updated: 2026-03-20
 

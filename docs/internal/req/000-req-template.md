@@ -3,6 +3,7 @@
 REQ-ID: REQ-XXX
 Status: Draft | Approved | Implemented
 Priority: Low | Medium | High
+Impact: Additive | Mutative
 Created: YYYY-MM-DD
 Updated: YYYY-MM-DD
 ---

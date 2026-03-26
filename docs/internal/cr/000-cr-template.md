@@ -3,6 +3,7 @@
 CR-ID: CR-XXX
 Status: Draft | Approved | Done
 Priority: Low | Medium | High
+Impact: Additive | Mutative
 Created: YYYY-MM-DD
 Updated: YYYY-MM-DD
 Implements: ADR-NNN, SPEC-NNN ... (only references)

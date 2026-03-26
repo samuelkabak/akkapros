@@ -3,6 +3,7 @@
 REQ-ID: REQ-008
 Status: Approved (CR-004, pending full implementation)
 Priority: Medium
+Impact: Mutative
 Created: 2026-03-19
 Updated: 2026-03-19
 ---

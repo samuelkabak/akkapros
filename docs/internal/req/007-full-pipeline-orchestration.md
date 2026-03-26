@@ -3,6 +3,7 @@
 REQ-ID: REQ-007
 Status: Implemented
 Priority: High
+Impact: Additive
 Created: 2026-03-19
 Updated: 2026-03-19
 ---

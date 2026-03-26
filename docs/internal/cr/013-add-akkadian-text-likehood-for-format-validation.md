@@ -5,6 +5,7 @@ Status: Approved
 Priority: Medium
 Created: 2026-03-22
 Updated: 2026-03-22
+Impact: Mutative
 Implements: ADR-001 (CLI/Lib Separation), ADR-009 (Function Word Policy)
 
 ---

@@ -3,6 +3,7 @@
 REQ-ID: REQ-010
 Status: Implemented
 Priority: Medium
+Impact: Additive
 Created: 2026-03-19
 Updated: 2026-03-19
 ---

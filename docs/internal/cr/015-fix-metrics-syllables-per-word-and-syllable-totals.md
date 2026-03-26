@@ -3,6 +3,7 @@
 CR-ID: CR-015
 Status: Done
 Priority: High
+Impact: Mutative
 Created: 2026-03-25
 Updated: 2026-03-25
 Implements: ADR-009, ADR-010, ADR-014, REQ-003, REQ-004

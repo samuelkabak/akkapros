@@ -55,3 +55,12 @@ When creating a new CR:
 3. Keep tasks and notes in the same file.
 4. Update the CR index.
 
+## Impact field
+
+CR files should include an `Impact:` header field (one of `Additive` or
+`Mutative`) immediately after the `Priority:` header. Use `Additive` for
+changes that only add behaviour, tests, or documentation without changing
+existing public behaviour or outputs. Use `Mutative` when the CR changes
+existing behaviour, output formats, or otherwise may be breaking for downstream
+consumers. When in doubt, default to `Mutative`.
+

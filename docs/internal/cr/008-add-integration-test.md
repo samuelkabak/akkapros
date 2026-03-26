@@ -3,6 +3,7 @@
 CR-ID: CR-008
 Status: Done
 Priority: High
+Impact: Additive
 Created: 2026-03-20
 Updated: 2026-03-20
 Implements: ADR-025

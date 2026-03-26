@@ -3,6 +3,7 @@
 REQ-ID: REQ-009
 Status: Implemented (research validated)
 Priority: High
+Impact: Mutative
 Created: 2026-03-19
 Updated: 2026-03-19
 ---

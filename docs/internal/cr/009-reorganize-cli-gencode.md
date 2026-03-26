@@ -3,6 +3,7 @@
 CR-ID: CR-009
 Status: Done
 Priority: Medium
+Impact: Additive
 Created: 2026-03-20
 Updated: 2026-03-20
 

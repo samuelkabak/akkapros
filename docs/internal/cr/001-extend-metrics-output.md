@@ -3,6 +3,7 @@
 CR-ID: CR-001
 Status: Done
 Priority: Medium
+Impact: Mutative
 Created: 2026-03-16
 Updated: 2026-03-16
 

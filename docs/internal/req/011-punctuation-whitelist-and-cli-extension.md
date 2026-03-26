@@ -3,6 +3,7 @@
 REQ-ID: REQ-011
 Status: Draft
 Priority: High
+Impact: Mutative
 Created: 2026-03-21
 Updated: 2026-03-21
 ---
