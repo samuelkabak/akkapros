@@ -20,6 +20,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import math
 
+from akkapros.lib.frontmatter import read_text_file
 
 # shared constants
 from akkapros.lib.constants import (
@@ -1302,8 +1303,7 @@ def process_file(
     long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
 ) -> Dict:
     """Process a single file and return all metrics."""
-    with open(filename, 'r', encoding='utf-8') as f:
-        text = f.read()
+    _, text = read_text_file(filename)
 
     return process_filetext(text, wpm, pause_ratio, long_punct_weight, filename)
 

@@ -22,6 +22,13 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
+from akkapros.lib.frontmatter import (
+    build_output_frontmatter,
+    build_syllabify_stage_data,
+    compose_text_document,
+    effective_options_from_namespace,
+    read_text_file,
+)
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -44,6 +51,7 @@ def process_file(
     short_punct_patterns: list[str] | None = None,
     long_punct_patterns: list[str] | None = None,
     number_format: str = '',
+    options: dict[str, object] | None = None,
 ):
     """Read input, syllabify and write output."""
     print(f"Reading: {input_file}")
@@ -54,8 +62,7 @@ def process_file(
     print(f"Hyphen mode: {'MERGE TO DOTS' if merge_hyphen else 'PRESERVE'}")
     print(f"Line mode: {'PRESERVE ORIGINAL LINES' if preserve_lines else 'NORMALIZE (1 newline=space, 2+=paragraph break)'}")
 
-    with open(input_file, 'r', encoding='utf-8') as f:
-        content = f.read()
+    input_frontmatter, content = read_text_file(input_file)
 
     print("Processing...")
     result = syllabify.syllabify_text(
@@ -71,8 +78,19 @@ def process_file(
         number_format=number_format,
     )
 
+    output_body = result if result.endswith('\n') else result + '\n'
+    frontmatter = build_output_frontmatter(
+        output_path=output_file,
+        step='syllabify',
+        title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+        body=output_body,
+        options=options,
+        stage_data=build_syllabify_stage_data(content, output_body, input_frontmatter=input_frontmatter),
+        input_frontmatter=input_frontmatter,
+        file_format='syl',
+    )
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(result if result.endswith('\n') else result + '\n')
+        f.write(compose_text_document(frontmatter, output_body))
     print(f"Written: {output_file}")
 
 
@@ -173,6 +191,10 @@ def main():
         short_punct_patterns=args.short_punct_pattern,
         long_punct_patterns=args.long_punct_pattern,
         number_format=args.number_format,
+        options=effective_options_from_namespace(
+            args,
+            exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+        ),
     )
 
 

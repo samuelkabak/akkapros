@@ -63,6 +63,20 @@ def test_syllabify_accepts_repeated_ellipsis_chunk():
     assert "⟦ … … ⟧" in out
 
 
+def test_syllabify_merges_only_immediate_cross_line_hyphenation():
+    merged = syllabify.text_preprocess_boundaries("ukappit-\nma", [], preserve_lines=False)
+    not_merged = syllabify.text_preprocess_boundaries("ukappit-\n ma", [], preserve_lines=False)
+    assert merged == "ukappit-ma"
+    assert not_merged == "ukappit- ma"
+
+
+def test_syllabify_merges_only_immediate_cross_line_linker():
+    merged = syllabify.text_preprocess_boundaries("apil+\nellil", [], preserve_lines=False)
+    not_merged = syllabify.text_preprocess_boundaries("apil+\n ellil", [], preserve_lines=False)
+    assert merged == "apil+ellil"
+    assert not_merged == "apil+ ellil"
+
+
 def test_metrics_rejects_unknown_punctuation_gap():
     with pytest.raises(metrics.PunctuationConfigError):
         metrics.process_filetext("at·ta @ a·lik", wpm=165, pause_ratio=35.0)

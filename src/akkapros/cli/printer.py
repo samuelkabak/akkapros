@@ -18,6 +18,7 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
+from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
@@ -177,6 +178,10 @@ def main() -> None:
         write_mbrola=write_mbrola,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
+        options=effective_options_from_namespace(
+            args,
+            exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+        ),
     )
 
     print(f"Input: {input_path}")

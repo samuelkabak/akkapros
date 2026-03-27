@@ -14,6 +14,7 @@ The CLI deduplicates shared options across stages (for example, --prefix,
 import sys
 import json
 import argparse
+from copy import deepcopy
 from pathlib import Path
 
 _repo_root = Path(__file__).resolve().parents[3]
@@ -21,6 +22,15 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
+from akkapros.lib.frontmatter import (
+    build_metrics_stage_data,
+    build_output_frontmatter,
+    build_syllabify_stage_data,
+    compose_text_document,
+    effective_options_from_namespace,
+    read_text_file,
+    validate_stage_data_consistency,
+)
 from akkapros.lib.prosody import (
     AccentStyle,
     ProsodyEngine,
@@ -120,6 +130,7 @@ def run_pipeline(
     output_xar: bool,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    options: dict[str, object] | None = None,
 ) -> int:
     """Execute syllabify -> prosody realization -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
@@ -141,8 +152,7 @@ def run_pipeline(
 
     # 1) Syllabify using library call
     print("\n[1/3] Syllabifying...")
-    with open(input_file, 'r', encoding='utf-8') as f:
-        source_text = f.read()
+    input_frontmatter, source_text = read_text_file(input_file)
 
     syllabify.configure_punctuation_rules(
         short_punct_chars=short_punct_chars,
@@ -162,15 +172,26 @@ def run_pipeline(
         short_punct_patterns=short_punct_patterns,
         long_punct_patterns=long_punct_patterns,
     )
+    syl_body = syl_text if syl_text.endswith('\n') else syl_text + '\n'
+    syl_frontmatter = build_output_frontmatter(
+        output_path=syl_file,
+        step='syllabify',
+        title=(input_frontmatter or {}).get('file', {}).get('title', input_file.stem),
+        body=syl_body,
+        options=options,
+        stage_data=build_syllabify_stage_data(source_text, syl_body, input_frontmatter=input_frontmatter),
+        input_frontmatter=input_frontmatter,
+        file_format='syl',
+    )
     with open(syl_file, 'w', encoding='utf-8') as f:
-        f.write(syl_text if syl_text.endswith('\n') else syl_text + '\n')
+        f.write(compose_text_document(syl_frontmatter, syl_body))
     print(f"Written: {syl_file}")
 
     # 2) Prosody realization using library engine
     print("\n[2/3] Applying prosody realization...")
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     engine = ProsodyEngine(style=style_map[style], only_last=only_last)
-    engine.process_file(str(syl_file), str(tilde_file))
+    engine.process_file(str(syl_file), str(tilde_file), options=options)
     print(f"Written: {tilde_file}")
 
     # 3) Metrics
@@ -191,8 +212,6 @@ def run_pipeline(
 
     if output_json:
         json_file = metrics_base.with_suffix('.json')
-        # Deep-copy and prune 'distances' before writing JSON to avoid large lists in output
-        from copy import deepcopy
         pruned = deepcopy(metrics_result)
         try:
             pruned.get('original', {}).get('acoustic', {}).pop('distances', None)
@@ -202,6 +221,21 @@ def run_pipeline(
             pruned.get('accentuated', {}).get('acoustic', {}).pop('distances', None)
         except Exception:
             pass
+        tilde_frontmatter, tilde_body = read_text_file(tilde_file)
+        validate_stage_data_consistency(
+            'metrics',
+            build_metrics_stage_data(tilde_body, metrics_result, input_frontmatter=tilde_frontmatter),
+            input_frontmatter=tilde_frontmatter,
+        )
+        pruned['frontmatter'] = build_output_frontmatter(
+            output_path=json_file,
+            step='metrics',
+            title=(tilde_frontmatter or {}).get('file', {}).get('title', tilde_file.stem),
+            body=json.dumps(pruned, ensure_ascii=False, sort_keys=True),
+            options=options,
+            input_frontmatter=tilde_frontmatter,
+            file_format='metrics',
+        )
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
             f.write('\n')
@@ -228,8 +262,23 @@ def run_pipeline(
         }
         table = format_table(metrics_result, run_context=table_context)
         table_file = metrics_base.with_name(metrics_base.name + '_metrics.txt')
+        tilde_frontmatter, tilde_body = read_text_file(tilde_file)
+        validate_stage_data_consistency(
+            'metrics',
+            build_metrics_stage_data(tilde_body, metrics_result, input_frontmatter=tilde_frontmatter),
+            input_frontmatter=tilde_frontmatter,
+        )
+        table_frontmatter = build_output_frontmatter(
+            output_path=table_file,
+            step='metrics',
+            title=(tilde_frontmatter or {}).get('file', {}).get('title', tilde_file.stem),
+            body=table,
+            options=options,
+            input_frontmatter=tilde_frontmatter,
+            file_format='metrics',
+        )
         with open(table_file, 'w', encoding='utf-8') as f:
-            f.write(table)
+            f.write(compose_text_document(table_frontmatter, table))
         print(f"Table saved to: {table_file}")
 
     # 4) Printer outputs
@@ -247,6 +296,7 @@ def run_pipeline(
         write_xar=output_xar,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
+        options=options,
     )
 
     if output_acute:
@@ -453,6 +503,10 @@ Version: {__version__}
         output_xar=output_xar,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
+        options=effective_options_from_namespace(
+            args,
+            exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version'},
+        ),
     )
     sys.exit(code)
 

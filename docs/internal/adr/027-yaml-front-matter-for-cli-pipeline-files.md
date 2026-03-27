@@ -104,6 +104,10 @@ For this ADR, the approved `pipeline` value is `pipeline`. The approved `file.fo
 
 - Each CLI stage must be able to read front matter before processing content.
 - Validation must check front matter structure plus declared `file.format` and `file.version` in addition to existing validation logic.
+- Cross-line attached `-` / `+` handling is owned only by the syllabifier stage,
+  where it is interpreted as lexical continuation only for the strict pattern
+  `AKKADIAN_LETTER + EOL + AKKADIAN_LETTER`; generic file validation must not
+  reject unrelated ATF or intermediate files on that basis.
 - A new central specification point is required for front matter templates and per-format version values in `src/akkapros/lib/frontmatter.py`.
 - File identifiers become explicit and traceable through `file.id` and `metadata.input_file_id`.
 - The ATF-derived title becomes a propagated data field rather than something inferred ad hoc downstream.

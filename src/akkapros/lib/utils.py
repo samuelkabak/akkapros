@@ -32,6 +32,8 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
+from akkapros.lib.frontmatter import FORMAT_VERSIONS, read_text_file
+
 from akkapros.lib.constants import (
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
@@ -294,6 +296,24 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
         text = raw.decode("utf-8")
     except UnicodeDecodeError as exc:
         fail(f"file is not valid UTF-8 ({exc})")
+
+    try:
+        frontmatter, text = read_text_file(path)
+    except ValueError as exc:
+        fail(f"invalid front matter ({exc})")
+
+    if frontmatter is not None and expected_kind in {"proc", "syl", "tilde"}:
+        file_info = frontmatter.get("file", {})
+        declared_format = file_info.get("format")
+        expected_format = expected_kind
+        if declared_format != expected_format:
+            fail(f"front matter format mismatch: expected {expected_format!r}, got {declared_format!r}")
+        declared_version = file_info.get("version")
+        if declared_version != FORMAT_VERSIONS.get(expected_format):
+            fail(
+                "front matter version mismatch: "
+                f"expected {FORMAT_VERSIONS.get(expected_format)!r}, got {declared_version!r}"
+            )
 
     # Accept files without a trailing newline by normalizing to the canonical
     # in-memory shape used by downstream line-based processing.
@@ -586,6 +606,40 @@ def run_tests() -> bool:
     score_short, details_short = akkadian_likelihood("a", min_length=10)
     check("akk-likelihood short text in (0, 0.5]", 0.0 < score_short <= 0.5)
     check("akk-likelihood short text has penalty", 'confidence_penalty' in details_short)
+
+    # ---- validate_intermediate_format with front matter -----------------
+    proc_with_frontmatter = (
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"atfparse\"\n"
+        "file:\n"
+        "  id: \"abc\"\n"
+        "  title: \"demo\"\n"
+        "  format: \"proc\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-27\"\n"
+        "metadata:\n"
+        "  input_file_id: \"src\"\n"
+        "  options:\n"
+        "  data:\n"
+        "---\n\n"
+        "šar gi-mir dadmē\n"
+    )
+    tmp_frontmatter = Path(".tmp_utils_frontmatter_proc.txt")
+    tmp_frontmatter.write_text(proc_with_frontmatter, encoding="utf-8")
+    try:
+        try:
+            validate_intermediate_format(tmp_frontmatter, "proc")
+            frontmatter_ok = True
+        except FormatValidationError:
+            frontmatter_ok = False
+        check("validate_intermediate_format accepts proc front matter", frontmatter_ok)
+    finally:
+        if tmp_frontmatter.exists():
+            tmp_frontmatter.unlink()
 
     # ---- classify_text convenience wrapper ------------------------------
     label = classify_text("īpūš-ma pâšu izakkar ana rubê marūtuk")

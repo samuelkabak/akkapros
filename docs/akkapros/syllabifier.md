@@ -134,6 +134,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 
 - **Diphthong handling**: The library may insert glottal stops between adjacent vowels for diphthong expansion (e.g., `ua` → `u·ʾa`). These are later restored by `prosmaker.py`.
 - **Hyphen and linker behavior** is context-sensitive and follows Akkadian morphological boundaries.
+- **Cross-line attached `-` / `+` handling** belongs to the syllabifier stage only. A line-final attached connector is treated as lexical continuation only when it matches the strict pattern `AKKADIAN_LETTER + EOL + AKKADIAN_LETTER`.
 - **Punctuation** is preserved as escaped material (`⟦...⟧`) and is not syllabified as Akkadian words.
 - **Strict punctuation allowlist** is enforced. Unclassified punctuation/non-word symbols now fail fast with a line-aware error instead of being silently accepted.
 - **Line-start bullets and `#`** are handled as punctuation suites and preserved in escaped output (`⟦...⟧`) rather than treated as Markdown structure.
@@ -141,7 +142,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 - **Escapes in source text**: `{{text}}` and `{tag{text}}` are preserved verbatim, wrapped as `⟦...⟧`, and excluded from Akkadian syllabification.
 - **Nested escapes** are intentionally unsupported; only `{{...}}` and one-level `{tag{...}}` are recognized.
 - **Word endings** are explicitly marked with `¦` for downstream processing.
-- By default, input format is validated at startup and reports precise source + line for obvious corruption or wrong stage input (for example raw ATF lines in a `*_proc.txt` input).
+- By default, input format is validated at startup and reports precise source + line for obvious corruption or wrong stage input (for example raw ATF lines in a `*_proc.txt` input). Cross-line attached `-` / `+` is not a generic validator error; it is interpreted only by the syllabifier preprocessing rule above.
 
 ### Regex Semantics for Punctuation Patterns
 

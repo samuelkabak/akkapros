@@ -28,6 +28,14 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
+from akkapros.lib.frontmatter import (
+    build_atfparse_stage_data,
+    build_output_frontmatter,
+    compose_text_document,
+    effective_options_from_namespace,
+    merge_frontmatter_documents,
+    read_text_file,
+)
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -40,36 +48,60 @@ from akkapros.lib.utils import (
 __ebl_url__ = "https://www.ebl.lmu.de/"
 
 
-def save_output(results: dict, prefix: str, outdir: Path):
-    """Save all output files. If append is True, append to files, ensuring a newline before new content if needed."""
+def save_output(results: dict, prefix: str, outdir: Path, *, options: dict[str, object]):
+    """Save all output files, merging front matter when append mode targets an existing file."""
     append = results.get('append', False)
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
 
-    def write_or_append(path, lines):
-        mode = 'a' if append else 'w'
-        # Always ensure file ends with a newline before appending
+    proc_body = '\n'.join(results['cleaned_lines']) + '\n'
+    stage_data = build_atfparse_stage_data(proc_body)
+    title = results.get('title') or prefix
+    input_file_id = None
+
+    def write_or_append(path, lines, file_format):
+        body = '\n'.join(lines) + '\n'
+        new_frontmatter = build_output_frontmatter(
+            output_path=path,
+            step='atfparse',
+            title=title,
+            body=body,
+            options=options,
+            stage_data=stage_data,
+            input_file_id=input_file_id,
+            file_format=file_format,
+        )
+
+        merged_frontmatter = new_frontmatter
+        merged_body = body
         if append and path.exists():
-            with open(path, 'rb+') as f:
-                f.seek(-1, 2)
-                last = f.read(1)
-                if last != b'\n':
-                    f.write(b'\n')
-        with open(path, mode, encoding='utf-8') as f:
-            f.write('\n'.join(lines) + '\n')
+            existing_frontmatter, existing_body = read_text_file(path)
+            merged_body = existing_body
+            if merged_body and not merged_body.endswith('\n'):
+                merged_body += '\n'
+            merged_body += body
+            if existing_frontmatter is not None:
+                merged_frontmatter = merge_frontmatter_documents(
+                    [existing_frontmatter, new_frontmatter],
+                    body=merged_body,
+                ) or new_frontmatter
+
+        document = compose_text_document(merged_frontmatter, merged_body)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(document)
 
     # Original Akkadian lines (with ATF markup preserved)
     orig_file = outdir / f"{prefix}_orig.txt"
-    write_or_append(orig_file, results['original_akkadian_lines'])
+    write_or_append(orig_file, results['original_akkadian_lines'], 'orig')
 
     # Cleaned text file
     proc_file = outdir / f"{prefix}_proc.txt"
-    write_or_append(proc_file, results['cleaned_lines'])
+    write_or_append(proc_file, results['cleaned_lines'], 'proc')
 
     # English translation if present
     if results['english_translations']:
         trans_file = outdir / f"{prefix}_trans.txt"
-        write_or_append(trans_file, results['english_translations'])
+        write_or_append(trans_file, results['english_translations'], 'trans')
 
     return orig_file, proc_file
 
@@ -218,7 +250,15 @@ MIT License (c) 2026 Samuel KABAK
         # Pass append flag to save_output via results dict
         results['append'] = args.append
         # Save outputs
-        orig_file, proc_file = save_output(results, prefix, outdir)
+        orig_file, proc_file = save_output(
+            results,
+            prefix,
+            outdir,
+            options=effective_options_from_namespace(
+                args,
+                exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+            ),
+        )
 
         print("\n" + "="*60)
         print("PARSING COMPLETE")

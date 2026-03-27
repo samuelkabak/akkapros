@@ -1,13 +1,18 @@
 # Change Request: Add CLI file front matter and metadata propagation
 
 CR-ID: CR-018
-Status: Draft
+Status: Done
 Priority: High
 Impact: Mutative
 Created: 2026-03-27
 Updated: 2026-03-27
 Implements: ADR-027, REQ-013
 ---
+
+Bug note: During verification, diphthong restoration in `_tilde` was found to
+drop the real syllable separator before the internal hiatus marker
+(`ti·¨ā~m·tu` became `ti¨ā~m·tu`). The generator and restoration tests were
+corrected so pivot output now preserves the explicit `·¨` structure.
 
 # Summary
 
@@ -45,16 +50,21 @@ purpose outputs.
 - Require all pipeline stages to read front matter before consuming content.
 - Validate input `file.format` and `file.version` using front matter.
 - Generate and propagate `file.id`, `file.title`, and `metadata.input_file_id`.
+- Emit `metadata.input_file_id: null` for `atfparser` outputs because ATF
+  inputs are not prior pipeline files.
 - Record effective non-filesystem CLI options under `metadata.options`.
 - Propagate stage-specific metadata under `metadata.data` in pipeline order.
+- Aggregate append-mode front matter across appended documents, including
+  joined titles and summed numeric stage counters.
 - Use canonical snake_case field names for compact stage-data counters,
   including `explicit_word_link_count` for explicit user word-link markers.
 - Define front matter templates and per-format version values centrally in
   `src/akkapros/lib/frontmatter.py`.
 - Update user-facing documentation and internal fixtures/spec references for
   the new file contract.
-- Reject malformed cross-line continuation after attached terminal `-` or `+`
-  instead of silently merging physical lines.
+- Keep cross-line attached `-` / `+` handling out of generic shared validation.
+  The syllabifier stage alone owns this lexical-continuation behavior, using
+  the strict pattern `AKKADIAN_LETTER + EOL + AKKADIAN_LETTER`.
 
 ## Not Included
 
@@ -137,12 +147,26 @@ Schema rules:
 - default option values are emitted only when effective values are not empty
   strings and not `false`
 - `metadata.data` contains only populated stage blocks up to the current step
+- stage-data emission is reduced to the approved non-duplicated set:
+  - `atfparse.line_count`
+  - `syllabify.word_count`, `syllabify.syllable_count`
+  - `prosody.function_word_count`, `prosody.explicit_word_link_count`,
+    `prosody.prosodic_unit_count`, `prosody.accentuated_syllable_count`
+  - no serialized `metrics` stage block
+- if a later stage recomputes `line_count`, `word_count`, or `syllable_count`,
+  it must verify the inherited value matches and omit the duplicate field from
+  output
 
 Validation:
 - read front matter before content parsing
 - verify supported `file.format` and `file.version`
-- reject input lines that end with attached `-` or `+` when the same lexical or
-  prosodic group continues on the next physical line without whitespace
+- do not reject input files generically for trailing `-` / `+` across physical
+  lines; that interpretation belongs to the syllabifier only
+- for append-mode aggregate files, strip every embedded front matter block
+  before validating or processing the concatenated content bodies
+- when append mode targets an existing atfparser output, rewrite the file using
+  one effective merged front matter block so the current aggregate contract is
+  directly represented on disk
 - preserve current validation behavior and extend it with front matter checks
 
 Format-specific exception:
@@ -167,39 +191,53 @@ tests and integration fixtures that assert file-output contracts
 
 # Acceptance Criteria
 
-- [ ] CLI-generated text outputs begin with YAML front matter, then one blank
+- [x] CLI-generated text outputs begin with YAML front matter, then one blank
       line, then the content body.
-- [ ] Metrics JSON outputs contain a top-level `frontmatter` object equivalent
+- [x] Metrics JSON outputs contain a top-level `frontmatter` object equivalent
       to the YAML front matter structure.
-- [ ] Metrics CSV outputs contain no embedded front matter.
-- [ ] All emitted front matter keys use lowercase snake_case.
-- [ ] `pipeline` is emitted as `pipeline` for all files covered by this CR.
-- [ ] Each stage can read front matter and validate `file.format` and
+- [x] Metrics CSV outputs contain no embedded front matter.
+- [x] All emitted front matter keys use lowercase snake_case.
+- [x] `pipeline` is emitted as `pipeline` for all files covered by this CR.
+- [x] Each stage can read front matter and validate `file.format` and
       `file.version` before consuming content.
-- [ ] `file.format` equals the output filename suffix before the extension,
+- [x] `file.format` equals the output filename suffix before the extension,
   including `metrics` for both `_metrics.txt` and `_metrics.json`.
-- [ ] `file.id`, `file.title`, and `metadata.input_file_id` are populated and
+- [x] `file.id`, `file.title`, and `metadata.input_file_id` are populated and
       propagated according to the approved contract.
-- [ ] `metadata.options` excludes filesystem-bearing arguments and records
+- [x] `atfparser` outputs emit `metadata.input_file_id: null`.
+- [x] `metadata.options` excludes filesystem-bearing arguments and records
       effective non-empty, non-false option values in snake_case.
-- [ ] `explicit_word_link_count` is used as the canonical field name for
+- [x] `explicit_word_link_count` is used as the canonical field name for
   explicit user word-link counters in stage data.
-- [ ] `metadata.data` carries populated stage data from the start of the
+- [x] `metadata.data` carries populated stage data from the start of the
       pipeline through the current step without printing empty future blocks.
-- [ ] Input with attached terminal `-` or `+` continued onto the following
-  physical line fails with a clear validation error; the implementation does
-  not auto-merge those lines.
-- [ ] Front matter templates and format-version values are maintained in
+- [x] The serialized stage-data field set is reduced to the approved non-
+  duplicated counters and omits `data.metrics`.
+- [x] Duplicate indicator fields (`line_count`, `word_count`,
+  `syllable_count`) are checked for consistency and omitted from later
+  stage blocks when they match inherited values.
+- [x] Generic shared validation does not reject input files solely because a
+  line ends with `-` or `+`.
+- [x] The syllabifier stage alone handles cross-line attached `-` / `+` as
+  lexical continuation only for the strict pattern `AKKADIAN_LETTER + EOL +
+  AKKADIAN_LETTER`.
+- [x] Append-mode aggregate files with repeated embedded front matter blocks
+  are validated and processed against their concatenated content bodies rather
+  than against YAML metadata text.
+- [x] Append-mode atfparser outputs merge titles with ` | `, null out
+  ambiguous source `input_file_id` values, and sum numeric stage counters
+  across appended source documents.
+- [x] Front matter templates and format-version values are maintained in
       `src/akkapros/lib/frontmatter.py`.
-- [ ] User-facing documentation is updated for the mutative output contract,
+- [x] User-facing documentation is updated for the mutative output contract,
   including file examples, migration guidance, and metrics text versus JSON
   behavior.
-- [ ] Developer-facing documentation is updated for the shared schema,
+- [x] Developer-facing documentation is updated for the shared schema,
   format/version handling, validation rules, and helper ownership in
   `src/akkapros/lib/frontmatter.py`.
-- [ ] Built-in `run_tests()` coverage is added or extended in affected modules
+- [x] Built-in `run_tests()` coverage is added or extended in affected modules
   where self-tests exist for serialization and validation behavior.
-- [ ] Pytest coverage includes focused unit tests and end-to-end integration
+- [x] Pytest coverage includes focused unit tests and end-to-end integration
   tests for the new front matter contract.
 
 ---
@@ -226,6 +264,7 @@ Unit tests:
 - JSON `frontmatter` mapping
 - option filtering and snake_case normalization
 - canonical stage-data field naming, including `explicit_word_link_count`
+- append-mode merged-front-matter aggregation and title joining
 - file-format and file-version validation
 - validation failure for attached terminal `-` / `+` cross-line continuation
 - stage-data propagation rules
@@ -233,6 +272,8 @@ Unit tests:
 Integration tests:
 
 - end-to-end pipeline file generation with front matter
+- append-mode end-to-end pipeline generation with aggregated front matter and
+  reduced stage-data blocks
 - metrics text/JSON special-case behavior and CSV exclusion from this change
 - pytest integration coverage for representative multi-step pipeline flows
 - legacy-input migration behavior once approved

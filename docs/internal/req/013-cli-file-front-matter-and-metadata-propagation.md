@@ -61,6 +61,9 @@ whole pipeline.
 - [ ] Given a generated file derived from another pipeline file, when front
       matter is emitted, then `metadata.input_file_id` contains the immediate
       input file identifier.
+- [ ] Given a file emitted directly by `atfparser`, when front matter is
+      emitted, then `metadata.input_file_id` is `null` because the source is a
+      raw ATF artifact rather than a prior pipeline file.
 - [ ] Given CLI options for a stage, when `metadata.options` is emitted, then
       it excludes filesystem-bearing options such as input filename and output
       directory, converts option names to snake_case, preserves inherited
@@ -70,6 +73,17 @@ whole pipeline.
       then it nests data under stage keys in pipeline order (`atfparse`,
       `syllabify`, `prosody`, `metrics`, `print`) and omits empty or not-yet-
       reached stage blocks.
+- [ ] Given the canonical stage-data contract, when fields are emitted, then
+      they use this reduced set only:
+      `atfparse.line_count`; `syllabify.word_count`,
+      `syllabify.syllable_count`; `prosody.function_word_count`,
+      `prosody.explicit_word_link_count`, `prosody.prosodic_unit_count`, and
+      `prosody.accentuated_syllable_count`; and no `metrics` stage block is
+      emitted in YAML or JSON front matter.
+- [ ] Given a stage could recompute an indicator already printed by an earlier
+      stage (`line_count`, `word_count`, `syllable_count`), when the repeated
+      value is checked, then the pipeline verifies the values match and omits
+      the duplicate field from the later stage output.
 - [ ] Given stage-specific counters for explicit user word links, when emitted,
       then the canonical field name is `explicit_word_link_count`.
 - [ ] Given a file produced from an ATF source, when downstream files are
@@ -78,10 +92,23 @@ whole pipeline.
 - [ ] Given an input file with front matter, when any downstream CLI stage
       reads it, then the stage can parse the front matter and validate the
       declared file format and file-version before processing the content body.
-- [ ] Given an input line that ends with attached `-` or `+` and the lexical or
-      prosodic group continues on the following physical line without
-      intervening whitespace, when a pipeline stage reads it, then the stage
-      fails with a clear validation error and does not auto-merge the lines.
+- [ ] Given an append-mode aggregate file containing multiple concatenated
+      front-matter documents of the same format, when a downstream CLI stage
+      reads it, then validation and processing operate on the concatenated
+      content bodies after stripping every embedded front matter block.
+- [ ] Given append mode writes additional ATF-derived content into an existing
+      output file, when the file is rewritten, then the effective front matter
+      is aggregated across all appended documents: titles are joined in source
+      order with ` | `, `metadata.input_file_id` is `null` if multiple source
+      identifiers would otherwise exist, and numeric stage counters are summed
+      across appended documents.
+- [ ] Given a cleaned input consumed by the syllabifier, when a line ends with
+      attached `-` or `+` and the next physical line starts immediately with an
+      Akkadian letter, then the syllabifier treats that sequence as one lexical
+      continuation (`AKKADIAN_LETTER + EOL + AKKADIAN_LETTER`).
+- [ ] Given an ATF file or another non-syllabifier input stage, when a line
+      ends with `-` or `+`, then generic file validation does not reject the
+      file on that basis alone.
 - [ ] Given the front matter contract, when format templates and versions are
       maintained, then they are defined centrally in `src/akkapros/lib/frontmatter.py`.
 - [ ] Given this requirement is implemented, when documentation is updated,
@@ -106,6 +133,10 @@ whole pipeline.
 # Interface Notes
 - Input: pipeline files produced by earlier CLI stages, with or without front
   matter during migration.
+- Append-mode aggregate files may contain multiple concatenated front-matter
+      documents; downstream readers must strip all embedded front matter blocks,
+      merge the effective front matter for the aggregate file, and then validate or
+      process the combined content body.
 - Output: text files with YAML front matter, metrics JSON with `frontmatter`,
   and no front matter contract for metrics CSV.
 - Affected components: `src/akkapros/cli/atfparser.py`,
@@ -118,9 +149,8 @@ whole pipeline.
 # Open Questions
 - [ ] Migration behavior for legacy content-only inputs is not yet specified:
       strict rejection, transitional support, or per-command compatibility mode.
-- [ ] The exact minimal field set for each step remains to be finalized, but
-      `explicit_word_link_count` is the approved canonical name for explicit
-      user word-link counters.
+- [ ] Future append behavior for intentionally heterogeneous option sets is not
+      specified beyond raising an error when conflicting values are detected.
 
 ---
 
@@ -142,8 +172,9 @@ whole pipeline.
   YAML parsing, UUID generation, or serializer internals.
 - This requirement does not retain the discarded `_lex.txt` propagation path.
 - This requirement does not define a front matter contract for metrics CSV.
-- This requirement does not authorize silent repair by merging physical lines
-      that were split after attached terminal `-` or `+` markers.
+- This requirement does not authorize generic shared validation to interpret
+      or reject attached terminal `-` or `+` across physical lines outside the
+      syllabifier stage.
 
 # Security / Safety Considerations
 - Front matter must not leak filesystem-sensitive values such as source paths

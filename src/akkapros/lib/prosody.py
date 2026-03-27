@@ -5,9 +5,16 @@ Akkadian Prosody Toolkit - Moraic Prosody Realization System
 
 import re
 from enum import Enum
+from pathlib import Path
 from typing import List, Optional, Tuple, Union, Dict, Set
 
 from akkapros import __version__
+from akkapros.lib.frontmatter import (
+    build_output_frontmatter,
+    build_prosody_stage_data,
+    compose_text_document,
+    read_text_file,
+)
 
 
 # shared constants
@@ -489,13 +496,8 @@ from akkapros.lib.diphthongs import ALL_REPLACEMENTS
 
 
 def _pivot_diphthong_replacement(replacement: str) -> str:
-    """Keep diphthong memory in *_tilde by reinserting DIPH_SEPARATOR."""
-    vowel_positions = [idx for idx, ch in enumerate(replacement) if ch in AKKADIAN_VOWELS]
-    if len(vowel_positions) < 2:
-        return replacement
-
-    second_vowel_idx = vowel_positions[1]
-    return replacement[:second_vowel_idx] + DIPH_SEPARATOR + replacement[second_vowel_idx:]
+    """Generated replacements already encode the exact pivot form to emit."""
+    return replacement
 
 def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
     """
@@ -864,7 +866,7 @@ class ProsodyEngine:
         
         return assemble_line(result_parts, tokens)
     
-    def process_file(self, input_file: str, output_file: str):
+    def process_file(self, input_file: str, output_file: str, *, options: dict | None = None):
         
         print(f"\n{'='*80}")
         print(f"AKKADIAN PROSODY TOOLKIT — ACCENTUATION ENGINE v{__version__}")
@@ -878,8 +880,8 @@ class ProsodyEngine:
         
         print(f"{'='*80}\n")
         
-        with open(input_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+        input_frontmatter, text = read_text_file(input_file)
+        lines = text.splitlines(keepends=True)
         
         print(f"Processing {len(lines)} lines...")
         
@@ -901,8 +903,24 @@ class ProsodyEngine:
         output_lines = postprocess_restore_diphthongs(output_lines)
         
         print(f"\nWriting output...")
+        output_body = '\n'.join(output_lines) + '\n'
+        frontmatter = build_output_frontmatter(
+            output_path=output_file,
+            step='prosody',
+            title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+            body=output_body,
+            options=options,
+            stage_data=build_prosody_stage_data(
+                text,
+                output_body,
+                input_frontmatter=input_frontmatter,
+                accentuated_syllable_count=self.stats['accentuated_syllables'],
+            ),
+            input_frontmatter=input_frontmatter,
+            file_format='tilde',
+        )
         with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(output_lines) + '\n')
+            f.write(compose_text_document(frontmatter, output_body))
         
         self._print_stats()
 
@@ -942,13 +960,16 @@ def test_diphthong_restoration() -> bool:
         return postprocess_restore_diphthongs([text])[0]
 
     test_cases = [
-        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{DIPH_SEPARATOR}a", "Simple short u+a"),
-        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{DIPH_SEPARATOR}ā", "Short+long u+a"),
-        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{DIPH_SEPARATOR}ā", "Long+short u+a"),
-        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{DIPH_SEPARATOR}ā~", "Long+long u+a"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "Simple short u+a keeps pivot hiatus markers"),
+        (f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "Short+long u+a keeps pivot hiatus markers"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", "Long+short u+a preserves boundary while normalizing length"),
+        (f"ū{SYL_SEPARATOR}{DIPH_SEPARATOR}ā", f"u{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~", "Long+long u+a preserves boundary and accent"),
+        (f"i{SYL_SEPARATOR}{DIPH_SEPARATOR}ē", f"i{SYL_SEPARATOR}{DIPH_SEPARATOR}ē", "Different-vowel hiatus keeps separator"),
+        (f"i{SYL_SEPARATOR}{DIPH_SEPARATOR}ē~", f"i{SYL_SEPARATOR}{DIPH_SEPARATOR}ē~", "Different-vowel hiatus with accent keeps separator"),
         (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "â", "Identical short vowels -> circumflex"),
         (f"a{SYL_SEPARATOR}{DIPH_SEPARATOR}a~", "â~", "Identical short+tilde -> circumflex+tilde"),
-        (f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"ku{DIPH_SEPARATOR}a", "Consonant context preserved"),
+        (f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", f"ku{SYL_SEPARATOR}{DIPH_SEPARATOR}a", "Consonant context preserved"),
+        (f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu", f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu", "Pivot example keeps clear syllable separation"),
         (f"ba{DIPH_SEPARATOR}ru", f"ba{DIPH_SEPARATOR}ru", "Existing diphthong memory is preserved"),
         (f"ta{SYL_SEPARATOR}{DIPH_SEPARATOR}a ki", "tâ ki", "In-line restoration in phrase"),
     ]

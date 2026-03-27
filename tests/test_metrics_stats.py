@@ -111,7 +111,7 @@ def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:
         f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu"
     ])[0]
 
-    assert tilde == f"ti{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu"
+    assert tilde == f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu"
 
     result = metrics.process_filetext(tilde + "\n", wpm=165, pause_ratio=35.0)
     assert result["original"]["stats"]["total_syllables"] == 3

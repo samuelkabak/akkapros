@@ -22,6 +22,7 @@ Key groupings:
 | CLI helpers | `print_startup_banner`, `add_standard_version_argument`, `RawDefaultsHelpFormatter` |
 | Contextual regex | `compile_contextual_regex`, `contextualize_for_regex`, `strip_regex_sentinels`, `build_numeric_currency_pattern` |
 | Format validation | `FormatValidationError`, `validate_intermediate_format` |
+| Front matter helpers | `akkapros.lib.frontmatter` owns parsing/serialization and stage metadata propagation |
 | Akkadian scoring | `akkadian_likelihood`, `classify_text` |
 | Self-test harness | `run_tests` |
 
@@ -127,6 +128,8 @@ Validates an input file before it enters a pipeline stage.
 | File exists and readable | ✓ | | | | |
 | Not empty / not binary | ✓ | | | | |
 | Valid UTF-8 | ✓ | | | | |
+| YAML front matter may be present | ✓ | | ✓ | ✓ | ✓ |
+| `file.format` / `file.version` checked when front matter is present | | | ✓ | ✓ | ✓ |
 | No unprintable control chars | ✓ | | | | |
 | Contains Akkadian letters | ✓ | | | | |
 | Has `%n` content lines | | ✓ | | | |
@@ -134,6 +137,20 @@ Validates an input file before it enters a pipeline stage.
 | Likelihood guard (≥ 0.25, file ≥ 50 chars) | | | ✓ | | |
 | Has `¦` word-ending markers | | | | ✓ | |
 | No `¦` markers (wrong stage) | | | | | ✓ |
+Front matter parsing, serialization, format-version tables, and compact
+stage-data builders are centralized in `src/akkapros/lib/frontmatter.py`.
+`utils.py` deliberately does not own the schema; it only validates the subset
+relevant to stage input safety.
+
+Cross-line attached `-` / `+` interpretation is not part of `utils.py`
+validation. That lexical-continuation rule belongs only to the syllabifier
+stage, where it is applied for the strict pattern `AKKADIAN_LETTER + EOL +
+AKKADIAN_LETTER`.
+
+For append-mode aggregate files, front matter handling strips all repeated
+embedded YAML front matter blocks before validation inspects the content body.
+This prevents later concatenated document headers from poisoning Akkadian
+likelihood checks for `*_proc.txt` inputs.
 
 #### Likelihood guard (`proc` only)
 

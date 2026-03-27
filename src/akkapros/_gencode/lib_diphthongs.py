@@ -108,6 +108,16 @@ def _replacement(base1: str, base2: str, first_form: str, second_form: str) -> s
     return _different_vowel_replacement(base1, base2, first_form, second_form)
 
 
+def _pivot_replacement(replacement: str) -> str:
+    """Preserve the real syllable break in pivot output for restored hiatus."""
+    vowel_positions = [idx for idx, ch in enumerate(replacement) if ch in ''.join(VOWELS[base][form] for base in BASES for form in ('short', 'long', 'circ'))]
+    if len(vowel_positions) < 2:
+        return replacement
+
+    second_vowel_idx = vowel_positions[1]
+    return replacement[:second_vowel_idx] + SYL_SEPARATOR + DIPH_SEPARATOR + replacement[second_vowel_idx:]
+
+
 def _build_entries():
     entries = []
     for base1 in BASES:
@@ -117,7 +127,7 @@ def _build_entries():
                     v1 = _char(base1, first_form)
                     v2 = _char(base2, second_form)
                     pattern = rf"{v1}{SYL_SEPARATOR}{DIPH_SEPARATOR}{v2}"
-                    repl = _replacement(base1, base2, first_form, second_form)
+                    repl = _pivot_replacement(_replacement(base1, base2, first_form, second_form))
                     entries.append((pattern, repl, _has_second_tilde(second_form)))
     return entries
 

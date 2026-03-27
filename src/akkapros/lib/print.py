@@ -22,6 +22,7 @@ import tempfile
 import unicodedata
 import re
 
+from akkapros.lib.frontmatter import build_output_frontmatter, compose_text_document, read_text_file
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
     WORD_LINKER,
@@ -840,6 +841,7 @@ def process_file(
     write_mbrola: bool = False,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    options: dict | None = None,
 ) -> None:
     """Read *_tilde input and write selected output files.
     
@@ -859,8 +861,7 @@ def process_file(
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
-    with open(input_file, 'r', encoding='utf-8') as f:
-        text = f.read()
+    input_frontmatter, text = read_text_file(input_file)
 
     acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(
         text,
@@ -870,8 +871,17 @@ def process_file(
 
     def _write(text: str, path: str) -> None:
         """Write text to path, ensuring a POSIX-compliant trailing newline."""
+        normalized = text if text.endswith('\n') else text + '\n'
+        frontmatter = build_output_frontmatter(
+            output_path=path,
+            step='print',
+            title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+            body=normalized,
+            options=options,
+            input_frontmatter=input_frontmatter,
+        )
         with open(path, 'w', encoding='utf-8') as fh:
-            fh.write(text if text.endswith('\n') else text + '\n')
+            fh.write(compose_text_document(frontmatter, normalized))
 
     if write_acute:
         Path(output_acute_file).parent.mkdir(parents=True, exist_ok=True)
@@ -1110,7 +1120,7 @@ def run_tests() -> bool:
         ("$€£", "ipa", "⟨dollar⟩ ⟨euro⟩ ⟨pound⟩ |"),
         ("er~·ra", "acute", "er´ra"),
         ("er~·ra", "bold", "**er**ra"),
-        ("ti¨ā~m·tu", "bold", "ti**ām**tu"),
+        ("ti·¨ā~m·tu", "bold", "ti**ām**tu"),
         ("nā~š", "bold", "**nāš**"),
         ("ša+ana+na·šê", "acute", "ša‿ana‿našê"),
         ("ī·ris·sū~-ma", "bold", "īris**sū**-ma"),
@@ -1229,15 +1239,28 @@ def run_tests() -> bool:
             write_xar=True,
         )
 
+        acute_frontmatter, acute_body = read_text_file(out_acute)
+        ipa_frontmatter, ipa_body = read_text_file(out_ipa)
+        xar_frontmatter, xar_body = read_text_file(out_xar)
+        xar_plain_frontmatter, xar_plain_body = read_text_file(out_xar_plain)
+
         file_ok = (
             out_acute.exists()
-            and out_acute.read_text(encoding='utf-8') == "k´apin ‿ ´apil\n"
+            and acute_frontmatter is not None
+            and acute_frontmatter.get('file', {}).get('format') == 'acute'
+            and acute_body == "k´apin ‿ ´apil\n"
             and out_ipa.exists()
-            and out_ipa.read_text(encoding='utf-8') == "ˈkːa.pin.ˈʔːa.pil\n"
+            and ipa_frontmatter is not None
+            and ipa_frontmatter.get('file', {}).get('format') == 'ipa'
+            and ipa_body == "ˈkːa.pin.ˈʔːa.pil\n"
             and out_xar.exists()
-            and out_xar.read_text(encoding='utf-8') == "k´apin ‿ ´apil\n"
+            and xar_frontmatter is not None
+            and xar_frontmatter.get('file', {}).get('format') == 'xar'
+            and xar_body == "k´apin ‿ ´apil\n"
             and out_xar_plain.exists()
-            and out_xar_plain.read_text(encoding='utf-8') == "kapin apil\n"
+            and xar_plain_frontmatter is not None
+            and xar_plain_frontmatter.get('file', {}).get('format') == 'xar'
+            and xar_plain_body == "kapin apil\n"
             and not out_bold.exists()
         )
         if file_ok:

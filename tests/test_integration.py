@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from akkapros.lib.frontmatter import split_frontmatter
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INTREF_DIR = REPO_ROOT / "tests" / "integration_refs"
@@ -17,7 +19,7 @@ INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 # Gold-standard values from known-good output for this reference sample.
 GOLD_VARCOC_ACCENTUATED = 84.92
 GOLD_ACCENTUATION_RATE = 17.39
-GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma : ti¨ā~m·tu pi·tiq·ša"
+GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma : ti·¨ā~m·tu pi·tiq·ša"
 
 
 def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
@@ -44,6 +46,20 @@ def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
 
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _strip_yaml_frontmatter(text: str) -> str:
+    _, body = split_frontmatter(text)
+    return body
+
+
+def _assert_has_yaml_frontmatter(path: Path) -> None:
+    frontmatter, body = split_frontmatter(_read_text(path))
+    assert frontmatter is not None, f"Expected YAML front matter in: {path}"
+    assert body.strip(), f"Expected non-empty body in: {path}"
+    assert frontmatter["pipeline"] == "pipeline"
+    assert frontmatter["file"]["id"]
+    assert frontmatter["file"]["title"]
 
 
 def _assert_non_empty_text_file(path: Path) -> None:
@@ -92,6 +108,8 @@ def _sanitize_metrics_table_lines(lines: list[str]) -> list[str]:
 
 def _sanitize_metrics_json_text(text: str) -> str:
     data = json.loads(text)
+    if isinstance(data, dict):
+        data.pop("frontmatter", None)
 
     def _walk(obj):
         if isinstance(obj, dict):
@@ -125,7 +143,7 @@ def _assert_matches_reference(generated: Path, reference: Path) -> None:
     ref = _read_text(reference)
 
     if generated.name.endswith("_metrics.txt"):
-        assert _sanitize_metrics_table_lines(_norm_lines(gen)) == _sanitize_metrics_table_lines(_norm_lines(ref)), (
+        assert _sanitize_metrics_table_lines(_norm_lines(_strip_yaml_frontmatter(gen))) == _sanitize_metrics_table_lines(_norm_lines(ref)), (
             f"Mismatch vs reference for: {generated.name}"
         )
         return
@@ -142,7 +160,7 @@ def _assert_matches_reference(generated: Path, reference: Path) -> None:
         )
         return
 
-    assert _norm_lines(gen) == _norm_lines(ref), f"Mismatch vs reference for: {generated.name}"
+    assert _norm_lines(_strip_yaml_frontmatter(gen)) == _norm_lines(ref), f"Mismatch vs reference for: {generated.name}"
 
 
 def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
@@ -158,14 +176,19 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_non_empty_text_file(proc_file)
     _assert_non_empty_text_file(orig_file)
     _assert_non_empty_text_file(trans_file)
+    _assert_has_yaml_frontmatter(proc_file)
+    _assert_has_yaml_frontmatter(orig_file)
+    _assert_has_yaml_frontmatter(trans_file)
 
     _run_cli("akkapros.cli.syllabifier", str(proc_file), "-p", prefix, "--outdir", str(outdir))
     syl_file = outdir / f"{prefix}_syl.txt"
     _assert_non_empty_text_file(syl_file)
+    _assert_has_yaml_frontmatter(syl_file)
 
     _run_cli("akkapros.cli.prosmaker", str(syl_file), "-p", prefix, "--outdir", str(outdir), "--style", "lob")
     tilde_file = outdir / f"{prefix}_tilde.txt"
     _assert_non_empty_text_file(tilde_file)
+    _assert_has_yaml_frontmatter(tilde_file)
 
     _run_cli(
         "akkapros.cli.metricalc",
@@ -184,6 +207,8 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_non_empty_text_file(metrics_txt)
     _assert_non_empty_text_file(metrics_json)
     _assert_non_empty_text_file(metrics_csv)
+    _assert_has_yaml_frontmatter(metrics_txt)
+    assert "frontmatter" in json.loads(_read_text(metrics_json))
 
     _run_cli(
         "akkapros.cli.printer",
@@ -208,6 +233,7 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     ]
     for path in printer_outputs:
         _assert_non_empty_text_file(path)
+        _assert_has_yaml_frontmatter(path)
 
     reference_map = {
         proc_file: STAGE_REF_DIR / "expected_e2e_proc.txt",
@@ -265,6 +291,10 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     ]
     for path in expected_outputs:
         _assert_non_empty_text_file(path)
+    for path in expected_outputs:
+        if path.suffix in {".txt", ".md"}:
+            _assert_has_yaml_frontmatter(path)
+    assert "frontmatter" in json.loads(_read_text(outdir / "test.json"))
 
     metrics_text = _read_text(outdir / "test_metrics.txt")
     varcoc, acc_rate = _parse_metrics_table(metrics_text)

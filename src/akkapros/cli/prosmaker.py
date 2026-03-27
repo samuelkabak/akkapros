@@ -21,6 +21,7 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros import __version__
+from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
@@ -93,7 +94,14 @@ def main() -> None:
     print_startup_banner('akkapros-prosmaker', __version__, args)
 
     engine = ProsodyEngine(style=style, only_last=not args.relax_last)
-    engine.process_file(str(input_path), str(output_file))
+    engine.process_file(
+        str(input_path),
+        str(output_file),
+        options=effective_options_from_namespace(
+            args,
+            exclude={'input', 'outdir', 'prefix', 'test', 'test_diphthongs', 'version'},
+        ),
+    )
 
 
 if __name__ == "__main__":

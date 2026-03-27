@@ -46,7 +46,7 @@ def test_validate_tilde_plain_text_ok(tmp_path):
 
 def test_validate_tilde_with_diphthong_separator_ok(tmp_path):
     p = tmp_path / "diph_tilde.txt"
-    p.write_text("ti¨ā~m·tu\n", encoding="utf-8")
+    p.write_text("ti·¨ā~m·tu\n", encoding="utf-8")
     validate_intermediate_format(p, expected_kind="tilde")
 
 
@@ -69,6 +69,12 @@ def test_validate_atf_ok(tmp_path):
     validate_intermediate_format(p, expected_kind="atf")
 
 
+def test_validate_atf_terminal_hyphen_ok(tmp_path):
+    p = tmp_path / "ok_hyphen.atf"
+    p.write_text("&X000001 = L III.3 Marduk's Address to the Demons SB -\n1. %n šar gi-mir\n", encoding="utf-8")
+    validate_intermediate_format(p, expected_kind="atf")
+
+
 def test_validate_atf_missing_percent_n_fails(tmp_path):
     p = tmp_path / "bad.atf"
     p.write_text("#tr.en: only translation\n", encoding="utf-8")
@@ -81,3 +87,62 @@ def test_validate_proc_rejects_raw_atf_markers(tmp_path):
     p.write_text("1. %n šar\n", encoding="utf-8")
     with pytest.raises(FormatValidationError, match=r"expected cleaned \*_proc.txt"):
         validate_intermediate_format(p, expected_kind="proc")
+
+
+def test_validate_proc_with_frontmatter_ok(tmp_path):
+    p = tmp_path / "ok_proc.txt"
+    p.write_text(
+        "---\n"
+        "pipeline: \"pipeline\"\n"
+        "file:\n"
+        "  format: \"proc\"\n"
+        "  version: \"1.0.0\"\n"
+        "---\n\n"
+        "šar gi-mir\n",
+        encoding="utf-8",
+    )
+    validate_intermediate_format(p, expected_kind="proc")
+
+
+def test_validate_proc_frontmatter_mismatch_fails(tmp_path):
+    p = tmp_path / "bad_proc.txt"
+    p.write_text(
+        "---\n"
+        "pipeline: \"pipeline\"\n"
+        "file:\n"
+        "  format: \"syl\"\n"
+        "  version: \"1.0.0\"\n"
+        "---\n\n"
+        "šar gi-mir\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(FormatValidationError, match="front matter"):
+        validate_intermediate_format(p, expected_kind="proc")
+
+
+def test_validate_proc_allows_cross_line_attached_linker_for_syllabifier_stage(tmp_path):
+    p = tmp_path / "ok_proc.txt"
+    p.write_text("ukappit-\nma : tiāmtu pitiqša\n", encoding="utf-8")
+    validate_intermediate_format(p, expected_kind="proc")
+
+
+def test_validate_proc_with_appended_frontmatter_documents_ok(tmp_path):
+    p = tmp_path / "corpus_proc.txt"
+    p.write_text(
+        "---\n"
+        "pipeline: \"pipeline\"\n"
+        "file:\n"
+        "  format: \"proc\"\n"
+        "  version: \"1.0.0\"\n"
+        "---\n\n"
+        "ukappit-ma : tiāmtu pitiqša\n"
+        "---\n"
+        "pipeline: \"pipeline\"\n"
+        "file:\n"
+        "  format: \"proc\"\n"
+        "  version: \"1.0.0\"\n"
+        "---\n\n"
+        "tāḫāza iktaṣar : ana ilī niprīša\n",
+        encoding="utf-8",
+    )
+    validate_intermediate_format(p, expected_kind="proc")

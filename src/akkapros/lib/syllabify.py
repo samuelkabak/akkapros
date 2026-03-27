@@ -441,13 +441,16 @@ def text_preprocess_boundaries(
         return False
 
     def _line_has_attached_trailing_connector(raw_line: str, connector: str) -> bool:
-        """Return True when a line ends with an attached '-' or '+'."""
-        stripped = raw_line.rstrip()
-        if not stripped.endswith(connector):
+        """Return True when a line ends with an attached '-' or '+' exactly at EOL."""
+        if not raw_line.endswith(connector):
             return False
-        if len(stripped) < 2:
+        if len(raw_line) < 2:
             return False
-        return is_akkadian_letter(stripped[-2])
+        return is_akkadian_letter(raw_line[-2])
+
+    def _line_starts_with_immediate_akkadian_letter(raw_line: str) -> bool:
+        """Return True only when the next physical line starts with an Akkadian letter."""
+        return bool(raw_line) and is_akkadian_letter(raw_line[0])
 
     while i < len(lines):
         line = lines[i].rstrip('\n')
@@ -455,8 +458,8 @@ def text_preprocess_boundaries(
         line = line.rstrip()
         if _line_has_attached_trailing_connector(original_line, HYPHEN) and i + 1 < len(lines):
             next_line = lines[i + 1]
-            next_line_stripped = next_line.lstrip()
-            if next_line_stripped and is_word_char(next_line_stripped[0]):
+            if _line_starts_with_immediate_akkadian_letter(next_line):
+                next_line_stripped = next_line.lstrip()
                 base = original_line.rstrip().rstrip(HYPHEN)
                 merged = base + HYPHEN + next_line_stripped
                 processed_lines.append(merged)
@@ -466,8 +469,8 @@ def text_preprocess_boundaries(
                 continue
         if _line_has_attached_trailing_connector(original_line, WORD_LINKER) and i + 1 < len(lines):
             next_line = lines[i + 1]
-            next_line_stripped = next_line.lstrip()
-            if next_line_stripped and is_word_char(next_line_stripped[0]):
+            if _line_starts_with_immediate_akkadian_letter(next_line):
+                next_line_stripped = next_line.lstrip()
                 base = original_line.rstrip().rstrip(WORD_LINKER)
                 merged = base + WORD_LINKER + next_line_stripped
                 processed_lines.append(merged)
@@ -802,6 +805,8 @@ def run_tests() -> bool:
         ("Preprocess preserve lines", "šar\ngimir", "šar\ngimir", True),
         ("Preprocess hyphen before markdown", "šar-\nma\n# Title", "šar-ma\n# Title", False),
         ("Preprocess plus before markdown", "šar+\nma\n# Title", "šar+ma\n# Title", False),
+        ("Preprocess hyphen requires immediate next letter", "šar-\n ma", "šar- ma", False),
+        ("Preprocess plus requires immediate next letter", "šar+\n ma", "šar+ ma", False),
     ]
 
     tests = [

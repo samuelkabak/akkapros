@@ -2,6 +2,11 @@
 
 This short guide helps you run the basic pipeline on a sample file and inspect outputs.
 
+Text outputs produced by the CLI pipeline now begin with YAML front matter,
+followed by one blank line and then the content body. Metrics JSON carries the
+same metadata under a top-level `frontmatter` object. Metrics CSV remains plain
+CSV with no embedded front matter.
+
 ---
 
 ## Prerequisites
@@ -14,11 +19,13 @@ This short guide helps you run the basic pipeline on a sample file and inspect o
 
 ### Windows (PowerShell)
 
-    python -m akkapros.cli.fullprosmaker data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
+  python -m akkapros.cli.atfparser data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
+  python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt -p demo --outdir outputs
 
 ### Unix/Linux/macOS
 
-    python -m akkapros.cli.fullprosmaker data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
+  python -m akkapros.cli.atfparser data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
+  python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt -p demo --outdir outputs
 
 ---
 
@@ -35,6 +42,26 @@ After running the command, check these files in the `outputs/` directory:
 | `demo_accent_bold.md` | Bold-marked text for visual inspection |
 | `demo_accent_acute.txt` | Acute-accented text for scholarly notation |
 | `demo_accent_ipa.txt` | IPA transcription with prosodic markers |
+
+Each text file starts with metadata like this:
+
+```yaml
+---
+package:
+  name: akkapros
+pipeline: pipeline
+step: syllabify
+file:
+  format: syl
+metadata:
+  input_file_id: "..."
+---
+
+u·kap¦ pi·tiq·ša¦
+```
+
+If you need only the linguistic body, skip everything through the second `---`
+and the following blank line.
 
 ---
 
@@ -62,6 +89,7 @@ After running the command, check these files in the `outputs/` directory:
 - Use `--help` with any CLI tool to see all available options
 - The demo scripts in `demo/akkapros/prosmaker/` show batch processing examples
 - All outputs are fully reproducible given the same input and parameters
+- During migration, stage readers accept legacy content-only `*_proc.txt`, `*_syl.txt`, and `*_tilde.txt` files as well as the new front-matter-bearing files
 - Escape syntax for non-Akkadian chunks is `{{text}}` or `{tag{text}}` (tag regex: `[0-9a-z_]{1,16}`)
 - Internal tags begin with `_`; nested escapes are intentionally unsupported
 

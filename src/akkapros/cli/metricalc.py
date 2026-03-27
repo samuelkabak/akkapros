@@ -15,6 +15,14 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
+from akkapros.lib.frontmatter import (
+    build_metrics_stage_data,
+    build_output_frontmatter,
+    compose_text_document,
+    effective_options_from_namespace,
+    read_text_file,
+    validate_stage_data_consistency,
+)
 from akkapros.lib.metrics import (
     PunctuationConfigError,
     configure_pause_punctuation_rules,
@@ -122,6 +130,10 @@ Version {__version__}
             sys.exit(2)
 
     update_character_sets(args.extra_consonants, args.extra_vowels)
+    option_values = effective_options_from_namespace(
+        args,
+        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version'},
+    )
 
     results = []
     for input_file in input_files:
@@ -167,6 +179,23 @@ Version {__version__}
         else:
             _prune_res(pruned)
 
+        if len(input_files) == 1 and isinstance(pruned, dict):
+            input_frontmatter, tilde_body = read_text_file(input_files[0])
+            validate_stage_data_consistency(
+                'metrics',
+                build_metrics_stage_data(tilde_body, results[0], input_frontmatter=input_frontmatter),
+                input_frontmatter=input_frontmatter,
+            )
+            pruned['frontmatter'] = build_output_frontmatter(
+                output_path=json_file,
+                step='metrics',
+                title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_files[0]).stem),
+                body=json.dumps(pruned, ensure_ascii=False, sort_keys=True),
+                options=option_values,
+                input_frontmatter=input_frontmatter,
+                file_format='metrics',
+            )
+
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
             f.write('\n')
@@ -190,13 +219,29 @@ Version {__version__}
                 'input': input_files[0],
             }
             table = format_table(results[0], run_context=table_context)
+            input_frontmatter, tilde_body = read_text_file(input_files[0])
+            validate_stage_data_consistency(
+                'metrics',
+                build_metrics_stage_data(tilde_body, results[0], input_frontmatter=input_frontmatter),
+                input_frontmatter=input_frontmatter,
+            )
             if args.prefix:
                 table_file = base.with_name(base.name + '_metrics.txt')
             else:
                 table_file = base.with_name(base.stem + '_metrics.txt')
 
+            frontmatter = build_output_frontmatter(
+                output_path=table_file,
+                step='metrics',
+                title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_files[0]).stem),
+                body=table,
+                options=option_values,
+                input_frontmatter=input_frontmatter,
+                file_format='metrics',
+            )
+
             with open(table_file, 'w', encoding='utf-8') as f:
-                f.write(table)
+                f.write(compose_text_document(frontmatter, table))
             print(f"Table saved to: {table_file}")
         else:
             for result in results:
@@ -213,8 +258,23 @@ Version {__version__}
                 table = format_table(result, run_context=table_context)
                 safe_stem = simple_safe_filename(Path(result['file']).stem)
                 table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
+                input_frontmatter, tilde_body = read_text_file(result['file'])
+                validate_stage_data_consistency(
+                    'metrics',
+                    build_metrics_stage_data(tilde_body, result, input_frontmatter=input_frontmatter),
+                    input_frontmatter=input_frontmatter,
+                )
+                frontmatter = build_output_frontmatter(
+                    output_path=table_file,
+                    step='metrics',
+                    title=(input_frontmatter or {}).get('file', {}).get('title', Path(result['file']).stem),
+                    body=table,
+                    options=option_values,
+                    input_frontmatter=input_frontmatter,
+                    file_format='metrics',
+                )
                 with open(table_file, 'w', encoding='utf-8') as f:
-                    f.write(table)
+                    f.write(compose_text_document(frontmatter, table))
                 print(f"Table saved to: {table_file}")
 
 
