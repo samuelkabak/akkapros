@@ -104,7 +104,11 @@
       "percent_v_speech": 59.25925925925925,
       "delta_c": 0.769800358919501,
       "mean_interval": 1.0,
-      "varco_c": 76.98003589195011
+      "varco_c": 76.98003589195011,
+      "delta_c_seconds": 0.03639056242164914,
+      "delta_c_mora": 0.769800358919501,
+      "mean_c_seconds": 0.04727272727272727,
+      "mean_c_mora": 1.0
     }
   },
   "accentuated": {
@@ -208,7 +212,11 @@
       "percent_v_speech": 58.87939221272554,
       "delta_c": 0.9704632614370015,
       "mean_interval": 1.1428571428571428,
-      "varco_c": 84.91553537573763
+      "varco_c": 84.91553537573763,
+      "delta_c_seconds": 0.041171168667024305,
+      "delta_c_mora": 0.9704632614370015,
+      "mean_c_seconds": 0.048484848484848485,
+      "mean_c_mora": 1.1428571428571428
     },
     "speech": {
       "wpm": 165,

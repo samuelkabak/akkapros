@@ -166,9 +166,16 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
     - `Speech rate (original)`
     - `Speech rate (accentuated)`
 - In table output, each speech-rate block appears before its corresponding acoustic block.
-- **ΔC** and **MeanC** are shown in both:
-    - mora units
-    - seconds (`value_in_mora * mora_duration`)
+- **ΔC** and **MeanC** are split into seconds-first dual lines in table output:
+    - `ΔC`, `MeanC` use seconds
+    - `ΔC_mora`, `MeanC_mora` use mora values
+- JSON exposes the same separation with snake_case keys:
+    - `delta_c_seconds`, `delta_c_mora`
+    - `mean_c_seconds`, `mean_c_mora`
+- CSV mirrors the contract with dedicated rows:
+    - `ΔC`, `ΔC_mora`
+    - `MeanC`, `MeanC_mora`
+- **VarcoC** is displayed without a trailing `%` sign.
 
 ### Pause Output Details
 

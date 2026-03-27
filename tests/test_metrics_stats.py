@@ -65,6 +65,12 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert "Std dev morae per syllable:" not in table
     assert "Total morae number:" not in table
     assert "Mean morae per word:" in table
+    assert f"ΔC: {result['original']['acoustic']['delta_c_seconds']:.4f} s" in table
+    assert f"ΔC_mora: {result['original']['acoustic']['delta_c_mora']:.4f} mora" in table
+    assert f"MeanC: {result['original']['acoustic']['mean_c_seconds']:.4f} s" in table
+    assert f"MeanC_mora: {result['original']['acoustic']['mean_c_mora']:.4f} mora" in table
+    assert f"VarcoC: {result['original']['acoustic']['varco_c']:.2f}" in table
+    assert f"VarcoC: {result['original']['acoustic']['varco_c']:.2f} %" not in table
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
 
@@ -77,11 +83,21 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert "original_mora_statistics_total_morae," in csv_text
     assert "accentuated_word_statistics_total_words," in csv_text
     assert "accentuated_mora_statistics_total_morae," in csv_text
+    assert f"ΔC,{result['original']['acoustic']['delta_c_seconds']:.4f}" in csv_text
+    assert f"ΔC_mora,{result['original']['acoustic']['delta_c_mora']:.4f}" in csv_text
+    assert f"MeanC,{result['original']['acoustic']['mean_c_seconds']:.4f}" in csv_text
+    assert f"MeanC_mora,{result['original']['acoustic']['mean_c_mora']:.4f}" in csv_text
+    assert f"accentuated_ΔC,{result['accentuated']['acoustic']['delta_c_seconds']:.4f}" in csv_text
+    assert f"accentuated_ΔC_mora,{result['accentuated']['acoustic']['delta_c_mora']:.4f}" in csv_text
 
     json_text = json.dumps(result, ensure_ascii=False)
     assert '"syllable_statistics"' in json_text
     assert '"word_statistics"' in json_text
     assert '"mora_statistics"' in json_text
+    assert '"delta_c_seconds"' in json_text
+    assert '"delta_c_mora"' in json_text
+    assert '"mean_c_seconds"' in json_text
+    assert '"mean_c_mora"' in json_text
 
     original_stats = result["original"]["stats"]
     assert original_stats["word_statistics"]["total_words"] == original_stats["word_stats"]["total_words"]
@@ -142,3 +158,21 @@ def test_compute_percent_v_from_stats_fallback_is_safe() -> None:
     expected = expected_vowel_morae / expected_total_morae * 100
 
     assert math.isclose(metrics.compute_percent_v_from_stats(stats), expected)
+
+
+def test_enrich_acoustic_metrics_adds_seconds_and_mora_views() -> None:
+    acoustic = {
+        "delta_c": 0.75,
+        "mean_interval": 1.25,
+        "varco_c": 60.0,
+    }
+    speech = {
+        "mora_duration": 0.05,
+    }
+
+    enriched = metrics.enrich_acoustic_metrics(acoustic, speech)
+
+    assert math.isclose(enriched["delta_c_seconds"], 0.0375)
+    assert math.isclose(enriched["delta_c_mora"], 0.75)
+    assert math.isclose(enriched["mean_c_seconds"], 0.0625)
+    assert math.isclose(enriched["mean_c_mora"], 1.25)

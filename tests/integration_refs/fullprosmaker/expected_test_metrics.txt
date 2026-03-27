@@ -48,9 +48,11 @@ Speech rate (original):
 Acoustic metrics (original):
   %V (articulate): 80.00%
   %V (normal speech, incl. pauses): 59.26%
-  ΔC: 0.7698 mora (0.0364 s) (consonant-interval SD)
-  MeanC: 1.0000 mora (0.0473 s) (mean consonant interval)
-  VarcoC: 76.98 %
+  ΔC: 0.0364 s
+  ΔC_mora: 0.7698 mora
+  MeanC: 0.0473 s
+  MeanC_mora: 1.0000 mora
+  VarcoC: 76.98
 
 --- ACCENTUATED TEXT ---
 
@@ -91,9 +93,11 @@ Speech rate (accentuated):
 Acoustic metrics (accentuated):
   %V (articulate): 79.49%
   %V (normal speech, incl. pauses): 58.88%
-  ΔC: 0.9705 mora (0.0412 s) (consonant-interval SD)
-  MeanC: 1.1429 mora (0.0485 s) (mean consonant interval)
-  VarcoC: 84.92 %
+  ΔC: 0.0412 s
+  ΔC_mora: 0.9705 mora
+  MeanC: 0.0485 s
+  MeanC_mora: 1.1429 mora
+  VarcoC: 84.92
 
 Pause metrics:
   Short pause punctuation per syllable: 0.087 pause/syllable

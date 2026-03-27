@@ -1,11 +1,11 @@
 # Change Request: Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs
 
 CR-ID: CR-019
-Status: Draft
+Status: Done
 Priority: Medium
 Impact: Mutative
 Created: 2026-03-26
-Updated: 2026-03-26
+Updated: 2026-03-27
 Implements: REQ-012
 ---
 
@@ -119,17 +119,17 @@ values for each section, with stable labels suitable for downstream parsing.
 
 # Acceptance Criteria
 
-- [ ] In `ORIGINAL TEXT`, `ΔC` and `MeanC` are each rendered as two lines with
+- [x] In `ORIGINAL TEXT`, `ΔC` and `MeanC` are each rendered as two lines with
       seconds first and mora second.
-- [ ] In `ACCENTUATED TEXT`, `ΔC` and `MeanC` are each rendered as two lines
+- [x] In `ACCENTUATED TEXT`, `ΔC` and `MeanC` are each rendered as two lines
       with seconds first and mora second.
-- [ ] `VarcoC` is rendered without `%` in both sections.
-- [ ] JSON output contains separate second-based and mora-based values for
+- [x] `VarcoC` is rendered without `%` in both sections.
+- [x] JSON output contains separate second-based and mora-based values for
       `ΔC` and `MeanC` in both sections.
-- [ ] CSV output contains separate second-based and mora-based entries for
+- [x] CSV output contains separate second-based and mora-based entries for
       `ΔC` and `MeanC` in both sections.
-- [ ] Documentation is updated for text, JSON, and CSV output contracts.
-- [ ] Tests pass for updated output contracts (self-tests, pytest, and any
+- [x] Documentation is updated for text, JSON, and CSV output contracts.
+- [x] Tests pass for updated output contracts (self-tests, pytest, and any
       affected integration references).
 
 ---
@@ -170,26 +170,26 @@ then restore prior test fixtures and documentation text.
 
 ## Implementation
 
-- [ ] Update text formatter lines for `ΔC` and `MeanC`.
-- [ ] Remove `%` suffix from `VarcoC` display.
-- [ ] Update JSON schema fields for second/mora separation.
-- [ ] Update CSV schema rows/labels for second/mora separation.
+- [x] Update text formatter lines for `ΔC` and `MeanC`.
+- [x] Remove `%` suffix from `VarcoC` display.
+- [x] Update JSON schema fields for second/mora separation.
+- [x] Update CSV schema rows/labels for second/mora separation.
 
 ## Tests
 
-- [ ] Update self-tests for metrics formatting.
-- [ ] Update pytest coverage for JSON/CSV contracts.
-- [ ] Refresh integration references where expected outputs changed.
+- [x] Update self-tests for metrics formatting.
+- [x] Update pytest coverage for JSON/CSV contracts.
+- [x] Refresh integration references where expected outputs changed.
 
 ## Documentation
 
-- [ ] Update `docs/akkapros/metrics-computation.md`.
-- [ ] Update `docs/akkapros/metricalc.md`.
+- [x] Update `docs/akkapros/metrics-computation.md`.
+- [x] Update `docs/akkapros/metricalc.md`.
 
 ## Review
 
-- [ ] Verify both sections (`ORIGINAL`, `ACCENTUATED`) follow the same format.
-- [ ] Verify no metric computations changed, only representation/schema.
+- [x] Verify both sections (`ORIGINAL`, `ACCENTUATED`) follow the same format.
+- [x] Verify no metric computations changed, only representation/schema.
 
 ---
 

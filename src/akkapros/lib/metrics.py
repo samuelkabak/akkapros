@@ -964,7 +964,7 @@ def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) 
     # Syllables per second (speech rate - INCLUDING pauses)
     # This comes directly from WPM and SPW
     sps_speech = (wpm / 60) * spw
-    
+
     # Syllables per second (articulation rate - EXCLUDING pauses)
     # If pause_ratio% of time is pauses, then articulation time = (100 - pause_ratio)% of total time
     # So articulation rate = speech rate / (1 - pause_ratio/100)
@@ -984,6 +984,19 @@ def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) 
         'mora_duration': mora_duration,
         'word_duration': word_duration
     }
+
+
+def enrich_acoustic_metrics(acoustic: Dict, speech: Dict) -> Dict:
+    """Add explicit seconds and mora views for acoustic interval metrics."""
+    delta_c_mora = acoustic['delta_c']
+    mean_c_mora = acoustic['mean_interval']
+    mora_duration = speech['mora_duration']
+
+    acoustic['delta_c_seconds'] = delta_c_mora * mora_duration
+    acoustic['delta_c_mora'] = delta_c_mora
+    acoustic['mean_c_seconds'] = mean_c_mora * mora_duration
+    acoustic['mean_c_mora'] = mean_c_mora
+    return acoustic
 
 
 # ------------------------------------------------------------
@@ -1348,6 +1361,9 @@ def process_filetext(
     # Compute speech rate for original and accentuated text
     speech_original = compute_speech_rate(preprocessed_original, original_stats, wpm, pause_ratio)
     speech_accentuated = compute_speech_rate(preprocessed_accentuated, accentuated_stats, wpm, pause_ratio)
+
+    enrich_acoustic_metrics(acoustic_original, speech_original)
+    enrich_acoustic_metrics(acoustic_accentuated, speech_accentuated)
     
     # Compute pause metrics
     pause_metrics = compute_pause_metrics(text, accentuated_stats)
@@ -1425,14 +1441,14 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Word duration: {orig['speech']['word_duration']:.3f} s/word")
 
     # Acoustic metrics (original)
-    orig_delta_c_seconds = orig['acoustic']['delta_c'] * orig['speech']['mora_duration']
-    orig_mean_c_seconds = orig['acoustic']['mean_interval'] * orig['speech']['mora_duration']
     lines.append(f"\nAcoustic metrics (original):")
     lines.append(f"  %V (articulate): {orig['acoustic']['percent_v_articulate']:.2f}%")
     lines.append(f"  %V (normal speech, incl. pauses): {orig['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {orig['acoustic']['delta_c']:.4f} mora ({orig_delta_c_seconds:.4f} s) (consonant-interval SD)")
-    lines.append(f"  MeanC: {orig['acoustic']['mean_interval']:.4f} mora ({orig_mean_c_seconds:.4f} s) (mean consonant interval)")
-    lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f} %")
+    lines.append(f"  ΔC: {orig['acoustic']['delta_c_seconds']:.4f} s")
+    lines.append(f"  ΔC_mora: {orig['acoustic']['delta_c_mora']:.4f} mora")
+    lines.append(f"  MeanC: {orig['acoustic']['mean_c_seconds']:.4f} s")
+    lines.append(f"  MeanC_mora: {orig['acoustic']['mean_c_mora']:.4f} mora")
+    lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f}")
     
     # --- ACCENTUATED TEXT ---
     lines.append("\n--- ACCENTUATED TEXT ---")
@@ -1477,14 +1493,14 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f} s/word")
 
     # Acoustic metrics (accentuated)
-    rep_delta_c_seconds = rep['acoustic']['delta_c'] * rep['speech']['mora_duration']
-    rep_mean_c_seconds = rep['acoustic']['mean_interval'] * rep['speech']['mora_duration']
     lines.append(f"\nAcoustic metrics (accentuated):")
     lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
     lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {rep['acoustic']['delta_c']:.4f} mora ({rep_delta_c_seconds:.4f} s) (consonant-interval SD)")
-    lines.append(f"  MeanC: {rep['acoustic']['mean_interval']:.4f} mora ({rep_mean_c_seconds:.4f} s) (mean consonant interval)")
-    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f} %")
+    lines.append(f"  ΔC: {rep['acoustic']['delta_c_seconds']:.4f} s")
+    lines.append(f"  ΔC_mora: {rep['acoustic']['delta_c_mora']:.4f} mora")
+    lines.append(f"  MeanC: {rep['acoustic']['mean_c_seconds']:.4f} s")
+    lines.append(f"  MeanC_mora: {rep['acoustic']['mean_c_mora']:.4f} mora")
+    lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f}")
     
     # Pause metrics
     pm = rep['pause_metrics']
@@ -1612,10 +1628,10 @@ def format_csv(results: List[Dict], output_file: Path):
         ac = [r['original']['acoustic'] for r in results]
         add_row("%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac])
         add_row("%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac])
-        add_row("ΔC", [f"{a['delta_c']:.4f}" for a in ac])
-        add_row("MeanC", [f"{a['mean_interval']:.4f}" for a in ac])
-        add_row("ΔC_seconds", [f"{(r['original']['acoustic']['delta_c'] * r['original']['speech']['mora_duration']):.4f}" for r in results])
-        add_row("MeanC_seconds", [f"{(r['original']['acoustic']['mean_interval'] * r['original']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("ΔC", [f"{a['delta_c_seconds']:.4f}" for a in ac])
+        add_row("ΔC_mora", [f"{a['delta_c_mora']:.4f}" for a in ac])
+        add_row("MeanC", [f"{a['mean_c_seconds']:.4f}" for a in ac])
+        add_row("MeanC_mora", [f"{a['mean_c_mora']:.4f}" for a in ac])
         add_row("VarcoC", [f"{a['varco_c']:.2f}" for a in ac])
 
         # Speech rate (original)
@@ -1674,10 +1690,10 @@ def format_csv(results: List[Dict], output_file: Path):
         ac_rep = [r['accentuated']['acoustic'] for r in results]
         add_row("accentuated_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
         add_row("accentuated_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
-        add_row("accentuated_ΔC", [f"{a['delta_c']:.4f}" for a in ac_rep])
-        add_row("accentuated_MeanC", [f"{a['mean_interval']:.4f}" for a in ac_rep])
-        add_row("accentuated_ΔC_seconds", [f"{(r['accentuated']['acoustic']['delta_c'] * r['accentuated']['speech']['mora_duration']):.4f}" for r in results])
-        add_row("accentuated_MeanC_seconds", [f"{(r['accentuated']['acoustic']['mean_interval'] * r['accentuated']['speech']['mora_duration']):.4f}" for r in results])
+        add_row("accentuated_ΔC", [f"{a['delta_c_seconds']:.4f}" for a in ac_rep])
+        add_row("accentuated_ΔC_mora", [f"{a['delta_c_mora']:.4f}" for a in ac_rep])
+        add_row("accentuated_MeanC", [f"{a['mean_c_seconds']:.4f}" for a in ac_rep])
+        add_row("accentuated_MeanC_mora", [f"{a['mean_c_mora']:.4f}" for a in ac_rep])
         add_row("accentuated_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
         
         # Speech rate (accentuated)
@@ -2062,7 +2078,11 @@ def _test_table_and_csv_new_fields() -> bool:
         return False
     if "Speech rate (accentuated):" not in table:
         return False
-    if "mora (" not in table or " s) (consonant-interval SD)" not in table:
+    if "ΔC_mora:" not in table or "MeanC_mora:" not in table:
+        return False
+    if "VarcoC: " not in table or "%" in "\n".join(
+        line for line in table.splitlines() if "VarcoC:" in line
+    ):
         return False
 
     # Ordering checks: word statistics must precede mora statistics.
@@ -2089,10 +2109,14 @@ def _test_table_and_csv_new_fields() -> bool:
         "accentuated_mora_statistics_total_morae,",
         "orig_sps_speech,",
         "accentuated_sps_speech,",
-        "ΔC_seconds,",
-        "MeanC_seconds,",
-        "accentuated_ΔC_seconds,",
-        "accentuated_MeanC_seconds,",
+        "ΔC,",
+        "ΔC_mora,",
+        "MeanC,",
+        "MeanC_mora,",
+        "accentuated_ΔC,",
+        "accentuated_ΔC_mora,",
+        "accentuated_MeanC,",
+        "accentuated_MeanC_mora,",
     ]
     return all(row in csv_text for row in required_rows)
 

@@ -292,13 +292,16 @@ same inline `mean ± stddev` display used for `Mean morae per syllable`.
 **Unit:**
 - `mora`
 
-**Additional table representation:**
-- `DeltaC_seconds = DeltaC * mora_duration`
+**Output representations:**
+- table label `ΔC` = seconds view
+- table label `ΔC_mora` = mora view
+- JSON keys `delta_c_seconds`, `delta_c_mora`
+- CSV rows `ΔC`, `ΔC_mora`
 
 Where `mora_duration` is `mora_dur` from section 3.21.
 
 **Additional unit:**
-- `s`
+- `s` for the seconds view
 
 ---
 
@@ -313,13 +316,16 @@ Where `mora_duration` is `mora_dur` from section 3.21.
 **Unit:**
 - `mora`
 
-**Additional table representation:**
-- `MeanC_seconds = MeanC * mora_duration`
+**Output representations:**
+- table label `MeanC` = seconds view
+- table label `MeanC_mora` = mora view
+- JSON keys `mean_c_seconds`, `mean_c_mora`
+- CSV rows `MeanC`, `MeanC_mora`
 
 Where `mora_duration` is `mora_dur` from section 3.21.
 
 **Additional unit:**
-- `s`
+- `s` for the seconds view
 
 ---
 
@@ -332,7 +338,7 @@ Where `mora_duration` is `mora_dur` from section 3.21.
 - `VarcoC = 100 * DeltaC / MeanC`.
 
 **Unit:**
-- `%`
+- unitless numeric ratio
 
 ---
 

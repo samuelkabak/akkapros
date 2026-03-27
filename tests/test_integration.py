@@ -75,11 +75,11 @@ def _parse_metrics_table(metrics_text: str) -> tuple[float, float]:
     if m_section:
         accent_section = metrics_text[m_section.end():m_section.end() + 400]
 
-    var_matches = re.findall(r"VarcoC:\s*([0-9]+\.[0-9]+) %", metrics_text)
+    var_matches = re.findall(r"VarcoC:\s*([0-9]+\.[0-9]+)", metrics_text)
     assert var_matches, "VarcoC not found in metrics table"
 
     if accent_section:
-        m_var = re.search(r"VarcoC:\s*([0-9]+\.[0-9]+) %", accent_section)
+        m_var = re.search(r"VarcoC:\s*([0-9]+\.[0-9]+)", accent_section)
         varcoc = float(m_var.group(1)) if m_var else float(var_matches[-1])
     else:
         varcoc = float(var_matches[-1])
