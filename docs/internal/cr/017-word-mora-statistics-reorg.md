@@ -1,11 +1,11 @@
 # Change Request: Reorder Word/Mora statistics and inline mean ± stddev notation
 
 CR-ID: CR-017
-Status: Draft
+Status: Done
 Priority: Medium
 Impact: Mutative
 Created: 2026-03-26
-Updated: 2026-03-26
+Updated: 2026-03-27
 Implements: REQ-012
 ---
 
@@ -150,25 +150,25 @@ only formatter reversal.
 
 ## Implementation
 
-- [ ] Update textual formatter.
-- [ ] Update JSON emitter.
-- [ ] Update CSV emitter.
+- [x] Update textual formatter.
+- [x] Update JSON emitter.
+- [x] Update CSV emitter.
 
 ## Tests
 
-- [ ] Add `run_tests()` checks.
-- [ ] Add pytest tests.
-- [ ] Update integration references.
+- [x] Add `run_tests()` checks.
+- [x] Add pytest tests.
+- [x] Update integration references.
 
 ## Documentation
 
-- [ ] Update docs `docs/akkapros/metrics-computation.md`.
+- [x] Update docs `docs/akkapros/metrics-computation.md`.
 
 ## Review
 
-- [ ] Verify ordering and labels in both ORIGINAL and ACCENTUATED sections,
+- [x] Verify ordering and labels in both ORIGINAL and ACCENTUATED sections,
       including `Total morae` naming and inline ± format.
-- [ ] Verify migration notes for JSON/CSV consumers.
+- [x] Verify migration notes for JSON/CSV consumers.
 
 ---
 

@@ -1,12 +1,12 @@
 ================================================================================
-METRICS SUMMARY: tmp\cr016_refsync\test_tilde.txt
+METRICS SUMMARY: tmp\cr017_full\test_tilde.txt
 ================================================================================
 
 --- RUN CONFIGURATION ---
   cli: fullprosmaker.py
   extra_consonants: 
   extra_vowels: 
-  input: tmp\cr016_refsync\test_tilde.txt
+  input: tmp\cr017_full\test_tilde.txt
   long_pause_punct_weight_unitless: 2.0
   pause_ratio_percent: 35
   prosody_relax_last: False
@@ -27,15 +27,14 @@ Syllable statistics:
     VVC   :    1 syllables ( 4.35%)
   Total syllables: 23 syllables
 
-Mora statistics:
-  Mean morae per syllable: 1.522 mora/syllable
-  Std dev morae per syllable: 0.593 mora/syllable
-  Total morae number: 35 mora
-
 Word statistics:
   Total words: 7 words
   Syllables per word: 3.286 ± 0.488 syllable/word
-  Morae per word: 5.000 ± 0.577 mora/word
+
+Mora statistics:
+  Mean morae per syllable: 1.522 ± 0.593 mora/syllable
+  Mean morae per word: 5.000 ± 0.577 mora/word
+  Total morae: 35 mora
 
 Speech rate (original):
   WPM: 165 words/min
@@ -66,15 +65,14 @@ Syllable statistics:
     VV:C  :    1 syllables ( 4.35%)
   Total syllables: 23 syllables
 
-Mora statistics:
-  Mean morae per syllable: 1.696 mora/syllable
-  Std dev morae per syllable: 0.876 mora/syllable
-  Total morae number: 39 mora
-
 Word statistics:
   Total words: 7 words
   Syllables per word: 3.286 ± 0.488 syllable/word
-  Morae per word: 5.571 ± 0.787 mora/word
+
+Mora statistics:
+  Mean morae per syllable: 1.696 ± 0.876 mora/syllable
+  Mean morae per word: 5.571 ± 0.787 mora/word
+  Total morae: 39 mora
 
 Merge statistics:
   Merged words: 2 words

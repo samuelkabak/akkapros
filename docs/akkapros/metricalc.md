@@ -152,8 +152,16 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
     - CSV rows: `original_syllable_statistics_types_count_*`,
       `original_syllable_statistics_types_pct_*`, `original_syllable_statistics_count`,
       plus matching `accentuated_*` rows
+- **Word statistics** now appear before **Mora statistics** in both sections.
 - **Mora statistics (original and accentuated)** now include:
-    - `Total morae number`
+        - `Mean morae per syllable: mean ± stddev mora/syllable`
+        - `Mean morae per word: mean ± stddev mora/word`
+        - `Total morae`
+- The same word/mora grouping is mirrored in machine outputs:
+        - JSON: `original.stats.word_statistics`, `original.stats.mora_statistics`,
+            plus matching `accentuated.*` objects
+        - CSV rows: `original_word_statistics_*`, `original_mora_statistics_*`,
+            plus matching `accentuated_*` rows
 - **Speech rate** is reported for both sections:
     - `Speech rate (original)`
     - `Speech rate (accentuated)`

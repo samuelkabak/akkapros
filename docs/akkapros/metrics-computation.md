@@ -184,6 +184,10 @@ These mora assignments are the basis for syllable weight, interval distances, an
 **Unit:**
 - `mora/word`
 
+In metrics outputs this value is reported inside `Mora statistics` as
+`Mean morae per word`, alongside the corresponding standard deviation in the
+same inline `mean ± stddev` display used for `Mean morae per syllable`.
+
 ---
 
 ### 3.9 SD Morae Per Word

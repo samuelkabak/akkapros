@@ -59,6 +59,12 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
 
     table = metrics.format_table(result)
     assert table.count("Syllable statistics:") == 2
+    assert table.count("Word statistics:") == 2
+    assert table.count("Mora statistics:") == 2
+    assert table.find("Word statistics:") < table.find("Mora statistics:")
+    assert "Std dev morae per syllable:" not in table
+    assert "Total morae number:" not in table
+    assert "Mean morae per word:" in table
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
 
@@ -67,10 +73,20 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     csv_text = csv_path.read_text(encoding="utf-8")
     assert "original_syllable_statistics_count," in csv_text
     assert "accentuated_syllable_statistics_count," in csv_text
+    assert "original_word_statistics_total_words," in csv_text
+    assert "original_mora_statistics_total_morae," in csv_text
+    assert "accentuated_word_statistics_total_words," in csv_text
+    assert "accentuated_mora_statistics_total_morae," in csv_text
 
     json_text = json.dumps(result, ensure_ascii=False)
     assert '"syllable_statistics"' in json_text
-    assert '"total_syllables"' in json_text
+    assert '"word_statistics"' in json_text
+    assert '"mora_statistics"' in json_text
+
+    original_stats = result["original"]["stats"]
+    assert original_stats["word_statistics"]["total_words"] == original_stats["word_stats"]["total_words"]
+    assert original_stats["mora_statistics"]["total_morae"] == original_stats["mora_stats"]["total"]
+    assert original_stats["mora_statistics"]["mean_morae_per_word"]["mean"] == original_stats["word_stats"]["morae_per_word"]["mean"]
 
     original_other = result["original"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
     accentuated_other = result["accentuated"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)

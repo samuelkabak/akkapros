@@ -636,23 +636,49 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     
     # Mora statistics
     total_morae = sum(morae_list)
+    mora_mean = statistics.mean(morae_list) if morae_list else 0
+    mora_std = statistics.stdev(morae_list) if len(morae_list) > 1 else 0
+
+    # Word statistics
+    total_words = len(words)
+    syllables_per_word_mean = statistics.mean(syllables_per_word) if syllables_per_word else 0
+    syllables_per_word_std = statistics.stdev(syllables_per_word) if len(syllables_per_word) > 1 else 0
+    morae_per_word_mean = statistics.mean(morae_per_word) if morae_per_word else 0
+    morae_per_word_std = statistics.stdev(morae_per_word) if len(morae_per_word) > 1 else 0
+
     mora_stats = {
-        'mean': statistics.mean(morae_list) if morae_list else 0,
-        'std': statistics.stdev(morae_list) if len(morae_list) > 1 else 0,
+        'mean': mora_mean,
+        'std': mora_std,
         'total': total_morae,
     }
-    
-    # Word statistics
     word_stats = {
-        'total_words': len(words),
+        'total_words': total_words,
         'syllables_per_word': {
-            'mean': statistics.mean(syllables_per_word) if syllables_per_word else 0,
-            'std': statistics.stdev(syllables_per_word) if len(syllables_per_word) > 1 else 0
+            'mean': syllables_per_word_mean,
+            'std': syllables_per_word_std,
         },
         'morae_per_word': {
-            'mean': statistics.mean(morae_per_word) if morae_per_word else 0,
-            'std': statistics.stdev(morae_per_word) if len(morae_per_word) > 1 else 0
+            'mean': morae_per_word_mean,
+            'std': morae_per_word_std,
         }
+    }
+    word_statistics = {
+        'total_words': total_words,
+        'syllables_per_word': {
+            'mean': syllables_per_word_mean,
+            'stddev': syllables_per_word_std,
+        },
+    }
+    mora_statistics = {
+        'mean_morae_per_syllable': {
+            'mean': mora_mean,
+            'stddev': mora_std,
+        },
+        'mean_morae_per_word': {
+            'mean': morae_per_word_mean,
+            'stddev': morae_per_word_std,
+        },
+        'total_morae': total_morae,
     }
     
     # Merge statistics
@@ -665,7 +691,9 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
         'total_syllables': total_syllables,
         'vowel_morae_total': sum(vowel_morae_list),
         'mora_stats': mora_stats,
+        'mora_statistics': mora_statistics,
         'word_stats': word_stats,
+        'word_statistics': word_statistics,
         'merge_stats': merge_stats
     }
 
@@ -1375,17 +1403,16 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
 
     lines.append(f"  Total syllables: {orig['stats']['total_syllables']} syllables")
     
-    # Mora statistics
-    lines.append(f"\nMora statistics:")
-    lines.append(f"  Mean morae per syllable: {orig['stats']['mora_stats']['mean']:.3f} mora/syllable")
-    lines.append(f"  Std dev morae per syllable: {orig['stats']['mora_stats']['std']:.3f} mora/syllable")
-    lines.append(f"  Total morae number: {orig['stats']['mora_stats']['total']} mora")
-    
     # Word statistics
     lines.append(f"\nWord statistics:")
     lines.append(f"  Total words: {orig['stats']['word_stats']['total_words']} words")
     lines.append(f"  Syllables per word: {orig['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
-    lines.append(f"  Morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
+
+    # Mora statistics
+    lines.append(f"\nMora statistics:")
+    lines.append(f"  Mean morae per syllable: {orig['stats']['mora_stats']['mean']:.3f} ± {orig['stats']['mora_stats']['std']:.3f} mora/syllable")
+    lines.append(f"  Mean morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
+    lines.append(f"  Total morae: {orig['stats']['mora_stats']['total']} mora")
     
     # Speech rate (original)
     lines.append(f"\nSpeech rate (original):")
@@ -1422,17 +1449,16 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
 
     lines.append(f"  Total syllables: {rep['stats']['total_syllables']} syllables")
     
-    # Mora statistics
-    lines.append(f"\nMora statistics:")
-    lines.append(f"  Mean morae per syllable: {rep['stats']['mora_stats']['mean']:.3f} mora/syllable")
-    lines.append(f"  Std dev morae per syllable: {rep['stats']['mora_stats']['std']:.3f} mora/syllable")
-    lines.append(f"  Total morae number: {rep['stats']['mora_stats']['total']} mora")
-    
     # Word statistics
     lines.append(f"\nWord statistics:")
     lines.append(f"  Total words: {rep['stats']['word_stats']['total_words']} words")
     lines.append(f"  Syllables per word: {rep['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
-    lines.append(f"  Morae per word: {rep['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
+
+    # Mora statistics
+    lines.append(f"\nMora statistics:")
+    lines.append(f"  Mean morae per syllable: {rep['stats']['mora_stats']['mean']:.3f} ± {rep['stats']['mora_stats']['std']:.3f} mora/syllable")
+    lines.append(f"  Mean morae per word: {rep['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {rep['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
+    lines.append(f"  Total morae: {rep['stats']['mora_stats']['total']} mora")
     
     # Merge statistics
     lines.append(f"\nMerge statistics:")
@@ -1562,25 +1588,25 @@ def format_csv(results: List[Dict], output_file: Path):
         values = [r['original']['stats']['total_syllables'] for r in results]
         add_row("original_syllable_statistics_count", values)
         
-        # Mora stats
-        values = [f"{r['original']['stats']['mora_stats']['mean']:.3f}" for r in results]
-        add_row("mora_mean", values)
-        values = [f"{r['original']['stats']['mora_stats']['std']:.3f}" for r in results]
-        add_row("mora_std", values)
-        values = [r['original']['stats']['mora_stats']['total'] for r in results]
-        add_row("original_total_morae", values)
-        
         # Word stats
         values = [r['original']['stats']['word_stats']['total_words'] for r in results]
-        add_row("total_words", values)
+        add_row("original_word_statistics_total_words", values)
         values = [f"{r['original']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
-        add_row("spw_mean", values)
+        add_row("original_word_statistics_syllables_per_word_mean", values)
         values = [f"{r['original']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
-        add_row("spw_std", values)
+        add_row("original_word_statistics_syllables_per_word_stddev", values)
+
+        # Mora stats
+        values = [f"{r['original']['stats']['mora_stats']['mean']:.3f}" for r in results]
+        add_row("original_mora_statistics_mean_morae_per_syllable_mean", values)
+        values = [f"{r['original']['stats']['mora_stats']['std']:.3f}" for r in results]
+        add_row("original_mora_statistics_mean_morae_per_syllable_stddev", values)
         values = [f"{r['original']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
-        add_row("mpw_mean", values)
+        add_row("original_mora_statistics_mean_morae_per_word_mean", values)
         values = [f"{r['original']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
-        add_row("mpw_std", values)
+        add_row("original_mora_statistics_mean_morae_per_word_stddev", values)
+        values = [r['original']['stats']['mora_stats']['total'] for r in results]
+        add_row("original_mora_statistics_total_morae", values)
         
         # Acoustic metrics (original)
         ac = [r['original']['acoustic'] for r in results]
@@ -1616,25 +1642,25 @@ def format_csv(results: List[Dict], output_file: Path):
         values = [r['accentuated']['stats']['total_syllables'] for r in results]
         add_row("accentuated_syllable_statistics_count", values)
         
-        # Mora stats (accentuated)
-        values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
-        add_row("accentuated_mora_mean", values)
-        values = [f"{r['accentuated']['stats']['mora_stats']['std']:.3f}" for r in results]
-        add_row("accentuated_mora_std", values)
-        values = [r['accentuated']['stats']['mora_stats']['total'] for r in results]
-        add_row("accentuated_total_morae", values)
-        
         # Word stats (accentuated)
         values = [r['accentuated']['stats']['word_stats']['total_words'] for r in results]
-        add_row("accentuated_total_words", values)
+        add_row("accentuated_word_statistics_total_words", values)
         values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
-        add_row("accentuated_spw_mean", values)
+        add_row("accentuated_word_statistics_syllables_per_word_mean", values)
         values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
-        add_row("accentuated_spw_std", values)
+        add_row("accentuated_word_statistics_syllables_per_word_stddev", values)
+
+        # Mora stats (accentuated)
+        values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
+        add_row("accentuated_mora_statistics_mean_morae_per_syllable_mean", values)
+        values = [f"{r['accentuated']['stats']['mora_stats']['std']:.3f}" for r in results]
+        add_row("accentuated_mora_statistics_mean_morae_per_syllable_stddev", values)
         values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
-        add_row("accentuated_mpw_mean", values)
+        add_row("accentuated_mora_statistics_mean_morae_per_word_mean", values)
         values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
-        add_row("accentuated_mpw_std", values)
+        add_row("accentuated_mora_statistics_mean_morae_per_word_stddev", values)
+        values = [r['accentuated']['stats']['mora_stats']['total'] for r in results]
+        add_row("accentuated_mora_statistics_total_morae", values)
         
         # Merge stats
         values = [r['accentuated']['stats']['merge_stats']['total_merged_words'] for r in results]
@@ -2026,7 +2052,9 @@ def _test_table_and_csv_new_fields() -> bool:
     table = format_table(result)
     if "Syllable statistics:" not in table:
         return False
-    if "Total morae number:" not in table:
+    if "Total morae:" not in table:
+        return False
+    if "Std dev morae per syllable:" in table:
         return False
     if "Total syllables:" not in table:
         return False
@@ -2035,6 +2063,10 @@ def _test_table_and_csv_new_fields() -> bool:
     if "Speech rate (accentuated):" not in table:
         return False
     if "mora (" not in table or " s) (consonant-interval SD)" not in table:
+        return False
+
+    # Ordering checks: word statistics must precede mora statistics.
+    if table.find("Word statistics:") > table.find("Mora statistics:"):
         return False
 
     # Ordering checks: speech blocks should come before acoustic blocks.
@@ -2050,9 +2082,11 @@ def _test_table_and_csv_new_fields() -> bool:
 
     required_rows = [
         "original_syllable_statistics_count,",
-        "original_total_morae,",
+        "original_word_statistics_total_words,",
+        "original_mora_statistics_total_morae,",
         "accentuated_syllable_statistics_count,",
-        "accentuated_total_morae,",
+        "accentuated_word_statistics_total_words,",
+        "accentuated_mora_statistics_total_morae,",
         "orig_sps_speech,",
         "accentuated_sps_speech,",
         "ΔC_seconds,",
@@ -2146,6 +2180,12 @@ def _test_small_corpus_metrics_consistency() -> bool:
         return False
     if f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" not in table:
         return False
+    if "Word statistics:" not in table or "Mora statistics:" not in table:
+        return False
+    if table.find("Word statistics:") > table.find("Mora statistics:"):
+        return False
+    if "Total morae number:" in table:
+        return False
 
     with tempfile.TemporaryDirectory() as tmpdir:
         csv_path = Path(tmpdir) / 'metrics_consistency.csv'
@@ -2154,6 +2194,10 @@ def _test_small_corpus_metrics_consistency() -> bool:
     if 'original_syllable_statistics_count,' not in csv_text:
         return False
     if 'accentuated_syllable_statistics_count,' not in csv_text:
+        return False
+    if 'original_mora_statistics_total_morae,' not in csv_text:
+        return False
+    if 'accentuated_mora_statistics_total_morae,' not in csv_text:
         return False
 
     return True

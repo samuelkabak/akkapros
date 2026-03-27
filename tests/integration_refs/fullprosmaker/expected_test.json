@@ -1,5 +1,5 @@
 {
-  "file": "tmp\\cr016_refsync\\test_tilde.txt",
+  "file": "tmp\\cr017_full\\test_tilde.txt",
   "original": {
     "stats": {
       "syllable_statistics": {
@@ -54,6 +54,17 @@
         "std": 0.5931093121225481,
         "total": 35
       },
+      "mora_statistics": {
+        "mean_morae_per_syllable": {
+          "mean": 1.5217391304347827,
+          "stddev": 0.5931093121225481
+        },
+        "mean_morae_per_word": {
+          "mean": 5,
+          "stddev": 0.5773502691896257
+        },
+        "total_morae": 35
+      },
       "word_stats": {
         "total_words": 7,
         "syllables_per_word": {
@@ -63,6 +74,13 @@
         "morae_per_word": {
           "mean": 5,
           "std": 0.5773502691896257
+        }
+      },
+      "word_statistics": {
+        "total_words": 7,
+        "syllables_per_word": {
+          "mean": 3.2857142857142856,
+          "stddev": 0.4879500364742666
         }
       },
       "merge_stats": {
@@ -149,6 +167,17 @@
         "std": 0.8756702684071968,
         "total": 39
       },
+      "mora_statistics": {
+        "mean_morae_per_syllable": {
+          "mean": 1.6956521739130435,
+          "stddev": 0.8756702684071968
+        },
+        "mean_morae_per_word": {
+          "mean": 5.571428571428571,
+          "stddev": 0.7867957924694432
+        },
+        "total_morae": 39
+      },
       "word_stats": {
         "total_words": 7,
         "syllables_per_word": {
@@ -158,6 +187,13 @@
         "morae_per_word": {
           "mean": 5.571428571428571,
           "std": 0.7867957924694432
+        }
+      },
+      "word_statistics": {
+        "total_words": 7,
+        "syllables_per_word": {
+          "mean": 3.2857142857142856,
+          "stddev": 0.4879500364742666
         }
       },
       "merge_stats": {
@@ -229,8 +265,8 @@
     "accentuated_syllables": 4,
     "accentuation_rate": 17.391304347826086,
     "accentuation_types": {
-      "VC:": 1,
       "CVV:": 2,
+      "VC:": 1,
       "VV:C": 1
     },
     "merged_words": 2,
