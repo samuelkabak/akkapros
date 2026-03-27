@@ -1,7 +1,7 @@
 # Requirement: <Title>
 
 REQ-ID: REQ-XXX
-Status: Draft | Approved | Implemented
+Status: Draft | Approved | Rejected | Implemented
 Priority: Low | Medium | High
 Impact: Additive | Mutative
 Created: YYYY-MM-DD

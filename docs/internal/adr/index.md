@@ -2,6 +2,9 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [029. CLI Runtime Output via Logger Only](029-cli-runtime-output-via-logger-only.md) - Proposed
+- [028. Centralized CLI Logging with `logging-actions`](028-centralized-cli-logging-with-logging-actions.md) - Proposed
+- [027. YAML Front Matter for CLI Pipeline Files](027-yaml-front-matter-for-cli-pipeline-files.md) - Proposed
 - [026. Conservative Change Discipline for Research-Grade Computation](026-conservative-change-discipline-for-research-grade-computation.md) - Accepted
 - [025. ADR 025: Integration Test Coverage for CLI and Outputs](025-integration-test-coverage.md) - Accepted
 - [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Accepted

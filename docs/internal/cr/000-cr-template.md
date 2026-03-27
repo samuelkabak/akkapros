@@ -1,7 +1,7 @@
 # Change Request: <Title>
 
 CR-ID: CR-XXX
-Status: Draft | Approved | Done
+Status: Draft | Approved | Rejected | Done
 Priority: Low | Medium | High
 Impact: Additive | Mutative
 Created: YYYY-MM-DD
