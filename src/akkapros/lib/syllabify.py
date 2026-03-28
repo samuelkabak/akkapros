@@ -17,6 +17,7 @@ MIT License
 Copyright (c) 2026 Samuel KABAK
 """
 
+import logging
 import re
 import sys
 from typing import List, Optional, Pattern, Sequence, Tuple
@@ -64,8 +65,14 @@ from akkapros.lib.utils import (
     build_numeric_currency_pattern,
     compile_contextual_regex,
     contextualize_for_regex,
+    format_selftest_label,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
     strip_regex_sentinels,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 FOREIGN_VOWELS = set()
@@ -775,10 +782,8 @@ def syllabify_text(
         if current_line_parts:
             result_lines.append(''.join(current_line_parts))
     if warnings:
-        print("\n⚠️  WARNINGS:", file=sys.stderr)
         for w in warnings:
-            print(f"   {w}", file=sys.stderr)
-        print(file=sys.stderr)
+            LOGGER.warning('%s', w)
     return '\n'.join(result_lines)
 
 # ---------------------------------------------------------------------------
@@ -791,9 +796,7 @@ def run_tests() -> bool:
 
     Returns ``True`` if all tests pass, ``False`` otherwise.
     """
-    print("\n" + "="*80)
-    print("AKKADIAN SYLLABIFIER - COMPREHENSIVE TESTS")
-    print("="*80)
+    logger = get_logger_with_fallback(__name__)
     preprocess_tests = [
         ("Preprocess single newline", "šar\ngimir", "šar gimir", False),
         ("Preprocess double newline", "šar\n\ngimir", "šar\ngimir", False),
@@ -942,19 +945,31 @@ def run_tests() -> bool:
     ]
     
     passed = 0
-    total = len(preprocess_tests) + len(tests) + len(error_tests) + len(pattern_tests)
-    print(f"\nRunning {total} tests...\n")
+    total = len(preprocess_tests) + len(tests) + len(error_tests) + len(pattern_tests) + 1
+    case_index = 0
 
     for name, inp, expected, preserve in preprocess_tests:
+        case_index += 1
+        label = format_selftest_label(case_index, total, name)
         result = text_preprocess_boundaries(inp, [], preserve_lines=preserve)
         if result == expected:
-            print(f"PASS {name}")
             passed += 1
+            log_selftest_result(logger, True, 'Syllabify', label)
         else:
-            print(f"FAIL {name}")
-            print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
+            log_selftest_result(
+                logger,
+                False,
+                'Syllabify',
+                label,
+                details=[
+                    f'input={inp!r}',
+                    f'expected={expected!r}',
+                    f'got={result!r}',
+                ],
+            )
 
     for test in tests:
+        case_index += 1
         if len(test) == 3:
             name, inp, expected = test
             merge = False
@@ -975,14 +990,25 @@ def run_tests() -> bool:
             preserve_lines=preserve_lines,
             number_format=number_format,
         )
+        label = format_selftest_label(case_index, total, name)
         if result == expected:
-            print(f"PASS {name}")
             passed += 1
+            log_selftest_result(logger, True, 'Syllabify', label)
         else:
-            print(f"FAIL {name}")
-            print(f"   Input: '{inp}'\n   Expected: '{expected}'\n   Got: '{result}'")
+            log_selftest_result(
+                logger,
+                False,
+                'Syllabify',
+                label,
+                details=[
+                    f'input={inp!r}',
+                    f'expected={expected!r}',
+                    f'got={result!r}',
+                ],
+            )
 
     for test in error_tests:
+        case_index += 1
         if len(test) == 3:
             name, inp, expected_reason = test
             merge = False
@@ -990,42 +1016,88 @@ def run_tests() -> bool:
             number_regex = ''
         else:
             name, inp, expected_reason, merge, preserve_lines, number_regex = test
+        label = format_selftest_label(case_index, total, name)
         try:
             _ = syllabify_text(inp, merge_hyphen=merge, preserve_lines=preserve_lines, number_format=number_regex)
-            print(f"FAIL {name}")
-            print(f"   Expected error containing: '{expected_reason}'\n   Got: success")
+            log_selftest_result(
+                logger,
+                False,
+                'Syllabify',
+                label,
+                details=[
+                    f'input={inp!r}',
+                    f'expected_error={expected_reason!r}',
+                    'got=success',
+                ],
+            )
         except PunctuationConfigError as exc:
             if expected_reason in str(exc).lower():
-                print(f"PASS {name}")
                 passed += 1
+                log_selftest_result(logger, True, 'Syllabify', label)
             else:
-                print(f"FAIL {name}")
-                print(f"   Expected reason: '{expected_reason}'\n   Got error: '{exc}'")
+                log_selftest_result(
+                    logger,
+                    False,
+                    'Syllabify',
+                    label,
+                    details=[
+                        f'input={inp!r}',
+                        f'expected_error={expected_reason!r}',
+                        f'got_error={exc!r}',
+                    ],
+                )
 
     for name, custom_patterns, sample, should_match in pattern_tests:
+        case_index += 1
+        label = format_selftest_label(case_index, total, name)
         try:
             compiled = _compile_regex_patterns(custom_patterns, '--short-punct-pattern')
             contextual = contextualize_for_regex(sample, at_sol=True, at_eol=True, at_eof=False)
             match = any(rx.search(contextual) for rx in compiled)
             if match == should_match:
-                print(f"PASS {name}")
                 passed += 1
+                log_selftest_result(logger, True, 'Syllabify', label)
             else:
-                print(f"FAIL {name}")
-                print(f"   Expected match={should_match}\n   Got match={match}")
+                log_selftest_result(
+                    logger,
+                    False,
+                    'Syllabify',
+                    label,
+                    details=[
+                        f'sample={sample!r}',
+                        f'expected_match={should_match}',
+                        f'got_match={match}',
+                    ],
+                )
         except Exception as exc:
-            print(f"FAIL {name}")
-            print(f"   Unexpected exception: {exc}")
+            log_selftest_result(
+                logger,
+                False,
+                'Syllabify',
+                label,
+                details=[
+                    f'sample={sample!r}',
+                    f'error={exc!r}',
+                ],
+            )
 
+    case_index += 1
+    nested_label = format_selftest_label(case_index, total, 'Nested escapes unsupported')
     nested = parse_escape_at("{{a{{b}}}}", 0)
     if nested is None:
-        print("PASS Nested escapes are unsupported")
         passed += 1
-        total += 1
+        log_selftest_result(logger, True, 'Syllabify', nested_label)
     else:
-        print("FAIL Nested escapes are unsupported")
-        print(f"   Expected: None\n   Got: {nested}")
-        total += 1
+        log_selftest_result(
+            logger,
+            False,
+            'Syllabify',
+            nested_label,
+            details=[
+                'expected=None',
+                f'got={nested!r}',
+            ],
+        )
 
-    print(f"\nPassed: {passed}/{total}")
+    log_selftest_summary(logger, 'Syllabify', passed, total)
     return passed == total

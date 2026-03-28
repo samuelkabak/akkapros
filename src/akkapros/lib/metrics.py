@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Metrics Calculator
 
@@ -11,6 +11,7 @@ Computes comprehensive metrics from Akkadian text with proper handling of:
 - Pause metrics for punctuation only (short vs long pause classes)
 """
 
+import logging
 import re
 import random
 import statistics
@@ -42,7 +43,14 @@ from akkapros.lib.constants import (
     LONG_PAUSE_INCLUDES_FINAL_EOF,
     DIPH_SEPARATOR,
 )
-from akkapros.lib.utils import compile_contextual_regex
+from akkapros.lib.utils import (
+    compile_contextual_regex,
+    format_selftest_label,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
+    run_simple_selftest_suite,
+)
 
 HYPHEN = '-'
 EXTRA_LONG_VOWELS = set('àìùè')
@@ -68,6 +76,7 @@ PROCESSING_VOWELS = EXTRA_LONG_VOWELS
 
 LENGTH_MARKER = ':'
 WORD_BOUNDARY = '$'
+LOGGER = logging.getLogger(__name__)
 
 class PunctuationConfigError(ValueError):
     """Raised when pause punctuation rules are invalid."""
@@ -1626,14 +1635,11 @@ METRICS_CSV_DEPRECATION_MESSAGE = "--csv option is not anymore supported, the cs
 # ------------------------------------------------------------
 # Unit tests
 # ------------------------------------------------------------
-def test_small_text():
+def test_small_text() -> bool:
     """Test syllable counting on a small sample."""
-    print("\n" + "="*80)
-    print("TEST: Small text syllable counting")
-    print("="*80)
-    
+    logger = get_logger_with_fallback(__name__)
     test_text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
-    
+
     # Expected original counts (without accentuation)
     expected_original = {
         'CV': 2,   # gi, ti
@@ -1651,74 +1657,108 @@ def test_small_text():
         'CVV:': 1,    # rā~
         'total': 10
     }
-    
-    print(f"\nTest text: {test_text}")
-    
+
+    ok = True
+
     # Test original
-    print("\n--- ORIGINAL (without ~) ---")
     original_stats = analyze_text(test_text.replace('~', ''), is_accentuated=False)
-    
-    print("Syllable counts:")
-    for typ in ['CV', 'CVC', 'CVV', 'CVVC', 'VC', 'V', 'VV', 'VVC']:
-        count = original_stats['syllable_counts'].get(typ, 0)
-        if count > 0:
-            print(f"  {typ}: {count}")
-    
+
     # Verify original counts
     for typ, expected in expected_original.items():
         if typ == 'total':
             continue
         actual = original_stats['syllable_counts'].get(typ, 0)
         if actual != expected:
-            print(f"  ❌ [{typ}]: got {actual}, expected {expected}")
-    
+            ok = False
+            log_selftest_result(
+                logger,
+                False,
+                'Metrics sample',
+                f'Original {typ}',
+                details=[
+                    f'text={test_text!r}',
+                    f'got={actual}',
+                    f'expected={expected}',
+                ],
+            )
+
     total = sum(original_stats['syllable_counts'].values())
     if total != expected_original['total']:
-        print(f"  ❌ total: got {total}, expected {expected_original['total']}")
-    
+        ok = False
+        log_selftest_result(
+            logger,
+            False,
+            'Metrics sample',
+            'Original total',
+            details=[
+                f'text={test_text!r}',
+                f'got={total}',
+                f'expected={expected_original["total"]}',
+            ],
+        )
+
     # Test accentuated
-    print("\n--- ACCENTUATED (with ~) ---")
     accentuated_stats = analyze_text(test_text, is_accentuated=True)
-    
-    print("Syllable counts:")
-    for typ in ['CV', 'CVC', 'CVV', 'CVC:', 'CVV:', 'VV:', 'VV:C' ,'CVV:', 'CVC:' ]:
-        count = accentuated_stats['syllable_counts'].get(typ, 0)
-        if count > 0:
-            print(f"  [{typ}]: {count}")
-    
+
     # Verify accentuated counts
     for typ, expected in expected_accentuated.items():
         if typ == 'total':
             continue
         actual = accentuated_stats['syllable_counts'].get(typ, 0)
         if actual != expected:
-            print(f"  ❌ [{typ}]: got {actual}, expected {expected}")
-    
+            ok = False
+            log_selftest_result(
+                logger,
+                False,
+                'Metrics sample',
+                f'Accentuated {typ}',
+                details=[
+                    f'text={test_text!r}',
+                    f'got={actual}',
+                    f'expected={expected}',
+                ],
+            )
+
     total = sum(accentuated_stats['syllable_counts'].values())
     if total != expected_accentuated['total']:
-        print(f"  ❌ total: got {total}, expected {expected_accentuated['total']}")
+        ok = False
+        log_selftest_result(
+            logger,
+            False,
+            'Metrics sample',
+            'Accentuated total',
+            details=[
+                f'text={test_text!r}',
+                f'got={total}',
+                f'expected={expected_accentuated["total"]}',
+            ],
+        )
+
+    if ok:
+        log_selftest_result(logger, True, 'Metrics sample', 'Small text syllable counting')
+    return ok
 
 def debug_mean_calculation(text: str, label: str):
     """Debug mean interval calculation."""
-    print(f"\n--- DEBUG MeanC for {label} ---")
-    print(f"Text: {text}")
+    logger = get_logger_with_fallback(__name__)
+    logger.info('Debug MeanC | %s | text=%r', label, text)
     
     preprocessed = preprocess_text(text)
-    print(f"Preprocessed: {preprocessed}")
+    logger.info('Debug MeanC | %s | preprocessed=%r', label, preprocessed)
     
     # Get segments and distances
     consonants, vowels = extract_segments(preprocessed)
-    print(f"Consonants: {consonants}")
-    print(f"Vowels after: {vowels}")
+    logger.info('Debug MeanC | %s | consonants=%s', label, consonants)
+    logger.info('Debug MeanC | %s | vowels_after=%s', label, vowels)
     
     distances = compute_consonant_distances(consonants, vowels)
-    print(f"Distances: {distances}")
+    logger.info('Debug MeanC | %s | distances=%s', label, distances)
     
     if distances:
         mean = sum(distances) / len(distances)
-        print(f"MeanC = {mean:.4f}")
+        logger.info('Debug MeanC | %s | mean=%.4f', label, mean)
     else:
-        print("No distances")
+        logger.info('Debug MeanC | %s | no distances', label)
     
     return distances
 def _test_word_pattern_matching() -> bool:
@@ -2214,46 +2254,25 @@ def run_tests():
     pytest to import and execute individual `_test_...` functions.
     """
     suites = [
-        (_test_word_pattern_matching, "Word pattern matching"),
-        (_test_tokenizer, "Tokenizer"),
-        (_test_word_processing, "Word processing"),
-        (_test_preprocessing, "Preprocessing"),
-        (_test_segment_extraction, "Segment extraction"),
-        (_test_distance_calculation, "Distance calculation"),
-        (_test_consonant_distance_definitions, "Consonant distance definitions"),
-        (_test_punctuation_marks_segment_boundaries, "Punctuation segment boundaries"),
-        (_test_pause_metrics_grouping, "Pause metrics grouping"),
-        (_test_unknown_punctuation_raises, "Unknown punctuation strict error"),
-        (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
-        (_test_table_new_fields_and_no_csv, "Table fields and CSV removal"),
-        (_test_small_corpus_metrics_consistency, "Small corpus metrics consistency"),
-        (_test_process_file_requires_frontmatter_prominence_counts, "Frontmatter prominence counts"),
-        (_test_process_file_missing_frontmatter_prominence_counts_fails, "Missing frontmatter prominence fails"),
-        (_test_percent_v_fallback_safe, "%V fallback safety"),
+        ("Word pattern matching", _test_word_pattern_matching),
+        ("Tokenizer", _test_tokenizer),
+        ("Word processing", _test_word_processing),
+        ("Preprocessing", _test_preprocessing),
+        ("Segment extraction", _test_segment_extraction),
+        ("Distance calculation", _test_distance_calculation),
+        ("Consonant distance definitions", _test_consonant_distance_definitions),
+        ("Punctuation segment boundaries", _test_punctuation_marks_segment_boundaries),
+        ("Pause metrics grouping", _test_pause_metrics_grouping),
+        ("Unknown punctuation strict error", _test_unknown_punctuation_raises),
+        ("Mora totals and original speech", _test_mora_totals_and_original_speech),
+        ("Table fields and CSV removal", _test_table_new_fields_and_no_csv),
+        ("Small corpus metrics consistency", _test_small_corpus_metrics_consistency),
+        ("Frontmatter prominence counts", _test_process_file_requires_frontmatter_prominence_counts),
+        ("Missing frontmatter prominence fails", _test_process_file_missing_frontmatter_prominence_counts_fails),
+        ("%V fallback safety", _test_percent_v_fallback_safe),
     ]
 
-    print("\n" + "=" * 80)
-    print("METRICS CALCULATOR — COMPREHENSIVE UNIT TESTS (refactored)")
-    print("=" * 80)
-
-    passed = 0
-    total = len(suites)
-    for fn, name in suites:
-        print(f"\n--- {name} ---")
-        try:
-            ok = fn()
-        except Exception as e:
-            print(f"  ❌ {name} raised: {e}")
-            ok = False
-        if ok:
-            print("  ✅ passed")
-            passed += 1
-        else:
-            print("  ❌ failed")
-
-    print(f"\n{'='*80}")
-    print(f"Tests passed: {passed}/{total}")
-    print(f"{'='*80}\n")
-    return passed == total
+    logger = get_logger_with_fallback(__name__)
+    return run_simple_selftest_suite(logger, 'Metrics', suites)
 
 

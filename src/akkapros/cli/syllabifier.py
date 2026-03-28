@@ -33,8 +33,11 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    format_path_for_logging,
+    log_startup_banner,
+    setup_cli_logging,
     validate_intermediate_format,
 )
 
@@ -52,19 +55,23 @@ def process_file(
     long_punct_patterns: list[str] | None = None,
     number_format: str = '',
     options: dict[str, object] | None = None,
+    logger=None,
 ):
     """Read input, syllabify and write output."""
-    print(f"Reading: {input_file}")
+    logger.info('Reading: %s', format_path_for_logging(input_file))
     if extra_vowels:
-        print(f"Extra vowels: '{extra_vowels}'")
+        logger.info("Extra vowels: '%s'", extra_vowels)
     if extra_consonants:
-        print(f"Extra consonants: '{extra_consonants}'")
-    print(f"Hyphen mode: {'MERGE TO DOTS' if merge_hyphen else 'PRESERVE'}")
-    print(f"Line mode: {'PRESERVE ORIGINAL LINES' if preserve_lines else 'NORMALIZE (1 newline=space, 2+=paragraph break)'}")
+        logger.info("Extra consonants: '%s'", extra_consonants)
+    logger.info('Hyphen mode: %s', 'MERGE TO DOTS' if merge_hyphen else 'PRESERVE')
+    logger.info(
+        'Line mode: %s',
+        'PRESERVE ORIGINAL LINES' if preserve_lines else 'NORMALIZE (1 newline=space, 2+=paragraph break)',
+    )
 
     input_frontmatter, content = read_text_file(input_file)
 
-    print("Processing...")
+    logger.info('Processing...')
     result = syllabify.syllabify_text(
         content,
         extra_vowels=extra_vowels,
@@ -91,7 +98,7 @@ def process_file(
     )
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(compose_text_document(frontmatter, output_body))
-    print(f"Written: {output_file}")
+    logger.info('Written file: %s', format_path_for_logging(output_file))
 
 
 def run_tests() -> bool:
@@ -107,6 +114,7 @@ def main():
         formatter_class=RawDefaultsHelpFormatter,
     )
     add_standard_version_argument(parser, 'akkapros-syllabifier')
+    add_standard_logging_arguments(parser)
     parser.add_argument('input', nargs='?', help='Input file')
     parser.add_argument('-p', '--prefix', help='Output file prefix')
     parser.add_argument('--outdir', default='.',
@@ -128,9 +136,17 @@ def main():
 
     args = parser.parse_args()
     if args.test:
-        print_startup_banner('akkapros-syllabifier', __version__, args)
+        logger = setup_cli_logging(args, 'akkapros.cli.syllabifier')
+        log_startup_banner(logger, 'akkapros-syllabifier', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
+
+    if not args.input:
+        parser.print_help()
+        sys.exit(0)
+
+    logger = setup_cli_logging(args, 'akkapros.cli.syllabifier')
+    log_startup_banner(logger, 'akkapros-syllabifier', __version__, args)
 
     try:
         syllabify.configure_punctuation_rules(
@@ -140,26 +156,19 @@ def main():
             long_punct_patterns=args.long_punct_pattern,
         )
     except syllabify.PunctuationConfigError as exc:
-        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
+        logger.error('Invalid punctuation regex/options: %s', exc)
         sys.exit(2)
-
-    if not args.input:
-        parser.print_help()
-        sys.exit(0)
 
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"Error: File '{args.input}' not found.")
+        logger.error("File '%s' not found.", args.input)
         sys.exit(1)
 
     try:
         validate_intermediate_format(input_path, expected_kind='proc')
     except FormatValidationError as exc:
-        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
-        print(
-            "Hint: expected cleaned *_proc.txt content; re-run atfparser if needed.",
-            file=sys.stderr,
-        )
+        logger.error('Invalid input format: %s', exc)
+        logger.error('Hint: expected cleaned *_proc.txt content; re-run atfparser if needed.')
         sys.exit(2)
 
     # choose prefix and output directory
@@ -171,13 +180,6 @@ def main():
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
     output_path = outdir / f"{prefix}_syl.txt"
-
-    # display configuration
-    print_startup_banner('akkapros-syllabifier', __version__, args)
-    print(f"Input: {input_path}")
-    print(f"Output: {output_path}")
-    print(f"Output directory: {outdir}")
-    print(f"Output prefix: {prefix}")
 
     process_file(
         str(input_path),
@@ -195,6 +197,7 @@ def main():
             args,
             exclude={'input', 'outdir', 'prefix', 'test', 'version'},
         ),
+        logger=logger,
     )
 
 

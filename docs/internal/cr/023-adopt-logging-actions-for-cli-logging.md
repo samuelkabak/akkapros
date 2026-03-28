@@ -1,11 +1,11 @@
 # Change Request: Adopt `logging-actions` for CLI logging
 
 CR-ID: CR-023
-Status: Draft
+Status: Done
 Priority: High
 Impact: Mutative
 Created: 2026-03-27
-Updated: 2026-03-27
+Updated: 2026-03-28
 Implements: REQ-016
 ---
 
@@ -17,6 +17,14 @@ relevant CLIs share one argument-registration path and one logging-setup path.
 
 All runtime output shall go through the shared logger, with direct `print()`
 reserved only for the built-in `--help` response.
+
+Console output and file logging must present one coherent record shape, and
+runtime path display must avoid leaking full filesystem paths when a shorter
+one-parent form is sufficient. Layout-only lines, conversational stage
+narration, and built-in self-test transcript chatter must be removed in favor
+of structured logger records. Repository-provided wrapper scripts that invoke
+multiple CLIs must not reintroduce conversational stage narration around those
+tool calls.
 
 The standardized options are:
 
@@ -83,13 +91,34 @@ single consistent contract.
    - `--log FILE`: write logs to file
    - `--log-append`: append instead of overwrite
 
-3. Migrate all CLI entrypoints to call the shared helper functions instead of
+3. Use one homogeneous record format across console and file handlers so log
+      files remain operationally consistent with the live console stream.
+
+4. Migrate all CLI entrypoints to call the shared helper functions instead of
       defining local logging behavior. The rollout covers the main pipeline CLIs
       and the Python phoneprep path, which may proceed independently and in
       parallel.
 
-4. Route all runtime output through the logger and reserve direct `print()`
+5. Route all runtime output through the logger and reserve direct `print()`
       only for the built-in `--help` response.
+
+6. Minimize logged path disclosure to the final path segment plus one parent
+      segment where possible, while preserving drive-root forms such as
+      `C:\file.txt`.
+
+7. Remove repeated high-frequency progress counters that do not add useful
+      operator value under the new shared logging system.
+
+8. Remove banner/separator/layout records and conversation-style stage logs in
+      favor of factual runtime records that remain useful in batch log review.
+
+9. Standardize built-in self-test logging to single-line structured records of
+      the form `PASS | Category | 01: Label` and `FAIL | Category | 01: Label`,
+      with inline failure details instead of transcript-style commentary.
+
+10. Keep repository-provided demo and orchestration wrappers silent unless they
+      are emitting factual records that add non-duplicative operator value over
+      the underlying tool logs.
 
 ---
 
@@ -114,10 +143,17 @@ Debuggability:
 
 Argument behavior:
 - `--quiet` affects console verbosity only
-- file logging should capture the full debug stream when enabled
+- file logging should capture the same coherent record format used on console
 - `--log-append` controls append vs overwrite when file logging is active
 - invalid or incomplete combinations should be handled consistently by the
   shared helper layer
+- path-bearing log messages should pass through a shared display-minimization rule
+- high-frequency progress counters should be opt-in work if ever reintroduced,
+      not default runtime output
+- self-test helpers should be centralized enough that modules do not invent
+      separate PASS/FAIL syntaxes, emoji markers, or banner blocks
+- wrapper scripts should not add `Running ...` or equivalent narration when the
+      invoked CLIs already provide the factual output stream
 
 ---
 
@@ -140,9 +176,21 @@ tests covering CLI startup and helper behavior
 - [ ] Shared help text is reused instead of redefining the option descriptions
       in each CLI.
 - [ ] Logger initialization uses `logging-actions`.
+- [ ] Console and file logging use one homogeneous record format.
 - [ ] Logging setup is easy to locate and debug from each CLI entrypoint.
 - [ ] Runtime output other than parser-generated `--help` is emitted through
       the shared logger rather than direct `print()` calls.
+- [ ] Source modules in scope no longer contain direct `print()` calls for
+      runtime, self-test, or generator output.
+- [ ] Logged filesystem paths are minimized to one parent plus the leaf where
+      possible, while preserving drive-root cases.
+- [ ] Repeated low-value progress counters are removed from normal runtime logs.
+- [ ] Banner lines, separator-only lines, and conversational stage narration
+      are removed from normal runtime logs.
+- [ ] Repository-provided wrapper scripts do not emit duplicate conversational
+      stage narration around CLI invocations.
+- [ ] Built-in self-tests emit structured single-line PASS/FAIL records with
+      normalized numbering and category labels.
 - [ ] The migration covers both the main pipeline CLIs and the Python
       phoneprep path.
 - [ ] No JavaScript phoneprep code is modified under this CR.
@@ -200,6 +248,7 @@ console and logging setup if the change must be reversed.
 - Legalized by [REQ-016](../req/016-standardized-cli-logging-and-console-options.md).
 - Based on [ADR-028](../adr/028-centralized-cli-logging-with-logging-actions.md).
 - Constrained by [ADR-029](../adr/029-cli-runtime-output-via-logger-only.md).
+- Content policy refined by [ADR-031](../adr/031-factual-runtime-records-and-structured-self-test-output.md).
 - Builds on the shared-helper architecture established by
   [CR-009](009-reorganize-cli-gencode.md).
 

@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [031. Factual Runtime Records and Structured Self-Test Output](031-factual-runtime-records-and-structured-self-test-output.md) - Proposed
 - [030. Metrics CSV Abandonment and Spec History Policy](030-metrics-csv-abandonment-and-spec-history-policy.md) - Accepted
 - [029. CLI Runtime Output via Logger Only](029-cli-runtime-output-via-logger-only.md) - Proposed
 - [028. Centralized CLI Logging with `logging-actions`](028-centralized-cli-logging-with-logging-actions.md) - Proposed

@@ -24,8 +24,15 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    format_selftest_label,
+    format_path_for_logging,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
+    log_startup_banner,
+    setup_cli_logging,
     validate_intermediate_format,
 )
 
@@ -46,6 +53,7 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
 
 def run_tests() -> bool:
     """Run printer CLI resolution tests and delegated library tests."""
+    logger = get_logger_with_fallback(__name__)
     ok = True
 
     class _Args:
@@ -63,7 +71,8 @@ def run_tests() -> bool:
     ]
 
     passed = 0
-    for args, exp_write, exp_mode, exp_circ_hiatus in cases:
+    total = len(cases)
+    for index, (args, exp_write, exp_mode, exp_circ_hiatus) in enumerate(cases, start=1):
         got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
@@ -71,16 +80,33 @@ def run_tests() -> bool:
             and got_circ_hiatus == exp_circ_hiatus
         ):
             passed += 1
+            log_selftest_result(
+                logger,
+                True,
+                'Printer',
+                format_selftest_label(index, total, 'Cli ipa mode'),
+            )
         else:
             ok = False
-            print(
-                "FAILED [printer cli ipa mode]"
-                f"\n  in : ipa={args.ipa}, ipa_proto_semitic={args.ipa_proto_semitic}, circ_hiatus={args.circ_hiatus}"
-                f"\n  got: write_ipa={got_write}, ipa_mode={got_mode}, circ_hiatus={got_circ_hiatus}"
-                f"\n  exp: write_ipa={exp_write}, ipa_mode={exp_mode}, circ_hiatus={exp_circ_hiatus}"
+            log_selftest_result(
+                logger,
+                False,
+                'Printer',
+                format_selftest_label(index, total, 'Cli ipa mode'),
+                details=[
+                    f'ipa={args.ipa}',
+                    f'ipa_proto_semitic={args.ipa_proto_semitic!r}',
+                    f'circ_hiatus={args.circ_hiatus}',
+                    f'expected_write_ipa={exp_write}',
+                    f'expected_ipa_mode={exp_mode!r}',
+                    f'expected_circ_hiatus={exp_circ_hiatus}',
+                    f'got_write_ipa={got_write}',
+                    f'got_ipa_mode={got_mode!r}',
+                    f'got_circ_hiatus={got_circ_hiatus}',
+                ],
             )
 
-    print(f"printer.py cli tests: {passed}/{len(cases)} passed")
+    log_selftest_summary(logger, 'Printer', passed, total)
     ok = accent_print.run_tests() and ok
     return ok
 
@@ -91,6 +117,7 @@ def main() -> None:
         formatter_class=RawDefaultsHelpFormatter,
     )
     add_standard_version_argument(parser, 'akkapros-printer')
+    add_standard_logging_arguments(parser)
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (shared for all selected outputs)')
     parser.add_argument('--outdir', default='.', help='Output directory')
@@ -114,7 +141,8 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
-        print_startup_banner('akkapros-printer', __version__, args)
+        logger = setup_cli_logging(args, 'akkapros.cli.printer')
+        log_startup_banner(logger, 'akkapros-printer', __version__, args)
         ok = run_tests()
         sys.exit(0 if ok else 1)
 
@@ -122,19 +150,19 @@ def main() -> None:
         parser.print_help()
         sys.exit(1)
 
+    logger = setup_cli_logging(args, 'akkapros.cli.printer')
+    log_startup_banner(logger, 'akkapros-printer', __version__, args)
+
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"Error: File not found: {args.input}")
+        logger.error('File not found: %s', args.input)
         sys.exit(1)
 
     try:
         validate_intermediate_format(input_path, expected_kind='tilde')
     except FormatValidationError as exc:
-        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
-        print(
-            "Hint: expected prosody-realized *_tilde.txt content; re-run prosmaker if needed.",
-            file=sys.stderr,
-        )
+        logger.error('Invalid input format: %s', exc)
+        logger.error('Hint: expected prosody-realized *_tilde.txt content; re-run prosmaker if needed.')
         sys.exit(2)
 
     outdir = Path(args.outdir)
@@ -143,8 +171,6 @@ def main() -> None:
 
     default_prefix = input_path.stem.replace('_tilde', '')
     prefix = simple_safe_filename(args.prefix if args.prefix else default_prefix)
-
-    print_startup_banner('akkapros-printer', __version__, args)
 
     write_acute = args.acute
     write_bold = args.bold
@@ -184,18 +210,17 @@ def main() -> None:
         ),
     )
 
-    print(f"Input: {input_path}")
     if write_acute:
-        print(f"Written: {acute_out}")
+        logger.info('Written file: %s', format_path_for_logging(acute_out))
     if write_bold:
-        print(f"Written: {bold_out}")
+        logger.info('Written file: %s', format_path_for_logging(bold_out))
     if write_ipa:
-        print(f"Written: {ipa_out}")
+        logger.info('Written file: %s', format_path_for_logging(ipa_out))
     if write_xar:
-        print(f"Written: {xar_out}")
-        print(f"Written: {xar_plain_out}")
+        logger.info('Written file: %s', format_path_for_logging(xar_out))
+        logger.info('Written file: %s', format_path_for_logging(xar_plain_out))
     if write_mbrola:
-        print(f"Written: {mbrola_out}")
+        logger.info('Written file: %s', format_path_for_logging(mbrola_out))
 
 
 if __name__ == '__main__':

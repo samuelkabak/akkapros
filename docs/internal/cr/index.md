@@ -2,14 +2,14 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[023. Adopt `logging-actions` for CLI logging](023-adopt-logging-actions-for-cli-logging.md) - Draft
-[022. Add frontmatter-derived word indicators to metrics outputs](022-add-frontmatter-derived-word-indicators-to-metrics.md) - Draft
+[023. Adopt `logging-actions` for CLI logging](023-adopt-logging-actions-for-cli-logging.md) - Done
+[022. Add frontmatter-derived word indicators to metrics outputs](022-add-frontmatter-derived-word-indicators-to-metrics.md) - Done
 [021. Remove metrics CSV output](021-remove-metrics-csv-output.md) - Done
 [020. Rejected lex-input metrics extension](020-metrics-word-stats-lex-input.md) - Rejected
-[019. Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs](019-metrics-deltac-meanc-dual-lines-and-varcoc-unitless.md) - Draft
-[018. Add CLI file front matter and metadata propagation](018-add-cli-file-front-matter-and-metadata-propagation.md) - Draft
-[017. Reorder Word/Mora statistics and inline stddev notation](017-word-mora-statistics-reorg.md) - Draft
-[016. Group syllable counts under "Syllable statistics"](016-syllable-statistics-grouping.md) - Draft
+[019. Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs](019-metrics-deltac-meanc-dual-lines-and-varcoc-unitless.md) - Done
+[018. Add CLI file front matter and metadata propagation](018-add-cli-file-front-matter-and-metadata-propagation.md) - Done
+[017. Reorder Word/Mora statistics and inline mean ± stddev notation](017-word-mora-statistics-reorg.md) - Done
+[016. Group syllable counts under "Syllable statistics"](016-syllable-statistics-grouping.md) - Done
 [015. Fix Metrics Pivot Integrity for Syllable Totals, Linked Words, and Diphthongs](015-fix-metrics-syllables-per-word-and-syllable-totals.md) - Done
 [014. Rename Internal Documentation Folders to req and review](014-rename-internal-doc-folders-to-req-and-review.md) - Done
 [013. Add Akkadian text likehood for format-validation](013-add-akkadian-text-likehood-for-format-validation.md) - Approved

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Akkadian Prosody Toolkit - Prosmaker (CLI wrapper).
 
 This module provides a command-line interface that delegates moraic prosody
@@ -25,8 +25,10 @@ from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    log_startup_banner,
+    setup_cli_logging,
     simple_safe_filename,
     validate_intermediate_format,
 )
@@ -38,6 +40,7 @@ def main() -> None:
         formatter_class=RawDefaultsHelpFormatter,
     )
     add_standard_version_argument(parser, 'akkapros-prosmaker')
+    add_standard_logging_arguments(parser)
     parser.add_argument('input', nargs='?', help='Input *_syl.txt file')
     parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
     parser.add_argument('--outdir', default='.', help='Output directory')
@@ -50,12 +53,14 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.test:
-        print_startup_banner('akkapros-prosmaker', __version__, args)
+        logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
+        log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
 
     if args.test_diphthongs:
-        print_startup_banner('akkapros-prosmaker', __version__, args)
+        logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
+        log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
         success = test_diphthong_restoration()
         sys.exit(0 if success else 1)
 
@@ -63,19 +68,19 @@ def main() -> None:
         parser.print_help()
         sys.exit(0)
 
+    logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
+    log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
+
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"Error: File not found: {args.input}")
+        logger.error('File not found: %s', args.input)
         sys.exit(1)
 
     try:
         validate_intermediate_format(input_path, expected_kind='syl')
     except FormatValidationError as exc:
-        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
-        print(
-            "Hint: upstream stage output may be partial/corrupted; re-run syllabifier.",
-            file=sys.stderr,
-        )
+        logger.error('Invalid input format: %s', exc)
+        logger.error('Hint: upstream stage output may be partial/corrupted; re-run syllabifier.')
         sys.exit(2)
 
     outdir = Path(args.outdir)
@@ -90,8 +95,6 @@ def main() -> None:
 
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     style = style_map[args.style]
-
-    print_startup_banner('akkapros-prosmaker', __version__, args)
 
     engine = ProsodyEngine(style=style, only_last=not args.relax_last)
     engine.process_file(

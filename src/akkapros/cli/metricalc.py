@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Akkadian Prosody Toolkit — Metrics Calculator (CLI wrapper)
 
 This module provides the command-line interface and delegates all
@@ -35,8 +35,11 @@ from akkapros.lib.metrics import (
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    format_path_for_logging,
+    log_startup_banner,
+    setup_cli_logging,
     simple_safe_filename,
     validate_intermediate_format,
 )
@@ -57,6 +60,7 @@ Version {__version__}
 """
     )
     add_standard_version_argument(parser, 'akkapros-metricalc')
+    add_standard_logging_arguments(parser)
     parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
     parser.add_argument('--input-list', help='File containing list of input files (one per line)')
     parser.add_argument('-p', '--prefix', help='Output prefix')
@@ -83,11 +87,18 @@ Version {__version__}
 
     args = parser.parse_args()
 
-    print_startup_banner('akkapros-metrics', __version__, args)
-
     if args.test:
+        logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
+        log_startup_banner(logger, 'akkapros-metrics', __version__, args)
         success = run_tests()
         sys.exit(0 if success else 1)
+
+    if not args.input and not args.input_list:
+        parser.print_help()
+        sys.exit(1)
+
+    logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
+    log_startup_banner(logger, 'akkapros-metrics', __version__, args)
 
     try:
         configure_pause_punctuation_rules(
@@ -97,7 +108,7 @@ Version {__version__}
             long_punct_patterns=args.long_punct_pattern,
         )
     except PunctuationConfigError as exc:
-        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
+        logger.error('Invalid punctuation regex/options: %s', exc)
         sys.exit(2)
 
     if not (args.table or args.json):
@@ -109,24 +120,18 @@ Version {__version__}
             input_files = [line.strip() for line in f if line.strip()]
     elif args.input:
         input_files = [args.input]
-    else:
-        parser.print_help()
-        sys.exit(1)
 
     for input_file in input_files:
         if not Path(input_file).exists():
-            print(f"Error: File not found: {input_file}")
+            logger.error('File not found: %s', input_file)
             sys.exit(1)
 
     for input_file in input_files:
         try:
             validate_intermediate_format(input_file, expected_kind='tilde')
         except FormatValidationError as exc:
-            print(f"Error: Invalid input format: {exc}", file=sys.stderr)
-            print(
-                "Hint: upstream stage output may be partial/corrupted; re-run prosmaker.",
-                file=sys.stderr,
-            )
+            logger.error('Invalid input format: %s', exc)
+            logger.error('Hint: upstream stage output may be partial/corrupted; re-run prosmaker.')
             sys.exit(2)
 
     update_character_sets(args.extra_consonants, args.extra_vowels)
@@ -137,7 +142,6 @@ Version {__version__}
 
     results = []
     for input_file in input_files:
-        print(f"Processing: {input_file}")
         try:
             result = process_file(
                 input_file,
@@ -146,7 +150,7 @@ Version {__version__}
                 args.long_punct_weight,
             )
         except ValueError as exc:
-            print(f"Error: {exc}", file=sys.stderr)
+            logger.error('%s', exc)
             sys.exit(2)
         results.append(result)
 
@@ -203,10 +207,10 @@ Version {__version__}
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
             f.write('\n')
-        print(f"JSON saved to: {json_file}")
+        logger.info('JSON saved to: %s', format_path_for_logging(json_file))
 
     if args.csv:
-        print(METRICS_CSV_DEPRECATION_MESSAGE)
+        logger.warning('%s', METRICS_CSV_DEPRECATION_MESSAGE)
 
     if args.table:
         if len(results) == 1:
@@ -244,7 +248,7 @@ Version {__version__}
 
             with open(table_file, 'w', encoding='utf-8') as f:
                 f.write(compose_text_document(frontmatter, table))
-            print(f"Table saved to: {table_file}")
+            logger.info('Written file: %s', format_path_for_logging(table_file))
         else:
             for result in results:
                 table_context = {
@@ -277,7 +281,7 @@ Version {__version__}
                 )
                 with open(table_file, 'w', encoding='utf-8') as f:
                     f.write(compose_text_document(frontmatter, table))
-                print(f"Table saved to: {table_file}")
+                logger.info('Written file: %s', format_path_for_logging(table_file))
 
 
 if __name__ == "__main__":

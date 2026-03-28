@@ -1,6 +1,7 @@
 ﻿import os
 import subprocess
 import sys
+import re
 
 import pytest
 
@@ -68,4 +69,25 @@ def test_cli_direct_script_version(script_path):
         f"Direct CLI script failed for {script_path}\n"
         f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
     )
+
+
+@pytest.mark.parametrize(
+    "module_args, expected_pattern",
+    [
+        (["akkapros.cli.prosmaker", "--test-diphthongs"], r"Test: PASS \[Diphthongs\] 0*1:"),
+        (["akkapros.cli.metricalc", "--test"], r"Test: PASS \[Metrics\] 0*1:"),
+        (["akkapros.cli.syllabifier", "--test"], r"Test: PASS \[Syllabify\] 0*1:"),
+    ],
+)
+def test_cli_selftests_use_structured_logging(module_args, expected_pattern):
+    proc = _run_cli(module_args)
+    output = proc.stdout + proc.stderr
+    assert proc.returncode == 0, output
+    assert re.search(expected_pattern, output)
+    assert "\n\n" not in output
+    assert "✅" not in output
+    assert "❌" not in output
+    assert "Running 12 tests" not in output
+    assert "Running 95 tests" not in output
+    assert not re.search(r"^={10,}$", output, flags=re.MULTILINE)
 

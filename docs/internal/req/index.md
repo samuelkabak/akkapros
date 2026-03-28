@@ -2,8 +2,8 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
-- [016. Requirement: Standardized CLI Logging and Console Options](016-standardized-cli-logging-and-console-options.md) - Draft
-- [015. Requirement: Frontmatter-Derived Word Indicators in Metrics](015-frontmatter-derived-word-indicators-in-metrics.md) - Draft
+- [016. Requirement: Standardized CLI Logging and Console Options](016-standardized-cli-logging-and-console-options.md) - Implemented
+- [015. Requirement: Frontmatter-Derived Word Indicators in Metrics](015-frontmatter-derived-word-indicators-in-metrics.md) - Implemented
 - [014. Requirement: Remove Metrics CSV Output](014-remove-metrics-csv-output.md) - Implemented
 - [013. Requirement: CLI File Front Matter and Metadata Propagation](013-cli-file-front-matter-and-metadata-propagation.md) - Draft
 - [012. Requirement: Metrics Output Structure and Layout](012-metrics-output-structure-and-layout.md) - Draft

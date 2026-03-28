@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — eBL ATF Parser (Library)
 
@@ -16,11 +16,14 @@ MIT License
 Copyright (c) 2026 Samuel KABAK
 """
 
+import logging
 import re
 import unicodedata
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
+
+from akkapros.lib.utils import get_logger_with_fallback, run_simple_selftest_suite
 
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
@@ -311,92 +314,26 @@ class ATFParser:
 def run_tests() -> bool:
     """Run comprehensive self-tests. Returns True if all pass, False otherwise."""
     parser = ATFParser(test_mode=True)
-    tests_passed = 0
-    tests_failed = 0
-    
-    # Test 1: Parentheses removed, content kept
-    test1 = parser.clean_line("(u) ana šubruq", for_test=True)
-    if test1 == "u ana šubruq":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 2: Single pipe to space
-    test2 = parser.clean_line("erra | qarrād", for_test=True)
-    if test2 == "erra qarrād":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 3: Double pipe to colon
-    test3 = parser.clean_line("libbašu || epēš", for_test=True)
-    if test3 == "libbašu : epēš":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 4: Glossenkeil to colon
-    test4 = parser.clean_line("iqabbīku‡ ana kâša", for_test=True)
-    if test4 == "iqabbīku : ana kâša":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 5: Ellipsis preserved
-    test5 = parser.clean_line("kibrāti ...", for_test=True)
-    if test5 == "kibrāti …":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 6: Question marks removed
-    test6 = parser.clean_line("tenēšēti?", for_test=True)
-    if test6 == "tenēšēti":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 7: Subscripts removed
-    test7 = parser.clean_line("da-ad₂-me", for_test=True)
-    if test7 == "dād-me":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 8: Collation markers removed
-    test8 = parser.clean_line("ba-nu-u₂#", for_test=True)
-    if test8 == "ba-nū":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 9: Brackets removed, content kept
-    test9 = parser.clean_line("kibrā[ti]", for_test=True)
-    if test9 == "kibrāti":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 10: Multiple x's collapse to one ellipsis
-    test10 = parser.clean_line("kib-ra-a-ti x x x", for_test=True)
-    if test10 == "kib-rā-ti …":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 11: Complex line with multiple markers
-    test11 = parser.clean_line("1. %n šar (|) gimir (|) dadmē | bānû (|) kibrā[ti (|) ... ]", for_test=True)
-    if test11 == "šar gimir dadmē bānû kibrāti …":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    # Test 12: Multiple spaces normalized
-    test12 = parser.clean_line("šar   gimir    dadmē", for_test=True)
-    if test12 == "šar gimir dadmē":
-        tests_passed += 1
-    else:
-        tests_failed += 1
-    
-    return tests_failed == 0
+    logger = get_logger_with_fallback(__name__)
+    suites = [
+        ('Parentheses content kept', lambda: parser.clean_line('(u) ana šubruq', for_test=True) == 'u ana šubruq'),
+        ('Single pipe to space', lambda: parser.clean_line('erra | qarrād', for_test=True) == 'erra qarrād'),
+        ('Double pipe to colon', lambda: parser.clean_line('libbašu || epēš', for_test=True) == 'libbašu : epēš'),
+        ('Glossenkeil to colon', lambda: parser.clean_line('iqabbīku‡ ana kâša', for_test=True) == 'iqabbīku : ana kâša'),
+        ('Ellipsis preserved', lambda: parser.clean_line('kibrāti ...', for_test=True) == 'kibrāti …'),
+        ('Question marks removed', lambda: parser.clean_line('tenēšēti?', for_test=True) == 'tenēšēti'),
+        ('Subscripts removed', lambda: parser.clean_line('da-ad₂-me', for_test=True) == 'dād-me'),
+        ('Collation markers removed', lambda: parser.clean_line('ba-nu-u₂#', for_test=True) == 'ba-nū'),
+        ('Brackets content kept', lambda: parser.clean_line('kibrā[ti]', for_test=True) == 'kibrāti'),
+        ('Broken signs collapse', lambda: parser.clean_line('kib-ra-a-ti x x x', for_test=True) == 'kib-rā-ti …'),
+        (
+            'Complex line cleanup',
+            lambda: parser.clean_line(
+                '1. %n šar (|) gimir (|) dadmē | bānû (|) kibrā[ti (|) ... ]',
+                for_test=True,
+            ) == 'šar gimir dadmē bānû kibrāti …',
+        ),
+        ('Multiple spaces normalized', lambda: parser.clean_line('šar   gimir    dadmē', for_test=True) == 'šar gimir dadmē'),
+    ]
+    return run_simple_selftest_suite(logger, 'Atfparse', suites)
 

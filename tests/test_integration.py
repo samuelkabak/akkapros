@@ -318,7 +318,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         _assert_matches_reference(generated, reference)
 
 
-def test_metricalc_legacy_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> None:
+def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
     outdir = tmp_path / "legacy_metricalc_csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -344,13 +344,13 @@ def test_metricalc_legacy_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> 
         "--csv",
     )
 
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stdout
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stderr
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stdout
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stderr
     _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
     assert not (outdir / "legacy_metrics.csv").exists()
 
 
-def test_fullprosmaker_legacy_metrics_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> None:
+def test_fullprosmaker_legacy_metrics_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
     outdir = tmp_path / "legacy_fullprosmaker_csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -364,8 +364,8 @@ def test_fullprosmaker_legacy_metrics_csv_flag_prints_stdout_notice_only(tmp_pat
         "--metrics-csv",
     )
 
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stdout
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stderr
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stdout
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stderr
     _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
     assert not (outdir / "legacy.csv").exists()
 

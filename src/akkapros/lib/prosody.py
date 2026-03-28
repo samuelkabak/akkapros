@@ -1,9 +1,10 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit - Moraic Prosody Realization System
 """
 
 import re
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple, Union, Dict, Set
@@ -14,6 +15,13 @@ from akkapros.lib.frontmatter import (
     build_prosody_stage_data,
     compose_text_document,
     read_text_file,
+)
+from akkapros.lib.utils import (
+    format_path_for_logging,
+    format_selftest_label,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
 )
 
 
@@ -35,6 +43,7 @@ from akkapros.lib.constants import (
 )
 
 HYPHEN = '-'
+LOGGER = logging.getLogger(__name__)
 
 # ------------------------------------------------------------
 # Phonetic inventory
@@ -867,23 +876,16 @@ class ProsodyEngine:
         return assemble_line(result_parts, tokens)
     
     def process_file(self, input_file: str, output_file: str, *, options: dict | None = None):
-        
-        print(f"\n{'='*80}")
-        print(f"AKKADIAN PROSODY TOOLKIT — ACCENTUATION ENGINE v{__version__}")
-        print(f"{'='*80}")
-        print(f"Input:  {input_file}")
-        print(f"Output: {output_file}")
-        
-        print(f"Style:  {self.style.value.upper()}")
-        print(f"Explicit + mode: {'ONLY LAST LINKED WORD' if self.only_last else 'ALLOW PROPAGATION'}")
-        print("Diphthongs: RESTORE ALWAYS")
-        
-        print(f"{'='*80}\n")
+        LOGGER.info('Source file: %s', format_path_for_logging(input_file))
+        LOGGER.info('Style: %s', self.style.value.upper())
+        LOGGER.info(
+            'Explicit + mode: %s',
+            'only-last' if self.only_last else 'allow-propagation',
+        )
+        LOGGER.info('Diphthong restore: always')
         
         input_frontmatter, text = read_text_file(input_file)
         lines = text.splitlines(keepends=True)
-        
-        print(f"Processing {len(lines)} lines...")
         
         output_lines = []
         
@@ -895,14 +897,8 @@ class ProsodyEngine:
             tokens = parse_syl_line(line)
             accentuated_line = self.accentuation_line(tokens)
             output_lines.append(accentuated_line)
-
-            if (line_num + 1) % 10 == 0:
-                print(f"  Processed {line_num + 1}/{len(lines)} lines...")
-
-        print("\nRestoring diphthongs...")
         output_lines = postprocess_restore_diphthongs(output_lines)
-        
-        print(f"\nWriting output...")
+
         output_body = '\n'.join(output_lines) + '\n'
         frontmatter = build_output_frontmatter(
             output_path=output_file,
@@ -921,41 +917,37 @@ class ProsodyEngine:
         )
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(compose_text_document(frontmatter, output_body))
+        LOGGER.info('Written file: %s', format_path_for_logging(output_file))
         
         self._print_stats()
 
     def _print_stats(self):
-        print(f"\n{'='*80}")
-        print("ACCENTUATION STATISTICS")
-        print(f"{'='*80}")
-        print(f"Words processed:       {self.stats['words']:6d}")
-        print(f"  Function words:      {self.stats['function_words']:6d}")
-        print(f"  Content words:       {self.stats['words'] - self.stats['function_words']:6d}")
-        print(f"Words accentuated:        {self.stats['words_accentuated']:6d}")
-        print(f"Total syllables:       {self.stats['total_syllables']:6d}")
-        print(f"Accentuated syllables:    {self.stats['accentuated_syllables']:6d}")
+        LOGGER.info('Words processed:       %6d', self.stats['words'])
+        LOGGER.info('  Function words:      %6d', self.stats['function_words'])
+        LOGGER.info('  Content words:       %6d', self.stats['words'] - self.stats['function_words'])
+        LOGGER.info('Words accentuated:        %6d', self.stats['words_accentuated'])
+        LOGGER.info('Total syllables:       %6d', self.stats['total_syllables'])
+        LOGGER.info('Accentuated syllables:    %6d', self.stats['accentuated_syllables'])
         
         if self.stats['total_syllables'] > 0:
             rate = self.stats['accentuated_syllables'] / self.stats['total_syllables'] * 100
-            print(f"Accentuation rate:           {rate:5.2f}%")
+            LOGGER.info('Accentuation rate:           %5.2f%%', rate)
         
-        print(f"\nAccentuation types:")
+        LOGGER.info('Accentuation types:')
         for rtype, count in self.stats['accentuation_types'].items():
             if count > 0:
-                print(f"  {rtype:20s} {count:6d}")
+                LOGGER.info('  %-20s %6d', rtype, count)
         
-        print(f"\nMerge operations:")
-        print(f"  Forward merges:      {self.stats['merged_forward']:6d}")
-        print(f"  Backward merges:     {self.stats['merged_backward']:6d}")
-        print(f"  Last resort accentuations: {self.stats['last_resort']:6d}")
-        print(f"{'='*80}\n")
+        LOGGER.info('Merge operations:')
+        LOGGER.info('  Forward merges:      %6d', self.stats['merged_forward'])
+        LOGGER.info('  Backward merges:     %6d', self.stats['merged_backward'])
+        LOGGER.info('  Last resort accentuations: %6d', self.stats['last_resort'])
 
 
 def test_diphthong_restoration() -> bool:
     """Test diphthong restoration using generated DIPH_SEPARATOR patterns."""
-    print("\n" + "="*80)
-    print("DIPHTHONG RESTORATION — REGEX TESTS")
-    print("="*80)
+    logger = get_logger_with_fallback(__name__)
+
     def restore_one(text: str) -> str:
         return postprocess_restore_diphthongs([text])[0]
 
@@ -974,31 +966,35 @@ def test_diphthong_restoration() -> bool:
         (f"ta{SYL_SEPARATOR}{DIPH_SEPARATOR}a ki", "tâ ki", "In-line restoration in phrase"),
     ]
     
-    passed = 0
     total = len(test_cases)
-    
-    print(f"\nRunning {total} tests...\n")
-    
+
+    passed = 0
     for i, (inp, expected, desc) in enumerate(test_cases, 1):
         result = restore_one(inp)
+        label = format_selftest_label(i, total, desc)
         if result == expected:
-            print(f"✅ Test {i}: {desc}")
             passed += 1
+            log_selftest_result(logger, True, 'Diphthongs', label)
         else:
-            print(f"❌ Test {i}: {desc}")
-            print(f"   Input:    '{inp}'")
-            print(f"   Expected: '{expected}'")
-            print(f"   Got:      '{result}'")
-    
-    print(f"\nPassed: {passed}/{total}")
+            log_selftest_result(
+                logger,
+                False,
+                'Diphthongs',
+                label,
+                details=[
+                    f'input={inp!r}',
+                    f'expected={expected!r}',
+                    f'got={result!r}',
+                ],
+            )
+
+    log_selftest_summary(logger, 'Diphthongs', passed, total)
     return passed == total
 
 
 def run_tests():
     """Run comprehensive tests for all three accent models."""
-    print("\n" + "="*80)
-    print("PROSODY REALIZATION TOOL — COMPREHENSIVE TESTS")
-    print("="*80)
+    logger = get_logger_with_fallback(__name__)
     
     test_cases = [
         # ===== BASIC TESTS (original 6) =====
@@ -1185,13 +1181,14 @@ def run_tests():
 
 
     all_passed = True
+    total_passed = 0
     
     for style in [AccentStyle.LOB, AccentStyle.SOB]:
-        print(f"\n--- Testing {style.value.upper()} ---")
         engine = ProsodyEngine(style=style)
         
         passed = 0
         total = 0
+        category = f'Prosody/{style.value.upper()}'
         
         for test in test_cases:
             total += 1
@@ -1202,18 +1199,27 @@ def run_tests():
             # Normalize spaces for comparison
             result = ' '.join(result.split())
             expected = ' '.join(expected.split())
+            label = format_selftest_label(total, len(test_cases), test['name'])
             
             if result == expected:
-                print(f"  ✅ Test {total}: {test['name']}")
                 passed += 1
+                total_passed += 1
+                log_selftest_result(logger, True, category, label)
             else:
-                print(f"  ❌ Test {total}: {test['name']}")
-                print(f"     Input:    {test['input']}")
-                print(f"     Expected: {expected}")
-                print(f"     Got:      {result}")
                 all_passed = False
-        
-        print(f"  Passed: {passed}/{total}")
+                log_selftest_result(
+                    logger,
+                    False,
+                    category,
+                    label,
+                    details=[
+                        f'input={test["input"]!r}',
+                        f'expected={expected!r}',
+                        f'got={result!r}',
+                    ],
+                )
+
+        log_selftest_summary(logger, category, passed, total)
 
     # Verify relaxed behavior with only_last=False for explicit '+' groups.
     relaxed_cases = [
@@ -1251,29 +1257,43 @@ def run_tests():
         },
     ]
 
-    print("\n--- Testing RELAX_LAST mode ---")
+    relaxed_total = len(relaxed_cases) * 2
+    relaxed_passed = 0
+    relaxed_index = 0
     for style in [AccentStyle.LOB, AccentStyle.SOB]:
         engine = ProsodyEngine(style=style, only_last=False)
+        category = f'Prosody/{style.value.upper()}'
         for test in relaxed_cases:
+            relaxed_index += 1
             tokens = parse_syl_line(test['input'])
             result = engine.accentuation_line(tokens)
             expected = test['expected'][style.value]
 
             result = ' '.join(result.split())
             expected = ' '.join(expected.split())
+            label = format_selftest_label(relaxed_index, relaxed_total, f"Relax last {test['name']}")
 
             if result == expected:
-                print(f"  ✅ {style.value.upper()}: {test['name']}")
+                relaxed_passed += 1
+                total_passed += 1
+                log_selftest_result(logger, True, category, label)
             else:
-                print(f"  ❌ {style.value.upper()}: {test['name']}")
-                print(f"     Input:    {test['input']}")
-                print(f"     Expected: {expected}")
-                print(f"     Got:      {result}")
                 all_passed = False
-    
-    print(f"\n{'='*80}")
-    print(f"Overall: {'ALL TESTS PASSED' if all_passed else 'SOME TESTS FAILED'}")
-    print(f"{'='*80}\n")
+                log_selftest_result(
+                    logger,
+                    False,
+                    category,
+                    label,
+                    details=[
+                        f'input={test["input"]!r}',
+                        f'expected={expected!r}',
+                        f'got={result!r}',
+                    ],
+                )
+
+    log_selftest_summary(logger, 'Prosody relax', relaxed_passed, relaxed_total)
+    total_cases = (len(test_cases) * 2) + relaxed_total
+    log_selftest_summary(logger, 'Prosody', total_passed, total_cases)
     
     return all_passed
 

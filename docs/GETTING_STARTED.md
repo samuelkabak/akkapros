@@ -64,6 +64,28 @@ and the following blank line.
 
 ---
 
+## Shared Logging Options
+
+All major CLI entrypoints now expose the same runtime logging controls:
+
+- `--quiet`: suppress console `INFO` output while keeping warnings and errors visible
+- `--no-console`: disable console logging entirely
+- `--log FILE`: write runtime logs to a file
+- `--log-append`: append to the log file instead of overwriting it
+
+Examples:
+
+```powershell
+python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt -p demo --outdir outputs --quiet
+python -m akkapros.cli.metricalc outputs/demo_tilde.txt --table --no-console --log outputs/metrics.log
+python -m akkapros.cli.phoneprep --coverage 1 --log outputs/phoneprep.log --log-append
+```
+
+Built-in `--help` and `--version` remain parser-driven. Other runtime status,
+warning, and error messages now use the shared logger.
+
+---
+
 ## Next Steps
 
 - For detailed CLI documentation, see:

@@ -19,7 +19,7 @@ Key groupings:
 | Group | Functions |
 |-------|-----------|
 | Filename utilities | `simple_safe_filename` |
-| CLI helpers | `print_startup_banner`, `add_standard_version_argument`, `RawDefaultsHelpFormatter` |
+| CLI helpers | `print_startup_banner`, `log_startup_banner`, `add_standard_version_argument`, `add_standard_logging_arguments`, `setup_cli_logging`, `RawDefaultsHelpFormatter` |
 | Contextual regex | `compile_contextual_regex`, `contextualize_for_regex`, `strip_regex_sentinels`, `build_numeric_currency_pattern` |
 | Format validation | `FormatValidationError`, `validate_intermediate_format` |
 | Front matter helpers | `akkapros.lib.frontmatter` owns parsing/serialization and stage metadata propagation |
@@ -56,12 +56,56 @@ This single version is the canonical one (see CR-010).
 Prints a stable, predictable banner at startup listing all effective
 CLI parameters.  Used at the top of every CLI `main()` for reproducibility.
 
+This helper is retained for legacy or non-logger contexts. Runtime CLIs should
+prefer `log_startup_banner()`.
+
+---
+
+### `log_startup_banner(logger, program_title, version, args)`
+
+Emits the same stable startup banner through the shared `akkapros` logger.
+This is the canonical startup path for runtime CLI execution.
+
 ---
 
 ### `add_standard_version_argument(parser, tool_name)`
 
 Attaches a `--version`/`-v` flag to an `argparse.ArgumentParser` that
 prints the full multi-line version string from `get_version_display()`.
+
+---
+
+### `add_standard_logging_arguments(parser)`
+
+Registers the standardized runtime logging options shared across the CLI
+surface:
+
+- `--quiet`
+- `--no-console`
+- `--log`
+- `--log-append`
+
+The help text lives in this helper so CLIs do not duplicate the contract.
+
+---
+
+### `setup_cli_logging(args, logger_name)`
+
+Configures the shared `akkapros` logger and returns the named child logger used
+by the calling CLI or library path.
+
+Behavior:
+
+- `--quiet` suppresses console `INFO` output but keeps `WARNING` and `ERROR`
+  visible.
+- `--no-console` disables console handlers entirely.
+- `--log FILE` writes the full log stream to a UTF-8 file.
+- `--log-append` switches the file handler to append mode.
+- `--log-append` without `--log` is rejected by the shared setup layer.
+
+This shared configuration is what allows library child loggers such as
+`akkapros.lib.prosody` and `akkapros.lib.phoneprep` to participate in the same
+runtime log stream without CLI-specific handler duplication.
 
 ---
 

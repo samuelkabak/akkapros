@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Akkadian Prosody Toolkit - Full Prosody Pipeline (CLI wrapper)
 
 Runs the complete processing pipeline in one command:
@@ -51,8 +51,15 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    format_selftest_label,
+    format_path_for_logging,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
+    log_startup_banner,
+    setup_cli_logging,
     validate_intermediate_format,
 )
 
@@ -68,6 +75,7 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
 
 def run_tests() -> bool:
     """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
+    logger = get_logger_with_fallback(__name__)
     class _Args:
         def __init__(self, print_ipa: bool, print_ipa_proto_semitic: str, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
@@ -83,7 +91,8 @@ def run_tests() -> bool:
     ]
 
     passed = 0
-    for args, exp_write, exp_mode, exp_circ_hiatus in cases:
+    total = len(cases)
+    for index, (args, exp_write, exp_mode, exp_circ_hiatus) in enumerate(cases, start=1):
         got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
@@ -91,19 +100,37 @@ def run_tests() -> bool:
             and got_circ_hiatus == exp_circ_hiatus
         ):
             passed += 1
+            log_selftest_result(
+                logger,
+                True,
+                'Full pipeline',
+                format_selftest_label(index, total, 'Cli ipa mode'),
+            )
         else:
-            print(
-                "FAILED [fullprosmaker cli ipa mode]"
-                f"\n  in : print_ipa={args.print_ipa}, print_ipa_proto_semitic={args.print_ipa_proto_semitic}, print_circ_hiatus={args.print_circ_hiatus}"
-                f"\n  got: output_ipa={got_write}, ipa_mode={got_mode}, print_circ_hiatus={got_circ_hiatus}"
-                f"\n  exp: output_ipa={exp_write}, ipa_mode={exp_mode}, print_circ_hiatus={exp_circ_hiatus}"
+            log_selftest_result(
+                logger,
+                False,
+                'Full pipeline',
+                format_selftest_label(index, total, 'Cli ipa mode'),
+                details=[
+                    f'print_ipa={args.print_ipa}',
+                    f'print_ipa_proto_semitic={args.print_ipa_proto_semitic!r}',
+                    f'print_circ_hiatus={args.print_circ_hiatus}',
+                    f'expected_output_ipa={exp_write}',
+                    f'expected_ipa_mode={exp_mode!r}',
+                    f'expected_print_circ_hiatus={exp_circ_hiatus}',
+                    f'got_output_ipa={got_write}',
+                    f'got_ipa_mode={got_mode!r}',
+                    f'got_print_circ_hiatus={got_circ_hiatus}',
+                ],
             )
 
-    print(f"fullprosmaker.py cli tests: {passed}/{len(cases)} passed")
-    return passed == len(cases)
+    log_selftest_summary(logger, 'Full pipeline', passed, total)
+    return passed == total
 
 
 def run_pipeline(
+    logger,
     input_file: Path,
     outdir: Path,
     prefix: str,
@@ -146,12 +173,7 @@ def run_pipeline(
     xar_file = outdir / f"{safe_prefix}_accent_xar.txt"
     xar_plain_file = outdir / f"{safe_prefix}_xar.txt"
 
-    print(f"Input: {input_file}")
-    print(f"Output directory: {outdir}")
-    print(f"Output prefix: {safe_prefix}")
-
     # 1) Syllabify using library call
-    print("\n[1/3] Syllabifying...")
     input_frontmatter, source_text = read_text_file(input_file)
 
     syllabify.configure_punctuation_rules(
@@ -185,17 +207,15 @@ def run_pipeline(
     )
     with open(syl_file, 'w', encoding='utf-8') as f:
         f.write(compose_text_document(syl_frontmatter, syl_body))
-    print(f"Written: {syl_file}")
+    logger.info('Written file: %s', format_path_for_logging(syl_file))
 
     # 2) Prosody realization using library engine
-    print("\n[2/3] Applying prosody realization...")
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     engine = ProsodyEngine(style=style_map[style], only_last=only_last)
     engine.process_file(str(syl_file), str(tilde_file), options=options)
-    print(f"Written: {tilde_file}")
+    logger.info('Written file: %s', format_path_for_logging(tilde_file))
 
     # 3) Metrics
-    print("\n[3/4] Computing metrics...")
     configure_pause_punctuation_rules(
         short_punct_chars=short_punct_chars,
         long_punct_chars=long_punct_chars,
@@ -211,7 +231,7 @@ def run_pipeline(
             long_punct_weight,
         )
     except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
+        logger.error('%s', exc)
         return 2
 
     if output_json:
@@ -243,10 +263,10 @@ def run_pipeline(
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
             f.write('\n')
-        print(f"JSON saved to: {json_file}")
+        logger.info('Written file: %s', format_path_for_logging(json_file))
 
     if output_csv:
-        print(METRICS_CSV_DEPRECATION_MESSAGE)
+        logger.warning('%s', METRICS_CSV_DEPRECATION_MESSAGE)
 
     if output_table:
         table_context = {
@@ -281,10 +301,9 @@ def run_pipeline(
         )
         with open(table_file, 'w', encoding='utf-8') as f:
             f.write(compose_text_document(table_frontmatter, table))
-        print(f"Table saved to: {table_file}")
+        logger.info('Written file: %s', format_path_for_logging(table_file))
 
     # 4) Printer outputs
-    print("\n[4/4] Generating accent outputs...")
     accent_print.process_file(
         input_file=str(tilde_file),
         output_acute_file=str(acute_file),
@@ -302,16 +321,15 @@ def run_pipeline(
     )
 
     if output_acute:
-        print(f"Accent acute saved to: {acute_file}")
+        logger.info('Written file: %s', format_path_for_logging(acute_file))
     if output_bold:
-        print(f"Accent bold saved to: {bold_file}")
+        logger.info('Written file: %s', format_path_for_logging(bold_file))
     if output_ipa:
-        print(f"Accent IPA saved to: {ipa_file}")
+        logger.info('Written file: %s', format_path_for_logging(ipa_file))
     if output_xar:
-        print(f"Accent XAR saved to: {xar_file}")
-        print(f"XAR saved to: {xar_plain_file}")
+        logger.info('Written file: %s', format_path_for_logging(xar_file))
+        logger.info('Written file: %s', format_path_for_logging(xar_plain_file))
 
-    print("\nPipeline completed successfully.")
     return 0
 
 
@@ -330,6 +348,7 @@ Version: {__version__}
 """
     )
     add_standard_version_argument(parser, 'akkapros-fullprosmaker')
+    add_standard_logging_arguments(parser)
 
     # Input/output (shared)
     parser.add_argument('input', nargs='?', help='Input Akkadian file (typically *_proc.txt)')
@@ -392,9 +411,9 @@ Version: {__version__}
 
     args = parser.parse_args()
 
-    print_startup_banner('akkapros-fullprosmaker', __version__, args)
-
     if args.test_all:
+        logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
+        log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
         ok = True
         ok = syllabify.run_tests() and ok
         ok = run_prosody_tests() and ok
@@ -405,6 +424,8 @@ Version: {__version__}
         sys.exit(0 if ok else 1)
 
     if args.test_syllabify or args.test_prosody or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
+        logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
+        log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
         ok = True
         if args.test_syllabify:
             ok = syllabify.run_tests() and ok
@@ -420,6 +441,13 @@ Version: {__version__}
             ok = run_tests() and ok
         sys.exit(0 if ok else 1)
 
+    if not args.input:
+        parser.print_help()
+        sys.exit(1)
+
+    logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
+    log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
+
     try:
         syllabify.configure_punctuation_rules(
             short_punct_chars=args.short_punct_chars,
@@ -434,26 +462,19 @@ Version: {__version__}
             long_punct_patterns=args.long_punct_pattern,
         )
     except (syllabify.PunctuationConfigError, MetricsPunctuationConfigError) as exc:
-        print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
-        sys.exit(2)
-
-    if not args.input:
-        parser.print_help()
+        logger.error('Invalid punctuation regex/options: %s', exc)
         sys.exit(1)
 
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"Error: File not found: {args.input}")
+        logger.error('File not found: %s', args.input)
         sys.exit(1)
 
     try:
         validate_intermediate_format(input_path, expected_kind='proc')
     except FormatValidationError as exc:
-        print(f"Error: Invalid input format: {exc}", file=sys.stderr)
-        print(
-            "Hint: expected cleaned *_proc.txt input from atfparser; fullprosmaker does not accept raw .atf.",
-            file=sys.stderr,
-        )
+        logger.error('Invalid input format: %s', exc)
+        logger.error('Hint: expected cleaned *_proc.txt input from atfparser; fullprosmaker does not accept raw .atf.')
         sys.exit(2)
 
     outdir = Path(args.outdir)
@@ -479,6 +500,7 @@ Version: {__version__}
     only_last = not args.prosody_relax_last
 
     code = run_pipeline(
+        logger=logger,
         input_file=input_path,
         outdir=outdir,
         prefix=prefix,

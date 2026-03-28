@@ -5,6 +5,7 @@ Generates minimal set of words for MBROLATOR voice building
 """
 
 import itertools
+import logging
 import random
 import csv
 import json
@@ -14,7 +15,19 @@ from typing import Callable, Dict, List, Set, Tuple, Optional
 import argparse
 from pathlib import Path
 
-from akkapros.lib.utils import add_standard_version_argument
+from akkapros.lib.utils import (
+    add_standard_logging_arguments,
+    add_standard_version_argument,
+    format_selftest_label,
+    format_path_for_logging,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
+    log_startup_banner,
+    setup_cli_logging,
+)
+
+LOGGER = logging.getLogger(__name__)
 
 # ============================================
 # PHONEME INVENTORY
@@ -774,9 +787,9 @@ def generate_script(
     candidate_pool_size: int = 32,
 ) -> List[Tuple[List[str], int]]:
     """Generate minimal recording script."""
-    print("Building reachable diphone inventory once...")
+    LOGGER.info('Building reachable diphone inventory once...')
     reachable_diphones = compute_reachable_diphone_inventory()
-    print(f"Reachable diphone inventory size: {len(reachable_diphones)}")
+    LOGGER.info('Reachable diphone inventory size: %d', len(reachable_diphones))
     
     # Initialize optimizer
     optimizer = CoverageOptimizer(
@@ -787,14 +800,18 @@ def generate_script(
         strict_non_vv_cap=strict_non_vv_cap,
     )
     
-    print(f"\nBuilding minimal set with target coverage = {target_coverage}...")
+    LOGGER.info('Building minimal set with target coverage = %s...', target_coverage)
     if max_non_vv_occurrences is not None:
         if strict_non_vv_cap:
-            print(f"Applying STRICT non-VV max occurrences cap: {max_non_vv_occurrences} (V-V unlimited)")
+            LOGGER.info(
+                'Applying STRICT non-VV max occurrences cap: %s (V-V unlimited)',
+                max_non_vv_occurrences,
+            )
         else:
-            print(
-                f"Applying SOFT non-VV target around {max_non_vv_occurrences} "
-                f"with completion ratio >= {non_vv_target_ratio:.0%} (V-V unlimited)"
+            LOGGER.info(
+                'Applying SOFT non-VV target around %s with completion ratio >= %s (V-V unlimited)',
+                max_non_vv_occurrences,
+                f'{non_vv_target_ratio:.0%}',
             )
     
     sampled = 0
@@ -832,18 +849,19 @@ def generate_script(
             accepted += 1
             pattern_counts[best_candidate[1]] += 1
 
-    print(f"Sampled candidates: {sampled}")
-    print(f"Candidate pool size per selection round: {candidate_pool_size}")
-    print(f"Accepted words: {accepted}")
-    print(
-        f"Accepted by pattern: P1={pattern_counts[1]}, "
-        f"P2={pattern_counts[2]}, P3={pattern_counts[3]}"
+    LOGGER.info('Sampled candidates: %d', sampled)
+    LOGGER.info('Candidate pool size per selection round: %d', candidate_pool_size)
+    LOGGER.info('Accepted words: %d', accepted)
+    LOGGER.info(
+        'Accepted by pattern: P1=%d, P2=%d, P3=%d',
+        pattern_counts[1],
+        pattern_counts[2],
+        pattern_counts[3],
     )
 
     if not optimizer.is_complete():
-        print(
-            "WARNING: Reached max iterations before completion target. "
-            "Increase --max-iterations or relax constraints."
+        LOGGER.warning(
+            'Reached max iterations before completion target. Increase --max-iterations or relax constraints.'
         )
     
     return optimizer.selected_words, optimizer.coverage_summary()
@@ -979,9 +997,9 @@ def write_alignment_sidecars(output_script_path: str, manifest_rows: List[Dict[s
         for row in manifest_rows:
             fh.write(f"{row['word_script']}\n")
 
-    print(f"Manifest written to {manifest_path}")
-    print(f"Diphone cursor file written to {diphones_path}")
-    print(f"Word list (one per line) written to {words_path}")
+    LOGGER.info('Manifest written to %s', format_path_for_logging(manifest_path))
+    LOGGER.info('Diphone cursor file written to %s', format_path_for_logging(diphones_path))
+    LOGGER.info('Word list (one per line) written to %s', format_path_for_logging(words_path))
 
 
 def extract_recording_words(script_path: Path) -> List[str]:
@@ -1382,7 +1400,7 @@ def write_recording_helper_html(
     html = html.replace('%%PREFIX_RAW%%', prefix)
     html = html.replace('%%SEGMANIFEST_RAW%%', segmanifest_name)
     helper_path.write_text(html, encoding='utf-8')
-    print(f"Recording helper HTML written to {helper_path}")
+    LOGGER.info('Recording helper HTML written to %s', format_path_for_logging(helper_path))
     return helper_path
 
 
@@ -1545,28 +1563,30 @@ def validate_word_list(
 
 def run_tests() -> bool:
     """Run lightweight self-tests for core invariants."""
-    ok = True
+    logger = get_logger_with_fallback(__name__)
+    cases = [
+        ('Parse symbol list', lambda: parse_symbol_list('a, b c') == ['a', 'b', 'c'], None),
+        ('Vv class plain/plain', lambda: is_vv_class_legal('a', 'ē'), None),
+        ('Vv class mixed class', lambda: not is_vv_class_legal('a', 'ɑ'), None),
+        ('Validate pattern1 sample', lambda: validate_pattern1(['a', 'm', 'n', 'a', 'm', 'n', 'a']), None),
+    ]
 
-    if parse_symbol_list("a, b c") != ['a', 'b', 'c']:
-        print("FAILED [parse_symbol_list]")
-        ok = False
+    passed = 0
+    total = len(cases)
+    for index, (name, callback, details) in enumerate(cases, start=1):
+        ok = bool(callback())
+        if ok:
+            passed += 1
+        log_selftest_result(
+            logger,
+            ok,
+            'Phoneprep',
+            format_selftest_label(index, total, name),
+            details=details,
+        )
 
-    if not is_vv_class_legal('a', 'ē'):
-        print("FAILED [is_vv_class_legal plain/plain]")
-        ok = False
-
-    if is_vv_class_legal('a', 'ɑ'):
-        print("FAILED [is_vv_class_legal mixed class]")
-        ok = False
-
-    sample = ['a', 'm', 'n', 'a', 'm', 'n', 'a']
-    if not validate_pattern1(sample):
-        print("FAILED [validate_pattern1 sample]")
-        ok = False
-
-    if ok:
-        print("phoneprep.py tests: 4/4 passed")
-    return ok
+    log_selftest_summary(logger, 'Phoneprep', passed, total)
+    return passed == total
 
 
 # ============================================
@@ -1576,6 +1596,7 @@ def run_tests() -> bool:
 def main():
     parser = argparse.ArgumentParser(description="Generate Akkadian diphone recording script")
     add_standard_version_argument(parser, 'akkapros-phoneprep')
+    add_standard_logging_arguments(parser)
     parser.add_argument("--coverage", "-c", type=int, default=3, 
                        choices=[1, 2, 3, 4],
                        help="Target coverage for each diphone (default: 3)")
@@ -1621,14 +1642,22 @@ def main():
     args = parser.parse_args()
 
     if args.test:
+        logger = setup_cli_logging(args, 'akkapros.lib.phoneprep')
+        log_startup_banner(logger, 'akkapros-phoneprep', 'library-main', args)
         sys.exit(0 if run_tests() else 1)
 
+    logger = setup_cli_logging(args, 'akkapros.lib.phoneprep')
+    log_startup_banner(logger, 'akkapros-phoneprep', 'library-main', args)
+
     if not 0.0 < args.non_vv_target_ratio <= 1.0:
-        parser.error("--non-vv-target-ratio must be in (0, 1]")
+        logger.error('--non-vv-target-ratio must be in (0, 1]')
+        sys.exit(2)
     if args.candidate_pool_size <= 0:
-        parser.error("--candidate-pool-size must be >= 1")
+        logger.error('--candidate-pool-size must be >= 1')
+        sys.exit(2)
     if args.recording_max_words <= 0:
-        parser.error("--recording-max-words must be >= 1")
+        logger.error('--recording-max-words must be >= 1')
+        sys.exit(2)
 
     if args.debug_reduced_set:
         set_active_inventory(
@@ -1676,34 +1705,34 @@ def main():
     
     random.seed(args.seed)
     
-    print(f"Akkadian Diphone Script Generator")
-    print(f"=================================")
-    print(f"Target coverage: {args.coverage}")
+    logger.info('Akkadian Diphone Script Generator')
+    logger.info('=================================')
+    logger.info('Target coverage: %s', args.coverage)
     if args.max_non_vv is not None:
         if args.strict_max_non_vv:
-            print(f"Non-VV strict max occurrences: {args.max_non_vv} (V-V unlimited)")
+            logger.info('Non-VV strict max occurrences: %s (V-V unlimited)', args.max_non_vv)
         else:
-            print(
-                f"Non-VV soft target: {args.max_non_vv}, "
-                f"required ratio: {args.non_vv_target_ratio:.0%} (V-V unlimited)"
+            logger.info(
+                'Non-VV soft target: %s, required ratio: %s (V-V unlimited)',
+                args.max_non_vv,
+                f'{args.non_vv_target_ratio:.0%}',
             )
-    print(f"Output file: {args.output}")
-    print(f"Plain consonants (IPA): {', '.join(inventory_as_ipa(PLAIN_CONSONANTS))}")
-    print(f"Emphatic consonants (IPA): {', '.join(inventory_as_ipa(EMPHATIC_CONSONANTS))}")
-    print(
-        "Plain vowels short/long (IPA): "
-        f"{', '.join(inventory_as_ipa(PLAIN_VOWELS_SHORT))} / "
-        f"{', '.join(inventory_as_ipa(PLAIN_VOWELS_LONG))}"
+    logger.info('Output file: %s', format_path_for_logging(args.output))
+    logger.info('Plain consonants (IPA): %s', ', '.join(inventory_as_ipa(PLAIN_CONSONANTS)))
+    logger.info('Emphatic consonants (IPA): %s', ', '.join(inventory_as_ipa(EMPHATIC_CONSONANTS)))
+    logger.info(
+        'Plain vowels short/long (IPA): %s / %s',
+        ', '.join(inventory_as_ipa(PLAIN_VOWELS_SHORT)),
+        ', '.join(inventory_as_ipa(PLAIN_VOWELS_LONG)),
     )
-    print(
-        "Colored vowels short/long (IPA): "
-        f"{', '.join(inventory_as_ipa(COLORED_VOWELS_SHORT))} / "
-        f"{', '.join(inventory_as_ipa(COLORED_VOWELS_LONG))}"
+    logger.info(
+        'Colored vowels short/long (IPA): %s / %s',
+        ', '.join(inventory_as_ipa(COLORED_VOWELS_SHORT)),
+        ', '.join(inventory_as_ipa(COLORED_VOWELS_LONG)),
     )
     mapping_pairs = ipa_to_mbrola_mapping_list()
     mapping_text = ', '.join([f"{ipa}->{mb}" for ipa, mb in mapping_pairs])
-    print(f"Mbrola X-SAMPA mapping: [{mapping_text}]")
-    print()
+    logger.info('Mbrola X-SAMPA mapping: [%s]', mapping_text)
 
     if args.two_batch_emphatic:
         base_plain_consonants = list(PLAIN_CONSONANTS)
@@ -1712,8 +1741,6 @@ def main():
         base_plain_vowels_long = list(PLAIN_VOWELS_LONG)
         base_colored_vowels_short = list(COLORED_VOWELS_SHORT)
         base_colored_vowels_long = list(COLORED_VOWELS_LONG)
-
-        print("Running two-batch mode...")
 
         # Batch 1: no emphatics, no colored vowels.
         set_active_inventory(
@@ -1724,7 +1751,7 @@ def main():
             colored_vowels_short=[],
             colored_vowels_long=[],
         )
-        print("\n[BATCH 1] Plain-only inventory")
+        logger.info('[BATCH 1] Plain-only inventory')
         batch1_words, batch1_stats = generate_script(
             target_coverage=args.coverage,
             max_non_vv_occurrences=args.max_non_vv,
@@ -1735,8 +1762,8 @@ def main():
         )
         batch1_issues = validate_word_list(batch1_words, require_alternation=False)
         if batch1_issues:
-            print(f"WARNING: Batch 1 validation found {len(batch1_issues)} issue(s). First:")
-            print(f"  {batch1_issues[0]}")
+            logger.warning('Batch 1 validation found %d issue(s). First:', len(batch1_issues))
+            logger.warning('  %s', batch1_issues[0])
 
         # Batch 2: mixed plain/colored vowels + mixed consonants (no alternation filter).
         set_active_inventory(
@@ -1747,7 +1774,7 @@ def main():
             colored_vowels_short=base_colored_vowels_short,
             colored_vowels_long=base_colored_vowels_long,
         )
-        print("\n[BATCH 2] Mixed consonants + mixed vowels (post-emphatic legality)")
+        logger.info('[BATCH 2] Mixed consonants + mixed vowels (post-emphatic legality)')
         batch2_words, batch2_stats = generate_script(
             target_coverage=args.coverage,
             max_non_vv_occurrences=args.max_non_vv,
@@ -1759,8 +1786,8 @@ def main():
         )
         batch2_issues = validate_word_list(batch2_words, require_alternation=False)
         if batch2_issues:
-            print(f"WARNING: Batch 2 validation found {len(batch2_issues)} issue(s). First:")
-            print(f"  {batch2_issues[0]}")
+            logger.warning('Batch 2 validation found %d issue(s). First:', len(batch2_issues))
+            logger.warning('  %s', batch2_issues[0])
 
         # Restore active inventory for any later operations.
         set_active_inventory(
@@ -1772,15 +1799,15 @@ def main():
             colored_vowels_long=base_colored_vowels_long,
         )
 
-        print("\n" + "="*50)
-        print("BATCHED COVERAGE SUMMARY")
-        print("="*50)
-        print(f"Batch 1 words: {len(batch1_words)} | target-hit ratio: {batch1_stats['ratio']:.2%}")
-        print(f"Batch 2 words: {len(batch2_words)} | target-hit ratio: {batch2_stats['ratio']:.2%}")
-        print(f"Total words: {len(batch1_words) + len(batch2_words)}")
+        logger.info('%s', '=' * 50)
+        logger.info('BATCHED COVERAGE SUMMARY')
+        logger.info('%s', '=' * 50)
+        logger.info('Batch 1 words: %d | target-hit ratio: %.2f%%', len(batch1_words), batch1_stats['ratio'] * 100)
+        logger.info('Batch 2 words: %d | target-hit ratio: %.2f%%', len(batch2_words), batch2_stats['ratio'] * 100)
+        logger.info('Total words: %d', len(batch1_words) + len(batch2_words))
 
         write_script_batched(batch1_words, batch2_words, args.output, args.coverage)
-        print(f"\nScript written to {args.output}")
+        logger.info('Script written to %s', format_path_for_logging(args.output))
 
         if not args.no_sidecars:
             batch1_rows = build_manifest_rows(batch1_words, batch='batch1', start_utterance_id=1)
@@ -1808,23 +1835,23 @@ def main():
     )
     issues = validate_word_list(words, require_alternation=False)
     if issues:
-        print(f"WARNING: Validation found {len(issues)} issue(s). First:")
-        print(f"  {issues[0]}")
+        logger.warning('Validation found %d issue(s). First:', len(issues))
+        logger.warning('  %s', issues[0])
     
-    print("\n" + "="*50)
-    print("COVERAGE SUMMARY")
-    print("="*50)
-    print(f"Required diphones: {stats['total']}")
-    print(f"Fully covered: {stats['complete']}")
-    print(f"Below target: {stats['below']}")
-    print(f"Coverage range: {stats['min']} - {stats['max']}")
-    print(f"Average coverage: {stats['avg']:.2f}")
-    print(f"Target-hit ratio: {stats['ratio']:.2%}")
-    print(f"V-V diphones tracked: {stats['vv_total']} (avg coverage {stats['vv_avg']:.2f})")
-    print(f"Words generated: {len(words)}")
+    logger.info('%s', '=' * 50)
+    logger.info('COVERAGE SUMMARY')
+    logger.info('%s', '=' * 50)
+    logger.info('Required diphones: %s', stats['total'])
+    logger.info('Fully covered: %s', stats['complete'])
+    logger.info('Below target: %s', stats['below'])
+    logger.info('Coverage range: %s - %s', stats['min'], stats['max'])
+    logger.info('Average coverage: %.2f', stats['avg'])
+    logger.info('Target-hit ratio: %.2f%%', stats['ratio'] * 100)
+    logger.info('V-V diphones tracked: %s (avg coverage %.2f)', stats['vv_total'], stats['vv_avg'])
+    logger.info('Words generated: %d', len(words))
     
     write_script(words, args.output, args.coverage)
-    print(f"\nScript written to {args.output}")
+    logger.info('Script written to %s', format_path_for_logging(args.output))
 
     if not args.no_sidecars:
         rows = build_manifest_rows(words, batch='single', start_utterance_id=1)

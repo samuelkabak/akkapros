@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Akkadian Prosody Toolkit — Accent Printer (Library)
 
@@ -16,6 +16,7 @@ Core marker handling:
 - Hyphen '-' preserved as boundary marker
 """
 
+import logging
 from pathlib import Path
 from typing import Tuple
 import tempfile
@@ -34,6 +35,12 @@ from akkapros.lib.constants import (
     TAG_PRESERVE_RE,
 )
 from akkapros.lib.syllabify import split_by_escape_segments
+from akkapros.lib.utils import (
+    format_selftest_label,
+    get_logger_with_fallback,
+    log_selftest_result,
+    log_selftest_summary,
+)
 
 __author__ = "Samuel KABAK"
 __license__ = "MIT"
@@ -929,6 +936,8 @@ def process_file(
 
 def run_tests() -> bool:
     """Lightweight self-tests for conversion rules."""
+    logger = get_logger_with_fallback(__name__)
+    category = 'Printer'
     tests = [
         ("nû~", "acute", "nû´"),
         ("nû~", "bold", "**nû**"),
@@ -1131,13 +1140,47 @@ def run_tests() -> bool:
         ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir‿dad´mē"),
     ]
 
+    ipa_mode_cases = [
+        ("ḥa", "χa", "ħa"),
+        ("ḫa", "χa", "χa"),
+        ("ʿa", "ʔa", "ʕa"),
+        ("ʾa", "ʔa", "ʔa"),
+        ("ʾ~a", "ˈʔːa", "ˈʔːa"),
+        ("ʿa+ʾi", "ʔa.ʔi", "ʕa.ʔi"),
+    ]
+    circ_hiatus_cases = [
+        ("qû", "qʊ.ʊ"),
+        ("bû", "bu.u"),
+        ("qâ", "qɑ.ɑ"),
+        ("qû~", "ˈqʊ.ʊː"),
+    ]
+    total = len(tests) + 7 + (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
     passed = 0
+    case_index = 0
+
+    def report(ok: bool, label: str, details: list[str] | None = None) -> None:
+        nonlocal passed, case_index
+        case_index += 1
+        case_label = format_selftest_label(case_index, total, label)
+        if ok:
+            passed += 1
+        log_selftest_result(logger, ok, category, case_label, details=details)
+
     for inp, mode, expected in tests:
         got = convert_line(inp, mode)
         if got == expected:
-            passed += 1
+            report(True, f'{mode} {inp}')
         else:
-            print(f"FAILED [{mode}]\n  in : {inp}\n  got: {got}\n  exp: {expected}")
+            report(
+                False,
+                f'{mode} {inp}',
+                details=[
+                    f'input={inp!r}',
+                    f'mode={mode}',
+                    f'expected={expected!r}',
+                    f'got={got!r}',
+                ],
+            )
 
     text_in = "šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar {{https://ex.am/ple+uri}} gimir‿dad´mē\n´apil\n"
@@ -1145,47 +1188,56 @@ def run_tests() -> bool:
     expected_ipa = "ʃar ⟨escape:{{https://ex.am/ple+uri}}⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
     expected_xar = "x̌ar {{https://ex.am/ple+uri}} gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
-    total_extra = 7
-    extra_passed = 0
-
     if got_acute == expected_acute:
-        extra_passed += 1
+        report(True, 'Convert text acute')
     else:
-        print(
-            "FAILED [convert_text acute]"
-            f"\n  in : {text_in}"
-            f"\n  got: {got_acute}"
-            f"\n  exp: {expected_acute}"
+        report(
+            False,
+            'Convert text acute',
+            details=[
+                f'input={text_in!r}',
+                f'expected={expected_acute!r}',
+                f'got={got_acute!r}',
+            ],
         )
 
     if got_bold == expected_bold:
-        extra_passed += 1
+        report(True, 'Convert text bold')
     else:
-        print(
-            "FAILED [convert_text bold]"
-            f"\n  in : {text_in}"
-            f"\n  got: {got_bold}"
-            f"\n  exp: {expected_bold}"
+        report(
+            False,
+            'Convert text bold',
+            details=[
+                f'input={text_in!r}',
+                f'expected={expected_bold!r}',
+                f'got={got_bold!r}',
+            ],
         )
 
     if got_ipa == expected_ipa:
-        extra_passed += 1
+        report(True, 'Convert text ipa')
     else:
-        print(
-            "FAILED [convert_text ipa]"
-            f"\n  in : {text_in}"
-            f"\n  got: {got_ipa}"
-            f"\n  exp: {expected_ipa}"
+        report(
+            False,
+            'Convert text ipa',
+            details=[
+                f'input={text_in!r}',
+                f'expected={expected_ipa!r}',
+                f'got={got_ipa!r}',
+            ],
         )
 
     if got_xar == expected_xar:
-        extra_passed += 1
+        report(True, 'Convert text xar')
     else:
-        print(
-            "FAILED [convert_text xar]"
-            f"\n  in : {text_in}"
-            f"\n  got: {got_xar}"
-            f"\n  exp: {expected_xar}"
+        report(
+            False,
+            'Convert text xar',
+            details=[
+                f'input={text_in!r}',
+                f'expected={expected_xar!r}',
+                f'got={got_xar!r}',
+            ],
         )
 
     forbidden_ipa = {'ħ', 'ʕ'}
@@ -1197,24 +1249,30 @@ def run_tests() -> bool:
         bad = sorted(ch for ch in forbidden_ipa if ch in ipa_out)
         if bad:
             ipa_inventory_ok = False
-            print(
-                "FAILED [ipa inventory]"
-                f"\n  in : {inp}"
-                f"\n  got: {ipa_out}"
-                f"\n  forbidden: {''.join(bad)}"
+            report(
+                False,
+                'Ipa inventory',
+                details=[
+                    f'input={inp!r}',
+                    f'got={ipa_out!r}',
+                    f'forbidden={"".join(bad)!r}',
+                ],
             )
 
     if ipa_inventory_ok:
-        extra_passed += 1
+        report(True, 'Ipa inventory')
 
     text_inventory_ok = not any(ch in got_ipa for ch in forbidden_ipa)
     if text_inventory_ok:
-        extra_passed += 1
+        report(True, 'Convert text ipa inventory')
     else:
-        print(
-            "FAILED [convert_text ipa inventory]"
-            f"\n  in : {text_in}"
-            f"\n  got: {got_ipa}"
+        report(
+            False,
+            'Convert text ipa inventory',
+            details=[
+                f'input={text_in!r}',
+                f'got={got_ipa!r}',
+            ],
         )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1264,105 +1322,107 @@ def run_tests() -> bool:
             and not out_bold.exists()
         )
         if file_ok:
-            extra_passed += 1
+            report(True, 'Process file selective write')
         else:
-            print(
-                "FAILED [process_file selective write]"
-                f"\n  acute_exists: {out_acute.exists()}"
-                f"\n  acute_text: {out_acute.read_text(encoding='utf-8') if out_acute.exists() else ''}"
-                f"\n  ipa_exists: {out_ipa.exists()}"
-                f"\n  ipa_text: {out_ipa.read_text(encoding='utf-8') if out_ipa.exists() else ''}"
-                f"\n  xar_exists: {out_xar.exists()}"
-                f"\n  xar_text: {out_xar.read_text(encoding='utf-8') if out_xar.exists() else ''}"
-                f"\n  xar_plain_exists: {out_xar_plain.exists()}"
-                f"\n  xar_plain_text: {out_xar_plain.read_text(encoding='utf-8') if out_xar_plain.exists() else ''}"
-                f"\n  bold_exists: {out_bold.exists()}"
+            report(
+                False,
+                'Process file selective write',
+                details=[
+                    f'acute_exists={out_acute.exists()}',
+                    f'acute_text={out_acute.read_text(encoding="utf-8") if out_acute.exists() else ""!r}',
+                    f'ipa_exists={out_ipa.exists()}',
+                    f'ipa_text={out_ipa.read_text(encoding="utf-8") if out_ipa.exists() else ""!r}',
+                    f'xar_exists={out_xar.exists()}',
+                    f'xar_text={out_xar.read_text(encoding="utf-8") if out_xar.exists() else ""!r}',
+                    f'xar_plain_exists={out_xar_plain.exists()}',
+                    f'xar_plain_text={out_xar_plain.read_text(encoding="utf-8") if out_xar_plain.exists() else ""!r}',
+                    f'bold_exists={out_bold.exists()}',
+                ],
             )
-
-    # IPA mode switch checks: ipa-ob vs ipa-strict.
-    ipa_mode_cases = [
-        ("ḥa", "χa", "ħa"),
-        ("ḫa", "χa", "χa"),
-        ("ʿa", "ʔa", "ʕa"),
-        ("ʾa", "ʔa", "ʔa"),
-        ("ʾ~a", "ˈʔːa", "ˈʔːa"),
-        ("ʿa+ʾi", "ʔa.ʔi", "ʕa.ʔi"),
-    ]
 
     for inp, exp_ob, exp_strict in ipa_mode_cases:
         got_ob = convert_line(inp, 'ipa', ipa_mode='ipa-ob')
         if got_ob == exp_ob:
-            extra_passed += 1
+            report(True, f'Ipa ob {inp}')
         else:
-            print(
-                "FAILED [ipa mode ob]"
-                f"\n  in : {inp}"
-                f"\n  got: {got_ob}"
-                f"\n  exp: {exp_ob}"
+            report(
+                False,
+                f'Ipa ob {inp}',
+                details=[
+                    f'input={inp!r}',
+                    f'expected={exp_ob!r}',
+                    f'got={got_ob!r}',
+                ],
             )
 
         got_strict = convert_line(inp, 'ipa', ipa_mode='ipa-strict')
         if got_strict == exp_strict:
-            extra_passed += 1
+            report(True, f'Ipa strict {inp}')
         else:
-            print(
-                "FAILED [ipa mode strict]"
-                f"\n  in : {inp}"
-                f"\n  got: {got_strict}"
-                f"\n  exp: {exp_strict}"
+            report(
+                False,
+                f'Ipa strict {inp}',
+                details=[
+                    f'input={inp!r}',
+                    f'expected={exp_strict!r}',
+                    f'got={got_strict!r}',
+                ],
             )
 
     _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
     if got_ipa_ob == "ʔa.ʔa ⟨linebreak⟩ ‖\n":
-        extra_passed += 1
+        report(True, 'Convert text ipa mode ob')
     else:
-        print(
-            "FAILED [convert_text ipa mode ob]"
-            f"\n  got: {got_ipa_ob}"
-            "\n  exp: ʔa.ʔa ⟨linebreak⟩ ‖"
+        report(
+            False,
+            'Convert text ipa mode ob',
+            details=[
+                f'expected={"ʔa.ʔa ⟨linebreak⟩ ‖\\n"!r}',
+                f'got={got_ipa_ob!r}',
+            ],
         )
 
     _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
     if got_ipa_strict == "ʔa.ʕa ⟨linebreak⟩ ‖\n":
-        extra_passed += 1
+        report(True, 'Convert text ipa mode strict')
     else:
-        print(
-            "FAILED [convert_text ipa mode strict]"
-            f"\n  got: {got_ipa_strict}"
-            "\n  exp: ʔa.ʕa ⟨linebreak⟩ ‖"
+        report(
+            False,
+            'Convert text ipa mode strict',
+            details=[
+                f'expected={"ʔa.ʕa ⟨linebreak⟩ ‖\\n"!r}',
+                f'got={got_ipa_strict!r}',
+            ],
         )
 
-    circ_hiatus_cases = [
-        ("qû", "qʊ.ʊ"),
-        ("bû", "bu.u"),
-        ("qâ", "qɑ.ɑ"),
-        ("qû~", "ˈqʊ.ʊː"),
-    ]
     for inp, expected in circ_hiatus_cases:
         got = convert_line(inp, 'ipa', circ_hiatus=True)
         if got == expected:
-            extra_passed += 1
+            report(True, f'Ipa circ hiatus {inp}')
         else:
-            print(
-                "FAILED [ipa circ-hiatus]"
-                f"\n  in : {inp}"
-                f"\n  got: {got}"
-                f"\n  exp: {expected}"
+            report(
+                False,
+                f'Ipa circ hiatus {inp}',
+                details=[
+                    f'input={inp!r}',
+                    f'expected={expected!r}',
+                    f'got={got!r}',
+                ],
             )
 
     # Ensure default remains unchanged when circ-hiatus is disabled.
     if convert_line("qû", 'ipa') == "qʊː":
-        extra_passed += 1
+        report(True, 'Ipa circ hiatus default off')
     else:
-        print(
-            "FAILED [ipa circ-hiatus default-off]"
-            f"\n  got: {convert_line('qû', 'ipa')}"
-            "\n  exp: qʊː"
+        report(
+            False,
+            'Ipa circ hiatus default off',
+            details=[
+                'expected="qʊː"',
+                f'got={convert_line("qû", "ipa")!r}',
+            ],
         )
 
-    total_extra += (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
-    total = len(tests) + total_extra
-    passed += extra_passed
-    print(f"print.py tests: {passed}/{total} passed")
+    log_selftest_summary(logger, category, passed, total)
     return passed == total
 

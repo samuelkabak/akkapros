@@ -40,8 +40,11 @@ from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
+    add_standard_logging_arguments,
     add_standard_version_argument,
-    print_startup_banner,
+    format_path_for_logging,
+    log_startup_banner,
+    setup_cli_logging,
     validate_intermediate_format,
 )
 
@@ -168,6 +171,7 @@ MIT License (c) 2026 Samuel KABAK
 """
     )
     add_standard_version_argument(parser, 'akkapros-atfparser')
+    add_standard_logging_arguments(parser)
     parser.add_argument('input', nargs='?', help='eBL ATF file (must contain %%n lines)')
     parser.add_argument('-p', '--prefix', 
                        help='Output prefix')
@@ -188,37 +192,30 @@ MIT License (c) 2026 Samuel KABAK
     
     # Handle test mode
     if args.test:
-        print_startup_banner('akkapros-atfparser', __version__, args)
-        print("\n" + "="*80)
-        print("AKKADIAN PROSODY TOOLKIT — SELF-TEST SUITE")
-        print("="*80)
+        logger = setup_cli_logging(args, 'akkapros.cli.atfparser')
+        log_startup_banner(logger, 'akkapros-atfparser', __version__, args)
         success = run_tests()
-        if success:
-            print(f"✅ All 12 tests PASSED")
-        else:
-            print(f"❌ Some tests FAILED")
-        print("="*80)
         sys.exit(0 if success else 1)
     
     # If no input file, show help
     if not args.input:
         parser.print_help()
         sys.exit(0)
+
+    logger = setup_cli_logging(args, 'akkapros.cli.atfparser')
+    log_startup_banner(logger, 'akkapros-atfparser', __version__, args)
     
     # Regular mode with input file
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"\nError: File '{args.input}' not found.")
+        logger.error("File '%s' not found.", args.input)
         sys.exit(1)
 
     try:
         validate_intermediate_format(input_path, expected_kind='atf')
     except FormatValidationError as exc:
-        print(f"\nError: Invalid input format: {exc}", file=sys.stderr)
-        print(
-            "Hint: expected ATF input with %n lines; verify line markup and rerun.",
-            file=sys.stderr,
-        )
+        logger.error('Invalid input format: %s', exc)
+        logger.error('Hint: expected ATF input with %%n lines; verify line markup and rerun.')
         sys.exit(2)
     
     # Determine output prefix
@@ -229,16 +226,6 @@ MIT License (c) 2026 Samuel KABAK
     
     outdir = Path(args.outdir)
 
-    print_startup_banner('akkapros-atfparser', __version__, args)
-    
-    print(f"\nInput: {args.input}")
-    print(f"Output directory: {outdir}")
-    print(f"Output prefix: {prefix}")
-    print(f"Case: {'PRESERVED' if args.preserve_case else 'CONVERTED TO LOWERCASE'}")
-    print(f"Letters [h,H]: {'PRESERVED' if args.preserve_h else 'CONVERTED TO [ḫ,Ḫ]'}")
-    print(f"Mode: {'STRICT (warnings enabled)' if args.strict else 'NORMAL (silent)'}")
-    print("-" * 60)
-    
     try:
         parser_obj = ATFParser(
             preserve_case=args.preserve_case,
@@ -260,53 +247,61 @@ MIT License (c) 2026 Samuel KABAK
             ),
         )
 
-        print("\n" + "="*60)
-        print("PARSING COMPLETE")
-        print("="*60)
+        logger.info('')
+        logger.info('%s', '=' * 60)
+        logger.info('PARSING COMPLETE')
+        logger.info('%s', '=' * 60)
 
         if results['title']:
-            print(f"Title: {results['title']}")
+            logger.info('Title: %s', results['title'])
 
-        print(f"\nEnglish translations: {len(results['english_translations'])}")
-        print(f"Original Akkadian lines: {len(results['original_akkadian_lines'])}")
-        print(f"Cleaned lines: {len(results['cleaned_lines'])}")
+        logger.info('English translations: %d', len(results['english_translations']))
+        logger.info('Original Akkadian lines: %d', len(results['original_akkadian_lines']))
+        logger.info('Cleaned lines: %d', len(results['cleaned_lines']))
 
         if args.strict and results['warnings']:
-            print(f"\nWARNINGS ({len(results['warnings'])}):")
+            logger.warning('WARNINGS (%d):', len(results['warnings']))
             for w in results['warnings'][:20]:
-                print(f"  * {w}")
+                logger.warning('  * %s', w)
             if len(results['warnings']) > 20:
-                print(f"  * ... and {len(results['warnings'])-20} more")
+                logger.warning('  * ... and %d more', len(results['warnings']) - 20)
 
-        print("\n" + "-"*60)
-        print("FIRST 5 ORIGINAL AKKADIAN LINES (with ATF markup):")
-        print("-"*60)
+        logger.info('')
+        logger.info('%s', '-' * 60)
+        logger.info('FIRST 5 ORIGINAL AKKADIAN LINES (with ATF markup):')
+        logger.info('%s', '-' * 60)
         for i, line in enumerate(results['original_akkadian_lines'][:5]):
-            print(f"{i+1:2d}. {line}")
+            logger.info('%2d. %s', i + 1, line)
 
-        print("\n" + "-"*60)
-        print("FIRST 5 CLEANED LINES (ready for prosody realization):")
-        print("-"*60)
+        logger.info('')
+        logger.info('%s', '-' * 60)
+        logger.info('FIRST 5 CLEANED LINES (ready for prosody realization):')
+        logger.info('%s', '-' * 60)
         for i, line in enumerate(results['cleaned_lines'][:5]):
-            print(f"{i+1:2d}. {line}")
+            logger.info('%2d. %s', i + 1, line)
 
-        print("\n" + "="*60)
-        print("FILES SAVED:")
+        logger.info('')
+        logger.info('%s', '=' * 60)
+        logger.info('FILES SAVED:')
         display_prefix = simple_safe_filename(prefix)
-        print(f"  {outdir / f'{display_prefix}_orig.txt'} (original, with ATF markup)")
-        print(f"  {outdir / f'{display_prefix}_proc.txt'} (cleaned, ready for prosody realization)")
+        logger.info(
+            '  %s (original, with ATF markup)',
+            format_path_for_logging(outdir / f'{display_prefix}_orig.txt'),
+        )
+        logger.info(
+            '  %s (cleaned, ready for prosody realization)',
+            format_path_for_logging(outdir / f'{display_prefix}_proc.txt'),
+        )
         if results['english_translations']:
             trans_file = outdir / f"{display_prefix}_trans.txt"
-            print(f"  {trans_file}")
-        print("="*60)
+            logger.info('  %s', format_path_for_logging(trans_file))
+        logger.info('%s', '=' * 60)
         
     except EBLError as e:
-        print(f"\nERROR: {e}")
+        logger.error('%s', e)
         sys.exit(1)
     except Exception as e:
-        print(f"\nUNEXPECTED ERROR: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception('UNEXPECTED ERROR: %s', e)
         sys.exit(1)
 
 

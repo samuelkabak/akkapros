@@ -1,4 +1,7 @@
-﻿import pytest
+﻿import ast
+from pathlib import Path
+
+import pytest
 
 from akkapros.lib import atfparse
 from akkapros.lib import metrics
@@ -6,6 +9,9 @@ from akkapros.lib import print as printlib
 from akkapros.lib import prosody
 from akkapros.lib import syllabify
 from akkapros.lib import utils
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.mark.parametrize(
@@ -39,4 +45,12 @@ def test_metrics_refactored_chunks():
     assert metrics._test_table_new_fields_and_no_csv()
     assert metrics._test_small_corpus_metrics_consistency()
     assert metrics._test_percent_v_fallback_safe()
+
+
+def test_source_tree_has_no_print_calls():
+    for path in (REPO_ROOT / 'src').rglob('*.py'):
+        tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':
+                pytest.fail(f"print() call found in source tree: {path}:{node.lineno}")
 

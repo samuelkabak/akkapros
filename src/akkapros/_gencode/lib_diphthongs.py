@@ -5,11 +5,15 @@ This module is a code generator. It emits the runtime lookup table used by
 accentuation.
 """
 
+import logging
 from collections import defaultdict
 from pathlib import Path
 
 from akkapros.lib.constants import DIPH_SEPARATOR
 from akkapros.lib.constants import SYL_SEPARATOR
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 BASES = ('a', 'i', 'u', 'e')
@@ -181,9 +185,10 @@ def generate_diphthongs_file(filename: str | Path | None = None) -> Path:
 
     second_count = sum(1 for _, _, s in combined if s)
     plain_count = len(combined) - second_count
-    print(f'Generated {len(combined)} combined regex rules in {out}')
-    print(f'  - second vowel with tilde: {second_count}')
-    print(f'  - second vowel without tilde: {plain_count}')
+    LOGGER.info('Generated file: %s', out)
+    LOGGER.info('Combined regex rules: %d', len(combined))
+    LOGGER.info('Second vowel with tilde: %d', second_count)
+    LOGGER.info('Second vowel without tilde: %d', plain_count)
     return out
 
 

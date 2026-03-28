@@ -27,7 +27,9 @@ The module also provides a small test harness; running
 """
 
 import argparse
+import logging
 import re
+import sys
 import unicodedata
 from pathlib import Path
 from typing import Any
@@ -85,6 +87,180 @@ _AKKASCORE_LEN_BONUS_MAX     = 0.2    # Cap on length bonus
 _AKKASCORE_MIN_LENGTH        = 10     # Min chars before giving full analysis
 _AKKASCORE_BASE_SHORT        = 0.5    # Base score for texts shorter than min_length
 
+
+class _MaxLevelFilter(logging.Filter):
+    """Allow records up to and including ``max_level``."""
+
+    def __init__(self, max_level: int) -> None:
+        super().__init__()
+        self.max_level = max_level
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.levelno <= self.max_level
+
+
+class _MinLevelFilter(logging.Filter):
+    """Allow records at or above ``min_level``."""
+
+    def __init__(self, min_level: int) -> None:
+        super().__init__()
+        self.min_level = min_level
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.levelno >= self.min_level
+
+
+LOG_RECORD_FORMAT = '%(levelname)s:%(name)s:%(message)s'
+
+
+def _logger_has_effective_handler(logger: logging.Logger) -> bool:
+    """Return True when *logger* or one of its parents will emit records."""
+    current: logging.Logger | None = logger
+    while current is not None:
+        if current.handlers:
+            return True
+        if not current.propagate:
+            return False
+        current = current.parent
+    return False
+
+
+def get_logger_with_fallback(name: str) -> logging.Logger:
+    """Return a logger that can emit records even outside CLI setup paths."""
+    logger = logging.getLogger(name)
+    if _logger_has_effective_handler(logger):
+        return logger
+
+    logger.handlers.clear()
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter(LOG_RECORD_FORMAT))
+    logger.addHandler(handler)
+    return logger
+
+
+def format_selftest_label(index: int, total: int, label: str) -> str:
+    """Return a zero-padded self-test label such as ``01: Tokenizer``."""
+    width = max(2, len(str(total)))
+    return f'{index:0{width}d}: {_normalize_selftest_text(label)}'
+
+
+def _normalize_selftest_text(text: str) -> str:
+    """Normalize self-test fields so one record always stays on one line."""
+    return text.strip().replace('\r', '\\r').replace('\n', '\\n')
+
+
+def _format_selftest_detail(detail: str) -> str:
+    """Normalize self-test detail payloads for single-line logging."""
+    return _normalize_selftest_text(detail)
+
+
+def log_selftest_result(
+    logger: logging.Logger,
+    passed: bool,
+    category: str,
+    label: str,
+    details: list[str] | None = None,
+) -> None:
+    """Emit one structured self-test record through the shared logger."""
+    status = 'PASS' if passed else 'FAIL'
+    safe_category = _normalize_selftest_text(category)
+    safe_label = _normalize_selftest_text(label)
+    message = f'Test: {status} [{safe_category}] {safe_label}'
+    if details:
+        message = ' | '.join([message, *(_format_selftest_detail(detail) for detail in details)])
+    logger.log(logging.INFO if passed else logging.ERROR, message)
+
+
+def log_selftest_summary(logger: logging.Logger, category: str, passed: int, total: int) -> None:
+    """Emit one structured summary record for a self-test category."""
+    log_selftest_result(
+        logger,
+        passed == total,
+        category,
+        f'Summary {passed}/{total}',
+    )
+
+
+def run_simple_selftest_suite(
+    logger: logging.Logger,
+    category: str,
+    suites: list[tuple[str, Any]],
+) -> bool:
+    """Run a sequence of ``(label, callable)`` tests with structured logging."""
+    total = len(suites)
+    passed = 0
+
+    for index, (label, callback) in enumerate(suites, start=1):
+        case_label = format_selftest_label(index, total, label)
+        try:
+            ok = bool(callback())
+            details = None
+        except Exception as exc:
+            ok = False
+            details = [f'error={exc!r}']
+
+        if ok:
+            passed += 1
+        log_selftest_result(logger, ok, category, case_label, details=details)
+
+    log_selftest_summary(logger, category, passed, total)
+    return passed == total
+
+
+def format_path_for_logging(path_like: str | Path) -> str:
+    """Return a path display limited to the leaf and one parent segment."""
+    path_str = str(path_like)
+    if not path_str:
+        return path_str
+
+    normalized = path_str.replace('/', '\\')
+    drive_match = re.match(r'^[A-Za-z]:\\', normalized)
+    is_unc = normalized.startswith('\\\\')
+
+    if '\\' not in normalized:
+        return normalized
+
+    parts = [part for part in normalized.split('\\') if part]
+
+    if drive_match:
+        anchor = normalized[:3]
+        if len(parts) <= 1:
+            return normalized
+        if len(parts) == 2:
+            return f'{anchor}{parts[-1]}'
+        return f'...\\{parts[-2]}\\{parts[-1]}'
+
+    if is_unc:
+        if len(parts) <= 2:
+            return normalized
+        if len(parts) == 3:
+            return f'\\\\{parts[0]}\\{parts[1]}\\{parts[2]}'
+        return f'...\\{parts[-2]}\\{parts[-1]}'
+
+    if len(parts) == 1:
+        return normalized
+    return f'...\\{parts[-2]}\\{parts[-1]}'
+
+
+def _format_log_value(value: Any) -> Any:
+    """Normalize path-like startup values to the safe logging display form."""
+    if isinstance(value, Path):
+        return format_path_for_logging(value)
+    if isinstance(value, str):
+        if '\\' in value or '/' in value or re.match(r'^[A-Za-z]:$', value):
+            return format_path_for_logging(value)
+        return value
+    if isinstance(value, list):
+        return [_format_log_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_format_log_value(item) for item in value)
+    if isinstance(value, dict):
+        return {key: _format_log_value(item) for key, item in value.items()}
+    return value
+
 # Pre-compiled regex patterns used by akkadian_likelihood.
 _AKKASCORE_CLEAN_RE  = re.compile(r'[^\w\-]')
 _AKKASCORE_WORD_RE   = re.compile(r'[a-zāēīūâêîûṭṣšḥḫʿʾ\-]+')
@@ -111,17 +287,101 @@ class RawDefaultsHelpFormatter(
 
 
 def print_startup_banner(program_title: str, version: str, args: argparse.Namespace) -> None:
-    """Print a stable startup banner with effective runtime parameters."""
-    print("=" * 78)
-    print(program_title)
-    print(f"Version: {version}")
-    print("Running with:")
+    """Backward-compatible wrapper that now routes through logging."""
+    log_startup_banner(_build_bootstrap_logger(), program_title, version, args)
+
+
+def log_startup_banner(
+    logger: logging.Logger,
+    program_title: str,
+    version: str,
+    args: argparse.Namespace,
+) -> None:
+    """Emit structured startup facts through the shared logger."""
+    logger.info('Program: %s', program_title)
+    logger.info('Version: %s', version)
 
     for key in sorted(vars(args)):
-        value: Any = getattr(args, key)
-        print(f"  {key} = {value!r}")
+        value: Any = _format_log_value(getattr(args, key))
+        logger.info('Arg %s=%r', key, value)
 
-    print("=" * 78)
+
+def add_standard_logging_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add the shared CLI logging controls mandated across runtime CLIs."""
+    parser.add_argument(
+        '--quiet',
+        action='store_true',
+        help='Suppress informational console logging; warnings and errors remain visible',
+    )
+    parser.add_argument(
+        '--no-console',
+        action='store_true',
+        help='Disable console logging entirely',
+    )
+    parser.add_argument(
+        '--log',
+        help='Write runtime logs to this file',
+    )
+    parser.add_argument(
+        '--log-append',
+        action='store_true',
+        help='Append to --log instead of overwriting it',
+    )
+
+
+def _build_bootstrap_logger() -> logging.Logger:
+    """Return a minimal logger for configuration-time failures."""
+    logger = logging.getLogger('akkapros.bootstrap')
+    logger.handlers.clear()
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter(LOG_RECORD_FORMAT))
+    logger.addHandler(handler)
+    return logger
+
+
+def setup_cli_logging(args: argparse.Namespace, logger_name: str) -> logging.Logger:
+    """Configure the shared ``akkapros`` logger and return a child logger."""
+    if getattr(args, 'log_append', False) and not getattr(args, 'log', None):
+        bootstrap = _build_bootstrap_logger()
+        bootstrap.error('--log-append requires --log')
+        raise SystemExit(2)
+
+    shared_logger = logging.getLogger('akkapros')
+    shared_logger.handlers.clear()
+    shared_logger.setLevel(logging.DEBUG)
+    shared_logger.propagate = False
+
+    console_enabled = not getattr(args, 'no_console', False)
+    console_level = logging.WARNING if getattr(args, 'quiet', False) else logging.INFO
+
+    if console_enabled:
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(console_level)
+        stdout_handler.addFilter(_MaxLevelFilter(logging.INFO))
+        stdout_handler.setFormatter(logging.Formatter(LOG_RECORD_FORMAT))
+        shared_logger.addHandler(stdout_handler)
+
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.setLevel(logging.WARNING)
+        stderr_handler.addFilter(_MinLevelFilter(logging.WARNING))
+        stderr_handler.setFormatter(logging.Formatter(LOG_RECORD_FORMAT))
+        shared_logger.addHandler(stderr_handler)
+
+    log_path = getattr(args, 'log', None)
+    if log_path:
+        file_handler = logging.FileHandler(
+            log_path,
+            mode='a' if getattr(args, 'log_append', False) else 'w',
+            encoding='utf-8',
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter(LOG_RECORD_FORMAT))
+        shared_logger.addHandler(file_handler)
+
+    return logging.getLogger(logger_name)
 
 
 def add_standard_version_argument(parser: argparse.ArgumentParser, tool_name: str) -> None:
@@ -155,6 +415,7 @@ def simple_safe_filename(text: str) -> str:
     'unnamed'
     """
     if not text:
+        import argparse
         return "unnamed"
 
     # Remove accents
@@ -243,6 +504,7 @@ class FormatValidationError(ValueError):
         reason: str,
         line_number: int | None = None,
         line_text: str | None = None,
+        # Public classification thresholds.
     ) -> None:
         self.source = source
         self.reason = reason
@@ -331,6 +593,7 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
     for idx, line in enumerate(lines, start=1):
         for ch in line:
             if ord(ch) < 32 and ch not in ('\t',):
+
                 fail("contains unprintable control character", idx, line)
 
     non_empty = [(idx, ln) for idx, ln in enumerate(lines, start=1) if ln.strip()]
@@ -344,6 +607,7 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
         | {c.upper() for c in AKKADIAN_CONSONANTS}
     )
     has_akkadian_letter = any(ch in akkad_letters for ch in text)
+
     if not has_akkadian_letter:
         fail("file does not contain Akkadian letters")
 
@@ -566,48 +830,8 @@ def run_tests() -> bool:
     Tests ``simple_safe_filename`` and basic smoke-tests for
     ``akkadian_likelihood``.
     """
-    passed = 0
-    failed = 0
+    logger = get_logger_with_fallback('akkapros.lib.utils')
 
-    def check(label: str, condition: bool) -> None:
-        nonlocal passed, failed
-        if condition:
-            passed += 1
-        else:
-            failed += 1
-            print(f"  FAIL: {label}")
-
-    # ---- simple_safe_filename -------------------------------------------
-    check("safe_filename basic", simple_safe_filename('foo/bar baz?') == 'foo_bar_baz')
-    check("safe_filename empty", simple_safe_filename('') == 'unnamed')
-
-    # ---- akkadian_likelihood: obvious Akkadian text ---------------------
-    # Rich Akkadian sentence with distinctive chars + function words.
-    score_akk, details = akkadian_likelihood(
-        "īpūš-ma pâšu izakkar ana rubê marūtuk"
-    )
-    check("akk-likelihood obvious Akkadian >= 0.40", score_akk >= 0.40)
-    check("akk-likelihood no forbidden chars", not details['has_non_akkadian'])
-
-    # ---- akkadian_likelihood: obvious English text ----------------------
-    score_eng, details_eng = akkadian_likelihood(
-        "This is clearly English text with no Akkadian characters whatsoever"
-    )
-    check("akk-likelihood English == 0.0", score_eng == 0.0)
-    check("akk-likelihood English flags non-Akkadian", details_eng['has_non_akkadian'])
-
-    # ---- akkadian_likelihood: recognises function words -----------------
-    score_fw, details_fw = akkadian_likelihood(
-        "ana šamê ellī-ma ana igīgī anaddin ûrta"
-    )
-    check("akk-likelihood function words matched", details_fw['function_word_matches'] >= 2)
-
-    # ---- akkadian_likelihood: short text gives low-confidence score -----
-    score_short, details_short = akkadian_likelihood("a", min_length=10)
-    check("akk-likelihood short text in (0, 0.5]", 0.0 < score_short <= 0.5)
-    check("akk-likelihood short text has penalty", 'confidence_penalty' in details_short)
-
-    # ---- validate_intermediate_format with front matter -----------------
     proc_with_frontmatter = (
         "---\n"
         "package:\n"
@@ -628,22 +852,60 @@ def run_tests() -> bool:
         "---\n\n"
         "šar gi-mir dadmē\n"
     )
-    tmp_frontmatter = Path(".tmp_utils_frontmatter_proc.txt")
-    tmp_frontmatter.write_text(proc_with_frontmatter, encoding="utf-8")
-    try:
+
+    def _validate_frontmatter_case() -> bool:
+        tmp_frontmatter = Path('.tmp_utils_frontmatter_proc.txt')
+        tmp_frontmatter.write_text(proc_with_frontmatter, encoding='utf-8')
         try:
-            validate_intermediate_format(tmp_frontmatter, "proc")
-            frontmatter_ok = True
-        except FormatValidationError:
-            frontmatter_ok = False
-        check("validate_intermediate_format accepts proc front matter", frontmatter_ok)
-    finally:
-        if tmp_frontmatter.exists():
-            tmp_frontmatter.unlink()
+            try:
+                validate_intermediate_format(tmp_frontmatter, 'proc')
+                return True
+            except FormatValidationError:
+                return False
+        finally:
+            if tmp_frontmatter.exists():
+                tmp_frontmatter.unlink()
 
-    # ---- classify_text convenience wrapper ------------------------------
-    label = classify_text("īpūš-ma pâšu izakkar ana rubê marūtuk")
-    check("classify_text returns non-empty string", bool(label))
+    suites = [
+        ('Safe filename basic', lambda: simple_safe_filename('foo/bar baz?') == 'foo_bar_baz'),
+        ('Safe filename empty', lambda: simple_safe_filename('') == 'unnamed'),
+        (
+            'Akkadian likelihood threshold',
+            lambda: akkadian_likelihood('īpūš-ma pâšu izakkar ana rubê marūtuk')[0] >= 0.40,
+        ),
+        (
+            'Akkadian forbidden chars',
+            lambda: not akkadian_likelihood('īpūš-ma pâšu izakkar ana rubê marūtuk')[1]['has_non_akkadian'],
+        ),
+        (
+            'English score zero',
+            lambda: akkadian_likelihood(
+                'This is clearly English text with no Akkadian characters whatsoever'
+            )[0] == 0.0,
+        ),
+        (
+            'English flags non-Akkadian',
+            lambda: akkadian_likelihood(
+                'This is clearly English text with no Akkadian characters whatsoever'
+            )[1]['has_non_akkadian'],
+        ),
+        (
+            'Function words matched',
+            lambda: akkadian_likelihood('ana šamê ellī-ma ana igīgī anaddin ûrta')[1]['function_word_matches'] >= 2,
+        ),
+        (
+            'Short text confidence',
+            lambda: 0.0 < akkadian_likelihood('a', min_length=10)[0] <= 0.5,
+        ),
+        (
+            'Short text penalty',
+            lambda: 'confidence_penalty' in akkadian_likelihood('a', min_length=10)[1],
+        ),
+        ('Proc frontmatter accepted', _validate_frontmatter_case),
+        (
+            'Classify text non-empty',
+            lambda: bool(classify_text('īpūš-ma pâšu izakkar ana rubê marūtuk')),
+        ),
+    ]
 
-    print(f"utils tests: {passed} passed, {failed} failed")
-    return failed == 0
+    return run_simple_selftest_suite(logger, 'Utils', suites)
