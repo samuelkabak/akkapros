@@ -203,12 +203,16 @@ def run_pipeline(
         long_punct_patterns=long_punct_patterns,
     )
     update_character_sets(extra_consonants, extra_vowels)
-    metrics_result = process_metrics_file(
-        str(tilde_file),
-        wpm,
-        pause_ratio,
-        long_punct_weight,
-    )
+    try:
+        metrics_result = process_metrics_file(
+            str(tilde_file),
+            wpm,
+            pause_ratio,
+            long_punct_weight,
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
 
     if output_json:
         json_file = metrics_base.with_suffix('.json')

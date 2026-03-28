@@ -28,8 +28,20 @@ def _build_sample_tilde() -> str:
     return "\n".join(postprocess_restore_diphthongs(accentuated_lines)) + "\n"
 
 
+def _sample_prominence_counts(function_word_count: int = 2, explicit_word_link_count: int = 1) -> dict[str, int]:
+    return {
+        "function_word_count": function_word_count,
+        "explicit_word_link_count": explicit_word_link_count,
+    }
+
+
 def test_small_corpus_metrics_formula_consistency() -> None:
-    result = metrics.process_filetext(_build_sample_tilde(), wpm=165, pause_ratio=35.0)
+    result = metrics.process_filetext(
+        _build_sample_tilde(),
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics=_sample_prominence_counts(),
+    )
 
     for section_name in ("original", "accentuated"):
         stats = result[section_name]["stats"]
@@ -55,16 +67,25 @@ def test_small_corpus_metrics_formula_consistency() -> None:
 
 
 def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
-    result = metrics.process_filetext(_build_sample_tilde(), wpm=165, pause_ratio=35.0)
+    result = metrics.process_filetext(
+        _build_sample_tilde(),
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics=_sample_prominence_counts(),
+    )
 
     table = metrics.format_table(result)
     assert table.count("Syllable statistics:") == 2
     assert table.count("Word statistics:") == 2
+    assert table.count("Prominence statistics:") == 1
     assert table.count("Mora statistics:") == 2
-    assert table.find("Word statistics:") < table.find("Mora statistics:")
+    assert table.find("Word statistics:") < table.find("Prominence statistics:") < table.find("Mora statistics:")
     assert "Std dev morae per syllable:" not in table
     assert "Total morae number:" not in table
     assert "Mean morae per word:" in table
+    assert "Function words: 2 words" in table
+    assert "Explicitly linked words: 1 words" in table
+    assert "Prominence candidates: 19 words" in table
     assert f"ΔC: {result['original']['acoustic']['delta_c_seconds']:.4f} s" in table
     assert f"ΔC_mora: {result['original']['acoustic']['delta_c_mora']:.4f} mora" in table
     assert f"MeanC: {result['original']['acoustic']['mean_c_seconds']:.4f} s" in table
@@ -82,11 +103,18 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert '"delta_c_mora"' in json_text
     assert '"mean_c_seconds"' in json_text
     assert '"mean_c_mora"' in json_text
+    assert '"prominence_statistics"' in json_text
+    assert '"prominence_candidate_word_count": 19' in json_text
 
     original_stats = result["original"]["stats"]
     assert original_stats["word_statistics"]["total_words"] == original_stats["word_stats"]["total_words"]
     assert original_stats["mora_statistics"]["total_morae"] == original_stats["mora_stats"]["total"]
     assert original_stats["mora_statistics"]["mean_morae_per_word"]["mean"] == original_stats["word_stats"]["morae_per_word"]["mean"]
+    assert result["original"]["prominence_statistics"] == {
+        "function_word_count": 2,
+        "explicit_word_link_count": 1,
+        "prominence_candidate_word_count": 19,
+    }
 
     original_other = result["original"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
     accentuated_other = result["accentuated"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
@@ -113,7 +141,15 @@ def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:
 
     assert tilde == f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu"
 
-    result = metrics.process_filetext(tilde + "\n", wpm=165, pause_ratio=35.0)
+    result = metrics.process_filetext(
+        tilde + "\n",
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            "function_word_count": 0,
+            "explicit_word_link_count": 0,
+        },
+    )
     assert result["original"]["stats"]["total_syllables"] == 3
     assert result["accentuated"]["stats"]["total_syllables"] == 3
     assert result["original"]["stats"]["syllable_counts"].get("VVC", 0) == 1
@@ -160,3 +196,80 @@ def test_enrich_acoustic_metrics_adds_seconds_and_mora_views() -> None:
     assert math.isclose(enriched["delta_c_mora"], 0.75)
     assert math.isclose(enriched["mean_c_seconds"], 0.0625)
     assert math.isclose(enriched["mean_c_mora"], 1.25)
+
+
+def test_process_file_reads_prominence_statistics_from_frontmatter(tmp_path: Path) -> None:
+    tilde_file = tmp_path / "sample_tilde.txt"
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Sample\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    syllabify:\n"
+        "      word_count: 4\n"
+        "      syllable_count: 10\n"
+        "    prosody:\n"
+        "      function_word_count: 1\n"
+        "      explicit_word_link_count: 1\n"
+        "      prosodic_unit_count: 3\n"
+        "      accentuated_syllable_count: 2\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
+        encoding="utf-8",
+    )
+
+    result = metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
+
+    assert result["original"]["prominence_statistics"] == {
+        "function_word_count": 1,
+        "explicit_word_link_count": 1,
+        "prominence_candidate_word_count": 2,
+    }
+
+
+def test_process_file_missing_prominence_statistics_fails_clearly(tmp_path: Path) -> None:
+    tilde_file = tmp_path / "sample_tilde.txt"
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Sample\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    syllabify:\n"
+        "      word_count: 4\n"
+        "      syllable_count: 10\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
+        encoding="utf-8",
+    )
+
+    try:
+        metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
+        raise AssertionError("Expected missing prominence front matter to fail")
+    except ValueError as exc:
+        assert "missing required field(s)" in str(exc)

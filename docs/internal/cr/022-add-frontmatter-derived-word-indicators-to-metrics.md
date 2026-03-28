@@ -1,11 +1,11 @@
 # Change Request: Add frontmatter-derived word indicators to metrics outputs
 
 CR-ID: CR-022
-Status: Draft
+Status: Done
 Priority: High
 Impact: Mutative
 Created: 2026-03-27
-Updated: 2026-03-27
+Updated: 2026-03-28
 Implements: REQ-015
 ---
 

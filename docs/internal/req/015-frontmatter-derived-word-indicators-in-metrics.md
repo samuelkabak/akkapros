@@ -1,11 +1,11 @@
 # Requirement: Frontmatter-Derived Word Indicators in Metrics
 
 REQ-ID: REQ-015
-Status: Draft
+Status: Implemented
 Priority: High
 Impact: Mutative
 Created: 2026-03-27
-Updated: 2026-03-27
+Updated: 2026-03-28
 ---
 
 # Summary

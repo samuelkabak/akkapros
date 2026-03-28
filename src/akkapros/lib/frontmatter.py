@@ -622,6 +622,32 @@ def count_non_empty_lines(text: str) -> int:
     return sum(1 for line in text.splitlines() if line.strip())
 
 
+def extract_metrics_prominence_counts(
+    input_frontmatter: dict[str, Any] | None,
+) -> dict[str, int]:
+    stage_data = (input_frontmatter or {}).get("metadata", {}).get("data", {})
+    flattened = _flatten_stage_data(stage_data)
+
+    missing: list[str] = []
+    resolved: dict[str, int] = {}
+    for key in ("function_word_count", "explicit_word_link_count"):
+        entry = flattened.get(key)
+        if entry is None:
+            missing.append(key)
+            continue
+        _, value = entry
+        resolved[key] = int(value)
+
+    if missing:
+        missing_paths = ", ".join(f"metadata.data.<stage>.{key}" for key in missing)
+        raise ValueError(
+            "metrics requires front matter with propagated prominence counts; "
+            f"missing required field(s): {missing_paths}"
+        )
+
+    return resolved
+
+
 def build_atfparse_stage_data(proc_body: str) -> dict[str, int]:
     return {
         "line_count": count_lines(proc_body),
@@ -677,6 +703,7 @@ def build_metrics_stage_data(
     *,
     input_frontmatter: dict[str, Any] | None = None,
 ) -> dict[str, int]:
+    prominence_counts = extract_metrics_prominence_counts(input_frontmatter)
     inherited = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("prosody", {})
     if not inherited:
         inherited = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("syllabify", {})
@@ -695,8 +722,8 @@ def build_metrics_stage_data(
             f"new metrics.syllable_count={resolved_syllable_count!r}"
         )
     return {
-        "function_word_count": int(inherited.get("function_word_count", count_function_words(tilde_body))),
-        "explicit_word_link_count": int(inherited.get("explicit_word_link_count", count_explicit_word_links(tilde_body))),
+        "function_word_count": prominence_counts["function_word_count"],
+        "explicit_word_link_count": prominence_counts["explicit_word_link_count"],
         "syllable_count": resolved_syllable_count,
         "accentuated_syllable_count": int(result["accentuation_stats"]["accentuated_syllables"]),
     }

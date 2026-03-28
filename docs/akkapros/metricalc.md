@@ -147,6 +147,15 @@ If none of `--table` or `--json` is specified, `--table` is enabled automaticall
     - JSON: `original.stats.syllable_statistics.types`, `original.stats.syllable_statistics.count`,
       `accentuated.stats.syllable_statistics.types`, `accentuated.stats.syllable_statistics.count`
 - **Word statistics** now appear before **Mora statistics** in both sections.
+- **Prominence statistics** now appear only in the `ORIGINAL TEXT` section,
+  between `Word statistics` and `Mora statistics`:
+    - `Function words`
+    - `Explicitly linked words`
+    - `Prominence candidates`
+- These values are mirrored in JSON only at:
+    - `original.prominence_statistics.function_word_count`
+    - `original.prominence_statistics.explicit_word_link_count`
+    - `original.prominence_statistics.prominence_candidate_word_count`
 - **Mora statistics (original and accentuated)** now include:
         - `Mean morae per syllable: mean ± stddev mora/syllable`
         - `Mean morae per word: mean ± stddev mora/word`
@@ -185,6 +194,8 @@ For formal definitions and equations, see:
 ### Input Validation Guard
 
 By default, `metricalc.py` validates each input file at startup and fails fast on obviously partial/corrupted intermediate files (for example, empty/truncated files or files with missing prosodic structure markers), with precise source + line error details.
+
+For the `Prominence statistics` block, `metricalc.py` also requires front matter with propagated `function_word_count` and `explicit_word_link_count` values. If those fields are missing, metrics fails clearly instead of reconstructing them from `_tilde.txt`.
 
 Validation is always enforced at startup.
 
@@ -250,6 +261,12 @@ For both original and accentuated outputs:
 - `stats.total_syllables` (JSON)
 - speech metrics for original and accentuated sections
 - `DeltaC` and `MeanC` in mora and seconds in the table
+
+For the original section only:
+
+- `Prominence statistics` in the table
+- `original.prominence_statistics` in JSON
+- `prominence_candidate_word_count = total_words - function_word_count - explicit_word_link_count`
 
 ---
 

@@ -48,6 +48,11 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 | `--metrics-table` | `<prefix>_metrics.txt` | Human-readable table |
 | `--metrics-json` | `<prefix>.json` | JSON format |
 
+The metrics outputs include the same `Prominence statistics` contract as
+`metricalc.py`: the table exposes those counters in the `ORIGINAL TEXT`
+section only, and JSON exposes them only under
+`original.prominence_statistics`.
+
 ### Optional Print Outputs
 
 | Flag | File | Description |

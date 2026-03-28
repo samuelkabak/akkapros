@@ -138,12 +138,16 @@ Version {__version__}
     results = []
     for input_file in input_files:
         print(f"Processing: {input_file}")
-        result = process_file(
-            input_file,
-            args.wpm,
-            args.pause_ratio,
-            args.long_punct_weight,
-        )
+        try:
+            result = process_file(
+                input_file,
+                args.wpm,
+                args.pause_ratio,
+                args.long_punct_weight,
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(2)
         results.append(result)
 
     if args.outdir != '.':

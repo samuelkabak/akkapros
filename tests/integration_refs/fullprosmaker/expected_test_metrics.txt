@@ -31,6 +31,11 @@ Word statistics:
   Total words: 7 words
   Syllables per word: 3.286 ± 0.488 syllable/word
 
+Prominence statistics:
+  Function words: 1 words
+  Explicitly linked words: 0 words
+  Prominence candidates: 6 words
+
 Mora statistics:
   Mean morae per syllable: 1.522 ± 0.593 mora/syllable
   Mean morae per word: 5.000 ± 0.577 mora/word

@@ -157,6 +157,35 @@ These mora assignments are the basis for syllable weight, interval distances, an
 
 ---
 
+### 3.6.1 Prominence Statistics
+
+**What they designate:**
+- Compact word-level indicators used to interpret prominence eligibility in the
+  `ORIGINAL` metrics section.
+
+**Fields:**
+- `Function words`
+- `Explicitly linked words`
+- `Prominence candidates`
+
+**How computed:**
+- `function_word_count` is read from input front matter.
+- `explicit_word_link_count` is read from input front matter.
+- `prominence_candidate_word_count = total_words - function_word_count - explicit_word_link_count`.
+
+**Placement:**
+- Table output: `Prominence statistics` block in `ORIGINAL TEXT` only.
+- JSON output: `original.prominence_statistics` only.
+
+**Unit:**
+- `words`
+
+**Validation rule:**
+- Metrics must fail clearly when the required front matter fields are missing;
+  these values are not reconstructed from `_tilde.txt`.
+
+---
+
 ### 3.7 SD Syllables Per Word
 
 **What it designates:**
@@ -211,6 +240,20 @@ same inline `mean ± stddev` display used for `Mean morae per syllable`.
 
 **Unit:**
 - `words`
+
+---
+
+#### Front Matter Dependency
+
+The prominence counters depend on front matter propagated from upstream stages.
+The metrics stage requires the canonical fields:
+
+- `metadata.data.<stage>.function_word_count`
+- `metadata.data.<stage>.explicit_word_link_count`
+
+These are normally provided by the prosody stage front matter. If they are
+missing or malformed, metrics stops with a clear error instead of guessing from
+the transformed pivot text.
 
 ---
 

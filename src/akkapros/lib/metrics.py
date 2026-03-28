@@ -20,7 +20,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import math
 
-from akkapros.lib.frontmatter import read_text_file
+from akkapros.lib.frontmatter import extract_metrics_prominence_counts, read_text_file
 
 # shared constants
 from akkapros.lib.constants import (
@@ -1316,9 +1316,36 @@ def process_file(
     long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
 ) -> Dict:
     """Process a single file and return all metrics."""
-    _, text = read_text_file(filename)
+    input_frontmatter, text = read_text_file(filename)
 
-    return process_filetext(text, wpm, pause_ratio, long_punct_weight, filename)
+    return process_filetext(
+        text,
+        wpm,
+        pause_ratio,
+        long_punct_weight,
+        filename,
+        prominence_statistics=extract_metrics_prominence_counts(input_frontmatter),
+    )
+
+
+def build_prominence_statistics(total_words: int, prominence_counts: Dict[str, int]) -> Dict[str, int]:
+    """Build prominence statistics for the ORIGINAL metrics section."""
+    function_word_count = int(prominence_counts['function_word_count'])
+    explicit_word_link_count = int(prominence_counts['explicit_word_link_count'])
+    prominence_candidate_word_count = total_words - function_word_count - explicit_word_link_count
+
+    if prominence_candidate_word_count < 0:
+        raise ValueError(
+            "metrics front matter counts are inconsistent: "
+            f"total_words={total_words}, function_word_count={function_word_count}, "
+            f"explicit_word_link_count={explicit_word_link_count}"
+        )
+
+    return {
+        'function_word_count': function_word_count,
+        'explicit_word_link_count': explicit_word_link_count,
+        'prominence_candidate_word_count': prominence_candidate_word_count,
+    }
 
 
 def process_filetext(
@@ -1327,10 +1354,17 @@ def process_filetext(
     pause_ratio: float,
     long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
     filesrc: str = 'in-memory',
+    prominence_statistics: Optional[Dict[str, int]] = None,
 ) -> Dict:
 
     # Analyze original (with ~ removed)
     original_stats = analyze_text(text.replace('~', ''), is_accentuated=False)
+    resolved_prominence_statistics = None
+    if prominence_statistics is not None:
+        resolved_prominence_statistics = build_prominence_statistics(
+            total_words=original_stats['word_stats']['total_words'],
+            prominence_counts=prominence_statistics,
+        )
     
     # Analyze accentuated (with ~ present)
     accentuated_stats = analyze_text(text, is_accentuated=True)
@@ -1379,7 +1413,8 @@ def process_filetext(
         'original': {
             'stats': original_stats,
             'speech': speech_original,
-            'acoustic': acoustic_original
+            'acoustic': acoustic_original,
+            'prominence_statistics': resolved_prominence_statistics,
         },
         'accentuated': {
             'stats': accentuated_stats,
@@ -1423,6 +1458,13 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"\nWord statistics:")
     lines.append(f"  Total words: {orig['stats']['word_stats']['total_words']} words")
     lines.append(f"  Syllables per word: {orig['stats']['word_stats']['syllables_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['syllables_per_word']['std']:.3f} syllable/word")
+
+    prominence_stats = orig.get('prominence_statistics')
+    if prominence_stats:
+        lines.append(f"\nProminence statistics:")
+        lines.append(f"  Function words: {prominence_stats['function_word_count']} words")
+        lines.append(f"  Explicitly linked words: {prominence_stats['explicit_word_link_count']} words")
+        lines.append(f"  Prominence candidates: {prominence_stats['prominence_candidate_word_count']} words")
 
     # Mora statistics
     lines.append(f"\nMora statistics:")
@@ -1857,7 +1899,15 @@ def _test_unknown_punctuation_raises() -> bool:
 def _test_mora_totals_and_original_speech() -> bool:
     """Unit test: total morae and original speech metrics are exposed."""
     text = "tā·ḫā~·za ik~·ta·ṣar"
-    result = process_filetext(text, wpm=165, pause_ratio=35.0)
+    result = process_filetext(
+        text,
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            'function_word_count': 0,
+            'explicit_word_link_count': 0,
+        },
+    )
 
     orig_total = result['original']['stats']['mora_stats']['total']
     accentuated_total = result['accentuated']['stats']['mora_stats']['total']
@@ -1892,7 +1942,15 @@ def _test_mora_totals_and_original_speech() -> bool:
 def _test_table_new_fields_and_no_csv() -> bool:
     """Unit test: table exposes current fields and CSV writer is removed."""
     text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
-    result = process_filetext(text, wpm=165, pause_ratio=35.0)
+    result = process_filetext(
+        text,
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            'function_word_count': 1,
+            'explicit_word_link_count': 1,
+        },
+    )
 
     table = format_table(result)
     if "Syllable statistics:" not in table:
@@ -1907,6 +1965,14 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "Speech rate (accentuated):" not in table:
         return False
+    if "Prominence statistics:" not in table:
+        return False
+    if "Function words: 1 words" not in table:
+        return False
+    if "Explicitly linked words: 1 words" not in table:
+        return False
+    if "Prominence candidates: 2 words" not in table:
+        return False
     if "ΔC_mora:" not in table or "MeanC_mora:" not in table:
         return False
     if "VarcoC: " not in table or "%" in "\n".join(
@@ -1914,8 +1980,10 @@ def _test_table_new_fields_and_no_csv() -> bool:
     ):
         return False
 
-    # Ordering checks: word statistics must precede mora statistics.
-    if table.find("Word statistics:") > table.find("Mora statistics:"):
+    # Ordering checks: word statistics must precede prominence and mora statistics.
+    if table.find("Word statistics:") > table.find("Prominence statistics:"):
+        return False
+    if table.find("Prominence statistics:") > table.find("Mora statistics:"):
         return False
 
     # Ordering checks: speech blocks should come before acoustic blocks.
@@ -1948,7 +2016,15 @@ def _test_small_corpus_metrics_consistency() -> bool:
         accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
     tilde_text = '\n'.join(postprocess_restore_diphthongs(accentuated_lines)) + '\n'
 
-    result = process_filetext(tilde_text, wpm=165, pause_ratio=35.0)
+    result = process_filetext(
+        tilde_text,
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            'function_word_count': 2,
+            'explicit_word_link_count': 1,
+        },
+    )
 
     for section in ('original', 'accentuated'):
         stats = result[section]['stats']
@@ -2011,12 +2087,100 @@ def _test_small_corpus_metrics_consistency() -> bool:
         return False
     if "Word statistics:" not in table or "Mora statistics:" not in table:
         return False
-    if table.find("Word statistics:") > table.find("Mora statistics:"):
+    if "Prominence statistics:" not in table:
+        return False
+    if table.find("Word statistics:") > table.find("Prominence statistics:"):
+        return False
+    if table.find("Prominence statistics:") > table.find("Mora statistics:"):
         return False
     if "Total morae number:" in table:
         return False
 
     return True
+
+
+def _test_process_file_requires_frontmatter_prominence_counts() -> bool:
+    document = (
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Metrics Test\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    syllabify:\n"
+        "      word_count: 4\n"
+        "      syllable_count: 10\n"
+        "    prosody:\n"
+        "      function_word_count: 1\n"
+        "      explicit_word_link_count: 1\n"
+        "      prosodic_unit_count: 3\n"
+        "      accentuated_syllable_count: 2\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
+    )
+    with tempfile.NamedTemporaryFile('w+', suffix='_tilde.txt', encoding='utf-8', delete=False) as handle:
+        handle.write(document)
+        temp_path = handle.name
+    try:
+        result = process_file(temp_path, wpm=165, pause_ratio=35.0)
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    prominence = result['original'].get('prominence_statistics') or {}
+    return prominence == {
+        'function_word_count': 1,
+        'explicit_word_link_count': 1,
+        'prominence_candidate_word_count': 2,
+    }
+
+
+def _test_process_file_missing_frontmatter_prominence_counts_fails() -> bool:
+    document = (
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Metrics Test\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    syllabify:\n"
+        "      word_count: 4\n"
+        "      syllable_count: 10\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
+    )
+    with tempfile.NamedTemporaryFile('w+', suffix='_tilde.txt', encoding='utf-8', delete=False) as handle:
+        handle.write(document)
+        temp_path = handle.name
+    try:
+        try:
+            process_file(temp_path, wpm=165, pause_ratio=35.0)
+            return False
+        except ValueError as exc:
+            return "missing required field(s)" in str(exc)
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
 
 
 def _test_percent_v_fallback_safe() -> bool:
@@ -2063,6 +2227,8 @@ def run_tests():
         (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
         (_test_table_new_fields_and_no_csv, "Table fields and CSV removal"),
         (_test_small_corpus_metrics_consistency, "Small corpus metrics consistency"),
+        (_test_process_file_requires_frontmatter_prominence_counts, "Frontmatter prominence counts"),
+        (_test_process_file_missing_frontmatter_prominence_counts_fails, "Missing frontmatter prominence fails"),
         (_test_percent_v_fallback_safe, "%V fallback safety"),
     ]
 

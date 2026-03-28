@@ -45,6 +45,21 @@ def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
     return proc
 
 
+def _run_cli_expect_failure(*module_and_args: str) -> subprocess.CompletedProcess:
+    env = os.environ.copy()
+    src_path = str(REPO_ROOT / "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+    return subprocess.run(
+        [sys.executable, "-m", *module_and_args],
+        cwd=str(REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -307,9 +322,21 @@ def test_metricalc_legacy_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> 
     outdir = tmp_path / "legacy_metricalc_csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
+    _run_cli("akkapros.cli.syllabifier", str(INPUT_PROC), "-p", "legacy", "--outdir", str(outdir))
+    _run_cli(
+        "akkapros.cli.prosmaker",
+        str(outdir / "legacy_syl.txt"),
+        "-p",
+        "legacy",
+        "--outdir",
+        str(outdir),
+        "--style",
+        "lob",
+    )
+
     proc = _run_cli(
         "akkapros.cli.metricalc",
-        str(STAGE_REF_DIR / "expected_e2e_tilde.txt"),
+        str(outdir / "legacy_tilde.txt"),
         "-p",
         "legacy",
         "--outdir",
@@ -341,6 +368,50 @@ def test_fullprosmaker_legacy_metrics_csv_flag_prints_stdout_notice_only(tmp_pat
     assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stderr
     _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
     assert not (outdir / "legacy.csv").exists()
+
+
+def test_metricalc_requires_frontmatter_prominence_counts(tmp_path: Path) -> None:
+    outdir = tmp_path / "missing_prominence"
+    outdir.mkdir(parents=True, exist_ok=True)
+    tilde_file = tmp_path / "missing_prominence_tilde.txt"
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Missing prominence\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    syllabify:\n"
+        "      word_count: 4\n"
+        "      syllable_count: 10\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
+        encoding="utf-8",
+    )
+
+    proc = _run_cli_expect_failure(
+        "akkapros.cli.metricalc",
+        str(tilde_file),
+        "-p",
+        "broken",
+        "--outdir",
+        str(outdir),
+        "--table",
+    )
+
+    assert proc.returncode != 0
+    assert "missing required field(s)" in proc.stderr or "missing required field(s)" in proc.stdout
 
 
 def test_cli_phoneprep_outputs(tmp_path: Path) -> None:

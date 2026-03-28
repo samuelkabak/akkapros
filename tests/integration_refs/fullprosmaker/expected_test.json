@@ -109,6 +109,11 @@
       "delta_c_mora": 0.769800358919501,
       "mean_c_seconds": 0.04727272727272727,
       "mean_c_mora": 1.0
+    },
+    "prominence_statistics": {
+      "function_word_count": 1,
+      "explicit_word_link_count": 0,
+      "prominence_candidate_word_count": 6
     }
   },
   "accentuated": {
