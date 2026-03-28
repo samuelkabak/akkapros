@@ -38,12 +38,12 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros.lib.metrics import (
+    METRICS_CSV_DEPRECATION_MESSAGE,
     PunctuationConfigError as MetricsPunctuationConfigError,
     configure_pause_punctuation_rules,
     update_character_sets,
     process_file as process_metrics_file,
     format_table,
-    format_csv,
     run_tests as run_metrics_tests,
 )
 from akkapros.lib import print as accent_print
@@ -242,9 +242,7 @@ def run_pipeline(
         print(f"JSON saved to: {json_file}")
 
     if output_csv:
-        csv_file = metrics_base.with_suffix('.csv')
-        format_csv([metrics_result], csv_file)
-        print(f"CSV saved to: {csv_file}")
+        print(METRICS_CSV_DEPRECATION_MESSAGE)
 
     if output_table:
         table_context = {
@@ -320,7 +318,7 @@ def main() -> None:
         epilog=f"""
 EXAMPLES:
     python fullprosmaker.py outputs/erra_proc.txt -p erra --outdir outputs --prosody-style lob --metrics-table
-    python fullprosmaker.py outputs/erra_proc.txt -p erra --metrics-json --metrics-csv
+    python fullprosmaker.py outputs/erra_proc.txt -p erra --metrics-json
     python fullprosmaker.py outputs/erra_proc.txt -p erra --print-acute --print-bold --print-ipa --print-xar
     python fullprosmaker.py --test-all
 
@@ -356,7 +354,7 @@ Version: {__version__}
                         help='For explicit + links, allow prosody realization propagation before the last linked word')
 
     # Metricalc options
-    parser.add_argument('--metrics-csv', action='store_true', help='Write CSV metrics output')
+    parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--metrics-table', action='store_true', help='Write human-readable metrics table output')
     parser.add_argument('--metrics-json', action='store_true', help='Write JSON metrics output')
     parser.add_argument('--metrics-wpm', type=float, default=165, help='Words per minute [words/min] for speech-rate estimation')
@@ -466,7 +464,7 @@ Version: {__version__}
     output_xar = args.print_xar
 
     # Match metricalc behavior: default to table if no explicit format selected.
-    if not (output_table or output_json or output_csv):
+    if not (output_table or output_json):
         output_table = True
 
     # Match printer behavior: default to acute + bold if no explicit format selected.
@@ -505,7 +503,7 @@ Version: {__version__}
         circ_hiatus=circ_hiatus,
         options=effective_options_from_namespace(
             args,
-            exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version'},
+            exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv'},
         ),
     )
     sys.exit(code)

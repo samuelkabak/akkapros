@@ -10,6 +10,11 @@ Updated: 2026-03-19
 
 # Summary
 
+Historical note: this implemented requirement records the metrics contract as it
+stood before metrics CSV was later abandoned. The later removal decision is in
+[ADR-030](../adr/030-metrics-csv-abandonment-and-spec-history-policy.md) and
+[REQ-014](014-remove-metrics-csv-output.md).
+
 The system shall compute a set of quantitative rhythmic and structural metrics from
 prosody-realized pivot text (`*_tilde.txt`) without requiring audio recordings.
 It shall report metrics for both the original (non-accentuated) and accentuated

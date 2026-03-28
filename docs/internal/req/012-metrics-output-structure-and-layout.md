@@ -10,6 +10,12 @@ Updated: 2026-03-26
 
 # Summary
 
+Historical note: this requirement was drafted when metrics CSV was still part
+of the documented metrics contract. The later removal of CSV is defined by
+[ADR-030](../adr/030-metrics-csv-abandonment-and-spec-history-policy.md) and
+[REQ-014](014-remove-metrics-csv-output.md). Read CSV references here as
+historical contract state, not current end-state policy.
+
 The system shall present metrics outputs using a normalized structure across
 the human-readable table, JSON, and CSV formats. In particular, syllable-count
 reporting shall be grouped under a `Syllable statistics` block, and word/mora

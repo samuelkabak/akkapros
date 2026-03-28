@@ -22,7 +22,7 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 |-------|----------------|-------------|
 | **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
 | **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Metrics** | `*_tilde.txt` → table/json/csv | Computes rhythmic and structural metrics |
+| **3. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
 | **4. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
 
 The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic symbols) and writes all selected outputs in one run.
@@ -47,7 +47,6 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |------|------|-------------|
 | `--metrics-table` | `<prefix>_metrics.txt` | Human-readable table |
 | `--metrics-json` | `<prefix>.json` | JSON format |
-| `--metrics-csv` | `<prefix>.csv` | CSV format |
 
 ### Optional Print Outputs
 
@@ -105,7 +104,6 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |--------|-------------|
 | `--metrics-table` | Generate human-readable table output |
 | `--metrics-json` | Generate JSON output |
-| `--metrics-csv` | Generate CSV output |
 | `--metrics-wpm <float>` | Words per minute for speech-rate estimation (default: `165`) |
 | `--metrics-pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--metrics-long-punct-weight <float>` | Relative weight of long punctuation pauses (default: `2.0`) |
@@ -166,12 +164,12 @@ This generates:
       --prosody-style lob \
       --metrics-table
 
-### Run with Machine-Readable Metrics (JSON + CSV)
+### Run with Machine-Readable Metrics (JSON)
 
     python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
       -p erra \
       --outdir outputs \
-      --metrics-json --metrics-csv
+  --metrics-json
 
 ### Full Pipeline with Punctuation Extensions
 

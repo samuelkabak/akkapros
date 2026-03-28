@@ -11,6 +11,8 @@ Implements: None
 
 # Summary
 
+**replaced by CR-022**
+
 This CR proposed adding lexical-aware metrics counters derived from a dedicated
 `_lex.txt` companion file and a `--lex-input` option. The proposal is rejected
 because the dependency it relied on has been discarded in favor of pipeline-wide

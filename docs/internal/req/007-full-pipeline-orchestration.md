@@ -61,6 +61,11 @@ who want fine-grained control can still invoke stages separately.
 
 ## Metrics Options (prefixed `--metrics-`)
 
+Historical note: this implemented requirement records the full-pipeline option
+surface before metrics CSV was later abandoned. See
+[ADR-030](../adr/030-metrics-csv-abandonment-and-spec-history-policy.md) and
+[REQ-014](014-remove-metrics-csv-output.md) for the later change.
+
 - [ ] `--metrics-table` writes `<prefix>_metrics.txt`.
 - [ ] `--metrics-json` writes `<prefix>.json`.
 - [ ] `--metrics-csv` writes `<prefix>.csv`.

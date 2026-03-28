@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from akkapros.lib.frontmatter import split_frontmatter
+from akkapros.lib import metrics
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -127,16 +128,6 @@ def _sanitize_metrics_json_text(text: str) -> str:
     return json.dumps(_walk(data), ensure_ascii=False, sort_keys=True, indent=2)
 
 
-def _sanitize_metrics_csv_lines(lines: list[str]) -> list[str]:
-    out: list[str] = []
-    for ln in lines:
-        if ln.startswith("Metric,"):
-            out.append("Metric,<PATH>")
-            continue
-        out.append(ln)
-    return out
-
-
 def _assert_matches_reference(generated: Path, reference: Path) -> None:
     assert reference.exists(), f"Reference file missing: {reference}"
     gen = _read_text(generated)
@@ -150,12 +141,6 @@ def _assert_matches_reference(generated: Path, reference: Path) -> None:
 
     if generated.suffix == ".json":
         assert _sanitize_metrics_json_text(gen) == _sanitize_metrics_json_text(ref), (
-            f"Mismatch vs reference for: {generated.name}"
-        )
-        return
-
-    if generated.suffix == ".csv":
-        assert _sanitize_metrics_csv_lines(_norm_lines(gen)) == _sanitize_metrics_csv_lines(_norm_lines(ref)), (
             f"Mismatch vs reference for: {generated.name}"
         )
         return
@@ -199,14 +184,12 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         str(outdir),
         "--table",
         "--json",
-        "--csv",
     )
     metrics_txt = outdir / f"{prefix}_metrics.txt"
     metrics_json = outdir / f"{prefix}_metrics.json"
-    metrics_csv = outdir / f"{prefix}_metrics.csv"
     _assert_non_empty_text_file(metrics_txt)
     _assert_non_empty_text_file(metrics_json)
-    _assert_non_empty_text_file(metrics_csv)
+    assert not (outdir / f"{prefix}_metrics.csv").exists()
     _assert_has_yaml_frontmatter(metrics_txt)
     assert "frontmatter" in json.loads(_read_text(metrics_json))
 
@@ -243,7 +226,6 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         tilde_file: STAGE_REF_DIR / "expected_e2e_tilde.txt",
         metrics_txt: STAGE_REF_DIR / "expected_e2e_metrics.txt",
         metrics_json: STAGE_REF_DIR / "expected_e2e_metrics.json",
-        metrics_csv: STAGE_REF_DIR / "expected_e2e_metrics.csv",
         printer_outputs[0]: STAGE_REF_DIR / "expected_e2e_accent_acute.txt",
         printer_outputs[1]: STAGE_REF_DIR / "expected_e2e_accent_bold.md",
         printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_accent_ipa.txt",
@@ -270,7 +252,6 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         str(outdir),
         "--metrics-table",
         "--metrics-json",
-        "--metrics-csv",
         "--print-acute",
         "--print-bold",
         "--print-ipa",
@@ -282,7 +263,6 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         outdir / "test_tilde.txt",
         outdir / "test_metrics.txt",
         outdir / "test.json",
-        outdir / "test.csv",
         outdir / "test_accent_acute.txt",
         outdir / "test_accent_bold.md",
         outdir / "test_accent_ipa.txt",
@@ -313,7 +293,6 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         outdir / "test_tilde.txt": FULL_REF_DIR / "expected_test_tilde.txt",
         outdir / "test_metrics.txt": FULL_REF_DIR / "expected_test_metrics.txt",
         outdir / "test.json": FULL_REF_DIR / "expected_test.json",
-        outdir / "test.csv": FULL_REF_DIR / "expected_test.csv",
         outdir / "test_accent_acute.txt": FULL_REF_DIR / "expected_test_accent_acute.txt",
         outdir / "test_accent_bold.md": FULL_REF_DIR / "expected_test_accent_bold.md",
         outdir / "test_accent_ipa.txt": FULL_REF_DIR / "expected_test_accent_ipa.txt",
@@ -322,6 +301,46 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     }
     for generated, reference in full_reference_map.items():
         _assert_matches_reference(generated, reference)
+
+
+def test_metricalc_legacy_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> None:
+    outdir = tmp_path / "legacy_metricalc_csv"
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    proc = _run_cli(
+        "akkapros.cli.metricalc",
+        str(STAGE_REF_DIR / "expected_e2e_tilde.txt"),
+        "-p",
+        "legacy",
+        "--outdir",
+        str(outdir),
+        "--csv",
+    )
+
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stdout
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stderr
+    _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
+    assert not (outdir / "legacy_metrics.csv").exists()
+
+
+def test_fullprosmaker_legacy_metrics_csv_flag_prints_stdout_notice_only(tmp_path: Path) -> None:
+    outdir = tmp_path / "legacy_fullprosmaker_csv"
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    proc = _run_cli(
+        "akkapros.cli.fullprosmaker",
+        str(INPUT_PROC),
+        "-p",
+        "legacy",
+        "--outdir",
+        str(outdir),
+        "--metrics-csv",
+    )
+
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stdout
+    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stderr
+    _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
+    assert not (outdir / "legacy.csv").exists()
 
 
 def test_cli_phoneprep_outputs(tmp_path: Path) -> None:

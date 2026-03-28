@@ -4,7 +4,7 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 
 [023. Adopt `logging-actions` for CLI logging](023-adopt-logging-actions-for-cli-logging.md) - Draft
 [022. Add frontmatter-derived word indicators to metrics outputs](022-add-frontmatter-derived-word-indicators-to-metrics.md) - Draft
-[021. Remove metrics CSV output](021-remove-metrics-csv-output.md) - Draft
+[021. Remove metrics CSV output](021-remove-metrics-csv-output.md) - Done
 [020. Rejected lex-input metrics extension](020-metrics-word-stats-lex-input.md) - Rejected
 [019. Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs](019-metrics-deltac-meanc-dual-lines-and-varcoc-unitless.md) - Draft
 [018. Add CLI file front matter and metadata propagation](018-add-cli-file-front-matter-and-metadata-propagation.md) - Draft

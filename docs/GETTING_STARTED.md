@@ -4,8 +4,7 @@ This short guide helps you run the basic pipeline on a sample file and inspect o
 
 Text outputs produced by the CLI pipeline now begin with YAML front matter,
 followed by one blank line and then the content body. Metrics JSON carries the
-same metadata under a top-level `frontmatter` object. Metrics CSV remains plain
-CSV with no embedded front matter.
+same metadata under a top-level `frontmatter` object.
 
 ---
 
@@ -37,7 +36,7 @@ After running the command, check these files in the `outputs/` directory:
 |------|-------------|
 | `demo_syl.txt` | Syllabified output with syllable boundaries |
 | `demo_tilde.txt` | Prosody-realized pivot format with `~` markers |
-| `demo_metrics.csv` or `demo_metrics.json` | Metrics in machine-readable format |
+| `demo_metrics.json` | Metrics in machine-readable format |
 | `demo_metrics.txt` | Human-readable metrics table |
 | `demo_accent_bold.md` | Bold-marked text for visual inspection |
 | `demo_accent_acute.txt` | Acute-accented text for scholarly notation |

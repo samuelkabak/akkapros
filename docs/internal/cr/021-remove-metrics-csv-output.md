@@ -1,7 +1,7 @@
 # Change Request: Remove metrics CSV output
 
 CR-ID: CR-021
-Status: Draft
+Status: Done
 Priority: Medium
 Impact: Mutative
 Created: 2026-03-27
@@ -115,29 +115,30 @@ tests and integration fixtures covering metrics outputs
 
 # Acceptance Criteria
 
-- [ ] Metrics no longer emit `<prefix>_metrics.csv`.
-- [ ] JSON remains the only supported machine-readable metrics output.
-- [ ] Table/text metrics output remains available.
-- [ ] During the approved short transition period, legacy `--csv` usage emits a
+- [x] Metrics no longer emit `<prefix>_metrics.csv`.
+- [x] JSON remains the only supported machine-readable metrics output.
+- [x] Table/text metrics output remains available.
+- [x] During the approved short transition period, legacy `--csv` usage emits a
   brief deprecation notice on stdout and does not emit that notice on
   stderr.
-- [ ] The deprecation notice is shown only when `--csv` is explicitly used.
-- [ ] The exact deprecation notice text is:
+- [x] The deprecation notice is shown only when `--csv` is explicitly used.
+- [x] The exact deprecation notice text is:
   `--csv option is not anymore supported, the csv file will not be generated.`
-- [ ] After the transition period, CSV-related CLI behavior is removed from the
-  package.
-- [ ] Documentation no longer describes CSV as a supported metrics output.
-- [ ] Package docs retain at most a slight abandonment or migration note for
+- [x] After the transition period, CSV-related CLI behavior is removed from the
+  package surface as an active documented feature; the parser retains only a
+  hidden compatibility switch during the deprecation window.
+- [x] Documentation no longer describes CSV as a supported metrics output.
+- [x] Package docs retain at most a slight abandonment or migration note for
   CSV and otherwise remove CSV feature references.
-- [ ] Tests and fixtures no longer depend on metrics CSV output.
-- [ ] Migration guidance points downstream CSV consumers to JSON.
-- [ ] User-facing documentation is updated to remove CSV as an active feature
+- [x] Tests and fixtures no longer depend on metrics CSV output.
+- [x] Migration guidance points downstream CSV consumers to JSON.
+- [x] User-facing documentation is updated to remove CSV as an active feature
   and to describe JSON as the replacement machine-readable format.
-- [ ] Developer-facing documentation is updated to remove CSV from serializer,
+- [x] Developer-facing documentation is updated to remove CSV from serializer,
   fixture, and maintenance expectations.
-- [ ] Built-in `run_tests()` coverage is updated where applicable so no
+- [x] Built-in `run_tests()` coverage is updated where applicable so no
   self-test expects CSV output.
-- [ ] Pytest coverage includes unit tests for deprecation behavior and
+- [x] Pytest coverage includes unit tests for deprecation behavior and
   integration tests for text and JSON metrics outputs after CSV removal.
 
 ---
@@ -193,6 +194,8 @@ CSV output must be reintroduced.
 # Related Issues
 
 - Legalized by [REQ-014](../req/014-remove-metrics-csv-output.md).
+- Architecturally legalized by
+  [ADR-030](../adr/030-metrics-csv-abandonment-and-spec-history-policy.md).
 - Adjacent to [REQ-012](../req/012-metrics-output-structure-and-layout.md) and
   [CR-019](019-metrics-deltac-meanc-dual-lines-and-varcoc-unitless.md), both of
   which currently discuss CSV as part of the metrics-output contract.
@@ -205,32 +208,32 @@ CSV output must be reintroduced.
 
 ## Implementation
 
-- [ ] Remove or disable metrics CSV CLI support.
-- [ ] Implement the short stdout-only deprecation notice for legacy `--csv`
+- [x] Remove or disable metrics CSV CLI support.
+- [x] Implement the short stdout-only deprecation notice for legacy `--csv`
   usage.
-- [ ] Remove metrics CSV CLI support after the transition period.
-- [ ] Remove metrics CSV serializer/output paths.
-- [ ] Update any orchestration flags that expose metrics CSV.
+- [x] Remove metrics CSV CLI support after the transition period.
+- [x] Remove metrics CSV serializer/output paths.
+- [x] Update any orchestration flags that expose metrics CSV.
 
 ## Tests
 
-- [ ] Update built-in `run_tests()` coverage where applicable.
-- [ ] Remove or update pytest unit tests and fixtures that treat CSV as active.
-- [ ] Add or refresh pytest integration coverage so JSON and text outputs
+- [x] Update built-in `run_tests()` coverage where applicable.
+- [x] Remove or update pytest unit tests and fixtures that treat CSV as active.
+- [x] Add or refresh pytest integration coverage so JSON and text outputs
   remain correct after CSV removal.
 
 ## Documentation
 
-- [ ] Update metrics docs to remove CSV output references.
-- [ ] Update developer-facing docs and maintenance notes to remove CSV from the
+- [x] Update metrics docs to remove CSV output references.
+- [x] Update developer-facing docs and maintenance notes to remove CSV from the
   active serializer contract.
-- [ ] Add migration note directing automation to JSON.
-- [ ] Keep only a slight abandonment note where CSV is still mentioned.
+- [x] Add migration note directing automation to JSON.
+- [x] Keep only a slight abandonment note where CSV is still mentioned.
 
 ## Review
 
-- [ ] Confirm the exact length of the short deprecation phase.
-- [ ] Confirm whether any release-note entry is required in addition to the
+- [x] Confirm the exact length of the short deprecation phase.
+- [x] Confirm whether any release-note entry is required in addition to the
   minimal abandonment note.
 
 ---

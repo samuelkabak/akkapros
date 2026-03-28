@@ -14,8 +14,6 @@ This document explains every metric reported by `akkapros` metrics output: what 
 - JSON mirrors this grouping at
   `original.stats.syllable_statistics.{types,count}` and
   `accentuated.stats.syllable_statistics.{types,count}`.
-- CSV mirrors this grouping with prefixed metric rows:
-  `original_syllable_statistics_*` and `accentuated_syllable_statistics_*`.
 
 ---
 
@@ -273,7 +271,7 @@ same inline `mean ± stddev` display used for `Mean morae per syllable`.
 - To compare moraic text metrics with speech metrics, pause ratio expands total moraic time by `(1 + pause_ratio/100)`.
 
 **Implementation note:**
-`metricalc.py` and `fullprosmaker.py` table/CSV outputs expose both values as separate fields.
+`metricalc.py` and `fullprosmaker.py` expose both values in table output and JSON.
 
 **Unit:**
 - `%`
@@ -296,7 +294,6 @@ same inline `mean ± stddev` display used for `Mean morae per syllable`.
 - table label `ΔC` = seconds view
 - table label `ΔC_mora` = mora view
 - JSON keys `delta_c_seconds`, `delta_c_mora`
-- CSV rows `ΔC`, `ΔC_mora`
 
 Where `mora_duration` is `mora_dur` from section 3.21.
 
@@ -320,7 +317,6 @@ Where `mora_duration` is `mora_dur` from section 3.21.
 - table label `MeanC` = seconds view
 - table label `MeanC_mora` = mora view
 - JSON keys `mean_c_seconds`, `mean_c_mora`
-- CSV rows `MeanC`, `MeanC_mora`
 
 Where `mora_duration` is `mora_dur` from section 3.21.
 
@@ -855,7 +851,7 @@ This makes each metrics file self-describing and reproducible.
     --wpm
     --pause-ratio
     --long-punct-weight
-    --table, --json, --csv
+    --table, --json
     --extra-consonants, --extra-vowels
 
 ### `fullprosmaker.py` (metrics stage)
@@ -863,9 +859,9 @@ This makes each metrics file self-describing and reproducible.
     --metrics-wpm
     --metrics-pause-ratio
     --metrics-long-punct-weight
-    --metrics-table, --metrics-json, --metrics-csv
+    --metrics-table, --metrics-json
 
-**Note:** the CLI writes metrics to files by default — JSON files are named `*_metrics.json` and CSV files are named `*_metrics.csv`.
+  **Note:** the CLI writes metrics to files by default — JSON files are named `*_metrics.json`.
 
 ---
 

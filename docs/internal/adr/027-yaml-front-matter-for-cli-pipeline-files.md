@@ -9,6 +9,11 @@ Date: 2026-03-27
 
 All CLI-generated pipeline files shall carry structured front matter so metadata can move through the pipeline explicitly instead of being reconstructed from content-specific side outputs. The front matter uses YAML for text files and a structurally equivalent `frontmatter` object for metrics JSON. Metrics CSV is outside this change and carries no front matter contract here.
 
+Historical note: this ADR records the front matter decision at a time when
+metrics CSV still existed as a separate artifact. The later removal of metrics
+CSV is legalized by [ADR-030](030-metrics-csv-abandonment-and-spec-history-policy.md)
+and specified in [REQ-014](../req/014-remove-metrics-csv-output.md).
+
 TL;DR: replace ad hoc metadata propagation with a versioned, snake_case front matter contract that every stage can read and validate.
 
 ## Context and Problem Statement

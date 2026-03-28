@@ -93,7 +93,7 @@ For a dead language studied primarily through texts, this model offers a way to 
 | ATF parsing | `atfparser.py` | Clean phonological text |
 | Syllabification | `syllabifier.py` | `*_syl.txt` with boundaries |
 | Prosody realization | `prosmaker.py` | `*_tilde.txt` pivot format |
-| Metrics | `metricalc.py` | Tables, JSON, CSV |
+| Metrics | `metricalc.py` | Tables, JSON |
 | Formatting | `printer.py` | Multiple reading formats |
 
 ### Output Formats

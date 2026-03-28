@@ -1578,178 +1578,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def format_csv(results: List[Dict], output_file: Path):
-    """Format results as CSV with first column as filename."""
-    with open(output_file, 'w', encoding='utf-8') as f:
-        # Write header
-        f.write("Metric," + ",".join([r['file'] for r in results]) + "\n")
-        
-        # Helper to add a row
-        def add_row(name, values):
-            f.write(f"{name}," + ",".join(str(v) for v in values) + "\n")
-        
-        # Original text metrics
-        add_row("--- ORIGINAL TEXT ---", [""] * len(results))
-        
-        # Syllable statistics
-        for typ in DISPLAY_SYLLABLE_TYPES:
-            values = [r['original']['stats']['syllable_counts'].get(typ, 0) for r in results]
-            add_row(f"original_syllable_statistics_types_count_{typ}", values)
-        
-        # Syllable percentages
-        for typ in DISPLAY_SYLLABLE_TYPES:
-            values = [f"{r['original']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
-            add_row(f"original_syllable_statistics_types_pct_{typ}", values)
-
-        values = [r['original']['stats']['total_syllables'] for r in results]
-        add_row("original_syllable_statistics_count", values)
-        
-        # Word stats
-        values = [r['original']['stats']['word_stats']['total_words'] for r in results]
-        add_row("original_word_statistics_total_words", values)
-        values = [f"{r['original']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
-        add_row("original_word_statistics_syllables_per_word_mean", values)
-        values = [f"{r['original']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
-        add_row("original_word_statistics_syllables_per_word_stddev", values)
-
-        # Mora stats
-        values = [f"{r['original']['stats']['mora_stats']['mean']:.3f}" for r in results]
-        add_row("original_mora_statistics_mean_morae_per_syllable_mean", values)
-        values = [f"{r['original']['stats']['mora_stats']['std']:.3f}" for r in results]
-        add_row("original_mora_statistics_mean_morae_per_syllable_stddev", values)
-        values = [f"{r['original']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
-        add_row("original_mora_statistics_mean_morae_per_word_mean", values)
-        values = [f"{r['original']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
-        add_row("original_mora_statistics_mean_morae_per_word_stddev", values)
-        values = [r['original']['stats']['mora_stats']['total'] for r in results]
-        add_row("original_mora_statistics_total_morae", values)
-        
-        # Acoustic metrics (original)
-        ac = [r['original']['acoustic'] for r in results]
-        add_row("%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac])
-        add_row("%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac])
-        add_row("ΔC", [f"{a['delta_c_seconds']:.4f}" for a in ac])
-        add_row("ΔC_mora", [f"{a['delta_c_mora']:.4f}" for a in ac])
-        add_row("MeanC", [f"{a['mean_c_seconds']:.4f}" for a in ac])
-        add_row("MeanC_mora", [f"{a['mean_c_mora']:.4f}" for a in ac])
-        add_row("VarcoC", [f"{a['varco_c']:.2f}" for a in ac])
-
-        # Speech rate (original)
-        sp_orig = [r['original']['speech'] for r in results]
-        add_row("orig_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_orig])
-        add_row("orig_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_orig])
-        add_row("orig_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_orig])
-        add_row("orig_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_orig])
-        add_row("orig_word_duration", [f"{s['word_duration']:.3f}" for s in sp_orig])
-        
-        # --- ACCENTUATED TEXT ---
-        add_row("--- ACCENTUATED TEXT ---", [""] * len(results))
-        
-        # Syllable statistics (accentuated)
-        for typ in DISPLAY_SYLLABLE_TYPES:
-            values = [r['accentuated']['stats']['syllable_counts'].get(typ, 0) for r in results]
-            add_row(f"accentuated_syllable_statistics_types_count_{typ}", values)
-        
-        # Syllable percentages (accentuated)
-        for typ in DISPLAY_SYLLABLE_TYPES:
-            values = [f"{r['accentuated']['stats']['syllable_percentages'].get(typ, 0):.2f}" for r in results]
-            add_row(f"accentuated_syllable_statistics_types_pct_{typ}", values)
-
-        values = [r['accentuated']['stats']['total_syllables'] for r in results]
-        add_row("accentuated_syllable_statistics_count", values)
-        
-        # Word stats (accentuated)
-        values = [r['accentuated']['stats']['word_stats']['total_words'] for r in results]
-        add_row("accentuated_word_statistics_total_words", values)
-        values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['mean']:.3f}" for r in results]
-        add_row("accentuated_word_statistics_syllables_per_word_mean", values)
-        values = [f"{r['accentuated']['stats']['word_stats']['syllables_per_word']['std']:.3f}" for r in results]
-        add_row("accentuated_word_statistics_syllables_per_word_stddev", values)
-
-        # Mora stats (accentuated)
-        values = [f"{r['accentuated']['stats']['mora_stats']['mean']:.3f}" for r in results]
-        add_row("accentuated_mora_statistics_mean_morae_per_syllable_mean", values)
-        values = [f"{r['accentuated']['stats']['mora_stats']['std']:.3f}" for r in results]
-        add_row("accentuated_mora_statistics_mean_morae_per_syllable_stddev", values)
-        values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['mean']:.3f}" for r in results]
-        add_row("accentuated_mora_statistics_mean_morae_per_word_mean", values)
-        values = [f"{r['accentuated']['stats']['word_stats']['morae_per_word']['std']:.3f}" for r in results]
-        add_row("accentuated_mora_statistics_mean_morae_per_word_stddev", values)
-        values = [r['accentuated']['stats']['mora_stats']['total'] for r in results]
-        add_row("accentuated_mora_statistics_total_morae", values)
-        
-        # Merge stats
-        values = [r['accentuated']['stats']['merge_stats']['total_merged_words'] for r in results]
-        add_row("merged_words", values)
-        values = [r['accentuated']['stats']['merge_stats']['merged_units'] for r in results]
-        add_row("merged_units", values)
-        values = [f"{r['accentuated']['stats']['merge_stats']['avg_unit_size']:.2f}" for r in results]
-        add_row("avg_unit_size", values)
-        
-        # Acoustic metrics (accentuated)
-        ac_rep = [r['accentuated']['acoustic'] for r in results]
-        add_row("accentuated_%V_articulate", [f"{a['percent_v_articulate']:.2f}" for a in ac_rep])
-        add_row("accentuated_%V_normal_speech", [f"{a['percent_v_speech']:.2f}" for a in ac_rep])
-        add_row("accentuated_ΔC", [f"{a['delta_c_seconds']:.4f}" for a in ac_rep])
-        add_row("accentuated_ΔC_mora", [f"{a['delta_c_mora']:.4f}" for a in ac_rep])
-        add_row("accentuated_MeanC", [f"{a['mean_c_seconds']:.4f}" for a in ac_rep])
-        add_row("accentuated_MeanC_mora", [f"{a['mean_c_mora']:.4f}" for a in ac_rep])
-        add_row("accentuated_VarcoC", [f"{a['varco_c']:.2f}" for a in ac_rep])
-        
-        # Speech rate (accentuated)
-        sp_rep = [r['accentuated']['speech'] for r in results]
-        add_row("accentuated_sps_speech", [f"{s['sps_speech']:.3f}" for s in sp_rep])
-        add_row("accentuated_sps_articulation", [f"{s['sps_articulation']:.3f}" for s in sp_rep])
-        add_row("accentuated_syllable_duration", [f"{s['syllable_duration']:.3f}" for s in sp_rep])
-        add_row("accentuated_mora_duration", [f"{s['mora_duration']:.3f}" for s in sp_rep])
-        add_row("accentuated_word_duration", [f"{s['word_duration']:.3f}" for s in sp_rep])
-        
-        # Pause metrics
-        add_row("--- PAUSE METRICS ---", [""] * len(results))
-        
-        for r in results:
-            pm = r['accentuated']['pause_metrics']
-            pd = r['accentuated']['pause_durations']
-            
-            values = [f"{pm['short_punctuation_per_syllable']:.3f}" for r in results]
-            add_row("short_pause_punct_per_syllable", values)
-            values = [f"{pm['long_punctuation_per_syllable']:.3f}" for r in results]
-            add_row("long_pause_punct_per_syllable", values)
-            values = [f"{pm['punctuation_per_syllable']:.3f}" for r in results]
-            add_row("total_punct_per_syllable", values)
-            values = [r['accentuated']['pause_metrics']['short_pauseable_boundaries'] for r in results]
-            add_row("short_pauseable_boundaries", values)
-            values = [r['accentuated']['pause_metrics']['long_pauseable_boundaries'] for r in results]
-            add_row("long_pauseable_boundaries", values)
-            values = [f"{r['accentuated']['pause_durations']['initial_long_punct_weight']:.4f}" for r in results]
-            add_row("initial_long_pause_punct_weight_rel_to_short", values)
-            values = [f"{r['accentuated']['pause_durations']['initial_short_punctuation_duration']:.4f}" for r in results]
-            add_row("initial_short_pause_punct_duration", values)
-            values = [f"{r['accentuated']['pause_durations']['initial_long_punctuation_duration']:.4f}" for r in results]
-            add_row("initial_avg_long_pause_punct_duration", values)
-            values = [f"{r['accentuated']['pause_durations']['corrected_short_punctuation_duration']:.4f}" for r in results]
-            add_row("corrected_short_pause_punct_duration", values)
-            values = [f"{r['accentuated']['pause_durations']['corrected_long_punctuation_duration']:.4f}" for r in results]
-            add_row("corrected_avg_long_pause_punct_duration", values)
-            values = [f"{r['accentuated']['pause_durations']['corrected_long_punct_weight']:.4f}" for r in results]
-            add_row("corrected_avg_long_pause_punct_weight_rel_to_short", values)
-            values = [f"{r['accentuated']['pause_durations']['corrected_short_punctuation_percent']:.1f}" for r in results]
-            add_row("corrected_short_pause_punct_percent", values)
-            values = [f"{r['accentuated']['pause_durations']['corrected_long_punctuation_percent']:.1f}" for r in results]
-            add_row("corrected_long_pause_punct_percent", values)
-            break  # Only do once since we're looping over results
-        
-        # --- ACCENTUATION STATISTICS ---
-        add_row("--- ACCENTUATION STATISTICS ---", [""] * len(results))
-        
-        values = [r['accentuation_stats']['accentuated_syllables'] for r in results]
-        add_row("accentuated_syllables", values)
-        values = [f"{r['accentuation_stats']['accentuation_rate']:.2f}" for r in results]
-        add_row("accentuation_rate", values)
-        
-        for typ in SYLLABLE_TYPES:
-            values = [r['accentuation_stats']['accentuation_types'].get(typ, 0) for r in results]
-            add_row(f"accentuation_{typ}", values)
+METRICS_CSV_DEPRECATION_MESSAGE = "--csv option is not anymore supported, the csv file will not be generated."
 
 
 # ------------------------------------------------------------
@@ -2060,8 +1889,8 @@ def _test_mora_totals_and_original_speech() -> bool:
     return True
 
 
-def _test_table_and_csv_new_fields() -> bool:
-    """Unit test: table and CSV expose new CR-001 fields."""
+def _test_table_new_fields_and_no_csv() -> bool:
+    """Unit test: table exposes current fields and CSV writer is removed."""
     text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
     result = process_filetext(text, wpm=165, pause_ratio=35.0)
 
@@ -2094,31 +1923,7 @@ def _test_table_and_csv_new_fields() -> bool:
         return False
     if table.find("Speech rate (accentuated):") > table.find("Acoustic metrics (accentuated):"):
         return False
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / 'metrics_test.csv'
-        format_csv([result], csv_path)
-        csv_text = csv_path.read_text(encoding='utf-8')
-
-    required_rows = [
-        "original_syllable_statistics_count,",
-        "original_word_statistics_total_words,",
-        "original_mora_statistics_total_morae,",
-        "accentuated_syllable_statistics_count,",
-        "accentuated_word_statistics_total_words,",
-        "accentuated_mora_statistics_total_morae,",
-        "orig_sps_speech,",
-        "accentuated_sps_speech,",
-        "ΔC,",
-        "ΔC_mora,",
-        "MeanC,",
-        "MeanC_mora,",
-        "accentuated_ΔC,",
-        "accentuated_ΔC_mora,",
-        "accentuated_MeanC,",
-        "accentuated_MeanC_mora,",
-    ]
-    return all(row in csv_text for row in required_rows)
+    return 'format_csv' not in globals()
 
 
 def _test_small_corpus_metrics_consistency() -> bool:
@@ -2211,19 +2016,6 @@ def _test_small_corpus_metrics_consistency() -> bool:
     if "Total morae number:" in table:
         return False
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / 'metrics_consistency.csv'
-        format_csv([result], csv_path)
-        csv_text = csv_path.read_text(encoding='utf-8')
-    if 'original_syllable_statistics_count,' not in csv_text:
-        return False
-    if 'accentuated_syllable_statistics_count,' not in csv_text:
-        return False
-    if 'original_mora_statistics_total_morae,' not in csv_text:
-        return False
-    if 'accentuated_mora_statistics_total_morae,' not in csv_text:
-        return False
-
     return True
 
 
@@ -2269,7 +2061,7 @@ def run_tests():
         (_test_pause_metrics_grouping, "Pause metrics grouping"),
         (_test_unknown_punctuation_raises, "Unknown punctuation strict error"),
         (_test_mora_totals_and_original_speech, "Mora totals and original speech"),
-        (_test_table_and_csv_new_fields, "Table and CSV new fields"),
+        (_test_table_new_fields_and_no_csv, "Table fields and CSV removal"),
         (_test_small_corpus_metrics_consistency, "Small corpus metrics consistency"),
         (_test_percent_v_fallback_safe, "%V fallback safety"),
     ]

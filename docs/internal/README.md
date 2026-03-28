@@ -7,6 +7,7 @@ Principles / Workflow
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
 - CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). Mark CR status clearly (Draft / Proposed / Accepted / Done).
 - Req: short, testable requirement documents describing what to implement. It is acceptable for `req/` to be empty until requirements are added.
+- Change-management rule: do not rewrite older accepted ADRs, REQs, or CRs as though a later decision had always been true. This applies to any future change that alters, narrows, removes, replaces, or reinterprets an earlier documented decision or contract. Preserve historical records and record the newer decision additively in new documents or explicit supersession notes, using short forward references when readers need help understanding the relationship between past and current state.
 
 Directory layout
 - `adr/` — ADR documents and `index.md`. Use the ADR template `000-adr-template.md` and the numeric prefix to order decisions (e.g., `023-rename-repair-to-accentuation.md`).
@@ -31,6 +32,7 @@ Templates
 Status, review & metadata
 - Add a short `Status:` line in every ADR/CR/Spec (`Draft`, `Proposed`, `Accepted`, `Done`).
 - When accepting a decision, add reviewer metadata and dates to the ADR/CR.
+- If an older accepted document is no longer current, prefer adding an explicit supersession note or a short historical-reference paragraph instead of changing the original decision text to match the newer state.
 
 Unicode & file-encoding policy
 - This project is sensitive to Unicode. All files must be UTF-8 encoded and editors/processes must preserve Unicode characters.
@@ -41,6 +43,7 @@ Quick contributor checklist
 - Propose an ADR for large or breaking changes before implementation.
 - Create or update a CR when implementing an ADR or coordinating a breaking change.
 - Add requirement documents when formalizing requirements (optional for now).
+- For any later change that impacts the meaning or scope of older internal records, add a new decision record and cross-link the older documents rather than editing the past out of them.
 - Run `python scripts/update-indexes.py` and verify the generated indexes.
 - Run the test suite for behavioral changes.
 

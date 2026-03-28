@@ -10,6 +10,11 @@ Date: 2026-03-17
 Explain which parts of the generated outputs are stable public contracts and which may change.
 This helps users migrate when outputs change between releases.
 
+Historical note: this ADR records the contract state accepted on 2026-03-17,
+when metrics CSV was still part of the documented public surface. The later
+abandonment decision is recorded separately in [ADR-030](030-metrics-csv-abandonment-and-spec-history-policy.md)
+and [REQ-014](../req/014-remove-metrics-csv-output.md).
+
 ## Context and Problem Statement
 
 The toolkit is frequently used in scripted workflows. Users depend not only on CLI execution, but also on specific output file schemas and markers. Compatibility expectations must be explicit to avoid silent breakage.

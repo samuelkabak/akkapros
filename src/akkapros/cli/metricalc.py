@@ -24,12 +24,12 @@ from akkapros.lib.frontmatter import (
     validate_stage_data_consistency,
 )
 from akkapros.lib.metrics import (
+    METRICS_CSV_DEPRECATION_MESSAGE,
     PunctuationConfigError,
     configure_pause_punctuation_rules,
     update_character_sets,
     process_file,
     format_table,
-    format_csv,
     run_tests,
 )
 from akkapros.lib.utils import (
@@ -61,7 +61,7 @@ Version {__version__}
     parser.add_argument('--input-list', help='File containing list of input files (one per line)')
     parser.add_argument('-p', '--prefix', help='Output prefix')
     parser.add_argument('--outdir', default='.', help='Output directory')
-    parser.add_argument('--csv', action='store_true', help='Output CSV format')
+    parser.add_argument('--csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--table', action='store_true', help='Output human-readable table')
     parser.add_argument('--json', action='store_true', help='Output JSON format')
     parser.add_argument('--wpm', type=float, default=165, help='Words per minute [words/min]')
@@ -100,7 +100,7 @@ Version {__version__}
         print(f"Error: Invalid punctuation regex/options: {exc}", file=sys.stderr)
         sys.exit(2)
 
-    if not (args.csv or args.table or args.json):
+    if not (args.table or args.json):
         args.table = True
 
     input_files = []
@@ -132,7 +132,7 @@ Version {__version__}
     update_character_sets(args.extra_consonants, args.extra_vowels)
     option_values = effective_options_from_namespace(
         args,
-        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version'},
+        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv'},
     )
 
     results = []
@@ -202,9 +202,7 @@ Version {__version__}
         print(f"JSON saved to: {json_file}")
 
     if args.csv:
-        csv_file = base.with_name(base.name + '_metrics.csv')
-        format_csv(results, csv_file)
-        print(f"CSV saved to: {csv_file}")
+        print(METRICS_CSV_DEPRECATION_MESSAGE)
 
     if args.table:
         if len(results) == 1:

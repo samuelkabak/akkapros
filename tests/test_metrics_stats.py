@@ -74,22 +74,6 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
 
-    csv_path = tmp_path / "sample_metrics.csv"
-    metrics.format_csv([result], csv_path)
-    csv_text = csv_path.read_text(encoding="utf-8")
-    assert "original_syllable_statistics_count," in csv_text
-    assert "accentuated_syllable_statistics_count," in csv_text
-    assert "original_word_statistics_total_words," in csv_text
-    assert "original_mora_statistics_total_morae," in csv_text
-    assert "accentuated_word_statistics_total_words," in csv_text
-    assert "accentuated_mora_statistics_total_morae," in csv_text
-    assert f"ΔC,{result['original']['acoustic']['delta_c_seconds']:.4f}" in csv_text
-    assert f"ΔC_mora,{result['original']['acoustic']['delta_c_mora']:.4f}" in csv_text
-    assert f"MeanC,{result['original']['acoustic']['mean_c_seconds']:.4f}" in csv_text
-    assert f"MeanC_mora,{result['original']['acoustic']['mean_c_mora']:.4f}" in csv_text
-    assert f"accentuated_ΔC,{result['accentuated']['acoustic']['delta_c_seconds']:.4f}" in csv_text
-    assert f"accentuated_ΔC_mora,{result['accentuated']['acoustic']['delta_c_mora']:.4f}" in csv_text
-
     json_text = json.dumps(result, ensure_ascii=False)
     assert '"syllable_statistics"' in json_text
     assert '"word_statistics"' in json_text
@@ -108,8 +92,8 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     accentuated_other = result["accentuated"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
     assert original_other == 0
     assert accentuated_other == 0
-    assert f"count_{metrics.UNCLASSIFIED_SYLLABLE_TYPE},0" in csv_text
     assert metrics.UNCLASSIFIED_SYLLABLE_TYPE not in table
+    assert not hasattr(metrics, "format_csv")
 
 
 def test_function_words_remain_syllabified_in_tilde_output() -> None:

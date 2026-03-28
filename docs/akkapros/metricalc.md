@@ -16,7 +16,6 @@ This document explains what `metricalc.py` does, how to run it, and how to inter
 It can output:
 - Human-readable text table
 - JSON
-- CSV
 
 It supports single-file and batch (`--input-list`) processing.
 
@@ -34,7 +33,6 @@ It supports single-file and batch (`--input-list`) processing.
 |--------|-------------|
 | Table | `<base>_metrics.txt` |
 | JSON | `<base>_metrics.json` |
-| CSV | `<base>_metrics.csv` |
 
 ### Base Naming Rules
 
@@ -66,7 +64,6 @@ Batch mode:
 | `--outdir <dir>` | Output directory (default: current directory) |
 | `--table` | Write human-readable table output |
 | `--json` | Write JSON output |
-| `--csv` | Write CSV output |
 | `--wpm <float>` | Words per minute used in speech-rate estimation (default: `165`) |
 | `--pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--long-punct-weight <float>` | Relative weight of long punctuation pauses vs short pauses (default: `2.0`) |
@@ -80,7 +77,7 @@ Batch mode:
 
 ### Default Format Behavior
 
-If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled automatically.
+If none of `--table` or `--json` is specified, `--table` is enabled automatically.
 
 ---
 
@@ -90,10 +87,10 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 
     python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt
 
-### Write Table + JSON + CSV
+### Write Table + JSON
 
     python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-      --table --json --csv \
+    --table --json \
       -p erra \
       --outdir outputs
 
@@ -118,7 +115,7 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 
     python src/akkapros/cli/metricalc.py \
       --input-list outputs/tilde_files.txt \
-      --csv --json \
+            --json \
       --outdir outputs/compare
 
 ### Run Tests
@@ -149,9 +146,6 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 - The same grouping is mirrored in machine outputs:
     - JSON: `original.stats.syllable_statistics.types`, `original.stats.syllable_statistics.count`,
       `accentuated.stats.syllable_statistics.types`, `accentuated.stats.syllable_statistics.count`
-    - CSV rows: `original_syllable_statistics_types_count_*`,
-      `original_syllable_statistics_types_pct_*`, `original_syllable_statistics_count`,
-      plus matching `accentuated_*` rows
 - **Word statistics** now appear before **Mora statistics** in both sections.
 - **Mora statistics (original and accentuated)** now include:
         - `Mean morae per syllable: mean ± stddev mora/syllable`
@@ -160,8 +154,6 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 - The same word/mora grouping is mirrored in machine outputs:
         - JSON: `original.stats.word_statistics`, `original.stats.mora_statistics`,
             plus matching `accentuated.*` objects
-        - CSV rows: `original_word_statistics_*`, `original_mora_statistics_*`,
-            plus matching `accentuated_*` rows
 - **Speech rate** is reported for both sections:
     - `Speech rate (original)`
     - `Speech rate (accentuated)`
@@ -172,9 +164,6 @@ If none of `--table`, `--json`, or `--csv` is specified, `--table` is enabled au
 - JSON exposes the same separation with snake_case keys:
     - `delta_c_seconds`, `delta_c_mora`
     - `mean_c_seconds`, `mean_c_mora`
-- CSV mirrors the contract with dedicated rows:
-    - `ΔC`, `ΔC_mora`
-    - `MeanC`, `MeanC_mora`
 - **VarcoC** is displayed without a trailing `%` sign.
 
 ### Pause Output Details
@@ -247,7 +236,7 @@ This makes text-derived moraic `%V` directly comparable with pause-inclusive spe
 1. **Initial**: direct weighted allocation from `--long-punct-weight`
 2. **Corrected**: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
 
-This correction affects table, JSON, and CSV outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
+This correction affects table and JSON outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
 
 ### Strict Punctuation Classification
 
@@ -257,8 +246,8 @@ Pause punctuation is allowlist-based. If a punctuation suite is not matched by c
 
 For both original and accentuated outputs:
 
-- `mora_stats.total` (JSON) / `original_total_morae`, `accentuated_total_morae` (CSV)
-- `stats.total_syllables` (JSON) / `original_total_syllables`, `accentuated_total_syllables` (CSV)
+- `mora_stats.total` (JSON)
+- `stats.total_syllables` (JSON)
 - speech metrics for original and accentuated sections
 - `DeltaC` and `MeanC` in mora and seconds in the table
 
@@ -279,4 +268,4 @@ For all-in-one execution, see **`fullprosmaker.py`**.
 
 ## ✅ Summary
 
-`metricalc.py` transforms prosody-realized text into quantitative metrics that validate the algorithm and enable cross-linguistic comparison. It supports multiple output formats, batch processing, and configurable speech parameters, making it suitable for both single-file analysis and large-scale corpus studies.
+`metricalc.py` transforms prosody-realized text into quantitative metrics that validate the algorithm and enable cross-linguistic comparison. It supports table and JSON outputs, batch processing, and configurable speech parameters, making it suitable for both single-file analysis and large-scale corpus studies.

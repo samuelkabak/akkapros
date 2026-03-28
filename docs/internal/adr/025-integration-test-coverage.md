@@ -15,6 +15,11 @@ are produced by default CLI runs (processed ATF, syllabified text, `_tilde`/
 accentuated pivot format, metrics in text/JSON/CSV, phoneprep sidecars, and
 printer outputs) and must be verified together to ensure pipeline correctness.
 
+Historical note: this ADR describes the accepted integration surface before the
+later metrics CSV abandonment. See [ADR-030](030-metrics-csv-abandonment-and-spec-history-policy.md)
+and [REQ-014](../req/014-remove-metrics-csv-output.md) for the later contract
+change and migration path.
+
 ## Decision
 
 The project will maintain a single, small, reproducible integration test

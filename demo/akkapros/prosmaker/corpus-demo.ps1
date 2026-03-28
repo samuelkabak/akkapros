@@ -34,13 +34,13 @@ Write-Output "Running prosmaker (SOB)..."
 python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
 Write-Output "Running metrics (LOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --csv --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
 
 Write-Output "Running metrics (SOB, pause ratios 30/35/40)..."
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --csv --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 
 Write-Output "Running printer (LOB)..."
