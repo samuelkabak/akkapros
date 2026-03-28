@@ -1,13 +1,14 @@
+---
+cr_id: CR-013
+status: Approved
+priority: Medium
+impact: Mutative
+created: 2026-03-22
+updated: 2026-03-22
+implements: 'ADR-001 (CLI/Lib Separation), ADR-009 (Function Word Policy)'
+---
+
 # Change Request: Add Akkadian text likehood for format-validation
-
-CR-ID: CR-013
-Status: Approved
-Priority: Medium
-Created: 2026-03-22
-Updated: 2026-03-22
-Impact: Mutative
-Implements: ADR-001 (CLI/Lib Separation), ADR-009 (Function Word Policy)
-
 ---
 
 # Summary

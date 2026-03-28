@@ -1,12 +1,13 @@
-# Requirement: Built-in Self-Tests and CLI Test Infrastructure
-
-REQ-ID: REQ-010
-Status: Implemented
-Priority: Medium
-Impact: Additive
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-010
+status: Implemented
+priority: Medium
+impact: Additive
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Built-in Self-Tests and CLI Test Infrastructure
 
 # Summary
 

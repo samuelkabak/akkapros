@@ -1,12 +1,13 @@
-# Requirement: CLI File Front Matter and Metadata Propagation
-
-REQ-ID: REQ-013
-Status: Draft
-Priority: High
-Impact: Mutative
-Created: 2026-03-27
-Updated: 2026-03-27
 ---
+req_id: REQ-013
+status: Draft
+priority: High
+impact: Mutative
+created: 2026-03-27
+updated: 2026-03-27
+---
+
+# Requirement: CLI File Front Matter and Metadata Propagation
 
 # Summary
 

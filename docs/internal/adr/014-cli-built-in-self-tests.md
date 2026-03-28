@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-14
+adr_id: ADR-014
+status: Accepted
+created: 2026-03-14
+updated: 2026-03-14
+superseded_by: null
 ---
 
 # 14. CLI Built-In Self-Tests

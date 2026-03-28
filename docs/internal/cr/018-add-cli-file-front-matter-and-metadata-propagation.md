@@ -1,13 +1,14 @@
-# Change Request: Add CLI file front matter and metadata propagation
-
-CR-ID: CR-018
-Status: Done
-Priority: High
-Impact: Mutative
-Created: 2026-03-27
-Updated: 2026-03-27
-Implements: ADR-027, REQ-013
 ---
+cr_id: CR-018
+status: Done
+priority: High
+impact: Mutative
+created: 2026-03-27
+updated: 2026-03-27
+implements: 'ADR-027, REQ-013'
+---
+
+# Change Request: Add CLI file front matter and metadata propagation
 
 Bug note: During verification, diphthong restoration in `_tilde` was found to
 drop the real syllable separator before the internal hiatus marker

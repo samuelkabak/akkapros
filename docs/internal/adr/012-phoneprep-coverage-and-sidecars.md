@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-13
+adr_id: ADR-012
+status: Accepted
+created: 2026-03-13
+updated: 2026-03-13
+superseded_by: null
 ---
 
 # 12. Phoneprep Coverage and Sidecars

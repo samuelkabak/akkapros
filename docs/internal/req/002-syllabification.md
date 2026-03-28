@@ -1,12 +1,13 @@
-# Requirement: Akkadian Syllabification
-
-REQ-ID: REQ-002
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-002
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Akkadian Syllabification
 
 # Summary
 

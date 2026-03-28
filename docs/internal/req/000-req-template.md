@@ -1,12 +1,15 @@
-# Requirement: <Title>
-
-REQ-ID: REQ-XXX
-Status: Draft | Approved | Rejected | Implemented
-Priority: Low | Medium | High
-Impact: Additive | Mutative
-Created: YYYY-MM-DD
-Updated: YYYY-MM-DD
 ---
+req_id: REQ-XXX
+status: '{Draft | Approved | Rejected | Implemented}'
+priority: '{Low | Medium | High}'
+impact: '{Additive | Mutative}'
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+related_adrs: 'ADR-xxx references if applicable'
+implemented_by: 'CR-xxx references if applicable'
+---
+
+# Requirement: <Title>
 
 # Summary
 

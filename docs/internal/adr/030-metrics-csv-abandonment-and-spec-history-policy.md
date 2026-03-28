@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-28
+adr_id: ADR-030
+status: Accepted
+created: 2026-03-28
+updated: 2026-03-28
+superseded_by: null
 ---
 
 # 030. Metrics CSV Abandonment and Spec History Policy

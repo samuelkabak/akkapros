@@ -1,12 +1,13 @@
-# Requirement: Accentuation Terminology Rename (CR-004 Migration)
-
-REQ-ID: REQ-008
-Status: Approved (CR-004, pending full implementation)
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-008
+status: 'Approved (CR-004, pending full implementation)'
+priority: Medium
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Accentuation Terminology Rename (CR-004 Migration)
 
 # Summary
 

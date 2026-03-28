@@ -1,6 +1,9 @@
 ---
-Status: Proposed
-Date: 2026-03-28
+adr_id: ADR-031
+status: Proposed
+created: 2026-03-28
+updated: 2026-03-28
+superseded_by: null
 ---
 
 # 031. Factual Runtime Records and Structured Self-Test Output

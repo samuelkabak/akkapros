@@ -1,12 +1,13 @@
-# Requirement: Strict Punctuation Whitelist with CLI Extensions
-
-REQ-ID: REQ-011
-Status: Draft
-Priority: High
-Impact: Mutative
-Created: 2026-03-21
-Updated: 2026-03-21
 ---
+req_id: REQ-011
+status: Draft
+priority: High
+impact: Mutative
+created: 2026-03-21
+updated: 2026-03-21
+---
+
+# Requirement: Strict Punctuation Whitelist with CLI Extensions
 
 # Summary
 

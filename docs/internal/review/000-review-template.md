@@ -6,16 +6,24 @@ Filename conventions:
 
 Fill the sections below when preparing a code/project review. Keep prose concise; reviewers
 should populate each section with a short, actionable statement and any file references.
+
+Notes for tooling / coding agents:
+- Preserve section headers exactly when programmatically generating or updating reviews.
+- Use YAML front matter with snake_case keys at the top for quick extraction by scripts.
+- Keep the template filename starting with `000-` so indexers can ignore templates automatically.
 -->
 
-# Code and Project Review — PROJECT_NAME vX.Y.Z
-
-Review ID: review-000
-Date: YYYY-MM-DD
-Reviewer: NAME (affiliation/contact)
-Scope: Short, explicit list of files/directories the review covers (globs are OK).
-
 ---
+review_id: review-000
+status: '{Draft | Done}'
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+reviewer: NAME (affiliation/contact)
+scope: >-
+  Short, explicit list of files/directories the review covers (globs are OK).
+---
+
+# Code and Project Review — PROJECT_NAME vX.Y.Z
 
 ## 1. Executive Summary
 
@@ -54,11 +62,3 @@ One-paragraph summary of the project's health, high-level verdict, and top 2–3
 ## 8. Summary Verdict
 
 - Single-sentence conclusion and statement of whether the project is ready for the next milestone.
-
----
-
-Notes for tooling / coding agents:
-- Preserve section headers exactly when programmatically generating or updating reviews.
-- Use `Status:` or `Review ID:` metadata lines at the top for quick extraction by scripts.
-- Keep the template filename starting with `000-` so indexers can ignore templates automatically.
-

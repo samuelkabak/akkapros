@@ -1,12 +1,13 @@
-# Requirement: Diphone Recording Script Generator (phoneprep)
-
-REQ-ID: REQ-006
-Status: Implemented
-Priority: Medium
-Impact: Additive
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-006
+status: Implemented
+priority: Medium
+impact: Additive
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Diphone Recording Script Generator (phoneprep)
 
 # Summary
 

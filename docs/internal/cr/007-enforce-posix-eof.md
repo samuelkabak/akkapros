@@ -1,13 +1,14 @@
-# Change Request: Enforce POSIX EOF newline in all program outputs
-
-CR-ID: CR-007
-Status: Done
-Priority: Low
-Impact: Additive
-Created: 2026-03-20
-Updated: 2026-03-20
-
 ---
+cr_id: CR-007
+status: Done
+priority: Low
+impact: Additive
+created: 2026-03-20
+updated: 2026-03-20
+implements: null
+---
+
+# Change Request: Enforce POSIX EOF newline in all program outputs
 
 # Summary
 

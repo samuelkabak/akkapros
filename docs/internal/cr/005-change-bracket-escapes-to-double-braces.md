@@ -1,13 +1,14 @@
-# Change Request: Change escaped-foreign-text delimiters from [ ] to {{ }}
-
-CR-ID: CR-005
-Status: Approved
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-18
-Updated: 2026-03-18
-Implements: ADR-024
 ---
+cr_id: CR-005
+status: Approved
+priority: Medium
+impact: Mutative
+created: 2026-03-18
+updated: 2026-03-18
+implements: ADR-024
+---
+
+# Change Request: Change escaped-foreign-text delimiters from [ ] to {{ }}
 
 # Summary
 

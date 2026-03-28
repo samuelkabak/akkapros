@@ -1,13 +1,14 @@
-# Change Request: Add format-validation guard to file-input CLIs
-
-CR-ID: CR-011
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-20
-Updated: 2026-03-20
-Implements: ADR-001
 ---
+cr_id: CR-011
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-20
+updated: 2026-03-20
+implements: ADR-001
+---
+
+# Change Request: Add format-validation guard to file-input CLIs
 
 # Summary
 

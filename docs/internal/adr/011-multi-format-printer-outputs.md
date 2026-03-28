@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-03
+adr_id: ADR-011
+status: Accepted
+created: 2026-03-03
+updated: 2026-03-03
+superseded_by: null
 ---
 
 # 11. Multi-Format Printer Outputs

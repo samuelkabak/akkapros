@@ -1,13 +1,14 @@
-# Change Request: <Title>
-
-CR-ID: CR-XXX
-Status: Draft | Approved | Rejected | Done
-Priority: Low | Medium | High
-Impact: Additive | Mutative
-Created: YYYY-MM-DD
-Updated: YYYY-MM-DD
-Implements: ADR-NNN, SPEC-NNN ... (only references)
 ---
+cr_id: CR-XXX
+status: '{Draft | Approved | Rejected | Done}'
+priority: '{Low | Medium | High}'
+impact: '{Additive | Mutative}'
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+implements: 'ADR-NNN, REQ-NNN ... (only references)'
+---
+
+# Change Request: <Title>
 
 # Summary
 

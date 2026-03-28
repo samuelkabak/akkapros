@@ -1,12 +1,13 @@
-# Requirement: Rhythmic Metrics Computation
-
-REQ-ID: REQ-004
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-004
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Rhythmic Metrics Computation
 
 # Summary
 

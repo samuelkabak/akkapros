@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-17
+adr_id: ADR-021
+status: Accepted
+created: 2026-03-17
+updated: 2026-03-17
+superseded_by: null
 ---
 
 # 21. Multi-Target Printer Architecture Contract

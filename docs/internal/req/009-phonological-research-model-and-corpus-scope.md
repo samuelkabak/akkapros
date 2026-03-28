@@ -1,12 +1,13 @@
-# Requirement: Phonological Research Model and Corpus Scope
-
-REQ-ID: REQ-009
-Status: Implemented (research validated)
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-009
+status: 'Implemented (research validated)'
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Phonological Research Model and Corpus Scope
 
 # Summary
 

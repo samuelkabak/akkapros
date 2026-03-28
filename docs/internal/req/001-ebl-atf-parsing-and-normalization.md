@@ -1,12 +1,13 @@
-# Requirement: eBL ATF Parsing and Normalization
-
-REQ-ID: REQ-001
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-001
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: eBL ATF Parsing and Normalization
 
 # Summary
 

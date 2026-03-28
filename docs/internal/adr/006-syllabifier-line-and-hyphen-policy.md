@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-06
+adr_id: ADR-006
+status: Accepted
+created: 2026-03-06
+updated: 2026-03-06
+superseded_by: null
 ---
 
 # 6. Syllabifier Line and Hyphen Policy

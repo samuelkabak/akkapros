@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-10
+adr_id: ADR-004
+status: Accepted
+created: 2026-03-10
+updated: 2026-03-10
+superseded_by: null
 ---
 
 # 4. Stage Pipeline and Pivot Format

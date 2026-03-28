@@ -1,13 +1,14 @@
-# Change Request: Reorganize CLI common code and add `_gencode` generators
-
-CR-ID: CR-009
-Status: Done
-Priority: Medium
-Impact: Additive
-Created: 2026-03-20
-Updated: 2026-03-20
-
 ---
+cr_id: CR-009
+status: Done
+priority: Medium
+impact: Additive
+created: 2026-03-20
+updated: 2026-03-20
+implements: null
+---
+
+# Change Request: Reorganize CLI common code and add `_gencode` generators
 
 # Summary
 

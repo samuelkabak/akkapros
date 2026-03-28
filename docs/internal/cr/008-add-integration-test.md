@@ -1,13 +1,14 @@
+---
+cr_id: CR-008
+status: Done
+priority: High
+impact: Additive
+created: 2026-03-20
+updated: 2026-03-20
+implements: ADR-025
+---
+
 # Change Request: Add end-to-end integration test with gold-standard metrics
-
-CR-ID: CR-008
-Status: Done
-Priority: High
-Impact: Additive
-Created: 2026-03-20
-Updated: 2026-03-20
-Implements: ADR-025
-
 ---
 
 # Summary

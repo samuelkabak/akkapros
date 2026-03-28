@@ -1,12 +1,13 @@
-# Requirement: Bimoraic Prosody Realization Algorithm
-
-REQ-ID: REQ-003
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-003
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Bimoraic Prosody Realization Algorithm
 
 # Summary
 

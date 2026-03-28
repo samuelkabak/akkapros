@@ -1,13 +1,14 @@
-# Change Request: Fix Metrics Pivot Integrity for Syllable Totals, Linked Words, and Diphthongs
-
-CR-ID: CR-015
-Status: Done
-Priority: High
-Impact: Mutative
-Created: 2026-03-25
-Updated: 2026-03-25
-Implements: ADR-009, ADR-010, ADR-014, REQ-003, REQ-004
 ---
+cr_id: CR-015
+status: Done
+priority: High
+impact: Mutative
+created: 2026-03-25
+updated: 2026-03-25
+implements: 'ADR-009, ADR-010, ADR-014, REQ-003, REQ-004'
+---
+
+# Change Request: Fix Metrics Pivot Integrity for Syllable Totals, Linked Words, and Diphthongs
 
 # Summary
 

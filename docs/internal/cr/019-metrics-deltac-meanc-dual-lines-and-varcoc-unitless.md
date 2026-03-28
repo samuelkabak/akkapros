@@ -1,13 +1,14 @@
-# Change Request: Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs
-
-CR-ID: CR-019
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-26
-Updated: 2026-03-27
-Implements: REQ-012
 ---
+cr_id: CR-019
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-26
+updated: 2026-03-27
+implements: REQ-012
+---
+
+# Change Request: Normalize ΔC/MeanC dual-line units and unitless VarcoC in metrics outputs
 
 # Summary
 

@@ -1,13 +1,14 @@
-# Change Request: Fix mora statistics when repairs add `~`
-
-CR-ID: CR-002
-Status: Done
-Priority: High
-Impact: Mutative
-Created: 2026-03-17
-Updated: 2026-03-17
-
 ---
+cr_id: CR-002
+status: Done
+priority: High
+impact: Mutative
+created: 2026-03-17
+updated: 2026-03-17
+implements: null
+---
+
+# Change Request: Fix mora statistics when repairs add `~`
 
 # Summary
 

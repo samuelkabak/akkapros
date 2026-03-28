@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-10
+adr_id: ADR-010
+status: Accepted
+created: 2026-03-10
+updated: 2026-03-10
+superseded_by: null
 ---
 
 # 10. Metrics From Text and Dual Percent-V

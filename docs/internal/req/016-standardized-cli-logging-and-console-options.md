@@ -1,12 +1,13 @@
-# Requirement: Standardized CLI Logging and Console Options
-
-REQ-ID: REQ-016
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-27
-Updated: 2026-03-28
 ---
+req_id: REQ-016
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-27
+updated: 2026-03-28
+---
+
+# Requirement: Standardized CLI Logging and Console Options
 
 # Summary
 

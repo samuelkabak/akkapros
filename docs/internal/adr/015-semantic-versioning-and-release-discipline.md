@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-14
+adr_id: ADR-015
+status: Accepted
+created: 2026-03-14
+updated: 2026-03-14
+superseded_by: null
 ---
 
 # 15. Semantic Versioning and Release Discipline

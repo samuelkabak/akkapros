@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-20
+adr_id: ADR-025
+status: Accepted
+created: 2026-03-20
+updated: 2026-03-20
+superseded_by: null
 ---
 
 # ADR 025: Integration Test Coverage for CLI and Outputs

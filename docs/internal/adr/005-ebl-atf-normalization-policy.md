@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-10
+adr_id: ADR-005
+status: Accepted
+created: 2026-03-10
+updated: 2026-03-10
+superseded_by: null
 ---
 
 # 5. eBL ATF Normalization Policy

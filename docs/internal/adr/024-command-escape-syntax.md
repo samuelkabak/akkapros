@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-18
+adr_id: ADR-024
+status: Accepted
+created: 2026-03-18
+updated: 2026-03-18
+superseded_by: null
 ---
 
 # 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands

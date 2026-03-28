@@ -1,13 +1,14 @@
-# Change Request: Refactor simple_safe_filename and phoneprep core
-
-CR-ID: CR-010
-Status: Done
-Priority: Medium
-Impact: Additive
-Created: 2026-03-20
-Updated: 2026-03-20
-Implements: ADR-001
 ---
+cr_id: CR-010
+status: Done
+priority: Medium
+impact: Additive
+created: 2026-03-20
+updated: 2026-03-20
+implements: ADR-001
+---
+
+# Change Request: Refactor simple_safe_filename and phoneprep core
 
 # Summary
 

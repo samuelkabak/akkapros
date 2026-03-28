@@ -1,12 +1,13 @@
-# Requirement: Multi-Format Printer Output
-
-REQ-ID: REQ-005
-Status: Implemented
-Priority: High
-Impact: Mutative
-Created: 2026-03-19
-Updated: 2026-03-19
 ---
+req_id: REQ-005
+status: Implemented
+priority: High
+impact: Mutative
+created: 2026-03-19
+updated: 2026-03-19
+---
+
+# Requirement: Multi-Format Printer Output
 
 # Summary
 

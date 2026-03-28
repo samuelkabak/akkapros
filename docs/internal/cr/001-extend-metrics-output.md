@@ -1,13 +1,14 @@
-# Change Request: Extend metrics output (table, JSON, CSV) and speech-rate fields
-
-CR-ID: CR-001
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-16
-Updated: 2026-03-16
-
 ---
+cr_id: CR-001
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-16
+updated: 2026-03-16
+implements: null
+---
+
+# Change Request: Extend metrics output (table, JSON, CSV) and speech-rate fields
 
 # Summary
 

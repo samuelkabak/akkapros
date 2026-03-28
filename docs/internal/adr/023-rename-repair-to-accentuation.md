@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-18
+adr_id: ADR-023
+status: Accepted
+created: 2026-03-18
+updated: 2026-03-18
+superseded_by: null
 ---
 
 # 023 — Rename "repair" terminology to "accentuation" and accept the compatibility break

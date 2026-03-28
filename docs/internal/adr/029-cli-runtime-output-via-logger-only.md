@@ -1,6 +1,9 @@
 ---
-Status: Proposed
-Date: 2026-03-27
+adr_id: ADR-029
+status: Proposed
+created: 2026-03-27
+updated: 2026-03-27
+superseded_by: null
 ---
 
 # 029. CLI Runtime Output via Logger Only

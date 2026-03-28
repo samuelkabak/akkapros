@@ -1,12 +1,15 @@
-# Code and Project Review — akkapros v1.0.1
-
-Review ID: review-001
-Date: 2026-03-19
-Reviewer: GitHub Copilot (Claude Sonnet 4.6), based on full project scan
-Scope: All Python source (`src/akkapros/`), demo scripts, `docs/akkapros/`, `docs/internal/`,
-       `tmp/research-notes.md` (for context only; not MIT-licensed), `outputs/`, project root files.
-
 ---
+review_id: review-001
+status: Done
+created: 2026-03-19
+updated: 2026-03-19
+reviewer: GitHub Copilot (Claude Sonnet 4.6), based on full project scan
+scope: >-
+  All Python source (`src/akkapros/`), demo scripts, `docs/akkapros/`, `docs/internal/`,
+  `tmp/research-notes.md` (for context only; not MIT-licensed), `outputs/`, project root files.
+---
+
+# Code and Project Review — akkapros v1.0.1
 
 ## 1. Executive Summary
 

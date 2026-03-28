@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-06
+adr_id: ADR-013
+status: Accepted
+created: 2026-03-06
+updated: 2026-03-06
+superseded_by: null
 ---
 
 # 13. Canonical Docs Location and Build Sync

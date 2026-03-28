@@ -1,13 +1,17 @@
-Status: Draft
+---
+review_id: review-002
+status: Draft
+created: 2026-03-27
+updated: 2026-03-27
+reviewer: GitHub Copilot (GPT-5.4)
+scope: >-
+  `docs/internal/adr/027-yaml-front-matter-for-cli-pipeline-files.md`,
+  `docs/internal/req/013-cli-file-front-matter-and-metadata-propagation.md`,
+  `docs/internal/cr/018-add-cli-file-front-matter-and-metadata-propagation.md`, and the current
+  stage contracts in `docs/internal/req/001`, `002`, `003`, `004`, `005`, and `007`.
+---
 
 # Code and Project Review — Front Matter Data Minimization for Pipeline Steps
-
-Review ID: review-002
-Date: 2026-03-27
-Reviewer: GitHub Copilot (GPT-5.4)
-Scope: `docs/internal/adr/027-yaml-front-matter-for-cli-pipeline-files.md`, `docs/internal/req/013-cli-file-front-matter-and-metadata-propagation.md`, `docs/internal/cr/018-add-cli-file-front-matter-and-metadata-propagation.md`, and the current stage contracts in `docs/internal/req/001`, `002`, `003`, `004`, `005`, and `007`.
-
----
 
 ## 1. Executive Summary
 

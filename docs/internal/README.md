@@ -30,8 +30,14 @@ Templates
 - Use the templates in this folder (`000-adr-template.md`, `000-cr-template.md`, `000-req-template.md`) as starting points. Keep templates minimal and focused on decision rationale and consequences.
 
 Status, review & metadata
-- Add a short `Status:` line in every ADR/CR/Spec (`Draft`, `Proposed`, `Accepted`, `Done`).
+- All ADR/CR/REQ/review documents use YAML front matter at the top of the file.
+- Front matter keys use lowercase snake_case names such as `adr_id`, `cr_id`, `req_id`, `review_id`, `created`, and `updated`.
+- Add a clear `status` value in every ADR/CR/REQ/review record (`Draft`, `Proposed`, `Accepted`, `Done`, or the document-type-specific equivalent already in use).
 - When accepting a decision, add reviewer metadata and dates to the ADR/CR.
+- ADRs should carry `adr_id`, `status`, `created`, and `updated` in front matter at minimum.
+- CRs should carry `cr_id`, `status`, `priority`, `impact`, `created`, `updated`, and `implements` in front matter.
+- REQs should carry `req_id`, `status`, `priority`, `impact`, `created`, and `updated` in front matter.
+- Reviews should carry `review_id`, `status`, `created`, `updated`, `reviewer`, and `scope` in front matter.
 - If an older accepted document is no longer current, prefer adding an explicit supersession note or a short historical-reference paragraph instead of changing the original decision text to match the newer state.
 
 Unicode & file-encoding policy

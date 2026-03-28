@@ -1,13 +1,14 @@
-# Change Request: Enforce punctuation whitelist and configurable CLI extension
-
-CR-ID: CR-012
-Status: Draft
-Priority: High
-Impact: Mutative
-Created: 2026-03-21
-Updated: 2026-03-21
-Implements: REQ-011
 ---
+cr_id: CR-012
+status: Draft
+priority: High
+impact: Mutative
+created: 2026-03-21
+updated: 2026-03-21
+implements: REQ-011
+---
+
+# Change Request: Enforce punctuation whitelist and configurable CLI extension
 
 # Summary
 

@@ -1,13 +1,14 @@
-# Change Request: Remove metrics CSV output
-
-CR-ID: CR-021
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-27
-Updated: 2026-03-27
-Implements: REQ-014
 ---
+cr_id: CR-021
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-27
+updated: 2026-03-27
+implements: REQ-014
+---
+
+# Change Request: Remove metrics CSV output
 
 # Summary
 

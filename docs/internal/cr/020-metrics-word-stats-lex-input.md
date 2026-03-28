@@ -1,13 +1,14 @@
-# Change Request: Rejected lex-input metrics extension
-
-CR-ID: CR-020
-Status: Rejected
-Priority: High
-Impact: Mutative
-Created: 2026-03-26
-Updated: 2026-03-27
-Implements: None
 ---
+cr_id: CR-020
+status: Rejected
+priority: High
+impact: Mutative
+created: 2026-03-26
+updated: 2026-03-27
+implements: None
+---
+
+# Change Request: Rejected lex-input metrics extension
 
 # Summary
 

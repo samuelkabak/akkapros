@@ -1,6 +1,9 @@
 ---
-Status: {Proposed | Rejected | Accepted | Deprecated | Superseded by ADR-0123}
-Date: {YYYY-MM-DD when the decision was last updated}
+adr_id: ADR-000
+status: '{Proposed | Rejected | Accepted | Deprecated | Superseded}'
+created: '{YYYY-MM-DD when the ADR was first created}'
+updated: '{YYYY-MM-DD when the ADR was last updated}'
+superseded_by: '{ADR-0123 | null}'
 ---
 
 # 0. ADR Template
@@ -58,5 +61,5 @@ State the chosen option and why it was selected over alternatives.
 
 - Names or teams that reviewed or approved the ADR.
 
-<!-- Usage: copy this file to `docs/internal/adr/00X-your-decision.md`, update the header number, fill sections, and commit. -->
+<!-- Usage: copy this file to `docs/internal/adr/00X-your-decision.md`, update the front matter values and heading number, fill sections, and commit. -->
 

@@ -1,13 +1,14 @@
-# Change Request: Group syllable counts under "Syllable statistics"
-
-CR-ID: CR-016
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-26
-Updated: 2026-03-26
-Implements: REQ-012
 ---
+cr_id: CR-016
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-26
+updated: 2026-03-26
+implements: REQ-012
+---
+
+# Change Request: Group syllable counts under "Syllable statistics"
 
 # Summary
 

@@ -1,13 +1,14 @@
-# Change Request: Reorder Word/Mora statistics and inline mean ± stddev notation
-
-CR-ID: CR-017
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-26
-Updated: 2026-03-27
-Implements: REQ-012
 ---
+cr_id: CR-017
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-26
+updated: 2026-03-27
+implements: REQ-012
+---
+
+# Change Request: Reorder Word/Mora statistics and inline mean ± stddev notation
 
 # Summary
 

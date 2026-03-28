@@ -1,13 +1,14 @@
-# Change Request: Rename "repair" terminology to "accentuation"
-
-CR-ID: CR-004
-Status: Approved
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-17
-Updated: 2026-03-17
-Implements: ADR-023
 ---
+cr_id: CR-004
+status: Approved
+priority: Medium
+impact: Mutative
+created: 2026-03-17
+updated: 2026-03-17
+implements: ADR-023
+---
+
+# Change Request: Rename "repair" terminology to "accentuation"
 
 # Summary
 

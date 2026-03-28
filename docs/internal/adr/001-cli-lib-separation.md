@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-10
+adr_id: ADR-001
+status: Accepted
+created: 2026-03-10
+updated: 2026-03-10
+superseded_by: null
 ---
 
 # 1. CLI/Lib Separation

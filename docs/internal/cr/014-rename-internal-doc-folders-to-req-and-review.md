@@ -1,13 +1,14 @@
-# Change Request: Rename Internal Documentation Folders to req and review
-
-CR-ID: CR-014
-Status: Done
-Priority: Medium
-Impact: Additive
-Created: 2026-03-25
-Updated: 2026-03-25
-Implements: None
 ---
+cr_id: CR-014
+status: Done
+priority: Medium
+impact: Additive
+created: 2026-03-25
+updated: 2026-03-25
+implements: None
+---
+
+# Change Request: Rename Internal Documentation Folders to req and review
 
 # Summary
 

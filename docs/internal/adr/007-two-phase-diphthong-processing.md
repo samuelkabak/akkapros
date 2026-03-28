@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-12
+adr_id: ADR-007
+status: Accepted
+created: 2026-03-12
+updated: 2026-03-12
+superseded_by: null
 ---
 
 # 7. Two-Phase Diphthong Processing

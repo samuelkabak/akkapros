@@ -1,12 +1,13 @@
-# Requirement: Metrics Output Structure and Layout
-
-REQ-ID: REQ-012
-Status: Draft
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-26
-Updated: 2026-03-26
 ---
+req_id: REQ-012
+status: Draft
+priority: Medium
+impact: Mutative
+created: 2026-03-26
+updated: 2026-03-26
+---
+
+# Requirement: Metrics Output Structure and Layout
 
 # Summary
 

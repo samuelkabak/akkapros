@@ -1,13 +1,14 @@
-# Change Request: Fix xfail in syllabifier tests, clean CR-004 untracked files
-
-CR-ID: CR-006
-Status: Done
-Priority: High
-Impact: Mutative
-Created: 2026-03-20
-Updated: 2026-03-20
-
 ---
+cr_id: CR-006
+status: Done
+priority: High
+impact: Mutative
+created: 2026-03-20
+updated: 2026-03-20
+implements: null
+---
+
+# Change Request: Fix xfail in syllabifier tests, clean CR-004 untracked files
 
 # Summary
 

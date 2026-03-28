@@ -1,12 +1,13 @@
-# Requirement: Remove Metrics CSV Output
-
-REQ-ID: REQ-014
-Status: Implemented
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-27
-Updated: 2026-03-27
 ---
+req_id: REQ-014
+status: Implemented
+priority: Medium
+impact: Mutative
+created: 2026-03-27
+updated: 2026-03-27
+---
+
+# Requirement: Remove Metrics CSV Output
 
 # Summary
 

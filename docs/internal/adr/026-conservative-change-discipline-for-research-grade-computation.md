@@ -1,6 +1,9 @@
 ---
-Status: Accepted
-Date: 2026-03-26
+adr_id: ADR-026
+status: Accepted
+created: 2026-03-26
+updated: 2026-03-26
+superseded_by: null
 ---
 
 # 026. Conservative Change Discipline for Research-Grade Computation

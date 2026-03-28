@@ -1,13 +1,29 @@
-Status: Draft
+---
+review_id: review-003
+status: Draft
+created: 2026-03-27
+updated: 2026-03-27
+reviewer: GitHub Copilot (GPT-5.4)
+scope: >-
+	`docs/internal/adr/027-yaml-front-matter-for-cli-pipeline-files.md`,
+	`docs/internal/adr/028-centralized-cli-logging-with-logging-actions.md`,
+	`docs/internal/adr/029-cli-runtime-output-via-logger-only.md`,
+	`docs/internal/req/013-cli-file-front-matter-and-metadata-propagation.md`,
+	`docs/internal/req/014-remove-metrics-csv-output.md`,
+	`docs/internal/req/015-frontmatter-derived-word-indicators-in-metrics.md`,
+	`docs/internal/req/016-standardized-cli-logging-and-console-options.md`,
+	`docs/internal/cr/018-add-cli-file-front-matter-and-metadata-propagation.md`,
+	`docs/internal/cr/020-metrics-word-stats-lex-input.md`,
+	`docs/internal/cr/021-remove-metrics-csv-output.md`,
+	`docs/internal/cr/022-add-frontmatter-derived-word-indicators-to-metrics.md`, and
+	`docs/internal/cr/023-adopt-logging-actions-for-cli-logging.md`. Template files
+	`docs/internal/cr/000-cr-template.md` and `docs/internal/req/000-req-template.md` were checked
+	for structure only. Historical filenames `docs/internal/cr/018-lex-output.md` and
+	`docs/internal/req/013-lexical-output-from-prosmaker.md` are not present in the workspace and
+	are treated as superseded, not current review targets.
+---
 
 # Code and Project Review — Unimplemented Internal Spec Coherence
-
-Review ID: review-003
-Date: 2026-03-27
-Reviewer: GitHub Copilot (GPT-5.4)
-Scope: `docs/internal/adr/027-yaml-front-matter-for-cli-pipeline-files.md`, `docs/internal/adr/028-centralized-cli-logging-with-logging-actions.md`, `docs/internal/adr/029-cli-runtime-output-via-logger-only.md`, `docs/internal/req/013-cli-file-front-matter-and-metadata-propagation.md`, `docs/internal/req/014-remove-metrics-csv-output.md`, `docs/internal/req/015-frontmatter-derived-word-indicators-in-metrics.md`, `docs/internal/req/016-standardized-cli-logging-and-console-options.md`, `docs/internal/cr/018-add-cli-file-front-matter-and-metadata-propagation.md`, `docs/internal/cr/020-metrics-word-stats-lex-input.md`, `docs/internal/cr/021-remove-metrics-csv-output.md`, `docs/internal/cr/022-add-frontmatter-derived-word-indicators-to-metrics.md`, and `docs/internal/cr/023-adopt-logging-actions-for-cli-logging.md`. Template files `docs/internal/cr/000-cr-template.md` and `docs/internal/req/000-req-template.md` were checked for structure only. Historical filenames `docs/internal/cr/018-lex-output.md` and `docs/internal/req/013-lexical-output-from-prosmaker.md` are not present in the workspace and are treated as superseded, not current review targets.
-
----
 
 ## 1. Executive Summary
 

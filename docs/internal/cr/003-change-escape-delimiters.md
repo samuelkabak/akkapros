@@ -1,13 +1,14 @@
-# Change Request: Use rare bracket delimiters for escape markers (⟦ ⟧)
-
-CR-ID: CR-003
-Status: Done
-Priority: Medium
-Impact: Mutative
-Created: 2026-03-17
-Updated: 2026-03-17
-
 ---
+cr_id: CR-003
+status: Done
+priority: Medium
+impact: Mutative
+created: 2026-03-17
+updated: 2026-03-17
+implements: null
+---
+
+# Change Request: Use rare bracket delimiters for escape markers (⟦ ⟧)
 
 # Summary
 
