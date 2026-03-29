@@ -19,6 +19,7 @@ Directory layout
 Naming & numbering
 - ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md`.
 - Refer to ADRs/CRs by their canonical number (e.g., `ADR-023`, `CR-004`) in code, tests, and commit messages.
+- When committing an implementation for a CR, the commit subject must use this pattern: `Implement CR-{CR number NNN}: {CR title copy/paste}`.
 
 Index generation
 - Index pages (`docs/internal/*/index.md`) are generated/updated by the repository script: `python scripts/update-indexes.py`.

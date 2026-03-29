@@ -1,10 +1,10 @@
 ---
 cr_id: CR-013
-status: Approved
+status: Done
 priority: Medium
 impact: Mutative
 created: 2026-03-22
-updated: 2026-03-22
+updated: 2026-03-29
 implements: 'ADR-001 (CLI/Lib Separation), ADR-009 (Function Word Policy)'
 ---
 

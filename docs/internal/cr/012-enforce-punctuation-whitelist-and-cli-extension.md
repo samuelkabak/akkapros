@@ -1,10 +1,10 @@
 ---
 cr_id: CR-012
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-03-21
-updated: 2026-03-21
+updated: 2026-03-29
 implements: REQ-011
 ---
 

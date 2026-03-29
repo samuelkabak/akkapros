@@ -1,10 +1,10 @@
 ---
 req_id: REQ-013
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-03-29
 ---
 
 # Requirement: CLI File Front Matter and Metadata Propagation

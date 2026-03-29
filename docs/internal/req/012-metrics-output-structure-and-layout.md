@@ -1,10 +1,10 @@
 ---
 req_id: REQ-012
-status: Draft
+status: Implemented
 priority: Medium
 impact: Mutative
 created: 2026-03-26
-updated: 2026-03-26
+updated: 2026-03-29
 ---
 
 # Requirement: Metrics Output Structure and Layout

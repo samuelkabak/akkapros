@@ -1,10 +1,10 @@
 ---
 req_id: REQ-008
-status: 'Approved (CR-004, pending full implementation)'
+status: Implemented
 priority: Medium
 impact: Mutative
 created: 2026-03-19
-updated: 2026-03-19
+updated: 2026-03-29
 ---
 
 # Requirement: Accentuation Terminology Rename (CR-004 Migration)
@@ -96,7 +96,7 @@ downstream consumers about the nature of the operation. The rename to
 
 # Implementation Notes (optional)
 - Owner: Samuel KABAK
-- Estimated effort: medium (mechanical rename + test updates)
+- Estimated effort: completed via CR-004
 - CR-004 contains the detailed implementation scope and file list.
 
 # Related

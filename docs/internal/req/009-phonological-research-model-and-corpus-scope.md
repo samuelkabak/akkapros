@@ -1,10 +1,10 @@
 ---
 req_id: REQ-009
-status: 'Implemented (research validated)'
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-19
-updated: 2026-03-19
+updated: 2026-03-29
 ---
 
 # Requirement: Phonological Research Model and Corpus Scope
@@ -136,6 +136,9 @@ here ensures that:
   [ADR-016](../adr/016-diphthong-restoration-constraint-system.md),
   [ADR-017](../adr/017-pause-modeling-and-bimoraic-correction.md),
   [ADR-018](../adr/018-extensible-phonetic-inventory.md)
+- Implementation CRs: no single discrete implementation CR identified with
+      sufficient confidence from internal-doc content alone; this requirement is
+      realized across the baseline algorithm and corpus-validation work.
 - External references: `tmp/research-notes.md` (proprietary; not part of the MIT
   licensed codebase)
 

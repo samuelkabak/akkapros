@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-029
-status: Proposed
+status: Accepted
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-03-29
 superseded_by: null
 ---
 

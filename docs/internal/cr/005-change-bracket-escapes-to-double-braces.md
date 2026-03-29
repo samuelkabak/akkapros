@@ -1,10 +1,10 @@
 ---
 cr_id: CR-005
-status: Approved
+status: Done
 priority: Medium
 impact: Mutative
 created: 2026-03-18
-updated: 2026-03-18
+updated: 2026-03-29
 implements: ADR-024
 ---
 

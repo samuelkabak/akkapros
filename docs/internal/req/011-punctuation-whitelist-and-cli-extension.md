@@ -1,10 +1,10 @@
 ---
 req_id: REQ-011
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-21
-updated: 2026-03-21
+updated: 2026-03-29
 ---
 
 # Requirement: Strict Punctuation Whitelist with CLI Extensions
