@@ -129,8 +129,13 @@ Example: `tāḫā´za ik´taṣar`
 ### Bold Format (`_accent_bold.md`)
 
 Prominent syllables are wrapped in `**` for visual emphasis in Markdown.
+Preserved adjacent input lines are serialized with a trailing `\` so Markdown
+renderers keep them as separate visible lines. Blank lines remain blank lines
+and do not receive escape markers.
 
-Example: `tā**ḫā**za **ik**taṣar`
+Example: `ukappit-ma : ti**ām**tu pitiqša\`
+
+Next line example: `tā**ḫā**za **ik**taṣar`
 
 ### IPA Format (`_accent_ipa.txt`)
 

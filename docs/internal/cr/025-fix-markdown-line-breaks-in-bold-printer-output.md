@@ -1,6 +1,6 @@
 ---
 cr_id: CR-025
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-03-29
@@ -132,20 +132,20 @@ tests covering printer output serialization and representative fixtures
 
 # Acceptance Criteria
 
-- [ ] Given `--bold`, `_accent_bold.md` preserves one rendered Markdown line
+- [x] Given `--bold`, `_accent_bold.md` preserves one rendered Markdown line
       per intended input line.
-- [ ] Given two adjacent logical lines in bold output, the first serialized
+- [x] Given two adjacent logical lines in bold output, the first serialized
       line ends with a trailing backslash `\` so Markdown renders a hard line
       break.
-- [ ] Given the final logical line in bold output, it is not required to end
+- [x] Given the final logical line in bold output, it is not required to end
       with a trailing backslash.
-- [ ] Given bold-marked syllables, the existing `**...**` markup remains
+- [x] Given bold-marked syllables, the existing `**...**` markup remains
       unchanged apart from the added line-break marker.
-- [ ] Given frontmatter in `_accent_bold.md`, it remains valid and unchanged by
+- [x] Given frontmatter in `_accent_bold.md`, it remains valid and unchanged by
       this CR.
-- [ ] Tests are added or updated to assert the exact serialized line-break
+- [x] Tests are added or updated to assert the exact serialized line-break
       shape in `_accent_bold.md`.
-- [ ] Documentation is updated to state that bold Markdown output uses
+- [x] Documentation is updated to state that bold Markdown output uses
       backslash-based hard line breaks to preserve input lineation in Markdown
       readers.
 
@@ -209,25 +209,25 @@ tests accordingly.
 
 ## Implementation
 
-- [ ] Update bold Markdown serialization to emit trailing backslashes at
+- [x] Update bold Markdown serialization to emit trailing backslashes at
       intended line breaks.
-- [ ] Preserve existing bold-marking and frontmatter behavior.
+- [x] Preserve existing bold-marking and frontmatter behavior.
 
 ## Tests
 
-- [ ] Add focused unit coverage for serialized Markdown line breaks.
-- [ ] Update integration fixtures for `_accent_bold.md` output.
+- [x] Add focused unit coverage for serialized Markdown line breaks.
+- [x] Update integration fixtures for `_accent_bold.md` output.
 - [ ] Verify Markdown preview behavior manually or through documented review
       steps.
 
 ## Documentation
 
-- [ ] Update printer docs to describe Markdown hard line-break behavior in
+- [x] Update printer docs to describe Markdown hard line-break behavior in
       bold output.
 
 ## Review
 
-- [ ] Verify the chosen backslash strategy matches the desired Markdown readers
+- [x] Verify the chosen backslash strategy matches the desired Markdown readers
       used by the project.
 
 ---
@@ -237,3 +237,11 @@ tests accordingly.
 This CR intentionally specifies the backslash hard-break form rather than the
 two-space Markdown variant, because the requested fix explicitly prefers `\`
 as the serializer for intended line breaks.
+
+Implemented on 2026-03-29:
+
+- Bold Markdown serialization now adds a trailing backslash before preserved
+  newlines only when the current and following logical lines are both non-blank.
+- Blank lines remain plain blank lines without forced Markdown escape markers.
+- Printer docs, requirement acceptance text, self-tests, and integration
+  fixtures were updated to the new serialized shape.

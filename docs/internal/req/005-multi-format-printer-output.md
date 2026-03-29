@@ -4,7 +4,7 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-19
-updated: 2026-03-19
+updated: 2026-03-29
 ---
 
 # Requirement: Multi-Format Printer Output
@@ -44,6 +44,10 @@ accentuated representation.
 - [ ] Given `--bold`, `<prefix>_accent_bold.md` is written.
 - [ ] Tilde-marked syllables are wrapped in `**...**` (Markdown bold); the `~` marker
       is removed from the output text.
+- [ ] Adjacent logical lines in `<prefix>_accent_bold.md` are serialized with a trailing
+      backslash on each non-final non-blank line so Markdown renderers preserve lineation.
+- [ ] Blank lines in `<prefix>_accent_bold.md` remain blank and do not receive forced
+      backslash break markers.
 
 ## IPA Format
 

@@ -162,6 +162,16 @@ def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:
     assert printlib.convert_line(tilde, "bold") == "ti**ām**tu"
 
 
+def test_bold_markdown_preserves_adjacent_line_breaks() -> None:
+    bold = printlib.convert_text("er~·ra\n~a·pil\n")[1]
+    assert bold == "**er**ra\\\n**a**pil\n"
+
+
+def test_bold_markdown_preserves_blank_lines_without_escape_markers() -> None:
+    bold = printlib.convert_text("er~·ra\n\n~a·pil\n")[1]
+    assert bold == "**er**ra\n\n**a**pil\n"
+
+
 def test_compute_percent_v_from_stats_fallback_is_safe() -> None:
     stats = {
         "syllable_counts": {

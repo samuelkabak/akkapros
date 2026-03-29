@@ -814,7 +814,7 @@ def convert_text_with_ipa_xar(
     """
     lines = text.splitlines(keepends=True)
     acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    bold_lines = _convert_bold_markdown_lines(lines, ipa_mode=ipa_mode, circ_hiatus=circ_hiatus)
     ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
@@ -828,7 +828,7 @@ def convert_text_with_ipa_xar_mbrola(
     """Convert full text and return acute, bold, ipa, xar, and mbrola outputs."""
     lines = text.splitlines(keepends=True)
     acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    bold_lines = _convert_bold_markdown_lines(lines, ipa_mode=ipa_mode, circ_hiatus=circ_hiatus)
     ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
@@ -839,6 +839,23 @@ def convert_text_with_ipa_xar_mbrola(
         ''.join(xar_lines),
         ''.join(mbrola_lines),
     )
+
+
+def _convert_bold_markdown_lines(
+    lines: list[str],
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+) -> list[str]:
+    """Convert lines to bold Markdown and preserve non-blank lineation for renderers."""
+    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+
+    for index, rendered in enumerate(bold_lines[:-1]):
+        current_line = rendered[:-1] if rendered.endswith('\n') else rendered
+        next_line = bold_lines[index + 1][:-1] if bold_lines[index + 1].endswith('\n') else bold_lines[index + 1]
+        if rendered.endswith('\n') and current_line and next_line:
+            bold_lines[index] = current_line + '\\\n'
+
+    return bold_lines
 
 
 def process_file(
@@ -1197,7 +1214,7 @@ def run_tests() -> bool:
 
     text_in = "šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē\n~a·pil\n"
     expected_acute = "šar {{https://ex.am/ple+uri}} gimir‿dad´mē\n´apil\n"
-    expected_bold = "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē\n**a**pil\n"
+    expected_bold = "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē\\\n**a**pil\n"
     expected_ipa = "ʃar ⟨escape:{{https://ex.am/ple+uri}}⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
     expected_xar = "x̌ar {{https://ex.am/ple+uri}} gimir‿dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
