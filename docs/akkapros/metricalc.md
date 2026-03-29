@@ -73,6 +73,7 @@ Batch mode:
 | `--long-punct-chars <chars>` | Additional characters to classify as long-pause punctuation |
 | `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments |
 | `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments |
+| `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` |
 | `--test` | Run metrics test suite |
 
 ### Default Format Behavior
@@ -101,6 +102,12 @@ If none of `--table` or `--json` is specified, `--table` is enabled automaticall
       --pause-ratio 35 \
       --long-punct-weight 2.5 \
       --table
+
+### Override Explicit-Link Metadata
+
+        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
+            --table \
+            --explicit-link-count 2
 
 ### Extend Punctuation Classification
 
@@ -195,7 +202,14 @@ For formal definitions and equations, see:
 
 By default, `metricalc.py` validates each input file at startup and fails fast on obviously partial/corrupted intermediate files (for example, empty/truncated files or files with missing prosodic structure markers), with precise source + line error details.
 
-For the `Prominence statistics` block, `metricalc.py` also requires front matter with propagated `function_word_count` and `explicit_word_link_count` values. If those fields are missing, metrics fails clearly instead of reconstructing them from `_tilde.txt`.
+For the `Prominence statistics` block, `metricalc.py` computes `function_word_count` internally from the consumed pivot text. It requires inherited `metadata.data.prosody.explicit_word_link_count` unless you provide `--explicit-link-count`.
+
+`--explicit-link-count` precedence and validation:
+
+- The CLI override wins over inherited front matter.
+- Non-numeric or negative values fail with `--explicit-link-count must be a positive integer`.
+- Values above the computed maximum fail with `--explicit-link-count must be an integer between 0 and <max>, where <max> = word_count - function_word_count`.
+- Invalid overrides emit no metrics output files.
 
 Validation is always enforced at startup.
 
@@ -231,6 +245,11 @@ Mental model:
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
 The `_tilde` pivot may legitimately contain the diphthong marker `¨`. Metrics treats `¨` as an intra-word syllable boundary for syllable counting and classification, but not as a consonant in acoustic spacing.
+
+Metrics consumes only the reduced frontmatter contract: `file.title` plus `metadata.data.prosody.explicit_word_link_count` when no override is supplied.
+
+Metrics output files do not republish any `metadata.data` block. Their output
+front matter keeps `input_file_id` and resolved CLI options only.
 
 ### %V Note
 

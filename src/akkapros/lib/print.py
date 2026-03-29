@@ -23,7 +23,15 @@ import tempfile
 import unicodedata
 import re
 
-from akkapros.lib.frontmatter import build_output_frontmatter, compose_text_document, read_text_file
+from akkapros.lib.frontmatter import (
+    build_output_frontmatter,
+    compose_text_document,
+    count_lines,
+    count_syllables_from_marked_text,
+    extract_lexical_words,
+    read_text_file,
+    resolve_file_title,
+)
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
     WORD_LINKER,
@@ -869,6 +877,10 @@ def process_file(
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     input_frontmatter, text = read_text_file(input_file)
+    logger = get_logger_with_fallback(__name__)
+    logger.info('Computed line_count: %d', count_lines(text))
+    logger.info('Computed word_count: %d', len(extract_lexical_words(text)))
+    logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(text))
 
     acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(
         text,
@@ -882,10 +894,11 @@ def process_file(
         frontmatter = build_output_frontmatter(
             output_path=path,
             step='print',
-            title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+            title=resolve_file_title(input_frontmatter),
             body=normalized,
             options=options,
             input_frontmatter=input_frontmatter,
+            include_metadata_data=False,
         )
         with open(path, 'w', encoding='utf-8') as fh:
             fh.write(compose_text_document(frontmatter, normalized))

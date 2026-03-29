@@ -69,13 +69,14 @@ def _strip_yaml_frontmatter(text: str) -> str:
     return body
 
 
-def _assert_has_yaml_frontmatter(path: Path) -> None:
+def _assert_has_yaml_frontmatter(path: Path, *, require_title: bool = True) -> None:
     frontmatter, body = split_frontmatter(_read_text(path))
     assert frontmatter is not None, f"Expected YAML front matter in: {path}"
     assert body.strip(), f"Expected non-empty body in: {path}"
     assert frontmatter["pipeline"] == "pipeline"
     assert frontmatter["file"]["id"]
-    assert frontmatter["file"]["title"]
+    if require_title:
+        assert frontmatter["file"]["title"]
 
 
 def _assert_non_empty_text_file(path: Path) -> None:
@@ -206,7 +207,9 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_non_empty_text_file(metrics_json)
     assert not (outdir / f"{prefix}_metrics.csv").exists()
     _assert_has_yaml_frontmatter(metrics_txt)
-    assert "frontmatter" in json.loads(_read_text(metrics_json))
+    metrics_json_obj = json.loads(_read_text(metrics_json))
+    assert "frontmatter" in metrics_json_obj
+    assert "data" not in metrics_json_obj["frontmatter"]["metadata"]
 
     _run_cli(
         "akkapros.cli.printer",
@@ -288,7 +291,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         _assert_non_empty_text_file(path)
     for path in expected_outputs:
         if path.suffix in {".txt", ".md"}:
-            _assert_has_yaml_frontmatter(path)
+            _assert_has_yaml_frontmatter(path, require_title=False)
     assert "frontmatter" in json.loads(_read_text(outdir / "test.json"))
 
     metrics_text = _read_text(outdir / "test_metrics.txt")
@@ -392,9 +395,6 @@ def test_metricalc_requires_frontmatter_prominence_counts(tmp_path: Path) -> Non
         "  options:\n"
         "    style: \"lob\"\n"
         "  data:\n"
-        "    syllabify:\n"
-        "      word_count: 4\n"
-        "      syllable_count: 10\n"
         "---\n\n"
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
         encoding="utf-8",
@@ -411,7 +411,102 @@ def test_metricalc_requires_frontmatter_prominence_counts(tmp_path: Path) -> Non
     )
 
     assert proc.returncode != 0
-    assert "missing required field(s)" in proc.stderr or "missing required field(s)" in proc.stdout
+    assert "missing required field" in proc.stderr or "missing required field" in proc.stdout
+
+
+def test_syllabifier_accepts_content_only_input_and_title_override(tmp_path: Path) -> None:
+    outdir = tmp_path / "content_only"
+    outdir.mkdir(parents=True, exist_ok=True)
+    proc_file = tmp_path / "content_only_proc.txt"
+    proc_file.write_text("šar gi-mir\nana šarri\n", encoding="utf-8")
+
+    _run_cli(
+        "akkapros.cli.syllabifier",
+        str(proc_file),
+        "-p",
+        "content_only",
+        "--outdir",
+        str(outdir),
+        "--title",
+        "Manual Title",
+    )
+
+    syl_file = outdir / "content_only_syl.txt"
+    frontmatter, body = split_frontmatter(_read_text(syl_file))
+    assert frontmatter is not None
+    assert frontmatter["file"]["title"] == "Manual Title"
+    assert frontmatter["metadata"]["data"] == {}
+    assert body.strip()
+
+
+def test_metricalc_explicit_link_count_override_and_validation(tmp_path: Path) -> None:
+    outdir = tmp_path / "explicit_override"
+    outdir.mkdir(parents=True, exist_ok=True)
+    tilde_file = tmp_path / "override_tilde.txt"
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Override\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-29\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
+        encoding="utf-8",
+    )
+
+    _run_cli(
+        "akkapros.cli.metricalc",
+        str(tilde_file),
+        "-p",
+        "override",
+        "--outdir",
+        str(outdir),
+        "--table",
+        "--explicit-link-count",
+        "1",
+    )
+    assert (outdir / "override_metrics.txt").exists()
+
+    bad_type = _run_cli_expect_failure(
+        "akkapros.cli.metricalc",
+        str(tilde_file),
+        "-p",
+        "override_bad_type",
+        "--outdir",
+        str(outdir),
+        "--table",
+        "--explicit-link-count",
+        "abc",
+    )
+    assert bad_type.returncode != 0
+    assert "--explicit-link-count must be a positive integer" in (bad_type.stderr + bad_type.stdout)
+
+    bad_range = _run_cli_expect_failure(
+        "akkapros.cli.metricalc",
+        str(tilde_file),
+        "-p",
+        "override_bad_range",
+        "--outdir",
+        str(outdir),
+        "--table",
+        "--explicit-link-count",
+        "5",
+    )
+    assert bad_range.returncode != 0
+    assert "--explicit-link-count must be an integer between 0 and 4, where 4 = word_count - function_word_count" in (bad_range.stderr + bad_range.stdout)
+    assert not (outdir / "override_bad_range_metrics.txt").exists()
 
 
 def test_cli_phoneprep_outputs(tmp_path: Path) -> None:

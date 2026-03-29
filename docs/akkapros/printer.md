@@ -29,6 +29,10 @@ This document explains what `printer.py` does, how to run it, and what output fo
 ### Input
 - One `*_tilde.txt` file (prosody-realized pivot format)
 
+`printer.py` consumes only inherited `file.title`. It computes any line/word/
+syllable indicators internally for logging and does not verify or require
+frontmatter counters from upstream stages.
+
 ### Outputs (by selected flags)
 - `<prefix>_accent_acute.txt`
 - `<prefix>_accent_bold.md`
@@ -185,6 +189,10 @@ For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 `printer.py` transforms the internal prosody-realized pivot format into multiple human-readable and machine-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), specialized transliteration (XAR), and speech synthesis preparation (MBROLA). The flexible flag system allows researchers to generate exactly the formats they need.
 
 By default, input format is validated at startup and reports precise source + line details for obvious corruption in `*_tilde.txt` input.
+
+Printer output front matter preserves the standard YAML wrapper used by the
+pipeline text stages, but it does not republish any inherited `metadata.data`
+block. Printer outputs keep `input_file_id` and resolved options only.
 
 ### Validation Rules (Middle Strictness)
 

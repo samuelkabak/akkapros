@@ -53,6 +53,9 @@ The metrics outputs include the same `Prominence statistics` contract as
 section only, and JSON exposes them only under
 `original.prominence_statistics`.
 
+Like standalone `metricalc.py`, full-pipeline metrics outputs do not republish
+`metadata.data` in their output front matter.
+
 ### Optional Print Outputs
 
 | Flag | File | Description |
@@ -93,6 +96,7 @@ section only, and JSON exposes them only under
 | `--number-format <regex>` | Number regex passed to syllabifier stage (empty uses built-in English-grouping-compatible pattern) |
 | `--syl-merge-hyphens` | Merge hyphens into syllable separators |
 | `--syl-merge-lines` | Normalize line breaks (default preserves original lines) |
+| `--title <string>` | Override inherited or missing `file.title` for the syllabifier output |
 
 ### Prosmaker Options
 
@@ -112,6 +116,7 @@ section only, and JSON exposes them only under
 | `--metrics-wpm <float>` | Words per minute for speech-rate estimation (default: `165`) |
 | `--metrics-pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--metrics-long-punct-weight <float>` | Relative weight of long punctuation pauses (default: `2.0`) |
+| `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` for metrics |
 
 **Default behavior:** If no metrics format flag is provided, table output is enabled automatically.
 
@@ -176,6 +181,14 @@ This generates:
       --outdir outputs \
   --metrics-json
 
+### Start from Content-Only Prepared Text
+
+    python src/akkapros/cli/fullprosmaker.py prepared_text.txt \
+      --title "Prepared Corpus" \
+      --explicit-link-count 0 \
+      -p prepared \
+      --outdir outputs
+
 ### Full Pipeline with Punctuation Extensions
 
     python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
@@ -227,6 +240,10 @@ By default, the initial input is validated at startup and reports precise source
 
 `fullprosmaker.py` validates only the entry input (`*_proc.txt`) at startup with moderate strictness: enough to detect wrong-stage/corrupted files that would break the pipeline, but not so strict that normal textual variation becomes unusable. It does not auto-correct wrong input types (for example raw `.atf`); it fails fast with a precise error instead.
 The validator is gatekeeper-only: it never rewrites input files and never performs hidden precleaning; it only allows processing to continue or fails with a precise error.
+
+This command inherits the same reduced metadata contract as the individual
+stages: `--title` feeds the syllabifier title override, and
+`--explicit-link-count` feeds the metrics override.
 
 Escaped chunks are preserved through the full pipeline using CR-005 syntax:
 

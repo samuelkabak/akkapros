@@ -25,9 +25,13 @@ from akkapros import __version__
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_syllabify_stage_data,
+    count_lines,
+    count_syllables_from_marked_text,
     compose_text_document,
     effective_options_from_namespace,
+    extract_lexical_words,
     read_text_file,
+    resolve_file_title,
 )
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
@@ -54,6 +58,7 @@ def process_file(
     short_punct_patterns: list[str] | None = None,
     long_punct_patterns: list[str] | None = None,
     number_format: str = '',
+    title: str | None = None,
     options: dict[str, object] | None = None,
     logger=None,
 ):
@@ -86,10 +91,13 @@ def process_file(
     )
 
     output_body = result if result.endswith('\n') else result + '\n'
+    logger.info('Computed line_count: %d', count_lines(output_body))
+    logger.info('Computed word_count: %d', len(extract_lexical_words(output_body)))
+    logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(output_body))
     frontmatter = build_output_frontmatter(
         output_path=output_file,
         step='syllabify',
-        title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+        title=resolve_file_title(input_frontmatter, override_title=title),
         body=output_body,
         options=options,
         stage_data=build_syllabify_stage_data(content, output_body, input_frontmatter=input_frontmatter),
@@ -132,6 +140,7 @@ def main():
     parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
     parser.add_argument('--merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
+    parser.add_argument('--title', help='Override inherited or missing file.title in output front matter')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -193,6 +202,7 @@ def main():
         short_punct_patterns=args.short_punct_pattern,
         long_punct_patterns=args.long_punct_pattern,
         number_format=args.number_format,
+        title=args.title,
         options=effective_options_from_namespace(
             args,
             exclude={'input', 'outdir', 'prefix', 'test', 'version'},

@@ -17,8 +17,8 @@ The pipeline shall reduce stage-specific frontmatter coupling so downstream
 stages no longer depend on inherited line, word, syllable, or prosody counts
 that they can compute internally. The only inherited file-level metadata that
 must remain broadly consumable for these stages is `file.title`, plus
-`metadata.data.prosody.explicit_word_link_count` for metrics unless the user
-overrides it on the command line.
+`metadata.data.prosody.explicit_word_link_count` for metrics input unless the
+user overrides it on the command line.
 
 The syllabifier shall also support non-ATF-parser inputs by accepting content
 files that have no frontmatter at all, defaulting `file.title` to `null` unless
@@ -124,12 +124,16 @@ links, continue to travel via frontmatter or an explicit CLI override.
       the logger includes internally computed indicators relevant to metrics,
       including line, word, syllable, function-word, prosodic-unit, and
       accentuated-syllable counts where available from the consumed pivot text.
+- [ ] Given `metricalc` writes output frontmatter, when metrics table or JSON
+      frontmatter is serialized, then no `metadata.data` section is emitted.
 - [ ] Given `printer` reads an input file with frontmatter, when it consumes
       inherited metadata, then it reads only `file.title` and does not require
       or verify any `metadata.data.*` counters.
 - [ ] Given `printer` computes internal indicators from its consumed text, when
       logging occurs, then the logger includes internally computed indicators
       relevant to printing, including available line, word, or syllable counts.
+- [ ] Given `printer` writes output frontmatter, when an output text file is
+      serialized, then no `metadata.data` section is emitted.
 - [ ] Given `fullprosmaker` exposes orchestration options, when the new stage
       options are added, then it propagates `--title` to `syllabify` and
       `--explicit-link-count` to `metricalc` without inventing divergent option
@@ -177,8 +181,10 @@ links, continue to travel via frontmatter or an explicit CLI override.
   - `atfparse`: no `metadata.data.atfparse` block
   - `syllabify`: no serialized `metadata.data.syllabify` counts
   - `prosody`: serialize only `metadata.data.prosody.explicit_word_link_count`
-      - `metrics`: consume only `file.title` and `metadata.data.prosody.explicit_word_link_count`
-      - `printer`: consume only `file.title`
+      - `metrics` input: consume only `file.title` and `metadata.data.prosody.explicit_word_link_count`
+      - `metrics` output: no serialized `metadata.data` block
+      - `printer` input: consume only `file.title`
+      - `printer` output: no serialized `metadata.data` block
 - Logging rules: internally computed indicators must be emitted through the
   shared logger and not through ad hoc `print()` output, consistent with
   [REQ-016](016-standardized-cli-logging-and-console-options.md).

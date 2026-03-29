@@ -21,6 +21,11 @@ It takes input produced by the syllabifier (`*_syl.txt`) and creates the prosody
 ### Input
 - A syllabified file, typically `<prefix>_syl.txt`
 
+`prosmaker.py` consumes only inherited `file.title` from upstream front matter.
+It computes line, word, syllable, function-word, prosodic-unit, and
+accentuated-syllable indicators internally and logs them at runtime instead of
+serializing them into output front matter.
+
 ### Output
 - A prosody-realized file `<prefix>_tilde.txt`
 
@@ -129,6 +134,7 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 - Escaped non-Akkadian chunks (`{{text}}` or `{tag{text}}`) are carried through as non-lexical material.
 - Tags in `{tag{text}}` follow `[0-9a-z_]{1,16}`; tags starting with `_` are internal-only conventions.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
+- Output front matter from this stage now keeps only `metadata.data.prosody.explicit_word_link_count` as required downstream prosody metadata.
 
 ### Validation Rules (Middle Strictness)
 

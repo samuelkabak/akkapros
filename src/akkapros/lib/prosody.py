@@ -13,7 +13,10 @@ from akkapros import __version__
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_prosody_stage_data,
+    count_lines,
+    count_prosodic_units,
     compose_text_document,
+    resolve_file_title,
     read_text_file,
 )
 from akkapros.lib.utils import (
@@ -900,10 +903,12 @@ class ProsodyEngine:
         output_lines = postprocess_restore_diphthongs(output_lines)
 
         output_body = '\n'.join(output_lines) + '\n'
+        LOGGER.info('Computed line_count: %d', count_lines(output_body))
+        LOGGER.info('Computed prosodic_unit_count: %d', count_prosodic_units(output_body))
         frontmatter = build_output_frontmatter(
             output_path=output_file,
             step='prosody',
-            title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_file).stem),
+            title=resolve_file_title(input_frontmatter),
             body=output_body,
             options=options,
             stage_data=build_prosody_stage_data(

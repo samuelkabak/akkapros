@@ -169,8 +169,8 @@ These mora assignments are the basis for syllable weight, interval distances, an
 - `Prominence candidates`
 
 **How computed:**
-- `function_word_count` is read from input front matter.
-- `explicit_word_link_count` is read from input front matter.
+- `function_word_count` is computed internally from the consumed `_tilde` text.
+- `explicit_word_link_count` is read from input front matter unless the user overrides it with `--explicit-link-count`.
 - `prominence_candidate_word_count = total_words - function_word_count - explicit_word_link_count`.
 
 **Placement:**
@@ -181,8 +181,9 @@ These mora assignments are the basis for syllable weight, interval distances, an
 - `words`
 
 **Validation rule:**
-- Metrics must fail clearly when the required front matter fields are missing;
-  these values are not reconstructed from `_tilde.txt`.
+- Metrics must fail clearly when inherited explicit-link metadata is missing and
+  no override is supplied.
+- `--explicit-link-count` must be an integer `>= 0` and `<= word_count - function_word_count`.
 
 ---
 
@@ -246,14 +247,19 @@ same inline `mean ± stddev` display used for `Mean morae per syllable`.
 #### Front Matter Dependency
 
 The prominence counters depend on front matter propagated from upstream stages.
-The metrics stage requires the canonical fields:
+The metrics stage consumes the reduced frontmatter contract:
 
-- `metadata.data.<stage>.function_word_count`
-- `metadata.data.<stage>.explicit_word_link_count`
+- `file.title`
+- `metadata.data.prosody.explicit_word_link_count`
 
-These are normally provided by the prosody stage front matter. If they are
-missing or malformed, metrics stops with a clear error instead of guessing from
-the transformed pivot text.
+`function_word_count` is no longer propagated through front matter. It is
+computed internally from the consumed pivot text with syllabification-aware
+normalization. If `explicit_word_link_count` is missing and no override is
+supplied, metrics stops with a clear error instead of guessing.
+
+Metrics output front matter is narrower than its input contract: output
+`_metrics.txt` files and embedded JSON `frontmatter` omit `metadata.data`
+entirely.
 
 ---
 

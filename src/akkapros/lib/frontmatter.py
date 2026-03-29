@@ -265,11 +265,13 @@ def _ordered_unique_non_empty(values: list[Any]) -> list[Any]:
     return ordered
 
 
-def _merge_titles(frontmatters: list[dict[str, Any]]) -> str:
+def _merge_titles(frontmatters: list[dict[str, Any]]) -> str | None:
     titles = _ordered_unique_non_empty([
         frontmatter.get("file", {}).get("title")
         for frontmatter in frontmatters
     ])
+    if not titles:
+        return None
     return APPEND_TITLE_SEPARATOR.join(str(title) for title in titles)
 
 
@@ -459,31 +461,48 @@ def validate_stage_data_consistency(
     return cleaned
 
 
+def resolve_file_title(
+    input_frontmatter: dict[str, Any] | None,
+    *,
+    override_title: str | None = None,
+    fallback_title: str | None = None,
+) -> str | None:
+    if override_title is not None:
+        return override_title
+    inherited_title = (input_frontmatter or {}).get("file", {}).get("title")
+    if inherited_title is not None:
+        return inherited_title
+    return fallback_title
+
+
 def build_output_frontmatter(
     *,
     output_path: str | Path,
     step: str,
-    title: str,
+    title: str | None,
     body: str,
     options: dict[str, Any] | None = None,
     stage_data: dict[str, Any] | None = None,
     input_frontmatter: dict[str, Any] | None = None,
     input_file_id: str | None = None,
     file_format: str | None = None,
+    include_metadata_data: bool = True,
 ) -> dict[str, Any]:
     file_format = file_format or derive_format_from_path(output_path)
     format_version = FORMAT_VERSIONS.get(file_format, "1.0.0")
     inherited_options = deepcopy(input_frontmatter.get("metadata", {}).get("options", {})) if input_frontmatter else {}
     if options:
         inherited_options.update(options)
-    inherited_data = deepcopy(input_frontmatter.get("metadata", {}).get("data", {})) if input_frontmatter else {}
-    cleaned_stage_data = validate_stage_data_consistency(
-        step,
-        stage_data,
-        input_frontmatter=input_frontmatter,
-    )
-    if cleaned_stage_data:
-        inherited_data[step] = cleaned_stage_data
+    inherited_data: dict[str, Any] = {}
+    if include_metadata_data:
+        inherited_data = deepcopy(input_frontmatter.get("metadata", {}).get("data", {})) if input_frontmatter else {}
+        cleaned_stage_data = validate_stage_data_consistency(
+            step,
+            stage_data,
+            input_frontmatter=input_frontmatter,
+        )
+        if cleaned_stage_data:
+            inherited_data[step] = cleaned_stage_data
 
     resolved_input_file_id = input_file_id
     if resolved_input_file_id is None and input_frontmatter:
@@ -504,6 +523,13 @@ def build_output_frontmatter(
         )
     )
 
+    metadata = {
+        "input_file_id": resolved_input_file_id,
+        "options": inherited_options,
+    }
+    if include_metadata_data:
+        metadata["data"] = inherited_data
+
     return {
         "package": {
             "name": PACKAGE_NAME,
@@ -518,11 +544,7 @@ def build_output_frontmatter(
             "version": format_version,
             "date": date.today().isoformat(),
         },
-        "metadata": {
-            "input_file_id": resolved_input_file_id,
-            "options": inherited_options,
-            "data": inherited_data,
-        },
+        "metadata": metadata,
     }
 
 
@@ -628,30 +650,52 @@ def extract_metrics_prominence_counts(
     stage_data = (input_frontmatter or {}).get("metadata", {}).get("data", {})
     flattened = _flatten_stage_data(stage_data)
 
-    missing: list[str] = []
-    resolved: dict[str, int] = {}
-    for key in ("function_word_count", "explicit_word_link_count"):
-        entry = flattened.get(key)
-        if entry is None:
-            missing.append(key)
-            continue
-        _, value = entry
-        resolved[key] = int(value)
-
-    if missing:
-        missing_paths = ", ".join(f"metadata.data.<stage>.{key}" for key in missing)
+    entry = flattened.get("explicit_word_link_count")
+    if entry is None:
         raise ValueError(
-            "metrics requires front matter with propagated prominence counts; "
-            f"missing required field(s): {missing_paths}"
+            "metrics requires front matter with propagated explicit word link count; "
+            "missing required field: metadata.data.prosody.explicit_word_link_count"
         )
 
-    return resolved
+    _, value = entry
+    return {
+        "explicit_word_link_count": int(value),
+    }
+
+
+def resolve_metrics_prominence_counts(
+    text: str,
+    *,
+    input_frontmatter: dict[str, Any] | None = None,
+    explicit_link_count_override: str | int | None = None,
+) -> dict[str, int]:
+    word_count = count_prosodic_units(text)
+    function_word_count = count_function_words(text)
+    max_explicit_links = word_count - function_word_count
+
+    if explicit_link_count_override is None:
+        resolved = extract_metrics_prominence_counts(input_frontmatter)["explicit_word_link_count"]
+    else:
+        try:
+            resolved = int(explicit_link_count_override)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("--explicit-link-count must be a positive integer") from exc
+        if resolved < 0:
+            raise ValueError("--explicit-link-count must be a positive integer")
+        if resolved > max_explicit_links:
+            raise ValueError(
+                "--explicit-link-count must be an integer between 0 and "
+                f"{max_explicit_links}, where {max_explicit_links} = word_count - function_word_count"
+            )
+
+    return {
+        "function_word_count": function_word_count,
+        "explicit_word_link_count": resolved,
+    }
 
 
 def build_atfparse_stage_data(proc_body: str) -> dict[str, int]:
-    return {
-        "line_count": count_lines(proc_body),
-    }
+    return {}
 
 
 def build_syllabify_stage_data(
@@ -660,18 +704,7 @@ def build_syllabify_stage_data(
     *,
     input_frontmatter: dict[str, Any] | None = None,
 ) -> dict[str, int]:
-    inherited_atfparse = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("atfparse", {})
-    inherited_line_count = inherited_atfparse.get("line_count")
-    current_line_count = count_lines(syl_body)
-    if inherited_line_count is not None and int(inherited_line_count) != current_line_count:
-        raise ValueError(
-            f"stage data mismatch for 'line_count': inherited atfparse.line_count={int(inherited_line_count)!r}, "
-            f"new syllabify.line_count={current_line_count!r}"
-        )
-    return {
-        "word_count": len(extract_lexical_words(syl_body)),
-        "syllable_count": count_syllables_from_marked_text(syl_body),
-    }
+    return {}
 
 
 def build_prosody_stage_data(
@@ -681,19 +714,8 @@ def build_prosody_stage_data(
     input_frontmatter: dict[str, Any] | None = None,
     accentuated_syllable_count: int | None = None,
 ) -> dict[str, int]:
-    inherited = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("syllabify", {})
-    resolved_word_count = len(extract_lexical_words(syl_body))
-    inherited_word_count = inherited.get("word_count")
-    if inherited_word_count is not None and int(inherited_word_count) != resolved_word_count:
-        raise ValueError(
-            f"stage data mismatch for 'word_count': inherited syllabify.word_count={int(inherited_word_count)!r}, "
-            f"new prosody.word_count={resolved_word_count!r}"
-        )
     return {
-        "function_word_count": int(inherited.get("function_word_count", count_function_words(syl_body))),
-        "explicit_word_link_count": int(inherited.get("explicit_word_link_count", count_explicit_word_links(syl_body))),
-        "prosodic_unit_count": count_prosodic_units(tilde_body),
-        "accentuated_syllable_count": int(accentuated_syllable_count if accentuated_syllable_count is not None else tilde_body.count("~")),
+        "explicit_word_link_count": count_explicit_word_links(syl_body),
     }
 
 
@@ -703,27 +725,4 @@ def build_metrics_stage_data(
     *,
     input_frontmatter: dict[str, Any] | None = None,
 ) -> dict[str, int]:
-    prominence_counts = extract_metrics_prominence_counts(input_frontmatter)
-    inherited = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("prosody", {})
-    if not inherited:
-        inherited = (input_frontmatter or {}).get("metadata", {}).get("data", {}).get("syllabify", {})
-    resolved_word_count = len(extract_lexical_words(tilde_body))
-    inherited_word_count = inherited.get("word_count")
-    if inherited_word_count is not None and int(inherited_word_count) != resolved_word_count:
-        raise ValueError(
-            f"stage data mismatch for 'word_count': inherited syllabify.word_count={int(inherited_word_count)!r}, "
-            f"new metrics.word_count={resolved_word_count!r}"
-        )
-    resolved_syllable_count = int(result["original"]["stats"]["total_syllables"])
-    inherited_syllable_count = inherited.get("syllable_count")
-    if inherited_syllable_count is not None and int(inherited_syllable_count) != resolved_syllable_count:
-        raise ValueError(
-            f"stage data mismatch for 'syllable_count': inherited syllabify.syllable_count={int(inherited_syllable_count)!r}, "
-            f"new metrics.syllable_count={resolved_syllable_count!r}"
-        )
-    return {
-        "function_word_count": prominence_counts["function_word_count"],
-        "explicit_word_link_count": prominence_counts["explicit_word_link_count"],
-        "syllable_count": resolved_syllable_count,
-        "accentuated_syllable_count": int(result["accentuation_stats"]["accentuated_syllables"]),
-    }
+    return {}

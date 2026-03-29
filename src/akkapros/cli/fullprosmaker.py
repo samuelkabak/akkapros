@@ -23,13 +23,17 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros.lib import syllabify
 from akkapros import __version__
 from akkapros.lib.frontmatter import (
-    build_metrics_stage_data,
     build_output_frontmatter,
     build_syllabify_stage_data,
+    count_function_words,
+    count_lines,
+    count_prosodic_units,
+    count_syllables_from_marked_text,
     compose_text_document,
     effective_options_from_namespace,
+    extract_lexical_words,
     read_text_file,
-    validate_stage_data_consistency,
+    resolve_file_title,
 )
 from akkapros.lib.prosody import (
     AccentStyle,
@@ -148,6 +152,7 @@ def run_pipeline(
     wpm: float,
     pause_ratio: float,
     long_punct_weight: float,
+    explicit_link_count: str | None,
     output_table: bool,
     output_json: bool,
     output_csv: bool,
@@ -157,6 +162,7 @@ def run_pipeline(
     output_xar: bool,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    title: str | None = None,
     options: dict[str, object] | None = None,
 ) -> int:
     """Execute syllabify -> prosody realization -> metrics -> print and write all outputs."""
@@ -195,10 +201,13 @@ def run_pipeline(
         long_punct_patterns=long_punct_patterns,
     )
     syl_body = syl_text if syl_text.endswith('\n') else syl_text + '\n'
+    logger.info('Computed line_count: %d', count_lines(syl_body))
+    logger.info('Computed word_count: %d', len(extract_lexical_words(syl_body)))
+    logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(syl_body))
     syl_frontmatter = build_output_frontmatter(
         output_path=syl_file,
         step='syllabify',
-        title=(input_frontmatter or {}).get('file', {}).get('title', input_file.stem),
+        title=resolve_file_title(input_frontmatter, override_title=title),
         body=syl_body,
         options=options,
         stage_data=build_syllabify_stage_data(source_text, syl_body, input_frontmatter=input_frontmatter),
@@ -229,10 +238,18 @@ def run_pipeline(
             wpm,
             pause_ratio,
             long_punct_weight,
+            explicit_link_count_override=explicit_link_count,
         )
     except ValueError as exc:
         logger.error('%s', exc)
         return 2
+    tilde_frontmatter, tilde_body = read_text_file(tilde_file)
+    logger.info('Computed line_count: %d', count_lines(tilde_body))
+    logger.info('Computed word_count: %d', len(extract_lexical_words(tilde_body)))
+    logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(tilde_body))
+    logger.info('Computed function_word_count: %d', count_function_words(tilde_body))
+    logger.info('Computed prosodic_unit_count: %d', count_prosodic_units(tilde_body))
+    logger.info('Computed accentuated_syllable_count: %d', int(metrics_result['accentuation_stats']['accentuated_syllables']))
 
     if output_json:
         json_file = metrics_base.with_suffix('.json')
@@ -245,20 +262,15 @@ def run_pipeline(
             pruned.get('accentuated', {}).get('acoustic', {}).pop('distances', None)
         except Exception:
             pass
-        tilde_frontmatter, tilde_body = read_text_file(tilde_file)
-        validate_stage_data_consistency(
-            'metrics',
-            build_metrics_stage_data(tilde_body, metrics_result, input_frontmatter=tilde_frontmatter),
-            input_frontmatter=tilde_frontmatter,
-        )
         pruned['frontmatter'] = build_output_frontmatter(
             output_path=json_file,
             step='metrics',
-            title=(tilde_frontmatter or {}).get('file', {}).get('title', tilde_file.stem),
+            title=resolve_file_title(tilde_frontmatter),
             body=json.dumps(pruned, ensure_ascii=False, sort_keys=True),
             options=options,
             input_frontmatter=tilde_frontmatter,
             file_format='metrics',
+            include_metadata_data=False,
         )
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(pruned, f, indent=2, ensure_ascii=False)
@@ -284,20 +296,15 @@ def run_pipeline(
         }
         table = format_table(metrics_result, run_context=table_context)
         table_file = metrics_base.with_name(metrics_base.name + '_metrics.txt')
-        tilde_frontmatter, tilde_body = read_text_file(tilde_file)
-        validate_stage_data_consistency(
-            'metrics',
-            build_metrics_stage_data(tilde_body, metrics_result, input_frontmatter=tilde_frontmatter),
-            input_frontmatter=tilde_frontmatter,
-        )
         table_frontmatter = build_output_frontmatter(
             output_path=table_file,
             step='metrics',
-            title=(tilde_frontmatter or {}).get('file', {}).get('title', tilde_file.stem),
+            title=resolve_file_title(tilde_frontmatter),
             body=table,
             options=options,
             input_frontmatter=tilde_frontmatter,
             file_format='metrics',
+            include_metadata_data=False,
         )
         with open(table_file, 'w', encoding='utf-8') as f:
             f.write(compose_text_document(table_frontmatter, table))
@@ -369,6 +376,7 @@ Version: {__version__}
     parser.add_argument('--syl-merge-hyphens', action='store_true', help='Merge hyphens into syllable separators in syllabification')
     parser.add_argument('--syl-merge-lines', action='store_true',
                         help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
+    parser.add_argument('--title', help='Override inherited or missing file.title for syllabifier output front matter')
 
     # Prosmaker options
     parser.add_argument('--prosody-style', dest='prosody_style', choices=['lob', 'sob'], default='lob',
@@ -384,6 +392,8 @@ Version: {__version__}
     parser.add_argument('--metrics-pause-ratio', type=float, default=35, help='Pause ratio [percent of total time]')
     parser.add_argument('--metrics-long-punct-weight', type=float, default=2.0,
                         help='Long pause punctuation weight relative to short pause punctuation [unitless]')
+    parser.add_argument('--explicit-link-count',
+                        help='Override inherited metadata.data.prosody.explicit_word_link_count for metrics')
 
     # Printer options
     parser.add_argument('--print-acute', action='store_true',
@@ -518,6 +528,7 @@ Version: {__version__}
         wpm=args.metrics_wpm,
         pause_ratio=args.metrics_pause_ratio,
         long_punct_weight=args.metrics_long_punct_weight,
+        explicit_link_count=args.explicit_link_count,
         output_table=output_table,
         output_json=output_json,
         output_csv=output_csv,
@@ -527,6 +538,7 @@ Version: {__version__}
         output_xar=output_xar,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
+        title=args.title,
         options=effective_options_from_namespace(
             args,
             exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv'},

@@ -28,8 +28,6 @@ def test_merge_frontmatter_documents_joins_titles_and_sums_stage_data(tmp_path):
         "  options:\n"
         "    append: true\n"
         "  data:\n"
-        "    atfparse:\n"
-        "      line_count: 2\n"
         "---\n\n"
         "šar gi-mir\n"
         "ana šarri\n"
@@ -50,8 +48,6 @@ def test_merge_frontmatter_documents_joins_titles_and_sums_stage_data(tmp_path):
         "  options:\n"
         "    append: true\n"
         "  data:\n"
-        "    atfparse:\n"
-        "      line_count: 1\n"
         "---\n\n"
         "bānu rabû\n",
         encoding="utf-8",
@@ -62,7 +58,7 @@ def test_merge_frontmatter_documents_joins_titles_and_sums_stage_data(tmp_path):
     assert frontmatter is not None
     assert frontmatter["file"]["title"] == "Title One | Title Two"
     assert frontmatter["metadata"]["input_file_id"] is None
-    assert frontmatter["metadata"]["data"] == {"atfparse": {"line_count": 3}}
+    assert frontmatter["metadata"]["data"] == {}
     assert body == "šar gi-mir\nana šarri\nbānu rabû\n"
 
 
@@ -85,7 +81,7 @@ def test_validate_stage_data_consistency_rejects_mismatch():
         )
 
 
-def test_build_output_frontmatter_drops_duplicate_indicator_fields():
+def test_build_output_frontmatter_preserves_inherited_data_when_new_stage_data_is_empty():
     input_frontmatter = {
         "file": {
             "id": "proc-id",
@@ -104,13 +100,40 @@ def test_build_output_frontmatter_drops_duplicate_indicator_fields():
         step="syllabify",
         title="Corpus",
         body="šar¦ gi.mir¦\n",
-        stage_data={"line_count": 2, "word_count": 2},
+        stage_data={},
         input_frontmatter=input_frontmatter,
         file_format="syl",
     )
 
     assert frontmatter["metadata"]["data"]["atfparse"] == {"line_count": 2}
-    assert frontmatter["metadata"]["data"]["syllabify"] == {"word_count": 2}
+    assert "syllabify" not in frontmatter["metadata"]["data"]
+
+
+def test_build_output_frontmatter_can_omit_metadata_data_section():
+    input_frontmatter = {
+        "file": {
+            "id": "tilde-id",
+        },
+        "metadata": {
+            "data": {
+                "prosody": {
+                    "explicit_word_link_count": 2,
+                }
+            }
+        },
+    }
+
+    frontmatter = build_output_frontmatter(
+        output_path="corpus_metrics.txt",
+        step="metrics",
+        title="Corpus",
+        body="metrics body\n",
+        input_frontmatter=input_frontmatter,
+        file_format="metrics",
+        include_metadata_data=False,
+    )
+
+    assert "data" not in frontmatter["metadata"]
 
 
 def test_merge_frontmatter_documents_rejects_conflicting_options():
@@ -122,14 +145,14 @@ def test_merge_frontmatter_documents_rejects_conflicting_options():
                     "pipeline": "pipeline",
                     "step": "atfparse",
                     "file": {"id": "a", "title": "One", "format": "proc", "version": "1.0.0", "date": "2026-03-27"},
-                    "metadata": {"input_file_id": None, "options": {"append": True}, "data": {"atfparse": {"line_count": 1}}},
+                    "metadata": {"input_file_id": None, "options": {"append": True}, "data": {}},
                 },
                 {
                     "package": {"name": "akkapros", "version": "2.0.0"},
                     "pipeline": "pipeline",
                     "step": "atfparse",
                     "file": {"id": "b", "title": "Two", "format": "proc", "version": "1.0.0", "date": "2026-03-27"},
-                    "metadata": {"input_file_id": None, "options": {"append": False}, "data": {"atfparse": {"line_count": 1}}},
+                    "metadata": {"input_file_id": None, "options": {"append": False}, "data": {}},
                 },
             ],
             body="x\ny\n",

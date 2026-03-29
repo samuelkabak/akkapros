@@ -16,12 +16,16 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
 from akkapros.lib.frontmatter import (
-    build_metrics_stage_data,
     build_output_frontmatter,
+    count_function_words,
+    count_lines,
+    count_prosodic_units,
+    count_syllables_from_marked_text,
     compose_text_document,
     effective_options_from_namespace,
+    extract_lexical_words,
     read_text_file,
-    validate_stage_data_consistency,
+    resolve_file_title,
 )
 from akkapros.lib.metrics import (
     METRICS_CSV_DEPRECATION_MESSAGE,
@@ -83,6 +87,8 @@ Version {__version__}
                         help='Repeatable regex for short-pause punctuation segments')
     parser.add_argument('--long-punct-pattern', action='append', default=[],
                         help='Repeatable regex for long-pause punctuation segments')
+    parser.add_argument('--explicit-link-count',
+                        help='Override inherited metadata.data.prosody.explicit_word_link_count')
     parser.add_argument('--test', action='store_true', help='Run unit tests')
 
     args = parser.parse_args()
@@ -148,10 +154,18 @@ Version {__version__}
                 args.wpm,
                 args.pause_ratio,
                 args.long_punct_weight,
+                explicit_link_count_override=args.explicit_link_count,
             )
         except ValueError as exc:
             logger.error('%s', exc)
             sys.exit(2)
+        input_frontmatter, tilde_body = read_text_file(input_file)
+        logger.info('Computed line_count: %d', count_lines(tilde_body))
+        logger.info('Computed word_count: %d', len(extract_lexical_words(tilde_body)))
+        logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(tilde_body))
+        logger.info('Computed function_word_count: %d', count_function_words(tilde_body))
+        logger.info('Computed prosodic_unit_count: %d', count_prosodic_units(tilde_body))
+        logger.info('Computed accentuated_syllable_count: %d', int(result['accentuation_stats']['accentuated_syllables']))
         results.append(result)
 
     if args.outdir != '.':
@@ -189,19 +203,15 @@ Version {__version__}
 
         if len(input_files) == 1 and isinstance(pruned, dict):
             input_frontmatter, tilde_body = read_text_file(input_files[0])
-            validate_stage_data_consistency(
-                'metrics',
-                build_metrics_stage_data(tilde_body, results[0], input_frontmatter=input_frontmatter),
-                input_frontmatter=input_frontmatter,
-            )
             pruned['frontmatter'] = build_output_frontmatter(
                 output_path=json_file,
                 step='metrics',
-                title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_files[0]).stem),
+                title=resolve_file_title(input_frontmatter),
                 body=json.dumps(pruned, ensure_ascii=False, sort_keys=True),
                 options=option_values,
                 input_frontmatter=input_frontmatter,
                 file_format='metrics',
+                include_metadata_data=False,
             )
 
         with open(json_file, 'w', encoding='utf-8') as f:
@@ -226,11 +236,6 @@ Version {__version__}
             }
             table = format_table(results[0], run_context=table_context)
             input_frontmatter, tilde_body = read_text_file(input_files[0])
-            validate_stage_data_consistency(
-                'metrics',
-                build_metrics_stage_data(tilde_body, results[0], input_frontmatter=input_frontmatter),
-                input_frontmatter=input_frontmatter,
-            )
             if args.prefix:
                 table_file = base.with_name(base.name + '_metrics.txt')
             else:
@@ -239,11 +244,12 @@ Version {__version__}
             frontmatter = build_output_frontmatter(
                 output_path=table_file,
                 step='metrics',
-                title=(input_frontmatter or {}).get('file', {}).get('title', Path(input_files[0]).stem),
+                title=resolve_file_title(input_frontmatter),
                 body=table,
                 options=option_values,
                 input_frontmatter=input_frontmatter,
                 file_format='metrics',
+                include_metadata_data=False,
             )
 
             with open(table_file, 'w', encoding='utf-8') as f:
@@ -265,19 +271,15 @@ Version {__version__}
                 safe_stem = simple_safe_filename(Path(result['file']).stem)
                 table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
                 input_frontmatter, tilde_body = read_text_file(result['file'])
-                validate_stage_data_consistency(
-                    'metrics',
-                    build_metrics_stage_data(tilde_body, result, input_frontmatter=input_frontmatter),
-                    input_frontmatter=input_frontmatter,
-                )
                 frontmatter = build_output_frontmatter(
                     output_path=table_file,
                     step='metrics',
-                    title=(input_frontmatter or {}).get('file', {}).get('title', Path(result['file']).stem),
+                    title=resolve_file_title(input_frontmatter),
                     body=table,
                     options=option_values,
                     input_frontmatter=input_frontmatter,
                     file_format='metrics',
+                    include_metadata_data=False,
                 )
                 with open(table_file, 'w', encoding='utf-8') as f:
                     f.write(compose_text_document(frontmatter, table))

@@ -47,11 +47,12 @@ from akkapros.lib.utils import (
     setup_cli_logging,
     validate_intermediate_format,
 )
+from akkapros.lib.frontmatter import count_lines
 
 __ebl_url__ = "https://www.ebl.lmu.de/"
 
 
-def save_output(results: dict, prefix: str, outdir: Path, *, options: dict[str, object]):
+def save_output(results: dict, prefix: str, outdir: Path, *, options: dict[str, object], logger):
     """Save all output files, merging front matter when append mode targets an existing file."""
     append = results.get('append', False)
     if outdir != Path('.'):
@@ -61,6 +62,7 @@ def save_output(results: dict, prefix: str, outdir: Path, *, options: dict[str, 
     stage_data = build_atfparse_stage_data(proc_body)
     title = results.get('title') or prefix
     input_file_id = None
+    logger.info('Computed line_count: %d', count_lines(proc_body))
 
     def write_or_append(path, lines, file_format):
         body = '\n'.join(lines) + '\n'
@@ -245,6 +247,7 @@ MIT License (c) 2026 Samuel KABAK
                 args,
                 exclude={'input', 'outdir', 'prefix', 'test', 'version'},
             ),
+            logger=logger,
         )
 
         logger.info('')

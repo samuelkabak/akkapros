@@ -218,14 +218,8 @@ def test_process_file_reads_prominence_statistics_from_frontmatter(tmp_path: Pat
         "  options:\n"
         "    style: \"lob\"\n"
         "  data:\n"
-        "    syllabify:\n"
-        "      word_count: 4\n"
-        "      syllable_count: 10\n"
         "    prosody:\n"
-        "      function_word_count: 1\n"
         "      explicit_word_link_count: 1\n"
-        "      prosodic_unit_count: 3\n"
-        "      accentuated_syllable_count: 2\n"
         "---\n\n"
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
         encoding="utf-8",
@@ -234,9 +228,9 @@ def test_process_file_reads_prominence_statistics_from_frontmatter(tmp_path: Pat
     result = metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
 
     assert result["original"]["prominence_statistics"] == {
-        "function_word_count": 1,
+        "function_word_count": 0,
         "explicit_word_link_count": 1,
-        "prominence_candidate_word_count": 2,
+        "prominence_candidate_word_count": 3,
     }
 
 
@@ -260,9 +254,6 @@ def test_process_file_missing_prominence_statistics_fails_clearly(tmp_path: Path
         "  options:\n"
         "    style: \"lob\"\n"
         "  data:\n"
-        "    syllabify:\n"
-        "      word_count: 4\n"
-        "      syllable_count: 10\n"
         "---\n\n"
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
         encoding="utf-8",
@@ -272,4 +263,39 @@ def test_process_file_missing_prominence_statistics_fails_clearly(tmp_path: Path
         metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
         raise AssertionError("Expected missing prominence front matter to fail")
     except ValueError as exc:
-        assert "missing required field(s)" in str(exc)
+        assert "missing required field" in str(exc)
+
+
+def test_process_file_accepts_explicit_link_override_without_frontmatter(tmp_path: Path) -> None:
+    tilde_file = tmp_path / "sample_tilde.txt"
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Sample\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-28\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "---\n\n"
+        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
+        encoding="utf-8",
+    )
+
+    result = metrics.process_file(
+        str(tilde_file),
+        wpm=165,
+        pause_ratio=35.0,
+        explicit_link_count_override="1",
+    )
+
+    assert result["original"]["prominence_statistics"]["explicit_word_link_count"] == 1

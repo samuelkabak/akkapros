@@ -57,26 +57,19 @@ def test_append_pipeline_frontmatter_contract(tmp_path: Path) -> None:
     proc_frontmatter, proc_body = _read_frontmatter(proc_file)
     assert proc_frontmatter["file"]["title"] == "Title One | Title Two"
     assert proc_frontmatter["metadata"]["input_file_id"] is None
-    assert proc_frontmatter["metadata"]["data"] == {"atfparse": {"line_count": 3}}
+    assert proc_frontmatter["metadata"]["data"] == {}
     assert proc_body.count("\n") == 3
 
     _run_cli("akkapros.cli.syllabifier", str(proc_file), "-p", prefix, "--outdir", str(outdir))
     syl_file = outdir / f"{prefix}_syl.txt"
     syl_frontmatter, _ = _read_frontmatter(syl_file)
     assert syl_frontmatter["file"]["title"] == "Title One | Title Two"
-    assert syl_frontmatter["metadata"]["data"]["atfparse"] == {"line_count": 3}
-    assert set(syl_frontmatter["metadata"]["data"]["syllabify"].keys()) == {"word_count", "syllable_count"}
+    assert syl_frontmatter["metadata"]["data"] == {}
 
     _run_cli("akkapros.cli.prosmaker", str(syl_file), "-p", prefix, "--outdir", str(outdir), "--style", "sob")
     tilde_file = outdir / f"{prefix}_tilde.txt"
     tilde_frontmatter, _ = _read_frontmatter(tilde_file)
-    assert set(tilde_frontmatter["metadata"]["data"]["prosody"].keys()) == {
-        "function_word_count",
-        "explicit_word_link_count",
-        "prosodic_unit_count",
-        "accentuated_syllable_count",
-    }
-    assert "word_count" not in tilde_frontmatter["metadata"]["data"]["prosody"]
+    assert tilde_frontmatter["metadata"]["data"] == {"prosody": {"explicit_word_link_count": 0}}
 
     _run_cli(
         "akkapros.cli.metricalc",
@@ -90,11 +83,10 @@ def test_append_pipeline_frontmatter_contract(tmp_path: Path) -> None:
     )
     metrics_file = outdir / f"{prefix}_metrics.txt"
     metrics_frontmatter, _ = _read_frontmatter(metrics_file)
-    assert "metrics" not in metrics_frontmatter["metadata"]["data"]
-    assert metrics_frontmatter["metadata"]["data"]["atfparse"] == {"line_count": 3}
+    assert "data" not in metrics_frontmatter["metadata"]
 
     _run_cli("akkapros.cli.printer", str(tilde_file), "-p", prefix, "--outdir", str(outdir), "--acute")
     acute_file = outdir / f"{prefix}_accent_acute.txt"
     acute_frontmatter, _ = _read_frontmatter(acute_file)
     assert acute_frontmatter["file"]["title"] == "Title One | Title Two"
-    assert acute_frontmatter["metadata"]["data"] == metrics_frontmatter["metadata"]["data"]
+    assert "data" not in acute_frontmatter["metadata"]

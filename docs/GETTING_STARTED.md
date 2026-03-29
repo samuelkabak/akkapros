@@ -2,9 +2,15 @@
 
 This short guide helps you run the basic pipeline on a sample file and inspect outputs.
 
-Text outputs produced by the CLI pipeline now begin with YAML front matter,
-followed by one blank line and then the content body. Metrics JSON carries the
-same metadata under a top-level `frontmatter` object.
+Text outputs produced by the CLI pipeline begin with YAML front matter,
+followed by one blank line and then the content body. The cross-stage contract
+is intentionally small: downstream stages rely on `file.title`, and metrics
+also relies on `metadata.data.prosody.explicit_word_link_count` unless you
+override it on the command line. Metrics JSON carries the same metadata under a
+top-level `frontmatter` object.
+
+Metrics and printer outputs do not republish `metadata.data`; they keep only
+`metadata.input_file_id` and `metadata.options` in their output front matter.
 
 ---
 
@@ -110,7 +116,8 @@ warning, and error messages now use the shared logger.
 - Use `--help` with any CLI tool to see all available options
 - The demo scripts in `demo/akkapros/prosmaker/` show batch processing examples
 - All outputs are fully reproducible given the same input and parameters
-- During migration, stage readers accept legacy content-only `*_proc.txt`, `*_syl.txt`, and `*_tilde.txt` files as well as the new front-matter-bearing files
+- `syllabifier.py` accepts frontmatter-bearing `*_proc.txt` files and plain content-only text files. The supported frontmatter-free path starts at syllabification: `syllabify -> prosmaker -> (metricalc or printer)`.
+- `metricalc.py` can override inherited explicit-link metadata with `--explicit-link-count <n>` when needed.
 - Escape syntax for non-Akkadian chunks is `{{text}}` or `{tag{text}}` (tag regex: `[0-9a-z_]{1,16}`)
 - Internal tags begin with `_`; nested escapes are intentionally unsupported
 

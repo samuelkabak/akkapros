@@ -20,6 +20,8 @@ It inserts syllable boundaries and marks word endings in the toolkit internal fo
 
 ### Input
 - Typically `<prefix>_proc.txt` from `atfparser.py`
+- Plain text without front matter is also accepted. In that case `file.title`
+    defaults to `null` unless you supply `--title`.
 
 ### Output
 - `<prefix>_syl.txt` in `--outdir`
@@ -50,6 +52,7 @@ By default, if no `--prefix` is provided, the output prefix is derived from the 
 | `--number-format <regex>` | Number regex override; empty uses built-in English-grouping-compatible pattern |
 | `--merge-hyphen` | Merge hyphens into syllable separators |
 | `--merge-lines` | Normalize line breaks (`1 newline → space`, `2+ newlines → paragraph break`) |
+| `--title <string>` | Override inherited or missing `file.title` in output front matter |
 | `--test` | Run internal syllabifier tests |
 
 ### Line Break Behavior
@@ -90,6 +93,13 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
     python src/akkapros/cli/syllabifier.py outputs/erra_proc.txt \
       -p erra \
       --outdir outputs
+
+### Content-Only Input with Explicit Title
+
+        python src/akkapros/cli/syllabifier.py prepared_text.txt \
+            --title "Prepared Corpus" \
+            -p prepared \
+            --outdir outputs
 
 ### Merge Hyphens and Normalize Line Breaks
 
@@ -143,6 +153,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 - **Nested escapes** are intentionally unsupported; only `{{...}}` and one-level `{tag{...}}` are recognized.
 - **Word endings** are explicitly marked with `¦` for downstream processing.
 - By default, input format is validated at startup and reports precise source + line for obvious corruption or wrong stage input (for example raw ATF lines in a `*_proc.txt` input). Cross-line attached `-` / `+` is not a generic validator error; it is interpreted only by the syllabifier preprocessing rule above.
+- Serialized front matter from this stage is minimal: it preserves inherited metadata such as `file.title`, but it does not emit stage counters like line, word, or syllable counts.
 
 ### Regex Semantics for Punctuation Patterns
 
@@ -218,6 +229,8 @@ The syllabifier is the **second step** in the akkapros pipeline:
 2. **`syllabifier.py`** → `*_syl.txt`
 3. `prosmaker.py` → `*_tilde.txt`
 4. `metricalc.py` and `printer.py` → metrics and formatted outputs
+
+The supported frontmatter-free entry path starts here: `syllabify -> prosmaker -> (metricalc or printer)`.
 
 For a one-command run of all stages, use **`fullprosmaker.py`**.
 

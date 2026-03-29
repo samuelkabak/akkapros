@@ -1,6 +1,6 @@
 ---
 cr_id: CR-024
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-03-29
@@ -22,7 +22,8 @@ For metrics, keep only `explicit_word_link_count` as required inherited
 prosody-stage data, add a CLI override `--explicit-link-count`, and move all
 other relevant counters to internal computation plus logger output. Update the
 pipeline orchestrator, printer behavior, and manuals so the new option surface
-and reduced frontmatter contract are carried consistently.
+and reduced frontmatter contract are carried consistently. Metrics and printer
+outputs do not republish `metadata.data` in their own front matter.
 
 The supported minimal path for this CR is
 `syllabify -> prosmaker -> (metricalc or printer)`. Only `syllabify` gains
@@ -74,6 +75,8 @@ be reconstructed from transformed text.
   `syllabify`, and non-link `prosody` counters.
 - Restrict `metricalc` frontmatter consumption to `file.title` and
   `metadata.data.prosody.explicit_word_link_count`.
+- Remove `metadata.data` from `metricalc` output frontmatter for both
+  `_metrics.txt` and embedded JSON `frontmatter`.
 - Add `metricalc --explicit-link-count INTEGER` as an override for inherited
   explicit-link metadata.
 - Validate `metricalc --explicit-link-count` as an integer constrained to
@@ -90,6 +93,7 @@ be reconstructed from transformed text.
 - Log internally computed metrics-relevant indicators.
 - Stop `printer` from reading or verifying any `metadata.data.*` counters.
 - Restrict `printer` frontmatter consumption to `file.title`.
+- Remove `metadata.data` from printer output frontmatter.
 - Log internally computed printer-relevant indicators.
 - Propagate the new CLI options through `fullprosmaker`.
 - Update user-facing docs, manuals, and internal developer-facing references.
@@ -159,11 +163,13 @@ for content that entered the pipeline outside `atfparser`.
    - compute function-word counts internally from the consumed text rather than
      inherited frontmatter, with explicit handling for syllabified input forms
    - log internally computed indicators relevant to metrics output
+  - omit `metadata.data` from metrics output frontmatter
 
 5. `printer`
    - consume only inherited `file.title`
    - stop verifying any `metadata.data.*` counters
    - log internally computed indicators relevant to printing
+  - omit `metadata.data` from printer output frontmatter
 
 6. `fullprosmaker`
    - add pass-through support for `--title` and `--explicit-link-count`
@@ -193,6 +199,7 @@ Metadata contract changes:
 - remove the serialized `syllabify.word_count` and
   `syllabify.syllable_count` fields
 - reduce serialized `prosody` data to `explicit_word_link_count` only
+- remove serialized `metadata.data` entirely from metrics and printer outputs
 - retain `file.title` as the cross-stage descriptive file metadata
 
 Override precedence:
@@ -213,6 +220,8 @@ Computation ownership:
 - metrics-side function-word counting must account for the fact that the
   canonical function-word constants are unsyllabified while the consumed input
   is syllabified or pivot-form text
+- metrics/printer outputs do not republish inherited stage data even when those
+  stages consumed reduced-frontmatter inputs upstream
 
 Logging contract:
 - all newly surfaced indicators must use the shared logger rather than direct

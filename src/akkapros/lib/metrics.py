@@ -21,7 +21,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import math
 
-from akkapros.lib.frontmatter import extract_metrics_prominence_counts, read_text_file
+from akkapros.lib.frontmatter import read_text_file, resolve_metrics_prominence_counts
 
 # shared constants
 from akkapros.lib.constants import (
@@ -1323,6 +1323,7 @@ def process_file(
     wpm: float,
     pause_ratio: float,
     long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
+    explicit_link_count_override: str | int | None = None,
 ) -> Dict:
     """Process a single file and return all metrics."""
     input_frontmatter, text = read_text_file(filename)
@@ -1333,7 +1334,11 @@ def process_file(
         pause_ratio,
         long_punct_weight,
         filename,
-        prominence_statistics=extract_metrics_prominence_counts(input_frontmatter),
+        prominence_statistics=resolve_metrics_prominence_counts(
+            text,
+            input_frontmatter=input_frontmatter,
+            explicit_link_count_override=explicit_link_count_override,
+        ),
     )
 
 
@@ -2158,14 +2163,8 @@ def _test_process_file_requires_frontmatter_prominence_counts() -> bool:
         "  options:\n"
         "    style: \"lob\"\n"
         "  data:\n"
-        "    syllabify:\n"
-        "      word_count: 4\n"
-        "      syllable_count: 10\n"
         "    prosody:\n"
-        "      function_word_count: 1\n"
         "      explicit_word_link_count: 1\n"
-        "      prosodic_unit_count: 3\n"
-        "      accentuated_syllable_count: 2\n"
         "---\n\n"
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
     )
@@ -2179,9 +2178,9 @@ def _test_process_file_requires_frontmatter_prominence_counts() -> bool:
 
     prominence = result['original'].get('prominence_statistics') or {}
     return prominence == {
-        'function_word_count': 1,
+        'function_word_count': 0,
         'explicit_word_link_count': 1,
-        'prominence_candidate_word_count': 2,
+        'prominence_candidate_word_count': 3,
     }
 
 
@@ -2204,9 +2203,6 @@ def _test_process_file_missing_frontmatter_prominence_counts_fails() -> bool:
         "  options:\n"
         "    style: \"lob\"\n"
         "  data:\n"
-        "    syllabify:\n"
-        "      word_count: 4\n"
-        "      syllable_count: 10\n"
         "---\n\n"
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
     )
@@ -2218,7 +2214,7 @@ def _test_process_file_missing_frontmatter_prominence_counts_fails() -> bool:
             process_file(temp_path, wpm=165, pause_ratio=35.0)
             return False
         except ValueError as exc:
-            return "missing required field(s)" in str(exc)
+            return "missing required field" in str(exc)
     finally:
         Path(temp_path).unlink(missing_ok=True)
 
