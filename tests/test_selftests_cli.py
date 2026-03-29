@@ -91,3 +91,26 @@ def test_cli_selftests_use_structured_logging(module_args, expected_pattern):
     assert "Running 95 tests" not in output
     assert not re.search(r"^={10,}$", output, flags=re.MULTILINE)
 
+
+def test_fullprosmaker_test_all_emits_aggregate_summary() -> None:
+    proc = _run_cli(["akkapros.cli.fullprosmaker", "--test-all"])
+    output = proc.stdout + proc.stderr
+    assert proc.returncode == 0, output
+
+    case_matches = re.findall(r"Test: (PASS|FAIL) \[[^\]]+\] (?!Summary )(.*)", output)
+    assert case_matches, output
+
+    summary_matches = re.findall(r"Test: (PASS|FAIL) \[([^\]]+)\] Summary (\d+)/(\d+)", output)
+    assert summary_matches, output
+
+    all_summaries = [match for match in summary_matches if match[1] == "All"]
+    assert len(all_summaries) == 1, output
+
+    aggregate_status, _, aggregate_passed, aggregate_total = all_summaries[0]
+    case_passed = sum(1 for status, _ in case_matches if status == "PASS")
+    case_total = len(case_matches)
+
+    assert aggregate_status == "PASS"
+    assert int(aggregate_passed) == case_passed
+    assert int(aggregate_total) == case_total
+

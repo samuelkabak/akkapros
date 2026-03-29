@@ -14,6 +14,7 @@ The CLI deduplicates shared options across stages (for example, --prefix,
 import sys
 import json
 import argparse
+import logging
 from copy import deepcopy
 from pathlib import Path
 
@@ -77,9 +78,50 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     return output_ipa, ipa_mode, circ_hiatus
 
 
+class _AggregateSelftestCounter(logging.Handler):
+    """Count structured self-test records so --test-all can emit one final summary."""
+
+    def __init__(self) -> None:
+        super().__init__(level=logging.INFO)
+        self.passed = 0
+        self.total = 0
+
+    def emit(self, record: logging.LogRecord) -> None:
+        message = record.getMessage()
+        if not message.startswith('Test: '):
+            return
+        if '] Summary ' in message:
+            return
+        if 'Test: PASS [' in message:
+            self.passed += 1
+            self.total += 1
+            return
+        if 'Test: FAIL [' in message:
+            self.total += 1
+
+
+def _run_all_selftests_with_summary(logger: logging.Logger) -> bool:
+    counter = _AggregateSelftestCounter()
+    aggregate_logger = logging.getLogger('akkapros')
+    aggregate_logger.addHandler(counter)
+    try:
+        ok = True
+        ok = syllabify.run_tests() and ok
+        ok = run_prosody_tests() and ok
+        ok = test_diphthong_restoration() and ok
+        ok = run_metrics_tests() and ok
+        ok = accent_print.run_tests() and ok
+        ok = run_tests() and ok
+    finally:
+        aggregate_logger.removeHandler(counter)
+
+    log_selftest_summary(logger, 'All', counter.passed, counter.total)
+    return ok and counter.passed == counter.total
+
+
 def run_tests() -> bool:
     """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
-    logger = get_logger_with_fallback(__name__)
+    logger = get_logger_with_fallback('akkapros.cli.fullprosmaker')
     class _Args:
         def __init__(self, print_ipa: bool, print_ipa_proto_semitic: str, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
@@ -424,13 +466,7 @@ Version: {__version__}
     if args.test_all:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
         log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
-        ok = True
-        ok = syllabify.run_tests() and ok
-        ok = run_prosody_tests() and ok
-        ok = test_diphthong_restoration() and ok
-        ok = run_metrics_tests() and ok
-        ok = accent_print.run_tests() and ok
-        ok = run_tests() and ok
+        ok = _run_all_selftests_with_summary(logger)
         sys.exit(0 if ok else 1)
 
     if args.test_syllabify or args.test_prosody or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:

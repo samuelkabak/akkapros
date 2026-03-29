@@ -44,7 +44,7 @@ def confirm_commit() -> bool:
 def run_commit(cr_number: str, commit_message: str, cwd: Path = ROOT, yes: bool = False) -> int:
     print("---- CR SUBMITTER ---")
     print(
-        f"- Ensure all and only files related to CR-{cr_number} are staged then run the following command (use 'git add -A' to add all)"
+        f"Ensure all and only files related to CR-{cr_number} are staged then run the following command (use 'git add -A' to add all)"
     )
     print(f'git commit -m "{commit_message}"')
     if not yes and not confirm_commit():
