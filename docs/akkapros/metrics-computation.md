@@ -883,13 +883,16 @@ Rules used by implementation:
 
 Each report includes effective parameters (run context), including:
 
-- input path
+- input path in the shortened safe display form (`...\parent\file.ext` when possible)
 - `wpm`
 - `pause_ratio`
 - `long_punct_weight`
 - extra phonetic inventory overrides
 
 This makes each metrics file self-describing and reproducible.
+The same safe-path rule is also used for the report header and the top-level
+JSON `file` field so shareable metrics artifacts do not expose deep local
+filesystem prefixes.
 
 ---
 

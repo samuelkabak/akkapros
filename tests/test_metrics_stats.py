@@ -7,6 +7,7 @@ from akkapros.lib import print as printlib
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR
 from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
 from akkapros.lib.syllabify import syllabify_text
+from akkapros.lib.utils import format_path_for_logging
 
 
 SAMPLE_PROC_TEXT = """appūnā-ma ištēn-ešret : kīma šuāti uštabši
@@ -122,6 +123,73 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert accentuated_other == 0
     assert metrics.UNCLASSIFIED_SYLLABLE_TYPE not in table
     assert not hasattr(metrics, "format_csv")
+
+
+def test_process_filetext_shortens_artifact_file_path() -> None:
+    result = metrics.process_filetext(
+        _build_sample_tilde(),
+        wpm=165,
+        pause_ratio=35.0,
+        filesrc=r"C:\Users\samue\private\results\sample_tilde.txt",
+        prominence_statistics=_sample_prominence_counts(),
+    )
+
+    assert result["file"] == r"...\results\sample_tilde.txt"
+
+
+def test_process_file_uses_safe_path_display(tmp_path: Path) -> None:
+    tilde_file = tmp_path / "alpha" / "beta" / "sample_tilde.txt"
+    tilde_file.parent.mkdir(parents=True)
+    tilde_file.write_text(
+        "---\n"
+        "package:\n"
+        "  name: \"akkapros\"\n"
+        "  version: \"2.0.0\"\n"
+        "pipeline: \"pipeline\"\n"
+        "step: \"prosody\"\n"
+        "file:\n"
+        "  id: \"tilde-id\"\n"
+        "  title: \"Sample\"\n"
+        "  format: \"tilde\"\n"
+        "  version: \"1.0.0\"\n"
+        "  date: \"2026-03-29\"\n"
+        "metadata:\n"
+        "  input_file_id: \"syl-id\"\n"
+        "  options:\n"
+        "    style: \"lob\"\n"
+        "  data:\n"
+        "    prosody:\n"
+        "      explicit_word_link_count: 0\n"
+        "---\n\n"
+        "er~·ra\n",
+        encoding="utf-8",
+    )
+
+    result = metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
+
+    assert result["file"] == format_path_for_logging(tilde_file)
+
+
+def test_format_table_shortens_run_context_input_path() -> None:
+    result = metrics.process_filetext(
+        _build_sample_tilde(),
+        wpm=165,
+        pause_ratio=35.0,
+        filesrc=r"...\results\sample_tilde.txt",
+        prominence_statistics=_sample_prominence_counts(),
+    )
+
+    table = metrics.format_table(
+        result,
+        run_context={
+            "cli": "metricalc.py",
+            "input": r"C:\Users\samue\private\results\sample_tilde.txt",
+        },
+    )
+
+    assert "METRICS SUMMARY: ...\\results\\sample_tilde.txt" in table
+    assert "  input: ...\\results\\sample_tilde.txt" in table
+    assert r"C:\Users\samue\private\results\sample_tilde.txt" not in table
 
 
 def test_function_words_remain_syllabified_in_tilde_output() -> None:

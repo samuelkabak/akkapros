@@ -1,6 +1,6 @@
 ---
 cr_id: CR-026
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-03-29
@@ -154,20 +154,20 @@ tests and integration reference artifacts for metrics text and JSON output
 
 # Acceptance Criteria
 
-- [ ] Metrics text/table output no longer exposes absolute filesystem paths.
-- [ ] The `METRICS SUMMARY:` line uses the safe one-parent path form.
-- [ ] The `input:` field under `--- RUN CONFIGURATION ---` uses the safe
+- [x] Metrics text/table output no longer exposes absolute filesystem paths.
+- [x] The `METRICS SUMMARY:` line uses the safe one-parent path form.
+- [x] The `input:` field under `--- RUN CONFIGURATION ---` uses the safe
       one-parent path form.
-- [ ] Metrics JSON output no longer exposes an absolute path in its top-level
+- [x] Metrics JSON output no longer exposes an absolute path in its top-level
       `file` field.
-- [ ] Path-bearing values in metrics artifacts follow the same shortening rule
+- [x] Path-bearing values in metrics artifacts follow the same shortening rule
       as `REQ-016`: one parent plus leaf where possible, with drive-root paths
       preserved.
-- [ ] Regression tests and integration reference artifacts are updated to match
+- [x] Regression tests and integration reference artifacts are updated to match
       the shortened path form.
-- [ ] Documentation examples and descriptions for metrics output no longer show
+- [x] Documentation examples and descriptions for metrics output no longer show
       full user filesystem paths.
-- [ ] Review confirms there is no remaining absolute-path disclosure in
+- [x] Review confirms there is no remaining absolute-path disclosure in
       `metricalc` artifact content after the audit.
 
 ---
@@ -234,25 +234,25 @@ security tradeoff explicitly before any such rollback is accepted.
 
 ## Implementation
 
-- [ ] Apply safe-path formatting to metrics text/table serializers.
-- [ ] Apply safe-path formatting to metrics JSON serializers.
-- [ ] Audit remaining path-bearing metrics artifact fields for leaks.
+- [x] Apply safe-path formatting to metrics text/table serializers.
+- [x] Apply safe-path formatting to metrics JSON serializers.
+- [x] Audit remaining path-bearing metrics artifact fields for leaks.
 
 ## Tests
 
-- [ ] Add unit coverage for shortened metrics paths.
-- [ ] Update integration reference artifacts for text and JSON metrics outputs.
-- [ ] Add or update a regression check that rejects absolute user-path leakage
+- [x] Add unit coverage for shortened metrics paths.
+- [x] Update integration reference artifacts for text and JSON metrics outputs.
+- [x] Add or update a regression check that rejects absolute user-path leakage
       in metrics artifacts.
 
 ## Documentation
 
-- [ ] Update metrics docs and examples to use shortened safe paths.
-- [ ] Document that metrics artifacts follow the shared path-security strategy.
+- [x] Update metrics docs and examples to use shortened safe paths.
+- [x] Document that metrics artifacts follow the shared path-security strategy.
 
 ## Review
 
-- [ ] Confirm that no remaining absolute path is emitted in metrics artifact
+- [x] Confirm that no remaining absolute path is emitted in metrics artifact
       content after implementation.
 
 ---
@@ -263,3 +263,15 @@ The audit performed while drafting this CR found the main leakage in metrics
 artifact content rather than in already-migrated logger calls. This CR is
 therefore intentionally scoped as a follow-up hardening pass for `metricalc`
 and metrics serialization, not a restart of the broader logging migration.
+
+Implemented on 2026-03-29:
+
+- Metrics library results now store the safe display form in the artifact-level
+  `file` field, which hardens both table headers and JSON output.
+- `format_table(...)` now applies the same shortening rule to the run
+  configuration `input:` field.
+- `metricalc` and `fullprosmaker` retain the real source path only for internal
+  file handling while serializing the shortened display form into shareable
+  metrics artifacts.
+- Regression tests and integration fixtures now assert the shortened path form
+  instead of masking these fields entirely.

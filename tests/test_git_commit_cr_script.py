@@ -81,6 +81,54 @@ def test_main_builds_commit_message_and_runs_git(monkeypatch: pytest.MonkeyPatch
     ]
 
 
+def test_main_yes_flag_skips_interactive_confirmation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    module = _load_module()
+    cr_dir = tmp_path / "docs" / "internal" / "cr"
+    cr_dir.mkdir(parents=True)
+    (cr_dir / "024-minimize-frontmatter.md").write_text(
+        "# Change Request: Minimize Frontmatter and Enable Source-Flexible Stage Inputs\n",
+        encoding="utf-8",
+    )
+
+    calls: list[tuple[list[str], str]] = []
+
+    class Completed:
+        returncode = 0
+
+    def fake_run(cmd: list[str], cwd: str):
+        calls.append((cmd, cwd))
+        return Completed()
+
+    def fail_input(prompt: str):
+        raise AssertionError("input() should not be called when --yes is provided")
+
+    monkeypatch.setattr(module, "CR_DIR", cr_dir)
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+    monkeypatch.setattr("builtins.input", fail_input)
+
+    result = module.main(["--yes", "024"])
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "---- CR SUBMITTER ---" in captured.out
+    assert "exit witout commit" not in captured.out
+    assert calls == [
+        (
+            [
+                "git",
+                "commit",
+                "-m",
+                "Implement CR-024: Minimize Frontmatter and Enable Source-Flexible Stage Inputs",
+            ],
+            str(module.ROOT),
+        )
+    ]
+
+
 @pytest.mark.parametrize("response", ["", "n", "N", "abc"])
 def test_main_exits_without_commit_on_default_or_no(
     response: str,

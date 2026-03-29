@@ -34,6 +34,11 @@ It supports single-file and batch (`--input-list`) processing.
 | Table | `<base>_metrics.txt` |
 | JSON | `<base>_metrics.json` |
 
+Metrics artifacts intentionally shorten path-bearing values such as the summary
+path, run-configuration `input`, and top-level JSON `file` field to the shared
+safe display form. Example: `...\results\corpus_tilde.txt`. Drive-root paths
+such as `C:\corpus_tilde.txt` are preserved as-is.
+
 ### Base Naming Rules
 
 - If `--prefix` is given: `<outdir>/<prefix>`

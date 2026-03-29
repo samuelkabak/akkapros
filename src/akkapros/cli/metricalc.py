@@ -232,7 +232,7 @@ Version {__version__}
                 'long_pause_punct_weight_unitless': args.long_punct_weight,
                 'extra_consonants': args.extra_consonants,
                 'extra_vowels': args.extra_vowels,
-                'input': input_files[0],
+                'input': format_path_for_logging(input_files[0]),
             }
             table = format_table(results[0], run_context=table_context)
             input_frontmatter, tilde_body = read_text_file(input_files[0])
@@ -256,7 +256,7 @@ Version {__version__}
                 f.write(compose_text_document(frontmatter, table))
             logger.info('Written file: %s', format_path_for_logging(table_file))
         else:
-            for result in results:
+            for input_file, result in zip(input_files, results):
                 table_context = {
                     'cli': 'metricalc.py',
                     'wpm_words_per_min': args.wpm,
@@ -265,12 +265,12 @@ Version {__version__}
                     'long_pause_punct_weight_unitless': args.long_punct_weight,
                     'extra_consonants': args.extra_consonants,
                     'extra_vowels': args.extra_vowels,
-                    'input': result['file'],
+                    'input': format_path_for_logging(input_file),
                 }
                 table = format_table(result, run_context=table_context)
-                safe_stem = simple_safe_filename(Path(result['file']).stem)
+                safe_stem = simple_safe_filename(Path(input_file).stem)
                 table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
-                input_frontmatter, tilde_body = read_text_file(result['file'])
+                input_frontmatter, tilde_body = read_text_file(input_file)
                 frontmatter = build_output_frontmatter(
                     output_path=table_file,
                     step='metrics',

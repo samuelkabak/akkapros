@@ -41,13 +41,13 @@ def confirm_commit() -> bool:
     return response == "y"
 
 
-def run_commit(cr_number: str, commit_message: str, cwd: Path = ROOT) -> int:
+def run_commit(cr_number: str, commit_message: str, cwd: Path = ROOT, yes: bool = False) -> int:
     print("---- CR SUBMITTER ---")
     print(
         f"- Ensure all and only files related to CR-{cr_number} are staged then run the following command (use 'git add -A' to add all)"
     )
     print(f'git commit -m "{commit_message}"')
-    if not confirm_commit():
+    if not yes and not confirm_commit():
         print("exit witout commit")
         return 0
     completed = subprocess.run(["git", "commit", "-m", commit_message], cwd=str(cwd))
@@ -56,6 +56,7 @@ def run_commit(cr_number: str, commit_message: str, cwd: Path = ROOT) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Commit staged changes for a CR using the CR title")
+    parser.add_argument("-y", "--yes", action="store_true", help="Run without interactive confirmation")
     parser.add_argument("cr_number", help="Three-digit CR number, for example 024")
     args = parser.parse_args(argv)
 
@@ -66,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     cr_path = find_cr_file(args.cr_number)
     title = extract_cr_title(cr_path)
     commit_message = build_commit_message(args.cr_number, title)
-    return run_commit(args.cr_number, commit_message)
+    return run_commit(args.cr_number, commit_message, yes=args.yes)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
 ================================================================================
-METRICS SUMMARY: tmp\cr017_full\test_tilde.txt
+METRICS SUMMARY: ...\cr017_full\test_tilde.txt
 ================================================================================
 
 --- RUN CONFIGURATION ---
   cli: fullprosmaker.py
   extra_consonants: 
   extra_vowels: 
-  input: tmp\cr017_full\test_tilde.txt
+  input: ...\cr017_full\test_tilde.txt
   long_pause_punct_weight_unitless: 2.0
   pause_ratio_percent: 35
   prosody_relax_last: False

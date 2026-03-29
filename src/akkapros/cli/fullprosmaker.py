@@ -292,7 +292,7 @@ def run_pipeline(
             'prosody_style': style,
             'prosody_relax_last': not only_last,
             'prosody_restore_diphthongs': True,
-            'input': str(tilde_file),
+            'input': format_path_for_logging(tilde_file),
         }
         table = format_table(metrics_result, run_context=table_context)
         table_file = metrics_base.with_name(metrics_base.name + '_metrics.txt')

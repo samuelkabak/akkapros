@@ -45,6 +45,7 @@ from akkapros.lib.constants import (
 )
 from akkapros.lib.utils import (
     compile_contextual_regex,
+    format_path_for_logging,
     format_selftest_label,
     get_logger_with_fallback,
     log_selftest_result,
@@ -1423,7 +1424,7 @@ def process_filetext(
     )
 
     return {
-        'file': filesrc,
+        'file': format_path_for_logging(filesrc),
         'original': {
             'stats': original_stats,
             'speech': speech_original,
@@ -1451,7 +1452,10 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     if run_context:
         lines.append("\n--- RUN CONFIGURATION ---")
         for key in sorted(run_context.keys()):
-            lines.append(f"  {key}: {run_context[key]}")
+            value = run_context[key]
+            if key == 'input' and isinstance(value, (str, Path)):
+                value = format_path_for_logging(value)
+            lines.append(f"  {key}: {value}")
     
     # --- ORIGINAL TEXT ---
     lines.append("\n--- ORIGINAL TEXT ---")

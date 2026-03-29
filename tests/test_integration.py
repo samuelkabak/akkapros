@@ -7,6 +7,7 @@ from pathlib import Path
 
 from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import metrics
+from akkapros.lib.utils import format_path_for_logging
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -164,6 +165,18 @@ def _assert_matches_reference(generated: Path, reference: Path) -> None:
     assert _norm_lines(_strip_yaml_frontmatter(gen)) == _norm_lines(ref), f"Mismatch vs reference for: {generated.name}"
 
 
+def _assert_metrics_artifact_paths_are_safe(metrics_txt: Path, metrics_json: Path, source_path: Path) -> None:
+    safe_path = format_path_for_logging(source_path)
+    metrics_table = _strip_yaml_frontmatter(_read_text(metrics_txt))
+    assert f"METRICS SUMMARY: {safe_path}" in metrics_table
+    assert f"  input: {safe_path}" in metrics_table
+    assert str(source_path) not in metrics_table
+
+    metrics_obj = json.loads(_read_text(metrics_json))
+    assert metrics_obj["file"] == safe_path
+    assert str(source_path) != metrics_obj["file"]
+
+
 def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     """Run each stage CLI in sequence and verify all stage outputs are produced."""
     outdir = tmp_path / "stage_pipeline"
@@ -210,6 +223,7 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     metrics_json_obj = json.loads(_read_text(metrics_json))
     assert "frontmatter" in metrics_json_obj
     assert "data" not in metrics_json_obj["frontmatter"]["metadata"]
+    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, tilde_file)
 
     _run_cli(
         "akkapros.cli.printer",
@@ -319,6 +333,8 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     }
     for generated, reference in full_reference_map.items():
         _assert_matches_reference(generated, reference)
+
+    _assert_metrics_artifact_paths_are_safe(outdir / "test_metrics.txt", outdir / "test.json", outdir / "test_tilde.txt")
 
 
 def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
