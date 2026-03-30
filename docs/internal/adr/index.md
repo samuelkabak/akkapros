@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [034. Prosody Mora Modes and Explicit-Link Locking](034-prosody-mora-modes-and-explicit-link-locking.md) - Proposed
 - [032. Internal Doc Frontmatter Schema](032-internal-doc-frontmatter-schema.md) - Proposed
 - [031. Factual Runtime Records and Structured Self-Test Output](031-factual-runtime-records-and-structured-self-test-output.md) - Proposed
 - [030. Metrics CSV Abandonment and Spec History Policy](030-metrics-csv-abandonment-and-spec-history-policy.md) - Accepted
