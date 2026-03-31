@@ -16,6 +16,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib.prosody import (
     AccentStyle,
+    MoraMode,
     ProsodyEngine,
     run_tests,
     test_diphthong_restoration,
@@ -45,6 +46,7 @@ def main() -> None:
     parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
     parser.add_argument('--outdir', default='.', help='Output directory')
     parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
+    parser.add_argument('--mora-mode', choices=['bi', 'mono'], default='bi', help='Mora-mode gate for accentuation attempts')
     parser.add_argument('-r', '--relax-last', action='store_true',
                         help='For explicit + links, allow prosody realization propagation before the last linked word')
     parser.add_argument('--test', action='store_true', help='Run standard tests')
@@ -94,9 +96,10 @@ def main() -> None:
         output_file = outdir / (input_path.stem.replace('_syl', '') + '_tilde.txt')
 
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
+    mora_mode_map = {'bi': MoraMode.BI, 'mono': MoraMode.MONO}
     style = style_map[args.style]
 
-    engine = ProsodyEngine(style=style, only_last=not args.relax_last)
+    engine = ProsodyEngine(style=style, only_last=not args.relax_last, mora_mode=mora_mode_map[args.mora_mode])
     engine.process_file(
         str(input_path),
         str(output_file),

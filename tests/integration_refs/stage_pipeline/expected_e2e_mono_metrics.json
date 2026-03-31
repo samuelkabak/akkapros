@@ -1,5 +1,5 @@
 {
-  "file": "...\\full\\test_tilde.txt",
+  "file": "...\\mono_stage_refs\\e2e_mono_tilde.txt",
   "original": {
     "stats": {
       "syllable_statistics": {
@@ -125,8 +125,12 @@
             "percent": 13.043478260869565
           },
           "CVC": {
-            "count": 5,
-            "percent": 21.73913043478261
+            "count": 3,
+            "percent": 13.043478260869565
+          },
+          "CVC:": {
+            "count": 2,
+            "percent": 8.695652173913043
           },
           "CV": {
             "count": 9,
@@ -153,7 +157,8 @@
       },
       "syllable_counts": {
         "V": 3,
-        "CVC": 5,
+        "CVC": 3,
+        "CVC:": 2,
         "CV": 9,
         "VV:C": 1,
         "CVV": 1,
@@ -162,7 +167,8 @@
       },
       "syllable_percentages": {
         "V": 13.043478260869565,
-        "CVC": 21.73913043478261,
+        "CVC": 13.043478260869565,
+        "CVC:": 8.695652173913043,
         "CV": 39.130434782608695,
         "VV:C": 4.3478260869565215,
         "CVV": 4.3478260869565215,
@@ -172,20 +178,20 @@
       "total_syllables": 23,
       "vowel_morae_total": 32,
       "mora_stats": {
-        "mean": 1.7391304347826086,
-        "std": 0.91539317456032,
-        "total": 40
+        "mean": 1.826086956521739,
+        "std": 0.9840627249521833,
+        "total": 42
       },
       "mora_statistics": {
         "mean_morae_per_syllable": {
-          "mean": 1.7391304347826086,
-          "stddev": 0.91539317456032
+          "mean": 1.826086956521739,
+          "stddev": 0.9840627249521833
         },
         "mean_morae_per_word": {
-          "mean": 5.714285714285714,
-          "stddev": 0.7559289460184545
+          "mean": 6,
+          "stddev": 0.5773502691896257
         },
-        "total_morae": 40
+        "total_morae": 42
       },
       "word_stats": {
         "total_words": 7,
@@ -194,8 +200,8 @@
           "std": 0.4879500364742666
         },
         "morae_per_word": {
-          "mean": 5.714285714285714,
-          "std": 0.7559289460184545
+          "mean": 6,
+          "std": 0.5773502691896257
         }
       },
       "word_statistics": {
@@ -212,16 +218,16 @@
       }
     },
     "acoustic": {
-      "percent_v": 80.0,
-      "percent_v_articulate": 80.0,
-      "percent_v_speech": 59.25925925925925,
-      "delta_c": 1.0202966681339751,
-      "mean_interval": 1.1785714285714286,
-      "varco_c": 86.57062638712516,
-      "delta_c_seconds": 0.042203180363723516,
-      "delta_c_mora": 1.0202966681339751,
-      "mean_c_seconds": 0.04875,
-      "mean_c_mora": 1.1785714285714286
+      "percent_v": 76.19047619047619,
+      "percent_v_articulate": 76.19047619047619,
+      "percent_v_speech": 56.4373897707231,
+      "delta_c": 0.9670497325294006,
+      "mean_interval": 1.25,
+      "varco_c": 77.36397860235205,
+      "delta_c_seconds": 0.03809589855418851,
+      "delta_c_mora": 0.9670497325294006,
+      "mean_c_seconds": 0.04924242424242425,
+      "mean_c_mora": 1.25
     },
     "speech": {
       "wpm": 165,
@@ -229,7 +235,7 @@
       "sps_speech": 9.035714285714285,
       "sps_articulation": 13.9010989010989,
       "syllable_duration": 0.07193675889328063,
-      "mora_duration": 0.041363636363636366,
+      "mora_duration": 0.0393939393939394,
       "word_duration": 0.36363636363636365
     },
     "pause_metrics": {
@@ -259,15 +265,15 @@
       "initial_long_punctuation_percent": 66.66666666666666,
       "short_punct_weight": 1.0,
       "initial_long_punct_weight": 2.0,
-      "short_mora_ratio_initial": 3.5897435897435903,
+      "short_mora_ratio_initial": 3.76923076923077,
       "corrected_short_mora_multiple": 4,
-      "corrected_short_punctuation_duration": 0.16545454545454547,
-      "corrected_long_punctuation_duration": 0.2800000000000001,
-      "corrected_short_punctuation_contribution": 0.014387351778656127,
-      "corrected_long_punctuation_contribution": 0.02434782608695653,
-      "corrected_short_punctuation_percent": 37.14285714285713,
-      "corrected_long_punctuation_percent": 62.857142857142854,
-      "corrected_long_punct_weight": 1.6923076923076927,
+      "corrected_short_punctuation_duration": 0.1575757575757576,
+      "corrected_long_punctuation_duration": 0.28787878787878796,
+      "corrected_short_punctuation_contribution": 0.013702239789196312,
+      "corrected_long_punctuation_contribution": 0.025032938076416343,
+      "corrected_short_punctuation_percent": 35.37414965986393,
+      "corrected_long_punctuation_percent": 64.62585034013605,
+      "corrected_long_punct_weight": 1.8269230769230773,
       "total_pause_time": 0.03873517786561266,
       "pause_time_per_syllable": 0.03873517786561266,
       "short_event_count": 2,
@@ -275,11 +281,12 @@
     }
   },
   "accentuation_stats": {
-    "accentuated_syllables": 5,
-    "accentuation_rate": 21.73913043478261,
+    "accentuated_syllables": 7,
+    "accentuation_rate": 30.434782608695656,
     "accentuation_types": {
-      "VV:C": 1,
       "VC:": 1,
+      "VV:C": 1,
+      "CVC:": 2,
       "CVV:": 3
     },
     "merged_words": 2,
@@ -294,27 +301,22 @@
     "pipeline": "pipeline",
     "step": "metrics",
     "file": {
-      "id": "bba3fb2f-7748-570f-b676-8647409a34ef",
-      "title": null,
+      "id": "bcd57bb1-68f2-5298-a1b1-30607e78e69a",
+      "title": "L I.2 Poem of Creation (*Enūma eliš*) SB II",
       "format": "metrics",
       "version": "1.0.0",
       "date": "2026-03-31"
     },
     "metadata": {
-      "input_file_id": "5a5ff3c9-317e-56f4-82db-31ca3d7fc947",
+      "input_file_id": "99fb65b8-7e7f-5733-ba80-8863c5ddae0e",
       "options": {
-        "prosody_style": "lob",
-        "mora_mode": "bi",
-        "metrics_table": true,
-        "metrics_json": true,
-        "metrics_wpm": 165,
-        "metrics_pause_ratio": 35,
-        "metrics_long_punct_weight": 2.0,
-        "print_acute": true,
-        "print_bold": true,
-        "print_ipa": true,
-        "print_ipa_proto_semitic": "preserve",
-        "print_xar": true
+        "style": "lob",
+        "mora_mode": "mono",
+        "table": true,
+        "json": true,
+        "wpm": 165,
+        "pause_ratio": 35,
+        "long_punct_weight": 2.0
       }
     }
   }

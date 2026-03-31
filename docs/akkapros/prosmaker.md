@@ -49,6 +49,7 @@ serializing them into output front matter.
 | `-p, --prefix <name>` | Output prefix (result file: `<prefix>_tilde.txt`) |
 | `--outdir <dir>` | Output directory (default: current directory) |
 | `--style {lob,sob}` | Accent style used to choose prosody realization target syllables (default: `lob`) |
+| `--mora-mode {bi,mono}` | Accentuation trigger mode: bimoraic parity gate (`bi`, default) or academic mono-mode (`mono`) |
 | `-r, --relax-last` | For explicit `+` links, allow prosody realization propagation before the last linked word |
 | `--test` | Run standard prosody realization tests |
 | `--test-diphthongs` | Run diphthong-restoration tests |
@@ -68,6 +69,19 @@ Diphthongs are **always restored automatically** after prosody realization. The 
 
 ---
 
+## μ Mora Modes
+
+| Mode | Behavior |
+|------|----------|
+| **`bi`** | Default. A standalone word or eligible prosodic unit is accentuated only when its current mora count is odd. Even units emit unchanged. |
+| **`mono`** | Comparative academic mode. Structural grouping still determines the unit, but eligible units may be accentuated regardless of current parity. If no internal candidate is legal, the unit falls directly to last resort instead of forward-merging. |
+
+`mono` changes the trigger for attempting accentuation. It does **not** change the
+`lob` / `sob` target-selection hierarchy or the legal accentuation operations,
+but it also does not use bimoraic forward merge as a repair step.
+
+---
+
 ## 🔗 Explicit Linker (`+`) Behavior
 
 The `+` marker in syllabified input indicates a forced prosodic unit.
@@ -76,6 +90,10 @@ The `+` marker in syllabified input indicates a forced prosodic unit.
 |------|----------|
 | **Default** (strict) | Only the last linked word is eligible for prosody realization |
 | **`--relax-last`** | Prosody realization may propagate leftward to previous linked words when needed |
+
+The mora mode does not override explicit-link locking. Words before the
+eligible linked tail remain protected from accentuation in both `bi` and
+`mono`.
 
 Example with `bā·nû+a·pil`:
 
@@ -96,6 +114,14 @@ Example with `bā·nû+a·pil`:
       --style lob \
       -p erra \
       --outdir outputs
+
+### Run in Academic Comparison Mode
+
+        python src/akkapros/cli/prosmaker.py outputs/erra_syl.txt \
+            --style lob \
+            --mora-mode mono \
+            -p erra-mono \
+            --outdir outputs
 
 ### Run with Relaxed Linker Behavior
 
@@ -134,6 +160,8 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 - Escaped non-Akkadian chunks (`{{text}}` or `{tag{text}}`) are carried through as non-lexical material.
 - Tags in `{tag{text}}` follow `[0-9a-z_]{1,16}`; tags starting with `_` are internal-only conventions.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
+- Output front matter records `metadata.options.mora_mode` so downstream stages
+    can identify whether `bi` or `mono` was used.
 - Output front matter from this stage now keeps only `metadata.data.prosody.explicit_word_link_count` as required downstream prosody metadata.
 
 ### Validation Rules (Middle Strictness)

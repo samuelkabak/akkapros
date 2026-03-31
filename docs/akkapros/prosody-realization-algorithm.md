@@ -1,238 +1,396 @@
 # Akkadian Prosody Realization Algorithm (LOB/SOB)
 
 ## Purpose
-This document describes the `akkapros` moraic prosody realization algorithm for scholars of Akkadian and Assyriology. It explains how the system moves from syllabified text to prosody-realized output, with explicit attention to:
 
-- accent models (`LOB`, `SOB`)
-- prosody realization decision hierarchy
-- forward and backward merging
-- explicit `+` linking (construct/prosodic linking)
-- function-word behavior
-- diphthong processing and restoration
+This document describes the algorithm currently implemented in
+`src/akkapros/lib/prosody.py`. It is written as a readable specification of
+what the engine actually does, not as a loose conceptual overview.
 
-The goal is reproducible, linguistically constrained rhythm reconstruction, not arbitrary stress assignment.
+The algorithm has four moving parts that must be kept separate:
+
+- structural grouping of words into a prosodic unit
+- the mora-mode gate (`bi` or `mono`)
+- accent-site selection (`LOB` or `SOB`)
+- last-resort repair when no legal internal candidate exists
 
 ---
 
-## Input and Output
+## Symbols and Data Model
 
-### Input format (`*_syl.txt`)
-The prosody realization stage reads syllabified text where:
+### Input (`*_syl.txt`)
 
 | Symbol | Meaning |
 |--------|---------|
-| `.` | Syllable boundaries |
-| `-` | Internal/prosodic boundaries preserved from input |
-| `¦` | Word end |
-| `+` | Explicit link between words (forced prosodic unit) |
-| `{{...}}` / `{tag{...}}` | Escaped chunks (passed through as non-lexical material) |
+| `·` | syllable separator |
+| `-` | preserved internal boundary |
+| `¦` | word end |
+| `+` | explicit user-supplied prosodic link |
+| `⟦...⟧` / escaped chunks | non-lexical material passed through unchanged |
 
-### Output format (`*_tilde.txt`)
-The prosody realization stage writes prosody-realized text where:
+### Output (`*_tilde.txt`)
 
 | Symbol | Meaning |
 |--------|---------|
-| `~` | Prosody-realized (accented) moraic target |
-| `+` | Merged/prosodically linked words (no pause) |
-| space | Ordinary word boundaries |
+| `~` | one added mora on the chosen target |
+| `+` | prosodic merger / linked unit |
+| space | ordinary boundary between independent units |
 
-### Rendering prosody-realized text (`printer.py`)
-After prosody realization, the text is typically rendered in one of three reading outputs:
+### Syllable Types and Morae
 
-#### `--acute` (Acute-accented text)
+| Type | Shape | Morae |
+|------|-------|-------|
+| Light | `CV`, `V` | 1 |
+| Heavy | `CVC`, `VC`, `CVV`, `VV` | 2 |
+| Superheavy | `CVVC`, `VVC` | 3 |
 
-    Output file: `*_accent_acute.txt`
-    Rendering: `~` converted to acute accent (`´`) on the prosody-realized syllable
-    Use case: Compact philological reading with explicit prominence
+### Legal Operations
 
-#### `--bold` (Markdown bold text)
+The engine always adds exactly one mora.
 
-    Output file: `*_accent_bold.md`
-    Rendering: Prosody-realized syllable bolded (`**...**`), `~` removed
-    Use case: Publication-ready visual emphasis in markdown documents
-
-#### `--ipa` (IPA transcription)
-
-    Output file: `*_accent_ipa.txt`
-    Rendering: IPA transliteration with stress/length marking and pause tags
-    Use case: Phonetic interpretation, prosodic timing inspection, TTS workflows
+| Operation | Legal on | Effect |
+|-----------|----------|--------|
+| `lengthen_vowel` | `CVV`, `VV`, `CVVC`, `VVC` | insert `~` after the long vowel |
+| `geminate_coda` | `CVC`, `VC`, non-final in active unit | append `~` to the syllable |
+| `last_resort_accentuation` | any unresolved syllable | geminate onset or glottal onset |
 
 ---
 
-## Core Principle: Bimoraic Well-Formedness
+## Control Parameters
 
-Each prosodic unit should resolve to an even mora count. If a standalone word has an odd mora count and cannot be resolved internally, the algorithm merges prosodically with neighboring material and retries prosody realization.
+### Mora Mode
 
----
+`bi`
+: Accentuation is attempted only if the current prosodic unit has odd mora count.
 
-## Syllable Typology and Mora Values
+`mono`
+: Accentuation may be attempted regardless of current mora parity. `mono` does
+not use forward merge as a repair strategy.
 
-The engine classifies syllables into the standard types:
+### Accent Style
 
-| Type | Structure | Mora Value |
-|------|-----------|------------|
-| Light | `CV`, `V` | 1 mora |
-| Heavy | `CVC`, `VC`, `CVV`, `VV` | 2 morae |
-| Superheavy | `CVVC`, `VVC` | 3 morae |
+`LOB`
+: final superheavy > rightmost non-final heavy > final heavy
 
-This classification drives prosody realization eligibility and model priorities.
+`SOB`
+: rightmost non-final heavy > final heavy
 
----
-
-## Legal Prosody Realization Operations
-
-The engine adds exactly one mora per prosody realization event.
-
-### 1. `lengthen_vowel`
-
-- **Allowed on:** `CVV`, `VV`, `CVVC`, `VVC`
-- **Effect:** Add `~` after the long vowel symbol
-- **Example:** `rā` → `rā~`
-
-### 2. `geminate_coda`
-
-- **Allowed on:** `CVC`, `VC` when syllable is **not** word-final in the active unit
-- **Effect:** Add `~` at syllable end
-- **Example:** `dad` → `dad~`
-
-### 3. Last-resort onset prosody realization
-
-- **When:** No legal candidate exists
-- **Effect:** Geminate onset (`C~V`) or glottal onset for vowel-initial (`~V`)
-- **Example:** `ka` → `k~a`, `a` → `~a`
+Mora mode decides **whether** an attempt is made. Accent style decides
+**where** the attempt is made.
 
 ---
 
-## Accent Models and Decision Hierarchy
+## Structured English Specification
 
-`LOB` and `SOB` share operations but differ in candidate priority.
+### Main Procedure
 
-### LOB (Literary Old Babylonian)
+For each input line:
 
-Priority order:
-
-1. Final superheavy (including circumflex finals treated as superheavy-like)
-2. Rightmost non-final heavy
-3. Final heavy
-
-### SOB (Standard Old Babylonian)
-
-Priority order:
-
-1. Rightmost non-final heavy
-2. Final heavy
-
-In both models, the algorithm chooses the first candidate in the ordered priority list.
+1. Parse the line into a sequence of words, explicit `+` markers, and escaped chunks.
+2. Scan left to right.
+3. If the current token is escaped material, emit it unchanged.
+4. If the current token starts an explicit `+` chain, resolve that explicit group.
+5. Else if the current token is a function word, resolve the function-word group.
+6. Else resolve it as an ordinary lexical word.
+7. Restore diphthong spellings after the whole line is processed.
 
 ---
 
-## Word-Level Decision Flow
+## Pseudocode
 
-For each lexical word (unless function-word logic applies):
+```text
+ACCENTUATION_LINE(tokens):
+    result := []
+    i := 0
 
-1. Compute prosody-realized mora parity
-2. If already even: keep unchanged
-3. If odd: try internal prosody realization by model hierarchy
-4. If internal prosody realization fails: attempt prosodic merge (forward first)
-5. If unresolved: apply last-resort onset/glottal prosody realization
+    while i < len(tokens):
+        token := tokens[i]
 
----
+        if token is '+' marker:
+            i := i + 1
+            continue
 
-## Merge Forward and Merge Backward
+        if token is escaped chunk:
+            append escaped chunk text to result
+            i := i + 1
+            continue
 
-### Merge Forward (default prosody realization expansion)
+        if token begins an explicit '+' chain:
+            i := RESOLVE_EXPLICIT_GROUP(tokens, i, result)
+            continue
 
-If a word cannot be prosody-realized internally and remains odd:
+        if token is a function word:
+            i := RESOLVE_FUNCTION_GROUP(tokens, i, result)
+            continue
 
-1. Merge with following word
-2. Recompute unit parity and candidates
-3. Continue extending rightward until:
-   - Unit becomes even without prosody realization, or
-   - A legal prosody realization candidate appears
+        i := RESOLVE_CONTENT_WORD(tokens, i, result)
 
-If successful, the unit is emitted with `+` between merged words.
-
-### Merge Backward (function-word edge case)
-
-Backward merge is primarily used when trailing function words occur before punctuation or end of text and need a content host. In this case, the algorithm may roll back prior local prosody realization and rebuild a larger prosodic unit including the preceding content word plus trailing function words.
-
----
-
-## Explicit `+` Linking (Construct / Forced Prosodic Unit)
-
-The input `+` is treated as an explicit user instruction that the linked sequence forms one mandatory prosody realization domain.
-
-### Strict mode (default, `only_last=True`)
-
-Prosody realization candidates before the linked tail are locked. Only the last linked word domain is eligible for prosody realization targeting.
-
-### Relaxed mode (`--prosody-relax-last`, `only_last=False`)
-
-Prosody realization may propagate right-to-left across the linked chain; the rightmost legal site in the full explicit group is chosen.
-
-### If explicit group is still unresolved
-
-If no candidate is legal inside the explicit group, the engine merges further rightward until punctuation, end of text, or successful prosody realization. If still unresolved, it applies last resort on the first syllable of the last word in the merged explicit group.
+    return ASSEMBLE_LINE(result, tokens)
+```
 
 ---
 
-## Function Words
+## Ordinary Content Word Resolution
 
-Function words are **not** prosody-realized as independent stress-bearing units.
+```text
+RESOLVE_CONTENT_WORD(tokens, i, result):
+    word := tokens[i]
 
-- Consecutive function words are grouped
-- When followed by content, they attach forward to that content word with `+`
-- If stranded at line end or punctuation, they are attached backward to previous content material
+    if CAN_EMIT_WITHOUT_ACCENTUATION(word):
+        emit word unchanged
+        return i + 1
 
-This enforces clitic-like prosodic dependence.
+    accentuation := BEST_ACCENTUATION(word, style)
+    if accentuation exists:
+        apply accentuation
+        emit word
+        return i + 1
 
----
+    if mora_mode = mono:
+        apply last resort to the final syllable of word
+        emit word
+        return i + 1
 
-## Diphthong Processing and Restoration
+    return RESOLVE_BY_FORWARD_MERGE(tokens, i, result)
+```
 
-Diphthongs are handled in two phases across pipeline stages.
+### Meaning
 
-### Phase 1 (Syllabification stage)
-
-Adjacent vowels are split with glottal insertion for unambiguous syllable parsing:
-
-    ua → u.ʾa
-
-### Phase 2 (Prosody realization post-process)
-
-After prosody realization, optional restoration collapses the split patterns back to diphthongal forms via ordered regex rules. The restoration preserves prosody realization marks where applicable:
-
-    u.ʾā~ → uā~
-
-This keeps prosody realization computation explicit while allowing diphthongal surface output.
-
----
-
-## Punctuation and Escaped Segments
-
-Non-lexical escaped chunks are preserved and passed through. They do not participate in moraic prosody realization, but they delimit where forward merge can continue.
-
-- Plain form: `{{text}}`
-- Tagged form: `{tag{text}}`, where `tag` matches `[0-9a-z_]{1,16}`
-- Internal tags begin with `_` and are reserved for pipeline-internal handling
-- Syllabifier/metrics punctuation handling is strict allowlist-based; unclassified punctuation now raises an error instead of silent fallback.
-- CLI extension hooks: `--short-punct-chars`, `--long-punct-chars`, repeatable `--short-punct-pattern`, repeatable `--long-punct-pattern`.
-- Regex semantics are standard Python regex: `^` and `$` are anchors, literal dollar must be escaped as `\\$`, and `¨` is treated as a normal character.
+- In `bi`, an odd standalone word tries internal accentuation first, then may merge forward.
+- In `mono`, a standalone word never merges forward. It either accentuates internally or goes directly to last resort.
 
 ---
 
-## Why This Matters for Philology
+## Forward Merge (`bi` only)
 
-The implementation encodes a testable bridge between lexical stress eligibility and connected-speech timing:
+```text
+RESOLVE_BY_FORWARD_MERGE(tokens, i, result):
+    merged := [tokens[i]]
+    j := i + 1
 
-- Model-specific stress targeting (`LOB` vs `SOB`)
-- Constrained, language-internal prosody realization operations
-- Explicit representation of prosodic grouping (`+`)
-- Reproducible outputs suitable for corpus-scale comparison
+    while j is a following word and not punctuation/escaped chunk:
+        append tokens[j] to merged
+        unit := MERGED_UNIT(merged)
+
+        if CAN_EMIT_WITHOUT_ACCENTUATION(unit):
+            emit merged with '+'
+            return j + 1
+
+        accentuation := BEST_ACCENTUATION(unit, style)
+        if accentuation exists:
+            apply accentuation
+            emit merged with '+'
+            return j + 1
+
+        j := j + 1
+
+    apply last resort to the final syllable of the original word
+    emit original word
+    return i + 1
+```
+
+This branch exists only because `bi` requires the active unit to resolve under
+bimoraic well-formedness.
 
 ---
 
-## Minimal Worked Example
+## Explicit `+` Group Resolution
+
+An explicit `+` chain is a user-supplied prosodic unit. The engine must not
+ignore it or split it apart.
+
+### Strict Mode (`only_last = True`)
+
+All linked words before the final linked word are locked from accentuation.
+Only the tail domain may receive the internal accent.
+
+### Relaxed Mode (`only_last = False`)
+
+Accentuation may propagate leftward inside the explicit chain. The rightmost
+legal site in the whole explicit group is chosen.
+
+### Pseudocode
+
+```text
+RESOLVE_EXPLICIT_GROUP(tokens, i, result):
+    group := maximal explicit '+' chain starting at i
+    unit := MERGED_UNIT(group, locked_prefix_words = explicit_tail_start)
+
+    if CAN_EMIT_WITHOUT_ACCENTUATION(unit):
+        emit group with '+'
+        return index after the group
+
+    accentuation := BEST_EXPLICIT_GROUP_ACCENTUATION(unit, style, only_last)
+    if accentuation exists:
+        apply accentuation
+        emit group with '+'
+        return index after the group
+
+    if mora_mode = mono:
+        apply last resort to first syllable of the last word in the explicit group
+        emit group with '+'
+        return index after the group
+
+    extend the explicit group rightward word by word until punctuation/end:
+        if enlarged unit becomes emit-ready in bi mode:
+            emit enlarged unit with '+'
+            return index after enlarged unit
+
+        if enlarged unit gains a legal accentuation candidate:
+            apply accentuation
+            emit enlarged unit with '+'
+            return index after enlarged unit
+
+    apply last resort to first syllable of the last word in the final enlarged group
+    emit final enlarged group with '+'
+    return index after the final enlarged group
+```
+
+### Important Invariant
+
+Mora mode never overrides explicit-link locking. Pre-tail linked words stay
+ineligible for accentuation in both `bi` and `mono`.
+
+---
+
+## Function-Word Group Resolution
+
+Function words are never accented as independent units.
+
+### Forward Attachment
+
+If one or more consecutive function words are followed by a content word, the
+whole sequence becomes a grouped unit whose content host is the final word.
+
+```text
+RESOLVE_FUNCTION_GROUP(tokens, i, result):
+    group := consecutive function words starting at i
+
+    if next token is a content word:
+        append that content word to group
+        unit := MERGED_UNIT(group, locked_prefix_words = len(group) - 1)
+
+        if not CAN_EMIT_WITHOUT_ACCENTUATION(unit):
+            accentuation := BEST_ACCENTUATION(unit, style)
+            if accentuation exists:
+                apply accentuation to the content-host side
+            else:
+                apply last resort to first syllable of the content host
+
+        emit group with '+'
+        return index after the content host
+
+    if function words are stranded before punctuation/end:
+        merge backward with the nearest previous content host
+        rollback any previous local accentuation on that host if needed
+        rebuild and emit the larger grouped unit
+
+    otherwise:
+        emit the function sequence as grouped material
+```
+
+### Consequence
+
+The grouped unit is resolved under the active mora mode, but the accent target
+remains on the content-host side. The function-word prefix is structurally
+locked.
+
+---
+
+## Candidate Selection
+
+### `BEST_ACCENTUATION(word_or_unit, style)`
+
+1. Build the list of legal candidates in priority order.
+2. Return the first candidate.
+3. If no candidate exists, return `None`.
+
+### Candidate Rules
+
+For a single word:
+
+- `LOB`
+  1. final superheavy
+  2. rightmost non-final heavy
+  3. final heavy
+
+- `SOB`
+  1. rightmost non-final heavy
+  2. final heavy
+
+For merged units:
+
+- skip locked pre-linker syllables when explicit-link locking applies
+- treat non-final heavy positions before a word boundary as eligible for coda gemination
+- allow final heavy vowel lengthening according to style priority
+
+---
+
+## Helper Predicate
+
+```text
+CAN_EMIT_WITHOUT_ACCENTUATION(unit):
+    return (mora_mode = bi) AND (unit should not attempt accentuation)
+```
+
+Equivalent reading:
+
+- `bi`: even unit => emit unchanged
+- `mono`: never use evenness as a completion shortcut
+
+---
+
+## Diphthong Restoration
+
+The prosody engine operates on the syllabified representation where adjacent
+vowels have already been split for unambiguous parsing.
+
+After line-level accentuation is finished, the engine restores diphthongal
+spellings while preserving any `~` added by prosody realization.
+
+Example:
+
+```text
+u.ʾā~  ->  uā~
+```
+
+---
+
+## Escaped Material and Punctuation
+
+- Escaped chunks pass through unchanged.
+- They delimit where forward merge may stop.
+- In explicit groups and function-word groups, punctuation/end-of-line is a
+  hard stop for any rightward growth.
+
+---
+
+## Compact Mathematical Summary
+
+Let $U$ be the structurally determined prosodic unit.
+
+In `bi`:
+
+$$
+	ext{if } \mu(U) \equiv 0 \pmod 2, \text{ emit } U \text{ unchanged}
+$$
+
+$$
+	ext{else try internal accentuation; if it fails, allow forward merge; if still unresolved, use last resort}
+$$
+
+In `mono`:
+
+$$
+	ext{ignore parity of } U
+$$
+
+$$
+	ext{try internal accentuation on } U; \text{ if it fails, use last resort directly}
+$$
+
+The style parameter then selects the target syllable according to `LOB` or
+`SOB`, subject to structural locks from explicit links and function-word
+grouping.
 
 **Input (`*_syl.txt`):**
 

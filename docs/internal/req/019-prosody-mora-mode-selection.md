@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-03-30
-updated: 2026-03-30
+updated: 2026-03-31
 related_adrs: 'ADR-034, ADR-008, ADR-009, ADR-020'
 implemented_by: 'CR-027'
 ---
@@ -19,9 +19,10 @@ with CLI surface `--mora-mode {bi|mono}` in both `prosmaker` and
 
 Mode `bi` shall remain the default and shall preserve the current bimoraic
 behavior exactly. Mode `mono` shall reuse the same accentuation candidate
-selection, legality rules, merge rules, and style handling (`lob` / `sob`),
-but it shall remove the current requirement that a standalone word or eligible
-prosodic unit must have an odd mora count before accentuation is attempted.
+selection, legality rules, structural grouping rules, and style handling
+(`lob` / `sob`), but it shall remove the current requirement that a standalone
+word or eligible prosodic unit must have an odd mora count before accentuation
+is attempted.
 
 This requirement exists to support comparison between the toolkit's bimoraic
 prosody model and an academic non-bimoraic accentuation workflow used in
@@ -81,11 +82,10 @@ interpretations:
       the set of allowed operations remains unchanged: vowel lengthening,
       non-final coda gemination, and existing last-resort onset/glottal
       accentuation.
-- [ ] Given `--mora-mode mono`, when internal accentuation is not available and
-      merge logic is reached, then merge handling, explicit-link locking, and
-      last-resort logic remain deterministic and otherwise aligned with current
-      policy, but the implementation must not rely on the old parity-based
-      "already resolved" shortcut.
+- [ ] Given `--mora-mode mono`, when internal accentuation is not available for
+      a structurally determined unit, then the engine does not forward-merge to
+      search for bimoraic resolution and instead falls through directly to the
+      existing last-resort onset/glottal accentuation.
 - [ ] Given prosody output written by `prosmaker`, when YAML front matter is
       emitted, then `metadata.options.mora_mode` is present with value `bi` or
       `mono`.
@@ -101,6 +101,10 @@ interpretations:
 - [ ] Given documentation is updated, when users read prosody and full-pipeline
       docs, then they can see the exact semantic difference between `bi` and
       `mono`, the default, and representative examples of changed output.
+- [ ] Given the demo corpus scripts are run, when prosody branches are
+      generated from the shared `corpus_syl.txt`, then they additionally
+      produce `corpus-mono-lob_*` artifacts for mono-mode LOB alongside the
+      existing bimoraic LOB and SOB branches.
 
 ---
 
@@ -127,6 +131,9 @@ interpretations:
   - prosody/front matter utilities as needed for option propagation
   - prosody self-tests and pytest coverage
   - user documentation for `prosmaker` and `fullprosmaker`
+      - `demo/akkapros/prosmaker/corpus-demo.ps1`
+      - `demo/akkapros/prosmaker/corpus-demo.sh`
+      - `demo/README.md`
 
 ---
 
@@ -143,10 +150,12 @@ interpretations:
   than scattering duplicated `if mode == ...` checks across multiple branches.
 - Explicit `+` links must keep pre-tail linked words structurally locked from
       accentuation in both modes, even when those words are content words.
-- Mono mode should replace parity as a completion shortcut with a clearer
-      condition based on structural eligibility and legal candidate availability.
+- Mono mode should replace parity as a completion shortcut with structural
+      grouping only: determine the unit, attempt internal accentuation, then fall
+      directly to last resort if no legal candidate exists.
 - Migration: none for existing users because `bi` remains default; update docs,
-  self-tests, and fixtures only where new `mono` coverage is introduced.
+  self-tests, fixtures, and demo wrappers only where new `mono` coverage is
+  introduced.
 
 # Related
 - Related ADRs: [ADR-034](../adr/034-prosody-mora-modes-and-explicit-link-locking.md),

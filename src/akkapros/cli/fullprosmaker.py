@@ -38,6 +38,7 @@ from akkapros.lib.frontmatter import (
 )
 from akkapros.lib.prosody import (
     AccentStyle,
+    MoraMode,
     ProsodyEngine,
     run_tests as run_prosody_tests,
     test_diphthong_restoration,
@@ -190,6 +191,7 @@ def run_pipeline(
     long_punct_patterns: list[str] | None,
     number_format: str,
     style: str,
+    mora_mode: str,
     only_last: bool,
     wpm: float,
     pause_ratio: float,
@@ -262,7 +264,8 @@ def run_pipeline(
 
     # 2) Prosody realization using library engine
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
-    engine = ProsodyEngine(style=style_map[style], only_last=only_last)
+    mora_mode_map = {'bi': MoraMode.BI, 'mono': MoraMode.MONO}
+    engine = ProsodyEngine(style=style_map[style], only_last=only_last, mora_mode=mora_mode_map[mora_mode])
     engine.process_file(str(syl_file), str(tilde_file), options=options)
     logger.info('Written file: %s', format_path_for_logging(tilde_file))
 
@@ -423,6 +426,8 @@ Version: {__version__}
     # Prosmaker options
     parser.add_argument('--prosody-style', dest='prosody_style', choices=['lob', 'sob'], default='lob',
                         help='Prosody realization accent style')
+    parser.add_argument('--mora-mode', choices=['bi', 'mono'], default='bi',
+                        help='Mora-mode gate for prosody realization attempts')
     parser.add_argument('--prosody-relax-last', dest='prosody_relax_last', action='store_true',
                         help='For explicit + links, allow prosody realization propagation before the last linked word')
 
@@ -560,6 +565,7 @@ Version: {__version__}
         long_punct_patterns=args.long_punct_pattern,
         number_format=args.number_format,
         style=args.prosody_style,
+        mora_mode=args.mora_mode,
         only_last=only_last,
         wpm=args.metrics_wpm,
         pause_ratio=args.metrics_pause_ratio,

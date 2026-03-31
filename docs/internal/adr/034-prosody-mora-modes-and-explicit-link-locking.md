@@ -2,7 +2,7 @@
 adr_id: ADR-034
 status: Proposed
 created: 2026-03-30
-updated: 2026-03-30
+updated: 2026-03-31
 superseded_by: null
 ---
 
@@ -12,7 +12,7 @@ superseded_by: null
 
 Keep the current bimoraic prosody behavior as the default, but add a second
 mono-mode that removes mora-parity gating while keeping the existing
-accentuation hierarchy and legality rules.
+accentuation hierarchy, legality rules, and structural grouping rules.
 At the same time, preserve explicit `+` links as user-imposed prosodic locks:
 words linked before the eligible tail must not be accentuated even if they are
 content words.
@@ -31,8 +31,8 @@ questions that are partially conflated in the current code:
 
 - whether a token or unit is structurally eligible for accentuation
 - whether the current mora mode imposes a parity gate before attempting it
-- whether merging should continue because no legal internal accentuation site
-  exists
+- whether the active mode permits forward merge beyond the structurally
+  determined unit
 
 ## Decision Drivers
 
@@ -64,8 +64,9 @@ Under this decision:
 - Explicit `+` chains continue to form mandatory prosodic groups.
 - Within an explicit `+` chain, words before the eligible tail remain
   ineligible for accentuation even when they are content words.
-- Merge traversal remains deterministic, but mono-mode must not rely on the
-  old parity-based notion that an even unit is already resolved.
+- In `mono`, the unit is determined by structural grouping only. If internal
+  accentuation fails, the engine falls directly to last resort and does not
+  forward-merge to search for bimoraic resolution.
 
 ## Pros and Cons of the Options
 
@@ -99,9 +100,9 @@ Under this decision:
   interpretable.
 - The implementation should replace parity-only `needs_accentuation` semantics
   with a clearer mode-aware eligibility or attempt policy.
-- Mono-mode changes the role of merge traversal: merge is no longer skipped
-  just because a unit is even; instead, merge decisions should depend on
-  structural constraints and the availability of legal internal accentuation.
+- Mono-mode removes forward merge as a repair strategy. Structural grouping
+  still determines the unit, but unresolved mono units fall directly to last
+  resort.
 - Tests must preserve all existing bimoraic expectations unchanged and add new
   mono-mode coverage.
 - User documentation must explain that mono-mode changes the trigger for
@@ -124,7 +125,8 @@ Under this decision:
   equivalent over reusing parity-only `needs_accentuation` naming.
 - Preserve explicit-link locking as a structural rule independent of parity.
 - Validate mono-mode against examples where a formerly even standalone word now
-  accentuates, while linked pre-tail words remain protected.
+  accentuates, where all-light words fall to last resort without forward
+  merge, and where linked pre-tail words remain protected.
 
 ## Reviewed By
 

@@ -1,10 +1,10 @@
 ---
 cr_id: CR-027
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-03-30
-updated: 2026-03-30
+updated: 2026-03-31
 implements: 'ADR-034, REQ-019'
 ---
 
@@ -16,9 +16,9 @@ Add a new CLI option `--mora-mode {bi|mono}` to both `prosmaker` and
 `fullprosmaker`, with `bi` as the default.
 
 `bi` must preserve the current behavior exactly. `mono` must keep the existing
-accentuation hierarchy, legality rules, explicit-link handling, and merge
-strategy, but it must stop requiring odd mora parity before accentuation is
-attempted for eligible standalone words and prosodic units.
+accentuation hierarchy, legality rules, and structural grouping rules, but it
+must stop requiring odd mora parity before accentuation is attempted for
+eligible standalone words and prosodic units.
 
 ---
 
@@ -50,6 +50,8 @@ be run in either mode without changing default behavior or forking logic.
 - Propagate `mora_mode` through YAML front matter option metadata.
 - Add self-tests and pytest coverage for the new mode.
 - Update user-facing documentation to describe both modes precisely.
+- Extend the demo corpus wrapper scripts so they also generate a
+  `corpus-mono-lob_*` branch from the shared syllabified corpus output.
 
 ## Not Included
 
@@ -97,9 +99,12 @@ Introduce a new mora-mode concept with these semantics:
   - same function-word exclusion and explicit-link grouping semantics
   - same explicit-link locking semantics for all linked words before the
     eligible tail
-  - same merge, rollback, and last-resort behavior
+  - same structural grouping and last-resort behavior
   - no odd-parity prerequisite before attempting accentuation on an eligible
     standalone word or eligible prosodic unit
+  - no forward merge in `mono`; after a unit is determined by grouping rules,
+    the engine tries internal accentuation and then falls directly to last
+    resort if no legal candidate exists
 
 Expected effect of `mono`:
 
@@ -178,6 +183,9 @@ Documentation contract:
 `docs/akkapros/prosmaker.md`
 `docs/akkapros/fullprosmaker.md`
 `docs/akkapros/prosody-realization-algorithm.md`
+- `demo/akkapros/prosmaker/corpus-demo.ps1`
+- `demo/akkapros/prosmaker/corpus-demo.sh`
+- `demo/README.md`
 `README.md` or `docs/GETTING_STARTED.md` if CLI option summaries are mirrored
 `tests/test_integration_append_frontmatter.py`
 `tests/test_selftests_cli.py`
@@ -188,26 +196,32 @@ additional pytest files for prosody/fullprosmaker CLI behavior as needed
 
 # Acceptance Criteria
 
-- [ ] `prosmaker` accepts `--mora-mode` with choices `bi` and `mono`.
-- [ ] `fullprosmaker` accepts `--mora-mode` with choices `bi` and `mono`.
-- [ ] Omitting `--mora-mode` keeps current behavior exactly.
-- [ ] Explicit `--mora-mode bi` is behaviorally identical to the current
+- [x] `prosmaker` accepts `--mora-mode` with choices `bi` and `mono`.
+- [x] `fullprosmaker` accepts `--mora-mode` with choices `bi` and `mono`.
+- [x] Omitting `--mora-mode` keeps current behavior exactly.
+- [x] Explicit `--mora-mode bi` is behaviorally identical to the current
       implementation.
-- [ ] `mono` removes the odd-parity prerequisite for eligible standalone words.
-- [ ] `mono` removes the odd-parity prerequisite for eligible merged units and
-      explicit linked units, while preserving their current grouping rules.
-- [ ] Explicit `+` linked words before the eligible tail remain ineligible for
+- [x] `mono` removes the odd-parity prerequisite for eligible standalone words.
+- [x] `mono` removes the odd-parity prerequisite for eligible explicit linked
+  units and structurally determined standalone units, while preserving
+  their current grouping rules.
+- [x] Explicit `+` linked words before the eligible tail remain ineligible for
   accentuation in both modes, even when they are content words.
-- [ ] Function-word handling is unchanged in both modes.
-- [ ] Existing `lob` / `sob` candidate selection and legality constraints are
+- [x] Function-word handling is unchanged in both modes.
+- [x] Existing `lob` / `sob` candidate selection and legality constraints are
       unchanged in both modes.
-- [ ] Prosody front matter records `metadata.options.mora_mode`.
-- [ ] Full-pipeline outputs preserve `metadata.options.mora_mode` through
+- [x] `mono` does not forward-merge unresolved units; it tries internal
+  accentuation on the structurally determined unit and then falls directly
+  to last resort.
+- [x] Prosody front matter records `metadata.options.mora_mode`.
+- [x] Full-pipeline outputs preserve `metadata.options.mora_mode` through
       option propagation.
-- [ ] Existing self-tests and pytest tests pass without rewriting their current
+- [x] Existing self-tests and pytest tests pass without rewriting their current
       expected bi-mode outputs.
-- [ ] New self-tests and pytest cases cover mono-mode behavior.
-- [ ] User documentation explains the exact difference between `bi` and `mono`.
+- [x] New self-tests and pytest cases cover mono-mode behavior.
+- [x] User documentation explains the exact difference between `bi` and `mono`.
+- [x] Demo corpus wrapper scripts additionally generate a `corpus-mono-lob_*`
+  branch from the shared `corpus_syl.txt` output.
 
 ---
 
@@ -215,15 +229,14 @@ additional pytest files for prosody/fullprosmaker CLI behavior as needed
 
 Possible issues:
 
-- If parity gating is removed in only one branch, standalone words and merged
-  units may diverge semantically.
+- If parity gating is removed in only one branch, standalone words and explicit
+  groups may diverge semantically.
 - If `needs_accentuation` remains parity-only while CLI introduces `mono`, the
   new option may appear to work in some paths and silently fail in others.
 - Explicit `+` groups have special locking behavior; mono-mode must not break
   that contract while removing parity gating.
 - Mono mode can make the old "already resolved because even" shortcut invalid,
-  so merge traversal and fallback branches must be audited for hidden parity
-  assumptions.
+  so any hidden forward-merge assumptions must be removed from mono paths.
 - Front matter inheritance must not drop `mora_mode`, or downstream metrics and
   printed artifacts may become ambiguous.
 - Documentation must not imply that `mono` changes accent site priorities; it
@@ -238,9 +251,11 @@ Unit/self-tests:
 - keep all current bi-mode expectations exactly as they are
 - add mono-mode cases for even-mora standalone words that now accentuate
 - add mono-mode cases for odd-mora standalone words that still accentuate
-- add mono-mode cases for merged units and explicit `+` groups to confirm that
-  only the parity prerequisite changes while pre-tail linked words remain
-  locked from accentuation
+- add mono-mode cases showing that unresolved standalone words and explicit
+  `+` groups fall directly to last resort without forward merge, while pre-tail
+  linked words remain locked from accentuation
+- add regression coverage for function-word groups where the final content host
+  must carry the grouped-unit accentuation or last-resort repair
 - add CLI parsing tests for accepted and rejected `--mora-mode` values
 
 Integration tests:
@@ -281,31 +296,53 @@ without migrating existing users.
 
 ## Implementation
 
-- [ ] Add `--mora-mode` to `prosmaker`.
-- [ ] Add `--mora-mode` to `fullprosmaker` and pass it to the prosody stage.
-- [ ] Introduce a centralized mode-aware accentuation eligibility rule.
-- [ ] Apply that rule consistently to standalone words, merged units, and
+- [x] Add `--mora-mode` to `prosmaker`.
+- [x] Add `--mora-mode` to `fullprosmaker` and pass it to the prosody stage.
+- [x] Introduce a centralized mode-aware accentuation eligibility rule.
+- [x] Apply that rule consistently to standalone words, merged units, and
       explicit linked-unit resolution.
-- [ ] Record `mora_mode` in front matter options.
+- [x] Record `mora_mode` in front matter options.
 
 ## Tests
 
-- [ ] Preserve and re-run all existing bi-mode expectations unchanged.
-- [ ] Add mono-mode self-tests to prosody library coverage.
-- [ ] Add pytest coverage for CLI parsing and front matter propagation.
-- [ ] Add regression coverage for representative mono-mode output changes.
+- [x] Preserve and re-run all existing bi-mode expectations unchanged.
+- [x] Add mono-mode self-tests to prosody library coverage.
+- [x] Add pytest coverage for CLI parsing and front matter propagation.
+- [x] Add regression coverage for representative mono-mode output changes.
+- [x] Update the demo corpus wrapper scripts to emit `corpus-mono-lob_*`
+  artifacts from the shared syllabified corpus.
 
 ## Documentation
 
-- [ ] Update `prosmaker` CLI docs.
-- [ ] Update `fullprosmaker` CLI docs.
-- [ ] Update prosody algorithm docs to explain `bi` versus `mono`.
-- [ ] Add at least one front matter example showing `metadata.options.mora_mode`.
+- [x] Update `prosmaker` CLI docs.
+- [x] Update `fullprosmaker` CLI docs.
+- [x] Update prosody algorithm docs to explain `bi` versus `mono`.
+- [x] Add at least one front matter example showing `metadata.options.mora_mode`.
+- [x] Update demo documentation to describe the additional mono-mode LOB demo
+  branch.
 
 ## Review
 
-- [ ] Verify implementation matches [ADR-034](../adr/034-prosody-mora-modes-and-explicit-link-locking.md).
-- [ ] Verify backward compatibility of default behavior.
+- [x] Verify implementation matches [ADR-034](../adr/034-prosody-mora-modes-and-explicit-link-locking.md).
+- [x] Verify backward compatibility of default behavior.
+
+Implemented on 2026-03-30.
+
+Corrected on 2026-03-31 to align mono-mode semantics with the accepted model:
+
+- mono mode determines units from structural grouping only
+- mono mode does not forward-merge unresolved units
+- mono mode falls directly to last resort when no internal candidate exists
+- a grouped function-word bug was found and corrected: the final content host
+  in a function-word group could be emitted without resolving the grouped unit
+  prosodically; grouped function-word units are now resolved under the active
+  mora mode with the function-word prefix locked and the last content word as
+  the eligible host
+
+Verification run:
+
+- `pytest tests/test_prosody_mora_mode.py tests/test_integration_append_frontmatter.py tests/test_metrics_stats.py tests/test_selftests_cli.py tests/test_integration.py -q`
+- Result: `56 passed`
 
 ---
 

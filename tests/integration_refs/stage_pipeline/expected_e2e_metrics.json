@@ -1,5 +1,5 @@
 {
-  "file": "...\\cr017_stage\\e2e_tilde.txt",
+  "file": "...\\stage\\e2e_tilde.txt",
   "original": {
     "stats": {
       "syllable_statistics": {
@@ -137,12 +137,12 @@
             "percent": 4.3478260869565215
           },
           "CVV": {
-            "count": 2,
-            "percent": 8.695652173913043
+            "count": 1,
+            "percent": 4.3478260869565215
           },
           "CVV:": {
-            "count": 2,
-            "percent": 8.695652173913043
+            "count": 3,
+            "percent": 13.043478260869565
           },
           "VC:": {
             "count": 1,
@@ -156,8 +156,8 @@
         "CVC": 5,
         "CV": 9,
         "VV:C": 1,
-        "CVV": 2,
-        "CVV:": 2,
+        "CVV": 1,
+        "CVV:": 3,
         "VC:": 1
       },
       "syllable_percentages": {
@@ -165,27 +165,27 @@
         "CVC": 21.73913043478261,
         "CV": 39.130434782608695,
         "VV:C": 4.3478260869565215,
-        "CVV": 8.695652173913043,
-        "CVV:": 8.695652173913043,
+        "CVV": 4.3478260869565215,
+        "CVV:": 13.043478260869565,
         "VC:": 4.3478260869565215
       },
       "total_syllables": 23,
-      "vowel_morae_total": 31,
+      "vowel_morae_total": 32,
       "mora_stats": {
-        "mean": 1.6956521739130435,
-        "std": 0.8756702684071968,
-        "total": 39
+        "mean": 1.7391304347826086,
+        "std": 0.91539317456032,
+        "total": 40
       },
       "mora_statistics": {
         "mean_morae_per_syllable": {
-          "mean": 1.6956521739130435,
-          "stddev": 0.8756702684071968
+          "mean": 1.7391304347826086,
+          "stddev": 0.91539317456032
         },
         "mean_morae_per_word": {
-          "mean": 5.571428571428571,
-          "stddev": 0.7867957924694432
+          "mean": 5.714285714285714,
+          "stddev": 0.7559289460184545
         },
-        "total_morae": 39
+        "total_morae": 40
       },
       "word_stats": {
         "total_words": 7,
@@ -194,8 +194,8 @@
           "std": 0.4879500364742666
         },
         "morae_per_word": {
-          "mean": 5.571428571428571,
-          "std": 0.7867957924694432
+          "mean": 5.714285714285714,
+          "std": 0.7559289460184545
         }
       },
       "word_statistics": {
@@ -212,16 +212,16 @@
       }
     },
     "acoustic": {
-      "percent_v": 79.48717948717949,
-      "percent_v_articulate": 79.48717948717949,
-      "percent_v_speech": 58.87939221272554,
-      "delta_c": 0.9704632614370015,
-      "mean_interval": 1.1428571428571428,
-      "varco_c": 84.91553537573763,
-      "delta_c_seconds": 0.041171168667024305,
-      "delta_c_mora": 0.9704632614370015,
-      "mean_c_seconds": 0.048484848484848485,
-      "mean_c_mora": 1.1428571428571428
+      "percent_v": 80.0,
+      "percent_v_articulate": 80.0,
+      "percent_v_speech": 59.25925925925925,
+      "delta_c": 1.0202966681339751,
+      "mean_interval": 1.1785714285714286,
+      "varco_c": 86.57062638712516,
+      "delta_c_seconds": 0.042203180363723516,
+      "delta_c_mora": 1.0202966681339751,
+      "mean_c_seconds": 0.04875,
+      "mean_c_mora": 1.1785714285714286
     },
     "speech": {
       "wpm": 165,
@@ -229,7 +229,7 @@
       "sps_speech": 9.035714285714285,
       "sps_articulation": 13.9010989010989,
       "syllable_duration": 0.07193675889328063,
-      "mora_duration": 0.04242424242424243,
+      "mora_duration": 0.041363636363636366,
       "word_duration": 0.36363636363636365
     },
     "pause_metrics": {
@@ -259,15 +259,15 @@
       "initial_long_punctuation_percent": 66.66666666666666,
       "short_punct_weight": 1.0,
       "initial_long_punct_weight": 2.0,
-      "short_mora_ratio_initial": 3.500000000000001,
+      "short_mora_ratio_initial": 3.5897435897435903,
       "corrected_short_mora_multiple": 4,
-      "corrected_short_punctuation_duration": 0.1696969696969697,
-      "corrected_long_punctuation_duration": 0.27575757575757587,
-      "corrected_short_punctuation_contribution": 0.014756258234519105,
-      "corrected_long_punctuation_contribution": 0.023978919631093554,
-      "corrected_short_punctuation_percent": 38.09523809523809,
-      "corrected_long_punctuation_percent": 61.904761904761905,
-      "corrected_long_punct_weight": 1.6250000000000004,
+      "corrected_short_punctuation_duration": 0.16545454545454547,
+      "corrected_long_punctuation_duration": 0.2800000000000001,
+      "corrected_short_punctuation_contribution": 0.014387351778656127,
+      "corrected_long_punctuation_contribution": 0.02434782608695653,
+      "corrected_short_punctuation_percent": 37.14285714285713,
+      "corrected_long_punctuation_percent": 62.857142857142854,
+      "corrected_long_punct_weight": 1.6923076923076927,
       "total_pause_time": 0.03873517786561266,
       "pause_time_per_syllable": 0.03873517786561266,
       "short_event_count": 2,
@@ -275,15 +275,42 @@
     }
   },
   "accentuation_stats": {
-    "accentuated_syllables": 4,
-    "accentuation_rate": 17.391304347826086,
+    "accentuated_syllables": 5,
+    "accentuation_rate": 21.73913043478261,
     "accentuation_types": {
-      "VV:C": 1,
       "VC:": 1,
-      "CVV:": 2
+      "VV:C": 1,
+      "CVV:": 3
     },
     "merged_words": 2,
     "merged_units": 1,
     "avg_unit_size": 2.0
+  },
+  "frontmatter": {
+    "package": {
+      "name": "akkapros",
+      "version": "2.0.0"
+    },
+    "pipeline": "pipeline",
+    "step": "metrics",
+    "file": {
+      "id": "4fb3f663-700e-5061-a067-955e4dea51fe",
+      "title": "L I.2 Poem of Creation (*Enūma eliš*) SB II",
+      "format": "metrics",
+      "version": "1.0.0",
+      "date": "2026-03-31"
+    },
+    "metadata": {
+      "input_file_id": "2a174db9-6e77-5201-83af-e95f248ad56b",
+      "options": {
+        "style": "lob",
+        "mora_mode": "bi",
+        "table": true,
+        "json": true,
+        "wpm": 165,
+        "pause_ratio": 35,
+        "long_punct_weight": 2.0
+      }
+    }
   }
 }

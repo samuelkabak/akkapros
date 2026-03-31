@@ -103,9 +103,15 @@ Like standalone `metricalc.py`, full-pipeline metrics outputs do not republish
 | Option | Description |
 |--------|-------------|
 | `--prosody-style {lob,sob}` | Accent style (default: `lob`) |
+| `--mora-mode {bi,mono}` | Accentuation trigger mode passed to the prosody stage (default: `bi`) |
 | `--prosody-relax-last` | Allow prosody realization propagation before last linked word |
 
 **Note:** Diphthong restoration is always applied automatically in the prosody realization stage. The final `_tilde.txt` pivot keeps the diphthong memory marker `¨`, while printer outputs remove it only at display time.
+
+`--mora-mode mono` is the academic comparison mode: it removes the bimoraic
+odd-parity prerequisite for accentuation attempts while keeping the same
+accent-site hierarchy and explicit-link locking. In this mode, unresolved
+units do not forward-merge; they fall directly to last resort.
 
 ### Metricalc Options
 
@@ -172,6 +178,14 @@ This generates:
       -p erra \
       --outdir outputs \
       --prosody-style lob \
+      --metrics-table
+
+### Run with Mono Mora Mode
+
+    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+      -p erra-mono \
+      --outdir outputs \
+      --mora-mode mono \
       --metrics-table
 
 ### Run with Machine-Readable Metrics (JSON)
@@ -244,6 +258,10 @@ The validator is gatekeeper-only: it never rewrites input files and never perfor
 This command inherits the same reduced metadata contract as the individual
 stages: `--title` feeds the syllabifier title override, and
 `--explicit-link-count` feeds the metrics override.
+
+Front matter for prosody and downstream outputs preserves
+`metadata.options.mora_mode` so artifact consumers can distinguish `bi` from
+`mono` runs.
 
 Escaped chunks are preserved through the full pipeline using CR-005 syntax:
 

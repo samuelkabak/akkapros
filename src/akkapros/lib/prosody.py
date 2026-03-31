@@ -72,6 +72,11 @@ class AccentStyle(Enum):
     SOB = "sob"
 
 
+class MoraMode(Enum):
+    BI = "bi"
+    MONO = "mono"
+
+
 class SyllableType(Enum):
     CV = 1
     V = 1
@@ -207,6 +212,13 @@ class Word:
     @property
     def needs_accentuation(self) -> bool:
         return self.accentuated_morae % 2 == 1
+
+    def should_attempt_accentuation(self, mora_mode: MoraMode) -> bool:
+        if self.is_function_word:
+            return False
+        if mora_mode == MoraMode.MONO:
+            return True
+        return self.needs_accentuation
     
     def has_heavy_syllable(self) -> bool:
         """Check if word has any heavy syllable (CVC, CVV, etc.)"""
@@ -339,6 +351,11 @@ class MergedUnit:
     @property
     def needs_accentuation(self) -> bool:
         return self.morae % 2 == 1
+
+    def should_attempt_accentuation(self, mora_mode: MoraMode) -> bool:
+        if mora_mode == MoraMode.MONO:
+            return True
+        return self.needs_accentuation
     
     def is_syllable_final_in_word(self, syl_idx: int) -> bool:
         return syl_idx in self.word_boundaries
@@ -531,9 +548,15 @@ def postprocess_restore_diphthongs(output_lines: List[str]) -> List[str]:
 #------------------------
 
 class ProsodyEngine:
-    def __init__(self, style: AccentStyle = AccentStyle.SOB, only_last: bool = True):
+    def __init__(
+        self,
+        style: AccentStyle = AccentStyle.SOB,
+        only_last: bool = True,
+        mora_mode: MoraMode = MoraMode.BI,
+    ):
         self.style = style
         self.only_last = only_last
+        self.mora_mode = mora_mode
         self.stats = {
             'words': 0,
             'function_words': 0,
@@ -550,6 +573,9 @@ class ProsodyEngine:
                 'geminate_glottal': 0
             }
         }
+
+    def _can_emit_without_accentuation(self, unit: Union[Word, MergedUnit]) -> bool:
+        return self.mora_mode == MoraMode.BI and not unit.should_attempt_accentuation(self.mora_mode)
     
     def _update_last_resort_stats(self, syllable: Syllable):
         self.stats['last_resort'] += 1
@@ -666,7 +692,7 @@ class ProsodyEngine:
 
                 def resolve_group(words_group: List[Word]) -> Tuple[bool, bool]:
                     unit = MergedUnit(words_group, locked_prefix_words=explicit_tail_start)
-                    if not unit.needs_accentuation:
+                    if self._can_emit_without_accentuation(unit):
                         return True, False
                     accentuation = self._get_explicit_group_accentuation(unit)
                     if accentuation:
@@ -686,6 +712,17 @@ class ProsodyEngine:
                 merged_group = list(forced_group)
                 resolved, _ = resolve_group(merged_group)
                 if resolved:
+                    append_group(merged_group)
+                    i = j + 1
+                    continue
+
+                if self.mora_mode == MoraMode.MONO:
+                    # In mono mode, explicit groups are resolved only by their
+                    # existing structural grouping. If no internal candidate is
+                    # legal, fall back directly on the last linked word.
+                    last_word = merged_group[-1]
+                    if last_word.syllables and last_word.syllables[0].last_resort_accentuation():
+                        self._update_last_resort_stats(last_word.syllables[0])
                     append_group(merged_group)
                     i = j + 1
                     continue
@@ -744,6 +781,17 @@ class ProsodyEngine:
                     content_word = tokens[j]
                     func_group.append(content_word)
                     j += 1
+
+                    unit = MergedUnit(func_group, locked_prefix_words=len(func_group) - 1)
+                    if not self._can_emit_without_accentuation(unit):
+                        accentuation = unit.get_best_accentuation(self.style)
+                        if accentuation:
+                            unit.apply_accentuation(accentuation)
+                            self.stats['words_accentuated'] += 1
+                            self.stats['accentuated_syllables'] += 1
+                            self.stats['accentuation_types'][accentuation['type']] += 1
+                        elif content_word.syllables and content_word.syllables[0].last_resort_accentuation():
+                            self._update_last_resort_stats(content_word.syllables[0])
                     
                     # Add all words with underscores
                     for k, w in enumerate(func_group):
@@ -807,8 +855,8 @@ class ProsodyEngine:
             
             # ===== CONTENT WORD HANDLING =====
             
-            # Check if word is already even
-            if not word.needs_accentuation:
+            # In bimoraic mode, even-mora words emit unchanged.
+            if self._can_emit_without_accentuation(word):
                 result_parts.append(word.get_text())
                 i += 1
                 continue
@@ -820,6 +868,13 @@ class ProsodyEngine:
                 self.stats['words_accentuated'] += 1
                 self.stats['accentuated_syllables'] += 1
                 self.stats['accentuation_types'][accentuation['type']] += 1
+                result_parts.append(word.get_text())
+                i += 1
+                continue
+
+            if self.mora_mode == MoraMode.MONO:
+                if word.syllables[-1].last_resort_accentuation():
+                    self._update_last_resort_stats(word.syllables[-1])
                 result_parts.append(word.get_text())
                 i += 1
                 continue
@@ -837,7 +892,7 @@ class ProsodyEngine:
                 merged.append(next_token)
                 unit = MergedUnit(merged)
                 
-                if not unit.needs_accentuation:
+                if self._can_emit_without_accentuation(unit):
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
@@ -881,6 +936,7 @@ class ProsodyEngine:
     def process_file(self, input_file: str, output_file: str, *, options: dict | None = None):
         LOGGER.info('Source file: %s', format_path_for_logging(input_file))
         LOGGER.info('Style: %s', self.style.value.upper())
+        LOGGER.info('Mora mode: %s', self.mora_mode.value)
         LOGGER.info(
             'Explicit + mode: %s',
             'only-last' if self.only_last else 'allow-propagation',
@@ -1119,8 +1175,8 @@ def run_tests():
             'name': 'Multiple hyphens and enclitics',
             'input': 'ī·tam·mi¦a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī·tam~·mi a·na+kak·kī·šu — lit~·pa·tā i·mat+mū·ti',
-                'sob': 'ī·tam~·mi a·na+kak·kī·šu — lit~·pa·tā i·mat+mū·ti'
+                'lob': 'ī·tam~·mi a·na+kak·kī~·šu — lit~·pa·tā i·mat+mū·ti',
+                'sob': 'ī·tam~·mi a·na+kak·kī~·šu — lit~·pa·tā i·mat+mū·ti'
             }
         },
 
@@ -1297,7 +1353,339 @@ def run_tests():
                 )
 
     log_selftest_summary(logger, 'Prosody relax', relaxed_passed, relaxed_total)
+
+    mono_cases = [
+        {
+            'name': 'Mono mode accentuates even mora word with heavy candidate',
+            'input': 'ip-pa-lis-ma¦',
+            'expected': {
+                'lob': 'ip-pa-lis~-ma',
+                'sob': 'ip-pa-lis~-ma',
+            },
+        },
+        {
+            'name': 'Mono mode skips forward merge and uses last resort on light word',
+            'input': 'ba·na¦šar·ri¦',
+            'expected': {
+                'lob': 'ba·n~a šar~·ri',
+                'sob': 'ba·n~a šar~·ri',
+            },
+        },
+        {
+            'name': 'Mono mode keeps explicit pre-tail word locked before last resort',
+            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'expected': {
+                'lob': 'bā·nû+~a·na·ku šar~·ri',
+                'sob': 'bā·nû+~a·na·ku šar~·ri',
+            },
+        },
+    ]
+
+    mono_total = len(mono_cases) * 2
+    mono_passed = 0
+    mono_index = 0
+    for style in [AccentStyle.LOB, AccentStyle.SOB]:
+        engine = ProsodyEngine(style=style, mora_mode=MoraMode.MONO)
+        category = f'Prosody mono/{style.value.upper()}'
+        for test in mono_cases:
+            mono_index += 1
+            tokens = parse_syl_line(test['input'])
+            result = engine.accentuation_line(tokens)
+            expected = test['expected'][style.value]
+
+            result = ' '.join(result.split())
+            expected = ' '.join(expected.split())
+            label = format_selftest_label(mono_index, mono_total, test['name'])
+
+            if result == expected:
+                mono_passed += 1
+                total_passed += 1
+                log_selftest_result(logger, True, category, label)
+            else:
+                all_passed = False
+                log_selftest_result(
+                    logger,
+                    False,
+                    category,
+                    label,
+                    details=[
+                        f'input={test["input"]!r}',
+                        f'expected={expected!r}',
+                        f'got={result!r}',
+                    ],
+                )
+
+    log_selftest_summary(logger, 'Prosody mono', mono_passed, mono_total)
+    
+    matrix_cases = [
+        {
+            'name': 'Scenario 01 one word alone mora even',
+            'input': 'ap·sî¦',
+            'structure': 'single',
+            'word_count': 1,
+            'group_parity': 'even',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'ap·sî', 'mono': 'ap·sî~'},
+                'sob': {'bi': 'ap·sî', 'mono': 'ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 02 one word alone mora odd',
+            'input': 'i·lī¦',
+            'structure': 'single',
+            'word_count': 1,
+            'group_parity': 'odd',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'i·lī~', 'mono': 'i·lī~'},
+                'sob': {'bi': 'i·lī~', 'mono': 'i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 03 function group mora even last odd',
+            'input': 'iš·tu¦i·lī¦',
+            'structure': 'function',
+            'word_count': 2,
+            'group_parity': 'even',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'iš·tu+i·lī', 'mono': 'iš·tu+i·lī~'},
+                'sob': {'bi': 'iš·tu+i·lī', 'mono': 'iš·tu+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 04 function group mora even last even',
+            'input': 'a·na¦ap·sî¦',
+            'structure': 'function',
+            'word_count': 2,
+            'group_parity': 'even',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'a·na+ap·sî', 'mono': 'a·na+ap·sî~'},
+                'sob': {'bi': 'a·na+ap·sî', 'mono': 'a·na+ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 05 function group mora odd last odd',
+            'input': 'a·na¦i·lī¦',
+            'structure': 'function',
+            'word_count': 2,
+            'group_parity': 'odd',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'a·na+i·lī~', 'mono': 'a·na+i·lī~'},
+                'sob': {'bi': 'a·na+i·lī~', 'mono': 'a·na+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 06 function group mora odd last even',
+            'input': 'iš·tu¦ap·sî¦',
+            'structure': 'function',
+            'word_count': 2,
+            'group_parity': 'odd',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'iš·tu+ap·sî~', 'mono': 'iš·tu+ap·sî~'},
+                'sob': {'bi': 'iš·tu+ap~·sî', 'mono': 'iš·tu+ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 07 explicit group mora even last odd',
+            'input': 'u·lam·min+i·lī¦',
+            'structure': 'explicit',
+            'word_count': 2,
+            'group_parity': 'even',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'u·lam·min+i·lī', 'mono': 'u·lam·min+i·lī~'},
+                'sob': {'bi': 'u·lam·min+i·lī', 'mono': 'u·lam·min+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 08 explicit group mora even last even',
+            'input': 'a·nan·ta+ap·sî¦',
+            'structure': 'explicit',
+            'word_count': 2,
+            'group_parity': 'even',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'a·nan·ta+ap·sî', 'mono': 'a·nan·ta+ap·sî~'},
+                'sob': {'bi': 'a·nan·ta+ap·sî', 'mono': 'a·nan·ta+ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 09 explicit group mora odd last odd',
+            'input': 'a·nan·ta+i·lī¦',
+            'structure': 'explicit',
+            'word_count': 2,
+            'group_parity': 'odd',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'a·nan·ta+i·lī~', 'mono': 'a·nan·ta+i·lī~'},
+                'sob': {'bi': 'a·nan·ta+i·lī~', 'mono': 'a·nan·ta+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 10 explicit group mora odd last even',
+            'input': 'u·lam·min+ap·sî¦',
+            'structure': 'explicit',
+            'word_count': 2,
+            'group_parity': 'odd',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'u·lam·min+ap·sî~', 'mono': 'u·lam·min+ap·sî~'},
+                'sob': {'bi': 'u·lam·min+ap~·sî', 'mono': 'u·lam·min+ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 11 function plus explicit group even last odd',
+            'input': 'a·na+u·lam·min+i·lī¦',
+            'structure': 'function_plus_explicit',
+            'word_count': 3,
+            'group_parity': 'even',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'a·na+u·lam·min+i·lī', 'mono': 'a·na+u·lam·min+i·lī~'},
+                'sob': {'bi': 'a·na+u·lam·min+i·lī', 'mono': 'a·na+u·lam·min+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 12 function plus explicit group even last even',
+            'input': 'a·na+a·nan·ta+ap·sî¦',
+            'structure': 'function_plus_explicit',
+            'word_count': 3,
+            'group_parity': 'even',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'a·na+a·nan·ta+ap·sî', 'mono': 'a·na+a·nan·ta+ap·sî~'},
+                'sob': {'bi': 'a·na+a·nan·ta+ap·sî', 'mono': 'a·na+a·nan·ta+ap~·sî'},
+            },
+        },
+        {
+            'name': 'Scenario 13 function plus explicit group odd last odd',
+            'input': 'a·na+a·nan·ta+i·lī¦',
+            'structure': 'function_plus_explicit',
+            'word_count': 3,
+            'group_parity': 'odd',
+            'last_word_parity': 'odd',
+            'expected': {
+                'lob': {'bi': 'a·na+a·nan·ta+i·lī~', 'mono': 'a·na+a·nan·ta+i·lī~'},
+                'sob': {'bi': 'a·na+a·nan·ta+i·lī~', 'mono': 'a·na+a·nan·ta+i·lī~'},
+            },
+        },
+        {
+            'name': 'Scenario 14 function plus explicit group odd last even',
+            'input': 'a·na+u·lam·min+ap·sî¦',
+            'structure': 'function_plus_explicit',
+            'word_count': 3,
+            'group_parity': 'odd',
+            'last_word_parity': 'even',
+            'expected': {
+                'lob': {'bi': 'a·na+u·lam·min+ap·sî~', 'mono': 'a·na+u·lam·min+ap·sî~'},
+                'sob': {'bi': 'a·na+u·lam·min+ap~·sî', 'mono': 'a·na+u·lam·min+ap~·sî'},
+            },
+        },
+    ]
+
+    def _parity_label(morae: int) -> str:
+        return 'even' if morae % 2 == 0 else 'odd'
+
+    def _matrix_shape(tokens: List[Union[Word, str]]) -> Dict[str, Union[int, str, bool]]:
+        words = [token for token in tokens if isinstance(token, Word)]
+        explicit_links = sum(1 for token in tokens if token == WORD_LINKER)
+        structure = 'single'
+        if len(words) == 2 and explicit_links == 0 and words[0].is_function_word:
+            structure = 'function'
+        elif len(words) == 2 and explicit_links == 1:
+            structure = 'explicit'
+        elif len(words) == 3 and explicit_links == 2 and words[0].is_function_word:
+            structure = 'function_plus_explicit'
+
+        return {
+            'structure': structure,
+            'word_count': len(words),
+            'group_parity': _parity_label(sum(word.morae for word in words)),
+            'last_word_parity': _parity_label(words[-1].morae),
+        }
+
+    matrix_coherence_total = len(matrix_cases)
+    matrix_coherence_passed = 0
+    for index, test in enumerate(matrix_cases, start=1):
+        tokens = parse_syl_line(test['input'])
+        observed = _matrix_shape(tokens)
+        expected_shape = {
+            'structure': test['structure'],
+            'word_count': test['word_count'],
+            'group_parity': test['group_parity'],
+            'last_word_parity': test['last_word_parity'],
+        }
+        label = format_selftest_label(index, matrix_coherence_total, f"Coherence {test['name']}")
+
+        if observed == expected_shape:
+            matrix_coherence_passed += 1
+            total_passed += 1
+            log_selftest_result(logger, True, 'Prosody matrix coherence', label)
+        else:
+            all_passed = False
+            log_selftest_result(
+                logger,
+                False,
+                'Prosody matrix coherence',
+                label,
+                details=[
+                    f'input={test["input"]!r}',
+                    f'expected_shape={expected_shape!r}',
+                    f'observed_shape={observed!r}',
+                ],
+            )
+
+    log_selftest_summary(logger, 'Prosody matrix coherence', matrix_coherence_passed, matrix_coherence_total)
+
+    matrix_total = len(matrix_cases) * 4
+    matrix_passed = 0
+    matrix_index = 0
+    for style in [AccentStyle.LOB, AccentStyle.SOB]:
+        for mora_mode in [MoraMode.BI, MoraMode.MONO]:
+            engine = ProsodyEngine(style=style, mora_mode=mora_mode)
+            category = f'Prosody matrix/{style.value.upper()}/{mora_mode.value.upper()}'
+            combo_passed = 0
+            for test in matrix_cases:
+                matrix_index += 1
+                tokens = parse_syl_line(test['input'])
+                result = engine.accentuation_line(tokens)
+                expected = test['expected'][style.value][mora_mode.value]
+
+                result = ' '.join(result.split())
+                expected = ' '.join(expected.split())
+                label = format_selftest_label(matrix_index, matrix_total, test['name'])
+
+                if result == expected:
+                    combo_passed += 1
+                    matrix_passed += 1
+                    total_passed += 1
+                    log_selftest_result(logger, True, category, label)
+                else:
+                    all_passed = False
+                    log_selftest_result(
+                        logger,
+                        False,
+                        category,
+                        label,
+                        details=[
+                            f'input={test["input"]!r}',
+                            f'expected={expected!r}',
+                            f'got={result!r}',
+                        ],
+                    )
+
+            log_selftest_summary(logger, category, combo_passed, len(matrix_cases))
+
+    log_selftest_summary(logger, 'Prosody matrix', matrix_passed, matrix_total)
     total_cases = (len(test_cases) * 2) + relaxed_total
+    total_cases += mono_total
+    total_cases += matrix_coherence_total
+    total_cases += matrix_total
     log_selftest_summary(logger, 'Prosody', total_passed, total_cases)
     
     return all_passed

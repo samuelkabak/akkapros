@@ -19,9 +19,10 @@ INPUT_ATF = INTREF_DIR / "L_I.2_Poem_of_Creation_SB_II.atf"
 INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 
 # Gold-standard values from known-good output for this reference sample.
-GOLD_VARCOC_ACCENTUATED = 84.92
-GOLD_ACCENTUATION_RATE = 17.39
+GOLD_VARCOC_ACCENTUATED = 86.57
+GOLD_ACCENTUATION_RATE = 21.74
 GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma : ti·¨ā~m·tu pi·tiq·ša"
+GOLD_MONO_TILDE_SAMPLE_LINE = "tā·ḫā~·za ik~·ta·ṣar : a·na+i·lī~ nip·rī~·ša"
 
 
 def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
@@ -269,6 +270,112 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         _assert_matches_reference(generated, reference)
 
 
+def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> None:
+    """Run each stage CLI in sequence with prosody mono mode and pin outputs."""
+    outdir = tmp_path / "stage_pipeline_mono"
+    outdir.mkdir(parents=True, exist_ok=True)
+    prefix = "e2e_mono"
+
+    _run_cli("akkapros.cli.atfparser", str(INPUT_ATF), "-p", prefix, "--outdir", str(outdir))
+    proc_file = outdir / f"{prefix}_proc.txt"
+    orig_file = outdir / f"{prefix}_orig.txt"
+    trans_file = outdir / f"{prefix}_trans.txt"
+    _assert_non_empty_text_file(proc_file)
+    _assert_non_empty_text_file(orig_file)
+    _assert_non_empty_text_file(trans_file)
+    _assert_has_yaml_frontmatter(proc_file)
+    _assert_has_yaml_frontmatter(orig_file)
+    _assert_has_yaml_frontmatter(trans_file)
+
+    _run_cli("akkapros.cli.syllabifier", str(proc_file), "-p", prefix, "--outdir", str(outdir))
+    syl_file = outdir / f"{prefix}_syl.txt"
+    _assert_non_empty_text_file(syl_file)
+    _assert_has_yaml_frontmatter(syl_file)
+
+    _run_cli(
+        "akkapros.cli.prosmaker",
+        str(syl_file),
+        "-p",
+        prefix,
+        "--outdir",
+        str(outdir),
+        "--style",
+        "lob",
+        "--mora-mode",
+        "mono",
+    )
+    tilde_file = outdir / f"{prefix}_tilde.txt"
+    _assert_non_empty_text_file(tilde_file)
+    _assert_has_yaml_frontmatter(tilde_file)
+    tilde_frontmatter, tilde_body = split_frontmatter(_read_text(tilde_file))
+    assert tilde_frontmatter is not None
+    assert tilde_frontmatter["metadata"]["options"]["mora_mode"] == "mono"
+    assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
+
+    _run_cli(
+        "akkapros.cli.metricalc",
+        str(tilde_file),
+        "-p",
+        prefix,
+        "--outdir",
+        str(outdir),
+        "--table",
+        "--json",
+    )
+    metrics_txt = outdir / f"{prefix}_metrics.txt"
+    metrics_json = outdir / f"{prefix}_metrics.json"
+    _assert_non_empty_text_file(metrics_txt)
+    _assert_non_empty_text_file(metrics_json)
+    _assert_has_yaml_frontmatter(metrics_txt)
+    metrics_json_obj = json.loads(_read_text(metrics_json))
+    assert "frontmatter" in metrics_json_obj
+    assert metrics_json_obj["frontmatter"]["metadata"]["options"]["mora_mode"] == "mono"
+    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, tilde_file)
+
+    _run_cli(
+        "akkapros.cli.printer",
+        str(tilde_file),
+        "-p",
+        prefix,
+        "--outdir",
+        str(outdir),
+        "--acute",
+        "--bold",
+        "--ipa",
+        "--xar",
+        "--mbrola",
+    )
+    printer_outputs = [
+        outdir / f"{prefix}_accent_acute.txt",
+        outdir / f"{prefix}_accent_bold.md",
+        outdir / f"{prefix}_accent_ipa.txt",
+        outdir / f"{prefix}_accent_xar.txt",
+        outdir / f"{prefix}_xar.txt",
+        outdir / f"{prefix}_accent_mbrola.txt",
+    ]
+    for path in printer_outputs:
+        _assert_non_empty_text_file(path)
+        _assert_has_yaml_frontmatter(path)
+
+    reference_map = {
+        proc_file: STAGE_REF_DIR / "expected_e2e_proc.txt",
+        orig_file: STAGE_REF_DIR / "expected_e2e_orig.txt",
+        trans_file: STAGE_REF_DIR / "expected_e2e_trans.txt",
+        syl_file: STAGE_REF_DIR / "expected_e2e_syl.txt",
+        tilde_file: STAGE_REF_DIR / "expected_e2e_mono_tilde.txt",
+        metrics_txt: STAGE_REF_DIR / "expected_e2e_mono_metrics.txt",
+        metrics_json: STAGE_REF_DIR / "expected_e2e_mono_metrics.json",
+        printer_outputs[0]: STAGE_REF_DIR / "expected_e2e_mono_accent_acute.txt",
+        printer_outputs[1]: STAGE_REF_DIR / "expected_e2e_mono_accent_bold.md",
+        printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_mono_accent_ipa.txt",
+        printer_outputs[3]: STAGE_REF_DIR / "expected_e2e_mono_accent_xar.txt",
+        printer_outputs[4]: STAGE_REF_DIR / "expected_e2e_mono_xar.txt",
+        printer_outputs[5]: STAGE_REF_DIR / "expected_e2e_mono_accent_mbrola.txt",
+    }
+    for generated, reference in reference_map.items():
+        _assert_matches_reference(generated, reference)
+
+
 def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     """Run fullprosmaker and assert pinned metrics + reference outputs."""
     outdir = tmp_path / "full_pipeline"
@@ -335,6 +442,76 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         _assert_matches_reference(generated, reference)
 
     _assert_metrics_artifact_paths_are_safe(outdir / "test_metrics.txt", outdir / "test.json", outdir / "test_tilde.txt")
+
+
+def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
+    """Run fullprosmaker in mono mode and assert pinned reference outputs."""
+    outdir = tmp_path / "full_pipeline_mono"
+    outdir.mkdir(parents=True, exist_ok=True)
+    prefix = "test_mono"
+
+    _run_cli(
+        "akkapros.cli.fullprosmaker",
+        str(INPUT_PROC),
+        "-p",
+        prefix,
+        "--outdir",
+        str(outdir),
+        "--mora-mode",
+        "mono",
+        "--metrics-table",
+        "--metrics-json",
+        "--print-acute",
+        "--print-bold",
+        "--print-ipa",
+        "--print-xar",
+    )
+
+    expected_outputs = [
+        outdir / "test_mono_syl.txt",
+        outdir / "test_mono_tilde.txt",
+        outdir / "test_mono_metrics.txt",
+        outdir / "test_mono.json",
+        outdir / "test_mono_accent_acute.txt",
+        outdir / "test_mono_accent_bold.md",
+        outdir / "test_mono_accent_ipa.txt",
+        outdir / "test_mono_accent_xar.txt",
+        outdir / "test_mono_xar.txt",
+    ]
+    for path in expected_outputs:
+        _assert_non_empty_text_file(path)
+    for path in expected_outputs:
+        if path.suffix in {".txt", ".md"}:
+            _assert_has_yaml_frontmatter(path, require_title=False)
+
+    metrics_json = json.loads(_read_text(outdir / "test_mono.json"))
+    assert "frontmatter" in metrics_json
+    assert metrics_json["frontmatter"]["metadata"]["options"]["mora_mode"] == "mono"
+
+    tilde_frontmatter, tilde_body = split_frontmatter(_read_text(outdir / "test_mono_tilde.txt"))
+    assert tilde_frontmatter is not None
+    assert tilde_frontmatter["metadata"]["options"]["mora_mode"] == "mono"
+    assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
+
+    full_reference_map = {
+        outdir / "test_mono_syl.txt": FULL_REF_DIR / "expected_test_syl.txt",
+        outdir / "test_mono_tilde.txt": FULL_REF_DIR / "expected_test_mono_tilde.txt",
+        outdir / "test_mono_metrics.txt": FULL_REF_DIR / "expected_test_mono_metrics.txt",
+        outdir / "test_mono.json": FULL_REF_DIR / "expected_test_mono.json",
+        outdir / "test_mono_accent_acute.txt": FULL_REF_DIR / "expected_test_mono_accent_acute.txt",
+        outdir / "test_mono_accent_bold.md": FULL_REF_DIR / "expected_test_mono_accent_bold.md",
+        outdir / "test_mono_accent_ipa.txt": FULL_REF_DIR / "expected_test_mono_accent_ipa.txt",
+        outdir / "test_mono_accent_xar.txt": FULL_REF_DIR / "expected_test_mono_accent_xar.txt",
+        outdir / "test_mono_xar.txt": FULL_REF_DIR / "expected_test_mono_xar.txt",
+    }
+    for generated, reference in full_reference_map.items():
+        _assert_matches_reference(generated, reference)
+
+    _assert_metrics_artifact_paths_are_safe(
+        outdir / "test_mono_metrics.txt",
+        outdir / "test_mono.json",
+        outdir / "test_mono_tilde.txt",
+    )
 
 
 def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:

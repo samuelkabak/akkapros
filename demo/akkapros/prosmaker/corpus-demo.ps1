@@ -26,17 +26,25 @@ python "$repoRoot\src\akkapros\cli\syllabifier.py" "$resultsDir\corpus_proc.txt"
 
 python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-lob --outdir "$resultsDir" --style lob
 
+python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-mono-lob --outdir "$resultsDir" --style lob --mora-mode mono
+
 python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
 
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 30 -p corpus-mono-lob-p30 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 35 -p corpus-mono-lob-p35 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 40 -p corpus-mono-lob-p40 --outdir "$resultsDir"
+
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
 python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
 
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-lob_tilde.txt"
+
+python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-mono-lob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-mono-lob_tilde.txt"
 
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-sob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-sob_tilde.txt"
 
