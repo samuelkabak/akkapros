@@ -136,8 +136,11 @@ units do not forward-merge; they fall directly to last resort.
 | `--print-ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping policy |
 | `--print-circ-hiatus` | Speculative mode: split circumflex vowels into hiatus (e.g., `qû → qʊ.ʊ`) |
 | `--print-xar` | Generate XAR transliteration (both accented and plain) |
+| `--print-merger` | Preserve the visible merge connector `‿` in acute, bold, and accented XAR outputs |
 
 **Default behavior:** If no print output flag is selected, `--print-acute` and `--print-bold` are enabled automatically.
+
+Without `--print-merger`, acute, bold, and accented XAR outputs render merged words with ordinary spaces. IPA is unchanged, and plain `_xar.txt` remains space-separated.
 
 ---
 

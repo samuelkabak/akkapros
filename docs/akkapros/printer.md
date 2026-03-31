@@ -71,6 +71,7 @@ frontmatter counters from upstream stages.
 | `--ipa` | IPA transcription |
 | `--xar` | Both XAR files (accented and plain) |
 | `--mbrola` | MBROLA/X-SAMPA-like output |
+| `--print-merger` | Show the visible merge connector `‿` in acute, bold, and accented XAR output |
 
 ### IPA-Specific Options
 
@@ -124,6 +125,8 @@ frontmatter counters from upstream stages.
 
 Stress is marked with an acute accent (`´`) placed **immediately after** the vowel of the prominent syllable.
 
+Merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`.
+
 Example: `tāḫā´za ik´taṣar`
 
 ### Bold Format (`_accent_bold.md`)
@@ -132,6 +135,8 @@ Prominent syllables are wrapped in `**` for visual emphasis in Markdown.
 Preserved adjacent input lines are serialized with a trailing `\` so Markdown
 renderers keep them as separate visible lines. Blank lines remain blank lines
 and do not receive escape markers.
+
+Merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`.
 
 Example: `ukappit-ma : ti**ām**tu pitiqša\`
 
@@ -169,6 +174,8 @@ Specialized transliteration with:
 Two files are generated:
 - `_accent_xar.txt`: with prominence marked
 - `_xar.txt`: plain version without accent markers
+
+In `_accent_xar.txt`, merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`. The plain `_xar.txt` output keeps space-separated word boundaries.
 
 ### MBROLA Format (`_accent_mbrola.txt`)
 

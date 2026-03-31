@@ -2,7 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[027. Add prosody mora mode selection](027-add-prosody-mora-mode-selection.md) - Draft
+[028. Configurable merge-connector printing](028-configurable-merge-connector-printing.md) - Done
+[027. Add prosody mora mode selection](027-add-prosody-mora-mode-selection.md) - Done
 [023. Adopt `logging-actions` for CLI logging](023-adopt-logging-actions-for-cli-logging.md) - Done
 [022. Add frontmatter-derived word indicators to metrics outputs](022-add-frontmatter-derived-word-indicators-to-metrics.md) - Done
 [021. Remove metrics CSV output](021-remove-metrics-csv-output.md) - Done

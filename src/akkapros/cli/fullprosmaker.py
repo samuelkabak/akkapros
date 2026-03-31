@@ -204,6 +204,7 @@ def run_pipeline(
     output_bold: bool,
     output_ipa: bool,
     output_xar: bool,
+    print_merger: bool,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     title: str | None = None,
@@ -369,6 +370,7 @@ def run_pipeline(
         write_xar=output_xar,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
+        print_merger=print_merger,
         options=options,
     )
 
@@ -455,6 +457,8 @@ Version: {__version__}
                         help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qu -> qu.u)')
     parser.add_argument('--print-xar', action='store_true',
                         help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
+    parser.add_argument('--print-merger', action='store_true',
+                        help='Render visible merge connector ‿ in acute, bold, and accented XAR outputs')
 
     # Test controls (covering all grouped sub-components)
     parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
@@ -578,13 +582,17 @@ Version: {__version__}
         output_bold=output_bold,
         output_ipa=output_ipa,
         output_xar=output_xar,
+        print_merger=args.print_merger,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         title=args.title,
-        options=effective_options_from_namespace(
-            args,
-            exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv'},
-        ),
+        options={
+            **effective_options_from_namespace(
+                args,
+                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv'},
+            ),
+            'print_merger': args.print_merger,
+        },
     )
     sys.exit(code)
 

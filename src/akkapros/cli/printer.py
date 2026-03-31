@@ -136,6 +136,8 @@ def main() -> None:
                         help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
     parser.add_argument('--mbrola', action='store_true',
                         help='Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols)')
+    parser.add_argument('--print-merger', action='store_true',
+                        help='Render visible merge connector ‿ in acute, bold, and accented XAR outputs')
     parser.add_argument('--test', action='store_true', help='Run internal tests')
 
     args = parser.parse_args()
@@ -204,10 +206,14 @@ def main() -> None:
         write_mbrola=write_mbrola,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
-        options=effective_options_from_namespace(
-            args,
-            exclude={'input', 'outdir', 'prefix', 'test', 'version'},
-        ),
+        print_merger=args.print_merger,
+        options={
+            **effective_options_from_namespace(
+                args,
+                exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+            ),
+            'print_merger': args.print_merger,
+        },
     )
 
     if write_acute:

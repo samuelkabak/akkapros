@@ -203,6 +203,13 @@ IPA_TAG_ALIASES = {
 }
 
 
+def _render_visible_merge_connector(text: str, *, print_merger: bool) -> str:
+    """Render visible merge connectors per output policy."""
+    if print_merger:
+        return text
+    return re.sub(r'\s*' + re.escape(WORD_LINKER_OUT) + r'\s*', ' ', text)
+
+
 def _insert_glottal_stops(word: str) -> str:
     """Insert ʾ before vowel-initial segments (start, after +, after -)."""
     out = []
@@ -734,6 +741,7 @@ def convert_line(
     mode: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
 ) -> str:
     """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format.
     
@@ -769,14 +777,17 @@ def convert_line(
             result += '\n'
         return result
 
+    if mode in {'acute', 'bold', 'xar'}:
+        result = _render_visible_merge_connector(result, print_merger=print_merger)
+
     if had_newline:
         result += '\n'
     return result
 
 
-def convert_text(text: str) -> Tuple[str, str]:
+def convert_text(text: str, print_merger: bool = False) -> Tuple[str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_markdown)."""
-    acute_text, bold_text, _ = convert_text_with_ipa(text)
+    acute_text, bold_text, _ = convert_text_with_ipa(text, print_merger=print_merger)
     return acute_text, bold_text
 
 
@@ -784,6 +795,7 @@ def convert_text_with_ipa(
     text: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
 ) -> Tuple[str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text).
     
@@ -796,6 +808,7 @@ def convert_text_with_ipa(
         text,
         ipa_mode,
         circ_hiatus=circ_hiatus,
+        print_merger=print_merger,
     )
     return acute_text, bold_text, ipa_text
 
@@ -804,6 +817,7 @@ def convert_text_with_ipa_xar(
     text: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
 ) -> Tuple[str, str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text).
     
@@ -813,10 +827,21 @@ def convert_text_with_ipa_xar(
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     lines = text.splitlines(keepends=True)
-    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    bold_lines = _convert_bold_markdown_lines(lines, ipa_mode=ipa_mode, circ_hiatus=circ_hiatus)
+    acute_lines = [
+        convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        for line in lines
+    ]
+    bold_lines = _convert_bold_markdown_lines(
+        lines,
+        ipa_mode=ipa_mode,
+        circ_hiatus=circ_hiatus,
+        print_merger=print_merger,
+    )
     ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    xar_lines = [
+        convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        for line in lines
+    ]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
 
 
@@ -824,13 +849,25 @@ def convert_text_with_ipa_xar_mbrola(
     text: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
 ) -> Tuple[str, str, str, str, str]:
     """Convert full text and return acute, bold, ipa, xar, and mbrola outputs."""
     lines = text.splitlines(keepends=True)
-    acute_lines = [convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    bold_lines = _convert_bold_markdown_lines(lines, ipa_mode=ipa_mode, circ_hiatus=circ_hiatus)
+    acute_lines = [
+        convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        for line in lines
+    ]
+    bold_lines = _convert_bold_markdown_lines(
+        lines,
+        ipa_mode=ipa_mode,
+        circ_hiatus=circ_hiatus,
+        print_merger=print_merger,
+    )
     ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    xar_lines = [convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    xar_lines = [
+        convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        for line in lines
+    ]
     mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
     return (
         ''.join(acute_lines),
@@ -845,9 +882,13 @@ def _convert_bold_markdown_lines(
     lines: list[str],
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
 ) -> list[str]:
     """Convert lines to bold Markdown and preserve non-blank lineation for renderers."""
-    bold_lines = [convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    bold_lines = [
+        convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        for line in lines
+    ]
 
     for index, rendered in enumerate(bold_lines[:-1]):
         current_line = rendered[:-1] if rendered.endswith('\n') else rendered
@@ -873,6 +914,7 @@ def process_file(
     write_mbrola: bool = False,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    print_merger: bool = False,
     options: dict | None = None,
 ) -> None:
     """Read *_tilde input and write selected output files.
@@ -903,6 +945,7 @@ def process_file(
         text,
         ipa_mode,
         circ_hiatus=circ_hiatus,
+        print_merger=print_merger,
     )
 
     def _write(text: str, path: str) -> None:
@@ -953,7 +996,7 @@ def process_file(
 
         plain_xar_text = xar_text.replace(ACUTE_MARK, '')
         # Pure XAR restores word boundaries where visible linkers were used.
-        plain_xar_text = re.sub(r'\s*' + re.escape(WORD_LINKER_OUT) + r'\s*', ' ', plain_xar_text)
+        plain_xar_text = _render_visible_merge_connector(plain_xar_text, print_merger=False)
         Path(plain_xar_file).parent.mkdir(parents=True, exist_ok=True)
         _write(plain_xar_text, plain_xar_file)
 
@@ -990,8 +1033,8 @@ def run_tests() -> bool:
         ("~a·pil", "ipa", "ˈʔːa.pil"),
         ("k~a", "ipa", "ˈkːa"),
         ("~a", "ipa", "ˈʔːa"),
-        ("gi·mir+dad~·mē", "acute", "gimir‿dad´mē"),
-        ("gi·mir+dad~·mē", "bold", "gimir‿**dad**mē"),
+        ("gi·mir+dad~·mē", "acute", "gimir dad´mē"),
+        ("gi·mir+dad~·mē", "bold", "gimir **dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir.ˈdadː.meː"),
         ("qa", "xar", "ꝗà"),
         ("qi", "xar", "ꝗì"),
@@ -1161,13 +1204,13 @@ def run_tests() -> bool:
         ("er~·ra", "bold", "**er**ra"),
         ("ti·¨ā~m·tu", "bold", "ti**ām**tu"),
         ("nā~š", "bold", "**nāš**"),
-        ("ša+ana+na·šê", "acute", "ša‿ana‿našê"),
+        ("ša+ana+na·šê", "acute", "ša ana našê"),
         ("ī·ris·sū~-ma", "bold", "īris**sū**-ma"),
-        ("šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē", "bold", "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē"),
+        ("šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē", "bold", "šar {{https://ex.am/ple+uri}} gimir **dad**mē"),
         ("šar {url{https://ex.am/ple+uri}} gi·mir", "ipa", "ʃar ⟨escape:{url{https://ex.am/ple+uri}}⟩ gi.mir"),
         ("šar {_mdf{---}} gi·mir", "ipa", "ʃar ⟨escape:{_mdf{---}}⟩ gi.mir"),
         ("šar{{x}}gi·mir", "ipa", "ʃar ⟨escape:{{x}}⟩ gi.mir"),
-        ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir‿dad´mē"),
+        ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir dad´mē"),
     ]
 
     ipa_mode_cases = [
@@ -1184,7 +1227,7 @@ def run_tests() -> bool:
         ("qâ", "qɑ.ɑ"),
         ("qû~", "ˈqʊ.ʊː"),
     ]
-    total = len(tests) + 7 + (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
+    total = len(tests) + 10 + (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
     passed = 0
     case_index = 0
 
@@ -1213,10 +1256,10 @@ def run_tests() -> bool:
             )
 
     text_in = "šar {{https://ex.am/ple+uri}} gi·mir+dad~·mē\n~a·pil\n"
-    expected_acute = "šar {{https://ex.am/ple+uri}} gimir‿dad´mē\n´apil\n"
-    expected_bold = "šar {{https://ex.am/ple+uri}} gimir‿**dad**mē\\\n**a**pil\n"
+    expected_acute = "šar {{https://ex.am/ple+uri}} gimir dad´mē\n´apil\n"
+    expected_bold = "šar {{https://ex.am/ple+uri}} gimir **dad**mē\\\n**a**pil\n"
     expected_ipa = "ʃar ⟨escape:{{https://ex.am/ple+uri}}⟩ gi.mir.ˈdadː.meː ⟨linebreak⟩ ‖\nˈʔːa.pil ⟨linebreak⟩ ‖\n"
-    expected_xar = "x̌ar {{https://ex.am/ple+uri}} gimir‿dad´mee\n´apil\n"
+    expected_xar = "x̌ar {{https://ex.am/ple+uri}} gimir dad´mee\n´apil\n"
     got_acute, got_bold, got_ipa, got_xar = convert_text_with_ipa_xar(text_in)
     if got_acute == expected_acute:
         report(True, 'Convert text acute')
@@ -1269,6 +1312,27 @@ def run_tests() -> bool:
                 f'got={got_xar!r}',
             ],
         )
+
+    merger_cases = [
+        ('gi·mir+dad~·mē', 'acute', 'gimir‿dad´mē'),
+        ('gi·mir+dad~·mē', 'bold', 'gimir‿**dad**mē'),
+        ('gi·mir+dad~·mē', 'xar', 'gimir‿dad´mee'),
+    ]
+    for inp, mode, expected in merger_cases:
+        got = convert_line(inp, mode, print_merger=True)
+        if got == expected:
+            report(True, f'{mode} print-merger {inp}')
+        else:
+            report(
+                False,
+                f'{mode} print-merger {inp}',
+                details=[
+                    f'input={inp!r}',
+                    f'mode={mode}',
+                    f'expected={expected!r}',
+                    f'got={got!r}',
+                ],
+            )
 
     forbidden_ipa = {'ħ', 'ʕ'}
     ipa_inventory_ok = True
@@ -1336,7 +1400,7 @@ def run_tests() -> bool:
             out_acute.exists()
             and acute_frontmatter is not None
             and acute_frontmatter.get('file', {}).get('format') == 'acute'
-            and acute_body == "k´apin ‿ ´apil\n"
+            and acute_body == "k´apin ´apil\n"
             and out_ipa.exists()
             and ipa_frontmatter is not None
             and ipa_frontmatter.get('file', {}).get('format') == 'ipa'
@@ -1344,7 +1408,7 @@ def run_tests() -> bool:
             and out_xar.exists()
             and xar_frontmatter is not None
             and xar_frontmatter.get('file', {}).get('format') == 'xar'
-            and xar_body == "k´apin ‿ ´apil\n"
+            and xar_body == "k´apin ´apil\n"
             and out_xar_plain.exists()
             and xar_plain_frontmatter is not None
             and xar_plain_frontmatter.get('file', {}).get('format') == 'xar'

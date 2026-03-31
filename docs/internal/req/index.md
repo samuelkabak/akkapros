@@ -2,6 +2,7 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [020. Requirement: Configurable Merge-Connector Printing](020-configurable-merge-connector-printing.md) - Implemented
 - [019. Requirement: Prosody Mora Mode Selection](019-prosody-mora-mode-selection.md) - Draft
 - [016. Requirement: Standardized CLI Logging and Console Options](016-standardized-cli-logging-and-console-options.md) - Implemented
 - [015. Requirement: Frontmatter-Derived Word Indicators in Metrics](015-frontmatter-derived-word-indicators-in-metrics.md) - Implemented
