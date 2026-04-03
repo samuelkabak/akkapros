@@ -126,8 +126,8 @@ def configure_pause_punctuation_rules(
     if long_punct_patterns:
         long_patterns.extend(long_punct_patterns)
 
-    ACTIVE_SHORT_PAUSE_PUNCT_REGEX = _compile_pause_patterns(short_patterns, '--short-punct-pattern')
-    ACTIVE_LONG_PAUSE_PUNCT_REGEX = _compile_pause_patterns(long_patterns, '--long-punct-pattern')
+    ACTIVE_SHORT_PAUSE_PUNCT_REGEX = _compile_pause_patterns(short_patterns, '--extra-short-punct-pattern')
+    ACTIVE_LONG_PAUSE_PUNCT_REGEX = _compile_pause_patterns(long_patterns, '--extra-long-punct-pattern')
 
     ACTIVE_SHORT_PAUSE_PUNCTUATION_PATTERNS = tuple(short_patterns)
     ACTIVE_LONG_PAUSE_PUNCTUATION_PATTERNS = tuple(long_patterns)
@@ -1125,7 +1125,7 @@ def count_spaces_and_punctuation(text: str) -> Dict:
                 raise PunctuationConfigError(
                     "Undeclared punctuation in metrics input gap "
                     f"{gap!r} (unknown chars: {unknown_repr!r}). "
-                    "Declare via --short-punct-chars/--long-punct-chars or matching --*-punct-pattern options."
+                    "Declare upstream via syllabifier/fullprosmaker --extra-short-punct-chars/--extra-long-punct-chars or matching --extra-*-punct-pattern options."
                 )
             else:
                 # Pure spacing/linking gap: connected speech with no pause.

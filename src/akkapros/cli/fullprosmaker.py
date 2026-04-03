@@ -23,7 +23,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_syllabify_stage_data,
@@ -35,7 +35,9 @@ from akkapros.lib.frontmatter import (
     effective_options_from_namespace,
     extract_lexical_words,
     read_text_file,
+    resolve_inherited_syllabify_options,
     resolve_file_title,
+    with_inherited_syllabify_options,
 )
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib.prosody import (
@@ -47,7 +49,6 @@ from akkapros.lib.prosody import (
 )
 from akkapros.lib.metrics import (
     METRICS_CSV_DEPRECATION_MESSAGE,
-    PunctuationConfigError as MetricsPunctuationConfigError,
     configure_pause_punctuation_rules,
     update_character_sets,
     process_file as process_metrics_file,
@@ -187,10 +188,10 @@ def run_pipeline(
     extra_consonants: str,
     merge_hyphen: bool,
     preserve_lines: bool,
-    short_punct_chars: str,
-    long_punct_chars: str,
-    short_punct_patterns: list[str] | None,
-    long_punct_patterns: list[str] | None,
+    extra_short_punct_chars: str,
+    extra_long_punct_chars: str,
+    extra_short_punct_patterns: list[str] | None,
+    extra_long_punct_patterns: list[str] | None,
     number_format: str,
     style: str,
     mora_mode: str,
@@ -230,10 +231,10 @@ def run_pipeline(
     input_frontmatter, source_text = read_text_file(input_file)
 
     syllabify.configure_punctuation_rules(
-        short_punct_chars=short_punct_chars,
-        long_punct_chars=long_punct_chars,
-        short_punct_patterns=short_punct_patterns,
-        long_punct_patterns=long_punct_patterns,
+        short_punct_chars=extra_short_punct_chars,
+        long_punct_chars=extra_long_punct_chars,
+        short_punct_patterns=extra_short_punct_patterns,
+        long_punct_patterns=extra_long_punct_patterns,
     )
 
     syl_text = syllabify.syllabify_text(
@@ -242,10 +243,10 @@ def run_pipeline(
         extra_consonants=extra_consonants,
         merge_hyphen=merge_hyphen,
         preserve_lines=preserve_lines,
-        short_punct_chars=short_punct_chars,
-        long_punct_chars=long_punct_chars,
-        short_punct_patterns=short_punct_patterns,
-        long_punct_patterns=long_punct_patterns,
+        short_punct_chars=extra_short_punct_chars,
+        long_punct_chars=extra_long_punct_chars,
+        short_punct_patterns=extra_short_punct_patterns,
+        long_punct_patterns=extra_long_punct_patterns,
     )
     syl_body = syl_text if syl_text.endswith('\n') else syl_text + '\n'
     logger.info('Computed line_count: %d', count_lines(syl_body))
@@ -273,13 +274,18 @@ def run_pipeline(
     logger.info('Written file: %s', format_path_for_logging(tilde_file))
 
     # 3) Metrics
+    tilde_frontmatter, tilde_body = read_text_file(tilde_file)
+    inherited_syllabify = resolve_inherited_syllabify_options(tilde_frontmatter)
     configure_pause_punctuation_rules(
-        short_punct_chars=short_punct_chars,
-        long_punct_chars=long_punct_chars,
-        short_punct_patterns=short_punct_patterns,
-        long_punct_patterns=long_punct_patterns,
+        short_punct_chars=inherited_syllabify['extra_short_punct_chars'],
+        long_punct_chars=inherited_syllabify['extra_long_punct_chars'],
+        short_punct_patterns=inherited_syllabify['extra_short_punct_pattern'],
+        long_punct_patterns=inherited_syllabify['extra_long_punct_pattern'],
     )
-    update_character_sets(extra_consonants, extra_vowels)
+    update_character_sets(
+        inherited_syllabify['extra_consonants'],
+        inherited_syllabify['extra_vowels'],
+    )
     try:
         metrics_result = process_metrics_file(
             str(tilde_file),
@@ -291,7 +297,6 @@ def run_pipeline(
     except ValueError as exc:
         logger.error('%s', exc)
         return 2
-    tilde_frontmatter, tilde_body = read_text_file(tilde_file)
     logger.info('Computed line_count: %d', count_lines(tilde_body))
     logger.info('Computed word_count: %d', len(extract_lexical_words(tilde_body)))
     logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(tilde_body))
@@ -335,8 +340,8 @@ def run_pipeline(
             'pause_ratio_percent': pause_ratio,
             'short_pause_punct_weight_unitless': 1.0,
             'long_pause_punct_weight_unitless': long_punct_weight,
-            'extra_consonants': extra_consonants,
-            'extra_vowels': extra_vowels,
+            'extra_consonants': inherited_syllabify['extra_consonants'],
+            'extra_vowels': inherited_syllabify['extra_vowels'],
             'prosody_style': style,
             'prosody_relax_last': not only_last,
             'prosody_restore_diphthongs': True,
@@ -415,12 +420,12 @@ Version: {__version__}
     # Syllabifier options
     parser.add_argument('--extra-vowels', default='', help=help_for('fullprosmaker.extra_vowels'))
     parser.add_argument('--extra-consonants', default='', help=help_for('fullprosmaker.extra_consonants'))
-    parser.add_argument('--short-punct-chars', default='', help=help_for('fullprosmaker.short_punct_chars'))
-    parser.add_argument('--long-punct-chars', default='', help=help_for('fullprosmaker.long_punct_chars'))
-    parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help=help_for('fullprosmaker.short_punct_pattern'))
-    parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help=help_for('fullprosmaker.long_punct_pattern'))
+    parser.add_argument('--extra-short-punct-chars', default='', help=help_for('fullprosmaker.extra_short_punct_chars'))
+    parser.add_argument('--extra-long-punct-chars', default='', help=help_for('fullprosmaker.extra_long_punct_chars'))
+    parser.add_argument('--extra-short-punct-pattern', action='append', default=[],
+                        help=help_for('fullprosmaker.extra_short_punct_pattern'))
+    parser.add_argument('--extra-long-punct-pattern', action='append', default=[],
+                        help=help_for('fullprosmaker.extra_long_punct_pattern'))
     parser.add_argument('--number-format', default='',
                         help=help_for('fullprosmaker.number_format'))
     parser.add_argument('--syl-merge-hyphens', action='store_true', help=help_for('fullprosmaker.syl_merge_hyphens'))
@@ -512,18 +517,12 @@ Version: {__version__}
 
     try:
         syllabify.configure_punctuation_rules(
-            short_punct_chars=args.short_punct_chars,
-            long_punct_chars=args.long_punct_chars,
-            short_punct_patterns=args.short_punct_pattern,
-            long_punct_patterns=args.long_punct_pattern,
+            short_punct_chars=args.extra_short_punct_chars,
+            long_punct_chars=args.extra_long_punct_chars,
+            short_punct_patterns=args.extra_short_punct_pattern,
+            long_punct_patterns=args.extra_long_punct_pattern,
         )
-        configure_pause_punctuation_rules(
-            short_punct_chars=args.short_punct_chars,
-            long_punct_chars=args.long_punct_chars,
-            short_punct_patterns=args.short_punct_pattern,
-            long_punct_patterns=args.long_punct_pattern,
-        )
-    except (syllabify.PunctuationConfigError, MetricsPunctuationConfigError) as exc:
+    except syllabify.PunctuationConfigError as exc:
         logger.error('Invalid punctuation regex/options: %s', exc)
         sys.exit(1)
 
@@ -540,7 +539,11 @@ Version: {__version__}
         sys.exit(2)
 
     outdir = Path(args.outdir)
-    prefix = args.prefix if args.prefix else input_path.stem.replace('_proc', '')
+    try:
+        prefix = require_effective_prefix(args.prefix, 'fullprosmaker')
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
 
     output_table = args.metrics_table
     output_json = args.metrics_json
@@ -561,6 +564,22 @@ Version: {__version__}
 
     only_last = not args.prosody_relax_last
 
+    option_values = with_inherited_syllabify_options(
+        {
+            **effective_options_from_namespace(
+                args,
+                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv', 'conf'},
+            ),
+            'print_merger': args.print_merger,
+        },
+        extra_vowels=args.extra_vowels,
+        extra_consonants=args.extra_consonants,
+        extra_short_punct_chars=args.extra_short_punct_chars,
+        extra_long_punct_chars=args.extra_long_punct_chars,
+        extra_short_punct_pattern=args.extra_short_punct_pattern,
+        extra_long_punct_pattern=args.extra_long_punct_pattern,
+    )
+
     code = run_pipeline(
         logger=logger,
         input_file=input_path,
@@ -570,10 +589,10 @@ Version: {__version__}
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.syl_merge_hyphens,
         preserve_lines=not args.syl_merge_lines,
-        short_punct_chars=args.short_punct_chars,
-        long_punct_chars=args.long_punct_chars,
-        short_punct_patterns=args.short_punct_pattern,
-        long_punct_patterns=args.long_punct_pattern,
+        extra_short_punct_chars=args.extra_short_punct_chars,
+        extra_long_punct_chars=args.extra_long_punct_chars,
+        extra_short_punct_patterns=args.extra_short_punct_pattern,
+        extra_long_punct_patterns=args.extra_long_punct_pattern,
         number_format=args.number_format,
         style=args.prosody_style,
         mora_mode=args.mora_mode,
@@ -593,13 +612,7 @@ Version: {__version__}
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         title=args.title,
-        options={
-            **effective_options_from_namespace(
-                args,
-                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv', 'conf'},
-            ),
-            'print_merger': args.print_merger,
-        },
+        options=option_values,
     )
     sys.exit(code)
 

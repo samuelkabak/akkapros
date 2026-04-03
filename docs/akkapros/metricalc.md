@@ -41,9 +41,8 @@ such as `C:\corpus_tilde.txt` are preserved as-is.
 
 ### Base Naming Rules
 
-- If `--prefix` is given: `<outdir>/<prefix>`
-- If single input and no prefix: `<outdir>/<input_stem>`
-- If multiple inputs and no prefix: `<outdir>/metrics`
+- `--prefix` or `common.prefix` must resolve to a non-null effective prefix
+- Metrics outputs are written as `<outdir>/<prefix>_metrics.txt` and/or `<outdir>/<prefix>_metrics.json`
 
 ---
 
@@ -72,12 +71,6 @@ Batch mode:
 | `--wpm <float>` | Words per minute used in speech-rate estimation (default: `165`) |
 | `--pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--long-punct-weight <float>` | Relative weight of long punctuation pauses vs short pauses (default: `2.0`) |
-| `--extra-consonants <chars>` | Additional consonant symbols to include in parsing |
-| `--extra-vowels <chars>` | Additional vowel symbols to include in parsing |
-| `--short-punct-chars <chars>` | Additional characters to classify as short-pause punctuation |
-| `--long-punct-chars <chars>` | Additional characters to classify as long-pause punctuation |
-| `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments |
-| `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments |
 | `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` |
 | `--test` | Run metrics test suite |
 
@@ -91,14 +84,16 @@ If none of `--table` or `--json` is specified, `--table` is enabled automaticall
 
 ### Single File, Default Table Output
 
-    python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt
+        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
+            -p erra \
+            --outdir outputs \
+            --long-punct-weight 2.5 \
+            --table
 
-### Write Table + JSON
-
-    python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-    --table --json \
-      -p erra \
-      --outdir outputs
+Inherited punctuation-extension settings and inherited `extra_vowels` /
+`extra_consonants` values are read from the input file front matter produced
+upstream by syllabifier and preserved by prosmaker. Metricalc does not expose
+separate CLI flags for those inherited syllabify-owned settings.
 
 ### Custom Timing Parameters
 
@@ -114,14 +109,11 @@ If none of `--table` or `--json` is specified, `--table` is enabled automaticall
             --table \
             --explicit-link-count 2
 
-### Extend Punctuation Classification
+### Inherited Syllabify Settings
 
-        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-            --short-punct-chars "·" \
-            --long-punct-chars "※" \
-            --short-punct-pattern "^\\s*[·]+\\s*$" \
-            --long-punct-pattern "^\\s*[※]+\\s*$" \
-            --table
+    `metricalc.py` reads punctuation and extra inventory settings from the
+    input file front matter. Configure them in `syllabifier.py` or
+    `fullprosmaker.py`, not in `metricalc.py`.
 
 ### Batch Mode
 

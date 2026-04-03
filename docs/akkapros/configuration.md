@@ -18,16 +18,24 @@ Override precedence is always:
 The top-level sections are:
 
 - `common`: shared options such as `prefix`, `outdir`, and shared logging controls
-- `atfparser`
-- `syllabifier`
-- `prosmaker`
-- `metricalc`
-- `printer`
+- `atfparse`
+- `syllabify`
+- `prosody`
+- `metrics`
+- `print`
 
 Shared output naming stays in `common`. The schema intentionally does not define stage-specific duplicates such as `metrics_prefix` or `print_prefix`.
 
+`common.prefix` is required for runnable grouped configs. `confwriter` rejects writes that would leave it null, and prefix-dependent CLIs reject execution if no effective prefix is available from `--prefix` or `common.prefix`.
+
+The `syllabify` section is also the only grouped-config owner for
+`extra_vowels`, `extra_consonants`, and the four `extra_*punct*` settings.
+Those values are written into front matter by syllabify, preserved downstream,
+and consumed by metrics from the input file rather than re-declared under
+`metrics`.
+
 `fullprosmaker` is a pipeline runner. It reads `common` plus the relevant
-shared stage sections: `syllabifier`, `prosmaker`, `metricalc`, and `printer`.
+shared stage sections: `syllabify`, `prosody`, `metrics`, and `print`.
 It does not have a duplicated YAML section of its own for those stage-owned
 options.
 
@@ -38,13 +46,13 @@ common:
   prefix: "demo"
   outdir: "outputs"
 
-prosmaker:
+prosody:
   style: "lob"
 
-metricalc:
+metrics:
   json: true
 
-printer:
+print:
   ipa: true
 ```
 
@@ -71,8 +79,8 @@ Examples:
 ```bash
 python -m akkapros.cli.confwriter --conf run.yaml --prefix demo
 python -m akkapros.cli.confwriter --conf run.yaml --outdir outputs
-python -m akkapros.cli.confwriter --conf run.yaml --prosmaker-style sob
-python -m akkapros.cli.confwriter --conf run.yaml --printer-ipa
+python -m akkapros.cli.confwriter --conf run.yaml --prosody-style sob
+python -m akkapros.cli.confwriter --conf run.yaml --print-ipa
 ```
 
 Boolean options also have `--no-...` forms in `confwriter` so existing values can be turned off explicitly.
@@ -88,15 +96,15 @@ Examples:
 - `common.prefix` -> `--prefix`
 - `common.outdir` -> `--outdir`
 - `common.quiet` -> `--config-quiet`
-- `atfparser.preserve_case` -> `--atfparser-preserve-case`
-- `syllabifier.merge_lines` -> `--syllabifier-merge-lines`
-- `prosmaker.style` -> `--prosmaker-style`
-- `metricalc.json` -> `--metricalc-json`
-- `printer.ipa` -> `--printer-ipa`
+- `atfparse.preserve_case` -> `--atfparse-preserve-case`
+- `syllabify.merge_lines` -> `--syllabify-merge-lines`
+- `prosody.style` -> `--prosody-style`
+- `metrics.json` -> `--metrics-json`
+- `print.ipa` -> `--print-ipa`
 
 When you run `fullprosmaker`, those stage sections still apply. For example,
-`prosmaker.style` feeds `--prosody-style`, `metricalc.json` feeds
-`--metrics-json`, and `printer.ipa` feeds `--print-ipa`.
+`prosody.style` feeds `--prosody-style`, `metrics.json` feeds
+`--metrics-json`, and `print.ipa` feeds `--print-ipa`.
 
 ## Notes
 

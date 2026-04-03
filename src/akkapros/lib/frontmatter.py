@@ -8,6 +8,7 @@ project emits: nested mappings with scalar values.
 
 from __future__ import annotations
 
+import ast
 from copy import deepcopy
 from datetime import date
 import json
@@ -247,6 +248,95 @@ def effective_options_from_namespace(namespace: Any, *, exclude: set[str] | None
             continue
         options[key] = value
     return options
+
+
+INHERITED_SYLLABIFY_OPTION_DEFAULTS = {
+    "extra_vowels": "",
+    "extra_consonants": "",
+    "extra_short_punct_chars": "",
+    "extra_long_punct_chars": "",
+    "extra_short_punct_pattern": [],
+    "extra_long_punct_pattern": [],
+}
+
+
+def with_inherited_syllabify_options(
+    options: dict[str, Any] | None,
+    *,
+    extra_vowels: str,
+    extra_consonants: str,
+    extra_short_punct_chars: str,
+    extra_long_punct_chars: str,
+    extra_short_punct_pattern: list[str] | tuple[str, ...],
+    extra_long_punct_pattern: list[str] | tuple[str, ...],
+) -> dict[str, Any]:
+    updated = deepcopy(options) if options else {}
+    updated["extra_vowels"] = extra_vowels
+    updated["extra_consonants"] = extra_consonants
+    updated["extra_short_punct_chars"] = extra_short_punct_chars
+    updated["extra_long_punct_chars"] = extra_long_punct_chars
+    updated["extra_short_punct_pattern"] = list(extra_short_punct_pattern)
+    updated["extra_long_punct_pattern"] = list(extra_long_punct_pattern)
+    return updated
+
+
+def resolve_inherited_syllabify_options(input_frontmatter: dict[str, Any] | None) -> dict[str, Any]:
+    if not input_frontmatter:
+        return deepcopy(INHERITED_SYLLABIFY_OPTION_DEFAULTS)
+
+    options = input_frontmatter.get("metadata", {}).get("options", {})
+    if not isinstance(options, dict):
+        raise ValueError("invalid front matter: metadata.options must be a mapping")
+
+    resolved = deepcopy(INHERITED_SYLLABIFY_OPTION_DEFAULTS)
+    for key, default in INHERITED_SYLLABIFY_OPTION_DEFAULTS.items():
+        value = deepcopy(options.get(key, default))
+        if isinstance(default, list):
+            if isinstance(value, str):
+                try:
+                    value = ast.literal_eval(value)
+                except (SyntaxError, ValueError) as exc:
+                    raise ValueError(
+                        f"invalid front matter: metadata.options.{key} must be a list of strings"
+                    ) from exc
+            if isinstance(value, tuple):
+                value = list(value)
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+                raise ValueError(f"invalid front matter: metadata.options.{key} must be a list of strings")
+        else:
+            if not isinstance(value, str):
+                raise ValueError(f"invalid front matter: metadata.options.{key} must be a string")
+        resolved[key] = value
+    return resolved
+
+
+def with_inherited_punctuation_options(
+    options: dict[str, Any] | None,
+    *,
+    extra_short_punct_chars: str,
+    extra_long_punct_chars: str,
+    extra_short_punct_pattern: list[str] | tuple[str, ...],
+    extra_long_punct_pattern: list[str] | tuple[str, ...],
+) -> dict[str, Any]:
+    return with_inherited_syllabify_options(
+        options,
+        extra_vowels="",
+        extra_consonants="",
+        extra_short_punct_chars=extra_short_punct_chars,
+        extra_long_punct_chars=extra_long_punct_chars,
+        extra_short_punct_pattern=extra_short_punct_pattern,
+        extra_long_punct_pattern=extra_long_punct_pattern,
+    )
+
+
+def resolve_inherited_punctuation_options(input_frontmatter: dict[str, Any] | None) -> dict[str, Any]:
+    resolved = resolve_inherited_syllabify_options(input_frontmatter)
+    return {
+        "extra_short_punct_chars": resolved["extra_short_punct_chars"],
+        "extra_long_punct_chars": resolved["extra_long_punct_chars"],
+        "extra_short_punct_pattern": resolved["extra_short_punct_pattern"],
+        "extra_long_punct_pattern": resolved["extra_long_punct_pattern"],
+    }
 
 
 def _stable_uuid_payload(payload: dict[str, Any]) -> str:

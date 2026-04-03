@@ -22,7 +22,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
@@ -34,6 +34,7 @@ from akkapros.lib.frontmatter import (
     extract_lexical_words,
     read_text_file,
     resolve_file_title,
+    with_inherited_syllabify_options,
 )
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
@@ -55,10 +56,10 @@ def process_file(
     extra_consonants: str = '',
     merge_hyphen: bool = False,
     preserve_lines: bool = True,
-    short_punct_chars: str = '',
-    long_punct_chars: str = '',
-    short_punct_patterns: list[str] | None = None,
-    long_punct_patterns: list[str] | None = None,
+    extra_short_punct_chars: str = '',
+    extra_long_punct_chars: str = '',
+    extra_short_punct_patterns: list[str] | None = None,
+    extra_long_punct_patterns: list[str] | None = None,
     number_format: str = '',
     title: str | None = None,
     options: dict[str, object] | None = None,
@@ -85,10 +86,10 @@ def process_file(
         extra_consonants=extra_consonants,
         merge_hyphen=merge_hyphen,
         preserve_lines=preserve_lines,
-        short_punct_chars=short_punct_chars,
-        long_punct_chars=long_punct_chars,
-        short_punct_patterns=short_punct_patterns,
-        long_punct_patterns=long_punct_patterns,
+        short_punct_chars=extra_short_punct_chars,
+        long_punct_chars=extra_long_punct_chars,
+        short_punct_patterns=extra_short_punct_patterns,
+        long_punct_patterns=extra_long_punct_patterns,
         number_format=number_format,
     )
 
@@ -132,12 +133,12 @@ def main():
                         help=help_for('syllabifier.outdir'))
     parser.add_argument('--extra-vowels', default='', help=help_for('syllabifier.extra_vowels'))
     parser.add_argument('--extra-consonants', default='', help=help_for('syllabifier.extra_consonants'))
-    parser.add_argument('--short-punct-chars', default='', help=help_for('syllabifier.short_punct_chars'))
-    parser.add_argument('--long-punct-chars', default='', help=help_for('syllabifier.long_punct_chars'))
-    parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help=help_for('syllabifier.short_punct_pattern'))
-    parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help=help_for('syllabifier.long_punct_pattern'))
+    parser.add_argument('--extra-short-punct-chars', default='', help=help_for('syllabifier.extra_short_punct_chars'))
+    parser.add_argument('--extra-long-punct-chars', default='', help=help_for('syllabifier.extra_long_punct_chars'))
+    parser.add_argument('--extra-short-punct-pattern', action='append', default=[],
+                        help=help_for('syllabifier.extra_short_punct_pattern'))
+    parser.add_argument('--extra-long-punct-pattern', action='append', default=[],
+                        help=help_for('syllabifier.extra_long_punct_pattern'))
     parser.add_argument('--number-format', default='',
                         help=help_for('syllabifier.number_format'))
     parser.add_argument('--merge-hyphen', action='store_true', help=help_for('syllabifier.merge_hyphen'))
@@ -166,10 +167,10 @@ def main():
 
     try:
         syllabify.configure_punctuation_rules(
-            short_punct_chars=args.short_punct_chars,
-            long_punct_chars=args.long_punct_chars,
-            short_punct_patterns=args.short_punct_pattern,
-            long_punct_patterns=args.long_punct_pattern,
+            short_punct_chars=args.extra_short_punct_chars,
+            long_punct_chars=args.extra_long_punct_chars,
+            short_punct_patterns=args.extra_short_punct_pattern,
+            long_punct_patterns=args.extra_long_punct_pattern,
         )
     except syllabify.PunctuationConfigError as exc:
         logger.error('Invalid punctuation regex/options: %s', exc)
@@ -188,14 +189,28 @@ def main():
         sys.exit(2)
 
     # choose prefix and output directory
-    if args.prefix:
-        prefix = args.prefix
-    else:
-        prefix = input_path.stem
+    try:
+        prefix = require_effective_prefix(args.prefix, 'syllabifier')
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
     outdir = Path(args.outdir)
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
     output_path = outdir / f"{prefix}_syl.txt"
+
+    option_values = with_inherited_syllabify_options(
+        effective_options_from_namespace(
+            args,
+            exclude={'input', 'outdir', 'prefix', 'test', 'version', 'conf'},
+        ),
+        extra_vowels=args.extra_vowels,
+        extra_consonants=args.extra_consonants,
+        extra_short_punct_chars=args.extra_short_punct_chars,
+        extra_long_punct_chars=args.extra_long_punct_chars,
+        extra_short_punct_pattern=args.extra_short_punct_pattern,
+        extra_long_punct_pattern=args.extra_long_punct_pattern,
+    )
 
     process_file(
         str(input_path),
@@ -204,16 +219,13 @@ def main():
         extra_consonants=args.extra_consonants,
         merge_hyphen=args.merge_hyphen,
         preserve_lines=not args.merge_lines,
-        short_punct_chars=args.short_punct_chars,
-        long_punct_chars=args.long_punct_chars,
-        short_punct_patterns=args.short_punct_pattern,
-        long_punct_patterns=args.long_punct_pattern,
+        extra_short_punct_chars=args.extra_short_punct_chars,
+        extra_long_punct_chars=args.extra_long_punct_chars,
+        extra_short_punct_patterns=args.extra_short_punct_pattern,
+        extra_long_punct_patterns=args.extra_long_punct_pattern,
         number_format=args.number_format,
         title=args.title,
-        options=effective_options_from_namespace(
-            args,
-            exclude={'input', 'outdir', 'prefix', 'test', 'version', 'conf'},
-        ),
+        options=option_values,
         logger=logger,
     )
 

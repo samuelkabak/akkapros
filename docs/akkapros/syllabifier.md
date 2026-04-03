@@ -45,10 +45,10 @@ By default, if no `--prefix` is provided, the output prefix is derived from the 
 | `--outdir <dir>` | Output directory (default: current directory) |
 | `--extra-vowels <chars>` | Additional vowel characters to recognize |
 | `--extra-consonants <chars>` | Additional consonant characters to recognize |
-| `--short-punct-chars <chars>` | Additional characters to classify as short-pause punctuation |
-| `--long-punct-chars <chars>` | Additional characters to classify as long-pause punctuation |
-| `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments |
-| `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments |
+| `--extra-short-punct-chars <chars>` | Additional characters to classify as short-pause punctuation |
+| `--extra-long-punct-chars <chars>` | Additional characters to classify as long-pause punctuation |
+| `--extra-short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments |
+| `--extra-long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments |
 | `--number-format <regex>` | Number regex override; empty uses built-in English-grouping-compatible pattern |
 | `--merge-hyphen` | Merge hyphens into syllable separators |
 | `--merge-lines` | Normalize line breaks (`1 newline → space`, `2+ newlines → paragraph break`) |
@@ -120,10 +120,10 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 ### Extend Punctuation Allowlist
 
         python src/akkapros/cli/syllabifier.py outputs/text_proc.txt \
-            --short-punct-chars "·" \
-            --long-punct-chars "※" \
-            --short-punct-pattern "^\\s*[·]+\\s*$" \
-            --long-punct-pattern "^\\s*[※]+\\s*$" \
+            --extra-short-punct-chars "·" \
+            --extra-long-punct-chars "※" \
+            --extra-short-punct-pattern "^\\s*[·]+\\s*$" \
+            --extra-long-punct-pattern "^\\s*[※]+\\s*$" \
             -p text \
             --outdir outputs
 
@@ -158,7 +158,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 ### Regex Semantics for Punctuation Patterns
 
 - Patterns are Python regex expressions compiled at startup, before file processing begins.
-- `--short-punct-pattern` and `--long-punct-pattern` are repeatable; each use appends one full regex.
+- `--extra-short-punct-pattern` and `--extra-long-punct-pattern` are repeatable; each use appends one full regex.
 - Anchors `^` and `$` refer to the full punctuation chunk (including surrounding spaces and line boundaries).
 - For line/file boundaries, use pseudo-tokens:
     - `[:bol:]` = beginning of line
@@ -175,7 +175,7 @@ Example (em dash with required surrounding spacing or line-end):
 
 Example (custom long punctuation: two dashes with leading space and trailing space or line-end):
 
-    --long-punct-pattern "^[ \t]+--([ \t]+|[:eol:])$"
+    --extra-long-punct-pattern "^[ \t]+--([ \t]+|[:eol:])$"
 
 Matches:
 - ` -- ` in `aba -- ana`

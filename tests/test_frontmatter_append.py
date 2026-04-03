@@ -4,7 +4,9 @@ from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     merge_frontmatter_documents,
     read_text_file,
+    resolve_inherited_syllabify_options,
     validate_stage_data_consistency,
+    with_inherited_syllabify_options,
 )
 
 
@@ -157,3 +159,36 @@ def test_merge_frontmatter_documents_rejects_conflicting_options():
             ],
             body="x\ny\n",
         )
+
+
+def test_inherited_syllabify_options_round_trip_lists_and_inventory_settings():
+    options = with_inherited_syllabify_options(
+        {},
+        extra_vowels="ø",
+        extra_consonants="ɣ",
+        extra_short_punct_chars="o",
+        extra_long_punct_chars="!",
+        extra_short_punct_pattern=["foo"],
+        extra_long_punct_pattern=["bar"],
+    )
+
+    resolved = resolve_inherited_syllabify_options(
+        {
+            "metadata": {
+                "options": {
+                    **options,
+                    "extra_short_punct_pattern": "['foo']",
+                    "extra_long_punct_pattern": "['bar']",
+                }
+            }
+        }
+    )
+
+    assert resolved == {
+        "extra_vowels": "ø",
+        "extra_consonants": "ɣ",
+        "extra_short_punct_chars": "o",
+        "extra_long_punct_chars": "!",
+        "extra_short_punct_pattern": ["foo"],
+        "extra_long_punct_pattern": ["bar"],
+    }

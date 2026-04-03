@@ -15,7 +15,7 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     count_function_words,
@@ -26,6 +26,7 @@ from akkapros.lib.frontmatter import (
     effective_options_from_namespace,
     extract_lexical_words,
     read_text_file,
+    resolve_inherited_syllabify_options,
     resolve_file_title,
 )
 from akkapros.lib.helpmsg import help_for
@@ -59,7 +60,6 @@ def main() -> None:
 EXAMPLES:
     python metricalc.py erra_tilde.txt --table
     python metricalc.py --test
-    python metricalc.py erra_tilde.txt --extra-consonants "xyz" --extra-vowels "ø"
     python metricalc.py erra_tilde.txt --long-punct-weight 2.5
 
 Version {__version__}
@@ -80,16 +80,6 @@ Version {__version__}
                         help=help_for('metricalc.pause_ratio'))
     parser.add_argument('--long-punct-weight', type=float, default=2.0,
                         help=help_for('metricalc.long_punct_weight'))
-    parser.add_argument('--extra-consonants', default='',
-                        help=help_for('metricalc.extra_consonants'))
-    parser.add_argument('--extra-vowels', default='',
-                        help=help_for('metricalc.extra_vowels'))
-    parser.add_argument('--short-punct-chars', default='', help=help_for('metricalc.short_punct_chars'))
-    parser.add_argument('--long-punct-chars', default='', help=help_for('metricalc.long_punct_chars'))
-    parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help=help_for('metricalc.short_punct_pattern'))
-    parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help=help_for('metricalc.long_punct_pattern'))
     parser.add_argument('--explicit-link-count',
                         help=help_for('metricalc.explicit_link_count'))
     parser.add_argument('--test', action='store_true', help=help_for('metricalc.test'))
@@ -112,17 +102,6 @@ Version {__version__}
 
     logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
     log_startup_banner(logger, 'akkapros-metrics', __version__, args)
-
-    try:
-        configure_pause_punctuation_rules(
-            short_punct_chars=args.short_punct_chars,
-            long_punct_chars=args.long_punct_chars,
-            short_punct_patterns=args.short_punct_pattern,
-            long_punct_patterns=args.long_punct_pattern,
-        )
-    except PunctuationConfigError as exc:
-        logger.error('Invalid punctuation regex/options: %s', exc)
-        sys.exit(2)
 
     if not (args.table or args.json):
         args.table = True
@@ -147,14 +126,30 @@ Version {__version__}
             logger.error('Hint: upstream stage output may be partial/corrupted; re-run prosmaker.')
             sys.exit(2)
 
-    update_character_sets(args.extra_consonants, args.extra_vowels)
     option_values = effective_options_from_namespace(
         args,
         exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv', 'conf'},
     )
 
     results = []
+    inherited_syllabify_options = []
     for input_file in input_files:
+        input_frontmatter, tilde_body = read_text_file(input_file)
+        inherited_syllabify = resolve_inherited_syllabify_options(input_frontmatter)
+        try:
+            configure_pause_punctuation_rules(
+                short_punct_chars=inherited_syllabify['extra_short_punct_chars'],
+                long_punct_chars=inherited_syllabify['extra_long_punct_chars'],
+                short_punct_patterns=inherited_syllabify['extra_short_punct_pattern'],
+                long_punct_patterns=inherited_syllabify['extra_long_punct_pattern'],
+            )
+        except PunctuationConfigError as exc:
+            logger.error('Invalid inherited punctuation regex/options: %s', exc)
+            sys.exit(2)
+        update_character_sets(
+            inherited_syllabify['extra_consonants'],
+            inherited_syllabify['extra_vowels'],
+        )
         try:
             result = process_file(
                 input_file,
@@ -166,7 +161,6 @@ Version {__version__}
         except ValueError as exc:
             logger.error('%s', exc)
             sys.exit(2)
-        input_frontmatter, tilde_body = read_text_file(input_file)
         logger.info('Computed line_count: %d', count_lines(tilde_body))
         logger.info('Computed word_count: %d', len(extract_lexical_words(tilde_body)))
         logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(tilde_body))
@@ -174,18 +168,17 @@ Version {__version__}
         logger.info('Computed prosodic_unit_count: %d', count_prosodic_units(tilde_body))
         logger.info('Computed accentuated_syllable_count: %d', int(result['accentuation_stats']['accentuated_syllables']))
         results.append(result)
+        inherited_syllabify_options.append(inherited_syllabify)
 
     if args.outdir != '.':
         Path(args.outdir).mkdir(parents=True, exist_ok=True)
 
-    if args.prefix:
-        safe_output = simple_safe_filename(args.prefix)
-        base = Path(args.outdir) / safe_output
-    else:
-        if len(input_files) == 1:
-            base = Path(args.outdir) / Path(input_files[0]).stem
-        else:
-            base = Path(args.outdir) / 'metrics'
+    try:
+        safe_output = simple_safe_filename(require_effective_prefix(args.prefix, 'metricalc'))
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
+    base = Path(args.outdir) / safe_output
 
     if args.json:
         json_file = base.with_name(base.name + '_metrics.json')
@@ -231,22 +224,20 @@ Version {__version__}
 
     if args.table:
         if len(results) == 1:
+            inherited_syllabify = inherited_syllabify_options[0]
             table_context = {
                 'cli': 'metricalc.py',
                 'wpm_words_per_min': args.wpm,
                 'pause_ratio_percent': args.pause_ratio,
                 'short_pause_punct_weight_unitless': 1.0,
                 'long_pause_punct_weight_unitless': args.long_punct_weight,
-                'extra_consonants': args.extra_consonants,
-                'extra_vowels': args.extra_vowels,
+                'extra_consonants': inherited_syllabify['extra_consonants'],
+                'extra_vowels': inherited_syllabify['extra_vowels'],
                 'input': format_path_for_logging(input_files[0]),
             }
             table = format_table(results[0], run_context=table_context)
             input_frontmatter, tilde_body = read_text_file(input_files[0])
-            if args.prefix:
-                table_file = base.with_name(base.name + '_metrics.txt')
-            else:
-                table_file = base.with_name(base.stem + '_metrics.txt')
+            table_file = base.with_name(base.name + '_metrics.txt')
 
             frontmatter = build_output_frontmatter(
                 output_path=table_file,
@@ -263,15 +254,15 @@ Version {__version__}
                 f.write(compose_text_document(frontmatter, table))
             logger.info('Written file: %s', format_path_for_logging(table_file))
         else:
-            for input_file, result in zip(input_files, results):
+            for input_file, result, inherited_syllabify in zip(input_files, results, inherited_syllabify_options):
                 table_context = {
                     'cli': 'metricalc.py',
                     'wpm_words_per_min': args.wpm,
                     'pause_ratio_percent': args.pause_ratio,
                     'short_pause_punct_weight_unitless': 1.0,
                     'long_pause_punct_weight_unitless': args.long_punct_weight,
-                    'extra_consonants': args.extra_consonants,
-                    'extra_vowels': args.extra_vowels,
+                    'extra_consonants': inherited_syllabify['extra_consonants'],
+                    'extra_vowels': inherited_syllabify['extra_vowels'],
                     'input': format_path_for_logging(input_file),
                 }
                 table = format_table(result, run_context=table_context)

@@ -25,92 +25,103 @@ class ConfigField:
 
 
 COMMON_SECTION = "common"
+ATFPARSE_SECTION = "atfparse"
+SYLLABIFY_SECTION = "syllabify"
+PROSODY_SECTION = "prosody"
+METRICS_SECTION = "metrics"
+PRINT_SECTION = "print"
+
 CONFIG_SECTION_ORDER = (
     COMMON_SECTION,
-    "atfparser",
-    "syllabifier",
-    "prosmaker",
-    "metricalc",
-    "printer",
+    ATFPARSE_SECTION,
+    SYLLABIFY_SECTION,
+    PROSODY_SECTION,
+    METRICS_SECTION,
+    PRINT_SECTION,
+)
+
+PREFIX_REQUIRED_TOOLS = frozenset(
+    {
+        "atfparser",
+        "syllabifier",
+        "prosmaker",
+        "metricalc",
+        "printer",
+        "fullprosmaker",
+    }
 )
 
 CONFIG_SCHEMA: dict[str, dict[str, ConfigField]] = {
     COMMON_SECTION: {
-        "prefix": ConfigField(None, "nullable_string", config_help(COMMON_SECTION, "prefix")),
+        "prefix": ConfigField("akkapros", "nullable_string", config_help(COMMON_SECTION, "prefix")),
         "outdir": ConfigField(".", "string", config_help(COMMON_SECTION, "outdir")),
         "quiet": ConfigField(False, "bool", config_help(COMMON_SECTION, "quiet")),
         "no_console": ConfigField(False, "bool", config_help(COMMON_SECTION, "no_console")),
         "log": ConfigField(None, "nullable_string", config_help(COMMON_SECTION, "log")),
         "log_append": ConfigField(False, "bool", config_help(COMMON_SECTION, "log_append")),
     },
-    "atfparser": {
-        "remove_hyphens": ConfigField(False, "bool", config_help("atfparser", "remove_hyphens")),
-        "preserve_case": ConfigField(False, "bool", config_help("atfparser", "preserve_case")),
-        "preserve_h": ConfigField(False, "bool", config_help("atfparser", "preserve_h")),
-        "strict": ConfigField(False, "bool", config_help("atfparser", "strict")),
-        "append": ConfigField(False, "bool", config_help("atfparser", "append")),
+    ATFPARSE_SECTION: {
+        "remove_hyphens": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "remove_hyphens")),
+        "preserve_case": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "preserve_case")),
+        "preserve_h": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "preserve_h")),
+        "strict": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "strict")),
+        "append": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "append")),
     },
-    "syllabifier": {
-        "extra_vowels": ConfigField("", "string", config_help("syllabifier", "extra_vowels")),
-        "extra_consonants": ConfigField("", "string", config_help("syllabifier", "extra_consonants")),
-        "short_punct_chars": ConfigField("", "string", config_help("syllabifier", "short_punct_chars")),
-        "long_punct_chars": ConfigField("", "string", config_help("syllabifier", "long_punct_chars")),
-        "short_punct_pattern": ConfigField([], "string_list", config_help("syllabifier", "short_punct_pattern")),
-        "long_punct_pattern": ConfigField([], "string_list", config_help("syllabifier", "long_punct_pattern")),
-        "number_format": ConfigField("", "string", config_help("syllabifier", "number_format")),
-        "merge_hyphen": ConfigField(False, "bool", config_help("syllabifier", "merge_hyphen")),
-        "merge_lines": ConfigField(False, "bool", config_help("syllabifier", "merge_lines")),
-        "title": ConfigField(None, "nullable_string", config_help("syllabifier", "title")),
+    SYLLABIFY_SECTION: {
+        "extra_vowels": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_vowels")),
+        "extra_consonants": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_consonants")),
+        "extra_short_punct_chars": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_short_punct_chars")),
+        "extra_long_punct_chars": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_long_punct_chars")),
+        "extra_short_punct_pattern": ConfigField([], "string_list", config_help(SYLLABIFY_SECTION, "extra_short_punct_pattern")),
+        "extra_long_punct_pattern": ConfigField([], "string_list", config_help(SYLLABIFY_SECTION, "extra_long_punct_pattern")),
+        "number_format": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "number_format")),
+        "merge_hyphen": ConfigField(False, "bool", config_help(SYLLABIFY_SECTION, "merge_hyphen")),
+        "merge_lines": ConfigField(False, "bool", config_help(SYLLABIFY_SECTION, "merge_lines")),
+        "title": ConfigField(None, "nullable_string", config_help(SYLLABIFY_SECTION, "title")),
     },
-    "prosmaker": {
-        "style": ConfigField("lob", "string", config_help("prosmaker", "style"), choices=("lob", "sob")),
-        "mora_mode": ConfigField("bi", "string", config_help("prosmaker", "mora_mode"), choices=("bi", "mono")),
-        "relax_last": ConfigField(False, "bool", config_help("prosmaker", "relax_last")),
+    PROSODY_SECTION: {
+        "style": ConfigField("lob", "string", config_help(PROSODY_SECTION, "style"), choices=("lob", "sob")),
+        "mora_mode": ConfigField("bi", "string", config_help(PROSODY_SECTION, "mora_mode"), choices=("bi", "mono")),
+        "relax_last": ConfigField(False, "bool", config_help(PROSODY_SECTION, "relax_last")),
     },
-    "metricalc": {
-        "csv": ConfigField(False, "bool", config_help("metricalc", "csv")),
-        "table": ConfigField(False, "bool", config_help("metricalc", "table")),
-        "json": ConfigField(False, "bool", config_help("metricalc", "json")),
-        "wpm": ConfigField(165.0, "float", config_help("metricalc", "wpm")),
-        "pause_ratio": ConfigField(35.0, "float", config_help("metricalc", "pause_ratio")),
-        "long_punct_weight": ConfigField(2.0, "float", config_help("metricalc", "long_punct_weight")),
-        "extra_consonants": ConfigField("", "string", config_help("metricalc", "extra_consonants")),
-        "extra_vowels": ConfigField("", "string", config_help("metricalc", "extra_vowels")),
-        "short_punct_chars": ConfigField("", "string", config_help("metricalc", "short_punct_chars")),
-        "long_punct_chars": ConfigField("", "string", config_help("metricalc", "long_punct_chars")),
-        "short_punct_pattern": ConfigField([], "string_list", config_help("metricalc", "short_punct_pattern")),
-        "long_punct_pattern": ConfigField([], "string_list", config_help("metricalc", "long_punct_pattern")),
-        "explicit_link_count": ConfigField(None, "nullable_scalar", config_help("metricalc", "explicit_link_count")),
+    METRICS_SECTION: {
+        "csv": ConfigField(False, "bool", config_help(METRICS_SECTION, "csv")),
+        "table": ConfigField(False, "bool", config_help(METRICS_SECTION, "table")),
+        "json": ConfigField(False, "bool", config_help(METRICS_SECTION, "json")),
+        "wpm": ConfigField(165.0, "float", config_help(METRICS_SECTION, "wpm")),
+        "pause_ratio": ConfigField(35.0, "float", config_help(METRICS_SECTION, "pause_ratio")),
+        "long_punct_weight": ConfigField(2.0, "float", config_help(METRICS_SECTION, "long_punct_weight")),
+        "explicit_link_count": ConfigField(None, "nullable_scalar", config_help(METRICS_SECTION, "explicit_link_count")),
     },
-    "printer": {
-        "acute": ConfigField(False, "bool", config_help("printer", "acute")),
-        "bold": ConfigField(False, "bool", config_help("printer", "bold")),
-        "ipa": ConfigField(False, "bool", config_help("printer", "ipa")),
-        "ipa_proto_semitic": ConfigField("preserve", "string", config_help("printer", "ipa_proto_semitic"), choices=("preserve", "replace")),
-        "circ_hiatus": ConfigField(False, "bool", config_help("printer", "circ_hiatus")),
-        "xar": ConfigField(False, "bool", config_help("printer", "xar")),
-        "mbrola": ConfigField(False, "bool", config_help("printer", "mbrola")),
-        "print_merger": ConfigField(False, "bool", config_help("printer", "print_merger")),
+    PRINT_SECTION: {
+        "acute": ConfigField(False, "bool", config_help(PRINT_SECTION, "acute")),
+        "bold": ConfigField(False, "bool", config_help(PRINT_SECTION, "bold")),
+        "ipa": ConfigField(False, "bool", config_help(PRINT_SECTION, "ipa")),
+        "ipa_proto_semitic": ConfigField("preserve", "string", config_help(PRINT_SECTION, "ipa_proto_semitic"), choices=("preserve", "replace")),
+        "circ_hiatus": ConfigField(False, "bool", config_help(PRINT_SECTION, "circ_hiatus")),
+        "xar": ConfigField(False, "bool", config_help(PRINT_SECTION, "xar")),
+        "mbrola": ConfigField(False, "bool", config_help(PRINT_SECTION, "mbrola")),
+        "print_merger": ConfigField(False, "bool", config_help(PRINT_SECTION, "print_merger")),
     },
 }
 
 TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] = {
-    "atfparser": ((COMMON_SECTION, None), ("atfparser", None)),
-    "syllabifier": ((COMMON_SECTION, None), ("syllabifier", None)),
-    "prosmaker": ((COMMON_SECTION, None), ("prosmaker", None)),
-    "metricalc": ((COMMON_SECTION, None), ("metricalc", None)),
-    "printer": ((COMMON_SECTION, None), ("printer", None)),
+    "atfparser": ((COMMON_SECTION, None), (ATFPARSE_SECTION, None)),
+    "syllabifier": ((COMMON_SECTION, None), (SYLLABIFY_SECTION, None)),
+    "prosmaker": ((COMMON_SECTION, None), (PROSODY_SECTION, None)),
+    "metricalc": ((COMMON_SECTION, None), (METRICS_SECTION, None)),
+    "printer": ((COMMON_SECTION, None), (PRINT_SECTION, None)),
     "fullprosmaker": (
         (COMMON_SECTION, None),
         (
-            "syllabifier",
+            SYLLABIFY_SECTION,
             {
                 "extra_vowels": "extra_vowels",
                 "extra_consonants": "extra_consonants",
-                "short_punct_chars": "short_punct_chars",
-                "long_punct_chars": "long_punct_chars",
-                "short_punct_pattern": "short_punct_pattern",
-                "long_punct_pattern": "long_punct_pattern",
+                "extra_short_punct_chars": "extra_short_punct_chars",
+                "extra_long_punct_chars": "extra_long_punct_chars",
+                "extra_short_punct_pattern": "extra_short_punct_pattern",
+                "extra_long_punct_pattern": "extra_long_punct_pattern",
                 "number_format": "number_format",
                 "merge_hyphen": "syl_merge_hyphens",
                 "merge_lines": "syl_merge_lines",
@@ -118,7 +129,7 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             },
         ),
         (
-            "prosmaker",
+            PROSODY_SECTION,
             {
                 "style": "prosody_style",
                 "mora_mode": "mora_mode",
@@ -126,7 +137,7 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             },
         ),
         (
-            "metricalc",
+            METRICS_SECTION,
             {
                 "csv": "metrics_csv",
                 "table": "metrics_table",
@@ -138,7 +149,7 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             },
         ),
         (
-            "printer",
+            PRINT_SECTION,
             {
                 "acute": "print_acute",
                 "bold": "print_bold",
@@ -310,7 +321,7 @@ def load_config_file(path: str | Path) -> dict[str, dict[str, Any]]:
 def write_config_file(path: str | Path, config: dict[str, Any]) -> None:
     config_path = Path(path)
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    normalized = normalize_config(config)
+    normalized = validate_config_write(config)
     config_path.write_text(_render_documented_config(normalized), encoding="utf-8")
 
 
@@ -345,6 +356,26 @@ def tool_config_values(config: dict[str, dict[str, Any]], tool_name: str) -> dic
         for key, dest in field_map.items():
             merged[dest] = deepcopy(section_values[key])
     return merged
+
+
+def require_effective_prefix(prefix: Any, tool_name: str) -> str:
+    if tool_name not in PREFIX_REQUIRED_TOOLS:
+        return "" if prefix is None else str(prefix)
+    if not isinstance(prefix, str) or not prefix.strip():
+        raise ConfigError(
+            f"{tool_name} requires a non-null effective prefix; set common.prefix in --conf or pass --prefix"
+        )
+    return prefix
+
+
+def validate_config_write(config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    normalized = normalize_config(config)
+    prefix = normalized[COMMON_SECTION].get("prefix")
+    if not isinstance(prefix, str) or not prefix.strip():
+        raise ConfigError(
+            "confwriter cannot write a config with a null common.prefix; set --prefix or update the config first"
+        )
+    return normalized
 
 
 def add_config_argument(parser: argparse.ArgumentParser) -> None:

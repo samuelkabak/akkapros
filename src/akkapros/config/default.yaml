@@ -2,13 +2,13 @@
 # This file uses the repository's restricted YAML subset: nested mappings,
 # scalars, and JSON-style lists.
 # Common keys apply across file-producing CLIs.
-# fullprosmaker reads common plus the syllabifier, prosmaker, metricalc, and
-# printer sections.
+# fullprosmaker reads common plus the syllabify, prosody, metrics, and print
+# sections.
 
 # Shared options used across file-producing CLIs.
 common:
   # Shared output prefix used by file-producing CLIs.
-  prefix: null
+  prefix: "akkapros"
   # Shared output directory used by file-producing CLIs.
   outdir: "."
   # Suppress informational console logging while keeping warnings and errors
@@ -22,7 +22,7 @@ common:
   log_append: false
 
 # Options specific to the atfparser CLI.
-atfparser:
+atfparse:
   # Remove sign-boundary hyphens in cleaned output.
   remove_hyphens: false
   # Preserve case from the source ATF transliteration.
@@ -37,19 +37,19 @@ atfparser:
 
 # Options used by the syllabifier CLI and by fullprosmaker during the syllabify
 # stage.
-syllabifier:
+syllabify:
   # Additional characters to treat as vowels.
   extra_vowels: ""
   # Additional characters to treat as consonants.
   extra_consonants: ""
   # Additional short-pause punctuation characters.
-  short_punct_chars: ""
+  extra_short_punct_chars: ""
   # Additional long-pause punctuation characters.
-  long_punct_chars: ""
+  extra_long_punct_chars: ""
   # Repeatable regexes for short-pause punctuation segments.
-  short_punct_pattern: []
+  extra_short_punct_pattern: []
   # Repeatable regexes for long-pause punctuation segments.
-  long_punct_pattern: []
+  extra_long_punct_pattern: []
   # Regex used to recognize numbers; empty uses the built-in English-grouping-
   # compatible pattern.
   number_format: ""
@@ -62,7 +62,7 @@ syllabifier:
 
 # Options used by the prosmaker CLI and by fullprosmaker during the prosody
 # stage.
-prosmaker:
+prosody:
   # Accent style for prosody realization.
   style: "lob"
   # Mora-mode gate for accentuation attempts.
@@ -72,7 +72,7 @@ prosmaker:
   relax_last: false
 
 # Options used by the metricalc CLI and by fullprosmaker for metrics outputs.
-metricalc:
+metrics:
   # Emit deprecated CSV output.
   csv: false
   # Write human-readable metrics table output.
@@ -85,23 +85,11 @@ metricalc:
   pause_ratio: 35.0
   # Long-pause punctuation weight relative to short-pause punctuation.
   long_punct_weight: 2.0
-  # Additional characters to treat as consonants.
-  extra_consonants: ""
-  # Additional characters to treat as vowels.
-  extra_vowels: ""
-  # Additional short-pause punctuation characters.
-  short_punct_chars: ""
-  # Additional long-pause punctuation characters.
-  long_punct_chars: ""
-  # Repeatable regexes for short-pause punctuation segments.
-  short_punct_pattern: []
-  # Repeatable regexes for long-pause punctuation segments.
-  long_punct_pattern: []
   # Override inherited metadata.data.prosody.explicit_word_link_count.
   explicit_link_count: null
 
 # Options used by the printer CLI and by fullprosmaker for print outputs.
-printer:
+print:
   # Write <prefix>_accent_acute.txt.
   acute: false
   # Write <prefix>_accent_bold.md.

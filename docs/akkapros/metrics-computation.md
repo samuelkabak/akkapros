@@ -591,8 +591,8 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
 - `short_pause_per_syll = N_short_pause / total_syllables`
 
 **Configuration controls:**
-- Extend short class by character with `--short-punct-chars`.
-- Extend short class by regex with repeatable `--short-punct-pattern`.
+- Extend short class upstream in syllabifier with `--extra-short-punct-chars`.
+- Extend short class upstream in syllabifier with repeatable `--extra-short-punct-pattern`.
 
 **Unit:**
 - `pause/syllable`
@@ -619,8 +619,8 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
 - `long_pause_per_syll = N_long_pause / total_syllables`
 
 **Configuration controls:**
-- Extend long class by character with `--long-punct-chars`.
-- Extend long class by regex with repeatable `--long-punct-pattern`.
+- Extend long class upstream in syllabifier with `--extra-long-punct-chars`.
+- Extend long class upstream in syllabifier with repeatable `--extra-long-punct-pattern`.
 
 **Regex semantics:**
 - Patterns are Python regex compiled before processing starts (fail-fast).
@@ -887,7 +887,7 @@ Each report includes effective parameters (run context), including:
 - `wpm`
 - `pause_ratio`
 - `long_punct_weight`
-- extra phonetic inventory overrides
+- inherited extra phonetic inventory overrides from the upstream syllabify stage
 
 This makes each metrics file self-describing and reproducible.
 The same safe-path rule is also used for the report header and the top-level
@@ -904,7 +904,10 @@ filesystem prefixes.
     --pause-ratio
     --long-punct-weight
     --table, --json
-    --extra-consonants, --extra-vowels
+
+  **Note:** `metricalc.py` inherits `extra-consonants`, `extra-vowels`, and
+  the punctuation-extension settings from the input file front matter instead
+  of exposing them as direct CLI flags.
 
 ### `fullprosmaker.py` (metrics stage)
 

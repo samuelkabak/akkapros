@@ -37,7 +37,7 @@ from akkapros.lib.frontmatter import (
     merge_frontmatter_documents,
     read_text_file,
 )
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -228,10 +228,11 @@ MIT License (c) 2026 Samuel KABAK
         sys.exit(2)
     
     # Determine output prefix
-    if args.prefix:
-        prefix = args.prefix
-    else:
-        prefix = input_path.stem
+    try:
+        prefix = require_effective_prefix(args.prefix, 'atfparser')
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
     
     outdir = Path(args.outdir)
 

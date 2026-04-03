@@ -5,6 +5,7 @@ import sys
 import pytest
 
 from akkapros.lib import metrics, syllabify
+from akkapros.lib.frontmatter import split_frontmatter
 
 
 @pytest.fixture(autouse=True)
@@ -110,9 +111,154 @@ def test_fullprosmaker_passes_punctuation_options(tmp_path):
         "sample",
         "--outdir",
         str(outdir),
-        "--short-punct-chars",
+        "--extra-short-punct-chars",
         "o",
         "--metrics-table",
     ]
     proc = subprocess.run(cmd, cwd=repo_root, env=env, capture_output=True, text=True, encoding="utf-8")
     assert proc.returncode == 0, f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+
+
+def test_metricalc_help_omits_inherited_punctuation_flags(tmp_path):
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    env = os.environ.copy()
+    src_path = os.path.join(repo_root, "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.metricalc", "--help"],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 0
+    assert "--short-punct-chars" not in proc.stdout
+    assert "--long-punct-chars" not in proc.stdout
+    assert "--short-punct-pattern" not in proc.stdout
+    assert "--long-punct-pattern" not in proc.stdout
+    assert "--extra-consonants" not in proc.stdout
+    assert "--extra-vowels" not in proc.stdout
+
+
+def test_metricalc_consumes_inherited_punctuation_options_from_input(tmp_path):
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    env = os.environ.copy()
+    src_path = os.path.join(repo_root, "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc_file = tmp_path / "sample_proc.txt"
+    proc_file.write_text("sar o gimir\n", encoding="utf-8")
+    outdir = tmp_path / "out"
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    syl = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.syllabifier",
+            str(proc_file),
+            "-p",
+            "sample",
+            "--outdir",
+            str(outdir),
+            "--extra-short-punct-chars",
+            "o",
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert syl.returncode == 0, f"STDOUT:\n{syl.stdout}\nSTDERR:\n{syl.stderr}"
+
+    tilde = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.prosmaker",
+            str(outdir / "sample_syl.txt"),
+            "-p",
+            "sample",
+            "--outdir",
+            str(outdir),
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert tilde.returncode == 0, f"STDOUT:\n{tilde.stdout}\nSTDERR:\n{tilde.stderr}"
+
+    metrics_proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.metricalc",
+            str(outdir / "sample_tilde.txt"),
+            "-p",
+            "sample",
+            "--outdir",
+            str(outdir),
+            "--table",
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert metrics_proc.returncode == 0, f"STDOUT:\n{metrics_proc.stdout}\nSTDERR:\n{metrics_proc.stderr}"
+
+
+def test_fullprosmaker_propagates_extra_inventory_settings_to_metrics_outputs(tmp_path):
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    env = os.environ.copy()
+    src_path = os.path.join(repo_root, "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc_file = tmp_path / "sample_proc.txt"
+    proc_file.write_text("sar gimir\n", encoding="utf-8")
+    outdir = tmp_path / "out"
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.fullprosmaker",
+            str(proc_file),
+            "-p",
+            "sample",
+            "--outdir",
+            str(outdir),
+            "--extra-vowels",
+            "ø",
+            "--extra-consonants",
+            "ɣ",
+            "--metrics-table",
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert proc.returncode == 0, f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+
+    tilde_frontmatter, _ = split_frontmatter((outdir / "sample_tilde.txt").read_text(encoding="utf-8"))
+    metrics_frontmatter, _ = split_frontmatter((outdir / "sample_metrics.txt").read_text(encoding="utf-8"))
+
+    assert tilde_frontmatter is not None
+    assert metrics_frontmatter is not None
+    assert tilde_frontmatter["metadata"]["options"]["extra_vowels"] == "ø"
+    assert tilde_frontmatter["metadata"]["options"]["extra_consonants"] == "ɣ"
+    assert metrics_frontmatter["metadata"]["options"]["extra_vowels"] == "ø"
+    assert metrics_frontmatter["metadata"]["options"]["extra_consonants"] == "ɣ"

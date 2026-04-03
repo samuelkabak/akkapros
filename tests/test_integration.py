@@ -752,9 +752,9 @@ def test_fullprosmaker_runs_from_config_file(tmp_path: Path) -> None:
         {
             ("common", "prefix"): "cfgdemo",
             ("common", "outdir"): str(outdir),
-            ("metricalc", "json"): True,
-            ("printer", "ipa"): True,
-            ("prosmaker", "style"): "sob",
+            ("metrics", "json"): True,
+            ("print", "ipa"): True,
+            ("prosody", "style"): "sob",
         },
     )
     config_path = tmp_path / "fullprosmaker.yaml"
@@ -786,7 +786,7 @@ def test_atfparser_cli_flag_overrides_config_file(tmp_path: Path) -> None:
         {
             ("common", "prefix"): "from_config",
             ("common", "outdir"): str(outdir),
-            ("atfparser", "preserve_case"): True,
+            ("atfparse", "preserve_case"): True,
         },
     )
     config_path = tmp_path / "atfparser.yaml"
@@ -826,7 +826,7 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
         str(config_path),
         "--outdir",
         str(outdir),
-        "--atfparser-preserve-case",
+        "--atfparse-preserve-case",
     )
 
     _run_cli(

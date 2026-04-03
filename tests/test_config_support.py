@@ -25,7 +25,9 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "metrics_prefix" not in loaded["common"]
     assert "print_prefix" not in loaded["common"]
     assert "fullprosmaker:" not in text
-    assert "fullprosmaker reads common plus the syllabifier, prosmaker, metricalc, and" in text
+    assert "fullprosmaker reads common plus the syllabify, prosody, metrics, and" in text
+    assert text.count('extra_vowels: ""') == 1
+    assert text.count('extra_consonants: ""') == 1
 
 
 def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) -> None:
@@ -34,8 +36,8 @@ def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) 
         {
             ("common", "prefix"): "from-config",
             ("common", "outdir"): str(tmp_path / "configured"),
-            ("metricalc", "json"): True,
-            ("prosmaker", "style"): "sob",
+            ("metrics", "json"): True,
+            ("prosody", "style"): "sob",
         },
     )
     config_path = tmp_path / "run.yaml"
@@ -79,7 +81,7 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     assert first.returncode == 0, first.stderr
 
     second = subprocess.run(
-        cmd_prefix + ["--outdir", str(tmp_path / "out"), "--atfparser-preserve-case"],
+        cmd_prefix + ["--outdir", str(tmp_path / "out"), "--atfparse-preserve-case"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -92,6 +94,27 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     text = config_path.read_text(encoding="utf-8")
     assert loaded["common"]["prefix"] == "one"
     assert loaded["common"]["outdir"] == str(tmp_path / "out")
-    assert loaded["atfparser"]["preserve_case"] is True
+    assert loaded["atfparse"]["preserve_case"] is True
     assert "# Shared output prefix used by file-producing CLIs." in text
     assert "fullprosmaker:" not in text
+
+
+def test_confwriter_rejects_null_effective_prefix(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text("common:\n  prefix: null\n", encoding="utf-8")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--outdir", str(tmp_path / "out")],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 2
+    assert "null common.prefix" in (proc.stderr + proc.stdout)

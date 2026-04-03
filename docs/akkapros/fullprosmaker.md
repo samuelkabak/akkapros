@@ -87,12 +87,12 @@ Like standalone `metricalc.py`, full-pipeline metrics outputs do not republish
 
 | Option | Description |
 |--------|-------------|
-| `--extra-vowels <chars>` | Additional vowel characters to recognize |
-| `--extra-consonants <chars>` | Additional consonant characters to recognize |
-| `--short-punct-chars <chars>` | Additional short-pause punctuation characters (passed to syllabifier and metrics) |
-| `--long-punct-chars <chars>` | Additional long-pause punctuation characters (passed to syllabifier and metrics) |
-| `--short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments (passed to syllabifier and metrics) |
-| `--long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments (passed to syllabifier and metrics) |
+| `--extra-vowels <chars>` | Additional vowel characters to recognize in the syllabify stage; downstream metrics inherits them from front matter |
+| `--extra-consonants <chars>` | Additional consonant characters to recognize in the syllabify stage; downstream metrics inherits them from front matter |
+| `--extra-short-punct-chars <chars>` | Additional short-pause punctuation characters for the syllabify stage; downstream metrics inherits them from front matter |
+| `--extra-long-punct-chars <chars>` | Additional long-pause punctuation characters for the syllabify stage; downstream metrics inherits them from front matter |
+| `--extra-short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments in the syllabify stage; downstream metrics inherits them from front matter |
+| `--extra-long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments in the syllabify stage; downstream metrics inherits them from front matter |
 | `--number-format <regex>` | Number regex passed to syllabifier stage (empty uses built-in English-grouping-compatible pattern) |
 | `--syl-merge-hyphens` | Merge hyphens into syllable separators |
 | `--syl-merge-lines` | Normalize line breaks (default preserves original lines) |
@@ -211,10 +211,10 @@ This generates:
     python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
       -p erra \
       --outdir outputs \
-      --short-punct-chars "·" \
-      --long-punct-chars "※" \
-      --short-punct-pattern "^\\s*[·]+\\s*$" \
-      --long-punct-pattern "^\\s*[※]+\\s*$"
+      --extra-short-punct-chars "·" \
+      --extra-long-punct-chars "※" \
+      --extra-short-punct-pattern "^\\s*[·]+\\s*$" \
+      --extra-long-punct-pattern "^\\s*[※]+\\s*$"
 
 ### Run with IPA and Speculative Circumflex Hiatus
 

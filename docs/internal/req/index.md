@@ -2,6 +2,7 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [023. Requirement: Mandatory Prefix, Library-Named Config Sections, and Inherited Punctuation Settings](023-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-settings.md) - Draft
 - [020. Requirement: Configurable Merge-Connector Printing](020-configurable-merge-connector-printing.md) - Implemented
 - [019. Requirement: Prosody Mora Mode Selection](019-prosody-mora-mode-selection.md) - Draft
 - [016. Requirement: Standardized CLI Logging and Console Options](016-standardized-cli-logging-and-console-options.md) - Implemented

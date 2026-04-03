@@ -18,7 +18,7 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib import print as accent_print
@@ -178,8 +178,11 @@ def main() -> None:
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
 
-    default_prefix = input_path.stem.replace('_tilde', '')
-    prefix = simple_safe_filename(args.prefix if args.prefix else default_prefix)
+    try:
+        prefix = simple_safe_filename(require_effective_prefix(args.prefix, 'printer'))
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
 
     write_acute = args.acute
     write_bold = args.bold

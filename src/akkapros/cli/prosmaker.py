@@ -22,7 +22,7 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
 from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib.utils import (
@@ -96,11 +96,12 @@ def main() -> None:
     if outdir != Path('.'):
         outdir.mkdir(parents=True, exist_ok=True)
 
-    if args.prefix:
-        safe_output = simple_safe_filename(args.prefix)
-        output_file = outdir / f"{safe_output}_tilde.txt"
-    else:
-        output_file = outdir / (input_path.stem.replace('_syl', '') + '_tilde.txt')
+    try:
+        safe_output = simple_safe_filename(require_effective_prefix(args.prefix, 'prosmaker'))
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
+    output_file = outdir / f"{safe_output}_tilde.txt"
 
     style_map = {'lob': AccentStyle.LOB, 'sob': AccentStyle.SOB}
     mora_mode_map = {'bi': MoraMode.BI, 'mono': MoraMode.MONO}

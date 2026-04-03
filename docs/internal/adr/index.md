@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [038. Mandatory Prefix, Library-Named Config Sections, and Inherited Punctuation Options](038-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-options.md) - Proposed
 - [037. Centralized Help Message Registry for CLI and Config Docs](037-centralized-help-message-registry-for-cli-and-config-docs.md) - Proposed
 - [036. Package-Wide YAML Configuration and CLI Override Precedence](036-package-wide-yaml-configuration-and-cli-override-precedence.md) - Proposed
 - [035. Separate Hiatus Marker and Word-Initial Zero-Onset Contract](035-separate-hiatus-marker-and-word-initial-zero-onset-contract.md) - Proposed

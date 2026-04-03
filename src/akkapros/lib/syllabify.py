@@ -143,8 +143,8 @@ def configure_punctuation_rules(
         long_patterns.extend(long_punct_patterns)
 
     # Compile before processing any input text so regex mistakes fail fast.
-    ACTIVE_SHORT_PUNCT_REGEX = _compile_regex_patterns(short_patterns, '--short-punct-pattern')
-    ACTIVE_LONG_PUNCT_REGEX = _compile_regex_patterns(long_patterns, '--long-punct-pattern')
+    ACTIVE_SHORT_PUNCT_REGEX = _compile_regex_patterns(short_patterns, '--extra-short-punct-pattern')
+    ACTIVE_LONG_PUNCT_REGEX = _compile_regex_patterns(long_patterns, '--extra-long-punct-pattern')
 
     ACTIVE_SHORT_PUNCT_PATTERNS = tuple(short_patterns)
     ACTIVE_LONG_PUNCT_PATTERNS = tuple(long_patterns)
@@ -668,7 +668,7 @@ def tokenize_line(line: str, extra: str = '', line_number: Optional[int] = None)
                 location = f" line {line_number}" if line_number is not None else ''
                 raise PunctuationConfigError(
                     f"Undeclared punctuation{location}: token {punct!r}, unknown chars {unknown_str!r}. "
-                    "Declare via --short-punct-chars/--long-punct-chars or matching --*-punct-pattern options."
+                    "Declare via --extra-short-punct-chars/--extra-long-punct-chars or matching --extra-*-punct-pattern options."
                 )
             if punct:
                 tokens.append(('punct', punct))
@@ -1044,7 +1044,7 @@ def run_tests() -> bool:
         case_index += 1
         label = format_selftest_label(case_index, total, name)
         try:
-            compiled = _compile_regex_patterns(custom_patterns, '--short-punct-pattern')
+            compiled = _compile_regex_patterns(custom_patterns, '--extra-short-punct-pattern')
             contextual = contextualize_for_regex(sample, at_sol=True, at_eol=True, at_eof=False)
             match = any(rx.search(contextual) for rx in compiled)
             if match == should_match:

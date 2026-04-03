@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[032. Require prefixes, rename config sections, and inherit punctuation settings](032-require-prefixes-rename-config-sections-and-inherit-punctuation-settings.md) - Draft
 [031. Centralize CLI help text for CLI and config doc emission](031-centralize-cli-help-text-for-cli-and-config-doc-emission.md) - Draft
 [030. Add package-wide YAML config support and `confwriter`](030-add-package-wide-yaml-config-and-confwriter.md) - Draft
 [029. Introduce separate hiatus marker for word-initial vowel hiatus](029-introduce-separate-hiatus-marker-for-word-initial-vowel-hiatus.md) - Draft
