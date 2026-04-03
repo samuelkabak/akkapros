@@ -22,6 +22,7 @@ from akkapros.lib.constants import (
     AKKADIAN_VOWELS,
     CLOSE_ESCAPE,
     DIPH_SEPARATOR,
+    HIATUS_MARKER,
     FUNCTION_WORDS,
     OPEN_ESCAPE,
     SYL_SEPARATOR,
@@ -556,6 +557,7 @@ def _normalize_word_piece(piece: str) -> str:
     normalized = piece.replace(SYL_WORD_ENDING, "")
     normalized = normalized.replace(SYL_SEPARATOR, "")
     normalized = normalized.replace(DIPH_SEPARATOR, "")
+    normalized = normalized.replace(HIATUS_MARKER, "")
     normalized = normalized.replace("~", "")
     return normalized.strip()
 

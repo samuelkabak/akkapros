@@ -142,7 +142,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 
 ## 📝 Important Processing Notes
 
-- **Diphthong handling**: The library may insert glottal stops between adjacent vowels for diphthong expansion (e.g., `ua` → `u·ʾa`). These are later restored by `prosmaker.py`.
+- **Diphthong handling**: The library inserts the internal diphthong-transition marker between adjacent vowels (for example, `ua` → `u·¨a`). Word-initial vowel hiatus uses the separate marker `˙` (for example, `ana` → `˙a·na`). These internal markers are later consumed by `prosmaker.py` and downstream stages without changing printer or metricalc outputs.
 - **Hyphen and linker behavior** is context-sensitive and follows Akkadian morphological boundaries.
 - **Cross-line attached `-` / `+` handling** belongs to the syllabifier stage only. A line-final attached connector is treated as lexical continuation only when it matches the strict pattern `AKKADIAN_LETTER + EOL + AKKADIAN_LETTER`.
 - **Punctuation** is preserved as escaped material (`⟦...⟧`) and is not syllabified as Akkadian words.
@@ -166,7 +166,7 @@ Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
 - `[:bof:]` is intentionally unsupported.
 - EOF is normalized internally to end-of-line semantics; user patterns do not need a dedicated EOF token.
 - Escape `$` as `\$` when you need a literal dollar character.
-- The diphthong separator `¨` is a normal literal character in regex; it is not treated specially by punctuation matching.
+- The diphthong separator `¨` and the word-initial hiatus marker `˙` are normal literal characters in regex; neither is treated specially by punctuation matching.
 - Practical rule: use anchored patterns like `^...$` for exact suite matching to avoid accidental partial matches.
 
 Example (em dash with required surrounding spacing or line-end):

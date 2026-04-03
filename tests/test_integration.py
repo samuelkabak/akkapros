@@ -22,7 +22,7 @@ INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 GOLD_VARCOC_ACCENTUATED = 86.57
 GOLD_ACCENTUATION_RATE = 21.74
 GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma : ti·¨ā~m·tu pi·tiq·ša"
-GOLD_MONO_TILDE_SAMPLE_LINE = "tā·ḫā~·za ik~·ta·ṣar : a·na+i·lī~ nip·rī~·ša"
+GOLD_MONO_TILDE_SAMPLE_LINE = "tā·ḫā~·za ˙ik~·ta·ṣar : ˙a·na+˙i·lī~ nip·rī~·ša"
 
 
 def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:

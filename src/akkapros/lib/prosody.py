@@ -42,6 +42,7 @@ from akkapros.lib.constants import (
     WORD_LINKER,
     CIRCUMFLEX_VOWELS,
     DIPH_SEPARATOR,
+    HIATUS_MARKER,
     FUNCTION_WORDS,
 )
 
@@ -64,7 +65,11 @@ CIRCUMFLEX = set(CIRCUMFLEX_VOWELS)
 
 def is_function_word(word_text: str) -> bool:
     """Return True if word is a function word (ignoring dots and hyphens)."""
-    return word_text.replace(SYL_SEPARATOR, '').replace(HYPHEN, '') in FUNCTION_WORDS
+    return (
+        word_text.replace(SYL_SEPARATOR, '')
+        .replace(HYPHEN, '')
+        .replace(HIATUS_MARKER, '') in FUNCTION_WORDS
+    )
 
 
 class AccentStyle(Enum):
@@ -1077,10 +1082,10 @@ def run_tests():
         },
         {
             'name': 'Function words merge forward with content',
-            'input': 'u¦a·na¦šar·ri¦',
+            'input': 'u¦˙a·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+a·na+šar·ri',
-                'sob': 'u+a·na+šar·ri'
+                'lob': 'u+˙a·na+šar·ri',
+                'sob': 'u+˙a·na+šar·ri'
             }
         },
         {
@@ -1101,10 +1106,10 @@ def run_tests():
         },
         {
             'name': 'Multiple function words with content',
-            'input': 'u¦a·na¦i·na¦šar·ri¦',
+            'input': 'u¦˙a·na¦˙i·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+a·na+i·na+šar·ri',
-                'sob': 'u+a·na+i·na+šar·ri'
+                'lob': 'u+˙a·na+˙i·na+šar·ri',
+                'sob': 'u+˙a·na+˙i·na+šar·ri'
             }
         },
         
@@ -1173,10 +1178,10 @@ def run_tests():
         },
         {
             'name': 'Multiple hyphens and enclitics',
-            'input': 'ī·tam·mi¦a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦i·mat¦mū·ti¦',
+            'input': 'ī·tam·mi¦˙a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦˙i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī·tam~·mi a·na+kak·kī~·šu — lit~·pa·tā i·mat+mū·ti',
-                'sob': 'ī·tam~·mi a·na+kak·kī~·šu — lit~·pa·tā i·mat+mū·ti'
+                'lob': 'ī·tam~·mi ˙a·na+kak·kī~·šu — lit~·pa·tā ˙i·mat+mū·ti',
+                'sob': 'ī·tam~·mi ˙a·na+kak·kī~·šu — lit~·pa·tā ˙i·mat+mū·ti'
             }
         },
 
@@ -1207,18 +1212,18 @@ def run_tests():
         },
         {
             'name': 'Explicit plus resolves internally before propagating further',
-            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'input': 'bā·nû+˙a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû+a·na·ku+šar·ri',
-                'sob': 'bā·nû+a·na·ku+šar·ri'
+                'lob': 'bā·nû+˙a·na·ku+šar·ri',
+                'sob': 'bā·nû+˙a·na·ku+šar·ri'
             }
         },
         {
             'name': 'Explicit plus unresolved at punctuation uses last-resort on last word',
-            'input': 'šar+a·na·ku¦⟦ ···⟧',
+            'input': 'šar+˙a·na·ku¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar+~a·na·ku ···',
-                'sob': 'šar+~a·na·ku ···'
+                'lob': 'šar+˙~a·na·ku ···',
+                'sob': 'šar+˙~a·na·ku ···'
             }
         },
         {
@@ -1231,10 +1236,10 @@ def run_tests():
         },
         {
             'name': 'Explicit plus then function words with content',
-            'input': 'šar+bā·nû¦u¦a·na¦i·na¦šar·ri¦',
+            'input': 'šar+bā·nû¦u¦˙a·na¦˙i·na¦šar·ri¦',
             'expected': {
-                'lob': 'šar+bā·nû u+a·na+i·na+šar·ri',
-                'sob': 'šar+bā·nû u+a·na+i·na+šar·ri'
+                'lob': 'šar+bā·nû u+˙a·na+˙i·na+šar·ri',
+                'sob': 'šar+bā·nû u+˙a·na+˙i·na+šar·ri'
             }
         },
         
@@ -1302,18 +1307,18 @@ def run_tests():
         },
         {
             'name': 'relax_last may place accentuation before linked tail when legal',
-            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'input': 'bā·nû+˙a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû~+a·na·ku šar~·ri',
-                'sob': 'bā·nû~+a·na·ku šar~·ri',
+                'lob': 'bā·nû~+˙a·na·ku šar~·ri',
+                'sob': 'bā·nû~+˙a·na·ku šar~·ri',
             }
         },
         {
             'name': 'relax_last unresolved at punctuation uses last-resort on tail',
-            'input': 'šar+a·na·ku¦⟦ ···⟧',
+            'input': 'šar+˙a·na·ku¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar+~a·na·ku ···',
-                'sob': 'šar+~a·na·ku ···',
+                'lob': 'šar+˙~a·na·ku ···',
+                'sob': 'šar+˙~a·na·ku ···',
             }
         },
     ]
@@ -1373,10 +1378,10 @@ def run_tests():
         },
         {
             'name': 'Mono mode keeps explicit pre-tail word locked before last resort',
-            'input': 'bā·nû+a·na·ku¦šar·ri¦',
+            'input': 'bā·nû+˙a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû+~a·na·ku šar~·ri',
-                'sob': 'bā·nû+~a·na·ku šar~·ri',
+                'lob': 'bā·nû+˙~a·na·ku šar~·ri',
+                'sob': 'bā·nû+˙~a·na·ku šar~·ri',
             },
         },
     ]
@@ -1420,170 +1425,170 @@ def run_tests():
     matrix_cases = [
         {
             'name': 'Scenario 01 one word alone mora even',
-            'input': 'ap·sî¦',
+            'input': '˙ap·sî¦',
             'structure': 'single',
             'word_count': 1,
             'group_parity': 'even',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'ap·sî', 'mono': 'ap·sî~'},
-                'sob': {'bi': 'ap·sî', 'mono': 'ap~·sî'},
+                'lob': {'bi': '˙ap·sî', 'mono': '˙ap·sî~'},
+                'sob': {'bi': '˙ap·sî', 'mono': '˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 02 one word alone mora odd',
-            'input': 'i·lī¦',
+            'input': '˙i·lī¦',
             'structure': 'single',
             'word_count': 1,
             'group_parity': 'odd',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'i·lī~', 'mono': 'i·lī~'},
-                'sob': {'bi': 'i·lī~', 'mono': 'i·lī~'},
+                'lob': {'bi': '˙i·lī~', 'mono': '˙i·lī~'},
+                'sob': {'bi': '˙i·lī~', 'mono': '˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 03 function group mora even last odd',
-            'input': 'iš·tu¦i·lī¦',
+            'input': 'iš·tu¦˙i·lī¦',
             'structure': 'function',
             'word_count': 2,
             'group_parity': 'even',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'iš·tu+i·lī', 'mono': 'iš·tu+i·lī~'},
-                'sob': {'bi': 'iš·tu+i·lī', 'mono': 'iš·tu+i·lī~'},
+                'lob': {'bi': 'iš·tu+˙i·lī', 'mono': 'iš·tu+˙i·lī~'},
+                'sob': {'bi': 'iš·tu+˙i·lī', 'mono': 'iš·tu+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 04 function group mora even last even',
-            'input': 'a·na¦ap·sî¦',
+            'input': '˙a·na¦˙ap·sî¦',
             'structure': 'function',
             'word_count': 2,
             'group_parity': 'even',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'a·na+ap·sî', 'mono': 'a·na+ap·sî~'},
-                'sob': {'bi': 'a·na+ap·sî', 'mono': 'a·na+ap~·sî'},
+                'lob': {'bi': '˙a·na+˙ap·sî', 'mono': '˙a·na+˙ap·sî~'},
+                'sob': {'bi': '˙a·na+˙ap·sî', 'mono': '˙a·na+˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 05 function group mora odd last odd',
-            'input': 'a·na¦i·lī¦',
+            'input': '˙a·na¦˙i·lī¦',
             'structure': 'function',
             'word_count': 2,
             'group_parity': 'odd',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'a·na+i·lī~', 'mono': 'a·na+i·lī~'},
-                'sob': {'bi': 'a·na+i·lī~', 'mono': 'a·na+i·lī~'},
+                'lob': {'bi': '˙a·na+˙i·lī~', 'mono': '˙a·na+˙i·lī~'},
+                'sob': {'bi': '˙a·na+˙i·lī~', 'mono': '˙a·na+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 06 function group mora odd last even',
-            'input': 'iš·tu¦ap·sî¦',
+            'input': 'iš·tu¦˙ap·sî¦',
             'structure': 'function',
             'word_count': 2,
             'group_parity': 'odd',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'iš·tu+ap·sî~', 'mono': 'iš·tu+ap·sî~'},
-                'sob': {'bi': 'iš·tu+ap~·sî', 'mono': 'iš·tu+ap~·sî'},
+                'lob': {'bi': 'iš·tu+˙ap·sî~', 'mono': 'iš·tu+˙ap·sî~'},
+                'sob': {'bi': 'iš·tu+˙ap~·sî', 'mono': 'iš·tu+˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 07 explicit group mora even last odd',
-            'input': 'u·lam·min+i·lī¦',
+            'input': 'u·lam·min+˙i·lī¦',
             'structure': 'explicit',
             'word_count': 2,
             'group_parity': 'even',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'u·lam·min+i·lī', 'mono': 'u·lam·min+i·lī~'},
-                'sob': {'bi': 'u·lam·min+i·lī', 'mono': 'u·lam·min+i·lī~'},
+                'lob': {'bi': 'u·lam·min+˙i·lī', 'mono': 'u·lam·min+˙i·lī~'},
+                'sob': {'bi': 'u·lam·min+˙i·lī', 'mono': 'u·lam·min+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 08 explicit group mora even last even',
-            'input': 'a·nan·ta+ap·sî¦',
+            'input': 'a·nan·ta+˙ap·sî¦',
             'structure': 'explicit',
             'word_count': 2,
             'group_parity': 'even',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'a·nan·ta+ap·sî', 'mono': 'a·nan·ta+ap·sî~'},
-                'sob': {'bi': 'a·nan·ta+ap·sî', 'mono': 'a·nan·ta+ap~·sî'},
+                'lob': {'bi': 'a·nan·ta+˙ap·sî', 'mono': 'a·nan·ta+˙ap·sî~'},
+                'sob': {'bi': 'a·nan·ta+˙ap·sî', 'mono': 'a·nan·ta+˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 09 explicit group mora odd last odd',
-            'input': 'a·nan·ta+i·lī¦',
+            'input': 'a·nan·ta+˙i·lī¦',
             'structure': 'explicit',
             'word_count': 2,
             'group_parity': 'odd',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'a·nan·ta+i·lī~', 'mono': 'a·nan·ta+i·lī~'},
-                'sob': {'bi': 'a·nan·ta+i·lī~', 'mono': 'a·nan·ta+i·lī~'},
+                'lob': {'bi': 'a·nan·ta+˙i·lī~', 'mono': 'a·nan·ta+˙i·lī~'},
+                'sob': {'bi': 'a·nan·ta+˙i·lī~', 'mono': 'a·nan·ta+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 10 explicit group mora odd last even',
-            'input': 'u·lam·min+ap·sî¦',
+            'input': 'u·lam·min+˙ap·sî¦',
             'structure': 'explicit',
             'word_count': 2,
             'group_parity': 'odd',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'u·lam·min+ap·sî~', 'mono': 'u·lam·min+ap·sî~'},
-                'sob': {'bi': 'u·lam·min+ap~·sî', 'mono': 'u·lam·min+ap~·sî'},
+                'lob': {'bi': 'u·lam·min+˙ap·sî~', 'mono': 'u·lam·min+˙ap·sî~'},
+                'sob': {'bi': 'u·lam·min+˙ap~·sî', 'mono': 'u·lam·min+˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 11 function plus explicit group even last odd',
-            'input': 'a·na+u·lam·min+i·lī¦',
+            'input': '˙a·na+u·lam·min+˙i·lī¦',
             'structure': 'function_plus_explicit',
             'word_count': 3,
             'group_parity': 'even',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'a·na+u·lam·min+i·lī', 'mono': 'a·na+u·lam·min+i·lī~'},
-                'sob': {'bi': 'a·na+u·lam·min+i·lī', 'mono': 'a·na+u·lam·min+i·lī~'},
+                'lob': {'bi': '˙a·na+u·lam·min+˙i·lī', 'mono': '˙a·na+u·lam·min+˙i·lī~'},
+                'sob': {'bi': '˙a·na+u·lam·min+˙i·lī', 'mono': '˙a·na+u·lam·min+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 12 function plus explicit group even last even',
-            'input': 'a·na+a·nan·ta+ap·sî¦',
+            'input': '˙a·na+a·nan·ta+˙ap·sî¦',
             'structure': 'function_plus_explicit',
             'word_count': 3,
             'group_parity': 'even',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'a·na+a·nan·ta+ap·sî', 'mono': 'a·na+a·nan·ta+ap·sî~'},
-                'sob': {'bi': 'a·na+a·nan·ta+ap·sî', 'mono': 'a·na+a·nan·ta+ap~·sî'},
+                'lob': {'bi': '˙a·na+a·nan·ta+˙ap·sî', 'mono': '˙a·na+a·nan·ta+˙ap·sî~'},
+                'sob': {'bi': '˙a·na+a·nan·ta+˙ap·sî', 'mono': '˙a·na+a·nan·ta+˙ap~·sî'},
             },
         },
         {
             'name': 'Scenario 13 function plus explicit group odd last odd',
-            'input': 'a·na+a·nan·ta+i·lī¦',
+            'input': '˙a·na+a·nan·ta+˙i·lī¦',
             'structure': 'function_plus_explicit',
             'word_count': 3,
             'group_parity': 'odd',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'a·na+a·nan·ta+i·lī~', 'mono': 'a·na+a·nan·ta+i·lī~'},
-                'sob': {'bi': 'a·na+a·nan·ta+i·lī~', 'mono': 'a·na+a·nan·ta+i·lī~'},
+                'lob': {'bi': '˙a·na+a·nan·ta+˙i·lī~', 'mono': '˙a·na+a·nan·ta+˙i·lī~'},
+                'sob': {'bi': '˙a·na+a·nan·ta+˙i·lī~', 'mono': '˙a·na+a·nan·ta+˙i·lī~'},
             },
         },
         {
             'name': 'Scenario 14 function plus explicit group odd last even',
-            'input': 'a·na+u·lam·min+ap·sî¦',
+            'input': '˙a·na+u·lam·min+˙ap·sî¦',
             'structure': 'function_plus_explicit',
             'word_count': 3,
             'group_parity': 'odd',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'a·na+u·lam·min+ap·sî~', 'mono': 'a·na+u·lam·min+ap·sî~'},
-                'sob': {'bi': 'a·na+u·lam·min+ap~·sî', 'mono': 'a·na+u·lam·min+ap~·sî'},
+                'lob': {'bi': '˙a·na+u·lam·min+˙ap·sî~', 'mono': '˙a·na+u·lam·min+˙ap·sî~'},
+                'sob': {'bi': '˙a·na+u·lam·min+˙ap~·sî', 'mono': '˙a·na+u·lam·min+˙ap~·sî'},
             },
         },
     ]

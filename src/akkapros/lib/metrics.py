@@ -42,6 +42,7 @@ from akkapros.lib.constants import (
     LONG_PAUSE_INCLUDES_NEWLINE,
     LONG_PAUSE_INCLUDES_FINAL_EOF,
     DIPH_SEPARATOR,
+    HIATUS_MARKER,
 )
 from akkapros.lib.utils import (
     compile_contextual_regex,
@@ -235,6 +236,7 @@ def build_word_pattern() -> re.Pattern:
     # Build regex classes - sort for consistency
     vowels_class = ''.join(sorted(ALL_VOWELS))
     consonants_class = ''.join(sorted(ALL_CONSONANTS))
+    internal_consonants_class = ''.join(sorted(ALL_CONSONANTS - {HIATUS_MARKER}))
     
     # CLASS_SYLLABLE_COMPLEMENT := (CONSONANTS or VOWELS or '~')
     complement_class = f'[{consonants_class}{vowels_class}~]*'
@@ -243,7 +245,7 @@ def build_word_pattern() -> re.Pattern:
     first_letter_class = f'[{consonants_class}{vowels_class}~]'
     
     # CLASS_WORD_INTERNAL_SYLLABLE_FIRST_LETTER := CONSONANTS
-    internal_first_class = f'[{consonants_class}]'
+    internal_first_class = f'[{internal_consonants_class}]'
     
     # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or HYPHEN
     syl_sep = rf'[\{SYL_SEPARATOR}\{HYPHEN}]'
@@ -320,6 +322,7 @@ def process_word(word: str) -> str:
     """
     # Diphthong memory is relevant for syllable statistics, not acoustic spacing.
     word = word.replace(DIPH_SEPARATOR, '')
+    word = word.replace(HIATUS_MARKER, '')
 
     # Step 1: Replace vowel + ~ with extra-long vowels
     replacements = [
@@ -592,6 +595,7 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
         for syl in syllables:
             if not syl:
                 continue
+            syl = syl.replace(HIATUS_MARKER, '')
             
             word_syllable_count += 1
             
@@ -1776,6 +1780,7 @@ def _test_word_pattern_matching() -> bool:
     full_word_pattern = re.compile(f'^(?:{word_pattern.pattern})$')
     test_cases = [
         ('at·tā', True),
+        ('˙a·na', True),
         ('ā·lik', True),
         ('maḫ·rim~-ma', True),
         ('i·lū~', True),
@@ -1813,6 +1818,7 @@ def _test_tokenizer() -> bool:
 def _test_word_processing() -> bool:
     cases = [
         ('at·tā', 'ʾat·tā'),
+        ('˙a·na', 'ʾa·na'),
         ('ā·lik', 'ʾā·lik'),
         ('maḫ·rim~-ma', 'maḫ·rim:-ma'),
         ('~a', ':a'),
@@ -1828,6 +1834,7 @@ def _test_word_processing() -> bool:
 def _test_preprocessing() -> bool:
     cases = [
         ('at·tā ā·lik', 'ʾat·tāʾā·lik'),
+        ('˙a·na i·lī', 'ʾa·naʾi·lī'),
         ('maḫ·rim~-ma dad~', 'maḫ·rim:-madad:'),
         ('ana+kâ·ša lu·ṣī-ma', 'ʾana+kâ·šalu·ṣī-ma'),
     ]
@@ -1841,7 +1848,7 @@ def _test_segment_extraction() -> bool:
     cases = [
         ('mas·ta', ['m', 's', 't'], ['a', '', 'a']),
         ('mas~·ta', ['m', 's', 't'], ['a', ':', 'a']),
-        ('a·na', ['ʾ', 'n'], ['a', 'a']),
+        ('˙a·na', ['ʾ', 'n'], ['a', 'a']),
     ]
     for inp, exp_cons, exp_vows in cases:
         pre = preprocess_text(inp)

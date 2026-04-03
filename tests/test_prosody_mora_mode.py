@@ -55,8 +55,8 @@ def test_mono_mode_skips_forward_merge_and_uses_last_resort() -> None:
 
 def test_mono_mode_keeps_explicit_pre_tail_word_locked_before_last_resort() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.MONO)
-    result = engine.accentuation_line(parse_syl_line("bā·nû+a·na·ku¦šar·ri¦"))
-    assert result == "bā·nû+~a·na·ku šar~·ri"
+    result = engine.accentuation_line(parse_syl_line("bā·nû+˙a·na·ku¦šar·ri¦"))
+    assert result == "bā·nû+˙~a·na·ku šar~·ri"
 
 
 def test_mono_mode_explicit_group_uses_internal_accentuation_before_last_resort() -> None:
@@ -73,14 +73,14 @@ def test_mono_mode_function_word_group_accentuates_content_host() -> None:
 
 def test_mono_mode_function_word_group_falls_to_last_resort_on_content_host() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.MONO)
-    result = engine.accentuation_line(parse_syl_line("a·na¦e·¨a¦"))
-    assert result == "a·na+~e·¨a"
+    result = engine.accentuation_line(parse_syl_line("˙a·na¦˙e·¨a¦"))
+    assert result == "˙a·na+˙~e·¨a"
 
 
 def test_bi_mode_function_word_group_accentuates_odd_unit_content_host() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.BI)
-    result = engine.accentuation_line(parse_syl_line("a·na¦i·lī¦"))
-    assert result == "a·na+i·lī~"
+    result = engine.accentuation_line(parse_syl_line("˙a·na¦˙i·lī¦"))
+    assert result == "˙a·na+˙i·lī~"
 
 
 def test_bi_mode_function_word_group_preserves_even_unit_without_accentuation() -> None:

@@ -31,6 +31,7 @@ OPEN_PRESERVE = OPEN_PRESERVE_CHAR + OPEN_PRESERVE_CHAR
 CLOSE_PRESERVE = CLOSE_PRESERVE_CHAR + CLOSE_PRESERVE_CHAR
 
 DIPH_SEPARATOR = '¨'
+HIATUS_MARKER = '˙'
 
 # ---- Internally sensitive normalization hooks -----------------------------
 # Do not inline these mutations back into the base sets. Some downstream code
@@ -38,6 +39,8 @@ DIPH_SEPARATOR = '¨'
 # hooks, even when the effective runtime set includes the same characters.
 # Treat diphthongs as consonant clusters for syllabification.
 AKKADIAN_CONSONANTS.add(DIPH_SEPARATOR)
+# Treat word-initial vowel hiatus as an internal pseudo-consonant onset.
+AKKADIAN_CONSONANTS.add(HIATUS_MARKER)
 
 # Backward compatibility alias (deprecated name)
 TIL_WORD_LINKER = WORD_LINKER

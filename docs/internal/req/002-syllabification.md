@@ -24,9 +24,10 @@ unchanged.
 Prosody realization and metrics computation both operate on syllable-level
 representations. Without a consistent, rule-governed syllabification layer,
 downstream tools cannot reliably detect syllable weight or apply phonological
-operations. The syllabifier also inserts glottal stops between vowels in hiatus
-(diphthong expansion) so that every vowel sequence is unambiguously parsed into
-two syllables—a requirement of the moraic algorithm.
+operations. The syllabifier also inserts explicit internal hiatus markers:
+`DIPH_SEPARATOR = '¨'` between adjacent vowels and `HIATUS_MARKER = '˙'` for
+word-initial vowel onset structure. This keeps every hiatus sequence
+unambiguously parseable into syllables for the moraic algorithm.
 
 Line structure (verse boundaries) must be preserved because it encodes phrasing
 information used by the prosody engine.
@@ -40,8 +41,10 @@ information used by the prosody engine.
 - [ ] Given a hyphenated construct `bīt-šarrim`, when syllabified with default settings,
       the hyphen is preserved as a prosodic boundary (`-`), not converted to a dot.
 - [ ] Given `--merge-hyphen`, hyphens are converted to syllable separators (dots).
-- [ ] Given adjacent vowels in hiatus (e.g. `ua`), a glottal stop `ʾ` is inserted between
-      them so the segment is split into two syllables.
+- [ ] Given adjacent vowels in hiatus (e.g. `ua`), the internal diphthong marker `¨` is inserted between
+      them so the segment is split into two syllables (for example `u·¨a`).
+- [ ] Given a vowel-initial word such as `ana`, the internal hiatus marker `˙` is inserted at
+      word onset (for example `˙a·na¦`).
 - [ ] Given `[punctuations/foreign text]` in the input, the content is wrapped in `⟦...⟧` escape
       syntax and internal whitespace is preserved unchanged.
 - [ ] Given CR-005 escape syntax (`{{text}}` or `{tag{text}}`), escaped chunks pass
@@ -76,6 +79,8 @@ information used by the prosody engine.
   | `¦` | Word-ending marker |
   | `-` | Hyphen boundary (preserved by default) |
   | `+` | Linker boundary (prosodic attachment) |
+      | `¨` | Internal diphthong-transition onset marker |
+      | `˙` | Internal word-initial hiatus marker |
   | `⟦...⟧` | Escaped non-Akkadian chunk |
 
 - Affected components: `src/akkapros/cli/syllabifier.py`, `src/akkapros/lib/syllabify.py`.
@@ -106,6 +111,7 @@ information used by the prosody engine.
 - Does NOT perform morphological analysis or lemmatization.
 - Does NOT assign stress; stress assignment is handled by REQ-003.
 - Does NOT parse non-Akkadian segments (they are escaped and passed through).
+- Does NOT change user-facing printer or metricalc outputs when internal hiatus markers are introduced downstream.
 
 # Security / Safety Considerations
 - Input originates from trusted internal pipeline output. No user-supplied code

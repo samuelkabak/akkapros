@@ -52,6 +52,7 @@ from akkapros.lib.constants import (
     CLOSE_PRESERVE_CHAR,
     TAG_PRESERVE_RE,
     DIPH_SEPARATOR,
+    HIATUS_MARKER,
     SHORT_PAUSE_PUNCTUATION_CHARS,
     SHORT_PAUSE_PUNCTUATION_PATTERNS,
     LONG_PAUSE_PUNCTUATION_CHARS,
@@ -522,19 +523,11 @@ def syllabify_word(word: str, merge_hyphen: bool = False) -> str:
             return word
         if not any(is_vowel(c) for c in segs):
             return word
+        if is_vowel(segs[0]):
+            segs = [HIATUS_MARKER] + segs
         syllables = []
         i, n = 0, len(segs)
-        first = True
         while i < n:
-            if first and is_vowel(segs[i]):
-                first = False
-                syl = [segs[i]]
-                i += 1
-                if i < n and not is_vowel(segs[i]) and (i+1 >= n or not is_vowel(segs[i+1])):
-                    syl.append(segs[i]); i += 1
-                syllables.append(''.join(syl))
-                continue
-            first = False
             onset = []
             while i < n and not is_vowel(segs[i]):
                 onset.append(segs[i]); i += 1
@@ -818,10 +811,10 @@ def run_tests() -> bool:
         ("CVC", "šar", "šar¦"),
         ("CVV", "bā", "bā¦"),
         ("CVVC", "nāš", "nāš¦"),
-        ("#VC", "ap", "ap¦"),
-        ("#V", "a", "a¦"),
-        ("#VV", "ī", "ī¦"),
-        ("#VVC", "ān", "ān¦"),
+        ("#VC", "ap", "˙ap¦"),
+        ("#V", "a", "˙a¦"),
+        ("#VV", "ī", "˙ī¦"),
+        ("#VVC", "ān", "˙ān¦"),
         
         # ===== WORD COMBINATIONS =====
         ("CV-CVC", "gimir", "gi·mir¦"),
@@ -829,8 +822,8 @@ def run_tests() -> bool:
         ("CVV-CVV", "bānû", "bā·nû¦"),
         ("CVC-CVV-CV", "kibrāti", "kib·rā·ti¦"),
         ("CVC-CVC-CVC-CV", "ḫendursanga", "ḫen·dur·san·ga¦"),
-        ("V-CVC", "apil", "a·pil¦"),
-        ("VC-CVC", "ellil", "el·lil¦"),
+        ("V-CVC", "apil", "˙a·pil¦"),
+        ("VC-CVC", "ellil", "˙el·lil¦"),
         ("CVVC-CVV", "rēštû", "rēš·tû¦"),
         ("CVC-CV-geminate", "ḫaṭṭi", "ḫaṭ·ṭi¦"),
         ("CVVC-CV", "ṣīrti", "ṣīr·ti¦"),
@@ -839,24 +832,24 @@ def run_tests() -> bool:
         ("CVC-CV-CV", "qaqqadi", "qaq·qa·di¦"),
         ("CVV-CVV", "rēʾû", "rē·ʾû¦"),
         ("CV-CVV-CVV-CV", "tenēšēti", "te·nē·šē·ti¦"),
-        ("VV-CVC", "īšum", "ī·šum¦"),
+        ("VV-CVC", "īšum", "˙ī·šum¦"),
         ("CVV-CV-CV", "ṭābiḫu", "ṭā·bi·ḫu¦"),
         ("CVC-CV", "naʾdu", "naʾ·du¦"),
-        ("V-CV", "ana", "a·na¦"),
+        ("V-CV", "ana", "˙a·na¦"),
         ("CV-CVV", "našê", "na·šê¦"),
         ("CVC-CVV-CV", "kakkīšu", "kak·kī·šu¦"),
-        ("VC-CVV-CV", "ezzūti", "ez·zū·ti¦"),
+        ("VC-CVV-CV", "ezzūti", "˙ez·zū·ti¦"),
         ("CVV-CVV-CV", "qātāšu", "qā·tā·šu¦"),
-        ("VC-CVV", "asmā", "as·mā¦"),
+        ("VC-CVV", "asmā", "˙as·mā¦"),
         
         # ===== HYPHEN TESTS =====
         ("Hyphenated word - preserve", "ḫendur-sanga", "ḫen·dur-san·ga¦"),
         ("Hyphenated word - merge", "ḫendur-sanga", "ḫen·dur·san·ga¦", True),
-        ("Multiple hyphens - preserve", "amēlu-ša-īšum", "a·mē·lu-ša-ī·šum¦"),
-        ("Multiple hyphens - merge", "amēlu-ša-īšum", "a·mē·lu·ša·ī·šum¦", True),
-        ("Word linker + preserve", "apilellil+gimirdadmē", "a·pi·lel·lil+gi·mir·dad·mē¦"),
-        ("Word linker + with syllabic words", "apil+ellil", "a·pil+el·lil¦"),
-        ("Mixed + and - separators", "apil+el-lil", "a·pil+el-lil¦"),
+        ("Multiple hyphens - preserve", "amēlu-ša-īšum", "˙a·mē·lu-ša-˙ī·šum¦"),
+        ("Multiple hyphens - merge", "amēlu-ša-īšum", "˙a·mē·lu·ša·˙ī·šum¦", True),
+        ("Word linker + preserve", "apilellil+gimirdadmē", "˙a·pi·lel·lil+gi·mir·dad·mē¦"),
+        ("Word linker + with syllabic words", "apil+ellil", "˙a·pil+˙el·lil¦"),
+        ("Mixed + and - separators", "apil+el-lil", "˙a·pil+˙el-lil¦"),
         ("Hyphen at beginning", "-šar", "⟦-⟧šar¦"),
         ("Hyphen at end", "šar-", "šar⟦-⟧¦"),
         ("Linker at beginning", "+šar", "⟦+⟧šar¦"),
@@ -874,8 +867,8 @@ def run_tests() -> bool:
         ("Newline between words", "šar\ngimir", "šar¦gi·mir¦"),
         ("Hyphen split across lines merge", "ḫendur-\nsanga", "ḫen·dur·san·ga¦", True),
         ("Spaced hyphen across lines no merge", "ḫendur -\nsanga", "ḫen·dur¦⟦ - ⟧san·ga¦"),
-        ("Word linker split across lines", "apil+\nellil", "a·pil+el·lil¦"),
-        ("Spaced linker across lines no merge", "apil +\nellil", "a·pil¦⟦ + ⟧el·lil¦"),
+        ("Word linker split across lines", "apil+\nellil", "˙a·pil+˙el·lil¦"),
+        ("Spaced linker across lines no merge", "apil +\nellil", "˙a·pil¦⟦ + ⟧˙el·lil¦"),
         ("Double newline", "šar\n\ngimir", "šar¦\ngi·mir¦"),
         ("Preserve lines single newline", "šar\ngimir", "šar¦\ngi·mir¦", False, True),
         
@@ -917,14 +910,14 @@ def run_tests() -> bool:
         
         # ===== REAL EXAMPLES =====
         ("Complex line", "ikkaru ina muḫḫi … — ibakki ṣarpiš", 
-         "ik·ka·ru¦i·na¦muḫ·ḫi¦⟦ … — ⟧i·bak·ki¦ṣar·piš¦"),
+         "˙ik·ka·ru¦˙i·na¦muḫ·ḫi¦⟦ … — ⟧˙i·bak·ki¦ṣar·piš¦"),
         
         # ===== DIPHTHONG TESTS =====
-        ("Diphthong ua", "ua", "u·¨a¦"),
-        ("Diphthong ai", "ai", "a·¨i¦"),
-        ("Diphthong iā", "iā", "i·¨ā¦"),
-        ("Multiple diphthongs", "ua iā", "u·¨a¦i·¨ā¦"),
-        ("Diphthong with consonant", "šar ua", "šar¦u·¨a¦"),
+        ("Diphthong ua", "ua", "˙u·¨a¦"),
+        ("Diphthong ai", "ai", "˙a·¨i¦"),
+        ("Diphthong iā", "iā", "˙i·¨ā¦"),
+        ("Multiple diphthongs", "ua iā", "˙u·¨a¦˙i·¨ā¦"),
+        ("Diphthong with consonant", "šar ua", "šar¦˙u·¨a¦"),
     ]
 
     error_tests = [

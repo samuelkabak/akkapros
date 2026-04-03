@@ -36,6 +36,7 @@ from akkapros.lib.constants import (
     SYL_SEPARATOR,
     WORD_LINKER,
     DIPH_SEPARATOR,
+    HIATUS_MARKER,
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
     OPEN_PRESERVE,
@@ -215,6 +216,9 @@ def _insert_glottal_stops(word: str) -> str:
     out = []
 
     for idx, char in enumerate(word):
+        if char == HIATUS_MARKER:
+            out.append(GLOTTAL_STOP)
+            continue
         boundary = idx == 0 or word[idx - 1] in {WORD_LINKER, HYPHEN}
         if boundary and char != GLOTTAL_STOP:
             if char in ALL_VOWELS:
@@ -232,6 +236,10 @@ def _insert_glottal_stops_with_indices(word: str) -> Tuple[str, list]:
     out_indices = []
 
     for idx, char in enumerate(word):
+        if char == HIATUS_MARKER:
+            out.append(GLOTTAL_STOP)
+            out_indices.append(-1)
+            continue
         boundary = idx == 0 or word[idx - 1] in {WORD_LINKER, HYPHEN}
         if boundary and char != GLOTTAL_STOP:
             if char in ALL_VOWELS:
@@ -303,6 +311,8 @@ def _convert_word_xar(word: str) -> str:
         elif char == SYL_SEPARATOR:
             continue
         elif char == DIPH_SEPARATOR:
+            continue
+        elif char == HIATUS_MARKER:
             continue
         elif char == HYPHEN:
             out.append(HYPHEN)
@@ -384,7 +394,7 @@ def _flush_syllable(
         return ''
 
     if mode == 'acute':
-        return syllable_text.replace(TILDE, ACUTE_MARK)
+        return syllable_text.replace(HIATUS_MARKER, '').replace(TILDE, ACUTE_MARK)
 
     if mode == 'ipa':
         accentuated = TILDE in syllable_text
@@ -422,6 +432,8 @@ def _flush_syllable(
                 ):
                     continue
                 converted.append(ipa_map[char])
+            elif char == HIATUS_MARKER:
+                continue
             elif char == TILDE:
                 converted.append(IPA_LENGTH)
             else:
@@ -456,6 +468,8 @@ def _flush_syllable(
                 )
             elif char in XAR_CONSONANT_MAP:
                 converted.append(XAR_CONSONANT_MAP[char])
+            elif char == HIATUS_MARKER:
+                continue
             elif char == TILDE:
                 converted.append(ACUTE_MARK)
             else:
@@ -480,6 +494,8 @@ def _flush_syllable(
                 )
             elif char in MBROLA_CONSONANT_MAP:
                 converted.append(MBROLA_CONSONANT_MAP[char])
+            elif char == HIATUS_MARKER:
+                continue
             elif char == TILDE:
                 converted.append(ACUTE_MARK)
             else:
@@ -487,7 +503,7 @@ def _flush_syllable(
 
         return ' '.join([item for item in converted if item])
 
-    clean = syllable_text.replace(TILDE, '')
+    clean = syllable_text.replace(HIATUS_MARKER, '').replace(TILDE, '')
     if TILDE in syllable_text and clean:
         return f"**{clean}**"
     return clean
