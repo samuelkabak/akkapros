@@ -2,6 +2,9 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[031. Centralize CLI help text for CLI and config doc emission](031-centralize-cli-help-text-for-cli-and-config-doc-emission.md) - Draft
+[030. Add package-wide YAML config support and `confwriter`](030-add-package-wide-yaml-config-and-confwriter.md) - Draft
+[029. Introduce separate hiatus marker for word-initial vowel hiatus](029-introduce-separate-hiatus-marker-for-word-initial-vowel-hiatus.md) - Draft
 [028. Configurable merge-connector printing](028-configurable-merge-connector-printing.md) - Done
 [027. Add prosody mora mode selection](027-add-prosody-mora-mode-selection.md) - Done
 [023. Adopt `logging-actions` for CLI logging](023-adopt-logging-actions-for-cli-logging.md) - Done

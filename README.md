@@ -70,6 +70,7 @@ All results are fully reproducible using the included demo scripts.
 | Guide | Description |
 |-------|-------------|
 | [Getting Started](docs/GETTING_STARTED.md) | Run the pipeline on a sample file |
+| [Configuration](docs/akkapros/configuration.md) | Shared YAML config, `--conf`, and `confwriter` |
 | [CLI Reference](docs/akkapros/) | Detailed documentation for each tool |
 | [Algorithm](docs/akkapros/prosody-realization-algorithm.md) | How the prosody realization works |
 | [Metrics](docs/akkapros/metrics-computation.md) | Full explanation of all computed metrics |

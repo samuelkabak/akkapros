@@ -28,6 +28,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 from akkapros import __version__, __repo_url__
 # Import from library
 from akkapros.lib.atfparse import ATFParser, run_tests, EBLError
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib.frontmatter import (
     build_atfparse_stage_data,
     build_output_frontmatter,
@@ -36,6 +37,7 @@ from akkapros.lib.frontmatter import (
     merge_frontmatter_documents,
     read_text_file,
 )
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -174,23 +176,28 @@ MIT License (c) 2026 Samuel KABAK
     )
     add_standard_version_argument(parser, 'akkapros-atfparser')
     add_standard_logging_arguments(parser)
-    parser.add_argument('input', nargs='?', help='eBL ATF file (must contain %%n lines)')
+    add_config_argument(parser)
+    parser.add_argument('input', nargs='?', help=help_for('atfparser.input'))
     parser.add_argument('-p', '--prefix', 
-                       help='Output prefix')
+                        help=help_for('atfparser.prefix'))
     parser.add_argument('--outdir', default='.',
-                       help='Output directory')
+                        help=help_for('atfparser.outdir'))
     parser.add_argument('--remove-hyphens', action='store_true',
-                    help='Remove hyphens (cuneiform sign boundaries) for cleaner reading text')
+                        help=help_for('atfparser.remove_hyphens'))
     parser.add_argument('--preserve-case', action='store_true',
-                       help='Preserve original case')
+                        help=help_for('atfparser.preserve_case'))
     parser.add_argument('--preserve-h', action='store_true',
-                       help='Preserve original [h,H]')
+                        help=help_for('atfparser.preserve_h'))
     parser.add_argument('--strict', action='store_true',
-                       help='Enable warnings for informational purposes')
-    parser.add_argument('--test', action='store_true', help='Run self-test suite')
-    parser.add_argument('--append', action='store_true', help='Append to output files instead of overwriting (each appended block starts on a new line)')
+                        help=help_for('atfparser.strict'))
+    parser.add_argument('--test', action='store_true', help=help_for('atfparser.test'))
+    parser.add_argument('--append', action='store_true', help=help_for('atfparser.append'))
     
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'atfparser')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
     
     # Handle test mode
     if args.test:
@@ -245,7 +252,7 @@ MIT License (c) 2026 Samuel KABAK
             outdir,
             options=effective_options_from_namespace(
                 args,
-                exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+                exclude={'input', 'outdir', 'prefix', 'test', 'version', 'conf'},
             ),
             logger=logger,
         )

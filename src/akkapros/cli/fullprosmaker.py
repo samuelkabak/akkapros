@@ -23,6 +23,7 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_syllabify_stage_data,
@@ -36,6 +37,7 @@ from akkapros.lib.frontmatter import (
     read_text_file,
     resolve_file_title,
 )
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib.prosody import (
     AccentStyle,
     MoraMode,
@@ -403,74 +405,79 @@ Version: {__version__}
     )
     add_standard_version_argument(parser, 'akkapros-fullprosmaker')
     add_standard_logging_arguments(parser)
+    add_config_argument(parser)
 
     # Input/output (shared)
-    parser.add_argument('input', nargs='?', help='Input Akkadian file (typically *_proc.txt)')
-    parser.add_argument('-p', '--prefix', help='Shared output prefix for all generated files')
-    parser.add_argument('--outdir', default='.', help='Shared output directory')
+    parser.add_argument('input', nargs='?', help=help_for('fullprosmaker.input'))
+    parser.add_argument('-p', '--prefix', help=help_for('fullprosmaker.prefix'))
+    parser.add_argument('--outdir', default='.', help=help_for('fullprosmaker.outdir'))
 
     # Syllabifier options
-    parser.add_argument('--extra-vowels', default='', help='Extra characters to treat as vowels')
-    parser.add_argument('--extra-consonants', default='', help='Extra characters to treat as consonants')
-    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
-    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+    parser.add_argument('--extra-vowels', default='', help=help_for('fullprosmaker.extra_vowels'))
+    parser.add_argument('--extra-consonants', default='', help=help_for('fullprosmaker.extra_consonants'))
+    parser.add_argument('--short-punct-chars', default='', help=help_for('fullprosmaker.short_punct_chars'))
+    parser.add_argument('--long-punct-chars', default='', help=help_for('fullprosmaker.long_punct_chars'))
     parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for short-pause punctuation segments')
+                        help=help_for('fullprosmaker.short_punct_pattern'))
     parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for long-pause punctuation segments')
+                        help=help_for('fullprosmaker.long_punct_pattern'))
     parser.add_argument('--number-format', default='',
-                        help='Number regex for syllabifier stage; empty uses built-in English-grouping-compatible pattern')
-    parser.add_argument('--syl-merge-hyphens', action='store_true', help='Merge hyphens into syllable separators in syllabification')
+                        help=help_for('fullprosmaker.number_format'))
+    parser.add_argument('--syl-merge-hyphens', action='store_true', help=help_for('fullprosmaker.syl_merge_hyphens'))
     parser.add_argument('--syl-merge-lines', action='store_true',
-                        help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
-    parser.add_argument('--title', help='Override inherited or missing file.title for syllabifier output front matter')
+                        help=help_for('fullprosmaker.syl_merge_lines'))
+    parser.add_argument('--title', help=help_for('fullprosmaker.title'))
 
     # Prosmaker options
     parser.add_argument('--prosody-style', dest='prosody_style', choices=['lob', 'sob'], default='lob',
-                        help='Prosody realization accent style')
+                        help=help_for('fullprosmaker.prosody_style'))
     parser.add_argument('--mora-mode', choices=['bi', 'mono'], default='bi',
-                        help='Mora-mode gate for prosody realization attempts')
+                        help=help_for('fullprosmaker.mora_mode'))
     parser.add_argument('--prosody-relax-last', dest='prosody_relax_last', action='store_true',
-                        help='For explicit + links, allow prosody realization propagation before the last linked word')
+                        help=help_for('fullprosmaker.prosody_relax_last'))
 
     # Metricalc options
     parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
-    parser.add_argument('--metrics-table', action='store_true', help='Write human-readable metrics table output')
-    parser.add_argument('--metrics-json', action='store_true', help='Write JSON metrics output')
-    parser.add_argument('--metrics-wpm', type=float, default=165, help='Words per minute [words/min] for speech-rate estimation')
-    parser.add_argument('--metrics-pause-ratio', type=float, default=35, help='Pause ratio [percent of total time]')
+    parser.add_argument('--metrics-table', action='store_true', help=help_for('fullprosmaker.metrics_table'))
+    parser.add_argument('--metrics-json', action='store_true', help=help_for('fullprosmaker.metrics_json'))
+    parser.add_argument('--metrics-wpm', type=float, default=165, help=help_for('fullprosmaker.metrics_wpm'))
+    parser.add_argument('--metrics-pause-ratio', type=float, default=35, help=help_for('fullprosmaker.metrics_pause_ratio'))
     parser.add_argument('--metrics-long-punct-weight', type=float, default=2.0,
-                        help='Long pause punctuation weight relative to short pause punctuation [unitless]')
+                        help=help_for('fullprosmaker.metrics_long_punct_weight'))
     parser.add_argument('--explicit-link-count',
-                        help='Override inherited metadata.data.prosody.explicit_word_link_count for metrics')
+                        help=help_for('fullprosmaker.explicit_link_count'))
 
     # Printer options
     parser.add_argument('--print-acute', action='store_true',
-                        help='Write <prefix>_accent_acute.txt')
+                        help=help_for('fullprosmaker.print_acute'))
     parser.add_argument('--print-bold', action='store_true',
-                        help='Write <prefix>_accent_bold.md')
+                        help=help_for('fullprosmaker.print_bold'))
     parser.add_argument('--print-ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt')
+                        help=help_for('fullprosmaker.print_ipa'))
     parser.add_argument('--print-ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
-                        help='IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger')
+                        help=help_for('fullprosmaker.print_ipa_proto_semitic'))
     parser.add_argument('--print-circ-hiatus', action='store_true',
-                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qu -> qu.u)')
+                        help=help_for('fullprosmaker.print_circ_hiatus'))
     parser.add_argument('--print-xar', action='store_true',
-                        help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
+                        help=help_for('fullprosmaker.print_xar'))
     parser.add_argument('--print-merger', action='store_true',
-                        help='Render visible merge connector ‿ in acute, bold, and accented XAR outputs')
+                        help=help_for('fullprosmaker.print_merger'))
 
     # Test controls (covering all grouped sub-components)
-    parser.add_argument('--test-syllabify', action='store_true', help='Run syllabify library tests')
+    parser.add_argument('--test-syllabify', action='store_true', help=help_for('fullprosmaker.test_syllabify'))
     parser.add_argument('--test-prosody', dest='test_prosody', action='store_true',
-                        help='Run prosody realization library tests')
-    parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
-    parser.add_argument('--test-metrics', action='store_true', help='Run metrics library tests')
-    parser.add_argument('--test-print', action='store_true', help='Run print library tests')
-    parser.add_argument('--test-cli', action='store_true', help='Run fullprosmaker CLI option-resolution tests')
-    parser.add_argument('--test-all', action='store_true', help='Run tests for syllabify, prosody realization, diphthongs, metrics and print')
+                        help=help_for('fullprosmaker.test_prosody'))
+    parser.add_argument('--test-diphthongs', action='store_true', help=help_for('fullprosmaker.test_diphthongs'))
+    parser.add_argument('--test-metrics', action='store_true', help=help_for('fullprosmaker.test_metrics'))
+    parser.add_argument('--test-print', action='store_true', help=help_for('fullprosmaker.test_print'))
+    parser.add_argument('--test-cli', action='store_true', help=help_for('fullprosmaker.test_cli'))
+    parser.add_argument('--test-all', action='store_true', help=help_for('fullprosmaker.test_all'))
 
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'fullprosmaker')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
 
     if args.test_all:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
@@ -589,7 +596,7 @@ Version: {__version__}
         options={
             **effective_options_from_namespace(
                 args,
-                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv'},
+                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv', 'conf'},
             ),
             'print_merger': args.print_merger,
         },

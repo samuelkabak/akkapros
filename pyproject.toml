@@ -39,7 +39,7 @@ include = ["akkapros*"]
 version = { attr = "akkapros.__version__" }
 
 [tool.setuptools.package-data]
-"akkapros" = ["docs/*.md"]
+"akkapros" = ["docs/*.md", "config/*.yaml"]
 
 [tool.build]
 generate = [
@@ -54,6 +54,7 @@ akkapros-metricalc = "akkapros.cli.metricalc:main"
 akkapros-atfparser = "akkapros.cli.atfparser:main"
 akkapros-printer = "akkapros.cli.printer:main"
 akkapros-phoneprep = "akkapros.cli.phoneprep:main"
+akkapros-confwriter = "akkapros.cli.confwriter:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -1,0 +1,122 @@
+# Package-wide Akkadian Prosody Toolkit configuration.
+# This file uses the repository's restricted YAML subset: nested mappings,
+# scalars, and JSON-style lists.
+# Common keys apply across file-producing CLIs.
+# fullprosmaker reads common plus the syllabifier, prosmaker, metricalc, and
+# printer sections.
+
+# Shared options used across file-producing CLIs.
+common:
+  # Shared output prefix used by file-producing CLIs.
+  prefix: null
+  # Shared output directory used by file-producing CLIs.
+  outdir: "."
+  # Suppress informational console logging while keeping warnings and errors
+  # visible.
+  quiet: false
+  # Disable console logging entirely.
+  no_console: false
+  # Optional runtime log file path.
+  log: null
+  # Append to the configured log file instead of overwriting it.
+  log_append: false
+
+# Options specific to the atfparser CLI.
+atfparser:
+  # Remove sign-boundary hyphens in cleaned output.
+  remove_hyphens: false
+  # Preserve case from the source ATF transliteration.
+  preserve_case: false
+  # Preserve original h/H characters.
+  preserve_h: false
+  # Enable informational warnings while parsing.
+  strict: false
+  # Append to output files instead of overwriting them; each appended block
+  # starts on a new line.
+  append: false
+
+# Options used by the syllabifier CLI and by fullprosmaker during the syllabify
+# stage.
+syllabifier:
+  # Additional characters to treat as vowels.
+  extra_vowels: ""
+  # Additional characters to treat as consonants.
+  extra_consonants: ""
+  # Additional short-pause punctuation characters.
+  short_punct_chars: ""
+  # Additional long-pause punctuation characters.
+  long_punct_chars: ""
+  # Repeatable regexes for short-pause punctuation segments.
+  short_punct_pattern: []
+  # Repeatable regexes for long-pause punctuation segments.
+  long_punct_pattern: []
+  # Regex used to recognize numbers; empty uses the built-in English-grouping-
+  # compatible pattern.
+  number_format: ""
+  # Merge hyphens into syllable separators.
+  merge_hyphen: false
+  # Merge lines instead of preserving source line structure.
+  merge_lines: false
+  # Override inherited or missing file title in output front matter.
+  title: null
+
+# Options used by the prosmaker CLI and by fullprosmaker during the prosody
+# stage.
+prosmaker:
+  # Accent style for prosody realization.
+  style: "lob"
+  # Mora-mode gate for accentuation attempts.
+  mora_mode: "bi"
+  # For explicit + links, allow prosody realization propagation before the last
+  # linked word.
+  relax_last: false
+
+# Options used by the metricalc CLI and by fullprosmaker for metrics outputs.
+metricalc:
+  # Emit deprecated CSV output.
+  csv: false
+  # Write human-readable metrics table output.
+  table: false
+  # Write JSON metrics output.
+  json: false
+  # Words per minute for speech-rate estimation.
+  wpm: 165.0
+  # Pause ratio as a percent of total time.
+  pause_ratio: 35.0
+  # Long-pause punctuation weight relative to short-pause punctuation.
+  long_punct_weight: 2.0
+  # Additional characters to treat as consonants.
+  extra_consonants: ""
+  # Additional characters to treat as vowels.
+  extra_vowels: ""
+  # Additional short-pause punctuation characters.
+  short_punct_chars: ""
+  # Additional long-pause punctuation characters.
+  long_punct_chars: ""
+  # Repeatable regexes for short-pause punctuation segments.
+  short_punct_pattern: []
+  # Repeatable regexes for long-pause punctuation segments.
+  long_punct_pattern: []
+  # Override inherited metadata.data.prosody.explicit_word_link_count.
+  explicit_link_count: null
+
+# Options used by the printer CLI and by fullprosmaker for print outputs.
+printer:
+  # Write <prefix>_accent_acute.txt.
+  acute: false
+  # Write <prefix>_accent_bold.md.
+  bold: false
+  # Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only).
+  ipa: false
+  # IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian
+  # merger.
+  ipa_proto_semitic: "preserve"
+  # Speculative IPA mode: split circumflex vowels into hiatus (for example qû
+  # -> qʊ.ʊ).
+  circ_hiatus: false
+  # Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.
+  xar: false
+  # Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols).
+  mbrola: false
+  # Render the visible merge connector in supported outputs.
+  print_merger: false

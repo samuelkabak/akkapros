@@ -18,7 +18,9 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
 from akkapros.lib.frontmatter import effective_options_from_namespace
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
@@ -118,29 +120,34 @@ def main() -> None:
     )
     add_standard_version_argument(parser, 'akkapros-printer')
     add_standard_logging_arguments(parser)
-    parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
-    parser.add_argument('-p', '--prefix', help='Output prefix (shared for all selected outputs)')
-    parser.add_argument('--outdir', default='.', help='Output directory')
+    add_config_argument(parser)
+    parser.add_argument('input', nargs='?', help=help_for('printer.input'))
+    parser.add_argument('-p', '--prefix', help=help_for('printer.prefix'))
+    parser.add_argument('--outdir', default='.', help=help_for('printer.outdir'))
 
     parser.add_argument('--acute', action='store_true',
-                        help='Write <prefix>_accent_acute.txt')
+                        help=help_for('printer.acute'))
     parser.add_argument('--bold', action='store_true',
-                        help='Write <prefix>_accent_bold.md')
+                        help=help_for('printer.bold'))
     parser.add_argument('--ipa', action='store_true',
-                        help='Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only)')
+                        help=help_for('printer.ipa'))
     parser.add_argument('--ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
-                        help='IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger')
+                        help=help_for('printer.ipa_proto_semitic'))
     parser.add_argument('--circ-hiatus', action='store_true',
-                        help='Speculative IPA mode: split circumflex vowels into hiatus (e.g., qû -> qʊ.ʊ)')
+                        help=help_for('printer.circ_hiatus'))
     parser.add_argument('--xar', action='store_true',
-                        help='Write both <prefix>_accent_xar.txt and <prefix>_xar.txt')
+                        help=help_for('printer.xar'))
     parser.add_argument('--mbrola', action='store_true',
-                        help='Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols)')
+                        help=help_for('printer.mbrola'))
     parser.add_argument('--print-merger', action='store_true',
-                        help='Render visible merge connector ‿ in acute, bold, and accented XAR outputs')
-    parser.add_argument('--test', action='store_true', help='Run internal tests')
+                        help=help_for('printer.print_merger'))
+    parser.add_argument('--test', action='store_true', help=help_for('printer.test'))
 
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'printer')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
 
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.printer')
@@ -210,7 +217,7 @@ def main() -> None:
         options={
             **effective_options_from_namespace(
                 args,
-                exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+                exclude={'input', 'outdir', 'prefix', 'test', 'version', 'conf'},
             ),
             'print_merger': args.print_merger,
         },

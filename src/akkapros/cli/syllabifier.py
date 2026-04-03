@@ -22,6 +22,8 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_syllabify_stage_data,
@@ -123,27 +125,32 @@ def main():
     )
     add_standard_version_argument(parser, 'akkapros-syllabifier')
     add_standard_logging_arguments(parser)
-    parser.add_argument('input', nargs='?', help='Input file')
-    parser.add_argument('-p', '--prefix', help='Output file prefix')
+    add_config_argument(parser)
+    parser.add_argument('input', nargs='?', help=help_for('syllabifier.input'))
+    parser.add_argument('-p', '--prefix', help=help_for('syllabifier.prefix'))
     parser.add_argument('--outdir', default='.',
-                        help='Output directory')
-    parser.add_argument('--extra-vowels', default='', help='Extra vowels')
-    parser.add_argument('--extra-consonants', default='', help='Extra consonants')
-    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
-    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+                        help=help_for('syllabifier.outdir'))
+    parser.add_argument('--extra-vowels', default='', help=help_for('syllabifier.extra_vowels'))
+    parser.add_argument('--extra-consonants', default='', help=help_for('syllabifier.extra_consonants'))
+    parser.add_argument('--short-punct-chars', default='', help=help_for('syllabifier.short_punct_chars'))
+    parser.add_argument('--long-punct-chars', default='', help=help_for('syllabifier.long_punct_chars'))
     parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for short-pause punctuation segments')
+                        help=help_for('syllabifier.short_punct_pattern'))
     parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for long-pause punctuation segments')
+                        help=help_for('syllabifier.long_punct_pattern'))
     parser.add_argument('--number-format', default='',
-                        help='Number regex; empty uses built-in English-grouping-compatible pattern')
-    parser.add_argument('--merge-hyphen', action='store_true', help='Merge hyphen to dots')
+                        help=help_for('syllabifier.number_format'))
+    parser.add_argument('--merge-hyphen', action='store_true', help=help_for('syllabifier.merge_hyphen'))
     parser.add_argument('--merge-lines', action='store_true',
-                        help='Merge lines (1 newline=space, 2+ to paragraph break). Default preserves original lines')
-    parser.add_argument('--title', help='Override inherited or missing file.title in output front matter')
-    parser.add_argument('--test', action='store_true', help='Run internal tests')
+                        help=help_for('syllabifier.merge_lines'))
+    parser.add_argument('--title', help=help_for('syllabifier.title'))
+    parser.add_argument('--test', action='store_true', help=help_for('syllabifier.test'))
 
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'syllabifier')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.syllabifier')
         log_startup_banner(logger, 'akkapros-syllabifier', __version__, args)
@@ -205,7 +212,7 @@ def main():
         title=args.title,
         options=effective_options_from_namespace(
             args,
-            exclude={'input', 'outdir', 'prefix', 'test', 'version'},
+            exclude={'input', 'outdir', 'prefix', 'test', 'version', 'conf'},
         ),
         logger=logger,
     )

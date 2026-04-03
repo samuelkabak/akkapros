@@ -15,6 +15,7 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     count_function_words,
@@ -27,6 +28,7 @@ from akkapros.lib.frontmatter import (
     read_text_file,
     resolve_file_title,
 )
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib.metrics import (
     METRICS_CSV_DEPRECATION_MESSAGE,
     PunctuationConfigError,
@@ -65,33 +67,38 @@ Version {__version__}
     )
     add_standard_version_argument(parser, 'akkapros-metricalc')
     add_standard_logging_arguments(parser)
-    parser.add_argument('input', nargs='?', help='Input *_tilde.txt file')
-    parser.add_argument('--input-list', help='File containing list of input files (one per line)')
-    parser.add_argument('-p', '--prefix', help='Output prefix')
-    parser.add_argument('--outdir', default='.', help='Output directory')
+    add_config_argument(parser)
+    parser.add_argument('input', nargs='?', help=help_for('metricalc.input'))
+    parser.add_argument('--input-list', help=help_for('metricalc.input_list'))
+    parser.add_argument('-p', '--prefix', help=help_for('metricalc.prefix'))
+    parser.add_argument('--outdir', default='.', help=help_for('metricalc.outdir'))
     parser.add_argument('--csv', action='store_true', help=argparse.SUPPRESS)
-    parser.add_argument('--table', action='store_true', help='Output human-readable table')
-    parser.add_argument('--json', action='store_true', help='Output JSON format')
-    parser.add_argument('--wpm', type=float, default=165, help='Words per minute [words/min]')
+    parser.add_argument('--table', action='store_true', help=help_for('metricalc.table'))
+    parser.add_argument('--json', action='store_true', help=help_for('metricalc.json'))
+    parser.add_argument('--wpm', type=float, default=165, help=help_for('metricalc.wpm'))
     parser.add_argument('--pause-ratio', type=float, default=35,
-                        help='Pause ratio [percent of total time]')
+                        help=help_for('metricalc.pause_ratio'))
     parser.add_argument('--long-punct-weight', type=float, default=2.0,
-                        help='Long pause punctuation weight relative to short pause punctuation [unitless]')
+                        help=help_for('metricalc.long_punct_weight'))
     parser.add_argument('--extra-consonants', default='',
-                        help='Extra characters to treat as consonants')
+                        help=help_for('metricalc.extra_consonants'))
     parser.add_argument('--extra-vowels', default='',
-                        help='Extra characters to treat as vowels')
-    parser.add_argument('--short-punct-chars', default='', help='Additional short-pause punctuation characters')
-    parser.add_argument('--long-punct-chars', default='', help='Additional long-pause punctuation characters')
+                        help=help_for('metricalc.extra_vowels'))
+    parser.add_argument('--short-punct-chars', default='', help=help_for('metricalc.short_punct_chars'))
+    parser.add_argument('--long-punct-chars', default='', help=help_for('metricalc.long_punct_chars'))
     parser.add_argument('--short-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for short-pause punctuation segments')
+                        help=help_for('metricalc.short_punct_pattern'))
     parser.add_argument('--long-punct-pattern', action='append', default=[],
-                        help='Repeatable regex for long-pause punctuation segments')
+                        help=help_for('metricalc.long_punct_pattern'))
     parser.add_argument('--explicit-link-count',
-                        help='Override inherited metadata.data.prosody.explicit_word_link_count')
-    parser.add_argument('--test', action='store_true', help='Run unit tests')
+                        help=help_for('metricalc.explicit_link_count'))
+    parser.add_argument('--test', action='store_true', help=help_for('metricalc.test'))
 
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'metricalc')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
 
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
@@ -143,7 +150,7 @@ Version {__version__}
     update_character_sets(args.extra_consonants, args.extra_vowels)
     option_values = effective_options_from_namespace(
         args,
-        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv'},
+        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv', 'conf'},
     )
 
     results = []

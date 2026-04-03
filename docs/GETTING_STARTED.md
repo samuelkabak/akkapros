@@ -32,6 +32,8 @@ Metrics and printer outputs do not republish `metadata.data`; they keep only
   python -m akkapros.cli.atfparser data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
   python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt -p demo --outdir outputs
 
+You can also move recurring options into a shared config file and reuse them with `--conf FILE`. See `docs/akkapros/configuration.md` for the package-wide schema and `confwriter` usage.
+
 ---
 
 ## What to Inspect
@@ -95,6 +97,7 @@ warning, and error messages now use the shared logger.
 ## Next Steps
 
 - For detailed CLI documentation, see:
+  - `docs/akkapros/configuration.md` – Shared YAML config and `confwriter`
   - `docs/akkapros/fullprosmaker.md` – End-to-end pipeline
   - `docs/akkapros/syllabifier.md` – Syllabification stage
   - `docs/akkapros/prosmaker.md` – Prosody realization stage

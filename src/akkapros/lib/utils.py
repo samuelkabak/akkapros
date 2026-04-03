@@ -308,24 +308,26 @@ def log_startup_banner(
 
 def add_standard_logging_arguments(parser: argparse.ArgumentParser) -> None:
     """Add the shared CLI logging controls mandated across runtime CLIs."""
+    from akkapros.lib.helpmsg import help_for
+
     parser.add_argument(
         '--quiet',
         action='store_true',
-        help='Suppress informational console logging; warnings and errors remain visible',
+        help=help_for('logging.quiet'),
     )
     parser.add_argument(
         '--no-console',
         action='store_true',
-        help='Disable console logging entirely',
+        help=help_for('logging.no_console'),
     )
     parser.add_argument(
         '--log',
-        help='Write runtime logs to this file',
+        help=help_for('logging.log'),
     )
     parser.add_argument(
         '--log-append',
         action='store_true',
-        help='Append to --log instead of overwriting it',
+        help=help_for('logging.log_append'),
     )
 
 

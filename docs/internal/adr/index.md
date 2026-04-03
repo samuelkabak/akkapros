@@ -2,6 +2,9 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [037. Centralized Help Message Registry for CLI and Config Docs](037-centralized-help-message-registry-for-cli-and-config-docs.md) - Proposed
+- [036. Package-Wide YAML Configuration and CLI Override Precedence](036-package-wide-yaml-configuration-and-cli-override-precedence.md) - Proposed
+- [035. Separate Hiatus Marker and Word-Initial Zero-Onset Contract](035-separate-hiatus-marker-and-word-initial-zero-onset-contract.md) - Proposed
 - [034. Prosody Mora Modes and Explicit-Link Locking](034-prosody-mora-modes-and-explicit-link-locking.md) - Proposed
 - [032. Internal Doc Frontmatter Schema](032-internal-doc-frontmatter-schema.md) - Proposed
 - [031. Factual Runtime Records and Structured Self-Test Output](031-factual-runtime-records-and-structured-self-test-output.md) - Proposed

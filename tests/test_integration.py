@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
 from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import metrics
 from akkapros.lib.utils import format_path_for_logging
@@ -742,3 +743,101 @@ def test_cli_phoneprep_outputs(tmp_path: Path) -> None:
     }
     for generated, reference in phoneprep_reference_map.items():
         _assert_matches_reference(generated, reference)
+
+
+def test_fullprosmaker_runs_from_config_file(tmp_path: Path) -> None:
+    outdir = tmp_path / "config_fullprosmaker"
+    config = apply_overrides(
+        build_default_config(),
+        {
+            ("common", "prefix"): "cfgdemo",
+            ("common", "outdir"): str(outdir),
+            ("metricalc", "json"): True,
+            ("printer", "ipa"): True,
+            ("prosmaker", "style"): "sob",
+        },
+    )
+    config_path = tmp_path / "fullprosmaker.yaml"
+    config_path.write_text(dump_config_text(config), encoding="utf-8")
+
+    _run_cli(
+        "akkapros.cli.fullprosmaker",
+        str(INPUT_PROC),
+        "--conf",
+        str(config_path),
+    )
+
+    syl_file = outdir / "cfgdemo_syl.txt"
+    tilde_file = outdir / "cfgdemo_tilde.txt"
+    metrics_json = outdir / "cfgdemo.json"
+    ipa_file = outdir / "cfgdemo_accent_ipa.txt"
+    for path in [syl_file, tilde_file, metrics_json, ipa_file]:
+        _assert_non_empty_text_file(path)
+
+    tilde_frontmatter, _ = split_frontmatter(_read_text(tilde_file))
+    assert tilde_frontmatter is not None
+    assert tilde_frontmatter["metadata"]["options"]["prosody_style"] == "sob"
+
+
+def test_atfparser_cli_flag_overrides_config_file(tmp_path: Path) -> None:
+    outdir = tmp_path / "config_override"
+    config = apply_overrides(
+        build_default_config(),
+        {
+            ("common", "prefix"): "from_config",
+            ("common", "outdir"): str(outdir),
+            ("atfparser", "preserve_case"): True,
+        },
+    )
+    config_path = tmp_path / "atfparser.yaml"
+    config_path.write_text(dump_config_text(config), encoding="utf-8")
+
+    _run_cli(
+        "akkapros.cli.atfparser",
+        str(INPUT_ATF),
+        "--conf",
+        str(config_path),
+        "--prefix",
+        "from_cli",
+    )
+
+    proc_file = outdir / "from_cli_proc.txt"
+    _assert_non_empty_text_file(proc_file)
+    frontmatter, _ = split_frontmatter(_read_text(proc_file))
+    assert frontmatter is not None
+    assert frontmatter["metadata"]["options"]["preserve_case"] is True
+    assert not (outdir / "from_config_proc.txt").exists()
+
+
+def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
+    outdir = tmp_path / "confwriter_reuse"
+    config_path = tmp_path / "generated.yaml"
+
+    _run_cli(
+        "akkapros.cli.confwriter",
+        "--conf",
+        str(config_path),
+        "--prefix",
+        "writerdemo",
+    )
+    _run_cli(
+        "akkapros.cli.confwriter",
+        "--conf",
+        str(config_path),
+        "--outdir",
+        str(outdir),
+        "--atfparser-preserve-case",
+    )
+
+    _run_cli(
+        "akkapros.cli.atfparser",
+        str(INPUT_ATF),
+        "--conf",
+        str(config_path),
+    )
+
+    proc_file = outdir / "writerdemo_proc.txt"
+    _assert_non_empty_text_file(proc_file)
+    frontmatter, _ = split_frontmatter(_read_text(proc_file))
+    assert frontmatter is not None
+    assert frontmatter["metadata"]["options"]["preserve_case"] is True

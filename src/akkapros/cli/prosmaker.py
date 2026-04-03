@@ -22,7 +22,9 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros import __version__
+from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config
 from akkapros.lib.frontmatter import effective_options_from_namespace
+from akkapros.lib.helpmsg import help_for
 from akkapros.lib.utils import (
     FormatValidationError,
     RawDefaultsHelpFormatter,
@@ -42,17 +44,22 @@ def main() -> None:
     )
     add_standard_version_argument(parser, 'akkapros-prosmaker')
     add_standard_logging_arguments(parser)
-    parser.add_argument('input', nargs='?', help='Input *_syl.txt file')
-    parser.add_argument('-p', '--prefix', help='Output prefix (creates <prefix>_tilde.txt)')
-    parser.add_argument('--outdir', default='.', help='Output directory')
-    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help='Accent style')
-    parser.add_argument('--mora-mode', choices=['bi', 'mono'], default='bi', help='Mora-mode gate for accentuation attempts')
+    add_config_argument(parser)
+    parser.add_argument('input', nargs='?', help=help_for('prosmaker.input'))
+    parser.add_argument('-p', '--prefix', help=help_for('prosmaker.prefix'))
+    parser.add_argument('--outdir', default='.', help=help_for('prosmaker.outdir'))
+    parser.add_argument('--style', choices=['lob', 'sob'], default='lob', help=help_for('prosmaker.style'))
+    parser.add_argument('--mora-mode', choices=['bi', 'mono'], default='bi', help=help_for('prosmaker.mora_mode'))
     parser.add_argument('-r', '--relax-last', action='store_true',
-                        help='For explicit + links, allow prosody realization propagation before the last linked word')
-    parser.add_argument('--test', action='store_true', help='Run standard tests')
-    parser.add_argument('--test-diphthongs', action='store_true', help='Run diphthong restoration tests')
+                        help=help_for('prosmaker.relax_last'))
+    parser.add_argument('--test', action='store_true', help=help_for('prosmaker.test'))
+    parser.add_argument('--test-diphthongs', action='store_true', help=help_for('prosmaker.test_diphthongs'))
 
-    args = parser.parse_args()
+    try:
+        args = parse_args_with_config(parser, 'prosmaker')
+    except ConfigError as exc:
+        sys.stderr.write(f"Invalid config: {exc}\n")
+        sys.exit(2)
 
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
@@ -105,7 +112,7 @@ def main() -> None:
         str(output_file),
         options=effective_options_from_namespace(
             args,
-            exclude={'input', 'outdir', 'prefix', 'test', 'test_diphthongs', 'version'},
+            exclude={'input', 'outdir', 'prefix', 'test', 'test_diphthongs', 'version', 'conf'},
         ),
     )
 
