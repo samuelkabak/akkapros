@@ -10,6 +10,18 @@ import textwrap
 from typing import Any
 
 from akkapros.lib.helpmsg import CONFIG_FILE_COMMENTS, config_help, help_for, section_help
+from akkapros.lib.phonetize import (
+    PHONETIZE_SECTION,
+    PHONETIZE_SECTION_HELP,
+    build_default_phonetize_config,
+    get_phonetize_field,
+    get_relative_value as get_phonetize_relative_value,
+    iter_phonetize_fields,
+    normalize_phonetize_config,
+    render_documented_phonetize_section,
+    set_relative_value as set_phonetize_relative_value,
+    validate_phonetize_source,
+)
 
 
 class ConfigError(ValueError):
@@ -36,6 +48,7 @@ CONFIG_SECTION_ORDER = (
     ATFPARSE_SECTION,
     SYLLABIFY_SECTION,
     PROSODY_SECTION,
+    PHONETIZE_SECTION,
     METRICS_SECTION,
     PRINT_SECTION,
 )
@@ -45,6 +58,7 @@ PREFIX_REQUIRED_TOOLS = frozenset(
         "atfparser",
         "syllabifier",
         "prosmaker",
+        "phonetizer",
         "metricalc",
         "printer",
         "fullprosmaker",
@@ -88,8 +102,6 @@ CONFIG_SCHEMA: dict[str, dict[str, ConfigField]] = {
         "csv": ConfigField(False, "bool", config_help(METRICS_SECTION, "csv")),
         "table": ConfigField(False, "bool", config_help(METRICS_SECTION, "table")),
         "json": ConfigField(False, "bool", config_help(METRICS_SECTION, "json")),
-        "wpm": ConfigField(165.0, "float", config_help(METRICS_SECTION, "wpm")),
-        "pause_ratio": ConfigField(35.0, "float", config_help(METRICS_SECTION, "pause_ratio")),
         "explicit_link_count": ConfigField(None, "nullable_scalar", config_help(METRICS_SECTION, "explicit_link_count")),
     },
     PRINT_SECTION: {
@@ -108,6 +120,19 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
     "atfparser": ((COMMON_SECTION, None), (ATFPARSE_SECTION, None)),
     "syllabifier": ((COMMON_SECTION, None), (SYLLABIFY_SECTION, None)),
     "prosmaker": ((COMMON_SECTION, None), (PROSODY_SECTION, None)),
+    "phonetizer": (
+        (COMMON_SECTION, None),
+        (
+            PHONETIZE_SECTION,
+            {
+                "process.geminate_policy": "geminate_policy",
+                "process.accentuation_distribution_policy": "accentuation_distribution_policy",
+                "process.short_pause_policy": "short_pause_policy",
+                "process.drift_policy": "drift_policy",
+                "process.drift_tolerance": "drift_tolerance",
+            },
+        ),
+    ),
     "metricalc": ((COMMON_SECTION, None), (METRICS_SECTION, None)),
     "printer": ((COMMON_SECTION, None), (PRINT_SECTION, None)),
     "fullprosmaker": (
@@ -136,13 +161,21 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             },
         ),
         (
+            PHONETIZE_SECTION,
+            {
+                "process.geminate_policy": "phonetize_geminate_policy",
+                "process.accentuation_distribution_policy": "phonetize_accentuation_distribution_policy",
+                "process.short_pause_policy": "phonetize_short_pause_policy",
+                "process.drift_policy": "phonetize_drift_policy",
+                "process.drift_tolerance": "phonetize_drift_tolerance",
+            },
+        ),
+        (
             METRICS_SECTION,
             {
                 "csv": "metrics_csv",
                 "table": "metrics_table",
                 "json": "metrics_json",
-                "wpm": "metrics_wpm",
-                "pause_ratio": "metrics_pause_ratio",
                 "explicit_link_count": "explicit_link_count",
             },
         ),
@@ -163,17 +196,27 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
 
 
 def build_default_config() -> dict[str, dict[str, Any]]:
-    return {
+    defaults = {
         section: {key: deepcopy(field.default) for key, field in fields.items()}
         for section, fields in CONFIG_SCHEMA.items()
     }
+    defaults[PHONETIZE_SECTION] = build_default_phonetize_config()
+    return defaults
 
 
 def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
     parts = [part for part in path.split(".") if part]
+    if not parts:
+        raise ConfigError(f"Unknown config key: {path}")
+    section = parts[0]
+    if section == PHONETIZE_SECTION:
+        try:
+            return PHONETIZE_SECTION, ".".join(parts[1:]), get_phonetize_field(tuple(parts[1:]))  # type: ignore[return-value]
+        except KeyError as exc:
+            raise ConfigError(f"Unknown config key: {path}") from exc
     if len(parts) != 2:
         raise ConfigError(f"Unknown config key: {path}")
-    section, key = parts
+    key = parts[1]
     fields = CONFIG_SCHEMA.get(section)
     if fields is None or key not in fields:
         raise ConfigError(f"Unknown config key: {path}")
@@ -183,6 +226,10 @@ def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
 def iter_config_paths() -> list[tuple[str, ConfigField]]:
     entries: list[tuple[str, ConfigField]] = []
     for section in CONFIG_SECTION_ORDER:
+        if section == PHONETIZE_SECTION:
+            for path, field in iter_phonetize_fields():
+                entries.append((".".join(path), field))
+            continue
         for key, field in CONFIG_SCHEMA[section].items():
             entries.append((f"{section}.{key}", field))
     return entries
@@ -291,6 +338,10 @@ def _coerce_scalar(value: Any, kind: str) -> Any:
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise ConfigError(f"Expected numeric value, got {type(value).__name__}")
         return float(value)
+    if kind == "int":
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ConfigError(f"Expected integer value, got {type(value).__name__}")
+        return int(value)
     if kind == "string_list":
         if not isinstance(value, list):
             raise ConfigError(f"Expected list value, got {type(value).__name__}")
@@ -304,11 +355,12 @@ def validate_config_source(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
     if not isinstance(config, dict):
         raise ConfigError("Config root must be a mapping")
 
-    unknown_sections = sorted(set(config) - set(CONFIG_SCHEMA))
+    valid_sections = set(CONFIG_SCHEMA) | {PHONETIZE_SECTION}
+    unknown_sections = sorted(set(config) - valid_sections)
     if unknown_sections:
         raise ConfigError(f"Unknown config sections: {', '.join(unknown_sections)}")
 
-    validated: dict[str, dict[str, Any]] = {}
+    validated: dict[str, Any] = {}
     for section, fields in CONFIG_SCHEMA.items():
         if section not in config:
             continue
@@ -333,6 +385,11 @@ def validate_config_source(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
                 )
             validated_section[key] = value
         validated[section] = validated_section
+    if PHONETIZE_SECTION in config:
+        try:
+            validated[PHONETIZE_SECTION] = validate_phonetize_source(config[PHONETIZE_SECTION], _coerce_scalar)
+        except ValueError as exc:
+            raise ConfigError(str(exc)) from exc
     return validated
 
 
@@ -348,6 +405,8 @@ def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
             if value is None:
                 continue
             normalized[section][key] = value
+    if PHONETIZE_SECTION in validated:
+        normalized[PHONETIZE_SECTION] = normalize_phonetize_config(validated[PHONETIZE_SECTION], _coerce_scalar)
     return normalized
 
 
@@ -382,6 +441,16 @@ def apply_overrides(
 ) -> dict[str, dict[str, Any]]:
     updated = normalize_config(config)
     for (section, key), value in overrides.items():
+        if section == PHONETIZE_SECTION:
+            path = key.split('.') if key else []
+            field = get_phonetize_field(tuple(path))
+            coerced = _coerce_scalar(value, field.kind)
+            if field.choices is not None and coerced not in field.choices:
+                raise ConfigError(
+                    f"Invalid value for {section}.{key}: {coerced!r}; expected one of {field.choices!r}"
+                )
+            updated[PHONETIZE_SECTION] = set_phonetize_relative_value(updated[PHONETIZE_SECTION], tuple(path), coerced)
+            continue
         if section not in CONFIG_SCHEMA or key not in CONFIG_SCHEMA[section]:
             raise ConfigError(f"Unknown override target: {section}.{key}")
         field = CONFIG_SCHEMA[section][key]
@@ -405,8 +474,18 @@ def tool_config_values(config: dict[str, dict[str, Any]], tool_name: str) -> dic
             merged.update(deepcopy(section_values))
             continue
         for key, dest in field_map.items():
+            if section == PHONETIZE_SECTION:
+                merged[dest] = deepcopy(get_phonetize_relative_value(section_values, tuple(key.split('.'))))
+                continue
             merged[dest] = deepcopy(section_values[key])
     return merged
+
+
+def get_section_config(config: dict[str, dict[str, Any]], section: str) -> Any:
+    normalized = normalize_config(config)
+    if section not in normalized:
+        raise ConfigError(f"Unsupported config section: {section}")
+    return deepcopy(normalized[section])
 
 
 def require_effective_prefix(prefix: Any, tool_name: str) -> str:
@@ -429,6 +508,9 @@ def validate_config_write(config: dict[str, dict[str, Any]]) -> dict[str, dict[s
         )
     materialized = build_default_config()
     for section, values in source.items():
+        if section == PHONETIZE_SECTION:
+            materialized[PHONETIZE_SECTION] = deepcopy(values)
+            continue
         for key, value in values.items():
             materialized[section][key] = deepcopy(value)
     return materialized
@@ -437,12 +519,23 @@ def validate_config_write(config: dict[str, dict[str, Any]]) -> dict[str, dict[s
 def get_config_value(config: dict[str, Any], path: str) -> Any:
     section, key, _field = resolve_config_path(path)
     normalized = normalize_config(config)
+    if section == PHONETIZE_SECTION:
+        return get_phonetize_relative_value(normalized[PHONETIZE_SECTION], tuple(key.split('.')))
     return deepcopy(normalized[section][key])
 
 
 def set_config_value(config: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
     section, key, field = resolve_config_path(path)
     updated = validate_config_source(config)
+    if section == PHONETIZE_SECTION:
+        coerced = _coerce_scalar(value, field.kind)
+        if field.choices is not None and coerced not in field.choices:
+            raise ConfigError(
+                f"Invalid value for {path}: {coerced!r}; expected one of {field.choices!r}"
+            )
+        section_values = deepcopy(updated.get(PHONETIZE_SECTION, {}))
+        updated[PHONETIZE_SECTION] = set_phonetize_relative_value(section_values, tuple(key.split('.')), coerced)
+        return updated
     section_values = deepcopy(updated.get(section, {}))
     coerced = _coerce_scalar(value, field.kind)
     if field.choices is not None and coerced not in field.choices:
@@ -457,6 +550,10 @@ def set_config_value(config: dict[str, Any], path: str, value: Any) -> dict[str,
 def unset_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
     section, key, _field = resolve_config_path(path)
     updated = validate_config_source(config)
+    if section == PHONETIZE_SECTION:
+        section_values = deepcopy(updated.get(PHONETIZE_SECTION, {}))
+        updated[PHONETIZE_SECTION] = set_phonetize_relative_value(section_values, tuple(key.split('.')), None)
+        return updated
     section_values = deepcopy(updated.get(section, {}))
     section_values[key] = None
     updated[section] = section_values
@@ -466,6 +563,10 @@ def unset_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
 def set_default_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
     section, key, field = resolve_config_path(path)
     updated = validate_config_source(config)
+    if section == PHONETIZE_SECTION:
+        section_values = deepcopy(updated.get(PHONETIZE_SECTION, {}))
+        updated[PHONETIZE_SECTION] = set_phonetize_relative_value(section_values, tuple(key.split('.')), deepcopy(field.default))
+        return updated
     section_values = deepcopy(updated.get(section, {}))
     section_values[key] = deepcopy(field.default)
     updated[section] = section_values
@@ -524,8 +625,12 @@ def config_comment_lines() -> list[str]:
 def _append_wrapped_comment(lines: list[str], text: str, indent: int = 0) -> None:
     prefix = " " * indent + "# "
     width = max(40, 88 - len(prefix))
-    for chunk in textwrap.wrap(text, width=width):
-        lines.append(f"{prefix}{chunk}")
+    for raw_line in text.splitlines():
+        if not raw_line.strip():
+            lines.append(prefix.rstrip())
+            continue
+        for chunk in textwrap.wrap(raw_line, width=width):
+            lines.append(f"{prefix}{chunk}")
 
 
 def _render_documented_section(lines: list[str], section: str, values: dict[str, Any]) -> None:
@@ -539,6 +644,15 @@ def _render_documented_section(lines: list[str], section: str, values: dict[str,
 def _render_documented_config(config: dict[str, dict[str, Any]]) -> str:
     lines = config_comment_lines() + [""]
     for section in CONFIG_SECTION_ORDER:
+        if section == PHONETIZE_SECTION:
+            render_documented_phonetize_section(
+                lines,
+                config[PHONETIZE_SECTION],
+                append_comment=_append_wrapped_comment,
+                dump_scalar=_dump_scalar,
+            )
+            lines.append("")
+            continue
         _render_documented_section(lines, section, config[section])
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"

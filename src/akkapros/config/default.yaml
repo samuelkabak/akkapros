@@ -2,8 +2,8 @@
 # This file uses the repository's restricted YAML subset: nested mappings,
 # scalars, and JSON-style lists.
 # Common keys apply across file-producing CLIs.
-# fullprosmaker reads common plus the syllabify, prosody, metrics, and print
-# sections.
+# fullprosmaker reads common plus the syllabify, prosody, phonetize, metrics,
+# and print sections.
 
 # Shared options used across file-producing CLIs.
 common:
@@ -71,6 +71,149 @@ prosody:
   # linked word.
   relax_last: false
 
+# Options used by the phonetizer CLI and by fullprosmaker during the phonetize
+# stage.
+phonetize:
+  process:
+    # geminate realization policy
+    # - cumulative: keep coda duration + onset duration instead of correcting to
+    # the configured geminate target
+    # - corrective: correct the sequence to the configured geminate target
+    geminate_policy: "corrective"
+    # this policy indicates how the accentuation mora (0.5 * cvc_reference) is
+    # distributed, format N_M
+    # N = percentage on the accentuated segment; M = percentage on the adjacent
+    # segment
+    # Distribution stops when legality ranges would be challenged; if full
+    # assignment is impossible, Phase 2 must fail fatally.
+    # Allowed values: 100_0, 85_15, 70_30
+    accentuation_distribution_policy: "85_15"
+    # short pause discharge policy
+    # - strict: the pause must realize a preferred legal short-band target
+    # derived from the nearest integer multiple of cvc_reference, and it must
+    # discharge drift reserve through that target as far as the band allows
+    # - best_effort: the pause may choose any legal short-band realization that
+    # maximizes drift discharge, and any remainder carries into the following
+    # phrase
+    short_pause_policy: "strict"
+    # drift recovery policy
+    # - strict: use running drift first, then legal vowel adjustment, and fail
+    # if the mismatch still cannot be resolved
+    # - extensible: use running drift first, then legal vowel adjustment, then
+    # extend drift beyond drift_tolerance if needed
+    drift_policy: "strict"
+    # maximum local timing mismatch tolerated before the algorithm must fail
+    drift_tolerance: 12
+  timing_model:
+    speech:
+      # Speech-rate estimate used by timing and pause logic.
+      wpm: 193
+      # Share of total time reserved for pauses.
+      pause_ratio: 35
+    durations:
+      # Upper ordinary duration for one vowel or consonant. Model-facing ceiling
+      # from comparative duration limits; does not apply to pauses or CVC
+      # totals.
+      segmental_ceiling: 310
+      # Central heavy-syllable timing reference used by accentuation and pause
+      # alignment. Set inside the empirically grounded CVC interval 286-306 ms.
+      cvc_reference: 305
+      consonants:
+        # Stop-like closure class. Includes lexical ʾ.
+        closure:
+          # Default onset closure duration. Direct comparative stop-closure
+          # anchor.
+          onset: 108
+          # Default post-vocalic closure duration. Direct comparative
+          # coda/post-vocalic stop anchor.
+          coda: 103
+          # Default geminate closure target. Summary point for the attested
+          # stop-geminate band.
+          geminate: 195
+          special_realization:
+            # Hiatus or zero-onset marker between adjacent vowels. Unstressed
+            # light glottal-stop realization; stressed cases defer to full
+            # geminated closure timing.
+            hiatus: 18
+          perception_limits:
+            # Earliest closure duration treated as geminate-like. Perceptual
+            # threshold from the stop singleton/geminate contrast, not the
+            # lowest measured token.
+            geminate_min: 180
+        # Fricative class. Heavier than closures by manner, but less directly
+        # grounded than the stop row.
+        fricative:
+          # Default onset fricative duration. Derived from closure onset plus
+          # fricative manner delta.
+          onset: 137
+          # Default post-vocalic fricative duration. Current heavy post-vocalic
+          # anchor used by the simplified row.
+          coda: 142
+          # Default geminate fricative target. Exploratory value based on the
+          # current onset + post-vocalic row.
+          geminate: 279
+          perception_limits:
+            # Earliest fricative duration treated as held or geminate-like.
+            # Class-specific perceptual floor from weak fricative gemination
+            # evidence.
+            geminate_min: 152
+        # Sonorant, nasal, and glide class.
+        sonorant:
+          # Default onset sonorant duration. Set from the clearer singleton
+          # liquid onset anchor.
+          onset: 89
+          # Default post-vocalic sonorant duration. Structural minimum retained
+          # on the coda side of the row.
+          coda: 70
+          # Default geminate sonorant target. Set from the direct glide
+          # geminate region.
+          geminate: 163
+          special_realization:
+            # Diphthong-internal or glide-like VV transition marker. Unstressed
+            # light glide realization; stressed cases defer to full geminated
+            # glide timing.
+            vowel_transition: 11
+          perception_limits:
+            # Earliest sonorant duration treated as geminate-like. Lower
+            # perceptual boundary from moraic nasal/liquid comparison.
+            geminate_min: 152
+      vowels:
+        # Default short-vowel duration. Production anchor from the retained
+        # short-vowel baseline.
+        short: 85
+        # Default long-vowel duration. Production anchor from the retained
+        # long-vowel baseline.
+        long: 160
+        # Default very-long vowel duration. Contextual extension anchor, not
+        # ordinary lexical default.
+        very_long: 220
+        perception_limits:
+          # Minimum duration still treated as a realized short-vowel nucleus.
+          short_min: 40
+          # Earliest duration treated as long. Midpoint-style boundary derived
+          # from short and long anchors.
+          long_min: 123
+          # Earliest duration treated as very long. Midpoint-style boundary
+          # derived from long and very-long anchors.
+          very_long_min: 190
+          # Upper ordinary bound for contextual vowel extension.
+          max: 240
+      pauses:
+        # Default short-pause band. Empirically grounded short-pause region from
+        # comparative studies.
+        short:
+          # Minimum short-pause duration.
+          min: 600
+          # Maximum short-pause duration.
+          max: 680
+        # Default long-pause band. Clause-boundary range from comparative pause
+        # data.
+        long:
+          # Minimum long-pause duration.
+          min: 1200
+          # Maximum long-pause duration.
+          max: 1780
+
 # Options used by the metricalc CLI and by fullprosmaker for metrics outputs.
 metrics:
   # Emit deprecated CSV output.
@@ -79,10 +222,6 @@ metrics:
   table: false
   # Write JSON metrics output.
   json: false
-  # Words per minute for speech-rate estimation.
-  wpm: 165.0
-  # Pause ratio as a percent of total time.
-  pause_ratio: 35.0
   # Override inherited metadata.data.prosody.explicit_word_link_count.
   explicit_link_count: null
 

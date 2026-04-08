@@ -59,6 +59,7 @@ def test_cli_help_lists_shared_logging_options() -> None:
         "akkapros.cli.atfparser",
         "akkapros.cli.syllabifier",
         "akkapros.cli.prosmaker",
+        "akkapros.cli.phonetizer",
         "akkapros.cli.metricalc",
         "akkapros.cli.printer",
         "akkapros.cli.fullprosmaker",
@@ -233,3 +234,27 @@ def test_fullprosmaker_omits_stage_narration(tmp_path: Path) -> None:
     assert "[1/4]" not in proc.stdout
     assert "Pipeline completed successfully" not in proc.stdout
     assert "Output directory:" not in proc.stdout
+
+
+def test_phonetizer_no_console_logs_to_file(tmp_path: Path) -> None:
+    tilde_file = _build_tilde(tmp_path)
+    outdir = tilde_file.parent
+    log_file = outdir / "phonetizer.log"
+
+    proc = _run_cli(
+        "akkapros.cli.phonetizer",
+        str(tilde_file),
+        "-p",
+        "logging",
+        "--outdir",
+        str(outdir),
+        "--no-console",
+        "--log",
+        str(log_file),
+    )
+
+    assert proc.returncode == 0, proc.stderr or proc.stdout
+    assert proc.stdout == ""
+    assert proc.stderr == ""
+    assert log_file.exists()
+    assert (outdir / "logging_phone.txt").exists()

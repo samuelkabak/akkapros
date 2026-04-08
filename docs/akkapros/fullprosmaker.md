@@ -7,6 +7,7 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 - Uses these libraries internally:
   - `src/akkapros/lib/syllabify.py`
   - `src/akkapros/lib/prosody.py`
+  - `src/akkapros/lib/phonetize.py`
   - `src/akkapros/lib/metrics.py`
   - `src/akkapros/lib/print.py`
 
@@ -22,8 +23,9 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 |-------|----------------|-------------|
 | **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
 | **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
-| **4. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
+| **3. Phonetize** | `*_tilde.txt` → `*_phone.txt` | Builds the transitional phone-row artifact |
+| **4. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
+| **5. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
 
 The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic symbols) and writes all selected outputs in one run.
 
@@ -40,6 +42,7 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |------|-------------|
 | `<prefix>_syl.txt` | Syllabified text |
 | `<prefix>_tilde.txt` | Prosody-realized pivot format |
+| `<prefix>_phone.txt` | Transitional phonetize-stage phone-row artifact |
 
 ### Optional Metrics Outputs
 
@@ -113,20 +116,31 @@ odd-parity prerequisite for accentuation attempts while keeping the same
 accent-site hierarchy and explicit-link locking. In this mode, unresolved
 units do not forward-merge; they fall directly to last resort.
 
+### Phonetizer Options
+
+| Option | Description |
+|--------|-------------|
+| `--phonetize-geminate-policy {corrective,cumulative}` | Pass through `phonetize.process.geminate_policy` |
+| `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}` | Pass through `phonetize.process.accentuation_distribution_policy` |
+| `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.short_pause_policy` |
+| `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.drift_policy` |
+| `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.drift_tolerance` |
+| `-t, --option phonetize.timing_model...=...` | Override values under `phonetize.timing_model` |
+
 ### Metricalc Options
 
 | Option | Description |
 |--------|-------------|
 | `--metrics-table` | Generate human-readable table output |
 | `--metrics-json` | Generate JSON output |
-| `--metrics-wpm <float>` | Words per minute for speech-rate estimation (default: `165`) |
-| `--metrics-pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` for metrics |
 
 **Default behavior:** If no metrics format flag is provided, table output is enabled automatically.
 
 Long-pause punctuation weight is fixed internally at `2.0` and is no longer a
-metrics-stage CLI option.
+metrics-stage CLI option. The current transition also removes metrics-owned
+timing flags; `fullprosmaker` uses the phonetize transition defaults internally
+for metrics (`wpm = 193`, `pause_ratio = 35`).
 
 ### Printer Options
 
@@ -173,6 +187,7 @@ Without `--print-merger`, acute, bold, and accented XAR outputs render merged wo
 This generates:
 - `erra_syl.txt`
 - `erra_tilde.txt`
+- `erra_phone.txt`
 - `erra_metrics.txt` (default table)
 - `erra_accent_acute.txt` (default acute)
 - `erra_accent_bold.md` (default bold)
@@ -183,6 +198,7 @@ This generates:
       -p erra \
       --outdir outputs \
       --prosody-style lob \
+      --phonetize-geminate-policy corrective \
       --metrics-table
 
 ### Run with Mono Mora Mode

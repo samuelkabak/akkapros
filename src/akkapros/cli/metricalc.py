@@ -52,6 +52,10 @@ from akkapros.lib.utils import (
 )
 
 
+PHONETIZE_DEFAULT_WPM = 193
+PHONETIZE_DEFAULT_PAUSE_RATIO = 35
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='Compute metrics for Akkadian text',
@@ -74,9 +78,6 @@ Version {__version__}
     parser.add_argument('--csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--table', action='store_true', help=help_for('metricalc.table'))
     parser.add_argument('--json', action='store_true', help=help_for('metricalc.json'))
-    parser.add_argument('--wpm', type=float, default=165, help=help_for('metricalc.wpm'))
-    parser.add_argument('--pause-ratio', type=float, default=35,
-                        help=help_for('metricalc.pause_ratio'))
     parser.add_argument('--explicit-link-count',
                         help=help_for('metricalc.explicit_link_count'))
     parser.add_argument('--test', action='store_true', help=help_for('metricalc.test'))
@@ -150,8 +151,8 @@ Version {__version__}
         try:
             result = process_file(
                 input_file,
-                args.wpm,
-                args.pause_ratio,
+                PHONETIZE_DEFAULT_WPM,
+                PHONETIZE_DEFAULT_PAUSE_RATIO,
                 explicit_link_count_override=args.explicit_link_count,
             )
         except ValueError as exc:
@@ -223,8 +224,8 @@ Version {__version__}
             inherited_syllabify = inherited_syllabify_options[0]
             table_context = {
                 'cli': 'metricalc.py',
-                'wpm_words_per_min': args.wpm,
-                'pause_ratio_percent': args.pause_ratio,
+                'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
+                'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
                 'short_pause_punct_weight_unitless': 1.0,
                 'fixed_long_pause_punct_weight_unitless': 2.0,
                 'extra_consonants': inherited_syllabify['extra_consonants'],
@@ -253,8 +254,8 @@ Version {__version__}
             for input_file, result, inherited_syllabify in zip(input_files, results, inherited_syllabify_options):
                 table_context = {
                     'cli': 'metricalc.py',
-                    'wpm_words_per_min': args.wpm,
-                    'pause_ratio_percent': args.pause_ratio,
+                    'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
+                    'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
                     'short_pause_punct_weight_unitless': 1.0,
                     'fixed_long_pause_punct_weight_unitless': 2.0,
                     'extra_consonants': inherited_syllabify['extra_consonants'],

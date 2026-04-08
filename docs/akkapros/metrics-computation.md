@@ -900,21 +900,21 @@ filesystem prefixes.
 
 ### `metricalc.py`
 
-    --wpm
-    --pause-ratio
     --table, --json
 
   **Note:** `metricalc.py` inherits `extra-consonants`, `extra-vowels`, and
   the punctuation-extension settings from the input file front matter instead
-  of exposing them as direct CLI flags.
+  of exposing them as direct CLI flags. During the current transition,
+  `metricalc.py` also uses the phonetize defaults internally (`wpm = 193`,
+  `pause_ratio = 35`) instead of exposing metrics-owned timing flags.
 
 ### `fullprosmaker.py` (metrics stage)
 
-    --metrics-wpm
-    --metrics-pause-ratio
     --metrics-table, --metrics-json
 
-  **Note:** the CLI writes metrics to files by default — JSON files are named `*_metrics.json`.
+  **Note:** the CLI writes metrics to files by default, JSON files are named
+  `*_metrics.json`, and timing-model overrides now live under the phonetize
+  stage rather than as metrics-prefixed CLI flags.
 
 ---
 

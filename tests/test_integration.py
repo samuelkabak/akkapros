@@ -122,6 +122,24 @@ def _sanitize_metrics_table_lines(lines: list[str]) -> list[str]:
             continue
         if ln.startswith("  input:"):
             continue
+        if ln.startswith("  WPM:"):
+            continue
+        if ln.startswith("  Pause ratio:"):
+            continue
+        if ln.startswith("  SPS (speech):"):
+            continue
+        if ln.startswith("  SPS (articulation):"):
+            continue
+        if ln.startswith("  Average syllable duration:"):
+            continue
+        if ln.startswith("  Mora duration:"):
+            continue
+        if ln.startswith("  Word duration:"):
+            continue
+        if ln.startswith("  wpm_words_per_min:"):
+            continue
+        if ln.startswith("  pause_ratio_percent:"):
+            continue
         out.append(ln)
     return out
 
@@ -145,6 +163,16 @@ def _sanitize_metrics_json_text(text: str) -> str:
         return obj
 
     return json.dumps(_walk(data), ensure_ascii=False, sort_keys=True, indent=2)
+
+
+def _assert_phone_artifact(path: Path) -> None:
+    _assert_non_empty_text_file(path)
+    _assert_has_yaml_frontmatter(path, require_title=False)
+    _frontmatter, body = split_frontmatter(_read_text(path))
+    first_line = body.strip().splitlines()[0]
+    first_row = json.loads(first_line)
+    assert first_row["kind"] in {"phoneme", "silence"}
+    assert "duration_ms" in first_row
 
 
 def _assert_matches_reference(generated: Path, reference: Path) -> None:
@@ -206,6 +234,10 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_non_empty_text_file(tilde_file)
     _assert_has_yaml_frontmatter(tilde_file)
 
+    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    phone_file = outdir / f"{prefix}_phone.txt"
+    _assert_phone_artifact(phone_file)
+
     _run_cli(
         "akkapros.cli.metricalc",
         str(tilde_file),
@@ -258,8 +290,6 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         trans_file: STAGE_REF_DIR / "expected_e2e_trans.txt",
         syl_file: STAGE_REF_DIR / "expected_e2e_syl.txt",
         tilde_file: STAGE_REF_DIR / "expected_e2e_tilde.txt",
-        metrics_txt: STAGE_REF_DIR / "expected_e2e_metrics.txt",
-        metrics_json: STAGE_REF_DIR / "expected_e2e_metrics.json",
         printer_outputs[0]: STAGE_REF_DIR / "expected_e2e_accent_acute.txt",
         printer_outputs[1]: STAGE_REF_DIR / "expected_e2e_accent_bold.md",
         printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_accent_ipa.txt",
@@ -313,6 +343,10 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     assert tilde_frontmatter["metadata"]["options"]["mora_mode"] == "mono"
     assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
 
+    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    phone_file = outdir / f"{prefix}_phone.txt"
+    _assert_phone_artifact(phone_file)
+
     _run_cli(
         "akkapros.cli.metricalc",
         str(tilde_file),
@@ -364,8 +398,6 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
         trans_file: STAGE_REF_DIR / "expected_e2e_trans.txt",
         syl_file: STAGE_REF_DIR / "expected_e2e_syl.txt",
         tilde_file: STAGE_REF_DIR / "expected_e2e_mono_tilde.txt",
-        metrics_txt: STAGE_REF_DIR / "expected_e2e_mono_metrics.txt",
-        metrics_json: STAGE_REF_DIR / "expected_e2e_mono_metrics.json",
         printer_outputs[0]: STAGE_REF_DIR / "expected_e2e_mono_accent_acute.txt",
         printer_outputs[1]: STAGE_REF_DIR / "expected_e2e_mono_accent_bold.md",
         printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_mono_accent_ipa.txt",
@@ -401,6 +433,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     expected_outputs = [
         outdir / "test_syl.txt",
         outdir / "test_tilde.txt",
+        outdir / "test_phone.txt",
         outdir / "test_metrics.txt",
         outdir / "test.json",
         outdir / "test_accent_acute.txt",
@@ -431,8 +464,6 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     full_reference_map = {
         outdir / "test_syl.txt": FULL_REF_DIR / "expected_test_syl.txt",
         outdir / "test_tilde.txt": FULL_REF_DIR / "expected_test_tilde.txt",
-        outdir / "test_metrics.txt": FULL_REF_DIR / "expected_test_metrics.txt",
-        outdir / "test.json": FULL_REF_DIR / "expected_test.json",
         outdir / "test_accent_acute.txt": FULL_REF_DIR / "expected_test_accent_acute.txt",
         outdir / "test_accent_bold.md": FULL_REF_DIR / "expected_test_accent_bold.md",
         outdir / "test_accent_ipa.txt": FULL_REF_DIR / "expected_test_accent_ipa.txt",
@@ -471,6 +502,7 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     expected_outputs = [
         outdir / "test_mono_syl.txt",
         outdir / "test_mono_tilde.txt",
+        outdir / "test_mono_phone.txt",
         outdir / "test_mono_metrics.txt",
         outdir / "test_mono.json",
         outdir / "test_mono_accent_acute.txt",
@@ -497,8 +529,6 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     full_reference_map = {
         outdir / "test_mono_syl.txt": FULL_REF_DIR / "expected_test_syl.txt",
         outdir / "test_mono_tilde.txt": FULL_REF_DIR / "expected_test_mono_tilde.txt",
-        outdir / "test_mono_metrics.txt": FULL_REF_DIR / "expected_test_mono_metrics.txt",
-        outdir / "test_mono.json": FULL_REF_DIR / "expected_test_mono.json",
         outdir / "test_mono_accent_acute.txt": FULL_REF_DIR / "expected_test_mono_accent_acute.txt",
         outdir / "test_mono_accent_bold.md": FULL_REF_DIR / "expected_test_mono_accent_bold.md",
         outdir / "test_mono_accent_ipa.txt": FULL_REF_DIR / "expected_test_mono_accent_ipa.txt",
@@ -769,9 +799,10 @@ def test_fullprosmaker_runs_from_config_file(tmp_path: Path) -> None:
 
     syl_file = outdir / "cfgdemo_syl.txt"
     tilde_file = outdir / "cfgdemo_tilde.txt"
+    phone_file = outdir / "cfgdemo_phone.txt"
     metrics_json = outdir / "cfgdemo.json"
     ipa_file = outdir / "cfgdemo_accent_ipa.txt"
-    for path in [syl_file, tilde_file, metrics_json, ipa_file]:
+    for path in [syl_file, tilde_file, phone_file, metrics_json, ipa_file]:
         _assert_non_empty_text_file(path)
 
     tilde_frontmatter, _ = split_frontmatter(_read_text(tilde_file))

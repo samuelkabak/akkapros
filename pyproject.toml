@@ -50,6 +50,7 @@ generate = [
 akkapros-fullprosmaker = "akkapros.cli.fullprosmaker:main"
 akkapros-syllabifier = "akkapros.cli.syllabifier:main"
 akkapros-prosmaker = "akkapros.cli.prosmaker:main"
+akkapros-phonetizer = "akkapros.cli.phonetizer:main"
 akkapros-metricalc = "akkapros.cli.metricalc:main"
 akkapros-atfparser = "akkapros.cli.atfparser:main"
 akkapros-printer = "akkapros.cli.printer:main"

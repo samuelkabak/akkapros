@@ -34,6 +34,8 @@ Keys use full YAML paths such as:
 - `common.outdir`
 - `atfparse.preserve_case`
 - `prosody.style`
+- `phonetize.process.geminate_policy`
+- `phonetize.timing_model.speech.wpm`
 - `metrics.json`
 - `print.ipa`
 
@@ -53,7 +55,8 @@ Examples:
 
 ```bash
 python -m akkapros.cli.confwriter --conf run.yaml --set metrics.json=true
-python -m akkapros.cli.confwriter --conf run.yaml --set metrics.wpm=170
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.geminate_policy=cumulative
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.timing_model.speech.wpm=201
 python -m akkapros.cli.confwriter --conf run.yaml --set syllabify.extra_short_punct_pattern=["\\.\\.\\."]
 ```
 

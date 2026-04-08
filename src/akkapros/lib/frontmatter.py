@@ -40,6 +40,7 @@ FORMAT_VERSIONS = {
     "trans": "1.0.0",
     "syl": "1.0.0",
     "tilde": "1.0.0",
+    "phone": "1.0.0",
     "metrics": "1.0.0",
     "acute": "1.0.0",
     "bold": "1.0.0",
@@ -47,7 +48,7 @@ FORMAT_VERSIONS = {
     "xar": "1.0.0",
     "mbrola": "1.0.0",
 }
-SUPPORTED_TEXT_FORMATS = {"orig", "proc", "trans", "syl", "tilde", "metrics", "acute", "bold", "ipa", "xar", "mbrola"}
+SUPPORTED_TEXT_FORMATS = {"orig", "proc", "trans", "syl", "tilde", "phone", "metrics", "acute", "bold", "ipa", "xar", "mbrola"}
 ESCAPE_RE = re.compile(rf"{re.escape(OPEN_ESCAPE)}.*?{re.escape(CLOSE_ESCAPE)}")
 AKKADIAN_LETTERS = set(AKKADIAN_VOWELS) | set(AKKADIAN_CONSONANTS)
 APPEND_TITLE_SEPARATOR = " | "

@@ -29,11 +29,12 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "metrics_prefix" not in loaded["common"]
     assert "print_prefix" not in loaded["common"]
     assert "fullprosmaker:" not in text
-    assert "fullprosmaker reads common plus the syllabify, prosody, metrics, and" in text
+    assert "fullprosmaker reads common plus the syllabify, prosody, phonetize," in text
     assert text.count('extra_vowels: ""') == 1
     assert text.count('extra_consonants: ""') == 1
     assert "long_punct_weight" not in text
     assert "long_punct_weight" not in loaded["metrics"]
+    assert loaded["phonetize"]["timing_model"]["speech"]["wpm"] == 193
 
 
 def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) -> None:
@@ -274,3 +275,39 @@ def test_removed_long_punct_weight_cli_flags_absent() -> None:
     )
     assert fullprosmaker_help.returncode == 0, fullprosmaker_help.stderr
     assert "--metrics-long-punct-weight" not in (fullprosmaker_help.stdout + fullprosmaker_help.stderr)
+    assert "--metrics-wpm" not in (fullprosmaker_help.stdout + fullprosmaker_help.stderr)
+    assert "--metrics-pause-ratio" not in (fullprosmaker_help.stdout + fullprosmaker_help.stderr)
+    assert "--phonetize-geminate-policy" in (fullprosmaker_help.stdout + fullprosmaker_help.stderr)
+
+
+def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.confwriter",
+            "--conf",
+            str(config_path),
+            "--set",
+            "common.prefix=demo",
+            "--set",
+            "phonetize.process.geminate_policy=cumulative",
+            "--set",
+            "phonetize.timing_model.speech.wpm=201",
+        ],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert proc.returncode == 0, proc.stderr
+
+    loaded = load_config_file(config_path)
+    assert loaded["phonetize"]["process"]["geminate_policy"] == "cumulative"
+    assert loaded["phonetize"]["timing_model"]["speech"]["wpm"] == 201

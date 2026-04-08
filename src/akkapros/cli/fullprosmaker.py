@@ -40,6 +40,13 @@ from akkapros.lib.frontmatter import (
     with_inherited_syllabify_options,
 )
 from akkapros.lib.helpmsg import help_for
+from akkapros.lib.phonetize import (
+    PHONETIZE_SECTION,
+    PROCESS_KEYS,
+    build_phone_rows,
+    build_default_phonetize_config,
+    serialize_phone_rows,
+)
 from akkapros.lib.prosody import (
     AccentStyle,
     MoraMode,
@@ -73,6 +80,11 @@ from akkapros.lib.utils import (
 )
 
 
+
+PHONETIZE_DEFAULT_WPM = 193
+PHONETIZE_DEFAULT_PAUSE_RATIO = 35
+
+
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     output_ipa = args.print_ipa
@@ -80,6 +92,24 @@ def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     circ_hiatus = args.print_circ_hiatus
 
     return output_ipa, ipa_mode, circ_hiatus
+
+
+def _apply_phonetize_process_overrides(args: argparse.Namespace) -> dict[str, object]:
+    config = build_default_phonetize_config()
+    for key in PROCESS_KEYS:
+        value = getattr(args, f'phonetize_{key}')
+        if value is not None:
+            config['process'][key] = value
+    for raw in args.phonetize_option_values or []:
+        path, sep, value = raw.partition('=')
+        if not sep or not path.strip().startswith('phonetize.timing_model.'):
+            raise ConfigError(
+                f"Invalid phonetize override {raw!r}; expected phonetize.timing_model.*=VALUE"
+            )
+        from akkapros.lib.config import parse_config_cli_value, set_config_value, get_section_config
+        updated = set_config_value({PHONETIZE_SECTION: config}, path.strip(), parse_config_cli_value(value))
+        config = get_section_config(updated, PHONETIZE_SECTION)
+    return config
 
 
 class _AggregateSelftestCounter(logging.Handler):
@@ -196,8 +226,7 @@ def run_pipeline(
     style: str,
     mora_mode: str,
     only_last: bool,
-    wpm: float,
-    pause_ratio: float,
+    phonetize_config: dict[str, object],
     explicit_link_count: str | None,
     output_table: bool,
     output_json: bool,
@@ -219,6 +248,7 @@ def run_pipeline(
     safe_prefix = simple_safe_filename(prefix)
     syl_file = outdir / f"{safe_prefix}_syl.txt"
     tilde_file = outdir / f"{safe_prefix}_tilde.txt"
+    phone_file = outdir / f"{safe_prefix}_phone.txt"
     metrics_base = outdir / safe_prefix
     acute_file = outdir / f"{safe_prefix}_accent_acute.txt"
     bold_file = outdir / f"{safe_prefix}_accent_bold.md"
@@ -272,8 +302,29 @@ def run_pipeline(
     engine.process_file(str(syl_file), str(tilde_file), options=options)
     logger.info('Written file: %s', format_path_for_logging(tilde_file))
 
-    # 3) Metrics
+    # 3) Phonetize transitional artifact
     tilde_frontmatter, tilde_body = read_text_file(tilde_file)
+    phone_rows = build_phone_rows(tilde_body, phonetize_config)
+    phone_body = serialize_phone_rows(phone_rows)
+    phone_frontmatter = build_output_frontmatter(
+        output_path=phone_file,
+        step='phonetize',
+        title=resolve_file_title(tilde_frontmatter),
+        body=phone_body,
+        options=options,
+        input_frontmatter=tilde_frontmatter,
+        stage_data={
+            'phone_row_count': len(phone_rows),
+            'silence_row_count': sum(1 for row in phone_rows if row['kind'] == 'silence'),
+            'phoneme_row_count': sum(1 for row in phone_rows if row['kind'] == 'phoneme'),
+        },
+        file_format='phone',
+    )
+    with open(phone_file, 'w', encoding='utf-8') as f:
+        f.write(compose_text_document(phone_frontmatter, phone_body))
+    logger.info('Written file: %s', format_path_for_logging(phone_file))
+
+    # 4) Metrics
     inherited_syllabify = resolve_inherited_syllabify_options(tilde_frontmatter)
     configure_pause_punctuation_rules(
         short_punct_chars=inherited_syllabify['extra_short_punct_chars'],
@@ -288,8 +339,8 @@ def run_pipeline(
     try:
         metrics_result = process_metrics_file(
             str(tilde_file),
-            wpm,
-            pause_ratio,
+            PHONETIZE_DEFAULT_WPM,
+            PHONETIZE_DEFAULT_PAUSE_RATIO,
             explicit_link_count_override=explicit_link_count,
         )
     except ValueError as exc:
@@ -334,8 +385,8 @@ def run_pipeline(
     if output_table:
         table_context = {
             'cli': 'fullprosmaker.py',
-            'wpm_words_per_min': wpm,
-            'pause_ratio_percent': pause_ratio,
+                'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
+                'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
             'short_pause_punct_weight_unitless': 1.0,
             'fixed_long_pause_punct_weight_unitless': 2.0,
             'extra_consonants': inherited_syllabify['extra_consonants'],
@@ -361,7 +412,7 @@ def run_pipeline(
             f.write(compose_text_document(table_frontmatter, table))
         logger.info('Written file: %s', format_path_for_logging(table_file))
 
-    # 4) Printer outputs
+    # 5) Printer outputs
     accent_print.process_file(
         input_file=str(tilde_file),
         output_acute_file=str(acute_file),
@@ -439,12 +490,24 @@ Version: {__version__}
     parser.add_argument('--prosody-relax-last', dest='prosody_relax_last', action='store_true',
                         help=help_for('fullprosmaker.prosody_relax_last'))
 
+    # Phonetizer options
+    parser.add_argument('--phonetize-geminate-policy', dest='phonetize_geminate_policy', choices=['corrective', 'cumulative'], default=None,
+                        help=help_for('fullprosmaker.phonetize_geminate_policy'))
+    parser.add_argument('--phonetize-accentuation-distribution-policy', dest='phonetize_accentuation_distribution_policy', choices=['100_0', '85_15', '70_30'], default=None,
+                        help=help_for('fullprosmaker.phonetize_accentuation_distribution_policy'))
+    parser.add_argument('--phonetize-short-pause-policy', dest='phonetize_short_pause_policy', choices=['strict', 'best_effort'], default=None,
+                        help=help_for('fullprosmaker.phonetize_short_pause_policy'))
+    parser.add_argument('--phonetize-drift-policy', dest='phonetize_drift_policy', choices=['strict', 'extensible'], default=None,
+                        help=help_for('fullprosmaker.phonetize_drift_policy'))
+    parser.add_argument('--phonetize-drift-tolerance', dest='phonetize_drift_tolerance', type=int, default=None,
+                        help=help_for('fullprosmaker.phonetize_drift_tolerance'))
+    parser.add_argument('-t', '--option', dest='phonetize_option_values', action='append', default=[], metavar='KEY=VALUE',
+                        help=help_for('fullprosmaker.option'))
+
     # Metricalc options
     parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--metrics-table', action='store_true', help=help_for('fullprosmaker.metrics_table'))
     parser.add_argument('--metrics-json', action='store_true', help=help_for('fullprosmaker.metrics_json'))
-    parser.add_argument('--metrics-wpm', type=float, default=165, help=help_for('fullprosmaker.metrics_wpm'))
-    parser.add_argument('--metrics-pause-ratio', type=float, default=35, help=help_for('fullprosmaker.metrics_pause_ratio'))
     parser.add_argument('--explicit-link-count',
                         help=help_for('fullprosmaker.explicit_link_count'))
 
@@ -560,6 +623,12 @@ Version: {__version__}
 
     only_last = not args.prosody_relax_last
 
+    try:
+        phonetize_config = _apply_phonetize_process_overrides(args)
+    except ConfigError as exc:
+        logger.error('%s', exc)
+        sys.exit(2)
+
     option_values = with_inherited_syllabify_options(
         {
             **effective_options_from_namespace(
@@ -593,8 +662,7 @@ Version: {__version__}
         style=args.prosody_style,
         mora_mode=args.mora_mode,
         only_last=only_last,
-        wpm=args.metrics_wpm,
-        pause_ratio=args.metrics_pause_ratio,
+        phonetize_config=phonetize_config,
         explicit_link_count=args.explicit_link_count,
         output_table=output_table,
         output_json=output_json,

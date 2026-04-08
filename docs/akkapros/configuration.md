@@ -22,6 +22,7 @@ The top-level sections are:
 - `atfparse`
 - `syllabify`
 - `prosody`
+- `phonetize`
 - `metrics`
 - `print`
 
@@ -36,9 +37,16 @@ and consumed by metrics from the input file rather than re-declared under
 `metrics`.
 
 `fullprosmaker` is a pipeline runner. It reads `common` plus the relevant
-shared stage sections: `syllabify`, `prosody`, `metrics`, and `print`.
+shared stage sections: `syllabify`, `prosody`, `phonetize`, `metrics`, and `print`.
 It does not have a duplicated YAML section of its own for those stage-owned
 options.
+
+The `phonetize` section owns the timing-model and phonetizer process controls.
+That means grouped config no longer defines `metrics.wpm` or
+`metrics.pause_ratio`. During the current transition, `metricalc` still computes
+its outputs from `_tilde`, but it uses the phonetize transition defaults
+internally (`wpm = 193`, `pause_ratio = 35`) rather than exposing separate
+metrics-owned timing knobs.
 
 ## Example
 
@@ -49,6 +57,10 @@ common:
 
 prosody:
   style: "lob"
+
+phonetize:
+  process:
+    geminate_policy: "corrective"
 
 metrics:
   json: true
@@ -81,9 +93,10 @@ Examples:
 python -m akkapros.cli.confwriter --conf run.yaml --set common.prefix=demo
 python -m akkapros.cli.confwriter --conf run.yaml --set common.outdir=outputs
 python -m akkapros.cli.confwriter --conf run.yaml --set prosody.style=sob
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.geminate_policy=cumulative
 python -m akkapros.cli.confwriter --conf run.yaml --set print.ipa=true
 python -m akkapros.cli.confwriter --conf run.yaml --get common.log_append
-python -m akkapros.cli.confwriter --conf run.yaml --list prosody
+python -m akkapros.cli.confwriter --conf run.yaml --list phonetize
 python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
 python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
 ```
@@ -106,6 +119,8 @@ Examples:
 - `atfparse.preserve_case`
 - `syllabify.merge_lines`
 - `prosody.style`
+- `phonetize.process.geminate_policy`
+- `phonetize.timing_model.speech.wpm`
 - `metrics.json`
 - `print.ipa`
 

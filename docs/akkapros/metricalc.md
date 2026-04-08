@@ -68,8 +68,6 @@ Batch mode:
 | `--outdir <dir>` | Output directory (default: current directory) |
 | `--table` | Write human-readable table output |
 | `--json` | Write JSON output |
-| `--wpm <float>` | Words per minute used in speech-rate estimation (default: `165`) |
-| `--pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
 | `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` |
 | `--test` | Run metrics test suite |
 
@@ -93,15 +91,12 @@ Inherited punctuation-extension settings and inherited `extra_vowels` /
 upstream by syllabifier and preserved by prosmaker. Metricalc does not expose
 separate CLI flags for those inherited syllabify-owned settings.
 
-### Custom Timing Parameters
-
-    python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-      --wpm 170 \
-      --pause-ratio 35 \
-      --table
-
 Long-pause punctuation weight is no longer a user-configurable option. The
 active implementation fixes it at `2.0`.
+
+The current transition also removes metrics-owned timing flags. `metricalc`
+uses the phonetize transition defaults internally (`wpm = 193`,
+`pause_ratio = 35`) until the phonetize-to-metrics contract is completed.
 
 ### Override Explicit-Link Metadata
 
