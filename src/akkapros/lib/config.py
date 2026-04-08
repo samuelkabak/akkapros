@@ -90,7 +90,6 @@ CONFIG_SCHEMA: dict[str, dict[str, ConfigField]] = {
         "json": ConfigField(False, "bool", config_help(METRICS_SECTION, "json")),
         "wpm": ConfigField(165.0, "float", config_help(METRICS_SECTION, "wpm")),
         "pause_ratio": ConfigField(35.0, "float", config_help(METRICS_SECTION, "pause_ratio")),
-        "long_punct_weight": ConfigField(2.0, "float", config_help(METRICS_SECTION, "long_punct_weight")),
         "explicit_link_count": ConfigField(None, "nullable_scalar", config_help(METRICS_SECTION, "explicit_link_count")),
     },
     PRINT_SECTION: {
@@ -144,7 +143,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
                 "json": "metrics_json",
                 "wpm": "metrics_wpm",
                 "pause_ratio": "metrics_pause_ratio",
-                "long_punct_weight": "metrics_long_punct_weight",
                 "explicit_link_count": "explicit_link_count",
             },
         ),

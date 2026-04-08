@@ -7,7 +7,7 @@ METRICS SUMMARY: ...\mono_full_refs\test_mono_tilde.txt
   extra_consonants: 
   extra_vowels: 
   input: ...\mono_full_refs\test_mono_tilde.txt
-  long_pause_punct_weight_unitless: 2.0
+  fixed_long_pause_punct_weight_unitless: 2.0
   pause_ratio_percent: 35
   prosody_relax_last: False
   prosody_restore_diphthongs: True
@@ -116,7 +116,7 @@ Pause metrics:
 
 Pause duration allocation (total pause: 0.039 s/syllable):
   Short pause punctuation weight: always 1.0 (no unit)
-  Initial long pause punctuation weight relative to short: 2.0 (no unit)
+  Fixed long pause punctuation weight relative to short: 2.0 (no unit)
   Initial short pause punctuation duration: 0.148 s/pause (2.0556 average syllable duration) (33.3% of pause time)
   Initial average long pause punctuation duration: 0.297 s/pause (4.1250 average syllable duration) (66.7% of pause time)
   Corrected (multiple of 2*morae) short pause punctuation duration: 0.158 s/pause (2.1944 average syllable duration) (35.4% of pause time)

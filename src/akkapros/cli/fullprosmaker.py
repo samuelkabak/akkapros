@@ -198,7 +198,6 @@ def run_pipeline(
     only_last: bool,
     wpm: float,
     pause_ratio: float,
-    long_punct_weight: float,
     explicit_link_count: str | None,
     output_table: bool,
     output_json: bool,
@@ -291,7 +290,6 @@ def run_pipeline(
             str(tilde_file),
             wpm,
             pause_ratio,
-            long_punct_weight,
             explicit_link_count_override=explicit_link_count,
         )
     except ValueError as exc:
@@ -339,7 +337,7 @@ def run_pipeline(
             'wpm_words_per_min': wpm,
             'pause_ratio_percent': pause_ratio,
             'short_pause_punct_weight_unitless': 1.0,
-            'long_pause_punct_weight_unitless': long_punct_weight,
+            'fixed_long_pause_punct_weight_unitless': 2.0,
             'extra_consonants': inherited_syllabify['extra_consonants'],
             'extra_vowels': inherited_syllabify['extra_vowels'],
             'prosody_style': style,
@@ -447,8 +445,6 @@ Version: {__version__}
     parser.add_argument('--metrics-json', action='store_true', help=help_for('fullprosmaker.metrics_json'))
     parser.add_argument('--metrics-wpm', type=float, default=165, help=help_for('fullprosmaker.metrics_wpm'))
     parser.add_argument('--metrics-pause-ratio', type=float, default=35, help=help_for('fullprosmaker.metrics_pause_ratio'))
-    parser.add_argument('--metrics-long-punct-weight', type=float, default=2.0,
-                        help=help_for('fullprosmaker.metrics_long_punct_weight'))
     parser.add_argument('--explicit-link-count',
                         help=help_for('fullprosmaker.explicit_link_count'))
 
@@ -599,7 +595,6 @@ Version: {__version__}
         only_last=only_last,
         wpm=args.metrics_wpm,
         pause_ratio=args.metrics_pause_ratio,
-        long_punct_weight=args.metrics_long_punct_weight,
         explicit_link_count=args.explicit_link_count,
         output_table=output_table,
         output_json=output_json,

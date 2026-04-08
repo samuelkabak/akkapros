@@ -1209,7 +1209,6 @@ def compute_pause_durations(
     pause_metrics: Dict,
     speech_metrics: Dict,
     pause_ratio: float,
-    long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
 ) -> Dict:
     """
     Compute duration per short and long punctuation pause based on pause ratio.
@@ -1218,9 +1217,6 @@ def compute_pause_durations(
         pause_metrics: Output from compute_pause_metrics
         speech_metrics: Output from compute_speech_rate
         pause_ratio: Total pause ratio percentage
-        long_punct_weight: Relative weight for long punctuation pauses,
-            normalized by short pause weight (=1.0)
-    
     Returns:
         Dictionary with space and punctuation durations
     """
@@ -1241,6 +1237,7 @@ def compute_pause_durations(
     pause_time_per_syllable = total_time_per_syllable - syllable_duration
     
     # Distribute pause time using short/long punctuation weights (initial model).
+    long_punct_weight = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT
     total_pause_units = (
         short_per_syllable * SHORT_PAUSE_PUNCT_WEIGHT
         + long_per_syllable * long_punct_weight
@@ -1327,7 +1324,6 @@ def process_file(
     filename: str,
     wpm: float,
     pause_ratio: float,
-    long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
     explicit_link_count_override: str | int | None = None,
 ) -> Dict:
     """Process a single file and return all metrics."""
@@ -1337,7 +1333,6 @@ def process_file(
         text,
         wpm,
         pause_ratio,
-        long_punct_weight,
         filename,
         prominence_statistics=resolve_metrics_prominence_counts(
             text,
@@ -1371,7 +1366,6 @@ def process_filetext(
     text: str,
     wpm: float,
     pause_ratio: float,
-    long_punct_weight: float = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT,
     filesrc: str = 'in-memory',
     prominence_statistics: Optional[Dict[str, int]] = None,
 ) -> Dict:
@@ -1424,7 +1418,6 @@ def process_filetext(
         pause_metrics,
         speech_accentuated,
         pause_ratio,
-        long_punct_weight,
     )
 
     return {
@@ -1603,7 +1596,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     
     lines.append(f"\nPause duration allocation (total pause: {pd['pause_time_per_syllable']:.3f} s/syllable):")
     lines.append(f"  Short pause punctuation weight: always {pd['short_punct_weight']:.1f} (no unit)")
-    lines.append(f"  Initial long pause punctuation weight relative to short: {pd['initial_long_punct_weight']:.1f} (no unit)")
+    lines.append(f"  Fixed long pause punctuation weight relative to short: {pd['initial_long_punct_weight']:.1f} (no unit)")
     lines.append(
         f"  Initial short pause punctuation duration: {initial_short_punctuation_duration_display:.3f} s/pause "
         f"({initial_short_pause_syllable_ratio:.4f} average syllable duration) "

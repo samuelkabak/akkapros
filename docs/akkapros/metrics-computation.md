@@ -730,7 +730,7 @@ Consonant tokens remain the same base sequence (`s`, `t`); the change is in inte
 
 **How computed:**
 - `W_short = 1.0` (fixed)
-- `W_long = long_punct_weight` (parameter)
+- `W_long = 2.0` (fixed constant)
 - `units = short_pause_per_syll * W_short + long_pause_per_syll * W_long`
 - `unit_dur = total_pause_time_per_syll / units`
 - `initial_short_pause_dur = unit_dur * W_short`
@@ -850,7 +850,7 @@ Rules used by implementation:
 - `+` linkers are not pauses.
 - Short and long punctuation classes are constant sets defined in `metrics.py`.
 - Short class weight is always fixed: `SHORT_PAUSE_PUNCT_WEIGHT = 1.0`.
-- Long class weight is configurable with `--long-punct-weight`.
+- Long class weight is always fixed: `DEFAULT_LONG_PAUSE_PUNCT_WEIGHT = 2.0`.
 - EOF is treated as line-end long pause when enabled.
 
 ### Exact Punctuation Classes
@@ -886,7 +886,7 @@ Each report includes effective parameters (run context), including:
 - input path in the shortened safe display form (`...\parent\file.ext` when possible)
 - `wpm`
 - `pause_ratio`
-- `long_punct_weight`
+- fixed long-pause punctuation weight (`2.0`)
 - inherited extra phonetic inventory overrides from the upstream syllabify stage
 
 This makes each metrics file self-describing and reproducible.
@@ -902,7 +902,6 @@ filesystem prefixes.
 
     --wpm
     --pause-ratio
-    --long-punct-weight
     --table, --json
 
   **Note:** `metricalc.py` inherits `extra-consonants`, `extra-vowels`, and
@@ -913,7 +912,6 @@ filesystem prefixes.
 
     --metrics-wpm
     --metrics-pause-ratio
-    --metrics-long-punct-weight
     --metrics-table, --metrics-json
 
   **Note:** the CLI writes metrics to files by default — JSON files are named `*_metrics.json`.

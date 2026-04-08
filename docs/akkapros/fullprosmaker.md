@@ -121,10 +121,12 @@ units do not forward-merge; they fall directly to last resort.
 | `--metrics-json` | Generate JSON output |
 | `--metrics-wpm <float>` | Words per minute for speech-rate estimation (default: `165`) |
 | `--metrics-pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
-| `--metrics-long-punct-weight <float>` | Relative weight of long punctuation pauses (default: `2.0`) |
 | `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` for metrics |
 
 **Default behavior:** If no metrics format flag is provided, table output is enabled automatically.
+
+Long-pause punctuation weight is fixed internally at `2.0` and is no longer a
+metrics-stage CLI option.
 
 ### Printer Options
 

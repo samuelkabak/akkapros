@@ -1,10 +1,10 @@
 ---
 cr_id: CR-033
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-04
+updated: 2026-04-08
 implements: 'ADR-039, REQ-024'
 ---
 
@@ -128,23 +128,23 @@ Compatibility note:
 
 # Acceptance Criteria
 
-- [ ] The effective long-pause weight is hard-coded to `2`.
-- [ ] `metricalc` no longer accepts a CLI option for overriding long-pause
+- [x] The effective long-pause weight is hard-coded to `2`.
+- [x] `metricalc` no longer accepts a CLI option for overriding long-pause
       weight.
-- [ ] `fullprosmaker` no longer accepts a metrics-stage CLI option for
+- [x] `fullprosmaker` no longer accepts a metrics-stage CLI option for
       overriding long-pause weight.
-- [ ] Grouped config no longer defines `metrics.long_punct_weight`.
-- [ ] If a later `phonetize` timing-parameter section is present, it still does
+- [x] Grouped config no longer defines `metrics.long_punct_weight`.
+- [x] If a later `phonetize` timing-parameter section is present, it still does
   not define `long_punct_weight`.
-- [ ] Default config and config docs no longer present long-pause weight as a
+- [x] Default config and config docs no longer present long-pause weight as a
       configurable setting.
-- [ ] Help text and public CLI docs no longer describe long-pause weight as
+- [x] Help text and public CLI docs no longer describe long-pause weight as
       user-configurable.
-- [ ] Tests cover the removed option surfaces and the fixed runtime value.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Tests cover the removed option surfaces and the fixed runtime value.
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in configuration, generated/default config,
+- [x] Documentation is updated in configuration, generated/default config,
   confwriter-facing, fullprosmaker-facing, and any affected phonetizer-
   facing docs so the removed setting is not described anywhere.
 
@@ -211,34 +211,34 @@ surface and runtime behavior mismatched.
 
 ## Implementation
 
-- [ ] Remove `long_punct_weight` from CLI parsing surfaces
-- [ ] Remove `long_punct_weight` from grouped config surfaces
-- [ ] Hard-code the effective value to `2`
-- [ ] Update help text and output/run-context reporting as needed
+- [x] Remove `long_punct_weight` from CLI parsing surfaces
+- [x] Remove `long_punct_weight` from grouped config surfaces
+- [x] Hard-code the effective value to `2`
+- [x] Update help text and output/run-context reporting as needed
 
 ## Tests
 
-- [ ] Update or add detailed built-in `run_tests()` coverage in affected
+- [x] Update or add detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Update or add pytest unit tests for removed CLI/config options
-- [ ] Update or add pytest integration tests for fixed-value behavior
+- [x] Update or add pytest unit tests for removed CLI/config options
+- [x] Update or add pytest integration tests for fixed-value behavior
 
 ## Documentation
 
-- [ ] Update `docs/akkapros/configuration.md` and generated/default config
+- [x] Update `docs/akkapros/configuration.md` and generated/default config
   comments for the removed setting
-- [ ] Create or update `docs/akkapros/confwriter.md` if config-edit examples or
+- [x] Create or update `docs/akkapros/confwriter.md` if config-edit examples or
   key inventories are affected
-- [ ] Update `docs/akkapros/fullprosmaker.md` and any other impacted
+- [x] Update `docs/akkapros/fullprosmaker.md` and any other impacted
   program/stage docs that mention metrics timing controls
-- [ ] Keep `docs/akkapros/phonetizer.md` and
+- [x] Keep `docs/akkapros/phonetizer.md` and
   `docs/akkapros/phonetizer-algorithm.md` synchronized anywhere this
   setting would otherwise still appear in timing-model examples or stage
   narratives
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

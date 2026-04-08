@@ -60,7 +60,6 @@ def main() -> None:
 EXAMPLES:
     python metricalc.py erra_tilde.txt --table
     python metricalc.py --test
-    python metricalc.py erra_tilde.txt --long-punct-weight 2.5
 
 Version {__version__}
 """
@@ -78,8 +77,6 @@ Version {__version__}
     parser.add_argument('--wpm', type=float, default=165, help=help_for('metricalc.wpm'))
     parser.add_argument('--pause-ratio', type=float, default=35,
                         help=help_for('metricalc.pause_ratio'))
-    parser.add_argument('--long-punct-weight', type=float, default=2.0,
-                        help=help_for('metricalc.long_punct_weight'))
     parser.add_argument('--explicit-link-count',
                         help=help_for('metricalc.explicit_link_count'))
     parser.add_argument('--test', action='store_true', help=help_for('metricalc.test'))
@@ -155,7 +152,6 @@ Version {__version__}
                 input_file,
                 args.wpm,
                 args.pause_ratio,
-                args.long_punct_weight,
                 explicit_link_count_override=args.explicit_link_count,
             )
         except ValueError as exc:
@@ -230,7 +226,7 @@ Version {__version__}
                 'wpm_words_per_min': args.wpm,
                 'pause_ratio_percent': args.pause_ratio,
                 'short_pause_punct_weight_unitless': 1.0,
-                'long_pause_punct_weight_unitless': args.long_punct_weight,
+                'fixed_long_pause_punct_weight_unitless': 2.0,
                 'extra_consonants': inherited_syllabify['extra_consonants'],
                 'extra_vowels': inherited_syllabify['extra_vowels'],
                 'input': format_path_for_logging(input_files[0]),
@@ -260,7 +256,7 @@ Version {__version__}
                     'wpm_words_per_min': args.wpm,
                     'pause_ratio_percent': args.pause_ratio,
                     'short_pause_punct_weight_unitless': 1.0,
-                    'long_pause_punct_weight_unitless': args.long_punct_weight,
+                    'fixed_long_pause_punct_weight_unitless': 2.0,
                     'extra_consonants': inherited_syllabify['extra_consonants'],
                     'extra_vowels': inherited_syllabify['extra_vowels'],
                     'input': format_path_for_logging(input_file),

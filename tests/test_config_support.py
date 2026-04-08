@@ -4,7 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from akkapros.lib.config import (
+    ConfigError,
     add_config_argument,
     apply_overrides,
     build_default_config,
@@ -28,6 +31,8 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "fullprosmaker reads common plus the syllabify, prosody, metrics, and" in text
     assert text.count('extra_vowels: ""') == 1
     assert text.count('extra_consonants: ""') == 1
+    assert "long_punct_weight" not in text
+    assert "long_punct_weight" not in loaded["metrics"]
 
 
 def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) -> None:
@@ -118,3 +123,44 @@ def test_confwriter_rejects_null_effective_prefix(tmp_path: Path) -> None:
 
     assert proc.returncode == 2
     assert "null common.prefix" in (proc.stderr + proc.stdout)
+
+
+def test_removed_metrics_long_punct_weight_key_is_rejected(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(
+        "metrics:\n  long_punct_weight: 2.0\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError) as excinfo:
+        load_config_file(config_path)
+
+    assert "Unknown keys in section 'metrics': long_punct_weight" in str(excinfo.value)
+
+
+def test_removed_long_punct_weight_cli_flags_absent() -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    metricalc_help = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.metricalc", "--help"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert metricalc_help.returncode == 0, metricalc_help.stderr
+    assert "--long-punct-weight" not in (metricalc_help.stdout + metricalc_help.stderr)
+
+    fullprosmaker_help = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.fullprosmaker", "--help"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert fullprosmaker_help.returncode == 0, fullprosmaker_help.stderr
+    assert "--metrics-long-punct-weight" not in (fullprosmaker_help.stdout + fullprosmaker_help.stderr)

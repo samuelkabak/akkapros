@@ -83,8 +83,6 @@ metrics:
   wpm: 165.0
   # Pause ratio as a percent of total time.
   pause_ratio: 35.0
-  # Long-pause punctuation weight relative to short-pause punctuation.
-  long_punct_weight: 2.0
   # Override inherited metadata.data.prosody.explicit_word_link_count.
   explicit_link_count: null
 

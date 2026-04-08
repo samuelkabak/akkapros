@@ -70,7 +70,6 @@ Batch mode:
 | `--json` | Write JSON output |
 | `--wpm <float>` | Words per minute used in speech-rate estimation (default: `165`) |
 | `--pause-ratio <float>` | Pause ratio in percent of total time (default: `35`) |
-| `--long-punct-weight <float>` | Relative weight of long punctuation pauses vs short pauses (default: `2.0`) |
 | `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` |
 | `--test` | Run metrics test suite |
 
@@ -87,7 +86,6 @@ If none of `--table` or `--json` is specified, `--table` is enabled automaticall
         python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
             -p erra \
             --outdir outputs \
-            --long-punct-weight 2.5 \
             --table
 
 Inherited punctuation-extension settings and inherited `extra_vowels` /
@@ -100,8 +98,10 @@ separate CLI flags for those inherited syllabify-owned settings.
     python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
       --wpm 170 \
       --pause-ratio 35 \
-      --long-punct-weight 2.5 \
       --table
+
+Long-pause punctuation weight is no longer a user-configurable option. The
+active implementation fixes it at `2.0`.
 
 ### Override Explicit-Link Metadata
 
@@ -260,7 +260,7 @@ This makes text-derived moraic `%V` directly comparable with pause-inclusive spe
 
 `metricalc.py` now reports two pause-duration layers:
 
-1. **Initial**: direct weighted allocation from `--long-punct-weight`
+1. **Initial**: direct weighted allocation from the fixed long-pause weight `2.0`
 2. **Corrected**: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
 
 This correction affects table and JSON outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
