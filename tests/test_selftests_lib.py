@@ -5,6 +5,7 @@ import pytest
 
 from akkapros.lib import atfparse
 from akkapros.lib import metrics
+from akkapros.lib import phonetize
 from akkapros.lib import print as printlib
 from akkapros.lib import prosody
 from akkapros.lib import syllabify
@@ -22,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
         ("prosody", prosody.run_tests),
         ("prosody_diphthongs", prosody.test_diphthong_restoration),
         ("metrics", metrics.run_tests),
+        ("phonetize", phonetize.run_tests),
         ("print", printlib.run_tests),
         ("utils", utils.run_tests),
     ],

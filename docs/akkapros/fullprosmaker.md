@@ -23,7 +23,7 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 |-------|----------------|-------------|
 | **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
 | **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Phonetize** | `*_tilde.txt` → `*_phone.txt` | Builds the transitional phone-row artifact |
+| **3. Phonetize** | `*_tilde.txt` → `*_phone.txt` | Builds the canonical flat-line phone-row artifact |
 | **4. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
 | **5. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
 
@@ -42,7 +42,7 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |------|-------------|
 | `<prefix>_syl.txt` | Syllabified text |
 | `<prefix>_tilde.txt` | Prosody-realized pivot format |
-| `<prefix>_phone.txt` | Transitional phonetize-stage phone-row artifact |
+| `<prefix>_phone.txt` | Canonical flat-line phone-row artifact with CR-036 fields |
 
 ### Optional Metrics Outputs
 

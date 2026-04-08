@@ -1,6 +1,6 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented CR-035 phonetize-stage contract.
+This document describes the currently implemented CR-036 phonetize row contract as exposed by the live `phonetizer` stage.
 
 ## Current Scope
 
@@ -12,44 +12,39 @@ It provides:
 - one materialized `<prefix>_phone.txt` artifact
 - one shared library module, `src/akkapros/lib/phonetize.py`
 
-It does not yet implement the later full Phase 1 and Phase 2 phonetizer contracts from the downstream phonetizer records.
+It does not yet implement the later dual-output `_ophone` stage or the later duration-realization pass from downstream phonetizer records.
 
 ## Row Model
 
-The current `_phone.txt` body is newline-delimited JSON.
+The current `_phone.txt` body uses the canonical flat-line row contract:
 
-Each row is either:
-- `phoneme`
-- `silence`
+```text
+label-category-type-length-position-boundary-accent-realization-duration:text
+```
 
-Representative row fields:
-- `symbol`
-- `duration_ms`
-- `line_index`
-- `word_index`
-- `syllable_index`
-- `accentuated`
-- `boundary_after`
-- `segment_class`
-- `source_marker`
+Implemented semantics:
+- `label` is the canonical source-facing row label such as `SUD`, `AYA`, `ARU`, or `ZEN`
+- `category` is `C`, `V`, or `S`
+- `type` is split from `length` and preserves hiatus (`H`), vowel-transition (`T`), closure (`C`), fricative (`F`), sonorant (`S`), and vowel-height classes
+- `position` is `O`, `C`, `N`, or `S`
+- `boundary` is `N`, `I`, `E`, `L`, `X`, or `F`
+- `realization` is the two-character code inventory token such as `SU`, `AA`, `AO`, `SP`, or `ZP`
+- `duration` is currently the Phase 1 placeholder `0000`
+- `text` preserves the source glyph, punctuation mark, or `<EOL>`
 
 ## Duration Source
 
-Durations are read from `phonetize.timing_model`.
-
-Examples:
-- vowels use `phonetize.timing_model.durations.vowels.*`
-- consonants use class-specific onset or coda defaults under `phonetize.timing_model.durations.consonants.*`
-- silence rows use `phonetize.timing_model.durations.pauses.short.min` or `.long.min`
+The live builder is now structure-first. It emits `duration=0000` on every row so the artifact matches the Phase 1 placeholder contract while later duration work remains separate.
 
 ## Boundary Behavior
 
 The current stage:
-- marks word boundaries on the preceding phoneme row
-- increments syllable indices at `.` and `-`
-- emits silence rows for configured short and long pause punctuation
-- emits a long-pause silence row for line breaks
-- preserves merged-word traversal without inserting ordinary word-space silence rows
+- carries the closing structure on the last segment of each syllable or prosodic unit
+- uses `I` for ordinary internal syllable breaks and `E` for enclitic dashes
+- uses `L` for internal merges (`&`) and `X` for explicit merges (`+`)
+- uses `F` for prosodic-unit endings, including space-separated words before the next unit
+- emits `SES` / `SP` rows for short pauses and `ZEN` / `ZP` rows for long pauses and line breaks
+- serializes line breaks as `<EOL>` in the `text` field
 
 ## Transition Note
 

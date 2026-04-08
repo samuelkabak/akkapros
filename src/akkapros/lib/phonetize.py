@@ -2,18 +2,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-import json
 from typing import Any
 
-from akkapros.lib.constants import (
-    AKKADIAN_CONSONANTS,
-    AKKADIAN_VOWELS,
-    HIATUS_MARKER,
-    LONG_PAUSE_PUNCTUATION_CHARS,
-    SHORT_PAUSE_PUNCTUATION_CHARS,
-    SYL_SEPARATOR,
-    WORD_LINKER,
-)
+from akkapros.lib.constants import HIATUS_MARKER, SYL_SEPARATOR, WORD_LINKER
 
 
 PHONETIZE_SECTION = 'phonetize'
@@ -164,14 +155,217 @@ PROCESS_KEYS = (
     'drift_tolerance',
 )
 
+PHONE_ROW_FIELDS = (
+    'label',
+    'category',
+    'type',
+    'length',
+    'position',
+    'boundary',
+    'accent',
+    'realization',
+    'duration',
+    'text',
+)
+PHONE_ROW_DURATION_PLACEHOLDER = '0000'
+INNER_PUNCT_TEXT = ':inner-punct:'
+PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
+EOL_TEXT = '<EOL>'
+
+CONSONANT_HIATUS = set('˙')
+CONSONANT_VOWEL_TRANSITION = set('¨')
+CONSONANT_CLOSURE = set('bdgkptṭqʾ')
+CONSONANT_FRICATIVE = set('szšṣḥḫʿ')
+CONSONANT_SONORANT = set('lrmnwy')
+EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
+
 SHORT_VOWELS = set('aeiu')
 LONG_VOWELS = set('āēīūâêîû')
-VERY_LONG_VOWELS = set('àèìù')
-CLOSURE_CONSONANTS = set('bdgkptṭqʾ')
-FRICATIVE_CONSONANTS = set('szšṣḥḫʿ')
-SONORANT_CONSONANTS = set('lrmnwy')
-SPECIAL_CLOSURE = {HIATUS_MARKER}
-SPECIAL_SONORANT = {'¨'}
+LOW_VOWELS = set('aāâ')
+MID_VOWELS = set('eēê')
+HIGH_VOWELS = set('iuīūîû')
+
+SHORT_PAUSE_PUNCTUATION_CHARS = {',', ';', ':', '—', '–', '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'", '/', '\\', '|', '†', '‡'}
+LONG_PAUSE_PUNCTUATION_CHARS = {'.', '?', '!', '[', ']', '{', '}', '<', '>', '*', '#'}
+INTERNAL_MERGE_CHARS = {'&', '_'}
+
+INPUT_CHARACTER_ROWS = (
+    ('b', 'BET', 'S'),
+    ('d', 'DAL', 'S'),
+    ('g', 'GIM', 'S'),
+    ('k', 'KAP', 'S'),
+    ('p', 'PAY', 'S'),
+    ('ṭ', 'TUT', 'S'),
+    ('q', 'QUP', 'S'),
+    ('ṣ', 'SUD', 'S'),
+    ('s', 'SAM', 'S'),
+    ('z', 'ZIN', 'S'),
+    ('š', 'SIN', 'S'),
+    ('l', 'LAM', 'S'),
+    ('m', 'MIM', 'S'),
+    ('n', 'NAN', 'S'),
+    ('r', 'RES', 'S'),
+    ('ḥ', 'ETE', 'S'),
+    ('ḫ', 'HET', 'S'),
+    ('ʿ', 'AIN', 'S'),
+    ('ʾ', 'ALE', 'S'),
+    ('w', 'WAW', 'S'),
+    ('y', 'YID', 'S'),
+    ('t', 'TAW', 'S'),
+    (HIATUS_MARKER, 'ARU', 'S'),
+    ('¨', 'ENA', 'S'),
+    ('a', 'AYA', 'S'),
+    ('e', 'EYA', 'S'),
+    ('i', 'IYA', 'S'),
+    ('u', 'UYA', 'S'),
+    ('ā', 'AWA', 'L'),
+    ('ē', 'EWA', 'L'),
+    ('ī', 'IWA', 'L'),
+    ('ū', 'UWA', 'L'),
+    ('â', 'AWI', 'L'),
+    ('ê', 'EWI', 'L'),
+    ('î', 'IWI', 'L'),
+    ('û', 'UWI', 'L'),
+    (INNER_PUNCT_TEXT, 'SES', 'S'),
+    (PHRASAL_PUNCT_TEXT, 'ZEN', 'L'),
+)
+
+INPUT_CHARACTER_LABELS = {text: label for text, label, _length in INPUT_CHARACTER_ROWS}
+INPUT_CHARACTER_LENGTHS = {text: length for text, _label, length in INPUT_CHARACTER_ROWS}
+
+REALIZATION_CODE_ROWS = (
+    ('BE', 'b', 'C', 'C', 'P'),
+    ('DA', 'd', 'C', 'C', 'P'),
+    ('GI', 'ɡ', 'C', 'C', 'P'),
+    ('KA', 'k', 'C', 'C', 'P'),
+    ('PA', 'p', 'C', 'C', 'P'),
+    ('TU', 'tˤ', 'C', 'C', 'E'),
+    ('QU', 'q', 'C', 'C', 'E'),
+    ('SU', 'sˤ', 'C', 'F', 'E'),
+    ('SA', 's', 'C', 'F', 'P'),
+    ('ZI', 'z', 'C', 'F', 'P'),
+    ('SI', 'ʃ', 'C', 'F', 'P'),
+    ('LA', 'l', 'C', 'S', 'P'),
+    ('MI', 'm', 'C', 'S', 'P'),
+    ('NA', 'n', 'C', 'S', 'P'),
+    ('RE', 'r', 'C', 'S', 'P'),
+    ('ET', 'ħ', 'C', 'F', 'P'),
+    ('HE', 'x', 'C', 'F', 'P'),
+    ('AI', 'ʕ', 'C', 'F', 'P'),
+    ('AL', 'ʔ', 'C', 'C', 'P'),
+    ('WA', 'w', 'C', 'S', 'P'),
+    ('YI', 'j', 'C', 'S', 'P'),
+    ('TA', 't', 'C', 'C', 'P'),
+    ('AA', 'a', 'V', 'L', 'P'),
+    ('EE', 'e', 'V', 'M', 'P'),
+    ('II', 'i', 'V', 'H', 'P'),
+    ('UU', 'u', 'V', 'H', 'P'),
+    ('AO', 'ɑ', 'V', 'L', 'P'),
+    ('EO', 'ɛ', 'V', 'M', 'P'),
+    ('IO', 'ɨ', 'V', 'H', 'P'),
+    ('UO', 'ʊ', 'V', 'H', 'P'),
+    ('SP', '|', 'S', 'S', 'P'),
+    ('ZP', '‖', 'S', 'S', 'P'),
+)
+
+REALIZATION_CODE_METADATA = {
+    code: {
+        'ipa': ipa,
+        'category': category,
+        'type': type_code,
+        'emphaticity': emphaticity,
+    }
+    for code, ipa, category, type_code, emphaticity in REALIZATION_CODE_ROWS
+}
+
+INPUT_TO_REALIZATION_ROWS = (
+    ('BET', 'BE'),
+    ('DAL', 'DA'),
+    ('GIM', 'GI'),
+    ('KAP', 'KA'),
+    ('PAY', 'PA'),
+    ('TUT', 'TU'),
+    ('QUP', 'QU'),
+    ('SUD', 'SU'),
+    ('SAM', 'SA'),
+    ('ZIN', 'ZI'),
+    ('SIN', 'SI'),
+    ('LAM', 'LA'),
+    ('MIM', 'MI'),
+    ('NAN', 'NA'),
+    ('RES', 'RE'),
+    ('ETE', 'ET'),
+    ('HET', 'HE'),
+    ('AIN', 'AI'),
+    ('ALE', 'AL'),
+    ('WAW', 'WA'),
+    ('YID', 'YI'),
+    ('TAW', 'TA'),
+    ('ARU', 'AL'),
+    ('ENA', 'WA'),
+    ('ENA', 'YI'),
+    ('AYA', 'AA'),
+    ('EYA', 'EE'),
+    ('IYA', 'II'),
+    ('UYA', 'UU'),
+    ('AWA', 'AA'),
+    ('EWA', 'EE'),
+    ('IWA', 'II'),
+    ('UWA', 'UU'),
+    ('AWI', 'AA'),
+    ('EWI', 'EE'),
+    ('IWI', 'II'),
+    ('UWI', 'UU'),
+    ('AYA', 'AO'),
+    ('EYA', 'EO'),
+    ('IYA', 'IO'),
+    ('UYA', 'UO'),
+    ('AWA', 'AO'),
+    ('EWA', 'EO'),
+    ('IWA', 'IO'),
+    ('UWA', 'UO'),
+    ('AWI', 'AO'),
+    ('EWI', 'EO'),
+    ('IWI', 'IO'),
+    ('UWI', 'UO'),
+    ('SES', 'SP'),
+    ('ZEN', 'ZP'),
+)
+
+INPUT_TO_REALIZATION_CODES: dict[str, tuple[str, ...]] = {}
+for label, code in INPUT_TO_REALIZATION_ROWS:
+    INPUT_TO_REALIZATION_CODES.setdefault(label, ())
+    INPUT_TO_REALIZATION_CODES[label] = INPUT_TO_REALIZATION_CODES[label] + (code,)
+
+PLAIN_VOWEL_REALIZATIONS = {
+    'AYA': 'AA',
+    'EYA': 'EE',
+    'IYA': 'II',
+    'UYA': 'UU',
+    'AWA': 'AA',
+    'EWA': 'EE',
+    'IWA': 'II',
+    'UWA': 'UU',
+    'AWI': 'AA',
+    'EWI': 'EE',
+    'IWI': 'II',
+    'UWI': 'UU',
+}
+
+EMPHATIC_VOWEL_REALIZATIONS = {
+    'AYA': 'AO',
+    'EYA': 'EO',
+    'IYA': 'IO',
+    'UYA': 'UO',
+    'AWA': 'AO',
+    'EWA': 'EO',
+    'IWA': 'IO',
+    'UWA': 'UO',
+    'AWI': 'AO',
+    'EWI': 'EO',
+    'IWI': 'IO',
+    'UWI': 'UO',
+}
 
 
 def _is_field(node: Any) -> bool:
@@ -328,167 +522,247 @@ def apply_timing_override(config: dict[str, Any], path: str, value: Any) -> dict
     return set_relative_value(config, parts[1:], value)
 
 
-def _next_symbol_type(text: str, index: int) -> str | None:
-    stop_chars = {' ', '\t', '\r', '\n', SYL_SEPARATOR, '.', '-', '_', '&', WORD_LINKER}
-    for cursor in range(index + 1, len(text)):
-        char = text[cursor]
-        if char == '~':
-            continue
-        if char in stop_chars:
-            return None
-        if char in AKKADIAN_VOWELS or char in VERY_LONG_VOWELS:
-            return 'vowel'
-        if char in AKKADIAN_CONSONANTS or char in SPECIAL_CLOSURE or char in SPECIAL_SONORANT:
-            return 'consonant'
-        if char in SHORT_PAUSE_PUNCTUATION_CHARS or char in LONG_PAUSE_PUNCTUATION_CHARS:
-            return None
-    return None
+def _is_vowel(symbol: str) -> bool:
+    return symbol in SHORT_VOWELS or symbol in LONG_VOWELS
 
 
-def _classify_consonant(symbol: str) -> tuple[str, int]:
-    if symbol in SPECIAL_CLOSURE:
-        return 'closure', 18
-    if symbol in SPECIAL_SONORANT:
-        return 'sonorant', 11
-    if symbol in CLOSURE_CONSONANTS:
-        return 'closure', 0
-    if symbol in FRICATIVE_CONSONANTS:
-        return 'fricative', 0
-    return 'sonorant', 0
+def _classify_symbol(symbol: str) -> tuple[str, str, str]:
+    if symbol in CONSONANT_HIATUS:
+        return 'C', 'H', 'S'
+    if symbol in CONSONANT_VOWEL_TRANSITION:
+        return 'C', 'T', 'S'
+    if symbol in CONSONANT_CLOSURE:
+        return 'C', 'C', 'S'
+    if symbol in CONSONANT_FRICATIVE:
+        return 'C', 'F', 'S'
+    if symbol in CONSONANT_SONORANT:
+        return 'C', 'S', 'S'
+    if symbol in LOW_VOWELS:
+        return 'V', 'L', INPUT_CHARACTER_LENGTHS[symbol]
+    if symbol in MID_VOWELS:
+        return 'V', 'M', INPUT_CHARACTER_LENGTHS[symbol]
+    if symbol in HIGH_VOWELS:
+        return 'V', 'H', INPUT_CHARACTER_LENGTHS[symbol]
+    raise ValueError(f'Unsupported phonetizer symbol: {symbol!r}')
 
 
-def build_phone_rows(tilde_text: str, phonetize_config: dict[str, Any]) -> list[dict[str, Any]]:
-    timing = phonetize_config['timing_model']['durations']
-    rows: list[dict[str, Any]] = []
-    line_index = 1
-    word_index = 1
-    syllable_index = 1
+def _base_realization_for_label(label: str) -> str:
+    codes = INPUT_TO_REALIZATION_CODES[label]
+    return codes[0]
 
-    def _mark_boundary(code: str) -> None:
-        if rows and rows[-1]['kind'] == 'phoneme':
-            rows[-1]['boundary_after'] = code
 
-    for index, symbol in enumerate(tilde_text):
-        if symbol == '~':
-            if rows and rows[-1]['kind'] == 'phoneme':
-                rows[-1]['accentuated'] = True
-            continue
+def _choose_vowel_realization(label: str, emphatic_onset: bool) -> str:
+    if emphatic_onset:
+        return EMPHATIC_VOWEL_REALIZATIONS[label]
+    return PLAIN_VOWEL_REALIZATIONS[label]
 
-        if symbol == '\n':
-            rows.append(
-                {
-                    'kind': 'silence',
-                    'symbol': 'LONG_PAUSE',
-                    'duration_ms': timing['pauses']['long']['min'],
-                    'line_index': line_index,
-                    'word_index': word_index,
-                    'syllable_index': syllable_index,
-                    'accentuated': False,
-                    'boundary_after': 'pause',
-                    'segment_class': 'pause',
-                    'source_marker': '\\n',
-                }
-            )
-            line_index += 1
-            word_index = 1
-            syllable_index = 1
-            continue
 
-        if symbol in SHORT_PAUSE_PUNCTUATION_CHARS:
-            rows.append(
-                {
-                    'kind': 'silence',
-                    'symbol': 'SHORT_PAUSE',
-                    'duration_ms': timing['pauses']['short']['min'],
-                    'line_index': line_index,
-                    'word_index': word_index,
-                    'syllable_index': syllable_index,
-                    'accentuated': False,
-                    'boundary_after': 'pause',
-                    'segment_class': 'pause',
-                    'source_marker': symbol,
-                }
-            )
-            continue
+def _choose_vowel_transition_realization(previous_code: str, next_code: str) -> str:
+    if next_code in {'UU', 'UO'}:
+        return 'WA' if previous_code in {'AA', 'AO', 'EE', 'EO', 'UU', 'UO'} else 'YI'
+    if previous_code in {'UU', 'UO'}:
+        return 'WA'
+    return 'YI'
 
-        if symbol in LONG_PAUSE_PUNCTUATION_CHARS:
-            rows.append(
-                {
-                    'kind': 'silence',
-                    'symbol': 'LONG_PAUSE',
-                    'duration_ms': timing['pauses']['long']['min'],
-                    'line_index': line_index,
-                    'word_index': word_index,
-                    'syllable_index': syllable_index,
-                    'accentuated': False,
-                    'boundary_after': 'pause',
-                    'segment_class': 'pause',
-                    'source_marker': symbol,
-                }
-            )
-            continue
 
-        if symbol == ' ':
-            _mark_boundary('word')
-            word_index += 1
-            syllable_index = 1
-            continue
+def _new_segment_seed(symbol: str) -> dict[str, str]:
+    label = INPUT_CHARACTER_LABELS[symbol]
+    category, type_code, length_code = _classify_symbol(symbol)
+    return {
+        'label': label,
+        'category': category,
+        'type': type_code,
+        'length': length_code,
+        'position': 'N' if category == 'V' else 'O',
+        'boundary': 'N',
+        'accent': 'F',
+        'realization': _base_realization_for_label(label),
+        'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'text': symbol,
+    }
 
-        if symbol in {'_', '&'}:
-            _mark_boundary('merge-internal')
-            continue
 
-        if symbol == WORD_LINKER:
-            _mark_boundary('merge-explicit')
-            continue
+def _new_pause_row(text: str, *, is_long: bool) -> dict[str, str]:
+    label = 'ZEN' if is_long else 'SES'
+    return {
+        'label': label,
+        'category': 'S',
+        'type': 'S',
+        'length': 'L' if is_long else 'S',
+        'position': 'S',
+        'boundary': 'N',
+        'accent': 'P',
+        'realization': 'ZP' if is_long else 'SP',
+        'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'text': text,
+    }
 
-        if symbol in {SYL_SEPARATOR, '.'}:
-            _mark_boundary('syllable')
-            syllable_index += 1
-            continue
 
-        if symbol == '-':
-            _mark_boundary('enclitic')
-            syllable_index += 1
-            continue
-
-        if symbol in SHORT_VOWELS:
-            duration_ms = timing['vowels']['short']
-            segment_class = 'vowel'
-        elif symbol in LONG_VOWELS:
-            duration_ms = timing['vowels']['long']
-            segment_class = 'vowel'
-        elif symbol in VERY_LONG_VOWELS:
-            duration_ms = timing['vowels']['very_long']
-            segment_class = 'vowel'
-        elif symbol in AKKADIAN_CONSONANTS or symbol in SPECIAL_CLOSURE or symbol in SPECIAL_SONORANT:
-            consonant_class, special_duration = _classify_consonant(symbol)
-            segment_class = consonant_class
-            if special_duration:
-                duration_ms = special_duration
-            else:
-                duration_kind = 'onset' if _next_symbol_type(tilde_text, index) == 'vowel' else 'coda'
-                duration_ms = timing['consonants'][consonant_class][duration_kind]
+def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]], boundary_code: str) -> None:
+    if not syllable:
+        return
+    nucleus_index = next((index for index, row in enumerate(syllable) if row['category'] == 'V'), None)
+    if nucleus_index is None:
+        raise ValueError('Invalid _tilde input for phonetizer: syllable without vowel nucleus')
+    for index, row in enumerate(syllable):
+        if row['category'] == 'V':
+            row['position'] = 'N'
         else:
+            row['position'] = 'O' if index < nucleus_index else 'C'
+    emphatic_onset = any(
+        row['position'] == 'O' and row['text'] in EMPHATIC_CONSONANTS
+        for row in syllable
+    )
+    for row in syllable:
+        if row['category'] == 'V':
+            row['realization'] = _choose_vowel_realization(row['label'], emphatic_onset)
+        elif row['label'] == 'ENA':
+            row['realization'] = 'YI'
+        else:
+            row['realization'] = _base_realization_for_label(row['label'])
+    syllable[-1]['boundary'] = boundary_code
+    rows.extend(syllable)
+
+
+def _resolve_transition_rows(rows: list[dict[str, str]]) -> None:
+    for index, row in enumerate(rows):
+        if row['label'] != 'ENA':
             continue
+        previous_vowel = next((candidate for candidate in reversed(rows[:index]) if candidate['category'] == 'V'), None)
+        next_vowel = next((candidate for candidate in rows[index + 1 :] if candidate['category'] == 'V'), None)
+        if previous_vowel is None or next_vowel is None:
+            row['realization'] = 'YI'
+            continue
+        row['realization'] = _choose_vowel_transition_realization(previous_vowel['realization'], next_vowel['realization'])
 
-        rows.append(
-            {
-                'kind': 'phoneme',
-                'symbol': symbol,
-                'duration_ms': duration_ms,
-                'line_index': line_index,
-                'word_index': word_index,
-                'syllable_index': syllable_index,
-                'accentuated': False,
-                'boundary_after': '',
-                'segment_class': segment_class,
-                'source_marker': symbol,
-            }
-        )
 
+def build_phone_rows(tilde_text: str, phonetize_config: dict[str, Any] | None = None) -> list[dict[str, str]]:
+    _ = phonetize_config
+    rows: list[dict[str, str]] = []
+    syllable: list[dict[str, str]] = []
+
+    def _finish(boundary_code: str) -> None:
+        nonlocal syllable
+        _finalize_syllable(rows, syllable, boundary_code)
+        syllable = []
+
+    for symbol in tilde_text:
+        if symbol == '~':
+            if syllable:
+                syllable[-1]['accent'] = 'A'
+            elif rows:
+                rows[-1]['accent'] = 'A'
+            continue
+        if symbol in {SYL_SEPARATOR, '.'}:
+            _finish('I')
+            continue
+        if symbol == '-':
+            _finish('E')
+            continue
+        if symbol in INTERNAL_MERGE_CHARS:
+            _finish('L')
+            continue
+        if symbol == WORD_LINKER:
+            _finish('X')
+            continue
+        if symbol == ' ':
+            _finish('F')
+            continue
+        if symbol == '\n':
+            _finish('F')
+            rows.append(_new_pause_row(EOL_TEXT, is_long=True))
+            continue
+        if symbol in SHORT_PAUSE_PUNCTUATION_CHARS:
+            _finish('F')
+            rows.append(_new_pause_row(symbol, is_long=False))
+            continue
+        if symbol in LONG_PAUSE_PUNCTUATION_CHARS:
+            _finish('F')
+            rows.append(_new_pause_row(symbol, is_long=True))
+            continue
+        if symbol in INPUT_CHARACTER_LABELS and symbol not in {INNER_PUNCT_TEXT, PHRASAL_PUNCT_TEXT}:
+            syllable.append(_new_segment_seed(symbol))
+            continue
+    _finish('F')
+    _resolve_transition_rows(rows)
     return rows
 
 
-def serialize_phone_rows(rows: list[dict[str, Any]]) -> str:
-    return '\n'.join(json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows) + '\n'
+def serialize_phone_row(row: dict[str, str]) -> str:
+    head = '-'.join(row[field] for field in PHONE_ROW_FIELDS[:-1])
+    return f'{head}:{row[PHONE_ROW_FIELDS[-1]]}'
+
+
+def serialize_phone_rows(rows: list[dict[str, str]]) -> str:
+    return '\n'.join(serialize_phone_row(row) for row in rows) + '\n'
+
+
+def parse_phone_row(line: str) -> dict[str, str]:
+    stripped = line.strip()
+    if not stripped:
+        raise ValueError('Phone row is empty')
+    head, sep, text = stripped.partition(':')
+    if not sep:
+        raise ValueError(f'Invalid phone row: {line!r}')
+    parts = head.split('-')
+    if len(parts) != len(PHONE_ROW_FIELDS) - 1:
+        raise ValueError(f'Invalid phone row field count: {line!r}')
+    return dict(zip(PHONE_ROW_FIELDS, parts + [text]))
+
+
+def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:
+    pieces: list[str] = []
+    previous_boundary = ''
+    for row in rows:
+        if row['category'] != 'S' and previous_boundary == 'F':
+            pieces.append(' ')
+        if row['category'] == 'S':
+            pieces.append('\n' if row['text'] == EOL_TEXT else row['text'])
+            previous_boundary = ''
+            continue
+        pieces.append(row['text'])
+        if row['accent'] == 'A':
+            pieces.append('~')
+        boundary = row['boundary']
+        if boundary == 'I':
+            pieces.append(SYL_SEPARATOR)
+        elif boundary == 'E':
+            pieces.append('-')
+        elif boundary == 'L':
+            pieces.append('&')
+        elif boundary == 'X':
+            pieces.append(WORD_LINKER)
+        previous_boundary = boundary
+    return ''.join(pieces)
+
+
+def run_tests() -> bool:
+    cases = [
+        lambda: CONSONANT_HIATUS == set('˙') and CONSONANT_VOWEL_TRANSITION == set('¨'),
+        lambda: INPUT_CHARACTER_LABELS['ṣ'] == 'SUD' and INPUT_CHARACTER_LENGTHS['û'] == 'L',
+        lambda: REALIZATION_CODE_METADATA['SP']['category'] == 'S' and INPUT_TO_REALIZATION_CODES['ENA'] == ('WA', 'YI'),
+        lambda: _test_emphatic_vowel_and_row_format(),
+        lambda: _test_boundary_reconstruction(),
+        lambda: _test_transition_resolution(),
+    ]
+    return all(case() for case in cases)
+
+
+def _test_emphatic_vowel_and_row_format() -> bool:
+    rows = build_phone_rows('qā')
+    if rows[0]['realization'] != 'QU' or rows[1]['realization'] != 'AO':
+        return False
+    line = serialize_phone_row(rows[0])
+    return parse_phone_row(line) == rows[0] and rows[0]['duration'] == PHONE_ROW_DURATION_PLACEHOLDER
+
+
+def _test_boundary_reconstruction() -> bool:
+    sample = 'šit·ku·nat-ma'
+    rows = build_phone_rows(sample)
+    return reconstruct_tilde_from_phone_rows(rows) == sample
+
+
+def _test_transition_resolution() -> bool:
+    rows = build_phone_rows('a¨u')
+    transition = next(row for row in rows if row['label'] == 'ENA')
+    return transition['realization'] == 'WA'

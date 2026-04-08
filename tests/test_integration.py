@@ -8,6 +8,7 @@ from pathlib import Path
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
 from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import metrics
+from akkapros.lib.phonetize import parse_phone_row
 from akkapros.lib.utils import format_path_for_logging
 
 
@@ -170,9 +171,10 @@ def _assert_phone_artifact(path: Path) -> None:
     _assert_has_yaml_frontmatter(path, require_title=False)
     _frontmatter, body = split_frontmatter(_read_text(path))
     first_line = body.strip().splitlines()[0]
-    first_row = json.loads(first_line)
-    assert first_row["kind"] in {"phoneme", "silence"}
-    assert "duration_ms" in first_row
+    first_row = parse_phone_row(first_line)
+    assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'text']
+    assert first_row['category'] in {'C', 'V', 'S'}
+    assert len(first_row['duration']) == 4
 
 
 def _assert_matches_reference(generated: Path, reference: Path) -> None:

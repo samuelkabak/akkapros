@@ -34,6 +34,7 @@ from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
     build_phone_rows,
+    run_tests as run_phonetize_tests,
     serialize_phone_rows,
 )
 from akkapros.lib.utils import (
@@ -97,6 +98,7 @@ def run_tests() -> bool:
         ('default process overrides', lambda: updated['process']['geminate_policy'] == 'corrective'),
         ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.timing_model.speech.wpm=193'])['timing_model']['speech']['wpm'] == 193),
         ('reject bad option path', _selftest_invalid_option_path),
+        ('canonical phone rows', run_phonetize_tests),
     ]
     passed = 0
     total = len(cases)
@@ -207,8 +209,8 @@ def main() -> None:
         input_frontmatter=input_frontmatter,
         stage_data={
             'phone_row_count': len(rows),
-            'silence_row_count': sum(1 for row in rows if row['kind'] == 'silence'),
-            'phoneme_row_count': sum(1 for row in rows if row['kind'] == 'phoneme'),
+            'silence_row_count': sum(1 for row in rows if row['category'] == 'S'),
+            'phoneme_row_count': sum(1 for row in rows if row['category'] != 'S'),
         },
         file_format='phone',
     )

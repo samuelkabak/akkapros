@@ -315,8 +315,8 @@ def run_pipeline(
         input_frontmatter=tilde_frontmatter,
         stage_data={
             'phone_row_count': len(phone_rows),
-            'silence_row_count': sum(1 for row in phone_rows if row['kind'] == 'silence'),
-            'phoneme_row_count': sum(1 for row in phone_rows if row['kind'] == 'phoneme'),
+            'silence_row_count': sum(1 for row in phone_rows if row['category'] == 'S'),
+            'phoneme_row_count': sum(1 for row in phone_rows if row['category'] != 'S'),
         },
         file_format='phone',
     )

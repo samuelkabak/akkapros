@@ -1,6 +1,6 @@
 # Phonetizer CLI (`phonetizer.py`)
 
-`phonetizer.py` is the transitional stage that turns a prosody-realized `*_tilde.txt` file into a phone-row artifact, `<prefix>_phone.txt`.
+`phonetizer.py` is the transitional stage that turns a prosody-realized `*_tilde.txt` file into a canonical phone-row artifact, `<prefix>_phone.txt`.
 
 ## Purpose
 
@@ -14,6 +14,12 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 
 At this stage of the rollout, `_phone.txt` is a real artifact with front matter and structured body rows, but metrics still computes from `_tilde.txt` using the phonetize transition defaults internally.
 
+The current implementation now follows the CR-036 row contract for `<prefix>_phone.txt`:
+- flat-line serialization, one row per line
+- exact field order: `label-category-type-length-position-boundary-accent-realization-duration:text`
+- canonical segment and pause inventories
+- placeholder `duration=0000` until later duration-realization work lands
+
 ## Input and Output
 
 Input:
@@ -22,9 +28,21 @@ Input:
 Output:
 - `<prefix>_phone.txt`
 
-The body is newline-delimited JSON. Each row represents either:
-- a `phoneme` row with symbol, duration, indices, and boundary metadata
-- a `silence` row created from pauses or line breaks
+The body is a flat line-oriented format. Each row uses the canonical ten-field order:
+
+```text
+label-category-type-length-position-boundary-accent-realization-duration:text
+```
+
+Examples:
+
+```text
+SUD-C-F-S-O-N-F-SU-0000:ṣ
+AYA-V-L-S-N-F-F-AA-0000:a
+ZEN-S-S-L-S-N-P-ZP-0000:<EOL>
+```
+
+The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
 
 ## Command Syntax
 
@@ -69,3 +87,7 @@ Representative keys:
 - `phonetize.timing_model.durations.cvc_reference`
 
 `confwriter --list phonetize` is the supported way to inspect the live schema.
+
+See also:
+- `docs/akkapros/phonetizer-algorithm.md` for the row and boundary model
+- `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_phone.txt`
