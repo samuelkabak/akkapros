@@ -169,6 +169,25 @@ def build_default_config() -> dict[str, dict[str, Any]]:
     }
 
 
+def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
+    parts = [part for part in path.split(".") if part]
+    if len(parts) != 2:
+        raise ConfigError(f"Unknown config key: {path}")
+    section, key = parts
+    fields = CONFIG_SCHEMA.get(section)
+    if fields is None or key not in fields:
+        raise ConfigError(f"Unknown config key: {path}")
+    return section, key, fields[key]
+
+
+def iter_config_paths() -> list[tuple[str, ConfigField]]:
+    entries: list[tuple[str, ConfigField]] = []
+    for section in CONFIG_SECTION_ORDER:
+        for key, field in CONFIG_SCHEMA[section].items():
+            entries.append((f"{section}.{key}", field))
+    return entries
+
+
 def _parse_scalar(raw: str) -> Any:
     if raw.startswith('"') or raw.startswith('[') or raw.startswith('{'):
         return json.loads(raw)
@@ -186,6 +205,10 @@ def _parse_scalar(raw: str) -> Any:
         return int(raw)
     except ValueError:
         return raw
+
+
+def parse_config_cli_value(raw: str) -> Any:
+    return _parse_scalar(raw)
 
 
 def parse_config_text(text: str) -> dict[str, Any]:
@@ -277,7 +300,7 @@ def _coerce_scalar(value: Any, kind: str) -> Any:
     raise ConfigError(f"Unknown config field kind: {kind}")
 
 
-def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def validate_config_source(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
     if not isinstance(config, dict):
         raise ConfigError("Config root must be a mapping")
 
@@ -285,9 +308,11 @@ def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
     if unknown_sections:
         raise ConfigError(f"Unknown config sections: {', '.join(unknown_sections)}")
 
-    normalized = build_default_config()
+    validated: dict[str, dict[str, Any]] = {}
     for section, fields in CONFIG_SCHEMA.items():
-        raw_section = config.get(section, {})
+        if section not in config:
+            continue
+        raw_section = config[section]
         if raw_section is None:
             raw_section = {}
         if not isinstance(raw_section, dict):
@@ -295,14 +320,33 @@ def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
         unknown_keys = sorted(set(raw_section) - set(fields))
         if unknown_keys:
             raise ConfigError(f"Unknown keys in section {section!r}: {', '.join(unknown_keys)}")
-        for key, field in fields.items():
-            if key not in raw_section:
+        validated_section: dict[str, Any] = {}
+        for key, raw_value in raw_section.items():
+            field = fields[key]
+            if raw_value is None:
+                validated_section[key] = None
                 continue
-            value = _coerce_scalar(raw_section[key], field.kind)
+            value = _coerce_scalar(raw_value, field.kind)
             if field.choices is not None and value not in field.choices:
                 raise ConfigError(
                     f"Invalid value for {section}.{key}: {value!r}; expected one of {field.choices!r}"
                 )
+            validated_section[key] = value
+        validated[section] = validated_section
+    return validated
+
+
+def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    validated = validate_config_source(config)
+    normalized = build_default_config()
+    for section, fields in CONFIG_SCHEMA.items():
+        raw_section = validated.get(section, {})
+        for key in fields:
+            if key not in raw_section:
+                continue
+            value = raw_section[key]
+            if value is None:
+                continue
             normalized[section][key] = value
     return normalized
 
@@ -316,11 +360,20 @@ def load_config_file(path: str | Path) -> dict[str, dict[str, Any]]:
     return normalize_config(parse_config_text(text))
 
 
+def load_raw_config_file(path: str | Path) -> dict[str, dict[str, Any]]:
+    config_path = Path(path)
+    try:
+        text = config_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ConfigError(f"Unable to read config file {config_path}: {exc}") from exc
+    return validate_config_source(parse_config_text(text))
+
+
 def write_config_file(path: str | Path, config: dict[str, Any]) -> None:
     config_path = Path(path)
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    normalized = validate_config_write(config)
-    config_path.write_text(_render_documented_config(normalized), encoding="utf-8")
+    materialized = validate_config_write(config)
+    config_path.write_text(_render_documented_config(materialized), encoding="utf-8")
 
 
 def apply_overrides(
@@ -367,13 +420,56 @@ def require_effective_prefix(prefix: Any, tool_name: str) -> str:
 
 
 def validate_config_write(config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    normalized = normalize_config(config)
+    source = validate_config_source(config)
+    normalized = normalize_config(source)
     prefix = normalized[COMMON_SECTION].get("prefix")
     if not isinstance(prefix, str) or not prefix.strip():
         raise ConfigError(
             "confwriter cannot write a config with a null common.prefix; set --prefix or update the config first"
         )
-    return normalized
+    materialized = build_default_config()
+    for section, values in source.items():
+        for key, value in values.items():
+            materialized[section][key] = deepcopy(value)
+    return materialized
+
+
+def get_config_value(config: dict[str, Any], path: str) -> Any:
+    section, key, _field = resolve_config_path(path)
+    normalized = normalize_config(config)
+    return deepcopy(normalized[section][key])
+
+
+def set_config_value(config: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
+    section, key, field = resolve_config_path(path)
+    updated = validate_config_source(config)
+    section_values = deepcopy(updated.get(section, {}))
+    coerced = _coerce_scalar(value, field.kind)
+    if field.choices is not None and coerced not in field.choices:
+        raise ConfigError(
+            f"Invalid value for {path}: {coerced!r}; expected one of {field.choices!r}"
+        )
+    section_values[key] = coerced
+    updated[section] = section_values
+    return updated
+
+
+def unset_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
+    section, key, _field = resolve_config_path(path)
+    updated = validate_config_source(config)
+    section_values = deepcopy(updated.get(section, {}))
+    section_values[key] = None
+    updated[section] = section_values
+    return updated
+
+
+def set_default_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
+    section, key, field = resolve_config_path(path)
+    updated = validate_config_source(config)
+    section_values = deepcopy(updated.get(section, {}))
+    section_values[key] = deepcopy(field.default)
+    updated[section] = section_values
+    return updated
 
 
 def add_config_argument(parser: argparse.ArgumentParser) -> None:

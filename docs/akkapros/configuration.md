@@ -12,6 +12,7 @@ Override precedence is always:
 
 - `src/akkapros/config/default.yaml`: canonical full example with every supported key present
 - `python -m akkapros.cli.confwriter`: create or incrementally update config files programmatically
+- `docs/akkapros/confwriter.md`: detailed command reference for schema-driven config editing
 
 ## Structure
 
@@ -72,35 +73,41 @@ In that case, `--prefix other` overrides the `common.prefix` value from the conf
 
 ## Confwriter
 
-`confwriter` creates missing config files from the canonical schema and updates existing files incrementally. In wave one, it requires `--conf FILE` plus at least one override option.
+`confwriter` creates missing config files from the canonical schema and updates existing files incrementally. It now uses full YAML-path keys and a small schema-driven operation surface instead of one dedicated writer flag per config key.
 
 Examples:
 
 ```bash
-python -m akkapros.cli.confwriter --conf run.yaml --prefix demo
-python -m akkapros.cli.confwriter --conf run.yaml --outdir outputs
-python -m akkapros.cli.confwriter --conf run.yaml --prosody-style sob
-python -m akkapros.cli.confwriter --conf run.yaml --print-ipa
+python -m akkapros.cli.confwriter --conf run.yaml --set common.prefix=demo
+python -m akkapros.cli.confwriter --conf run.yaml --set common.outdir=outputs
+python -m akkapros.cli.confwriter --conf run.yaml --set prosody.style=sob
+python -m akkapros.cli.confwriter --conf run.yaml --set print.ipa=true
+python -m akkapros.cli.confwriter --conf run.yaml --get common.log_append
+python -m akkapros.cli.confwriter --conf run.yaml --list prosody
+python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
 ```
 
-Boolean options also have `--no-...` forms in `confwriter` so existing values can be turned off explicitly.
+`--set` is repeatable and validates both key paths and values against the canonical schema before any file is written. If any requested key or value is invalid, `confwriter` exits with an error and leaves the config file unchanged.
 
-For common logging keys that would otherwise collide with `confwriter`'s own runtime logging controls, use the config-writing forms `--config-quiet`, `--config-no-console`, `--config-log`, and `--config-log-append`.
+`--unset KEY` writes `null` for that key. Downstream tools interpret that stored null through normal config/default resolution, so the effective value falls back to the built-in default when the schema defines one.
+
+`--set-default KEY` writes the schema default value explicitly.
 
 ## Key Mapping
 
-`confwriter` uses unprefixed flags for `common` keys and section-prefixed flags for tool-specific keys.
+`confwriter` uses full YAML-path keys.
 
 Examples:
 
-- `common.prefix` -> `--prefix`
-- `common.outdir` -> `--outdir`
-- `common.quiet` -> `--config-quiet`
-- `atfparse.preserve_case` -> `--atfparse-preserve-case`
-- `syllabify.merge_lines` -> `--syllabify-merge-lines`
-- `prosody.style` -> `--prosody-style`
-- `metrics.json` -> `--metrics-json`
-- `print.ipa` -> `--print-ipa`
+- `common.prefix`
+- `common.outdir`
+- `common.quiet`
+- `atfparse.preserve_case`
+- `syllabify.merge_lines`
+- `prosody.style`
+- `metrics.json`
+- `print.ipa`
 
 When you run `fullprosmaker`, those stage sections still apply. For example,
 `prosody.style` feeds `--prosody-style`, `metrics.json` feeds
@@ -112,3 +119,4 @@ When you run `fullprosmaker`, those stage sections still apply. For example,
 - Config files are not mandatory.
 - The config file controls only recurring options. Input paths remain normal CLI arguments.
 - `confwriter` writes files programmatically from the schema; it does not copy `default.yaml` byte-for-byte.
+- `confwriter --list` is the schema inventory surface; normal `--help` stays concise.

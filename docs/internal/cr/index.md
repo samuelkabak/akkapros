@@ -13,7 +13,7 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 [037. Preserve punctuation armor in tilde pivot](037-preserve-punctuation-armor-in-tilde-pivot.md) - Draft
 [036. Define phonetizer phoneme framework](036-define-phonetizer-phoneme-framework.md) - Draft
 [035. Add phonetize stage config and phone artifact contract](035-add-phonetize-stage-config-and-phone-artifact-contract.md) - Draft
-[034. Simplify confwriter command surface with set get list unset and set-default](034-simplify-confwriter-command-surface-with-set-get-list-unset-and-set-default.md) - Draft
+[034. Simplify confwriter command surface with set get list unset and set-default](034-simplify-confwriter-command-surface-with-set-get-list-unset-and-set-default.md) - Done
 [033. Remove long_pause_weight from conf and cli options](033-remove-long-pause-weight-from-conf-and-cli-options.md) - Draft
 [032. Require Prefixes, Rename Config Sections, and Inherit Syllabify Settings](032-require-prefixes-rename-config-sections-and-inherit-punctuation-settings.md) - Done
 [031. Centralize CLI Help Text for CLI and Config Doc Emission](031-centralize-cli-help-text-for-cli-and-config-doc-emission.md) - Done

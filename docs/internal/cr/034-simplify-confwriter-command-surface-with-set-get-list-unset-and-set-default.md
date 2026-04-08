@@ -1,10 +1,10 @@
 ---
 cr_id: CR-034
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-04
-updated: 2026-04-06
+updated: 2026-04-08
 implements: 'ADR-036, ADR-037, REQ-022'
 ---
 
@@ -263,40 +263,40 @@ Open implementation detail to resolve during coding:
 
 # Acceptance Criteria
 
-- [ ] `confwriter` supports repeatable `--set key=value` operations using full
+- [x] `confwriter` supports repeatable `--set key=value` operations using full
       YAML-path keys.
-- [ ] `confwriter` rejects unknown keys such as `common.strict`.
-- [ ] If any requested `--set` key or value is invalid, the command exits with
+- [x] `confwriter` rejects unknown keys such as `common.strict`.
+- [x] If any requested `--set` key or value is invalid, the command exits with
       an error and does not modify the config file.
-- [ ] `confwriter --list` prints the full key inventory with path, type,
+- [x] `confwriter --list` prints the full key inventory with path, type,
       default-or-required state, and canonical help text.
-- [ ] `confwriter --list SUBSTRING` filters the key inventory by substring in
+- [x] `confwriter --list SUBSTRING` filters the key inventory by substring in
       the full key path.
-- [ ] The same operations support nested schema keys such as
+- [x] The same operations support nested schema keys such as
   `phonetize.process.geminate_policy` and
   `phonetize.timing_model.speech.wpm` when such keys exist in the canonical
   schema.
-- [ ] The same operations support phonetize process keys and phonetize timing-
+- [x] The same operations support phonetize process keys and phonetize timing-
   model keys added by later phonetizer records, and reject mistyped or unknown
   phonetize keys before any write occurs.
-- [ ] `confwriter --get KEY` prints the current stored effective value for that
+- [x] `confwriter --get KEY` prints the current stored effective value for that
       key.
-- [ ] `confwriter --unset KEY` writes `null` so the option is treated as not
+- [x] `confwriter --unset KEY` writes `null` so the option is treated as not
   explicitly set in the config.
-- [ ] `confwriter --set-default KEY` writes the schema default value
+- [x] `confwriter --set-default KEY` writes the schema default value
   explicitly.
-- [ ] `--unset prosody.style` resets the key to `null`.
-- [ ] `--unset common.log` resets the key to `null`.
-- [ ] `--set-default prosody.style` resets the key to `lob`.
-- [ ] `--help` remains concise and no longer exposes the current explosion of
+- [x] `--unset prosody.style` resets the key to `null`.
+- [x] `--unset common.log` resets the key to `null`.
+- [x] `--set-default prosody.style` resets the key to `lob`.
+- [x] `--help` remains concise and no longer exposes the current explosion of
       one-key-per-flag config-writing options.
-- [ ] Public docs explain the new `confwriter` usage model.
-- [ ] Tests cover set/get/list/unset behavior, key validation, no-write-on-
+- [x] Public docs explain the new `confwriter` usage model.
+- [x] Tests cover set/get/list/unset behavior, key validation, no-write-on-
       error behavior, and representative output formatting.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in `docs/akkapros/confwriter.md`,
+- [x] Documentation is updated in `docs/akkapros/confwriter.md`,
   `docs/akkapros/configuration.md`, generated/default config comments, and
   any downstream program docs that show config-edit workflows or phonetize
   key examples.
@@ -382,40 +382,40 @@ discouraged because mixed command styles would create avoidable user confusion.
 
 ## Implementation
 
-- [ ] Replace per-option writer flags with set/get/list/unset/set-default operations
-- [ ] Reuse canonical schema validation for key paths and values
-- [ ] Ensure failed validation leaves the config file unchanged
-- [ ] Implement schema-aware display formatting for `--list`
-- [ ] Implement null-clearing semantics for `--unset`
-- [ ] Implement schema-default writing for `--set-default`
+- [x] Replace per-option writer flags with set/get/list/unset/set-default operations
+- [x] Reuse canonical schema validation for key paths and values
+- [x] Ensure failed validation leaves the config file unchanged
+- [x] Implement schema-aware display formatting for `--list`
+- [x] Implement null-clearing semantics for `--unset`
+- [x] Implement schema-default writing for `--set-default`
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add pytest unit tests for set/get/list/unset behavior and schema-aware
+- [x] Add pytest unit tests for set/get/list/unset behavior and schema-aware
   validation
-- [ ] Add pytest regression/integration tests for no-write-on-error behavior
+- [x] Add pytest regression/integration tests for no-write-on-error behavior
   and representative config-edit workflows
 
 ## Documentation
 
-- [ ] Create or update `docs/akkapros/confwriter.md` as the detailed command
+- [x] Create or update `docs/akkapros/confwriter.md` as the detailed command
   reference for the new operation-oriented model
-- [ ] Update `docs/akkapros/configuration.md` and generated/default config
+- [x] Update `docs/akkapros/configuration.md` and generated/default config
   comments so key-edit examples match the canonical schema
-- [ ] Remove stale examples using one-key-per-flag writer options from all
+- [x] Remove stale examples using one-key-per-flag writer options from all
   impacted docs
-- [ ] Update any impacted downstream program docs, for example
+- [x] Update any impacted downstream program docs, for example
   `docs/akkapros/fullprosmaker.md`, wherever config-edit workflows or
   phonetize-key examples are shown
-- [ ] Keep `docs/akkapros/phonetizer.md` and
+- [x] Keep `docs/akkapros/phonetizer.md` and
   `docs/akkapros/phonetizer-algorithm.md` synchronized anywhere they
   reference `confwriter`-driven phonetize configuration
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

@@ -817,16 +817,17 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
         "akkapros.cli.confwriter",
         "--conf",
         str(config_path),
-        "--prefix",
-        "writerdemo",
+        "--set",
+        "common.prefix=writerdemo",
     )
     _run_cli(
         "akkapros.cli.confwriter",
         "--conf",
         str(config_path),
-        "--outdir",
-        str(outdir),
-        "--atfparse-preserve-case",
+        "--set",
+        f"common.outdir={outdir}",
+        "--set",
+        "atfparse.preserve_case=true",
     )
 
     _run_cli(

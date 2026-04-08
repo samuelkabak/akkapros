@@ -12,6 +12,7 @@ from akkapros.lib.config import (
     apply_overrides,
     build_default_config,
     dump_config_text,
+    get_config_value,
     load_config_file,
     parse_args_with_config,
 )
@@ -76,7 +77,7 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     cmd_prefix = [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path)]
 
     first = subprocess.run(
-        cmd_prefix + ["--prefix", "one"],
+        cmd_prefix + ["--set", "common.prefix=one"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -86,7 +87,12 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     assert first.returncode == 0, first.stderr
 
     second = subprocess.run(
-        cmd_prefix + ["--outdir", str(tmp_path / "out"), "--atfparse-preserve-case"],
+        cmd_prefix + [
+            "--set",
+            f"common.outdir={tmp_path / 'out'}",
+            "--set",
+            "atfparse.preserve_case=true",
+        ],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -104,16 +110,95 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     assert "fullprosmaker:" not in text
 
 
-def test_confwriter_rejects_null_effective_prefix(tmp_path: Path) -> None:
+def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     config_path = tmp_path / "conf.yaml"
-    config_path.write_text("common:\n  prefix: null\n", encoding="utf-8")
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+    cmd_prefix = [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path)]
+
+    seed = subprocess.run(
+        cmd_prefix + ["--set", "common.prefix=demo", "--set", "prosody.style=sob"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert seed.returncode == 0, seed.stderr
+
+    listed = subprocess.run(
+        cmd_prefix + ["--list", "prosody"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert listed.returncode == 0, listed.stderr
+    assert "prosody.style { TEXT }" in listed.stdout
+    assert "Accent style for prosody realization." in listed.stdout
+
+    got = subprocess.run(
+        cmd_prefix + ["--get", "prosody.style"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert got.returncode == 0, got.stderr
+    assert got.stdout.strip() == '"sob"'
+
+    unset = subprocess.run(
+        cmd_prefix + ["--unset", "prosody.style"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert unset.returncode == 0, unset.stderr
+    text = config_path.read_text(encoding="utf-8")
+    assert "style: null" in text
+    assert get_config_value(load_config_file(config_path), "prosody.style") == "lob"
+
+    unset_log = subprocess.run(
+        cmd_prefix + ["--unset", "common.log"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert unset_log.returncode == 0, unset_log.stderr
+    assert "log: null" in config_path.read_text(encoding="utf-8")
+
+    reset = subprocess.run(
+        cmd_prefix + ["--set-default", "prosody.style"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert reset.returncode == 0, reset.stderr
+    reloaded = load_config_file(config_path)
+    assert reloaded["prosody"]["style"] == "lob"
+    assert "style: \"lob\"" in config_path.read_text(encoding="utf-8")
+
+
+def test_confwriter_rejects_invalid_key_without_modifying_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(dump_config_text(build_default_config()), encoding="utf-8")
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
     env["PYTHONIOENCODING"] = "utf-8"
 
+    before = config_path.read_text(encoding="utf-8")
     proc = subprocess.run(
-        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--outdir", str(tmp_path / "out")],
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--set", "common.strict=true"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -122,7 +207,32 @@ def test_confwriter_rejects_null_effective_prefix(tmp_path: Path) -> None:
     )
 
     assert proc.returncode == 2
-    assert "null common.prefix" in (proc.stderr + proc.stdout)
+    assert "Unknown config key: common.strict" in (proc.stderr + proc.stdout)
+    assert config_path.read_text(encoding="utf-8") == before
+
+
+def test_confwriter_help_uses_operation_surface() -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    help_result = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--help"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert help_result.returncode == 0, help_result.stderr
+    help_text = help_result.stdout + help_result.stderr
+    assert "--set KEY=VALUE" in help_text
+    assert "--get KEY" in help_text
+    assert "--list [SUBSTRING]" in help_text or "--list [SUBSTRING]".replace("[", "").replace("]", "") in help_text
+    assert "--unset KEY" in help_text
+    assert "--set-default KEY" in help_text
+    assert "--prefix" not in help_text
+    assert "--prosody-style" not in help_text
 
 
 def test_removed_metrics_long_punct_weight_key_is_rejected(tmp_path: Path) -> None:
