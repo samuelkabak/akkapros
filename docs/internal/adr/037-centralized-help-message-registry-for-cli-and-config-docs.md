@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-037
-status: Proposed
+status: Accepted
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 superseded_by: null
 ---
 
@@ -39,6 +39,8 @@ Concretely:
 - Canonical help text lives in one shared library module.
 - CLI modules reuse that text for config-eligible options.
 - Config emission reuses the same text for YAML comments.
+- `confwriter` key-inventory output reuses the same text for schema discovery
+  surfaces such as `--list`.
 - Related wording families should use consistent terminology.
 
 ## Consequences
@@ -48,6 +50,8 @@ Concretely:
   a second documentation source.
 - The package now has an explicit dependency from CLI argument declarations and
   config emission to a shared help registry.
+- Schema-discovery surfaces such as `confwriter --list` should also be treated
+  as consumers of the same canonical help registry.
 
 ## Links
 

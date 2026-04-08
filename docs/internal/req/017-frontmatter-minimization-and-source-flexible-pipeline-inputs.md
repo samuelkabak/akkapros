@@ -1,10 +1,10 @@
 ---
 req_id: REQ-017
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-29
-updated: 2026-03-29
+updated: 2026-04-05
 related_adrs: 'ADR-027, ADR-028, ADR-029, ADR-031'
 implemented_by: 'CR-024'
 ---
@@ -14,7 +14,7 @@ implemented_by: 'CR-024'
 # Summary
 
 The pipeline shall reduce stage-specific frontmatter coupling so downstream
-stages no longer depend on inherited line, word, syllable, or prosody counts
+updated: 2026-04-05
 that they can compute internally. The only inherited file-level metadata that
 must remain broadly consumable for these stages is `file.title`, plus
 `metadata.data.prosody.explicit_word_link_count` for metrics input unless the

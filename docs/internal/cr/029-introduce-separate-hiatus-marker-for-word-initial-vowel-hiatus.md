@@ -1,10 +1,10 @@
 ---
 cr_id: CR-029
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-01
-updated: 2026-04-03
+updated: 2026-04-05
 implements: 'ADR-035, REQ-021'
 ---
 
@@ -13,7 +13,7 @@ implements: 'ADR-035, REQ-021'
 # Summary
 
 Revise CR-029 so that the internal symbol used for word-initial vowel hiatus is
-no longer folded into `DIPH_SEPARATOR`. Instead, introduce a separate symbol
+updated: 2026-04-05
 `HIATUS_MARKER = '˙'` while keeping `DIPH_SEPARATOR = '¨'` unchanged in name,
 meaning, and existing diphthong-transition behavior.
 

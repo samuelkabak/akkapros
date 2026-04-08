@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-038
-status: Proposed
+status: Accepted
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 superseded_by: null
 ---
 
@@ -11,7 +11,7 @@ superseded_by: null
 ## Plain Summary
 
 Tighten the package-wide config contract so output prefixes are required,
-config-section names follow library-stage names, and syllabification-owned
+config sections use library-stage names, and additive punctuation
 extension settings are inherited downstream through front matter instead of
 being reconfigured independently in metrics.
 

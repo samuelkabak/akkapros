@@ -1,10 +1,10 @@
 ---
 req_id: REQ-023
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 related_adrs: 'ADR-003, ADR-004, ADR-036, ADR-038'
 implemented_by: 'CR-032'
 ---
@@ -14,7 +14,7 @@ implemented_by: 'CR-032'
 # Summary
 
 The system shall tighten the grouped-config contract so that prefix-dependent
-tools require a non-null effective prefix, config sections use library-stage
+updated: 2026-04-05
 names, and the syllabification stage owns the additive punctuation-extension
 settings plus `extra_vowels` and `extra_consonants`, with those settings
 inherited downstream through YAML front matter.

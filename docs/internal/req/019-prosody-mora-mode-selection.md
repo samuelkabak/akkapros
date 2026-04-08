@@ -1,10 +1,10 @@
 ---
 req_id: REQ-019
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-30
-updated: 2026-03-31
+updated: 2026-04-05
 related_adrs: 'ADR-034, ADR-008, ADR-009, ADR-020'
 implemented_by: 'CR-027'
 ---
@@ -14,7 +14,7 @@ implemented_by: 'CR-027'
 # Summary
 
 The system shall add a new prosody configuration option named `mora_mode`
-with CLI surface `--mora-mode {bi|mono}` in both `prosmaker` and
+updated: 2026-04-05
 `fullprosmaker`.
 
 Mode `bi` shall remain the default and shall preserve the current bimoraic

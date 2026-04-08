@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-034
-status: Proposed
+status: Accepted
 created: 2026-03-30
-updated: 2026-03-31
+updated: 2026-04-05
 superseded_by: null
 ---
 
@@ -11,7 +11,7 @@ superseded_by: null
 ## Plain Summary
 
 Keep the current bimoraic prosody behavior as the default, but add a second
-mono-mode that removes mora-parity gating while keeping the existing
+mono mode that removes mora-parity gating while keeping the existing
 accentuation hierarchy, legality rules, and structural grouping rules.
 At the same time, preserve explicit `+` links as user-imposed prosodic locks:
 words linked before the eligible tail must not be accentuated even if they are

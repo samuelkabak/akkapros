@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-036
-status: Proposed
+status: Accepted
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 superseded_by: null
 ---
 
@@ -82,6 +82,9 @@ Concretely:
 - The documented YAML comments are emitted from centralized canonical help text.
 - The config schema contains one shared place for common options such as
   `prefix` and `outdir`.
+- Nested stage sections such as `phonetize` must preserve their approved key
+  shapes consistently across default YAML, emitted comments, CLI help, and
+  config documentation.
 - The schema does not define `metrics_prefix`, `print_prefix`, or equivalent
   stage-specific output-prefix keys.
 - The schema does not define a duplicated `fullprosmaker` section for stage-
@@ -89,6 +92,10 @@ Concretely:
 - The package adds a new CLI program named `confwriter` that creates or updates
   YAML config files programmatically from the canonical schema rather than by
   copying `default.yaml`.
+- `confwriter` is a schema-driven config tool, not a mirror of every config key
+  as a dedicated write flag. Its supported operation model should remain based
+  on canonical full-path key operations so the interface scales to nested
+  config structures.
 
 ## Pros and Cons of the Options
 
@@ -125,10 +132,16 @@ Concretely:
 - Document every config key in the YAML file and in dedicated user-facing docs.
 - Reuse centralized help text when emitting config comments so CLI help and YAML
   comments do not drift.
+- When later CRs revise nested stage schemas such as `phonetize`, propagate the
+  exact approved key names and defaults across config emission, CLI help, and
+  documentation in the same change.
 - Ensure all config-eligible options remain overridable from the command line.
 - Keep one common output-prefix contract aligned with [ADR-003](003-output-prefix-convention.md).
 - Add a dedicated `confwriter` CLI that creates missing config files from the
   canonical schema programmatically and updates existing files incrementally.
+- Keep `confwriter` future-proof for nested config keys by basing its editing
+  and discovery interface on canonical schema paths rather than on one flag per
+  key.
 - Keep stage-specific output naming coherent by rejecting stage-specific prefix
   keys such as `metrics_prefix` and `print_prefix`.
 - Add integration coverage that exercises real CLI runs from config files,
@@ -144,6 +157,7 @@ Concretely:
 - Related ADR: [ADR-021](021-multi-target-printer-architecture-contract.md)
 - Related REQ: [REQ-007](../req/007-full-pipeline-orchestration.md)
 - Related REQ: [REQ-016](../req/016-standardized-cli-logging-and-console-options.md)
+- Related CR: [CR-034](../cr/034-simplify-confwriter-command-surface-with-set-get-list-unset-and-set-default.md)
 
 ## Implementation Notes (optional)
 

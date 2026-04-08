@@ -1,10 +1,10 @@
 ---
 cr_id: CR-030
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 implements: 'ADR-036, REQ-022'
 ---
 
@@ -13,7 +13,7 @@ implements: 'ADR-036, REQ-022'
 # Summary
 
 Add package-wide YAML config support for the Python CLIs, including a shared
-`--conf FILE` option, a canonical `src/akkapros/config/default.yaml`, and a new
+updated: 2026-04-05
 `confwriter` CLI that creates and incrementally updates config files
 programmatically.
 

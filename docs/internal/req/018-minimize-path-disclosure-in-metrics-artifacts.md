@@ -1,10 +1,10 @@
 ---
 req_id: REQ-018
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-29
-updated: 2026-03-29
+updated: 2026-04-05
 related_adrs: 'ADR-033, ADR-028, ADR-029, ADR-031'
 implemented_by: 'CR-026'
 ---
@@ -14,7 +14,7 @@ implemented_by: 'CR-026'
 # Summary
 
 The system shall prevent metrics artifacts from exposing full filesystem paths.
-Any path-bearing value emitted by `metricalc` in text or JSON output shall use
+updated: 2026-04-05
 the same shortened safe-display strategy already required for runtime logging:
 show only the leaf and at most one parent segment where possible.
 

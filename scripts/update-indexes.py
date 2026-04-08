@@ -50,7 +50,7 @@ def extract_status_and_title(md_path):
     status = None
     title = None
     for line in text.splitlines()[:40]:
-        m = re.match(r"\s*Status:\s*(.+)", line)
+        m = re.match(r"\s*status:\s*(.+)", line, re.IGNORECASE)
         if m:
             status = m.group(1).strip()
             break
@@ -120,7 +120,7 @@ def build_cr_index():
         title = None
         text = p.read_text(encoding="utf-8")
         for line in text.splitlines()[:40]:
-            m2 = re.match(r"\s*Status:\s*(.+)", line)
+            m2 = re.match(r"\s*status:\s*(.+)", line, re.IGNORECASE)
             if m2:
                 status = m2.group(1).strip()
             m3 = re.match(r"\s*#\s*Change Request:\s*(.+)", line)

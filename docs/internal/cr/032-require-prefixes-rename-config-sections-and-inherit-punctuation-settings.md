@@ -1,10 +1,10 @@
 ---
 cr_id: CR-032
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 implements: 'ADR-038, REQ-023'
 ---
 
@@ -13,7 +13,7 @@ implements: 'ADR-038, REQ-023'
 # Summary
 
 Tighten the grouped-config implementation so prefix-dependent tools require a
-non-null effective prefix, config sections use library-stage names, the four
+updated: 2026-04-05
 additive punctuation-extension settings are renamed to explicit `extra_*`
 forms in config keys and syllabifier-facing CLI flags, and metrics inherits
 those settings plus `extra_vowels` / `extra_consonants` from upstream front

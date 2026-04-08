@@ -1,10 +1,10 @@
 ---
 cr_id: CR-031
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 implements: 'ADR-037'
 ---
 
@@ -13,7 +13,7 @@ implements: 'ADR-037'
 # Summary
 
 Add one shared help-message registry in `src/akkapros/lib/helpmsg.py` and make
-both CLI `--help` output and generated config-file comments reuse that same
+updated: 2026-04-05
 canonical text.
 
 This removes drift between parser help strings and `default.yaml`, and it keeps

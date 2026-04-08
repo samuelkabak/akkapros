@@ -4,9 +4,9 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-03
+updated: 2026-04-05
 related_adrs: 'ADR-001, ADR-003, ADR-004, ADR-021, ADR-036'
-implemented_by: 'CR-030'
+implemented_by: 'CR-030, CR-034'
 ---
 
 # Requirement: Package-Wide YAML Config and Confwriter CLI
@@ -14,9 +14,10 @@ implemented_by: 'CR-030'
 # Summary
 
 The system shall provide one package-wide YAML configuration contract for the
-Python CLIs and a new `confwriter` CLI for creating and incrementally updating
-such config files. The package shall add `src/akkapros/config/default.yaml`
-containing the full documented default schema.
+Python CLIs and a new `confwriter` CLI for creating, inspecting, and
+incrementally updating such config files. The package shall add
+`src/akkapros/config/default.yaml` containing the full documented default
+schema.
 
 Every config-eligible CLI option shall support three-level precedence:
 explicit CLI option over YAML config value over built-in default. Existing
@@ -62,6 +63,15 @@ keys.
 - [ ] Given the package config schema is materialized in source control, when
       `src/akkapros/config/default.yaml` is inspected, then all supported keys
       are present and documented.
+- [ ] Given the phonetize stage is part of the config schema, when
+      `src/akkapros/config/default.yaml`, emitted help comments, or
+      `confwriter` output are inspected, then the nested phonetize keys use the
+      approved structure and names exactly, including the current
+      `phonetize.process` policies, `phonetize.timing_model.durations.cvc_reference`,
+      `phonetize.timing_model.durations.segmental_ceiling`, consonant-class
+      `onset` / `coda` / `geminate` anchors with
+      `perception_limits.geminate_min`, vowel perception limits, and pause
+      min/max bands.
 - [ ] Given `src/akkapros/config/default.yaml` is inspected, when the YAML is
       read, then it documents the stage sections used by `fullprosmaker`
       instead of repeating a duplicated `fullprosmaker` config section.
@@ -83,13 +93,30 @@ keys.
 - [ ] Given documented YAML is emitted, when comments are written, then they
       reuse canonical help text shared with CLI help surfaces.
 - [ ] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
-      more additional override options, when `FILE` does not exist, then the
+      more additional schema-driven operations, when `FILE` does not exist, then the
       command creates a full config file programmatically from the canonical
       schema and applies the supplied overrides.
 - [ ] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
-      more additional override options, when `FILE` already exists, then the
+      more additional schema-driven operations, when `FILE` already exists, then the
       command updates only the specified config values and preserves the rest of
       the file's effective configuration.
+- [ ] Given `confwriter` is used to write values, when a user passes repeatable
+      `--set key=value` arguments with full YAML-path keys, then the command
+      validates those keys against the canonical schema before writing.
+- [ ] Given a requested `confwriter` key is invalid, when validation fails,
+      then the command exits without modifying the config file.
+- [ ] Given `confwriter --list` is run, when the key inventory is printed, then
+      each entry shows the full path, type, default-or-required state, and
+      canonical help text.
+- [ ] Given `confwriter --get KEY` is run, when the key exists in schema, then
+      the command prints the current stored effective value for that key.
+- [ ] Given `confwriter --unset KEY` is run, when the key is valid, then the
+      config stores `null` so the option is treated as not explicitly set.
+- [ ] Given `confwriter --set-default KEY` is run, when the key is valid, then
+      the config stores the canonical schema default value explicitly.
+- [ ] Given a nested config key exists, when `confwriter` addresses it by full
+      path such as `phonetize.timing_model.speech.wpm`, then the same schema-
+      driven set/get/list/unset/set-default behavior applies.
 - [ ] Given `confwriter` is run successively with different options, when the
       same config file is updated across multiple invocations, then the file is
       filled incrementally and retains earlier values that were not overridden.
@@ -140,8 +167,14 @@ keys.
 - `fullprosmaker` shall read shared stage sections instead of introducing a
       second YAML namespace for those same stage-owned options.
 - `src/akkapros/config/default.yaml` shall be the canonical full example.
-- `confwriter` shall expose `--conf FILE` plus config-writing flags using the
-  same logical option names as the package CLI surface where applicable.
+- `confwriter` shall expose `--conf FILE` plus schema-driven operations such as
+      `--set`, `--get`, `--list`, `--unset`, and `--set-default` rather than a
+      proliferating one-flag-per-key writing surface.
+- Full YAML-path keys, including nested keys, are part of the `confwriter`
+      interface contract.
+- Schema comments and emitted key paths must stay aligned with the approved
+  nested phonetize contract across config files, CLI help, and dedicated config
+  docs.
 - Affected components:
   - `src/akkapros/config/default.yaml`
   - Python CLI entrypoints under `src/akkapros/cli/`
@@ -163,8 +196,11 @@ keys.
   - add `src/akkapros/config/default.yaml`
   - add a dedicated config documentation page
   - update CLI docs to reference shared config support
-      - add new integration tests that cover config-driven runs, CLI override
-            precedence, and `confwriter`-generated config reuse
+      - propagate approved phonetize schema changes to config comments,
+            `confwriter`, CLI help, and config docs together
+      - add new unit and integration tests that cover config-driven runs, CLI
+            override precedence, `confwriter` schema operations, nested-key handling,
+            and `confwriter`-generated config reuse
 
 # Related
 - Related ADRs: [ADR-001](../adr/001-cli-lib-separation.md),
@@ -175,6 +211,7 @@ keys.
 - Related REQs: [REQ-007](007-full-pipeline-orchestration.md),
   [REQ-016](016-standardized-cli-logging-and-console-options.md)
 - Implementation CRs: [CR-030](../cr/030-add-package-wide-yaml-config-and-confwriter.md)
+      , [CR-034](../cr/034-simplify-confwriter-command-surface-with-set-get-list-unset-and-set-default.md)
 
 # Non-Goals
 - This requirement does not require config files to become mandatory.

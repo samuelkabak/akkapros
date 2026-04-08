@@ -2,17 +2,24 @@
 
 Latest ADRs first. Status shown after each entry.
 
-- [038. Mandatory Prefix, Library-Named Config Sections, and Inherited Punctuation Options](038-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-options.md) - Proposed
-- [037. Centralized Help Message Registry for CLI and Config Docs](037-centralized-help-message-registry-for-cli-and-config-docs.md) - Proposed
-- [036. Package-Wide YAML Configuration and CLI Override Precedence](036-package-wide-yaml-configuration-and-cli-override-precedence.md) - Proposed
-- [035. Separate Hiatus Marker and Word-Initial Zero-Onset Contract](035-separate-hiatus-marker-and-word-initial-zero-onset-contract.md) - Proposed
-- [034. Prosody Mora Modes and Explicit-Link Locking](034-prosody-mora-modes-and-explicit-link-locking.md) - Proposed
-- [032. Internal Doc Frontmatter Schema](032-internal-doc-frontmatter-schema.md) - Proposed
-- [031. Factual Runtime Records and Structured Self-Test Output](031-factual-runtime-records-and-structured-self-test-output.md) - Proposed
+- [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Proposed
+- [043. Separate Run and Process Config Blocks and Remove Common Outdir](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Proposed
+- [042. Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](042-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Proposed
+- [041. Stability-First Phonetizer Timing Control and Validation Boundary](041-stability-first-phonetizer-timing-control-and-validation-boundary.md) - Proposed
+- [040. Two-Phase Phonetizer Architecture and Dual Phone Outputs](040-two-phase-phonetizer-architecture-and-dual-phone-outputs.md) - Proposed
+- [039. Replacement of timing model](039-replacement-of-timing-model.md) - Proposed
+- [038. Mandatory Prefix, Library-Named Config Sections, and Inherited Punctuation Options](038-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-options.md) - Accepted
+- [037. Centralized Help Message Registry for CLI and Config Docs](037-centralized-help-message-registry-for-cli-and-config-docs.md) - Accepted
+- [036. Package-Wide YAML Configuration and CLI Override Precedence](036-package-wide-yaml-configuration-and-cli-override-precedence.md) - Accepted
+- [035. Separate Hiatus Marker and Word-Initial Zero-Onset Contract](035-separate-hiatus-marker-and-word-initial-zero-onset-contract.md) - Accepted
+- [034. Prosody Mora Modes and Explicit-Link Locking](034-prosody-mora-modes-and-explicit-link-locking.md) - Accepted
+- [033. Minimize Path Disclosure in Metrics Artifacts](033-minimize-path-disclosure-in-metrics-artifacts.md) - Accepted
+- [032. Internal Doc Frontmatter Schema](032-internal-doc-frontmatter-schema.md) - Accepted
+- [031. Factual Runtime Records and Structured Self-Test Output](031-factual-runtime-records-and-structured-self-test-output.md) - Accepted
 - [030. Metrics CSV Abandonment and Spec History Policy](030-metrics-csv-abandonment-and-spec-history-policy.md) - Accepted
-- [029. CLI Runtime Output via Logger Only](029-cli-runtime-output-via-logger-only.md) - Proposed
-- [028. Centralized CLI Logging with `logging-actions`](028-centralized-cli-logging-with-logging-actions.md) - Proposed
-- [027. YAML Front Matter for CLI Pipeline Files](027-yaml-front-matter-for-cli-pipeline-files.md) - Proposed
+- [029. CLI Runtime Output via Logger Only](029-cli-runtime-output-via-logger-only.md) - Accepted
+- [028. Centralized CLI Logging with `logging-actions`](028-centralized-cli-logging-with-logging-actions.md) - Accepted
+- [027. YAML Front Matter for CLI Pipeline Files](027-yaml-front-matter-for-cli-pipeline-files.md) - Accepted
 - [026. Conservative Change Discipline for Research-Grade Computation](026-conservative-change-discipline-for-research-grade-computation.md) - Accepted
 - [025. ADR 025: Integration Test Coverage for CLI and Outputs](025-integration-test-coverage.md) - Accepted
 - [024. 024 — Command-annotated escape syntax (`{tag{text}}`) for pipeline metadata and internal commands](024-command-escape-syntax.md) - Accepted

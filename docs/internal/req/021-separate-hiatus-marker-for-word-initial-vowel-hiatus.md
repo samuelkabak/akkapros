@@ -1,10 +1,10 @@
 ---
 req_id: REQ-021
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-01
-updated: 2026-04-03
+updated: 2026-04-05
 related_adrs: 'ADR-007, ADR-016, ADR-021, ADR-022, ADR-035'
 implemented_by: 'CR-029'
 ---
@@ -14,7 +14,7 @@ implemented_by: 'CR-029'
 # Summary
 
 The system shall preserve `DIPH_SEPARATOR = '¨'` for diphthong-transition
-handling and introduce a distinct internal marker `HIATUS_MARKER = '˙'` for
+updated: 2026-04-05
 word-initial vowel hiatus across the syllabifier and downstream pipeline.
 
 The canonical code identifiers shall therefore remain separate:

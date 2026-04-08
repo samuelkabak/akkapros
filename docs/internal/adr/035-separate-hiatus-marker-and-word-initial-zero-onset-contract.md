@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-035
-status: Proposed
+status: Accepted
 created: 2026-04-02
-updated: 2026-04-03
+updated: 2026-04-05
 superseded_by: null
 ---
 
@@ -11,8 +11,8 @@ superseded_by: null
 ## Plain Summary
 
 Keep `DIPH_SEPARATOR = '¨'` for its existing diphthong-transition role and add
-`HIATUS_MARKER = '˙'` for word-initial vowel hiatus. The project therefore uses
-two internal pseudo-consonants with distinct meanings, while `·` remains the
+`HIATUS_MARKER = '˙'` for word-initial vowel hiatus, creating two internal
+pseudo-consonants with distinct meanings, while `·` remains the
 only syllable-boundary marker.
 
 This decision replaces the earlier draft direction that would have broadened
