@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-040
-status: Proposed
+status: Accepted
 created: 2026-04-05
-updated: 2026-04-05
+updated: 2026-04-09
 superseded_by: null
 ---
 
@@ -132,4 +132,4 @@ The original stream derivation rule is part of the architecture:
 
 ## Reviewed By
 
-- Pending maintainer review
+- Accepted during CR-039 implementation and verification.

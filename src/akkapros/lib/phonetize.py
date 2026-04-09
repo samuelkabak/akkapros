@@ -710,6 +710,41 @@ def _resolve_pause_punctuation_rules(
     return short_chars, long_chars, short_regex, long_regex
 
 
+def derive_original_tilde_text(tilde_text: str) -> str:
+    pieces: list[str] = []
+    index = 0
+    while index < len(tilde_text):
+        symbol = tilde_text[index]
+        if symbol == OPEN_ESCAPE:
+            close_index = tilde_text.find(CLOSE_ESCAPE, index + 1)
+            if close_index < 0:
+                raise ValueError('Invalid _tilde input for phonetizer: unterminated armored span')
+            pieces.append(tilde_text[index : close_index + 1])
+            index = close_index + 1
+            continue
+        if symbol == '~':
+            index += 1
+            continue
+        if symbol == '&':
+            pieces.append(' ')
+            index += 1
+            continue
+        pieces.append(symbol)
+        index += 1
+    return ''.join(pieces)
+
+
+def build_phone_streams(
+    tilde_text: str,
+    phonetize_config: dict[str, Any] | None = None,
+    input_frontmatter: dict[str, Any] | None = None,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    original_text = derive_original_tilde_text(tilde_text)
+    original_rows = build_phone_rows(original_text, phonetize_config, input_frontmatter)
+    accentuated_rows = build_phone_rows(tilde_text, phonetize_config, input_frontmatter)
+    return original_rows, accentuated_rows
+
+
 def build_phone_rows(
     tilde_text: str,
     phonetize_config: dict[str, Any] | None = None,
@@ -850,9 +885,11 @@ def run_tests() -> bool:
         lambda: CONSONANT_HIATUS == set('˙') and CONSONANT_VOWEL_TRANSITION == set('¨'),
         lambda: INPUT_CHARACTER_LABELS['ṣ'] == 'SUD' and INPUT_CHARACTER_LENGTHS['û'] == 'L',
         lambda: REALIZATION_CODE_METADATA['SP']['category'] == 'S' and INPUT_TO_REALIZATION_CODES['ENA'] == ('WA', 'YI'),
+        lambda: derive_original_tilde_text('u+ana&šar~.ri') == 'u+ana šar.ri',
         lambda: _test_emphatic_vowel_and_row_format(),
         lambda: _test_boundary_reconstruction(),
         lambda: _test_transition_resolution(),
+        lambda: _test_dual_stream_generation(),
     ]
     return all(case() for case in cases)
 
@@ -875,3 +912,11 @@ def _test_transition_resolution() -> bool:
     rows = build_phone_rows('a¨u')
     transition = next(row for row in rows if row['label'] == 'ENA')
     return transition['realization'] == 'WA'
+
+
+def _test_dual_stream_generation() -> bool:
+    original_rows, accentuated_rows = build_phone_streams('u+ana&šar~·ri')
+    return (
+        reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri'
+        and reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri'
+    )

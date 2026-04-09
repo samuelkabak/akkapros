@@ -23,7 +23,7 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 |-------|----------------|-------------|
 | **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
 | **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Phonetize** | `*_tilde.txt` → `*_phone.txt` | Builds the canonical flat-line phone-row artifact |
+| **3. Phonetize** | `*_tilde.txt` → `*_ophone.txt`, `*_phone.txt` | Builds the original and accentuated Phase 1 phone-row artifacts |
 | **4. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
 | **5. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
 
@@ -42,6 +42,7 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 |------|-------------|
 | `<prefix>_syl.txt` | Syllabified text |
 | `<prefix>_tilde.txt` | Prosody-realized pivot format |
+| `<prefix>_ophone.txt` | Original/deaccented Phase 1 phone-row artifact |
 | `<prefix>_phone.txt` | Canonical flat-line phone-row artifact with CR-036 fields |
 
 The written `_tilde` pivot preserves three kinds of downstream-critical structure: armored punctuation / escaped chunks as `⟦...⟧`, diphthong memory as `¨`, and merge provenance as `+` for explicit inherited links versus `&` for internal prosody merges.
@@ -144,7 +145,7 @@ metrics-stage CLI option. The current transition also removes metrics-owned
 timing flags; `fullprosmaker` uses the phonetize transition defaults internally
 for metrics (`wpm = 193`, `pause_ratio = 35`).
 
-The longer-term transition target is a structured phonetize handoff where `_phone.txt` carries the canonical row stream and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
+The longer-term transition target is a structured phonetize handoff where `_ophone.txt` and `_phone.txt` carry the canonical row streams and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
 
 ### Printer Options
 
@@ -191,6 +192,7 @@ Without `--print-merger`, acute, bold, and accented XAR outputs render merged wo
 This generates:
 - `erra_syl.txt`
 - `erra_tilde.txt`
+- `erra_ophone.txt`
 - `erra_phone.txt`
 - `erra_metrics.txt` (default table)
 - `erra_accent_acute.txt` (default acute)

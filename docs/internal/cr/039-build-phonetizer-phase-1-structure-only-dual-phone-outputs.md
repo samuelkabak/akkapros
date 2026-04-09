@@ -1,10 +1,10 @@
 ---
 cr_id: CR-039
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-05
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-040, REQ-024, REQ-025'
 ---
 
@@ -350,43 +350,43 @@ Design requirements:
 
 # Acceptance Criteria
 
-- [ ] A phonetize library entry point exists for Phase 1 structural row
+- [x] A phonetize library entry point exists for Phase 1 structural row
       generation from `<prefix>_tilde.txt` content.
-- [ ] A phonetizer CLI exists that reads `_tilde.txt` and writes
+- [x] A phonetizer CLI exists that reads `_tilde.txt` and writes
       `<prefix>_ophone.txt` and `<prefix>_phone.txt`.
-- [ ] The original stream is derived by removing `~` and replacing `&` with
+- [x] The original stream is derived by removing `~` and replacing `&` with
       space, while preserving `+`.
-- [ ] Phase 1 populates all required row fields from the `_phone` contract.
-- [ ] Phase 1 emits rows in the exact CR-036 field order:
+- [x] Phase 1 populates all required row fields from the `_phone` contract.
+- [x] Phase 1 emits rows in the exact CR-036 field order:
   `label, category, type, length, position, boundary, accent, realization, duration, text`.
-- [ ] Phase 1 preserves the CR-036 split between `type` and `length` and emits
+- [x] Phase 1 preserves the CR-036 split between `type` and `length` and emits
   a dedicated two-character `realization` code on every row.
-- [ ] Phase 1 resolves any CR-036 one-to-many input-to-realization mappings
+- [x] Phase 1 resolves any CR-036 one-to-many input-to-realization mappings
       during row construction and emits one concrete realization code per row.
-- [ ] Phase 1 realizes vowels following emphatic onset consonants in `CV` and
+- [x] Phase 1 realizes vowels following emphatic onset consonants in `CV` and
   `CVV` with the emphatic-colored vowel codes `AO`, `EO`, `IO`, or `UO`
   as appropriate.
-- [ ] Phase 1 resolves `ENA` vowel-transition rows to `YI` or `WA` from the
+- [x] Phase 1 resolves `ENA` vowel-transition rows to `YI` or `WA` from the
   immediately surrounding vowels according to the normative table in this
   CR.
-- [ ] Every Phase 1 row uses `duration=0000`.
-- [ ] Original and accentuated outputs are both emitted for the same input.
-- [ ] Unit tests cover accentuated and original stream derivation for
+- [x] Every Phase 1 row uses `duration=0000`.
+- [x] Original and accentuated outputs are both emitted for the same input.
+- [x] Unit tests cover accentuated and original stream derivation for
       representative inputs with `~`, `·`, `-`, `&`, and `+`.
-- [ ] Unit tests cover automatic reconstruction of the applicable input string
+- [x] Unit tests cover automatic reconstruction of the applicable input string
       from emitted rows.
-- [ ] Unit tests cover emitted-row correctness for representative hiatus,
+- [x] Unit tests cover emitted-row correctness for representative hiatus,
   vowel-transition, and short/long pause rows under the CR-036 inventory.
-- [ ] Unit tests cover cases where the original stream differs from the
+- [x] Unit tests cover cases where the original stream differs from the
       accentuated stream only by `~` removal.
-- [ ] Unit tests cover cases where the original stream differs because `&`
+- [x] Unit tests cover cases where the original stream differs because `&`
       becomes space while `+` remains preserved.
-- [ ] Integration tests cover CLI generation of both `_ophone.txt` and
+- [x] Integration tests cover CLI generation of both `_ophone.txt` and
       `_phone.txt` from a representative `_tilde.txt` sample.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in separate phonetizer and algorithm files,
+- [x] Documentation is updated in separate phonetizer and algorithm files,
   configuration/confwriter docs where the new stage surface is described,
   and impacted downstream program docs such as fullprosmaker.
 
@@ -486,33 +486,33 @@ is discouraged.
 
 ## Implementation
 
-- [ ] Add Phase 1 structure-building library code in `src/akkapros/lib/phonetize.py`
-- [ ] Add phonetizer CLI wiring for `_tilde` input and dual output files
-- [ ] Implement deterministic derivation of the original stream from the
+- [x] Add Phase 1 structure-building library code in `src/akkapros/lib/phonetize.py`
+- [x] Add phonetizer CLI wiring for `_tilde` input and dual output files
+- [x] Implement deterministic derivation of the original stream from the
       accentuated `_tilde` input
-- [ ] Build original and accentuated phone-row lists with `0000` durations
-- [ ] Add reconstruction helpers or test helpers for automatic row-based
+- [x] Build original and accentuated phone-row lists with `0000` durations
+- [x] Add reconstruction helpers or test helpers for automatic row-based
       verification of applicable input structure
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add extensive pytest unit coverage for stream derivation, row building,
+- [x] Add extensive pytest unit coverage for stream derivation, row building,
   and automatic reconstruction
-- [ ] Add pytest integration coverage for dual-output CLI generation
+- [x] Add pytest integration coverage for dual-output CLI generation
 
 ## Documentation
 
-- [ ] Create or update `docs/akkapros/phonetizer.md` as the detailed Phase 1
+- [x] Create or update `docs/akkapros/phonetizer.md` as the detailed Phase 1
   stage and CLI reference
-- [ ] Create or update `docs/akkapros/phonetizer-algorithm.md` as the detailed
+- [x] Create or update `docs/akkapros/phonetizer-algorithm.md` as the detailed
   Phase 1 row-construction and derivation reference distinct from the CLI
   page
-- [ ] Update `docs/akkapros/configuration.md`, `docs/akkapros/confwriter.md`,
+- [x] Update `docs/akkapros/configuration.md`, `docs/akkapros/confwriter.md`,
   and generated/default config comments anywhere the Phase 1 stage surface
   or phonetize keys are described
-- [ ] Update impacted downstream program docs, including
+- [x] Update impacted downstream program docs, including
   `docs/akkapros/fullprosmaker.md`, for dual outputs and stage ordering
 
 ---

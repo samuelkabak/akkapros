@@ -1,6 +1,6 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented CR-036 phonetize row contract as exposed by the live `phonetizer` stage.
+This document describes the currently implemented CR-039 Phase 1 phonetize algorithm as exposed by the live `phonetizer` stage.
 
 ## Current Scope
 
@@ -9,10 +9,12 @@ The live implementation is intentionally transitional.
 It provides:
 - one canonical `phonetize` config section
 - one executable `phonetizer` CLI
-- one materialized `<prefix>_phone.txt` artifact
+- two materialized artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`
 - one shared library module, `src/akkapros/lib/phonetize.py`
 
-It does not yet implement the later dual-output `_ophone` stage or the later duration-realization pass from downstream phonetizer records.
+It does not yet implement the later duration-realization pass from downstream phonetizer records.
+
+Phase 1 now derives the original stream deterministically from accentuated `_tilde` by removing `~` and replacing internal merges `&` with spaces while preserving explicit lexical merges `+`.
 
 ## Canonical Inventory
 
@@ -35,7 +37,7 @@ The realization-code inventory is authoritative for realization-side `Category`,
 
 ## Row Model
 
-The current `_phone.txt` body uses the canonical flat-line row contract:
+The current `_ophone.txt` and `_phone.txt` bodies use the canonical flat-line row contract:
 
 ```text
 label-category-type-length-position-boundary-accent-realization-duration:text
@@ -63,6 +65,14 @@ The flat-line form is the canonical file serialization.
 ## Duration Source
 
 The live builder is now structure-first. It emits `duration=0000` on every row so the artifact matches the Phase 1 placeholder contract while later duration work remains separate.
+
+## Dual Stream Behavior
+
+The phonetizer now builds two row streams from one `_tilde` input:
+- accentuated rows preserve `~`, `&`, `+`, `·`, and `-` through the row boundary and accent fields
+- original rows are built from the derived deaccented view where `~` is removed and `&` becomes ordinary space while `+` remains preserved
+
+Round-trip reconstruction uses the emitted row fields rather than hidden builder state. Accentuated rows reconstruct the accentuated `_tilde` structure; original rows reconstruct the derived original view.
 
 ## Boundary Behavior
 
@@ -96,7 +106,7 @@ The `_tilde` input contract consumed here may also carry armored punctuation spa
 
 ## Transition Note
 
-`metricalc` still computes from `_tilde.txt` rather than consuming `_phone.txt` directly.
+`metricalc` still computes from `_tilde.txt` rather than consuming `_ophone.txt` and `_phone.txt` directly.
 The transition plan is that metrics eventually consumes the structured `_phone` handoff alongside the prosody-bearing `_tilde` pivot while the contract settles.
 During the current transition it uses the phonetize defaults internally:
 - `wpm = 193`

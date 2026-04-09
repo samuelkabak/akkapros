@@ -1,6 +1,6 @@
 # Phonetizer CLI (`phonetizer.py`)
 
-`phonetizer.py` is the transitional stage that turns a prosody-realized `*_tilde.txt` file into a canonical phone-row artifact, `<prefix>_phone.txt`.
+`phonetizer.py` is the transitional stage that turns a prosody-realized `*_tilde.txt` file into two Phase 1 phone-row artifacts: `<prefix>_ophone.txt` for the original stream and `<prefix>_phone.txt` for the accentuated stream.
 
 ## Purpose
 
@@ -8,17 +8,18 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 
 1. `*_proc.txt` -> `*_syl.txt`
 2. `*_syl.txt` -> `*_tilde.txt`
-3. `*_tilde.txt` -> `*_phone.txt`
+3. `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`
 4. `*_tilde.txt` -> metrics outputs
 5. `*_tilde.txt` -> print outputs
 
-At this stage of the rollout, `_phone.txt` is a real artifact with front matter and structured body rows, but metrics still computes from `_tilde.txt` using the phonetize transition defaults internally.
+At this stage of the rollout, `_ophone.txt` and `_phone.txt` are real artifacts with front matter and structured body rows, but metrics still computes from `_tilde.txt` using the phonetize transition defaults internally.
 
-The current implementation now follows the CR-036 row contract for `<prefix>_phone.txt`:
+The current implementation now follows the CR-039 Phase 1 contract for both `<prefix>_ophone.txt` and `<prefix>_phone.txt`:
 - flat-line serialization, one row per line
 - exact field order: `label-category-type-length-position-boundary-accent-realization-duration:text`
 - canonical segment and pause inventories
 - placeholder `duration=0000` until later duration-realization work lands
+- deterministic original-stream derivation from `_tilde` by removing `~` and replacing `&` with space while preserving `+`
 
 The contract is intentionally structured for downstream traversal. Neighborhood logic may cross word boundaries inside one prosodic unit; silence rows are the only mandatory stopping points for that local traversal.
 
@@ -28,7 +29,10 @@ Input:
 - One `*_tilde.txt` file
 
 Output:
+- `<prefix>_ophone.txt`
 - `<prefix>_phone.txt`
+
+The original stream is derived from the accentuated `_tilde` input by removing `~` and replacing internal merges `&` with spaces, while preserving explicit lexical merges `+` and the other structural separators needed for reconstruction.
 
 The consumed `_tilde` contract may contain armored punctuation spans as `⟦...⟧`, explicit inherited merges as `+`, and internal prosody merges as `&`.
 
@@ -48,7 +52,7 @@ ZEN-S-S-L-S-N-P-ZP-0000:<EOL>
 
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
 
-During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_phone.txt` becomes the structured phonetic handoff artifact while `_tilde.txt` remains the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
+During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_ophone.txt` and `_phone.txt` become the structured phonetic handoff artifacts while `_tilde.txt` remains the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
 
 ## Command Syntax
 
@@ -98,4 +102,4 @@ Representative keys:
 
 See also:
 - `docs/akkapros/phonetizer-algorithm.md` for the row and boundary model
-- `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_phone.txt`
+- `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_ophone.txt` and `_phone.txt`

@@ -33,7 +33,7 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
-    build_phone_rows,
+    build_phone_streams,
     run_tests as run_phonetize_tests,
     serialize_phone_rows,
 )
@@ -190,32 +190,53 @@ def main() -> None:
         sys.exit(2)
 
     input_frontmatter, tilde_body = read_text_file(input_path)
-    rows = build_phone_rows(tilde_body, phonetize_config, input_frontmatter)
-    body = serialize_phone_rows(rows)
+    original_rows, accentuated_rows = build_phone_streams(tilde_body, phonetize_config, input_frontmatter)
+    original_body = serialize_phone_rows(original_rows)
+    accentuated_body = serialize_phone_rows(accentuated_rows)
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    output_path = outdir / f'{simple_safe_filename(prefix)}_phone.txt'
+    safe_prefix = simple_safe_filename(prefix)
+    original_output_path = outdir / f'{safe_prefix}_ophone.txt'
+    accentuated_output_path = outdir / f'{safe_prefix}_phone.txt'
     option_values = effective_options_from_namespace(
         args,
         exclude={'input', 'outdir', 'prefix', 'version', 'test', 'conf'},
     )
-    frontmatter = build_output_frontmatter(
-        output_path=output_path,
+    original_frontmatter = build_output_frontmatter(
+        output_path=original_output_path,
         step='phonetize',
         title=resolve_file_title(input_frontmatter),
-        body=body,
+        body=original_body,
         options=option_values,
         input_frontmatter=input_frontmatter,
         stage_data={
-            'phone_row_count': len(rows),
-            'silence_row_count': sum(1 for row in rows if row['category'] == 'S'),
-            'phoneme_row_count': sum(1 for row in rows if row['category'] != 'S'),
+            'source_variant': 'original',
+            'phone_row_count': len(original_rows),
+            'silence_row_count': sum(1 for row in original_rows if row['category'] == 'S'),
+            'phoneme_row_count': sum(1 for row in original_rows if row['category'] != 'S'),
         },
         file_format='phone',
     )
-    output_path.write_text(compose_text_document(frontmatter, body), encoding='utf-8')
-    logger.info('Written file: %s', format_path_for_logging(output_path))
+    accentuated_frontmatter = build_output_frontmatter(
+        output_path=accentuated_output_path,
+        step='phonetize',
+        title=resolve_file_title(input_frontmatter),
+        body=accentuated_body,
+        options=option_values,
+        input_frontmatter=input_frontmatter,
+        stage_data={
+            'source_variant': 'accentuated',
+            'phone_row_count': len(accentuated_rows),
+            'silence_row_count': sum(1 for row in accentuated_rows if row['category'] == 'S'),
+            'phoneme_row_count': sum(1 for row in accentuated_rows if row['category'] != 'S'),
+        },
+        file_format='phone',
+    )
+    original_output_path.write_text(compose_text_document(original_frontmatter, original_body), encoding='utf-8')
+    accentuated_output_path.write_text(compose_text_document(accentuated_frontmatter, accentuated_body), encoding='utf-8')
+    logger.info('Written file: %s', format_path_for_logging(original_output_path))
+    logger.info('Written file: %s', format_path_for_logging(accentuated_output_path))
 
 
 if __name__ == '__main__':

@@ -61,7 +61,7 @@ OPTION_HELP = {
     "prosmaker.test": "Run standard tests.",
     "prosmaker.test_diphthongs": "Run diphthong restoration tests.",
     "phonetizer.input": "Input *_tilde.txt file.",
-    "phonetizer.prefix": "Output prefix (creates <prefix>_phone.txt).",
+    "phonetizer.prefix": "Output prefix (creates <prefix>_ophone.txt and <prefix>_phone.txt).",
     "phonetizer.outdir": "Shared output directory used by file-producing CLIs.",
     "phonetizer.geminate_policy": "Same-consonant geminate handling policy for the phonetize stage.",
     "phonetizer.accentuation_distribution_policy": "Policy controlling how the added accentuation mora is distributed.",

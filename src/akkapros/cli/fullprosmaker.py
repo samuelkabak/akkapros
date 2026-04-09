@@ -43,7 +43,7 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
-    build_phone_rows,
+    build_phone_streams,
     build_default_phonetize_config,
     serialize_phone_rows,
 )
@@ -248,6 +248,7 @@ def run_pipeline(
     safe_prefix = simple_safe_filename(prefix)
     syl_file = outdir / f"{safe_prefix}_syl.txt"
     tilde_file = outdir / f"{safe_prefix}_tilde.txt"
+    ophone_file = outdir / f"{safe_prefix}_ophone.txt"
     phone_file = outdir / f"{safe_prefix}_phone.txt"
     metrics_base = outdir / safe_prefix
     acute_file = outdir / f"{safe_prefix}_accent_acute.txt"
@@ -304,8 +305,24 @@ def run_pipeline(
 
     # 3) Phonetize transitional artifact
     tilde_frontmatter, tilde_body = read_text_file(tilde_file)
-    phone_rows = build_phone_rows(tilde_body, phonetize_config, tilde_frontmatter)
+    ophone_rows, phone_rows = build_phone_streams(tilde_body, phonetize_config, tilde_frontmatter)
+    ophone_body = serialize_phone_rows(ophone_rows)
     phone_body = serialize_phone_rows(phone_rows)
+    ophone_frontmatter = build_output_frontmatter(
+        output_path=ophone_file,
+        step='phonetize',
+        title=resolve_file_title(tilde_frontmatter),
+        body=ophone_body,
+        options=options,
+        input_frontmatter=tilde_frontmatter,
+        stage_data={
+            'source_variant': 'original',
+            'phone_row_count': len(ophone_rows),
+            'silence_row_count': sum(1 for row in ophone_rows if row['category'] == 'S'),
+            'phoneme_row_count': sum(1 for row in ophone_rows if row['category'] != 'S'),
+        },
+        file_format='phone',
+    )
     phone_frontmatter = build_output_frontmatter(
         output_path=phone_file,
         step='phonetize',
@@ -314,12 +331,16 @@ def run_pipeline(
         options=options,
         input_frontmatter=tilde_frontmatter,
         stage_data={
+            'source_variant': 'accentuated',
             'phone_row_count': len(phone_rows),
             'silence_row_count': sum(1 for row in phone_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in phone_rows if row['category'] != 'S'),
         },
         file_format='phone',
     )
+    with open(ophone_file, 'w', encoding='utf-8') as f:
+        f.write(compose_text_document(ophone_frontmatter, ophone_body))
+    logger.info('Written file: %s', format_path_for_logging(ophone_file))
     with open(phone_file, 'w', encoding='utf-8') as f:
         f.write(compose_text_document(phone_frontmatter, phone_body))
     logger.info('Written file: %s', format_path_for_logging(phone_file))

@@ -257,4 +257,5 @@ def test_phonetizer_no_console_logs_to_file(tmp_path: Path) -> None:
     assert proc.stdout == ""
     assert proc.stderr == ""
     assert log_file.exists()
+    assert (outdir / "logging_ophone.txt").exists()
     assert (outdir / "logging_phone.txt").exists()

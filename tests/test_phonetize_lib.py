@@ -10,7 +10,9 @@ from akkapros.lib.phonetize import (
     INPUT_TO_REALIZATION_CODES,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_METADATA,
+    build_phone_streams,
     build_phone_rows,
+    derive_original_tilde_text,
     parse_phone_row,
     reconstruct_tilde_from_phone_rows,
     serialize_phone_row,
@@ -97,6 +99,30 @@ def test_pause_rows_and_transition_rows_use_canonical_codes() -> None:
     assert rows[4]['label'] == 'ZEN'
     assert rows[4]['realization'] == 'ZP'
     assert rows[4]['text'] == '<EOL>'
+
+
+def test_original_stream_derivation_matches_cr039_examples() -> None:
+    assert derive_original_tilde_text('u+ana&šar~.ri') == 'u+ana šar.ri'
+    assert derive_original_tilde_text('gi.mir&dad~.mē') == 'gi.mir dad.mē'
+    assert derive_original_tilde_text('šit·ku·nat-ma') == 'šit·ku·nat-ma'
+    assert derive_original_tilde_text('ana+šar~.ri') == 'ana+šar.ri'
+    assert derive_original_tilde_text('u&ana+šar~.ri') == 'u ana+šar.ri'
+
+
+def test_dual_phone_streams_preserve_accentuated_and_original_forms() -> None:
+    original_rows, accentuated_rows = build_phone_streams('u+ana&šar~·ri')
+
+    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri'
+    assert reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri'
+    assert all(row['duration'] == PHONE_ROW_DURATION_PLACEHOLDER for row in original_rows)
+    assert all(row['duration'] == PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
+
+
+def test_original_stream_differs_only_by_deaccentuation_when_no_internal_merge() -> None:
+    original_rows, accentuated_rows = build_phone_streams('ana+šar~.ri')
+
+    assert reconstruct_tilde_from_phone_rows(original_rows) == 'ana+šar·ri'
+    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'ana+šar~·ri'
 
 
 def test_armored_punctuation_is_accepted_by_phonetizer() -> None:

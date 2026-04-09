@@ -237,7 +237,9 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_has_yaml_frontmatter(tilde_file)
 
     _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
+    _assert_phone_artifact(ophone_file)
     _assert_phone_artifact(phone_file)
 
     _run_cli(
@@ -346,7 +348,9 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
 
     _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
+    _assert_phone_artifact(ophone_file)
     _assert_phone_artifact(phone_file)
 
     _run_cli(
@@ -435,6 +439,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     expected_outputs = [
         outdir / "test_syl.txt",
         outdir / "test_tilde.txt",
+        outdir / "test_ophone.txt",
         outdir / "test_phone.txt",
         outdir / "test_metrics.txt",
         outdir / "test.json",
@@ -504,6 +509,7 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     expected_outputs = [
         outdir / "test_mono_syl.txt",
         outdir / "test_mono_tilde.txt",
+        outdir / "test_mono_ophone.txt",
         outdir / "test_mono_phone.txt",
         outdir / "test_mono_metrics.txt",
         outdir / "test_mono.json",
@@ -801,10 +807,11 @@ def test_fullprosmaker_runs_from_config_file(tmp_path: Path) -> None:
 
     syl_file = outdir / "cfgdemo_syl.txt"
     tilde_file = outdir / "cfgdemo_tilde.txt"
+    ophone_file = outdir / "cfgdemo_ophone.txt"
     phone_file = outdir / "cfgdemo_phone.txt"
     metrics_json = outdir / "cfgdemo.json"
     ipa_file = outdir / "cfgdemo_accent_ipa.txt"
-    for path in [syl_file, tilde_file, phone_file, metrics_json, ipa_file]:
+    for path in [syl_file, tilde_file, ophone_file, phone_file, metrics_json, ipa_file]:
         _assert_non_empty_text_file(path)
 
     tilde_frontmatter, _ = split_frontmatter(_read_text(tilde_file))
