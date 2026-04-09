@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
+import math
 import re
 from typing import Any
 
@@ -745,6 +746,429 @@ def build_phone_streams(
     return original_rows, accentuated_rows
 
 
+def realize_phone_streams(
+    tilde_text: str,
+    phonetize_config: dict[str, Any] | None = None,
+    input_frontmatter: dict[str, Any] | None = None,
+) -> tuple[tuple[list[dict[str, str]], dict[str, Any]], tuple[list[dict[str, str]], dict[str, Any]]]:
+    original_rows, accentuated_rows = build_phone_streams(tilde_text, phonetize_config, input_frontmatter)
+    original_report = realize_phone_rows(original_rows, phonetize_config, allow_accentuation=False)
+    accentuated_report = realize_phone_rows(accentuated_rows, phonetize_config, allow_accentuation=True)
+    return (original_rows, original_report), (accentuated_rows, accentuated_report)
+
+
+def _merge_phonetize_config(phonetize_config: dict[str, Any] | None) -> dict[str, Any]:
+    merged = build_default_phonetize_config()
+    if not phonetize_config:
+        return merged
+
+    def _merge(target: dict[str, Any], source: dict[str, Any]) -> None:
+        for key, value in source.items():
+            if isinstance(value, dict) and isinstance(target.get(key), dict):
+                _merge(target[key], value)
+            else:
+                target[key] = deepcopy(value)
+
+    _merge(merged, phonetize_config)
+    return merged
+
+
+def _format_duration(value: float) -> str:
+    bounded = max(0, int(round(value)))
+    return f'{bounded:04d}'
+
+
+def _consonant_timing_key(row: dict[str, str]) -> str:
+    if row['type'] in {'C', 'H'}:
+        return 'closure'
+    if row['type'] == 'F':
+        return 'fricative'
+    if row['type'] in {'S', 'T'}:
+        return 'sonorant'
+    raise ValueError(f"Unsupported consonant timing type: {row['type']!r}")
+
+
+def _consonant_anchor(row: dict[str, str], config: dict[str, Any], position: str) -> float:
+    durations = config['timing_model']['durations']
+    timing_key = _consonant_timing_key(row)
+    consonant_cfg = durations['consonants'][timing_key]
+    if row['type'] == 'H':
+        return float(durations['consonants']['closure']['special_realization']['hiatus'])
+    if row['type'] == 'T':
+        return float(durations['consonants']['sonorant']['special_realization']['vowel_transition'])
+    if position == 'C':
+        return float(consonant_cfg['coda'])
+    return float(consonant_cfg['onset'])
+
+
+def _consonant_geminate_target(row: dict[str, str], config: dict[str, Any]) -> float:
+    durations = config['timing_model']['durations']
+    timing_key = _consonant_timing_key(row)
+    return float(durations['consonants'][timing_key]['geminate'])
+
+
+def _consonant_maximum(config: dict[str, Any]) -> float:
+    return float(config['timing_model']['durations']['segmental_ceiling'])
+
+
+def _vowel_anchor(row: dict[str, str], config: dict[str, Any]) -> float:
+    vowels_cfg = config['timing_model']['durations']['vowels']
+    return float(vowels_cfg['short'] if row['length'] == 'S' else vowels_cfg['long'])
+
+
+def _vowel_bounds(row: dict[str, str], config: dict[str, Any]) -> tuple[float, float]:
+    vowels_cfg = config['timing_model']['durations']['vowels']
+    limits = vowels_cfg['perception_limits']
+    if row['length'] == 'S':
+        return float(limits['short_min']), float(limits['long_min'] - 1)
+    return float(limits['long_min']), float(limits['max'])
+
+
+def _timing_refs(config: dict[str, Any]) -> tuple[float, float, float]:
+    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+    return cvc_reference / 2.0, cvc_reference, cvc_reference * 1.5
+
+
+def _partition_phone_units(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+    units: list[dict[str, Any]] = []
+    syllable: list[int] = []
+    for index, row in enumerate(rows):
+        if row['category'] == 'S':
+            if syllable:
+                units.append({'kind': 'syllable', 'indices': syllable})
+                syllable = []
+            units.append({'kind': 'pause', 'index': index})
+            continue
+        syllable.append(index)
+        if row['boundary'] != 'N':
+            units.append({'kind': 'syllable', 'indices': syllable})
+            syllable = []
+    if syllable:
+        units.append({'kind': 'syllable', 'indices': syllable})
+    return units
+
+
+def _analyze_syllable(rows: list[dict[str, str]], indices: list[int]) -> dict[str, Any]:
+    vowel_indices = [index for index in indices if rows[index]['category'] == 'V']
+    if not vowel_indices:
+        raise ValueError('Phase 2 cannot realize a syllable without a vowel nucleus')
+    nucleus_index = vowel_indices[0]
+    onset_indices = [index for index in indices if index < nucleus_index and rows[index]['category'] == 'C']
+    coda_indices = [index for index in indices if index > nucleus_index and rows[index]['category'] == 'C']
+    vowel_row = rows[nucleus_index]
+    has_coda = bool(coda_indices)
+    if vowel_row['length'] == 'S':
+        base_shape = 'CVC' if has_coda else 'CV'
+    else:
+        base_shape = 'CVVC' if has_coda else 'CVV'
+    accent_index = next((index for index in indices if rows[index]['accent'] == 'A'), None)
+    accent_shape = None
+    if accent_index is not None:
+        if accent_index in onset_indices:
+            accent_shape = 'C:V'
+        elif accent_index == nucleus_index:
+            accent_shape = 'CVV:'
+        elif accent_index in coda_indices:
+            accent_shape = 'CVV:C' if vowel_row['length'] == 'L' else 'CVC:'
+    return {
+        'rows': rows,
+        'indices': indices,
+        'onset_indices': onset_indices,
+        'nucleus_index': nucleus_index,
+        'coda_indices': coda_indices,
+        'base_shape': base_shape,
+        'accent_index': accent_index,
+        'accent_shape': accent_shape,
+    }
+
+
+def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool) -> float:
+    one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
+    closure_onset = float(config['timing_model']['durations']['consonants']['closure']['onset'])
+    closure_coda = float(config['timing_model']['durations']['consonants']['closure']['coda'])
+    base_map = {
+        'CV': one_mora_ref,
+        'CVV': two_mora_ref,
+        'CVC': two_mora_ref,
+        'CVVC': three_mora_ref,
+    }
+    target = base_map[analysis['base_shape']]
+    if not analysis['onset_indices']:
+        target -= closure_onset
+    else:
+        onset_index = analysis['onset_indices'][0]
+        target += _consonant_anchor(analysis['rows'][onset_index], config, 'O') - closure_onset
+    if analysis['coda_indices']:
+        coda_index = analysis['coda_indices'][0]
+        target += _consonant_anchor(analysis['rows'][coda_index], config, 'C') - closure_coda
+    if accentuated and analysis['accent_shape'] is not None:
+        target += one_mora_ref
+    return target
+
+
+def _adjacent_accent_index(analysis: dict[str, Any]) -> int | None:
+    accent_shape = analysis['accent_shape']
+    if accent_shape == 'C:V':
+        return analysis['nucleus_index']
+    if accent_shape == 'CVV:':
+        return analysis['onset_indices'][0] if analysis['onset_indices'] else None
+    if accent_shape == 'CVC:':
+        return analysis['nucleus_index']
+    if accent_shape == 'CVV:C':
+        return analysis['onset_indices'][0] if analysis['onset_indices'] else analysis['nucleus_index']
+    return None
+
+
+def _pause_multiple_candidates(minimum: float, maximum: float, cvc_reference: float) -> list[float]:
+    upper = max(1, int(maximum // cvc_reference) + 2)
+    return [n * cvc_reference for n in range(1, upper) if minimum <= n * cvc_reference <= maximum]
+
+
+def _preferred_pause_target(row: dict[str, str], config: dict[str, Any]) -> float:
+    pauses_cfg = config['timing_model']['durations']['pauses']
+    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+    band = pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short']
+    minimum = float(band['min'])
+    maximum = float(band['max'])
+    candidates = _pause_multiple_candidates(minimum, maximum, cvc_reference)
+    midpoint = (minimum + maximum) / 2.0
+    if candidates:
+        return min(candidates, key=lambda value: (abs(value - midpoint), value))
+    nearest_multiple = max(cvc_reference, round(midpoint / cvc_reference) * cvc_reference)
+    return min(max(nearest_multiple, minimum), maximum)
+
+
+def _pause_duration_and_drift(row: dict[str, str], config: dict[str, Any], drift_cursor: float) -> tuple[float, float]:
+    pauses_cfg = config['timing_model']['durations']['pauses']
+    band = pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short']
+    minimum = float(band['min'])
+    maximum = float(band['max'])
+    preferred = _preferred_pause_target(row, config)
+    desired = preferred - drift_cursor
+    actual = min(max(desired, minimum), maximum)
+    if row['length'] == 'L':
+        return actual, 0.0
+    new_drift = drift_cursor + (actual - preferred)
+    return actual, new_drift
+
+
+def _apply_vowel_correction(
+    rows: list[dict[str, str]],
+    analysis: dict[str, Any],
+    durations: dict[int, float],
+    drift_after_assignment: float,
+    tolerance: float,
+    config: dict[str, Any],
+) -> float:
+    vowel_index = analysis['nucleus_index']
+    minimum, maximum = _vowel_bounds(rows[vowel_index], config)
+    current = durations[vowel_index]
+    if drift_after_assignment > tolerance:
+        reducible = min(current - minimum, drift_after_assignment - tolerance)
+        if reducible > 0:
+            durations[vowel_index] = current - reducible
+            drift_after_assignment -= reducible
+    elif drift_after_assignment < -tolerance:
+        extendable = min(maximum - current, abs(drift_after_assignment) - tolerance)
+        if extendable > 0:
+            durations[vowel_index] = current + extendable
+            drift_after_assignment += extendable
+    return drift_after_assignment
+
+
+def _apply_accent_increment(
+    rows: list[dict[str, str]],
+    analysis: dict[str, Any],
+    durations: dict[int, float],
+    config: dict[str, Any],
+    next_same_onset: int | None,
+) -> None:
+    accent_index = analysis['accent_index']
+    if accent_index is None:
+        return
+    primary_index = accent_index
+    adjacent_index = _adjacent_accent_index(analysis)
+    one_mora_ref, _two_mora_ref, _three_mora_ref = _timing_refs(config)
+    policy = config['process']['accentuation_distribution_policy']
+    share_map = {
+        '100_0': (1.0, 0.0),
+        '85_15': (0.85, 0.15),
+        '70_30': (0.70, 0.30),
+    }
+    primary_share, adjacent_share = share_map[policy]
+    total_increment = one_mora_ref
+
+    def _segment_limit(index: int) -> float:
+        row = rows[index]
+        if row['category'] == 'V':
+            return _vowel_bounds(row, config)[1]
+        return _consonant_maximum(config)
+
+    primary_slack = max(0.0, _segment_limit(primary_index) - durations[primary_index])
+    primary_gain = min(total_increment * primary_share, primary_slack)
+    durations[primary_index] += primary_gain
+    remaining = total_increment - primary_gain
+
+    if adjacent_index is not None:
+        adjacent_slack = max(0.0, _segment_limit(adjacent_index) - durations[adjacent_index])
+        adjacent_gain = min(total_increment * adjacent_share, adjacent_slack, remaining)
+        durations[adjacent_index] += adjacent_gain
+        remaining -= adjacent_gain
+        if remaining > 0 and primary_slack > primary_gain:
+            extra_primary = min(remaining, primary_slack - primary_gain)
+            durations[primary_index] += extra_primary
+            remaining -= extra_primary
+        if remaining > 0 and adjacent_slack > adjacent_gain:
+            extra_adjacent = min(remaining, adjacent_slack - adjacent_gain)
+            durations[adjacent_index] += extra_adjacent
+            remaining -= extra_adjacent
+    elif remaining > 0 and primary_slack > primary_gain:
+        extra_primary = min(remaining, primary_slack - primary_gain)
+        durations[primary_index] += extra_primary
+
+    if analysis['accent_shape'] in {'CVC:', 'CVV:C'} and analysis['coda_indices'] and next_same_onset is not None:
+        coda_index = analysis['coda_indices'][0]
+        ceiling = _consonant_maximum(config)
+        combined = durations[coda_index] + durations[next_same_onset]
+        if combined > ceiling:
+            reduce_onset = min(durations[next_same_onset], combined - ceiling)
+            durations[next_same_onset] -= reduce_onset
+            combined = durations[coda_index] + durations[next_same_onset]
+            if combined > ceiling:
+                durations[coda_index] = max(0.0, ceiling - durations[next_same_onset])
+
+
+def _same_consonant_next_onset(
+    rows: list[dict[str, str]],
+    analysis: dict[str, Any],
+    next_analysis: dict[str, Any] | None,
+    durations: dict[int, float],
+    config: dict[str, Any],
+) -> int | None:
+    if not analysis['coda_indices'] or not next_analysis or not next_analysis['onset_indices']:
+        return None
+    coda_index = analysis['coda_indices'][0]
+    onset_index = next_analysis['onset_indices'][0]
+    if rows[coda_index]['text'] != rows[onset_index]['text']:
+        return None
+    coda_duration = durations[coda_index]
+    onset_anchor = _consonant_anchor(rows[onset_index], config, 'O')
+    ceiling = _consonant_maximum(config)
+    if config['process']['geminate_policy'] == 'corrective':
+        pair_total = min(_consonant_geminate_target(rows[coda_index], config), ceiling)
+    else:
+        pair_total = min(coda_duration + onset_anchor, ceiling)
+    durations[onset_index] = max(0.0, pair_total - coda_duration)
+    return onset_index
+
+
+def _drift_label(drift_value: float) -> str:
+    if abs(drift_value) < 0.5:
+        return 'On the beat'
+    if drift_value < 0:
+        return 'Ahead (rushing)'
+    return 'Behind (dragging)'
+
+
+def realize_phone_rows(
+    rows: list[dict[str, str]],
+    phonetize_config: dict[str, Any] | None = None,
+    *,
+    allow_accentuation: bool,
+) -> dict[str, Any]:
+    config = _merge_phonetize_config(phonetize_config)
+    units = _partition_phone_units(rows)
+    durations: dict[int, float] = {}
+    drift_cursor = 0.0
+    drift_history: list[float] = []
+    drift_extension_count = 0
+    max_drift_extension = 0.0
+    tolerance = float(config['process']['drift_tolerance'])
+
+    analyses: dict[int, dict[str, Any]] = {}
+    for unit_index, unit in enumerate(units):
+        if unit['kind'] == 'syllable':
+            analyses[unit_index] = _analyze_syllable(rows, unit['indices'])
+
+    for unit_index, unit in enumerate(units):
+        if unit['kind'] == 'pause':
+            pause_duration, drift_cursor = _pause_duration_and_drift(rows[unit['index']], config, drift_cursor)
+            durations[unit['index']] = pause_duration
+            drift_history.append(drift_cursor)
+            continue
+
+        analysis = analyses[unit_index]
+        next_analysis = None
+        if unit_index + 1 < len(units) and units[unit_index + 1]['kind'] == 'syllable':
+            next_analysis = analyses[unit_index + 1]
+
+        for onset_index in analysis['onset_indices']:
+            durations.setdefault(onset_index, _consonant_anchor(rows[onset_index], config, 'O'))
+        for coda_index in analysis['coda_indices']:
+            durations[coda_index] = _consonant_anchor(rows[coda_index], config, 'C')
+        nucleus_index = analysis['nucleus_index']
+        durations[nucleus_index] = _vowel_anchor(rows[nucleus_index], config)
+
+        next_same_onset = _same_consonant_next_onset(rows, analysis, next_analysis, durations, config)
+
+        if allow_accentuation and analysis['accent_shape'] is not None:
+            _apply_accent_increment(rows, analysis, durations, config, next_same_onset)
+
+        shape_ref = _shape_reference(analysis, config, accentuated=allow_accentuation and analysis['accent_shape'] is not None)
+        realized_total = sum(durations[index] for index in analysis['indices'])
+        drift_after_assignment = drift_cursor + (realized_total - shape_ref)
+        drift_after_assignment = _apply_vowel_correction(
+            rows,
+            analysis,
+            durations,
+            drift_after_assignment,
+            tolerance,
+            config,
+        )
+        if abs(drift_after_assignment) > tolerance:
+            if config['process']['drift_policy'] == 'extensible':
+                extension = abs(drift_after_assignment) - tolerance
+                if extension > 0:
+                    drift_extension_count += 1
+                    max_drift_extension = max(max_drift_extension, extension)
+        drift_cursor = drift_after_assignment
+        drift_history.append(drift_cursor)
+
+    if config['process']['drift_policy'] == 'strict' and abs(drift_cursor) > tolerance:
+        raise ValueError(
+            f'Phase 2 ended with unresolved drift {drift_cursor:.2f} beyond tolerance {int(tolerance)}'
+        )
+
+    for index, row in enumerate(rows):
+        row['duration'] = _format_duration(durations.get(index, 0.0))
+
+    if drift_history:
+        mean = sum(drift_history) / len(drift_history)
+        variance = sum((value - mean) ** 2 for value in drift_history) / len(drift_history)
+        stddev = math.sqrt(variance)
+        max_abs = max(abs(value) for value in drift_history)
+    else:
+        mean = 0.0
+        stddev = 0.0
+        max_abs = 0.0
+
+    one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
+    return {
+        'one_mora_ref': one_mora_ref,
+        'two_mora_ref': two_mora_ref,
+        'three_mora_ref': three_mora_ref,
+        'drift': {
+            'max': round(max_abs, 4),
+            'mean': round(mean, 4),
+            'stddev': round(stddev, 4),
+            'current': round(drift_cursor, 4),
+            'label': _drift_label(drift_cursor),
+        },
+        'drift_extension_count': drift_extension_count,
+        'max_drift_extension': round(max_drift_extension, 4),
+    }
+
+
 def build_phone_rows(
     tilde_text: str,
     phonetize_config: dict[str, Any] | None = None,
@@ -890,6 +1314,7 @@ def run_tests() -> bool:
         lambda: _test_boundary_reconstruction(),
         lambda: _test_transition_resolution(),
         lambda: _test_dual_stream_generation(),
+        lambda: _test_finalized_stream_generation(),
     ]
     return all(case() for case in cases)
 
@@ -919,4 +1344,23 @@ def _test_dual_stream_generation() -> bool:
     return (
         reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri'
         and reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri'
+    )
+
+
+def _test_finalized_stream_generation() -> bool:
+    config = {
+        'process': {
+            'drift_policy': 'extensible',
+            'drift_tolerance': 0,
+        }
+    }
+    (_original_rows, original_report), (_accentuated_rows, accentuated_report) = realize_phone_streams(
+        'b~a, bāt~\n',
+        config,
+    )
+    return (
+        any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _original_rows)
+        and any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _accentuated_rows)
+        and 'stddev' in original_report['drift']
+        and 'stddev' in accentuated_report['drift']
     )

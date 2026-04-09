@@ -42,7 +42,7 @@ Keys use full YAML paths such as:
 Unknown keys are rejected before any file is modified.
 
 The `phonetize.*` keys edited here govern the phonetizer stage used by both
-`phonetizer` and `fullprosmaker`, including the Phase 1 dual-output handoff
+`phonetizer` and `fullprosmaker`, including the finalized dual-output handoff
 files `<prefix>_ophone.txt` and `<prefix>_phone.txt`.
 
 ## Value Rules

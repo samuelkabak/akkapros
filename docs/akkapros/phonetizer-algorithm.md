@@ -1,6 +1,6 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented CR-039 Phase 1 phonetize algorithm as exposed by the live `phonetizer` stage.
+This document describes the currently implemented two-phase phonetize algorithm as exposed by the live `phonetizer` stage.
 
 ## Current Scope
 
@@ -12,7 +12,7 @@ It provides:
 - two materialized artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`
 - one shared library module, `src/akkapros/lib/phonetize.py`
 
-It does not yet implement the later duration-realization pass from downstream phonetizer records.
+It now implements the later duration-realization pass over the prebuilt row streams.
 
 Phase 1 now derives the original stream deterministically from accentuated `_tilde` by removing `~` and replacing internal merges `&` with spaces while preserving explicit lexical merges `+`.
 
@@ -50,7 +50,7 @@ Implemented semantics:
 - `position` is `O`, `C`, `N`, or `S`
 - `boundary` is `N`, `I`, `E`, `L`, `X`, or `F`
 - `realization` is the two-character code inventory token such as `SU`, `AA`, `AO`, `SP`, or `ZP`
-- `duration` is currently the Phase 1 placeholder `0000`
+- `duration` is the finalized millisecond duration emitted by Phase 2
 - `text` preserves the source glyph, punctuation mark, or `<EOL>`
 
 Supported serializations:
@@ -64,7 +64,7 @@ The flat-line form is the canonical file serialization.
 
 ## Duration Source
 
-The live builder is now structure-first. It emits `duration=0000` on every row so the artifact matches the Phase 1 placeholder contract while later duration work remains separate.
+The live builder remains structure-first. Phase 1 still materializes the full row contract with placeholder durations, then Phase 2 traverses those rows in place to assign non-zero durations from the active timing model, pause bands, geminate policy, accentuation-distribution policy, and drift policy.
 
 ## Dual Stream Behavior
 
@@ -96,6 +96,13 @@ Examples:
 - `u+ana&šar~·ri` yields `X`, `L`, `I`, `F` and reconstructs to the same `_tilde` structure.
 
 Neighborhood traversal across emitted rows may cross word boundaries. Silence rows are the only mandatory stopping points for local look-behind or look-ahead logic.
+
+Finalized front matter also carries drift summaries for each emitted stream:
+- `metadata.data.phonetize.drift.max`
+- `metadata.data.phonetize.drift.mean`
+- `metadata.data.phonetize.drift.stddev`
+- `metadata.data.phonetize.drift_extension_count`
+- `metadata.data.phonetize.max_drift_extension`
 
 Special-realization note:
 - hiatus rows use the closure special-realization anchor only as an unstressed baseline

@@ -49,7 +49,7 @@ internally (`wpm = 193`, `pause_ratio = 35`) rather than exposing separate
 metrics-owned timing knobs.
 
 Those same `phonetize` settings are used when `phonetizer` and `fullprosmaker`
-materialize the two Phase 1 phone-row outputs, `<prefix>_ophone.txt` and
+materialize and finalize the two phone-row outputs, `<prefix>_ophone.txt` and
 `<prefix>_phone.txt`.
 
 ## Example

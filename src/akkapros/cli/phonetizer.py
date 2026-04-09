@@ -33,7 +33,7 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
-    build_phone_streams,
+    realize_phone_streams,
     run_tests as run_phonetize_tests,
     serialize_phone_rows,
 )
@@ -190,7 +190,11 @@ def main() -> None:
         sys.exit(2)
 
     input_frontmatter, tilde_body = read_text_file(input_path)
-    original_rows, accentuated_rows = build_phone_streams(tilde_body, phonetize_config, input_frontmatter)
+    (original_rows, original_report), (accentuated_rows, accentuated_report) = realize_phone_streams(
+        tilde_body,
+        phonetize_config,
+        input_frontmatter,
+    )
     original_body = serialize_phone_rows(original_rows)
     accentuated_body = serialize_phone_rows(accentuated_rows)
 
@@ -215,6 +219,9 @@ def main() -> None:
             'phone_row_count': len(original_rows),
             'silence_row_count': sum(1 for row in original_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in original_rows if row['category'] != 'S'),
+            'drift': original_report['drift'],
+            'drift_extension_count': original_report['drift_extension_count'],
+            'max_drift_extension': original_report['max_drift_extension'],
         },
         file_format='phone',
     )
@@ -230,6 +237,9 @@ def main() -> None:
             'phone_row_count': len(accentuated_rows),
             'silence_row_count': sum(1 for row in accentuated_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in accentuated_rows if row['category'] != 'S'),
+            'drift': accentuated_report['drift'],
+            'drift_extension_count': accentuated_report['drift_extension_count'],
+            'max_drift_extension': accentuated_report['max_drift_extension'],
         },
         file_format='phone',
     )

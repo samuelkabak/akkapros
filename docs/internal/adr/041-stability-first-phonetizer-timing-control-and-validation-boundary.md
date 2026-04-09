@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-041
-status: Proposed
+status: Accepted
 created: 2026-04-07
-updated: 2026-04-08
+updated: 2026-04-09
 superseded_by: null
 ---
 
@@ -162,4 +162,4 @@ the architecture and ownership boundary for those validations.
 
 ## Reviewed By
 
-- Pending maintainer review
+- Accepted during CR-040 implementation and verification.

@@ -19,7 +19,7 @@ This document explains every metric reported by `akkapros` metrics output: what 
 
 ## 1. Input and Notation
 
-Metrics uses prosody-realized text in `*_tilde.txt` format.
+Metrics currently uses prosody-realized text in `*_tilde.txt` format. The phonetizer now emits finalized `_ophone.txt` and `_phone.txt` row streams with non-zero durations and drift summaries, but metricalc has not yet switched to consuming those artifacts directly.
 
 ### Main Symbols in Input
 

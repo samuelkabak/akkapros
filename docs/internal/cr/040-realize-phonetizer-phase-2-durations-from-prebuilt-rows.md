@@ -1,6 +1,6 @@
 ---
 cr_id: CR-040
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-06
@@ -420,102 +420,93 @@ Suggested implementation direction:
 
 # Acceptance Criteria
 
-- [ ] Phase 2 duration realization is implemented over prebuilt phone-row
+Shared semantic config verification and phonetizer preflight acceptance remain
+owned by [CR-042](042-add-shared-phonetize-config-verify-and-require-phonetizer-preflight.md).
+
+- [x] Phase 2 duration realization is implemented over prebuilt phone-row
       streams rather than by reparsing `_tilde` during timing assignment.
-- [ ] The phonetizer writes non-zero durations for both `<prefix>_ophone.txt`
+- [x] The phonetizer writes non-zero durations for both `<prefix>_ophone.txt`
       and `<prefix>_phone.txt`.
-- [ ] The algorithm derives `one_mora_ref`, `two_mora_ref`, and
+- [x] The algorithm derives `one_mora_ref`, `two_mora_ref`, and
       `three_mora_ref` from
   `phonetize.timing_model.durations.cvc_reference = 305`.
-- [ ] Phase 2 reads `phonetize.process.geminate_policy`,
+- [x] Phase 2 reads `phonetize.process.geminate_policy`,
       `phonetize.process.accentuation_distribution_policy`,
       `phonetize.process.short_pause_policy`,
       `phonetize.process.drift_policy`, and
       `phonetize.process.drift_tolerance` from config.
-- [ ] Phase 2 derives consonant subclass, vowel category, phonological length,
+- [x] Phase 2 derives consonant subclass, vowel category, phonological length,
       and pause class from the CR-036 row fields rather than from raw-text
       reparsing.
-- [ ] Phase 2 neighborhood traversal may cross word boundaries and stops only
+- [x] Phase 2 neighborhood traversal may cross word boundaries and stops only
       at silence rows.
-- [ ] Baseline duration realization assigns onset, coda, and special-
+- [x] Baseline duration realization assigns onset, coda, and special-
       realization anchors from the phonetize config.
-- [ ] Phase 2 realizes each syllable's non-accentuated baseline form before
+- [x] Phase 2 realizes each syllable's non-accentuated baseline form before
   applying any accentuation increment to that syllable.
-- [ ] Mismatch is carried in running drift before vowel recovery is attempted.
-- [ ] Vowel recovery remains within category-bounded legal ranges.
-- [ ] Same-consonant coda/onset pairs are the only pairs treated as geminate-
+- [x] Mismatch is carried in running drift before vowel recovery is attempted.
+- [x] Vowel recovery remains within category-bounded legal ranges.
+- [x] Same-consonant coda/onset pairs are the only pairs treated as geminate-
       structured pairs.
-- [ ] Same-consonant coda/onset detection may look forward from the current
+- [x] Same-consonant coda/onset detection may look forward from the current
   baseline syllable and pre-assign the next onset before that next
   syllable is independently solved.
-- [ ] When `geminate_policy=corrective`, same-consonant coda/onset pairs are
+- [x] When `geminate_policy=corrective`, same-consonant coda/onset pairs are
       corrected toward the configured geminate target, subject to legality and
       ceiling constraints.
-- [ ] When `geminate_policy=cumulative`, same-consonant coda/onset pairs
+- [x] When `geminate_policy=cumulative`, same-consonant coda/onset pairs
       preserve cumulative coda-plus-onset duration instead of forcing the
       configured geminate target.
-- [ ] Same-consonant coda/onset pairs remain at or below
+- [x] Same-consonant coda/onset pairs remain at or below
       `phonetize.timing_model.durations.segmental_ceiling`.
-- [ ] Accentuation augmentation applies only to the accentuated stream.
-- [ ] Each accentuated syllable receives one additional mora equal to
+- [x] Accentuation augmentation applies only to the accentuated stream.
+- [x] Each accentuated syllable receives one additional mora equal to
       `0.5 * phonetize.timing_model.durations.cvc_reference`.
-- [ ] Accentuation distribution follows the configured
+- [x] Accentuation distribution follows the configured
       `phonetize.process.accentuation_distribution_policy`.
-- [ ] If accentuation extends a `CVC:` coda whose following onset is the same
+- [x] If accentuation extends a `CVC:` coda whose following onset is the same
   consonant and already carries a baseline onset assignment from the
   geminate look-ahead, Phase 2 treats the chain as double gemination.
-- [ ] In a double-gemination case, if the current coda plus the following same
+- [x] In a double-gemination case, if the current coda plus the following same
   onset would exceed
   `phonetize.timing_model.durations.segmental_ceiling`, the algorithm
   reduces the second onset first until the combined same-consonant chain is
   within the ceiling.
-- [ ] If the configured accentuation distribution cannot be completed without
+- [x] If the configured accentuation distribution cannot be completed without
       violating legality or ceiling constraints, unresolved mismatch continues
       through the drift-first control order and then branches by
       `drift_policy`.
-- [ ] When no integer `N >= 1` satisfies
-  `phonetize.timing_model.durations.pauses.short.min <= N * phonetize.timing_model.durations.cvc_reference <= phonetize.timing_model.durations.pauses.short.max`,
-  config verification emits a warning.
-- [ ] When short-pause compatibility is verified, let `short_pause_gap` be the
-  minimum interval distance between any integer multiple
-  `N * phonetize.timing_model.durations.cvc_reference` for `N >= 1` and
-  the configured short-pause band
-  `[phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max]`,
-  where interval distance is `0` for values inside the band and otherwise
-  `min(abs(value - min), abs(value - max))`; if `short_pause_gap >`
-  `phonetize.timing_model.durations.vowels.perception_limits.long_min - phonetize.timing_model.durations.vowels.perception_limits.short_min`,
-  config verification fails.
-- [ ] When `short_pause_policy=strict`, runtime short-pause handling uses a
+- [x] When `short_pause_policy=strict`, runtime short-pause handling uses a
   preferred legal short-pause target derived from the nearest integer
   multiple of `phonetize.timing_model.durations.cvc_reference`.
-- [ ] Long-pause handling remains compatible with the existence of at least one
+- [x] Long-pause handling remains compatible with the existence of at least one
   integer `N >= 1` such that
   `N * phonetize.timing_model.durations.cvc_reference` lies inside the
   configured long-pause band.
-- [ ] Each realized pause includes at least one integer multiple of
+- [x] Each realized pause includes at least one integer multiple of
   `phonetize.timing_model.durations.cvc_reference`.
-- [ ] Long pauses unload accumulated drift reserve completely.
-- [ ] When `short_pause_policy=best_effort`, short pauses may choose any legal
+- [x] Long pauses unload accumulated drift reserve completely.
+- [x] When `short_pause_policy=best_effort`, short pauses may choose any legal
   short-band realization that maximizes discharge and retain any remainder
   in the following phrase.
-- [ ] When `drift_policy=strict`, unresolved mismatch after running drift plus
+- [x] When `drift_policy=strict`, unresolved mismatch after running drift plus
       legal vowel recovery is a fatal failure.
-- [ ] When `drift_policy=extensible`, unresolved mismatch after running drift
+- [x] When `drift_policy=extensible`, unresolved mismatch after running drift
       plus legal vowel recovery may extend drift beyond the preferred
       tolerance.
-- [ ] Extensible-mode runtime reporting includes at least
+- [x] Extensible-mode runtime reporting includes at least
       `drift_extension_count` and `max_drift_extension`.
-- [ ] Pause rows are assigned durations from the configured short/long pause
+- [x] Pause rows are assigned durations from the configured short/long pause
       bands.
-- [ ] Unit tests cover baseline realization, same-consonant pair handling,
+- [x] Unit tests cover baseline realization, same-consonant pair handling,
       accentuation augmentation, legality enforcement, drift-first control
       order, and row-only context dependence.
-- [ ] Integration tests cover CLI production of finalized `_ophone.txt` and
+- [x] Integration tests cover CLI production of finalized `_ophone.txt` and
       `_phone.txt` with non-zero durations from representative `_tilde` input.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in separate phonetizer and algorithm files,
+- [x] Documentation is updated in separate phonetizer and algorithm files,
   configuration/confwriter docs, and impacted downstream program docs such
   as fullprosmaker and metrics-facing pages.
 
@@ -632,48 +623,48 @@ would leave policy names, runtime behavior, and reporting out of sync.
 
 ## Implementation
 
-- [ ] Add Phase 2 duration-realization library logic over prebuilt phone rows
-- [ ] Keep Phase 1 structure generation separate from Phase 2 timing traversal
-- [ ] Implement baseline no-accent duration assignment for the original stream
-- [ ] Implement same-consonant coda/onset handling under `geminate_policy`
-- [ ] Implement accentuation augmentation under
+- [x] Add Phase 2 duration-realization library logic over prebuilt phone rows
+- [x] Keep Phase 1 structure generation separate from Phase 2 timing traversal
+- [x] Implement baseline no-accent duration assignment for the original stream
+- [x] Implement same-consonant coda/onset handling under `geminate_policy`
+- [x] Implement accentuation augmentation under
       `accentuation_distribution_policy`
-- [ ] Implement baseline same-consonant look-ahead with optional pre-
+- [x] Implement baseline same-consonant look-ahead with optional pre-
   assignment of the following onset
-- [ ] Implement double-gemination ceiling correction by reducing the second
+- [x] Implement double-gemination ceiling correction by reducing the second
   onset first when accentuated coda extension meets the same onset
-- [ ] Implement drift-first mismatch handling and `drift_policy` branching
-- [ ] Implement deterministic pause-duration assignment from config
-- [ ] Materialize finalized non-zero durations in `_ophone.txt` and
+- [x] Implement drift-first mismatch handling and `drift_policy` branching
+- [x] Implement deterministic pause-duration assignment from config
+- [x] Materialize finalized non-zero durations in `_ophone.txt` and
       `_phone.txt`
-- [ ] Emit extensible-mode reporting with the required counters
+- [x] Emit extensible-mode reporting with the required counters
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add extensive pytest unit coverage for baseline, gemination-policy,
+- [x] Add extensive pytest unit coverage for baseline, gemination-policy,
   drift, and accentuation behavior
-- [ ] Add pytest regression coverage for row-only context dependence
-- [ ] Add pytest integration coverage for representative CLI-generated dual
+- [x] Add pytest regression coverage for row-only context dependence
+- [x] Add pytest integration coverage for representative CLI-generated dual
   outputs
 
 ## Documentation
 
-- [ ] Create or update `docs/akkapros/phonetizer.md` for the Phase 2 CLI,
+- [x] Create or update `docs/akkapros/phonetizer.md` for the Phase 2 CLI,
   runtime outputs, and stage contract
-- [ ] Create or update `docs/akkapros/phonetizer-algorithm.md` for the Phase 2
+- [x] Create or update `docs/akkapros/phonetizer-algorithm.md` for the Phase 2
   duration algorithm, control order, and legality model
-- [ ] Update `docs/akkapros/configuration.md`, `docs/akkapros/confwriter.md`,
+- [x] Update `docs/akkapros/configuration.md`, `docs/akkapros/confwriter.md`,
   and generated/default config comments where active controls and policies
   are explained
-- [ ] Update impacted downstream program docs, including
+- [x] Update impacted downstream program docs, including
   `docs/akkapros/fullprosmaker.md` and metrics-facing docs, for `_phone`
   timing readiness and pass-through behavior
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

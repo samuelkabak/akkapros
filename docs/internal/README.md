@@ -18,6 +18,8 @@ Directory layout
 
 Naming & numbering
 - ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md`.
+- Numbering within each document type (`adr/`, `cr/`, `req/`, `review/`) must be contiguous once numbers are assigned. Do not leave permanent gaps such as `040` followed by `042` with no `041` record.
+- If a number has already been referenced or effectively reserved, close the gap by adding a narrow placeholder or follow-up record rather than silently skipping it. Renumbering later documents is allowed only before references have spread and only when the renumber is low-risk.
 - Refer to ADRs/CRs by their canonical number (e.g., `ADR-023`, `CR-004`) in code, tests, and commit messages.
 - When committing an implementation for a CR, the commit subject must use this pattern: `Implement CR-{CR number NNN}: {CR title copy/paste}`.
 

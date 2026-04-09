@@ -169,12 +169,17 @@ def _sanitize_metrics_json_text(text: str) -> str:
 def _assert_phone_artifact(path: Path) -> None:
     _assert_non_empty_text_file(path)
     _assert_has_yaml_frontmatter(path, require_title=False)
-    _frontmatter, body = split_frontmatter(_read_text(path))
+    frontmatter, body = split_frontmatter(_read_text(path))
     first_line = body.strip().splitlines()[0]
     first_row = parse_phone_row(first_line)
     assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'text']
     assert first_row['category'] in {'C', 'V', 'S'}
     assert len(first_row['duration']) == 4
+    all_rows = [parse_phone_row(line) for line in body.strip().splitlines()]
+    assert any(row['duration'] != '0000' for row in all_rows)
+    assert frontmatter['metadata']['data']['phonetize']['drift']['max'] >= 0
+    assert 'mean' in frontmatter['metadata']['data']['phonetize']['drift']
+    assert 'stddev' in frontmatter['metadata']['data']['phonetize']['drift']
 
 
 def _assert_matches_reference(generated: Path, reference: Path) -> None:

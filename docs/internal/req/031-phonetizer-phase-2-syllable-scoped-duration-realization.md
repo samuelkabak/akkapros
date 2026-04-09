@@ -1,12 +1,12 @@
 ---
 req_id: REQ-031
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-08
 updated: 2026-04-09
 related_adrs: 'ADR-041, ADR-040, ADR-039'
-implemented_by: 'CR-040 and follow-up CRs'
+implemented_by: 'CR-040'
 ---
 
 # Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization

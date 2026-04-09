@@ -43,8 +43,8 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
-    build_phone_streams,
     build_default_phonetize_config,
+    realize_phone_streams,
     serialize_phone_rows,
 )
 from akkapros.lib.prosody import (
@@ -305,7 +305,11 @@ def run_pipeline(
 
     # 3) Phonetize transitional artifact
     tilde_frontmatter, tilde_body = read_text_file(tilde_file)
-    ophone_rows, phone_rows = build_phone_streams(tilde_body, phonetize_config, tilde_frontmatter)
+    (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
+        tilde_body,
+        phonetize_config,
+        tilde_frontmatter,
+    )
     ophone_body = serialize_phone_rows(ophone_rows)
     phone_body = serialize_phone_rows(phone_rows)
     ophone_frontmatter = build_output_frontmatter(
@@ -320,6 +324,9 @@ def run_pipeline(
             'phone_row_count': len(ophone_rows),
             'silence_row_count': sum(1 for row in ophone_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in ophone_rows if row['category'] != 'S'),
+            'drift': ophone_report['drift'],
+            'drift_extension_count': ophone_report['drift_extension_count'],
+            'max_drift_extension': ophone_report['max_drift_extension'],
         },
         file_format='phone',
     )
@@ -335,6 +342,9 @@ def run_pipeline(
             'phone_row_count': len(phone_rows),
             'silence_row_count': sum(1 for row in phone_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in phone_rows if row['category'] != 'S'),
+            'drift': phone_report['drift'],
+            'drift_extension_count': phone_report['drift_extension_count'],
+            'max_drift_extension': phone_report['max_drift_extension'],
         },
         file_format='phone',
     )

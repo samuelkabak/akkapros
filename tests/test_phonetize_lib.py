@@ -14,6 +14,8 @@ from akkapros.lib.phonetize import (
     build_phone_rows,
     derive_original_tilde_text,
     parse_phone_row,
+    realize_phone_rows,
+    realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
     serialize_phone_row,
 )
@@ -161,3 +163,81 @@ def test_unknown_armored_content_fails_in_phonetizer() -> None:
         raise AssertionError('Expected unsupported armored phonetizer content to fail')
     except ValueError as exc:
         assert '⟦ @ ⟧' in str(exc)
+
+
+def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
+    rows = build_phone_rows('qat')
+
+    report = realize_phone_rows(rows, allow_accentuation=False)
+
+    assert [row['duration'] for row in rows] == ['0108', '0085', '0103']
+    assert report['one_mora_ref'] == 152.5
+    assert report['two_mora_ref'] == 305.0
+    assert report['three_mora_ref'] == 457.5
+    assert report['drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
+
+
+def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
+    corrective_rows = build_phone_rows('at·ta')
+    cumulative_rows = build_phone_rows('at·ta')
+    cumulative_config = {
+        'process': {
+            'geminate_policy': 'cumulative',
+        }
+    }
+
+    realize_phone_rows(corrective_rows, allow_accentuation=False)
+    realize_phone_rows(cumulative_rows, cumulative_config, allow_accentuation=False)
+
+    assert corrective_rows[1]['duration'] == '0103'
+    assert corrective_rows[2]['duration'] == '0092'
+    assert cumulative_rows[1]['duration'] == '0103'
+    assert cumulative_rows[2]['duration'] == '0108'
+    assert corrective_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
+    assert cumulative_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
+
+
+def test_phase2_supports_all_active_accent_classes() -> None:
+    extensible = {
+        'process': {
+            'drift_policy': 'extensible',
+            'drift_tolerance': 0,
+        }
+    }
+    samples = ['b~a', 'bā~', 'bat~', 'bāt~']
+
+    for sample in samples:
+        rows = build_phone_rows(sample)
+        report = realize_phone_rows(rows, extensible, allow_accentuation=True)
+        assert all(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in rows)
+        assert report['drift']['max'] >= 0
+
+
+def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
+    config = {
+        'process': {
+            'drift_policy': 'extensible',
+            'drift_tolerance': 0,
+        }
+    }
+
+    (original_rows, original_report), (accentuated_rows, accentuated_report) = realize_phone_streams(
+        'b~a, bāt~\n',
+        config,
+    )
+
+    assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in original_rows)
+    assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
+    assert original_report['drift']['stddev'] >= 0
+    assert accentuated_report['drift']['stddev'] >= 0
+    assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
+
+
+def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> None:
+    rows = build_phone_rows('bā~')
+
+    try:
+        realize_phone_rows(rows, allow_accentuation=True)
+        raise AssertionError('Expected strict mode to fail when unresolved drift remains at stream end')
+    except ValueError as exc:
+        assert 'unresolved drift' in str(exc)
