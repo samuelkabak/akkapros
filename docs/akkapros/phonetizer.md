@@ -53,6 +53,13 @@ ZEN-S-S-L-S-N-P-ZP-1525:<EOL>
 
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
 
+Phase 2 diagnostics to look for:
+- row durations are finalized non-zero millisecond values rather than `0000`
+- front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
+- short pauses discharge as much drift as their band allows, while long pauses must reset the running drift reserve to zero
+
+Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
+
 During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_ophone.txt` and `_phone.txt` remain the structured phonetic handoff artifacts while `_tilde.txt` stays the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
 
 ## Command Syntax

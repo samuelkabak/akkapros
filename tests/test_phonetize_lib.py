@@ -233,6 +233,90 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
 
 
+def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_discharge() -> None:
+    config = {
+        'process': {
+            'drift_policy': 'extensible',
+            'drift_tolerance': 0,
+        },
+        'timing_model': {
+            'durations': {
+                'cvc_reference': 200,
+                'pauses': {
+                    'short': {
+                        'min': 600,
+                        'max': 600,
+                    },
+                },
+            },
+        },
+    }
+
+    rows = build_phone_rows('qat,')
+    report = realize_phone_rows(rows, config, allow_accentuation=False)
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 1
+    assert pause_rows[0]['length'] == 'S'
+    assert pause_rows[0]['duration'] == '0600'
+    assert report['drift']['current'] > 0
+    assert report['drift']['label'] == 'Behind (dragging)'
+
+
+def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
+    config = {
+        'process': {
+            'drift_policy': 'extensible',
+            'drift_tolerance': 0,
+        },
+        'timing_model': {
+            'durations': {
+                'cvc_reference': 200,
+                'pauses': {
+                    'short': {
+                        'min': 600,
+                        'max': 600,
+                    },
+                    'long': {
+                        'min': 1200,
+                        'max': 1780,
+                    },
+                },
+            },
+        },
+    }
+
+    rows = build_phone_rows('qat\n')
+    report = realize_phone_rows(rows, config, allow_accentuation=False)
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 1
+    assert pause_rows[0]['length'] == 'L'
+    assert 1200 <= int(pause_rows[0]['duration']) <= 1780
+    assert report['drift']['current'] == 0
+    assert report['drift']['label'] == 'On the beat'
+
+
+def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
+    rows = build_phone_rows('bā~')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+            }
+        },
+        allow_accentuation=True,
+    )
+
+    assert set(report['drift']) == {'max', 'mean', 'stddev', 'current', 'label'}
+    assert report['drift']['max'] > 0
+    assert report['drift_extension_count'] > 0
+    assert report['max_drift_extension'] > 0
+
+
 def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> None:
     rows = build_phone_rows('bā~')
 

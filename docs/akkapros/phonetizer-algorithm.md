@@ -104,6 +104,62 @@ Finalized front matter also carries drift summaries for each emitted stream:
 - `metadata.data.phonetize.drift_extension_count`
 - `metadata.data.phonetize.max_drift_extension`
 
+## Worked Phase 2 Examples
+
+### Baseline syllable realization
+
+With the default timing model, the baseline `qat` stream is realized as one
+closed syllable:
+
+```text
+QUP-C-C-S-O-N-F-QU-0108:q
+AYA-V-L-S-N-N-F-AA-0085:a
+TAW-C-C-S-C-F-F-TA-0103:t
+```
+
+The consonantal anchors contribute `108 + 103 = 211 ms`, the short vowel is
+realized at `85 ms`, and the total realized syllable duration is therefore
+`296 ms`. The default `CVC` target is one `cvc_reference`, or `305 ms`, so the
+stream leaves this syllable with `-9 ms` of running drift. That is why the
+reported drift label stays on the rushing side until a later syllable or pause
+discharges it.
+
+### Pause discharge versus pause reset
+
+The solver treats short and long pauses differently.
+
+For an ordinary short pause, the row must stay inside the configured short band
+and may therefore carry residual drift forward if the band blocks complete
+discharge. A representative diagnostic setup is:
+
+- `cvc_reference = 200`
+- `drift_policy = extensible`
+- `drift_tolerance = 0`
+- `pauses.short.min = pauses.short.max = 600`
+
+Under that configuration, `qat,` reaches the short pause with positive drift.
+The pause row is still forced to `600 ms`, so the stream remains behind the beat
+after the pause instead of resetting to zero.
+
+The same setup with `qat\n` behaves differently. The long pause is allowed to
+choose any legal value inside the long-pause band and must unload the full drift
+reserve, so the post-pause drift returns to `0` and the report ends `On the
+beat`.
+
+### Same-consonant boundary handling
+
+Same-consonant coda/onset chains are decided during realization of the first
+syllable, not delayed until the following syllable becomes current.
+
+In `at·ta`, the first `t` is the coda of the first syllable and the second `t`
+is the onset of the next one. Under `geminate_policy = corrective`, the solver
+normalizes that pair toward the configured geminate target, so the coda keeps
+its ordinary `103 ms` closure while the next onset is pre-assigned the reduced
+companion duration used by the geminate pair. Under
+`geminate_policy = cumulative`, the second onset keeps its ordinary onset anchor
+instead of being corrected downward. The emitted rows stay identical; only the
+durations differ.
+
 Special-realization note:
 - hiatus rows use the closure special-realization anchor only as an unstressed baseline
 - vowel-transition rows use the sonorant special-realization anchor only as an unstressed baseline

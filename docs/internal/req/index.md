@@ -2,16 +2,16 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
-- [031. Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization](031-phonetizer-phase-2-syllable-scoped-duration-realization.md) - Draft
+- [031. Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization](031-phonetizer-phase-2-syllable-scoped-duration-realization.md) - Implemented
 - [030. Requirement: Phone/Ophone-Only Metrics and Interval Rhythm Computation](030-phone-ophone-only-metrics-and-interval-rhythm-computation.md) - Draft
-- [029. Requirement: Stage Config Run/Process Separation and Common Outdir Removal](029-stage-config-run-process-separation-and-common-outdir-removal.md) - Draft
+- [029. Requirement: Stage Config Run/Process Separation](029-stage-config-run-process-separation-and-common-outdir-removal.md) - Draft
 - [028. Requirement: Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](028-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Draft
 - [027. Requirement: Phonetize Config Semantic Invariants for Shared Verification](027-phonetize-config-semantic-invariants-for-shared-verification.md) - Draft
 - [026. Requirement: Stability-First Phonetizer Timing Control and Baseline Validation](026-stability-first-phonetizer-timing-control-and-baseline-validation.md) - Draft
 - [025. Requirement: Two-Phase Phonetizer Structure and Duration Pipeline](025-two-phase-phonetizer-structure-and-duration-pipeline.md) - Draft
-- [024. Requirement: Replacement of timing model](024-replacement-of-timing-model.md) - Draft
+- [024. Requirement: Replacement of timing model](024-replacement-of-timing-model.md) - Implemented
 - [023. Requirement: Mandatory Prefix, Library-Named Config Sections, and Inherited Syllabify Settings](023-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-settings.md) - Implemented
-- [022. Requirement: Package-Wide YAML Config and Confwriter CLI](022-package-wide-yaml-config-and-confwriter.md) - Draft
+- [022. Requirement: Package-Wide YAML Config and Confwriter CLI](022-package-wide-yaml-config-and-confwriter.md) - Implemented
 - [021. Requirement: Separate Hiatus Marker for Word-Initial Vowel Hiatus](021-separate-hiatus-marker-for-word-initial-vowel-hiatus.md) - Implemented
 - [020. Requirement: Configurable Merge-Connector Printing](020-configurable-merge-connector-printing.md) - Implemented
 - [019. Requirement: Prosody Mora Mode Selection](019-prosody-mora-mode-selection.md) - Implemented

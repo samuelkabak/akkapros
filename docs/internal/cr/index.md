@@ -7,14 +7,15 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 [044. Restructure Stage Config into Run and Process Blocks](044-restructure-stage-config-into-run-and-process-blocks.md) - Draft
 [043. Adopt effective runtime config, path overrides, and scoped help across runtime CLIs](043-adopt-effective-runtime-config-path-overrides-and-scoped-help-across-runtime-clis.md) - Draft
 [042. Add shared phonetize config verify and require phonetizer preflight](042-add-shared-phonetize-config-verify-and-require-phonetizer-preflight.md) - Draft
-[040. Realize phonetizer phase 2 durations from prebuilt rows](040-realize-phonetizer-phase-2-durations-from-prebuilt-rows.md) - Draft
-[039. Build phonetizer phase 1 structure-only dual phone outputs](039-build-phonetizer-phase-1-structure-only-dual-phone-outputs.md) - Draft
-[038. Distinguish Explicit and Internal Merge Connectors in Tilde Pivot](038-distinguish-explicit-and-internal-merge-connectors-in-tilde-pivot.md) - Draft
-[037. Preserve punctuation armor in tilde pivot](037-preserve-punctuation-armor-in-tilde-pivot.md) - Draft
-[036. Define phonetizer phoneme framework](036-define-phonetizer-phoneme-framework.md) - Draft
-[035. Add phonetize stage config and phone artifact contract](035-add-phonetize-stage-config-and-phone-artifact-contract.md) - Draft
+[041. Add phonetizer Phase 2 follow-up docs and test coverage](041-add-phonetizer-phase-2-follow-up-docs-and-test-coverage.md) - Done
+[040. Realize phonetizer phase 2 durations from prebuilt rows](040-realize-phonetizer-phase-2-durations-from-prebuilt-rows.md) - Done
+[039. Build phonetizer phase 1 structure-only dual phone outputs](039-build-phonetizer-phase-1-structure-only-dual-phone-outputs.md) - Done
+[038. Distinguish Explicit and Internal Merge Connectors in Tilde Pivot](038-distinguish-explicit-and-internal-merge-connectors-in-tilde-pivot.md) - Done
+[037. Preserve punctuation armor in tilde pivot](037-preserve-punctuation-armor-in-tilde-pivot.md) - Done
+[036. Define phonetizer phoneme framework](036-define-phonetizer-phoneme-framework.md) - Done
+[035. Add phonetize stage config and phone artifact contract](035-add-phonetize-stage-config-and-phone-artifact-contract.md) - Done
 [034. Simplify confwriter command surface with set get list unset and set-default](034-simplify-confwriter-command-surface-with-set-get-list-unset-and-set-default.md) - Done
-[033. Remove long_pause_weight from conf and cli options](033-remove-long-pause-weight-from-conf-and-cli-options.md) - Draft
+[033. Remove long_pause_weight from conf and cli options](033-remove-long-pause-weight-from-conf-and-cli-options.md) - Done
 [032. Require Prefixes, Rename Config Sections, and Inherit Syllabify Settings](032-require-prefixes-rename-config-sections-and-inherit-punctuation-settings.md) - Done
 [031. Centralize CLI Help Text for CLI and Config Doc Emission](031-centralize-cli-help-text-for-cli-and-config-doc-emission.md) - Done
 [030. Add Package-Wide YAML Config Support and Confwriter CLI](030-add-package-wide-yaml-config-and-confwriter.md) - Done

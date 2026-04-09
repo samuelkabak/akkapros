@@ -3,11 +3,11 @@
 Latest ADRs first. Status shown after each entry.
 
 - [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Proposed
-- [043. Separate Run and Process Config Blocks and Remove Common Outdir](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Proposed
+- [043. Separate Run and Process Config Blocks](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Proposed
 - [042. Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](042-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Proposed
-- [041. Stability-First Phonetizer Timing Control and Validation Boundary](041-stability-first-phonetizer-timing-control-and-validation-boundary.md) - Proposed
-- [040. Two-Phase Phonetizer Architecture and Dual Phone Outputs](040-two-phase-phonetizer-architecture-and-dual-phone-outputs.md) - Proposed
-- [039. Replacement of timing model](039-replacement-of-timing-model.md) - Proposed
+- [041. Stability-First Phonetizer Timing Control and Validation Boundary](041-stability-first-phonetizer-timing-control-and-validation-boundary.md) - Accepted
+- [040. Two-Phase Phonetizer Architecture and Dual Phone Outputs](040-two-phase-phonetizer-architecture-and-dual-phone-outputs.md) - Accepted
+- [039. Replacement of timing model](039-replacement-of-timing-model.md) - Accepted
 - [038. Mandatory Prefix, Library-Named Config Sections, and Inherited Punctuation Options](038-mandatory-prefix-library-named-config-sections-and-inherited-punctuation-options.md) - Accepted
 - [037. Centralized Help Message Registry for CLI and Config Docs](037-centralized-help-message-registry-for-cli-and-config-docs.md) - Accepted
 - [036. Package-Wide YAML Configuration and CLI Override Precedence](036-package-wide-yaml-configuration-and-cli-override-precedence.md) - Accepted
