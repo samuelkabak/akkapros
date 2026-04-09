@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-06
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-040, ADR-041, REQ-024, REQ-025, REQ-026, REQ-031'
 ---
 
@@ -29,7 +29,8 @@ Under this CR:
 - Phase 2 updates `duration` values in place on the prebuilt row streams
 - Phase 2 fills durations for both `_ophone` and `_phone`
 - the original/deaccented stream is processed first without accentuation
-- accentuation is then added only to the accentuated stream
+- accentuation is then added only to the accentuated stream after the baseline
+  syllable has already been realized
 - pauses use the configured short/long pause bands and short-pause policy
 - same-consonant coda/onset handling follows `geminate_policy`
 - accentuation mora distribution follows
@@ -202,6 +203,16 @@ Baseline obligations:
 - pause rows use the configured short/long pause bands
 - vowel rows begin from the nominal mora references implied by the local
   syllable shape
+- the solver must finish the syllable's non-accentuated baseline form before
+  applying any accentuation increment
+- when a baseline syllable ends in a coda, the solver may look forward to the
+  next onset before closing the current syllable
+- if that next onset is the same consonant, the solver must pre-assign the
+  next onset through the geminate algorithm rather than assuming two
+  independent singleton durations
+- if the next onset is not the same consonant, the current syllable leaves
+  that next onset to its own ordinary onset assignment when the next syllable
+  is solved
 - any mismatch is first absorbed in running drift before vowel movement is
   attempted
 - any vowel movement that remains necessary must keep the vowel inside the
@@ -226,6 +237,8 @@ this CR.
 
 Additional rules:
 
+- same-consonant detection happens during realization of the first syllable in
+  the pair, not only when the next syllable itself becomes current
 - the combined pair duration must satisfy
   `len(coda) + len(onset) <= phonetize.timing_model.durations.segmental_ceiling`
 - when compensation is needed to preserve the ceiling, the onset side is the
@@ -254,12 +267,26 @@ Interpretation rules:
 - the second number is the share assigned to the adjacent segment
 - the adjacent segment is the onset in onset-target cases and the coda in
   coda-target cases
+- accentuation is applied only after the baseline non-accentuated syllable,
+  including any same-consonant baseline look-ahead, has already been assigned
 - distribution stops when legality limits or the segmental ceiling would be
   violated
 - the algorithm must not silently switch to another named policy
 - if the configured policy cannot be completed legally, unresolved mismatch
   proceeds through the same drift-first control order and then branches by
   `drift_policy`
+
+Special same-consonant coda case:
+
+- if accentuation extends a coda in `CVC:` and the following syllable begins
+  with the same consonant that already received a baseline onset assignment,
+  the solver must treat the chain as double gemination rather than as two
+  unrelated adjustments
+- in that case, if the total duration of the current coda plus the following
+  same-consonant onset exceeds
+  `phonetize.timing_model.durations.segmental_ceiling`, the solver must reduce
+  the second onset first until the combined same-consonant duration is within
+  the ceiling
 
 ## 7. Pause behavior and drift policy
 
@@ -412,10 +439,15 @@ Suggested implementation direction:
       at silence rows.
 - [ ] Baseline duration realization assigns onset, coda, and special-
       realization anchors from the phonetize config.
+- [ ] Phase 2 realizes each syllable's non-accentuated baseline form before
+  applying any accentuation increment to that syllable.
 - [ ] Mismatch is carried in running drift before vowel recovery is attempted.
 - [ ] Vowel recovery remains within category-bounded legal ranges.
 - [ ] Same-consonant coda/onset pairs are the only pairs treated as geminate-
       structured pairs.
+- [ ] Same-consonant coda/onset detection may look forward from the current
+  baseline syllable and pre-assign the next onset before that next
+  syllable is independently solved.
 - [ ] When `geminate_policy=corrective`, same-consonant coda/onset pairs are
       corrected toward the configured geminate target, subject to legality and
       ceiling constraints.
@@ -429,6 +461,14 @@ Suggested implementation direction:
       `0.5 * phonetize.timing_model.durations.cvc_reference`.
 - [ ] Accentuation distribution follows the configured
       `phonetize.process.accentuation_distribution_policy`.
+- [ ] If accentuation extends a `CVC:` coda whose following onset is the same
+  consonant and already carries a baseline onset assignment from the
+  geminate look-ahead, Phase 2 treats the chain as double gemination.
+- [ ] In a double-gemination case, if the current coda plus the following same
+  onset would exceed
+  `phonetize.timing_model.durations.segmental_ceiling`, the algorithm
+  reduces the second onset first until the combined same-consonant chain is
+  within the ceiling.
 - [ ] If the configured accentuation distribution cannot be completed without
       violating legality or ceiling constraints, unresolved mismatch continues
       through the drift-first control order and then branches by
@@ -493,6 +533,12 @@ Possible issues:
   producing inconsistent behavior
 - same-consonant pair handling may satisfy the geminate policy while breaking
   the segmental ceiling
+- the implementation may forget that baseline same-consonant handling can
+  pre-assign the next onset before the next syllable is solved, causing the
+  later accentuation pass to overwrite or double-count that onset
+- double-gemination handling may reduce the wrong side of the chain if the
+  solver does not explicitly reserve the second onset as the first
+  compensation target
 - vowel recovery may accidentally cross category boundaries if legality checks
   are not centralized
 - pause handling may become nondeterministic unless one stable in-band choice
@@ -514,6 +560,8 @@ Unit tests:
   `cvc_reference`
 - read all Phase 2 process-policy values from config
 - assign baseline onset, coda, and special-realization durations from config
+- verify baseline realization completes before accentuation is applied to the
+  same syllable
 - verify Phase 2 reads structural information from row fields alone
 - verify local traversal can look backward and forward across word boundaries
   and stops only at silence rows
@@ -521,9 +569,13 @@ Unit tests:
 - verify vowel recovery remains category-bounded
 - detect same-consonant coda/onset pairs and distinguish them from non-
   identical adjacent consonants
+- verify same-consonant look-ahead can pre-assign the next onset during the
+  current syllable's baseline pass
 - verify `geminate_policy=corrective` behavior
 - verify `geminate_policy=cumulative` behavior
 - verify same-consonant pairs remain at or below the segmental ceiling
+- verify `CVC:` plus same next onset produces double-gemination correction on
+  the second onset first when required by the ceiling
 - verify `100_0`, `85_15`, and `70_30` apply the configured split when legal
 - verify an impossible configured accentuation distribution proceeds through
   the documented drift-policy branch behavior
@@ -586,6 +638,10 @@ would leave policy names, runtime behavior, and reporting out of sync.
 - [ ] Implement same-consonant coda/onset handling under `geminate_policy`
 - [ ] Implement accentuation augmentation under
       `accentuation_distribution_policy`
+- [ ] Implement baseline same-consonant look-ahead with optional pre-
+  assignment of the following onset
+- [ ] Implement double-gemination ceiling correction by reducing the second
+  onset first when accentuated coda extension meets the same onset
 - [ ] Implement drift-first mismatch handling and `drift_policy` branching
 - [ ] Implement deterministic pause-duration assignment from config
 - [ ] Materialize finalized non-zero durations in `_ophone.txt` and

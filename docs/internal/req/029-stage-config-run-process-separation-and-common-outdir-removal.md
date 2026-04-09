@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-09
 related_adrs: 'ADR-043, ADR-036, ADR-039, ADR-040'
 implemented_by: 'CR-044'
 ---
@@ -20,8 +20,8 @@ phonological, or algorithmic behavior of a stage.
 
 The common config section shall become run-only. The metrics timing keys
 currently exposed in YAML shall be removed from the config surface, and the
-current phonetize process-policy block shall move under
-`phonetize.timing_model.process`.
+current phonetize timing-model branch shall move under
+`phonetize.process.timing_model`.
 
 ---
 
@@ -70,13 +70,14 @@ harder to audit and harder to document clearly.
 - [ ] Given the `print` stage config is inspected, when keys are grouped, then
       `print.run` contains exactly `acute`, `bold`, `ipa`, `circ_hiatus`,
       `xar`, `mbrola`, and `print_merger`.
-- [ ] Given the `phonetize` stage config is inspected, when process-policy keys
-      are grouped, then the approved surface exposes
-      `phonetize.timing_model.process` and does not expose a top-level
-      `phonetize.process` block.
-- [ ] Given the phonetize timing-model process block is inspected, when keys
-      are listed, then it contains the process-policy keys previously approved
-      for phonetize under the current timing-model redesign.
+- [ ] Given the `phonetize` stage config is inspected, when timing-model and
+      process-policy keys are grouped, then the approved surface exposes
+      `phonetize.process.timing_model` and does not expose top-level
+      `phonetize.timing_model` or the old flat `phonetize.process.*` contract.
+- [ ] Given the phonetize process timing-model block is inspected, when keys
+      are listed, then it contains the timing-model and process-policy keys
+      previously approved for phonetize under the current timing-model
+      redesign.
 - [ ] Given the approved config surface is materialized in
       `src/akkapros/config/default.yaml`, when stage comments and paths are
       inspected, then they use the new `run` / `process` grouping consistently.
@@ -112,13 +113,13 @@ harder to audit and harder to document clearly.
   - `prosody.process.*`
   - `metrics.run.*`
   - `print.process.*`, `print.run.*`
-  - `phonetize.timing_model.process.*`
+      - `phonetize.process.timing_model.*`
 - Removed paths include:
   - `metrics.wpm`
   - `metrics.pause_ratio`
   - `metrics.long_punct_weight`
   - `metrics.explicit_link_count`
-  - top-level `phonetize.process.*`
+      - top-level `phonetize.timing_model.*`
 - Affected components:
   - `src/akkapros/config/default.yaml`
   - config schema and config-loading helpers under `src/akkapros/lib/`

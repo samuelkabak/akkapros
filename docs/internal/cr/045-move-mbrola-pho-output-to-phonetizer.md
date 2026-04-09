@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-040, ADR-043, REQ-025, REQ-029'
 ---
 
@@ -22,8 +22,10 @@ files:
 - `<prefix>_ombrola.pho` for the original stream
 
 The emitted `.pho` rows shall use `_` for silence, realization codes for
-non-silence phonemes, integer millisecond durations from phone rows, and one
-configured F0 value with default `150`.
+non-silence phonemes, integer millisecond durations from phone rows, and
+intonation-derived F0 values sourced from a phonetize-owned intonation block.
+For now, only baseline `f0` and stressed-syllable `stress_rise` affect emitted
+Hz values.
 
 ---
 
@@ -60,9 +62,16 @@ export to the stage that already owns the underlying data model.
 - Define `_` as the emitted silence symbol.
 - Define realization code as the emitted symbol for every non-silence phoneme
   row.
-- Define contiguous identical emitted symbols as mergeable in `.pho` export by
-  summing durations, especially to collapse gemination sequences.
-- Add phonetize-owned MBROLA configuration with default `f0: 150`.
+- Define contiguous identical emitted symbols with identical emitted frequency
+  values as mergeable in `.pho` export by summing durations, especially to
+  collapse gemination sequences.
+- Add phonetize-owned intonation configuration under `phonetize.process`.
+- Define default intonation values including `f0: 120` and `stress_rise: 2`.
+- Define additional reserved intonation parameters for later use:
+  `question_final_rise`, `statement_final_fall`, `exclamation_rise`, and
+  `continuation_rise`.
+- Define that, for now, only stressed syllables in the accentuated output use
+  an F0 rise above baseline.
 - Remove MBROLA from the approved print-stage config and print-stage artifact
   contract.
 - Require downstream config, help, and documentation to treat MBROLA as a
@@ -73,8 +82,10 @@ export to the stage that already owns the underlying data model.
 - Audio synthesis.
 - MBROLA voice building or MBROLATOR integration.
 - Redesign of the realization-code inventory itself.
-- Redesign of the phonetizer timing model beyond adding MBROLA export
+- Redesign of the phonetizer timing model beyond adding intonation
   configuration.
+- Applying question, statement-final, exclamatory, or continuation intonation
+  contours in this change.
 - Backward-compatible support for printer-owned MBROLA flags unless a later
   record adds that explicitly.
 
@@ -121,23 +132,70 @@ The original `.pho` file is derived from the original phone-row stream.
 
 ## 3. Config placement
 
-Because the current active config regrouping places phonetize process policy
-under the timing-model branch, the MBROLA export config shall live at:
+Because the current active config regrouping places stage behavior under the
+phonetize `process` block, the intonation config for MBROLA export shall live
+at:
 
-- `phonetize.timing_model.process.mbrola.f0`
+- `phonetize.process.intonation.f0`
+- `phonetize.process.intonation.stress_rise`
+- `phonetize.process.intonation.question_final_rise`
+- `phonetize.process.intonation.statement_final_fall`
+- `phonetize.process.intonation.exclamation_rise`
+- `phonetize.process.intonation.continuation_rise`
 
-Default value:
+Default values:
 
 ```yaml
 phonetize:
-  timing_model:
-    process:
-      mbrola:
-        f0: 150
+  process:
+    intonation:
+      # Baseline pitch for the speaker's voice in Hertz (Hz)
+      # Typical values: 80-180 Hz for male, 150-300 Hz for female
+      # This is the neutral pitch around which intonation changes occur
+      f0: 120
+
+      # Pitch increase on stressed syllables, measured in semitones
+      stress_rise: 2
+
+      # Pitch rise at the end of a yes/no question, measured in semitones
+      question_final_rise: 3
+
+      # Pitch fall at the end of a statement, measured in semitones
+      statement_final_fall: -2
+
+      # Pitch rise on an exclamation or emphatic word, measured in semitones
+      exclamation_rise: 4
+
+      # Pitch rise indicating the speaker will continue speaking, measured in semitones
+      continuation_rise: 1
+    timing_model:
+      ...
 ```
 
 No `print.run.mbrola` key remains in the approved config surface after this
 change.
+
+Semitone relation:
+
+| To calculate | Formula |
+|--------------|---------|
+| Semitone interval from `f0_1` to `f0_2` | `semitones = 12 x log2(f0_2 / f0_1)` |
+| Target frequency after semitone change | `f0_2 = f0_1 x 2^(semitones / 12)` |
+
+Representative examples from the default baseline `f0 = 120` Hz:
+
+| Operation | Semitones | Result |
+|-----------|-----------|--------|
+| Stress rise | `+2` | about `134.7` Hz |
+| Question rise | `+3` | about `142.7` Hz |
+| Statement fall | `-2` | about `106.9` Hz |
+
+For implementation guidance, stressed-syllable F0 is computed as:
+
+```python
+baseline_f0 = 120
+stress_f0 = baseline_f0 * (2 ** (stress_rise / 12))
+```
 
 ## 4. Row source and export timing
 
@@ -169,24 +227,42 @@ Normative constraints:
 
 - `phoneme_or_silence` is either `_` or one realization code
 - `duration_in_ms` is the merged integer millisecond duration
-- `frequency_in_hz` is the configured `f0` value
+- `frequency_in_hz` is the emitted row F0 derived from
+  `phonetize.process.intonation`
 
-## 7. Adjacent-row merge rule
+## 7. Intonation mapping for current scope
+
+For this CR, only stressed-syllable rise is active.
+
+Normative rules:
+
+- the original stream uses baseline `phonetize.process.intonation.f0` for all
+  emitted `.pho` rows
+- the accentuated stream uses baseline
+  `phonetize.process.intonation.f0` for non-stressed rows
+- rows belonging to stressed syllables in the accentuated stream use an F0
+  derived from `f0` and `stress_rise`
+- `question_final_rise`, `statement_final_fall`, `exclamation_rise`, and
+  `continuation_rise` are part of the approved config surface but are not yet
+  applied by this CR
+
+## 8. Adjacent-row merge rule
 
 Before writing `.pho`, the exporter shall merge contiguous rows whenever their
-emitted symbol would be identical.
+emitted symbol and emitted frequency would both be identical.
 
 Merge rule:
 
 - if two neighboring rows would emit the same `phoneme_or_silence` symbol,
-  they collapse into one `.pho` row
+  and the same `frequency_in_hz`, they collapse into one `.pho` row
 - the merged row duration is the sum of the input durations
 - the emitted symbol is unchanged
-- the emitted F0 is unchanged because `.pho` export uses one configured F0
+- the emitted F0 is unchanged
 
 This merge rule applies generally and is specifically required for gemination,
 where consecutive identical phoneme rows would otherwise produce artificial
-duplication in `.pho` output.
+duplication in `.pho` output. It must not merge across a stress-driven F0
+change.
 
 ---
 
@@ -214,6 +290,11 @@ Normative design constraints:
   already approved for phone rows
 - silence normalization must happen in the exporter, with `_` as the sole
   silence symbol
+- intonation controls belong to `phonetize.process.intonation`, not to an
+  MBROLA-specific subtree
+- the current scope applies only baseline `f0` and stressed-syllable
+  `stress_rise`; other approved intonation parameters are reserved for later
+  CRs
 - row merging happens at export time and does not alter the canonical row
   streams themselves
 - printer help, config, and docs must stop advertising MBROLA as a print-stage
@@ -246,8 +327,13 @@ Normative design constraints:
       the accentuated stream.
 - [ ] The approved phonetizer artifact set includes `<prefix>_ombrola.pho` for
       the original stream.
+- [ ] The approved config surface exposes `phonetize.process.intonation.f0`
+  with default value `120`.
 - [ ] The approved config surface exposes
-      `phonetize.timing_model.process.mbrola.f0` with default value `150`.
+  `phonetize.process.intonation.stress_rise`.
+- [ ] The approved config surface also exposes
+  `question_final_rise`, `statement_final_fall`, `exclamation_rise`, and
+  `continuation_rise` under `phonetize.process.intonation`.
 - [ ] The approved config surface no longer exposes `print.run.mbrola` as a
       current contract path.
 - [ ] Each `.pho` line is specified as exactly three fields in the order
@@ -256,8 +342,16 @@ Normative design constraints:
 - [ ] Non-silence rows emit canonical realization codes from phone rows.
 - [ ] `.pho` durations are derived from finalized integer millisecond phone-row
       durations.
-- [ ] Contiguous identical emitted symbols are merged by summing durations
-      before `.pho` serialization.
+- [ ] Original-stream `.pho` rows use baseline
+  `phonetize.process.intonation.f0`.
+- [ ] Stressed syllables in the accentuated output use an F0 rise derived from
+  `phonetize.process.intonation.f0` and
+  `phonetize.process.intonation.stress_rise`.
+- [ ] `question_final_rise`, `statement_final_fall`, `exclamation_rise`, and
+  `continuation_rise` are documented as approved config parameters but are
+  not yet applied in this CR.
+- [ ] Contiguous identical emitted symbols with identical emitted frequency are
+  merged by summing durations before `.pho` serialization.
 - [ ] The merge rule is explicitly documented as applying to gemination.
 - [ ] Print-stage docs, help, and config references no longer present MBROLA as
       a print-stage output toggle.
@@ -270,6 +364,8 @@ Possible issues:
 
 - historical printer records may continue to imply MBROLA ownership unless they
   are explicitly cross-linked as superseded for active implementation
+- export-time merging must not collapse rows across a stressed/unstressed F0
+  boundary even when the phoneme symbol is identical
 - export-time merging must avoid crossing intervening silence rows or other
   non-identical emitted symbols
 - docs could drift if config regrouping and phonetizer artifact docs are not
@@ -282,7 +378,10 @@ Possible issues:
 Specification-level verification:
 
 - confirm the config inventory no longer lists `print.run.mbrola`
-- confirm the config inventory lists `phonetize.timing_model.process.mbrola.f0`
+- confirm the config inventory lists `phonetize.process.intonation.f0`
+- confirm the config inventory lists `phonetize.process.intonation.stress_rise`
+- confirm the config inventory lists the reserved later-use parameters under
+  `phonetize.process.intonation`
 - confirm phonetizer artifact docs include both `.pho` outputs
 - confirm printer docs no longer advertise MBROLA output
 
@@ -292,7 +391,11 @@ Implementation-level tests to require later:
 - export original phone rows to `<prefix>_ombrola.pho`
 - serialize silence rows as `_`
 - serialize phoneme rows using realization codes
-- merge adjacent identical emitted symbols by summed duration
+- apply baseline `f0` to original-stream rows
+- apply stressed-syllable F0 rise to accentuated stressed rows
+- compute stressed F0 from semitone change using the approved formula
+- merge adjacent identical emitted symbols by summed duration only when emitted
+  frequency is also identical
 - preserve separate rows when symbols differ or silence intervenes
 
 ---
@@ -333,17 +436,22 @@ contract.
 ## Review
 
 - [ ] Confirm no printer-owned MBROLA compatibility flag is required.
-- [ ] Approve the phonetize config path
-      `phonetize.timing_model.process.mbrola.f0`.
+- [ ] Approve the `phonetize.process.intonation` config surface and initial
+  parameter inventory.
+- [ ] Confirm only `f0` and `stress_rise` are active in this CR.
 
 ---
 
 # Notes for CR-045
 
 Assumption: this CR follows the current regrouped phonetize config layout from
-ADR-043 and therefore places MBROLA export settings under
-`phonetize.timing_model.process` rather than reviving a top-level
-`phonetize.process` block.
+ADR-043 and therefore places intonation controls under
+`phonetize.process.intonation` while keeping timing parameters under
+`phonetize.process.timing_model`.
+
+Assumption: for the present CR, only stressed syllables in the accentuated
+output receive a pitch rise. Punctuation-driven contour application is
+explicitly deferred to later records.
 
 The original-stream filename uses `_ombrola` intentionally so the pair stays
 coherent with the existing `ophone` / `phone` distinction.

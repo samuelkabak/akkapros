@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-09
 related_adrs: 'ADR-041, ADR-040, ADR-039'
 implemented_by: 'CR-040 and follow-up CRs'
 ---
@@ -19,16 +19,30 @@ phone rows as a sequence of syllables and pauses only.
 Within this Phase 2 model, the active syllable inventory is reduced to four
 non-accentuated categories and four accentuated categories because hiatus and
 vowel-transition rows are treated as consonantal structure for timing. The
-solver is syllable-scoped: it enters one syllable at a time, assigns onset and
-optional coda anchors first, then assigns the nucleus, computes the realized
-syllable duration, and resolves mismatch by the ordered policy
-drift -> vowel -> drift-policy branch.
+solver is syllable-scoped: it enters one syllable at a time, realizes the
+non-accentuated form first, assigns onset and optional coda anchors first,
+then assigns the nucleus, performs same-consonant coda/onset look-ahead where
+needed, computes the realized syllable duration, and resolves mismatch by the
+ordered policy drift -> vowel -> drift-policy branch.
+
+The only valid accentuated syllable models in this requirement are `C:V`,
+`CVC:`, `CVV:`, and `CVV:C`. `CVVC:C` is not a valid model.
 
 When a syllable is accentuated, the solver adds exactly
 `0.5 * phonetize.timing_model.durations.cvc_reference` to the total syllable
 duration and distributes that increment first to the accentuated segment and
 then, if needed, to the adjacent segment according to the configured
 accentuation-distribution policy and segment-class legality limits.
+
+If the baseline syllable closes with a consonant and the following syllable
+opens with the same consonant, the baseline pass must detect that geminate
+boundary before the next syllable is solved and pre-assign the next onset's
+baseline duration from the geminate logic rather than treating the pair as two
+independent singleton anchors. If later accentuation creates an additional
+coda extension on that same consonant chain, the solver must treat the result
+as a double-gemination case and reduce the second onset first if the combined
+same-consonant duration would exceed
+`phonetize.timing_model.durations.segmental_ceiling`.
 
 Phase 2 shall also maintain an internal ordered list of drift values observed
 during traversal so the finalized phone artifacts can expose drift summary
@@ -101,6 +115,9 @@ phonetizer used, without recomputing that history independently.
       then the solver assigns duration to the onset first, assigns duration to
       the coda second if a coda exists, and assigns duration to the nucleus
       after the consonantal anchors are fixed.
+- [ ] Given the solver enters a syllable, when duration realization starts,
+      then it completes the syllable's non-accentuated baseline form before
+      applying any accentuation increment to that syllable.
 - [ ] Given a syllable has a class-specific nominal foot value `shape_ref`,
       when its target equation is evaluated, then the solver attempts to satisfy
       `realized_syllable_duration = shape_ref - drift_cursor`.
@@ -168,12 +185,29 @@ phonetizer used, without recomputing that history independently.
       coda-plus-onset duration is governed by
       `phonetize.process.geminate_policy` and the configured geminate anchor.
 - [ ] Given a syllable-final coda and the next syllable onset are realized,
+  when both consonants are the same consonant across the syllable boundary,
+  then the solver performs that same-consonant check during baseline
+  realization of the current syllable and may pre-assign the next onset's
+  baseline duration before the next syllable itself is solved.
+- [ ] Given a syllable-final coda and the next syllable onset are realized,
       when the two consonants are not the same consonant, then the next onset
-      uses its ordinary configured onset anchor rather than geminate timing.
+  uses its ordinary configured onset anchor rather than geminate timing,
+  and the current syllable does not pre-assign a geminate-derived onset
+  duration to it.
 - [ ] Given a geminate-structured same-consonant pair was realized across a
       syllable boundary, when the next syllable is solved, then the next
       syllable re-enters the same target equation and correction order using
       the current signed `drift_cursor`.
+- [ ] Given an accentuated syllable is solved after its non-accentuated
+  baseline form, when accentuation targets a coda in a `CVC:` shape and
+  the following syllable begins with the same consonant, then the solver
+  treats the coda-plus-next-onset chain as a double-gemination case.
+- [ ] Given a double-gemination case was created across a syllable boundary,
+  when the combined duration of the current coda and the pre-assigned next
+  onset would exceed
+  `phonetize.timing_model.durations.segmental_ceiling`, then the solver
+  reduces the second onset first until the total same-consonant duration is
+  less than or equal to that ceiling.
 - [ ] Given a pause is realized, when pause duration is assigned, then the
       solver uses the configured pause band plus the current signed
       `drift_cursor` as the discharge space.
@@ -226,8 +260,8 @@ phonetizer used, without recomputing that history independently.
   - `CVVC`
 - Active accentuated syllable classes:
   - `C:V`
-  - `CVV:`
   - `CVC:`
+  - `CVV:`
   - `CVV:C`
 - Suppressed standalone timing classes in Phase 2 classification:
   - `V`
@@ -242,6 +276,13 @@ phonetizer used, without recomputing that history independently.
   - onset duration
   - coda duration when present
   - nucleus duration
+- Boundary look-ahead rule:
+  - after baseline coda assignment, inspect the next onset before closing the
+    current syllable
+  - if the next onset is the same consonant, pre-assign that onset through the
+    geminate rule
+  - if the next onset is not the same consonant, leave it for its own ordinary
+    onset assignment when the next syllable is solved
 - Nominal foot mapping from `cvc_reference`:
   - `CV -> 0.5 * cvc_reference`
   - `CVV -> 1.0 * cvc_reference`
@@ -271,6 +312,14 @@ phonetizer used, without recomputing that history independently.
     order becomes `vowel -> extensible drift`
 - Geminate rule:
   - only same-consonant coda/onset pairs count as geminate-structured pairs
+  - that same-consonant check happens during baseline realization of the first
+    syllable in the pair
+  - the next onset may therefore be pre-assigned before its own syllable is
+    traversed
+  - if later accentuation yields a `CVC:`-style extra coda extension on the
+    same chain, the result is treated as double gemination
+  - double-gemination correction reduces the second onset first if the total
+    same-consonant duration would exceed `segmental_ceiling`
 - Pause rule:
   - short pauses minimize residual drift inside their legal band
   - long pauses reset the drift reserve to `0`
@@ -300,14 +349,19 @@ for unit in stream:
         continue
 
     classify unit as one of CV, CVV, CVC, CVVC, C:V, CVV:, CVC:, CVV:C
+  realize the non-accentuated baseline form first
     assign onset anchor
     assign coda anchor if present
     assign nucleus anchor
+  if coda exists and next onset is the same consonant:
+    pre-assign next onset through geminate handling
     if unit is accentuated:
       add 0.5 * cvc_reference
       distribute toward the accentuated segment first
       send legal remainder to the adjacent segment for that syllable class
       use that extra space to reduce drift_cursor toward 0
+    if accentuation created a same-consonant double-gemination chain:
+      reduce the second onset first until chain_duration <= segmental_ceiling
     target = shape_ref(unit) - drift_cursor
     if realized_duration != target:
         apply drift correction first

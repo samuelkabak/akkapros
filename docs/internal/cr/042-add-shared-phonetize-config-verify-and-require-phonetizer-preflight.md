@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-041, REQ-024, REQ-026, REQ-027'
 ---
 
@@ -147,6 +147,10 @@ At minimum, verification must enforce:
   - `accentuation_distribution_policy: 100_0 | 85_15 | 70_30`
   - `short_pause_policy: strict | best_effort`
   - `drift_policy: strict | extensible`
+- canonical grouped-config defaults used by shared verification and selected-
+  parameter default-deviation reporting include
+  `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
+  and `phonetize.process.timing_model.drift_policy=extensible`
 - millisecond timing values are represented as positive integers in ms
 - `phonetize.timing_model.speech.pause_ratio` is validated as a percentage with
   a blocking domain check `0 < pause_ratio < 100`
@@ -319,6 +323,10 @@ Suggested implementation direction:
 - [ ] Baseline semantic verification requires schema-valid key paths and value
       types before semantic checks continue.
 - [ ] Enum-like policy values are restricted to the approved inventories.
+- [ ] Shared verification and selected-parameter default-deviation reporting
+  use canonical grouped-config defaults including
+  `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
+  and `phonetize.process.timing_model.drift_policy=extensible`.
 - [ ] Millisecond timing values in the validated phonetize timing surface are
   positive integers in ms.
 - [ ] `phonetize.timing_model.speech.pause_ratio` is blocked unless it

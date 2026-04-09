@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-07
+updated: 2026-04-09
 implements: 'ADR-042, REQ-028, REQ-022'
 ---
 
@@ -282,6 +282,10 @@ Suggested implementation direction:
       effective in-memory config object before library processing begins.
 - [ ] When `--conf FILE` is absent, runtime CLIs still materialize that
       effective config object from canonical defaults in memory.
+- [ ] Defaults-only runtime config materialization preserves the canonical
+  phonetize policy defaults
+  `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
+  and `phonetize.process.timing_model.drift_policy=extensible`.
 - [ ] When `--conf FILE` is present, file values overlay the in-memory default
       config and missing file keys still inherit canonical defaults.
 - [ ] Runtime CLIs accept repeatable `-t KEY=VALUE` and `--option KEY=VALUE`

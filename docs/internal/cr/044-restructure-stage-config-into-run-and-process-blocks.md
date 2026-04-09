@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-043, REQ-029'
 ---
 
@@ -47,8 +47,9 @@ reorganizes the stage keys by meaning.
 - Remove `metrics.wpm`, `metrics.pause_ratio`, `metrics.long_punct_weight`, and
   `metrics.explicit_link_count` from the config surface.
 - Split `print` into `process` and `run` blocks.
-- Move the current `phonetize.process` block to
-  `phonetize.timing_model.process`.
+- Move the current top-level `phonetize.timing_model` block under
+  `phonetize.process` so the timing model remains part of the stage's process
+  contract.
 - Update `src/akkapros/config/default.yaml` comments, ordering, and path layout
   to the new schema.
 - Update schema validation, `confwriter` inventory, and path-based set/get/list
@@ -145,12 +146,12 @@ print:
     print_merger: false
 
 phonetize:
-  timing_model:
-    process:
-      # moved here from the previous top-level phonetize.process block
+  process:
+    timing_model:
+      # moved here from the previous top-level phonetize.timing_model block
       ...
-    durations:
-      ...
+  run:
+    ...
 ```
 
 Normative rules:
@@ -160,7 +161,10 @@ Normative rules:
 - removed keys are out of contract and must not remain in emitted default YAML,
   help text, `confwriter` listings, or docs
 - the phonetize timing contract remains otherwise unchanged except for moving
-  the process-policy subtree under `timing_model`
+  the timing-model subtree under `phonetize.process`
+- within the migrated `phonetize.process.timing_model` subtree, canonical
+  defaults include `accentuation_distribution_policy: 85_15` and
+  `drift_policy: extensible`
 - metrics timing defaults removed from config are internal runtime concerns
   until a later redesign re-exposes them deliberately
 
@@ -187,8 +191,9 @@ Design requirements:
   path inventory
 - removed paths must not be documented as current contract
 - migration behavior for removed paths must be explicit and testable
-- `phonetize.timing_model.process` must replace top-level
-  `phonetize.process` consistently across schema, help, docs, and examples
+- `phonetize.process.timing_model` must replace top-level
+  `phonetize.timing_model` consistently across schema, help, docs, and
+  examples
 - runtime config loading must resolve the new nested paths without reintroducing
   mixed old names in public help or generated YAML
 
@@ -229,9 +234,13 @@ Suggested implementation direction:
       generated default YAML, `confwriter` key inventory, and config docs.
 - [ ] `print` exposes `print.process.ipa_proto_semitic` and the approved
       `print.run.*` artifact toggles only.
-- [ ] Top-level `phonetize.process.*` is removed from the active schema.
-- [ ] `phonetize.timing_model.process.*` exposes the migrated phonetize
-      process-policy keys.
+- [ ] Top-level `phonetize.timing_model.*` is removed from the active schema.
+- [ ] `phonetize.process.timing_model.*` exposes the migrated phonetize timing-
+  model and process-policy keys.
+- [ ] `phonetize.process.timing_model.accentuation_distribution_policy`
+  defaults to `85_15` in emitted grouped config.
+- [ ] `phonetize.process.timing_model.drift_policy` defaults to
+  `extensible` in emitted grouped config.
 - [ ] `confwriter --list`, `--get`, `--set`, `--unset`, and `--set-default`
       operate on the new paths and do not advertise removed paths as current
       contract.

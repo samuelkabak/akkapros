@@ -2,7 +2,7 @@
 adr_id: ADR-043
 status: Proposed
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-09
 superseded_by: null
 ---
 
@@ -78,8 +78,8 @@ Concretely:
   `metrics.explicit_link_count` are removed from the approved config surface.
 - `print` is split so `ipa_proto_semitic` becomes `print.process` and all
   artifact-selection toggles remain in `print.run`.
-- `phonetize.process` is removed as a top-level child and rehomed under
-  `phonetize.timing_model.process`.
+- `phonetize.timing_model` is rehomed under `phonetize.process` so the
+  phonetize timing contract remains part of the stage's process block.
 - Stages that have no keys in one category do not need to expose an empty
   subtree.
 
@@ -98,7 +98,8 @@ The approved stage mapping is:
 - `print.process`: `ipa_proto_semitic`
 - `print.run`: `acute`, `bold`, `ipa`, `circ_hiatus`, `xar`, `mbrola`,
   `print_merger`
-- `phonetize.timing_model.process`: existing phonetize process-policy keys
+- `phonetize.process.timing_model`: existing phonetize timing-model and
+  process-policy keys
 
 ## Pros and Cons of the Options
 
@@ -107,8 +108,8 @@ The approved stage mapping is:
 - Pros: clarifies which keys change algorithmic behavior and which keys only
   control a run or requested outputs.
 - Pros: makes stage sections easier to document and easier to browse in YAML.
-- Pros: keeps the phonetize timing contract grouped under one timing-model
-  branch.
+- Pros: keeps the phonetize timing contract grouped under the phonetize
+  process block instead of reversing the stage-level run/process structure.
 - Pros: removes redesign-in-progress metrics timing controls from the public
   YAML surface.
 - Cons: breaks existing config paths for several keys.
@@ -137,8 +138,9 @@ The approved stage mapping is:
 - Runtime config resolution must treat removed keys as out of contract rather
   than silently documenting them as still supported.
 - Existing records that referenced flat stage keys, or
-  top-level `phonetize.process` remain historical; implementation records must
-  cross-reference this ADR when changing the active schema.
+  top-level `phonetize.process` without the nested `timing_model` subtree
+  remain historical; implementation records must cross-reference this ADR when
+  changing the active schema.
 - The metrics stage must keep the removed timing controls internal until a
   later redesign record re-exposes them deliberately.
 
