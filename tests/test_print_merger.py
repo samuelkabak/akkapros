@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from akkapros.lib.frontmatter import split_frontmatter
+from akkapros.lib import print as printlib
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +97,13 @@ def test_printer_print_merger_preserves_visible_connector(tmp_path: Path) -> Non
     assert bold_body == "gimir‿**dad**mē\n"
     assert xar_body == "gimir‿dad´mee\n"
     assert plain_xar_body == "gimir dadmee\n"
+
+
+def test_convert_line_dearmors_pivot_punctuation_only_at_render_time() -> None:
+    tilde = "gi·mir+dad~·mē⟦ : ⟧šar"
+
+    assert printlib.convert_line(tilde, "acute") == "gimir dad´mē : šar"
+    assert printlib.convert_line(tilde, "bold") == "gimir **dad**mē : šar"
 
 
 def test_fullprosmaker_default_print_merger_false(tmp_path: Path) -> None:

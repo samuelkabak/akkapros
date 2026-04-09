@@ -294,6 +294,15 @@ def tokenize_line(line: str, word_pattern: re.Pattern) -> List[Tuple[str, str]]:
                 i += 1
             tokens.append(('SPACES', line[start:i]))
             continue
+
+        if line[i] == OPEN_ESCAPE:
+            end = line.find(CLOSE_ESCAPE, i + 1)
+            if end == -1:
+                tokens.append(('PUNCT', line[i:]))
+                break
+            tokens.append(('PUNCT', line[i:end + 1]))
+            i = end + 1
+            continue
         
         # Search for a word starting at current position
         match = word_pattern.search(line, i)
@@ -1020,54 +1029,93 @@ def _gap_has_long_pause(gap: str) -> bool:
     """Return True when a boundary gap contains long-pause punctuation cues."""
     if LONG_PAUSE_INCLUDES_NEWLINE and '\n' in gap:
         return True
-    if any(rx.search(gap) for rx in ACTIVE_LONG_PAUSE_PUNCT_REGEX):
-        return True
-    # Standalone ellipsis tokens (space + .../… + space|EOF) are short pauses;
-    # remove them before char-level long-class checks.
-    sanitized_gap = re.sub(r'(?<=\s)\.\.\.(?=\s|$)', '', gap)
-    sanitized_gap = re.sub(r'(?<=\s)…(?=\s|$)', '', sanitized_gap)
-    return any(ch in ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS for ch in sanitized_gap)
+    return any(_classify_pause_punctuation_token(token) == 'long' for token in _iter_pause_punctuation_tokens(gap))
 
 
 def _gap_has_short_pause(gap: str) -> bool:
     """Return True when a boundary gap contains short-pause punctuation cues."""
-    if any(rx.search(gap) for rx in ACTIVE_SHORT_PAUSE_PUNCT_REGEX):
-        return True
-    # Ignore non-pause structural markers that may appear if word parsing
-    # leaves residual intra-word separators in a gap.
-    punctuation_chars = [
-        ch for ch in gap
-        if (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
-    ]
-    if not punctuation_chars:
-        return False
     if _gap_has_long_pause(gap):
         return False
-    return any(ch in ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars)
+    return any(_classify_pause_punctuation_token(token) == 'short' for token in _iter_pause_punctuation_tokens(gap))
 
 
 def _unknown_gap_punctuation_chars(gap: str) -> List[str]:
     """Return punctuation chars in a gap that are not declared in active rules."""
-    punctuation_chars = [
-        ch for ch in gap
-        if (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
-    ]
-    declared = ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS | ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS
     unknown: List[str] = []
     seen = set()
-    for ch in punctuation_chars:
-        if ch not in declared and ch not in seen:
-            seen.add(ch)
-            unknown.append(ch)
+    for token in _iter_pause_punctuation_tokens(gap):
+        if _classify_pause_punctuation_token(token) is not None:
+            continue
+        normalized = _normalize_pause_punctuation_token(token)
+        if not normalized.strip():
+            continue
+        label = token if token.startswith(OPEN_ESCAPE) else normalized
+        if label not in seen:
+            seen.add(label)
+            unknown.append(label)
     return unknown
 
 
 def _gap_has_any_punctuation(gap: str) -> bool:
     """Return True when a gap contains at least one non-space, non-linker marker."""
-    return any(
-        (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
-        for ch in gap
-    )
+    return bool(_iter_pause_punctuation_tokens(gap))
+
+
+def _iter_pause_punctuation_tokens(gap: str) -> List[str]:
+    """Return reusable punctuation tokens from a _tilde boundary gap."""
+    tokens: List[str] = []
+    i = 0
+    n = len(gap)
+
+    while i < n:
+        char = gap[i]
+        if char.isspace() or char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}:
+            i += 1
+            continue
+        if char == OPEN_ESCAPE:
+            end = gap.find(CLOSE_ESCAPE, i + 1)
+            if end == -1:
+                tokens.append(gap[i:])
+                break
+            tokens.append(gap[i:end + 1])
+            i = end + 1
+            continue
+        tokens.append(char)
+        i += 1
+
+    return tokens
+
+
+def _normalize_pause_punctuation_token(token: str) -> str:
+    """Remove armor from a punctuation token while preserving internal spacing."""
+    if token.startswith(OPEN_ESCAPE) and token.endswith(CLOSE_ESCAPE):
+        return token[1:-1]
+    return token
+
+
+def _classify_pause_punctuation_token(token: str) -> Optional[str]:
+    """Classify one raw or armored punctuation token as short, long, or unknown."""
+    normalized = _normalize_pause_punctuation_token(token)
+    if not normalized.strip():
+        return None
+    if any(rx.search(normalized) for rx in ACTIVE_LONG_PAUSE_PUNCT_REGEX):
+        return 'long'
+    if any(rx.search(normalized) for rx in ACTIVE_SHORT_PAUSE_PUNCT_REGEX):
+        return 'short'
+
+    sanitized = re.sub(r'(?<=\s)\.\.\.(?=\s|$)', '', normalized)
+    sanitized = re.sub(r'(?<=\s)…(?=\s|$)', '', sanitized)
+    punctuation_chars = [
+        ch for ch in sanitized
+        if (not ch.isspace()) and ch not in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}
+    ]
+    if not punctuation_chars:
+        return None
+    if any(ch in ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars):
+        return 'long'
+    if any(ch in ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS for ch in punctuation_chars):
+        return 'short'
+    return None
 
 
 def count_spaces_and_punctuation(text: str) -> Dict:
@@ -1797,6 +1845,7 @@ def _test_tokenizer() -> bool:
     cases = [
         ('at·tā ā·lik', [('WORD', 'at·tā'), ('SPACES', ' '), ('WORD', 'ā·lik')]),
         ('at·tā, ā·lik!', [('WORD', 'at·tā'), ('PUNCT', ','), ('SPACES', ' '), ('WORD', 'ā·lik'), ('PUNCT', '!')]),
+        ('at·tā⟦ : ⟧ā·lik', [('WORD', 'at·tā'), ('PUNCT', '⟦ : ⟧'), ('WORD', 'ā·lik')]),
         ('ana+kâ·ša lu·ṣī-ma', [('WORD', 'ana+kâ·ša'), ('SPACES', ' '), ('WORD', 'lu·ṣī-ma')]),
         ('at·tā   ā·lik', [('WORD', 'at·tā'), ('SPACES', '   '), ('WORD', 'ā·lik')]),
         ('  at·tā ā·lik', [('SPACES', '  '), ('WORD', 'at·tā'), ('SPACES', ' '), ('WORD', 'ā·lik')]),
@@ -1916,14 +1965,14 @@ def _test_consonant_distance_definitions() -> bool:
 
 def _test_punctuation_marks_segment_boundaries() -> bool:
     """Punctuation must create WORD_BOUNDARY markers in preprocessing."""
-    pre = preprocess_text('ab,ta')
+    pre = preprocess_text('ab⟦ ,⟧ta')
     if WORD_BOUNDARY not in pre:
         return False
     return True
 
 
 def _test_pause_metrics_grouping() -> bool:
-    text = "at·tā ?!!! ā·lik ), i·lī ... bā·nû"
+    text = "at·tā⟦ ?!!! ⟧ā·lik⟦ ), ⟧i·lī⟦ ... ⟧bā·nû"
     stats = analyze_text(text, is_accentuated=True)
     pm = compute_pause_metrics(text, stats)
     if pm['raw_counts']['spaces'] != 0:
@@ -1936,13 +1985,23 @@ def _test_pause_metrics_grouping() -> bool:
 
 
 def _test_unknown_punctuation_raises() -> bool:
-    text = "at·tā @ ā·lik"
+    text = "at·tā⟦ @ ⟧ā·lik"
     stats = analyze_text(text, is_accentuated=True)
     try:
         _ = compute_pause_metrics(text, stats)
         return False
     except PunctuationConfigError:
         return True
+
+
+def _test_armored_pause_token_classification() -> bool:
+    if _classify_pause_punctuation_token('⟦ : ⟧') != 'short':
+        return False
+    if _classify_pause_punctuation_token('⟦ ... ⟧') != 'short':
+        return False
+    if _classify_pause_punctuation_token('⟦ @ ⟧') is not None:
+        return False
+    return True
 
 
 def _test_mora_totals_and_original_speech() -> bool:
@@ -2264,6 +2323,7 @@ def run_tests():
         ("Punctuation segment boundaries", _test_punctuation_marks_segment_boundaries),
         ("Pause metrics grouping", _test_pause_metrics_grouping),
         ("Unknown punctuation strict error", _test_unknown_punctuation_raises),
+        ("Armored pause token classification", _test_armored_pause_token_classification),
         ("Mora totals and original speech", _test_mora_totals_and_original_speech),
         ("Table fields and CSV removal", _test_table_new_fields_and_no_csv),
         ("Small corpus metrics consistency", _test_small_corpus_metrics_consistency),

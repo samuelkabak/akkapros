@@ -669,7 +669,7 @@ class ProsodyEngine:
 
             # Handle bracketed text
             if isinstance(token, str):
-                result_parts.append(token[1:-1])
+                result_parts.append(token)
                 i += 1
                 continue
             
@@ -1068,16 +1068,16 @@ def run_tests():
             'name': 'Basic line with merge and accentuation',
             'input': 'šar¦gi·mir¦dad·mē¦bā·nû¦kib·rā·ti¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti ···',
-                'sob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti ···'
+                'lob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti⟦ ···⟧',
+                'sob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti⟦ ···⟧'
             }
         },
         {
             'name': 'Line with multiple accentuation operations',
             'input': 'ḫen·dur·san·ga¦a·pil¦el·lil¦rēš·tû¦⟦ ···⟧',
             'expected': {
-                'lob': 'ḫen·dur·san~·ga a·pil+el~·lil rēš·tû~ ···',
-                'sob': 'ḫen·dur·san~·ga a·pil+el~·lil rē~š·tû ···'
+                'lob': 'ḫen·dur·san~·ga a·pil+el~·lil rēš·tû~⟦ ···⟧',
+                'sob': 'ḫen·dur·san~·ga a·pil+el~·lil rē~š·tû⟦ ···⟧'
             }
         },
         {
@@ -1172,16 +1172,16 @@ def run_tests():
             'name': 'Line with -ma enclitic',
             'input': 'ī·ris·sū-ma¦lib·ba·šu¦⟦ — ⟧e·pēš¦tā·ḫā·zi¦',
             'expected': {
-                'lob': 'ī·ris·sū~-ma lib·ba·šu — e·pēš tā·ḫā~·zi',
-                'sob': 'ī·ris·sū~-ma lib·ba·šu — e·pēš tā·ḫā~·zi'
+                'lob': 'ī·ris·sū~-ma lib·ba·šu⟦ — ⟧e·pēš tā·ḫā~·zi',
+                'sob': 'ī·ris·sū~-ma lib·ba·šu⟦ — ⟧e·pēš tā·ḫā~·zi'
             }
         },
         {
             'name': 'Multiple hyphens and enclitics',
             'input': 'ī·tam·mi¦˙a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦˙i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī·tam~·mi ˙a·na+kak·kī~·šu — lit~·pa·tā ˙i·mat+mū·ti',
-                'sob': 'ī·tam~·mi ˙a·na+kak·kī~·šu — lit~·pa·tā ˙i·mat+mū·ti'
+                'lob': 'ī·tam~·mi ˙a·na+kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat+mū·ti',
+                'sob': 'ī·tam~·mi ˙a·na+kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat+mū·ti'
             }
         },
 
@@ -1222,8 +1222,8 @@ def run_tests():
             'name': 'Explicit plus unresolved at punctuation uses last-resort on last word',
             'input': 'šar+˙a·na·ku¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar+˙~a·na·ku ···',
-                'sob': 'šar+˙~a·na·ku ···'
+                'lob': 'šar+˙~a·na·ku⟦ ···⟧',
+                'sob': 'šar+˙~a·na·ku⟦ ···⟧'
             }
         },
         {
@@ -1317,8 +1317,8 @@ def run_tests():
             'name': 'relax_last unresolved at punctuation uses last-resort on tail',
             'input': 'šar+˙a·na·ku¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar+˙~a·na·ku ···',
-                'sob': 'šar+˙~a·na·ku ···',
+                'lob': 'šar+˙~a·na·ku⟦ ···⟧',
+                'sob': 'šar+˙~a·na·ku⟦ ···⟧',
             }
         },
     ]

@@ -94,7 +94,14 @@ def test_function_words_before_punctuation_attach_backward_to_previous_host() ->
     result = engine.accentuation_line(
         parse_syl_line("tab·nâ¦ša¦at·tu·nu¦⟦ ,⟧i·dā·ša¦al·kū¦")
     )
-    assert result == "tab·nâ+ša+at·tu·nu ,i·dā·ša al·kū"
+    assert result == "tab·nâ+ša+at·tu·nu⟦ ,⟧i·dā·ša al·kū"
+
+
+def test_punctuation_armor_is_preserved_in_tilde_output() -> None:
+    engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.BI)
+    result = engine.accentuation_line(parse_syl_line("šar¦⟦ : ⟧ti·¨ām·tu¦"))
+
+    assert result == "šar⟦ : ⟧ti·¨ā~m·tu"
 
 
 def test_prosmaker_frontmatter_records_mora_mode(tmp_path: Path) -> None:

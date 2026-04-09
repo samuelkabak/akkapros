@@ -39,6 +39,8 @@ from akkapros.lib.constants import (
     HIATUS_MARKER,
     AKKADIAN_VOWELS,
     AKKADIAN_CONSONANTS,
+    OPEN_ESCAPE,
+    CLOSE_ESCAPE,
     OPEN_PRESERVE,
     CLOSE_PRESERVE,
     TAG_PRESERVE_RE,
@@ -752,6 +754,15 @@ def _convert_escape_segment(segment: str, mode: str) -> str:
     return segment
 
 
+def _dearmor_pivot_punctuation(text: str) -> str:
+    """Restore visible punctuation from armored _tilde chunks for rendering only."""
+    return re.sub(
+        re.escape(OPEN_ESCAPE) + r'(.*?)' + re.escape(CLOSE_ESCAPE),
+        lambda match: match.group(1),
+        text,
+    )
+
+
 def convert_line(
     line: str,
     mode: str,
@@ -772,6 +783,7 @@ def convert_line(
 
     had_newline = line.endswith('\n')
     core_line = line[:-1] if had_newline else line
+    core_line = _dearmor_pivot_punctuation(core_line)
 
     parts = split_by_escape_segments(core_line)
     if len(parts) > 1 or (parts and parts[0][0]):
@@ -1052,6 +1064,8 @@ def run_tests() -> bool:
         ("gi·mir+dad~·mē", "acute", "gimir dad´mē"),
         ("gi·mir+dad~·mē", "bold", "gimir **dad**mē"),
         ("gi·mir+dad~·mē", "ipa", "gi.mir.ˈdadː.meː"),
+        ("gi·mir+dad~·mē⟦ : ⟧šar", "acute", "gimir dad´mē : šar"),
+        ("gi·mir+dad~·mē⟦ : ⟧šar", "ipa", "gi.mir.ˈdadː.meː ⟨colon⟩ | ʃar"),
         ("qa", "xar", "ꝗà"),
         ("qi", "xar", "ꝗì"),
         ("qu", "xar", "ꝗù"),

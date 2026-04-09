@@ -202,6 +202,34 @@ def test_function_words_remain_syllabified_in_tilde_output() -> None:
     assert tilde == "˙u+˙a·na+˙i·na+šar·ri"
 
 
+def test_metrics_accepts_armored_punctuation_in_tilde_contract() -> None:
+    tilde = "˙u·kap·pit-ma⟦ : ⟧ti·¨ā~m·tu pi·tiq·ša\n"
+
+    result = metrics.process_filetext(
+        tilde,
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            "function_word_count": 0,
+            "explicit_word_link_count": 0,
+        },
+    )
+
+    raw_counts = result["accentuated"]["pause_metrics"]["raw_counts"]
+    assert raw_counts["long_punctuation"] == 1
+    assert raw_counts["short_punctuation"] == 1
+
+
+def test_metrics_rejects_unknown_armored_punctuation() -> None:
+    stats = metrics.analyze_text("at·tā⟦ @ ⟧ā·lik", is_accentuated=True)
+
+    try:
+        metrics.compute_pause_metrics("at·tā⟦ @ ⟧ā·lik", stats)
+        raise AssertionError("Expected armored unknown punctuation to fail")
+    except metrics.PunctuationConfigError as exc:
+        assert "⟦ @ ⟧" in str(exc)
+
+
 def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:
     tilde = postprocess_restore_diphthongs([
         f"ti{SYL_SEPARATOR}{DIPH_SEPARATOR}ā~m{SYL_SEPARATOR}tu"

@@ -1,6 +1,6 @@
 ---
 cr_id: CR-037
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-05
