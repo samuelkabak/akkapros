@@ -33,6 +33,8 @@ from akkapros.lib.constants import (
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
     WORD_LINKER,
+    INTERNAL_WORD_LINKER,
+    MERGE_LINKERS,
     SHORT_VOWELS,
     LONG_VOWELS,
     SHORT_PAUSE_PUNCTUATION_CHARS,
@@ -250,8 +252,8 @@ def build_word_pattern() -> re.Pattern:
     # CLASS_SYLLABLE_SEPARATOR := SYL_SEPARATOR or HYPHEN
     syl_sep = rf'[\{SYL_SEPARATOR}\{HYPHEN}]'
     
-    # CLASS_UNIT_WORD_SEPARATOR := WORD_LINKER
-    unit_sep = WORD_LINKER
+    # CLASS_UNIT_WORD_SEPARATOR := explicit '+' or internal '&'
+    unit_sep = rf'[{re.escape(WORD_LINKER)}{re.escape(INTERNAL_WORD_LINKER)}]'
     
     # CLASS_FIRST_SYLLABLE := FIRST_LETTER + COMPLEMENT*
     first_syl = first_letter_class + complement_class
@@ -263,7 +265,7 @@ def build_word_pattern() -> re.Pattern:
     unit_word = first_syl + f'(?:{syl_sep}{internal_syl})*'
     
     # CLASS_MERGED_WORD := UNIT_WORD + (UNIT_SEPARATOR + UNIT_WORD)*
-    merged_word = unit_word + rf'(?:\{unit_sep}{unit_word})*'
+    merged_word = unit_word + rf'(?:{unit_sep}{unit_word})*'
     
     return re.compile(merged_word)
 
@@ -378,9 +380,9 @@ def count_merged_units(words: List[str]) -> Dict:
     merged_units = 0
     
     for word in words:
-        if WORD_LINKER in word:
+        if any(linker in word for linker in MERGE_LINKERS):
             merged_units += 1
-            total_merged_words += word.count(WORD_LINKER) + 1
+            total_merged_words += sum(word.count(linker) for linker in MERGE_LINKERS) + 1
     
     avg = total_merged_words / merged_units if merged_units > 0 else 0
     
@@ -595,7 +597,7 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     # Process each word
     for word in words:
         # Split into syllables (on . or -)
-        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{WORD_LINKER}\{DIPH_SEPARATOR}]+', word)
+        syllables = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{WORD_LINKER}\{INTERNAL_WORD_LINKER}\{DIPH_SEPARATOR}]+', word)
 
         # Count syllables in this word
         word_syllable_count = 0
@@ -768,7 +770,7 @@ def extract_segments(text: str) -> Tuple[List[str], List[str]]:
     # Remove word boundaries and syllable boundaries
     all_segments = []
     for c in text:
-        if c in (WORD_BOUNDARY, SYL_SEPARATOR, HYPHEN, WORD_LINKER):
+        if c in (WORD_BOUNDARY, SYL_SEPARATOR, HYPHEN, WORD_LINKER, INTERNAL_WORD_LINKER):
             continue
         all_segments.append(c)
     
@@ -916,7 +918,7 @@ def preprocess_text(text: str) -> str:
     Complete preprocessing pipeline using tokenization.
 
     Connected-speech rule for acoustic distances:
-    - spaces and WORD_LINKER (+) do not create WORD_BOUNDARY ($)
+    - spaces and merge linkers (+ and &) do not create WORD_BOUNDARY ($)
     - punctuation creates WORD_BOUNDARY ($)
     """
     # Remove bracketed content first
@@ -1069,7 +1071,7 @@ def _iter_pause_punctuation_tokens(gap: str) -> List[str]:
 
     while i < n:
         char = gap[i]
-        if char.isspace() or char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN}:
+        if char.isspace() or char in MERGE_LINKERS or char in {SYL_SEPARATOR, HYPHEN}:
             i += 1
             continue
         if char == OPEN_ESCAPE:

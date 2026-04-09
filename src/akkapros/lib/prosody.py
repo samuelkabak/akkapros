@@ -40,6 +40,8 @@ from akkapros.lib.constants import (
     OPEN_ESCAPE,
     CLOSE_ESCAPE,
     WORD_LINKER,
+    INTERNAL_WORD_LINKER,
+    MERGE_LINKERS,
     CIRCUMFLEX_VOWELS,
     DIPH_SEPARATOR,
     HIATUS_MARKER,
@@ -478,14 +480,14 @@ def assemble_line(parts: List[str], tokens: List[Union[Word, str]]) -> str:
     combined = []
     i = 0
     while i < len(parts):
-        if parts[i] == WORD_LINKER:
+        if parts[i] in MERGE_LINKERS:
             # Underscore attaches to previous word
             if combined:
-                combined[-1] = combined[-1] + WORD_LINKER
+                combined[-1] = combined[-1] + parts[i]
             i += 1
         else:
             # Check if this part should be merged with previous (for multiple underscores)
-            if combined and combined[-1].endswith(WORD_LINKER):
+            if combined and combined[-1].endswith(tuple(MERGE_LINKERS)):
                 # Previous word ended with underscore, attach this word directly
                 combined[-1] = combined[-1] + parts[i]
             else:
@@ -693,7 +695,8 @@ class ProsodyEngine:
                     for k, linked_word in enumerate(words_group):
                         result_parts.append(linked_word.get_text())
                         if k < len(words_group) - 1:
-                            result_parts.append(WORD_LINKER)
+                            linker = WORD_LINKER if k < len(forced_group) - 1 else INTERNAL_WORD_LINKER
+                            result_parts.append(linker)
 
                 def resolve_group(words_group: List[Word]) -> Tuple[bool, bool]:
                     unit = MergedUnit(words_group, locked_prefix_words=explicit_tail_start)
@@ -802,7 +805,7 @@ class ProsodyEngine:
                     for k, w in enumerate(func_group):
                         result_parts.append(w.get_text())
                         if k < len(func_group) - 1:
-                            result_parts.append(WORD_LINKER)
+                            result_parts.append(INTERNAL_WORD_LINKER)
                     
                     i = j
                     continue
@@ -815,7 +818,7 @@ class ProsodyEngine:
                     # Find the last content word in result_parts
                     for idx in range(len(result_parts) - 1, -1, -1):
                         part = result_parts[idx]
-                        if isinstance(part, str) and not part.endswith(WORD_LINKER) and not part.startswith(WORD_LINKER):
+                        if isinstance(part, str) and not part.endswith(tuple(MERGE_LINKERS)) and not part.startswith(tuple(MERGE_LINKERS)):
                             # Found a content word - need to rollback if it was accentuated
                             # Find the original word object for this content
                             matched_prev_word: Union[Word, None] = None
@@ -834,17 +837,17 @@ class ProsodyEngine:
                             
                             # Now add it back with underscores and all function words
                             base_part = matched_prev_word.get_text() if matched_prev_word else part
-                            result_parts.append(base_part + WORD_LINKER)
+                            result_parts.append(base_part + INTERNAL_WORD_LINKER)
                             for w in func_group:
                                 result_parts.append(w.get_text())
-                                result_parts.append(WORD_LINKER)
+                                result_parts.append(INTERNAL_WORD_LINKER)
                             result_parts.pop()  # Remove last underscore
                             break
                     else:
                         # No content word found - just add function words
                         for w in func_group:
                             result_parts.append(w.get_text())
-                            result_parts.append(WORD_LINKER)
+                            result_parts.append(INTERNAL_WORD_LINKER)
                         result_parts.pop()
                     
                     i = j
@@ -853,7 +856,7 @@ class ProsodyEngine:
                 # Default: add function words with underscores
                 for w in func_group:
                     result_parts.append(w.get_text())
-                    result_parts.append(WORD_LINKER)
+                    result_parts.append(INTERNAL_WORD_LINKER)
                 result_parts.pop()  # Remove trailing underscore
                 i = j
                 continue
@@ -901,7 +904,7 @@ class ProsodyEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append(WORD_LINKER)
+                            result_parts.append(INTERNAL_WORD_LINKER)
                     i = j + 1
                     accentuated = True
                     self.stats['merged_forward'] += 1
@@ -917,7 +920,7 @@ class ProsodyEngine:
                     for k, w in enumerate(merged):
                         result_parts.append(w.get_text())
                         if k < len(merged) - 1:
-                            result_parts.append(WORD_LINKER)
+                            result_parts.append(INTERNAL_WORD_LINKER)
                     i = j + 1
                     accentuated = True
                     self.stats['merged_forward'] += 1
@@ -1068,32 +1071,32 @@ def run_tests():
             'name': 'Basic line with merge and accentuation',
             'input': 'šar¦gi·mir¦dad·mē¦bā·nû¦kib·rā·ti¦⟦ ···⟧',
             'expected': {
-                'lob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti⟦ ···⟧',
-                'sob': 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti⟦ ···⟧'
+                'lob': 'šar gi·mir&dad~·mē bā·nû kib·rā~·ti⟦ ···⟧',
+                'sob': 'šar gi·mir&dad~·mē bā·nû kib·rā~·ti⟦ ···⟧'
             }
         },
         {
             'name': 'Line with multiple accentuation operations',
             'input': 'ḫen·dur·san·ga¦a·pil¦el·lil¦rēš·tû¦⟦ ···⟧',
             'expected': {
-                'lob': 'ḫen·dur·san~·ga a·pil+el~·lil rēš·tû~⟦ ···⟧',
-                'sob': 'ḫen·dur·san~·ga a·pil+el~·lil rē~š·tû⟦ ···⟧'
+                'lob': 'ḫen·dur·san~·ga a·pil&el~·lil rēš·tû~⟦ ···⟧',
+                'sob': 'ḫen·dur·san~·ga a·pil&el~·lil rē~š·tû⟦ ···⟧'
             }
         },
         {
             'name': 'Function words merge forward with content',
             'input': 'u¦˙a·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+˙a·na+šar·ri',
-                'sob': 'u+˙a·na+šar·ri'
+                'lob': 'u&˙a·na&šar·ri',
+                'sob': 'u&˙a·na&šar·ri'
             }
         },
         {
             'name': 'Function word at end merges backward',
             'input': 'šar·ru¦u¦',
             'expected': {
-                'lob': 'šar·ru+u',
-                'sob': 'šar·ru+u'
+                'lob': 'šar·ru&u',
+                'sob': 'šar·ru&u'
             }
         },
         {
@@ -1108,8 +1111,8 @@ def run_tests():
             'name': 'Multiple function words with content',
             'input': 'u¦˙a·na¦˙i·na¦šar·ri¦',
             'expected': {
-                'lob': 'u+˙a·na+˙i·na+šar·ri',
-                'sob': 'u+˙a·na+˙i·na+šar·ri'
+                'lob': 'u&˙a·na&˙i·na&šar·ri',
+                'sob': 'u&˙a·na&˙i·na&šar·ri'
             }
         },
         
@@ -1180,8 +1183,8 @@ def run_tests():
             'name': 'Multiple hyphens and enclitics',
             'input': 'ī·tam·mi¦˙a·na¦kak·kī·šu¦⟦ — ⟧lit·pa·tā¦˙i·mat¦mū·ti¦',
             'expected': {
-                'lob': 'ī·tam~·mi ˙a·na+kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat+mū·ti',
-                'sob': 'ī·tam~·mi ˙a·na+kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat+mū·ti'
+                'lob': 'ī·tam~·mi ˙a·na&kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat&mū·ti',
+                'sob': 'ī·tam~·mi ˙a·na&kak·kī~·šu⟦ — ⟧lit~·pa·tā ˙i·mat&mū·ti'
             }
         },
 
@@ -1214,8 +1217,8 @@ def run_tests():
             'name': 'Explicit plus resolves internally before propagating further',
             'input': 'bā·nû+˙a·na·ku¦šar·ri¦',
             'expected': {
-                'lob': 'bā·nû+˙a·na·ku+šar·ri',
-                'sob': 'bā·nû+˙a·na·ku+šar·ri'
+                'lob': 'bā·nû+˙a·na·ku&šar·ri',
+                'sob': 'bā·nû+˙a·na·ku&šar·ri'
             }
         },
         {
@@ -1230,16 +1233,16 @@ def run_tests():
             'name': 'Explicit plus coexists with algorithmic plus',
             'input': 'a·pil+el·lil¦gi·mir¦dad·mē¦',
             'expected': {
-                'lob': 'a·pil+el~·lil gi·mir+dad~·mē',
-                'sob': 'a·pil+el~·lil gi·mir+dad~·mē'
+                'lob': 'a·pil+el~·lil gi·mir&dad~·mē',
+                'sob': 'a·pil+el~·lil gi·mir&dad~·mē'
             }
         },
         {
             'name': 'Explicit plus then function words with content',
             'input': 'šar+bā·nû¦u¦˙a·na¦˙i·na¦šar·ri¦',
             'expected': {
-                'lob': 'šar+bā·nû u+˙a·na+˙i·na+šar·ri',
-                'sob': 'šar+bā·nû u+˙a·na+˙i·na+šar·ri'
+                'lob': 'šar+bā·nû u&˙a·na&˙i·na&šar·ri',
+                'sob': 'šar+bā·nû u&˙a·na&˙i·na&šar·ri'
             }
         },
         
@@ -1455,8 +1458,8 @@ def run_tests():
             'group_parity': 'even',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': 'iš·tu+˙i·lī', 'mono': 'iš·tu+˙i·lī~'},
-                'sob': {'bi': 'iš·tu+˙i·lī', 'mono': 'iš·tu+˙i·lī~'},
+                'lob': {'bi': 'iš·tu&˙i·lī', 'mono': 'iš·tu&˙i·lī~'},
+                'sob': {'bi': 'iš·tu&˙i·lī', 'mono': 'iš·tu&˙i·lī~'},
             },
         },
         {
@@ -1467,8 +1470,8 @@ def run_tests():
             'group_parity': 'even',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': '˙a·na+˙ap·sî', 'mono': '˙a·na+˙ap·sî~'},
-                'sob': {'bi': '˙a·na+˙ap·sî', 'mono': '˙a·na+˙ap~·sî'},
+                'lob': {'bi': '˙a·na&˙ap·sî', 'mono': '˙a·na&˙ap·sî~'},
+                'sob': {'bi': '˙a·na&˙ap·sî', 'mono': '˙a·na&˙ap~·sî'},
             },
         },
         {
@@ -1479,8 +1482,8 @@ def run_tests():
             'group_parity': 'odd',
             'last_word_parity': 'odd',
             'expected': {
-                'lob': {'bi': '˙a·na+˙i·lī~', 'mono': '˙a·na+˙i·lī~'},
-                'sob': {'bi': '˙a·na+˙i·lī~', 'mono': '˙a·na+˙i·lī~'},
+                'lob': {'bi': '˙a·na&˙i·lī~', 'mono': '˙a·na&˙i·lī~'},
+                'sob': {'bi': '˙a·na&˙i·lī~', 'mono': '˙a·na&˙i·lī~'},
             },
         },
         {
@@ -1491,8 +1494,8 @@ def run_tests():
             'group_parity': 'odd',
             'last_word_parity': 'even',
             'expected': {
-                'lob': {'bi': 'iš·tu+˙ap·sî~', 'mono': 'iš·tu+˙ap·sî~'},
-                'sob': {'bi': 'iš·tu+˙ap~·sî', 'mono': 'iš·tu+˙ap~·sî'},
+                'lob': {'bi': 'iš·tu&˙ap·sî~', 'mono': 'iš·tu&˙ap·sî~'},
+                'sob': {'bi': 'iš·tu&˙ap~·sî', 'mono': 'iš·tu&˙ap~·sî'},
             },
         },
         {

@@ -1,12 +1,12 @@
 ---
 req_id: REQ-024
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-08
+updated: 2026-04-09
 related_adrs: 'ADR-039'
-implemented_by: 'CR-033 and follow-up CRs'
+implemented_by: 'CR-033, CR-035, CR-036, CR-037, CR-038'
 ---
 
 # Requirement: Replacement of timing model
@@ -51,51 +51,51 @@ clear entry point to the broader program.
 # Acceptance Criteria
 *Verifiable conditions that must be met. Use Given/When/Then format where appropriate.*
 
-- [ ] Given the timing-model replacement program is underway, when internal
+- [x] Given the timing-model replacement program is underway, when internal
       documents are reviewed, then a stable umbrella requirement exists for the
       work.
-- [ ] Given follow-up CRs refine the timing-model replacement, when this
+- [x] Given follow-up CRs refine the timing-model replacement, when this
       requirement is updated, then it remains additive and historically
       consistent with earlier documented decisions.
-- [ ] Given the pipeline contract changes over time, when the requirement is
+- [x] Given the pipeline contract changes over time, when the requirement is
       expanded, then it can describe both stage-order changes and data-contract
       changes without needing to rename the parent record.
-- [ ] Given early CRs land before the final timing model is specified, when
+- [x] Given early CRs land before the final timing model is specified, when
       those CRs are linked, then they can reference this requirement as the
       umbrella requirement for the broader story.
-- [ ] Given the timing-model replacement is refined incrementally, when timing
+- [x] Given the timing-model replacement is refined incrementally, when timing
   parameters are formalized, then the work can move out of the metrics
   config surface into a dedicated phonetize-stage config section without
   changing the umbrella requirement identity.
-- [ ] Given phonetize timing parameters are formalized, when their canonical
+- [x] Given phonetize timing parameters are formalized, when their canonical
   shape is documented, then it uses the current approved `phonetize.process`
   and `phonetize.timing_model` structure, including process policies,
   `cvc_reference`, `segmental_ceiling`, consonant-class anchors with
   `perception_limits.geminate_min`, vowel perception limits, and explicit
   pause bands.
-- [ ] Given the timing-model replacement is refined incrementally, when timing
+- [x] Given the timing-model replacement is refined incrementally, when timing
   defaults and parameter metadata are introduced, then they can be grouped
   in one canonical library location rather than duplicated across runtime,
   config, and CLI surfaces.
-- [ ] Given the new phonetize stage is introduced, when pipeline stages are
+- [x] Given the new phonetize stage is introduced, when pipeline stages are
   documented, then the replacement story can include a new intermediate
   `<prefix>_phone.txt` artifact between prosody and metrics.
-- [ ] Given `_phone` artifact typing is refined, when phonetizer-facing records
+- [x] Given `_phone` artifact typing is refined, when phonetizer-facing records
   distinguish internal transition markers, then `˙` and `¨` remain separate
   consonant-like markers rather than collapsing `¨` into the sonorant class.
-- [ ] Given `_phone` is expected to support reverse reconstruction of `_tilde`,
+- [x] Given `_phone` is expected to support reverse reconstruction of `_tilde`,
   when phonetizer-facing boundary codes are defined, then they preserve the
   distinction between ordinary internal syllable separator `·`, enclitic dash
   `-`, internal merge `&`, explicit merge `+`, and prosodic-final termination.
-- [ ] Given the first timing-model parameterization step is introduced, when
+- [x] Given the first timing-model parameterization step is introduced, when
   timing parameters are made available to users, then REQ-024 can act as
   the umbrella requirement for that availability step until narrower REQs
   are created.
-- [ ] Given the phonetize config skeleton is revised by child CRs, when later
+- [x] Given the phonetize config skeleton is revised by child CRs, when later
   CLI help, config docs, or config-emission work is updated, then those
   surfaces propagate the exact approved key names and defaults rather than
   introducing divergent variants.
-- [ ] Given timing-model CRs change user-facing surfaces, when the work is
+- [x] Given timing-model CRs change user-facing surfaces, when the work is
   specified, then each CR includes both unit-test and integration-test
   expectations for the affected timing-model paths.
 

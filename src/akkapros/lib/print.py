@@ -35,6 +35,8 @@ from akkapros.lib.frontmatter import (
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
     WORD_LINKER,
+    INTERNAL_WORD_LINKER,
+    MERGE_LINKERS,
     DIPH_SEPARATOR,
     HIATUS_MARKER,
     AKKADIAN_VOWELS,
@@ -221,7 +223,7 @@ def _insert_glottal_stops(word: str) -> str:
         if char == HIATUS_MARKER:
             out.append(GLOTTAL_STOP)
             continue
-        boundary = idx == 0 or word[idx - 1] in {WORD_LINKER, HYPHEN}
+        boundary = idx == 0 or word[idx - 1] in MERGE_LINKERS | {HYPHEN}
         if boundary and char != GLOTTAL_STOP:
             if char in ALL_VOWELS:
                 out.append(GLOTTAL_STOP)
@@ -242,7 +244,7 @@ def _insert_glottal_stops_with_indices(word: str) -> Tuple[str, list]:
             out.append(GLOTTAL_STOP)
             out_indices.append(-1)
             continue
-        boundary = idx == 0 or word[idx - 1] in {WORD_LINKER, HYPHEN}
+        boundary = idx == 0 or word[idx - 1] in MERGE_LINKERS | {HYPHEN}
         if boundary and char != GLOTTAL_STOP:
             if char in ALL_VOWELS:
                 out.append(GLOTTAL_STOP)
@@ -308,7 +310,7 @@ def _convert_word_xar(word: str) -> str:
             emphatic_context = emphatic_flags[vowel_idx] if vowel_idx < len(emphatic_flags) else False
             out.append(_to_xar_vowel(char, emphatic_context))
             vowel_idx += 1
-        elif char == WORD_LINKER:
+        elif char in MERGE_LINKERS:
             out.append(WORD_LINKER_OUT)
         elif char == SYL_SEPARATOR:
             continue
@@ -555,7 +557,7 @@ def _convert_word(
             current_indices.clear()
 
     for idx, char in enumerate(word):
-        if char == WORD_LINKER:
+        if char in MERGE_LINKERS:
             flush_current()
             if mode == 'ipa':
                 out.append('.')
@@ -587,7 +589,7 @@ def _is_word_char(char: str) -> bool:
     """Return True for characters that belong to processable Akkadian word chunks."""
     if char in AKKADIAN_VOWELS or char in AKKADIAN_CONSONANTS or char in ALL_VOWELS:
         return True
-    return char in {WORD_LINKER, SYL_SEPARATOR, HYPHEN, TILDE}
+    return char in MERGE_LINKERS | {SYL_SEPARATOR, HYPHEN, TILDE}
 
 
 def _convert_non_bracket_part(

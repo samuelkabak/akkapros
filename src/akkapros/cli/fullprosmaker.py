@@ -304,7 +304,7 @@ def run_pipeline(
 
     # 3) Phonetize transitional artifact
     tilde_frontmatter, tilde_body = read_text_file(tilde_file)
-    phone_rows = build_phone_rows(tilde_body, phonetize_config)
+    phone_rows = build_phone_rows(tilde_body, phonetize_config, tilde_frontmatter)
     phone_body = serialize_phone_rows(phone_rows)
     phone_frontmatter = build_output_frontmatter(
         output_path=phone_file,

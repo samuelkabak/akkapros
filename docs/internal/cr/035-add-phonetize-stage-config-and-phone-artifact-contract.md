@@ -4,7 +4,7 @@ status: Done
 priority: High
 impact: Mutative
 created: 2026-04-04
-updated: 2026-04-08
+updated: 2026-04-09
 implements: 'ADR-039, REQ-024'
 ---
 
@@ -540,81 +540,81 @@ Suggested transitional pipeline order:
 
 # Acceptance Criteria
 
-- [ ] Grouped config no longer defines top-level `metrics.wpm`.
-- [ ] Grouped config no longer defines top-level `metrics.pause_ratio`.
-- [ ] Grouped config defines the top-level `phonetize` section with the exact
+- [x] Grouped config no longer defines top-level `metrics.wpm`.
+- [x] Grouped config no longer defines top-level `metrics.pause_ratio`.
+- [x] Grouped config defines the top-level `phonetize` section with the exact
       parameter set, comments, ordering, and defaults specified in this CR.
-- [ ] Grouped config emits `phonetize.process.geminate_policy=corrective`.
-- [ ] Grouped config emits
+- [x] Grouped config emits `phonetize.process.geminate_policy=corrective`.
+- [x] Grouped config emits
   `phonetize.process.accentuation_distribution_policy=85_15`.
-- [ ] Grouped config emits `phonetize.process.short_pause_policy=strict`.
-- [ ] Grouped config emits `phonetize.process.drift_policy=strict`.
-- [ ] Grouped config emits `phonetize.process.drift_tolerance=12`.
-- [ ] Grouped config emits `timing_model.durations.segmental_ceiling=310`.
-- [ ] Grouped config emits `timing_model.durations.cvc_reference=305`.
-- [ ] Grouped config emits
+- [x] Grouped config emits `phonetize.process.short_pause_policy=strict`.
+- [x] Grouped config emits `phonetize.process.drift_policy=strict`.
+- [x] Grouped config emits `phonetize.process.drift_tolerance=12`.
+- [x] Grouped config emits `timing_model.durations.segmental_ceiling=310`.
+- [x] Grouped config emits `timing_model.durations.cvc_reference=305`.
+- [x] Grouped config emits
   `timing_model.durations.consonants.closure.special_realization.hiatus=18`
   and
   `timing_model.durations.consonants.sonorant.special_realization.vowel_transition=11`
   and keeps lexical `ʾ` classified under closures rather than either
   special-realization key.
-- [ ] The contract makes explicit that accentuated hiatus uses
+- [x] The contract makes explicit that accentuated hiatus uses
   `timing_model.durations.consonants.closure.geminate` and accentuated
   vowel-transition uses
   `timing_model.durations.consonants.sonorant.geminate`, without changing
   the row identity established earlier in the pipeline.
-- [ ] Grouped config emits consonant subclasses `closure`, `fricative`, and
+- [x] Grouped config emits consonant subclasses `closure`, `fricative`, and
       `sonorant` with the exact onset, coda, geminate, and nested
       `perception_limits` values specified in this CR.
-- [ ] Grouped config emits
+- [x] Grouped config emits
   `timing_model.durations.vowels.short=85`,
   `timing_model.durations.vowels.long=160`,
   `timing_model.durations.vowels.very_long=220`, and
   `timing_model.durations.vowels.perception_limits.{short_min,long_min,very_long_min,max}`
   with the exact values specified in this CR.
-- [ ] Grouped config emits `timing_model.durations.pauses.{short,long}.{min,max}`
+- [x] Grouped config emits `timing_model.durations.pauses.{short,long}.{min,max}`
   with the exact values specified in this CR.
-- [ ] Grouped config does not emit phonetize keys outside the approved schema
+- [x] Grouped config does not emit phonetize keys outside the approved schema
   defined in this CR.
-- [ ] Grouped config does not reintroduce `metrics.long_punct_weight`.
-- [ ] `confwriter` supports the revised nested phonetize YAML paths for
+- [x] Grouped config does not reintroduce `metrics.long_punct_weight`.
+- [x] `confwriter` supports the revised nested phonetize YAML paths for
       `--list`, `--get`, `--set`, `--unset`, and `--set-default`.
-- [ ] `confwriter` rejects phonetize keys outside the approved schema without
+- [x] `confwriter` rejects phonetize keys outside the approved schema without
   modifying the config file.
-- [ ] `confwriter` help/comments/examples stop referencing superseded draft
+- [x] `confwriter` help/comments/examples stop referencing superseded draft
       phonetize keys.
-- [ ] `phonetizer` accepts process-option flags using hyphenated names such as
+- [x] `phonetizer` accepts process-option flags using hyphenated names such as
   `--geminate-policy` and `--drift-policy`.
-- [ ] `fullprosmaker` accepts the phonetizer-process pass-through flags using
+- [x] `fullprosmaker` accepts the phonetizer-process pass-through flags using
   the required `--phonetize-` prefix such as `--phonetize-geminate-policy`.
-- [ ] `phonetizer` accepts `phonetize.timing_model` overrides through
+- [x] `phonetizer` accepts `phonetize.timing_model` overrides through
   `--t path=value` and `--option path=value`.
-- [ ] `fullprosmaker` accepts the same `phonetize.timing_model` override model
+- [x] `fullprosmaker` accepts the same `phonetize.timing_model` override model
   through `--t path=value` and `--option path=value`.
-- [ ] CLI help text, generated YAML comments, config docs, and stage docs that
+- [x] CLI help text, generated YAML comments, config docs, and stage docs that
       expose the phonetize section use the exact key names, comments, and
       defaults defined in this CR unless superseded explicitly.
-- [ ] The documented pipeline includes a `phonetizer` / `phonetize` stage
+- [x] The documented pipeline includes a `phonetizer` / `phonetize` stage
       between prosody and metrics.
-- [ ] The phonetizer stage writes `<prefix>_phone.txt`.
-- [ ] The `_phone` artifact contract is documented as one line per phoneme or
+- [x] The phonetizer stage writes `<prefix>_phone.txt`.
+- [x] The `_phone` artifact contract is documented as one line per phoneme or
       silence with millisecond duration plus related metadata.
-- [ ] The `_phone` artifact contract states that row-neighborhood traversal may
+- [x] The `_phone` artifact contract states that row-neighborhood traversal may
   cross word boundaries and stops only at silence rows.
-- [ ] Metricalc is documented as currently planned to consume both `_tilde` and
+- [x] Metricalc is documented as currently planned to consume both `_tilde` and
       `_phone`.
-- [ ] Metrics temporarily hard-codes `wpm=193` and `pause_ratio=35`
+- [x] Metrics temporarily hard-codes `wpm=193` and `pause_ratio=35`
       internally in this transition step.
-- [ ] Phonetize timing defaults and parameter definitions are grouped in one
+- [x] Phonetize timing defaults and parameter definitions are grouped in one
       shared library location rather than duplicated across config, CLI, and
       runtime.
-- [ ] User-facing and developer-facing docs are updated for the new stage,
+- [x] User-facing and developer-facing docs are updated for the new stage,
       revised config section, artifact contract, and temporary metrics
       behavior.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] The documentation set is split and updated explicitly as
+- [x] The documentation set is split and updated explicitly as
   `docs/akkapros/phonetizer.md` for stage/CLI/artifact contracts and
   `docs/akkapros/phonetizer-algorithm.md` for algorithm and timing-model
   behavior, with matching updates to confwriter/configuration docs and
@@ -736,56 +736,56 @@ pipeline, config schema, and docs inconsistent.
 
 ## Implementation
 
-- [ ] Add canonical shared library phonetize defaults and metadata for the
+- [x] Add canonical shared library phonetize defaults and metadata for the
       revised schema in this CR
-- [ ] Add the new phonetizer/phonetize stage contract
-- [ ] Remove flat `metrics.wpm` and `metrics.pause_ratio` config keys
-- [ ] Emit the revised `phonetize` section in the canonical config
-- [ ] Add the `<prefix>_phone.txt` artifact contract
-- [ ] Keep metrics on temporary hard-coded `wpm` and `pause_ratio` until the
+- [x] Add the new phonetizer/phonetize stage contract
+- [x] Remove flat `metrics.wpm` and `metrics.pause_ratio` config keys
+- [x] Emit the revised `phonetize` section in the canonical config
+- [x] Add the `<prefix>_phone.txt` artifact contract
+- [x] Keep metrics on temporary hard-coded `wpm` and `pause_ratio` until the
       new stage contract is fully operational
-- [ ] Update schema-driven `confwriter` behavior and examples for the revised
+- [x] Update schema-driven `confwriter` behavior and examples for the revised
       nested phonetize keys
-- [ ] Update `phonetizer` process flags to the required hyphenated naming
+- [x] Update `phonetizer` process flags to the required hyphenated naming
       convention
-- [ ] Update `fullprosmaker` phonetizer pass-through flags to the required
+- [x] Update `fullprosmaker` phonetizer pass-through flags to the required
       `--phonetize-` naming convention
-- [ ] Add `--t` / `--option path=value` handling for `phonetize.timing_model`
+- [x] Add `--t` / `--option path=value` handling for `phonetize.timing_model`
       overrides in `phonetizer` and `fullprosmaker`
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add pytest unit coverage for the revised phonetize config schema,
+- [x] Add pytest unit coverage for the revised phonetize config schema,
   temporary hard-coded metrics timing behavior, and representative
   `confwriter` phonetize YAML paths
-- [ ] Add pytest unit coverage for `phonetizer` process flags,
+- [x] Add pytest unit coverage for `phonetizer` process flags,
   `fullprosmaker` pass-through flags, and `--option` timing-model
   overrides
-- [ ] Add pytest integration coverage for the new stage position and `_phone`
+- [x] Add pytest integration coverage for the new stage position and `_phone`
   artifact
 
 ## Documentation
 
-- [ ] Create or update `docs/akkapros/phonetizer.md` as the detailed stage,
+- [x] Create or update `docs/akkapros/phonetizer.md` as the detailed stage,
   CLI, and artifact-contract reference
-- [ ] Create or update `docs/akkapros/phonetizer-algorithm.md` as the detailed
+- [x] Create or update `docs/akkapros/phonetizer-algorithm.md` as the detailed
   algorithm and timing-model reference distinct from the CLI/stage page
-- [ ] Create or update `docs/akkapros/confwriter.md` and
+- [x] Create or update `docs/akkapros/confwriter.md` and
   `docs/akkapros/configuration.md` for the revised phonetize schema and
   config-edit surface
-- [ ] Update generated/default config comments so the exact phonetize skeleton
+- [x] Update generated/default config comments so the exact phonetize skeleton
   is documented in the config file itself
-- [ ] Update impacted downstream program docs, including
+- [x] Update impacted downstream program docs, including
   `docs/akkapros/fullprosmaker.md`, for stage ordering, pass-through flags,
   and `_phone` artifact expectations
-- [ ] Remove stale examples for superseded phonetize draft keys from all
+- [x] Remove stale examples for superseded phonetize draft keys from all
   affected docs and CLI-help surfaces
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

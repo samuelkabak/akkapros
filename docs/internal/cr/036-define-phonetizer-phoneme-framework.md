@@ -4,7 +4,7 @@ status: Done
 priority: High
 impact: Mutative
 created: 2026-04-05
-updated: 2026-04-06
+updated: 2026-04-09
 implements: 'ADR-018, ADR-039, REQ-024'
 ---
 
@@ -668,84 +668,84 @@ specified additively in a later CR rather than silently changing this one.
 
 # Acceptance Criteria
 
-- [ ] Internal documentation defines the phonetizer consonant-class sets
+- [x] Internal documentation defines the phonetizer consonant-class sets
       exactly as:
   `set('˙')`, `set('¨')`, `set('bdgkptṭqʾ')`, `set('szšṣḥḫʿ')`, and
   `set('lrmnwy')`.
-- [ ] Internal documentation defines `EMPHATIC_CONSONANTS` as
+- [x] Internal documentation defines `EMPHATIC_CONSONANTS` as
   `{'q', 'ṣ', 'ṭ'}` for the input-character layer.
-- [ ] Internal documentation defines the exact input-character labels listed in
+- [x] Internal documentation defines the exact input-character labels listed in
   this CR for all base consonants, hiatus and vowel-transition markers,
   the four short vowels, the eight long or circumflex vowels, and the two
   representative pause symbols.
-- [ ] Internal documentation defines the realization-code inventory with `Code`,
+- [x] Internal documentation defines the realization-code inventory with `Code`,
   `IPA`, `Category`, `Type`, and `Emphaticity` columns in the order documented
   by this CR.
-- [ ] Internal documentation defines the input-to-realization association table
+- [x] Internal documentation defines the input-to-realization association table
   with `Label` and `Realization Code` columns.
-- [ ] The input-to-realization association table explicitly allows repeated
+- [x] The input-to-realization association table explicitly allows repeated
   input labels where one source label has multiple realizations.
-- [ ] The input-to-realization association table omits the `IPA` column and
+- [x] The input-to-realization association table omits the `IPA` column and
   relies on realization-code lookup through the canonical realization-code
   inventory.
-- [ ] The input-character table uses `:inner-punct:` for the short-pause
+- [x] The input-character table uses `:inner-punct:` for the short-pause
   representative and `:phrasal-punct:` for the long-pause representative.
-- [ ] The realization-code inventory includes short-pause code `SP` with IPA
+- [x] The realization-code inventory includes short-pause code `SP` with IPA
   `|` and long-pause code `ZP` with IPA `‖`.
-- [ ] The realization-code inventory is documented as the authoritative source
+- [x] The realization-code inventory is documented as the authoritative source
   for `Category`, `Type`, and `Emphaticity`.
-- [ ] The input-character table includes `Text`, `Label`, and `Length`
+- [x] The input-character table includes `Text`, `Label`, and `Length`
   columns.
-- [ ] The input-character table defines consonant `length=S` for all
+- [x] The input-character table defines consonant `length=S` for all
   consonant-like symbols.
-- [ ] The input-character table defines vowel and pause representatives with
+- [x] The input-character table defines vowel and pause representatives with
   `length=S` or `L`.
-- [ ] The `_phone` artifact contract defines ten fields in this exact order:
+- [x] The `_phone` artifact contract defines ten fields in this exact order:
   `label`, `category`, `type`, `length`, `position`, `boundary`, `accent`,
   `realization`, `duration`, `text`.
-- [ ] The input-character pause representatives are documented as
+- [x] The input-character pause representatives are documented as
   `:inner-punct:` with label `SES` for short pause and `:phrasal-punct:` with
   label `ZEN` for long pause.
-- [ ] The contract defines `category` values `C`, `V`, and `S`.
-- [ ] The contract defines consonant `type` values `H`, `T`, `C`, `F`, and `S`.
-- [ ] The contract defines vowel `type` values `H`, `M`, and `L`.
-- [ ] The contract defines silence `type` value `S`.
-- [ ] The contract defines consonant `length` value `S`.
-- [ ] The contract defines vowel `length` values `S` and `L`.
-- [ ] The contract defines silence `length` values `S` and `L`.
-- [ ] The contract defines `position` values `O` and `C` for consonants,
+- [x] The contract defines `category` values `C`, `V`, and `S`.
+- [x] The contract defines consonant `type` values `H`, `T`, `C`, `F`, and `S`.
+- [x] The contract defines vowel `type` values `H`, `M`, and `L`.
+- [x] The contract defines silence `type` value `S`.
+- [x] The contract defines consonant `length` value `S`.
+- [x] The contract defines vowel `length` values `S` and `L`.
+- [x] The contract defines silence `length` values `S` and `L`.
+- [x] The contract defines `position` values `O` and `C` for consonants,
   `N` for vowels, and `S` for silence.
-- [ ] The contract defines `boundary=N` for onset consonants and silence rows.
-- [ ] The contract defines `boundary=E` for internal syllable ends followed by
+- [x] The contract defines `boundary=N` for onset consonants and silence rows.
+- [x] The contract defines `boundary=E` for internal syllable ends followed by
   an enclitic dash `-` in `_tilde`.
-- [ ] The contract defines `boundary=L` for non-final internal-merge word ends
+- [x] The contract defines `boundary=L` for non-final internal-merge word ends
   inside a prosodic unit.
-- [ ] The contract defines `boundary=X` for non-final explicit-merge word ends
+- [x] The contract defines `boundary=X` for non-final explicit-merge word ends
   inside a prosodic unit.
-- [ ] The contract defines `boundary` values `N`, `I`, `E`, `L`, `X`, and `F`
+- [x] The contract defines `boundary` values `N`, `I`, `E`, `L`, `X`, and `F`
   for vowel nuclei according to syllable-final, enclitic, merge-provenance,
   and prosodic-final status.
-- [ ] The contract defines `boundary` values `I`, `E`, `L`, `X`, and `F` for
+- [x] The contract defines `boundary` values `I`, `E`, `L`, `X`, and `F` for
   consonant codas.
-- [ ] The contract defines `accent` values `A` and `F` for segments and `P`
+- [x] The contract defines `accent` values `A` and `F` for segments and `P`
       for silence.
-- [ ] The contract defines the `realization` field as a two-character code
+- [x] The contract defines the `realization` field as a two-character code
   drawn from the canonical realization-code inventory.
-- [ ] The input-character mapping distinguishes short, long, and circumflex
+- [x] The input-character mapping distinguishes short, long, and circumflex
   vowels with separate labels while keeping their exact source identity
   explicit.
-- [ ] Both supported serializations are documented, including the example
+- [x] Both supported serializations are documented, including the example
   `SUD-C-F-S-O-N-F-SU-0137:ṣ`.
-- [ ] The contract is documented as sufficient for metrics computation and as
+- [x] The contract is documented as sufficient for metrics computation and as
   structured enough to support reconstruction of `_tilde`.
-- [ ] The contract includes explicit worked examples showing how `I`, `E`,
+- [x] The contract includes explicit worked examples showing how `I`, `E`,
   `L`, `X`, and `F` reconstruct to `·`, `-`, `&`, `+`, and prosodic-final end.
-- [ ] The contract states that punctuation-derived line breaks must be
+- [x] The contract states that punctuation-derived line breaks must be
   rendered as `<EOL>` in the `text` field.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in separate phonetizer and algorithm files,
+- [x] Documentation is updated in separate phonetizer and algorithm files,
   with cross-links to configuration/confwriter docs and impacted downstream
   program docs where the row contract is consumed.
 
@@ -856,54 +856,54 @@ the phonetizer contract ambiguously specified.
 
 ## Implementation
 
-- [ ] Add the canonical phonetizer class sets to the phonetizer-facing library
+- [x] Add the canonical phonetizer class sets to the phonetizer-facing library
       contract
-- [ ] Add the canonical glyph-to-input-label mapping for the input-character
+- [x] Add the canonical glyph-to-input-label mapping for the input-character
   inventory
-- [ ] Add the canonical realization-code inventory and input-to-realization
+- [x] Add the canonical realization-code inventory and input-to-realization
       association mapping to the phonetizer-facing contract
-- [ ] Implement the ten-field `_phone` row serializer and parser
-- [ ] Implement the `type` and `length` split for input-character inventory
+- [x] Implement the ten-field `_phone` row serializer and parser
+- [x] Implement the `type` and `length` split for input-character inventory
   and emitted `_phone` rows
-- [ ] Implement the dedicated two-character `realization` field on emitted
+- [x] Implement the dedicated two-character `realization` field on emitted
   `_phone` rows
-- [ ] Implement dedicated `type=T` handling for `¨` distinct from sonorants
-- [ ] Implement boundary assignment for nucleus/coda syllable endings and
+- [x] Implement dedicated `type=T` handling for `¨` distinct from sonorants
+- [x] Implement boundary assignment for nucleus/coda syllable endings and
   onset/silence non-boundaries, including `I` versus `E` separator coding and
   `L` versus `X` provenance coding
-- [ ] Preserve the Section 2 distinction between short, long, and circumflex
+- [x] Preserve the Section 2 distinction between short, long, and circumflex
   vowel input labels
-- [ ] Preserve the Section 2 representative distinction between short and long
+- [x] Preserve the Section 2 representative distinction between short and long
   punctuation-induced pause inputs
-- [ ] Keep `_phone` compatible with metrics consumption and `_tilde`
+- [x] Keep `_phone` compatible with metrics consumption and `_tilde`
       reconstruction goals
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add pytest unit coverage for inventory typing, label mapping, row
+- [x] Add pytest unit coverage for inventory typing, label mapping, row
   parsing, and boundary assignment
-- [ ] Add pytest integration coverage for representative `_phone` artifacts
+- [x] Add pytest integration coverage for representative `_phone` artifacts
   and metrics-facing consumption
 
 ## Documentation
 
-- [ ] Create or update `docs/akkapros/phonetizer.md` for the input/output row
+- [x] Create or update `docs/akkapros/phonetizer.md` for the input/output row
   contract, inventories, and CLI-visible semantics
-- [ ] Create or update `docs/akkapros/phonetizer-algorithm.md` for row
+- [x] Create or update `docs/akkapros/phonetizer-algorithm.md` for row
   interpretation, reconstruction semantics, and the algorithm-facing use of
   the contract
-- [ ] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
+- [x] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
   anywhere the row-contract-related config surface is described
-- [ ] Update impacted downstream program docs, including
+- [x] Update impacted downstream program docs, including
   `docs/akkapros/fullprosmaker.md`, wherever `_phone` consumption or row
   semantics are described
-- [ ] Cross-link the narrow row contract with CR-035's broader stage contract
+- [x] Cross-link the narrow row contract with CR-035's broader stage contract
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

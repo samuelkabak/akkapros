@@ -44,6 +44,8 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 | `<prefix>_tilde.txt` | Prosody-realized pivot format |
 | `<prefix>_phone.txt` | Canonical flat-line phone-row artifact with CR-036 fields |
 
+The written `_tilde` pivot preserves three kinds of downstream-critical structure: armored punctuation / escaped chunks as `⟦...⟧`, diphthong memory as `¨`, and merge provenance as `+` for explicit inherited links versus `&` for internal prosody merges.
+
 ### Optional Metrics Outputs
 
 | Flag | File | Description |
@@ -141,6 +143,8 @@ Long-pause punctuation weight is fixed internally at `2.0` and is no longer a
 metrics-stage CLI option. The current transition also removes metrics-owned
 timing flags; `fullprosmaker` uses the phonetize transition defaults internally
 for metrics (`wpm = 193`, `pause_ratio = 35`).
+
+The longer-term transition target is a structured phonetize handoff where `_phone.txt` carries the canonical row stream and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
 
 ### Printer Options
 

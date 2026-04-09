@@ -2,9 +2,18 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
+import re
 from typing import Any
 
-from akkapros.lib.constants import HIATUS_MARKER, SYL_SEPARATOR, WORD_LINKER
+from akkapros.lib.constants import (
+    CLOSE_ESCAPE,
+    HIATUS_MARKER,
+    OPEN_ESCAPE,
+    SYL_SEPARATOR,
+    WORD_LINKER,
+)
+from akkapros.lib.frontmatter import resolve_inherited_punctuation_options
+from akkapros.lib.utils import compile_contextual_regex
 
 
 PHONETIZE_SECTION = 'phonetize'
@@ -41,7 +50,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
         'short_pause_policy': _field(
             'strict',
             'string',
-            'short pause discharge policy\n- strict: the pause must realize a preferred legal short-band target derived from the nearest integer multiple of cvc_reference, and it must discharge drift reserve through that target as far as the band allows\n- best_effort: the pause may choose any legal short-band realization that maximizes drift discharge, and any remainder carries into the following phrase',
+            'short pause discharge policy\n- strict: the pause must realize a preferred legal short-band target derived from the nearest integer multiple of cvc_reference, and it must discharge drift reserve through that target as far as the band allows; config validation should warn if no integer multiple N * cvc_reference remains inside the empirically grounded short-pause band, and should fail only if the nearest-multiple gap exceeds the vowel perception-gap threshold used by shared semantic verification\n- best_effort: the pause may choose any legal short-band realization that maximizes drift discharge, and any remainder carries into the following phrase',
             choices=('strict', 'best_effort'),
         ),
         'drift_policy': _field(
@@ -73,7 +82,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
             'cvc_reference': _field(
                 305,
                 'int',
-                'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms.',
+                'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
             ),
             'consonants': {
                 '__comment__': None,
@@ -132,12 +141,12 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
             'pauses': {
                 '__comment__': None,
                 'short': {
-                    '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies.',
+                    '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies. Rhythmic alignment remains possible when at least one integer multiple N * cvc_reference falls inside this band without redefining the empirical range.',
                     'min': _field(600, 'int', 'Minimum short-pause duration.'),
                     'max': _field(680, 'int', 'Maximum short-pause duration.'),
                 },
                 'long': {
-                    '__comment__': 'Default long-pause band. Clause-boundary range from comparative pause data.',
+                    '__comment__': 'Default long-pause band. Clause-boundary range from comparative pause data. If rhythmic alignment is used, enumerate all integer multiples N * cvc_reference inside this band. Choose the candidate nearest the band center; if two are equally near, choose the smaller one.',
                     'min': _field(1200, 'int', 'Minimum long-pause duration.'),
                     'max': _field(1780, 'int', 'Maximum long-pause duration.'),
                 },
@@ -188,6 +197,8 @@ HIGH_VOWELS = set('iuīūîû')
 SHORT_PAUSE_PUNCTUATION_CHARS = {',', ';', ':', '—', '–', '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'", '/', '\\', '|', '†', '‡'}
 LONG_PAUSE_PUNCTUATION_CHARS = {'.', '?', '!', '[', ']', '{', '}', '<', '>', '*', '#'}
 INTERNAL_MERGE_CHARS = {'&', '_'}
+DEFAULT_SHORT_PAUSE_PUNCTUATION_PATTERNS: tuple[str, ...] = ()
+DEFAULT_LONG_PAUSE_PUNCTUATION_PATTERNS: tuple[str, ...] = ()
 
 INPUT_CHARACTER_ROWS = (
     ('b', 'BET', 'S'),
@@ -636,53 +647,151 @@ def _resolve_transition_rows(rows: list[dict[str, str]]) -> None:
         row['realization'] = _choose_vowel_transition_realization(previous_vowel['realization'], next_vowel['realization'])
 
 
-def build_phone_rows(tilde_text: str, phonetize_config: dict[str, Any] | None = None) -> list[dict[str, str]]:
+def _append_armored_pause_rows(
+    armored_text: str,
+    rows: list[dict[str, str]],
+    finish_syllable,
+    *,
+    short_pause_chars: set[str],
+    long_pause_chars: set[str],
+    short_pause_regex: tuple[re.Pattern[str], ...],
+    long_pause_regex: tuple[re.Pattern[str], ...],
+) -> None:
+    normalized = armored_text.strip()
+    if normalized:
+        if any(regex.search(normalized) for regex in long_pause_regex) or any(
+            symbol in long_pause_chars for symbol in normalized if not symbol.isspace()
+        ):
+            finish_syllable('F')
+            rows.append(_new_pause_row(normalized, is_long=True))
+            return
+        if any(regex.search(normalized) for regex in short_pause_regex) or any(
+            symbol in short_pause_chars for symbol in normalized if not symbol.isspace()
+        ):
+            finish_syllable('F')
+            rows.append(_new_pause_row(normalized, is_long=False))
+            return
+    for symbol in armored_text:
+        if symbol == '\n':
+            finish_syllable('F')
+            rows.append(_new_pause_row(EOL_TEXT, is_long=True))
+            continue
+        if symbol.isspace():
+            continue
+        if symbol in short_pause_chars:
+            finish_syllable('F')
+            rows.append(_new_pause_row(symbol, is_long=False))
+            continue
+        if symbol in long_pause_chars:
+            finish_syllable('F')
+            rows.append(_new_pause_row(symbol, is_long=True))
+            continue
+        raise ValueError(f'Unsupported armored phonetizer content: {OPEN_ESCAPE}{armored_text}{CLOSE_ESCAPE}')
+
+
+def _resolve_pause_punctuation_rules(
+    input_frontmatter: dict[str, Any] | None,
+) -> tuple[set[str], set[str], tuple[re.Pattern[str], ...], tuple[re.Pattern[str], ...]]:
+    inherited = resolve_inherited_punctuation_options(input_frontmatter)
+    short_chars = set(SHORT_PAUSE_PUNCTUATION_CHARS) | set(inherited['extra_short_punct_chars'])
+    long_chars = set(LONG_PAUSE_PUNCTUATION_CHARS) | set(inherited['extra_long_punct_chars'])
+    short_patterns = list(DEFAULT_SHORT_PAUSE_PUNCTUATION_PATTERNS)
+    short_patterns.extend(inherited['extra_short_punct_pattern'])
+    long_patterns = list(DEFAULT_LONG_PAUSE_PUNCTUATION_PATTERNS)
+    long_patterns.extend(inherited['extra_long_punct_pattern'])
+    short_regex = tuple(
+        compile_contextual_regex(pattern, '--extra-short-punct-pattern', index)
+        for index, pattern in enumerate(short_patterns, start=1)
+    )
+    long_regex = tuple(
+        compile_contextual_regex(pattern, '--extra-long-punct-pattern', index)
+        for index, pattern in enumerate(long_patterns, start=1)
+    )
+    return short_chars, long_chars, short_regex, long_regex
+
+
+def build_phone_rows(
+    tilde_text: str,
+    phonetize_config: dict[str, Any] | None = None,
+    input_frontmatter: dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
     _ = phonetize_config
     rows: list[dict[str, str]] = []
     syllable: list[dict[str, str]] = []
+    short_pause_chars, long_pause_chars, short_pause_regex, long_pause_regex = _resolve_pause_punctuation_rules(
+        input_frontmatter
+    )
 
     def _finish(boundary_code: str) -> None:
         nonlocal syllable
         _finalize_syllable(rows, syllable, boundary_code)
         syllable = []
 
-    for symbol in tilde_text:
+    index = 0
+    while index < len(tilde_text):
+        symbol = tilde_text[index]
         if symbol == '~':
             if syllable:
                 syllable[-1]['accent'] = 'A'
             elif rows:
                 rows[-1]['accent'] = 'A'
+            index += 1
             continue
         if symbol in {SYL_SEPARATOR, '.'}:
             _finish('I')
+            index += 1
             continue
         if symbol == '-':
             _finish('E')
+            index += 1
             continue
         if symbol in INTERNAL_MERGE_CHARS:
             _finish('L')
+            index += 1
             continue
         if symbol == WORD_LINKER:
             _finish('X')
+            index += 1
             continue
         if symbol == ' ':
             _finish('F')
+            index += 1
             continue
         if symbol == '\n':
             _finish('F')
             rows.append(_new_pause_row(EOL_TEXT, is_long=True))
+            index += 1
             continue
-        if symbol in SHORT_PAUSE_PUNCTUATION_CHARS:
+        if symbol == OPEN_ESCAPE:
+            close_index = tilde_text.find(CLOSE_ESCAPE, index + 1)
+            if close_index < 0:
+                raise ValueError('Invalid _tilde input for phonetizer: unterminated armored span')
+            _append_armored_pause_rows(
+                tilde_text[index + 1 : close_index],
+                rows,
+                _finish,
+                short_pause_chars=short_pause_chars,
+                long_pause_chars=long_pause_chars,
+                short_pause_regex=short_pause_regex,
+                long_pause_regex=long_pause_regex,
+            )
+            index = close_index + 1
+            continue
+        if symbol in short_pause_chars:
             _finish('F')
             rows.append(_new_pause_row(symbol, is_long=False))
+            index += 1
             continue
-        if symbol in LONG_PAUSE_PUNCTUATION_CHARS:
+        if symbol in long_pause_chars:
             _finish('F')
             rows.append(_new_pause_row(symbol, is_long=True))
+            index += 1
             continue
         if symbol in INPUT_CHARACTER_LABELS and symbol not in {INNER_PUNCT_TEXT, PHRASAL_PUNCT_TEXT}:
             syllable.append(_new_segment_seed(symbol))
+            index += 1
             continue
+        index += 1
     _finish('F')
     _resolve_transition_rows(rows)
     return rows

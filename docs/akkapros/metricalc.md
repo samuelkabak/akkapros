@@ -236,7 +236,11 @@ Mental model:
 `metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation is intentionally permissive for short inputs: plain lines like `ku man su tal` are acceptable tilde-stage text. The guard mainly blocks clearly wrong/corrupted input (empty, binary) and rejects accidental `*_syl.txt` content (`¦` markers). A final trailing newline is not mandatory (missing newline is normalized in memory).
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
 
+The `_tilde` pivot may legitimately contain armored punctuation and escaped chunks as `⟦...⟧`. Metrics keeps pause classification on those armored tokens rather than re-deriving raw punctuation from restored plain text.
+
 The `_tilde` pivot may legitimately contain the diphthong marker `¨`. Metrics treats `¨` as an intra-word syllable boundary for syllable counting and classification, but not as a consonant in acoustic spacing.
+
+The `_tilde` pivot may also contain both merge connectors: `+` for explicit inherited links and `&` for internal prosody merges. Metrics treats both as no-pause within-unit links.
 
 Metrics consumes only the reduced frontmatter contract: `file.title` plus `metadata.data.prosody.explicit_word_link_count` when no override is supplied.
 

@@ -97,3 +97,41 @@ def test_pause_rows_and_transition_rows_use_canonical_codes() -> None:
     assert rows[4]['label'] == 'ZEN'
     assert rows[4]['realization'] == 'ZP'
     assert rows[4]['text'] == '<EOL>'
+
+
+def test_armored_punctuation_is_accepted_by_phonetizer() -> None:
+    rows = build_phone_rows('šar⟦ : ⟧ti·¨ā~m·tu')
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 1
+    assert pause_rows[0]['label'] == 'SES'
+    assert pause_rows[0]['realization'] == 'SP'
+    assert pause_rows[0]['text'] == ':'
+
+
+def test_armored_punctuation_inherits_extra_chars_from_frontmatter() -> None:
+    frontmatter = {
+        'metadata': {
+            'options': {
+                'extra_short_punct_chars': 'o',
+                'extra_long_punct_chars': '',
+                'extra_short_punct_pattern': [],
+                'extra_long_punct_pattern': [],
+            }
+        }
+    }
+
+    rows = build_phone_rows('šar⟦ o ⟧ti', input_frontmatter=frontmatter)
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 1
+    assert pause_rows[0]['label'] == 'SES'
+    assert pause_rows[0]['text'] == 'o'
+
+
+def test_unknown_armored_content_fails_in_phonetizer() -> None:
+    try:
+        build_phone_rows('šar⟦ @ ⟧ti')
+        raise AssertionError('Expected unsupported armored phonetizer content to fail')
+    except ValueError as exc:
+        assert '⟦ @ ⟧' in str(exc)

@@ -127,6 +127,10 @@ Stress is marked with an acute accent (`´`) placed **immediately after** the vo
 
 Merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`.
 
+Printer accepts both `_tilde` merge connectors: explicit `+` and internal `&`. Both render with the same visible merge policy.
+
+Printer also accepts armored punctuation in `_tilde` as `⟦...⟧` and restores normal visible punctuation only during user-facing rendering.
+
 Example: `tāḫā´za ik´taṣar`
 
 ### Bold Format (`_accent_bold.md`)

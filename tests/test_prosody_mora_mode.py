@@ -68,25 +68,25 @@ def test_mono_mode_explicit_group_uses_internal_accentuation_before_last_resort(
 def test_mono_mode_function_word_group_accentuates_content_host() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.MONO)
     result = engine.accentuation_line(parse_syl_line("e·li¦ap·sî¦"))
-    assert result == "e·li+ap·sî~"
+    assert result == "e·li&ap·sî~"
 
 
 def test_mono_mode_function_word_group_falls_to_last_resort_on_content_host() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.MONO)
     result = engine.accentuation_line(parse_syl_line("˙a·na¦˙e·¨a¦"))
-    assert result == "˙a·na+˙~e·¨a"
+    assert result == "˙a·na&˙~e·¨a"
 
 
 def test_bi_mode_function_word_group_accentuates_odd_unit_content_host() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.BI)
     result = engine.accentuation_line(parse_syl_line("˙a·na¦˙i·lī¦"))
-    assert result == "˙a·na+˙i·lī~"
+    assert result == "˙a·na&˙i·lī~"
 
 
 def test_bi_mode_function_word_group_preserves_even_unit_without_accentuation() -> None:
     engine = ProsodyEngine(style=AccentStyle.LOB, mora_mode=MoraMode.BI)
     result = engine.accentuation_line(parse_syl_line("e·li¦ap·sî¦"))
-    assert result == "e·li+ap·sî"
+    assert result == "e·li&ap·sî"
 
 
 def test_function_words_before_punctuation_attach_backward_to_previous_host() -> None:
@@ -94,7 +94,7 @@ def test_function_words_before_punctuation_attach_backward_to_previous_host() ->
     result = engine.accentuation_line(
         parse_syl_line("tab·nâ¦ša¦at·tu·nu¦⟦ ,⟧i·dā·ša¦al·kū¦")
     )
-    assert result == "tab·nâ+ša+at·tu·nu⟦ ,⟧i·dā·ša al·kū"
+    assert result == "tab·nâ&ša&at·tu·nu⟦ ,⟧i·dā·ša al·kū"
 
 
 def test_punctuation_armor_is_preserved_in_tilde_output() -> None:

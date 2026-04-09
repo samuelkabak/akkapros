@@ -14,6 +14,25 @@ It provides:
 
 It does not yet implement the later dual-output `_ophone` stage or the later duration-realization pass from downstream phonetizer records.
 
+## Canonical Inventory
+
+The live implementation keeps the CR-036 inventories in code-owned canonical tables.
+
+Consonant-class sets:
+
+```python
+CONSONANT_HIATUS = set('˙')
+CONSONANT_VOWEL_TRANSITION = set('¨')
+CONSONANT_CLOSURE = set('bdgkptṭqʾ')
+CONSONANT_FRICATIVE = set('szšṣḥḫʿ')
+CONSONANT_SONORANT = set('lrmnwy')
+EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
+```
+
+The input-character inventory is kept distinct from realization codes. The input side preserves exact source glyph identity, including separate labels for short, long, and circumflex vowels, plus the normalized pause representatives `:inner-punct:` and `:phrasal-punct:`.
+
+The realization-code inventory is authoritative for realization-side `Category`, `Type`, and `Emphaticity`. Representative pause rows use `SP` with IPA `|` and `ZP` with IPA `‖`.
+
 ## Row Model
 
 The current `_phone.txt` body uses the canonical flat-line row contract:
@@ -32,6 +51,15 @@ Implemented semantics:
 - `duration` is currently the Phase 1 placeholder `0000`
 - `text` preserves the source glyph, punctuation mark, or `<EOL>`
 
+Supported serializations:
+
+```text
+('SUD','C','F','S','O','N','F','SU','0137','ṣ')
+SUD-C-F-S-O-N-F-SU-0137:ṣ
+```
+
+The flat-line form is the canonical file serialization.
+
 ## Duration Source
 
 The live builder is now structure-first. It emits `duration=0000` on every row so the artifact matches the Phase 1 placeholder contract while later duration work remains separate.
@@ -46,10 +74,31 @@ The current stage:
 - emits `SES` / `SP` rows for short pauses and `ZEN` / `ZP` rows for long pauses and line breaks
 - serializes line breaks as `<EOL>` in the `text` field
 
+Boundary reconstruction examples:
+- `I` reconstructs `·` inside a word.
+- `E` reconstructs `-` for enclitic attachment.
+- `L` reconstructs `&` for internal merges inside a prosodic unit.
+- `X` reconstructs `+` for explicit inherited merges.
+- `F` closes the current prosodic unit rather than reconstructing another separator.
+
+Examples:
+- `šit·ku·nat-ma` yields `I`, `I`, `E`, `F` on the boundary-bearing rows.
+- `u+ana&šar~·ri` yields `X`, `L`, `I`, `F` and reconstructs to the same `_tilde` structure.
+
+Neighborhood traversal across emitted rows may cross word boundaries. Silence rows are the only mandatory stopping points for local look-behind or look-ahead logic.
+
+Special-realization note:
+- hiatus rows use the closure special-realization anchor only as an unstressed baseline
+- vowel-transition rows use the sonorant special-realization anchor only as an unstressed baseline
+- when those rows are accentuated in later duration realization, timing escalates to the corresponding class geminate target without changing row identity
+
+The `_tilde` input contract consumed here may also carry armored punctuation spans as `⟦...⟧`; those are preserved as structured pause rows rather than de-armored back to plain punctuation upstream. Unsupported non-punctuation armored content fails explicitly instead of being dropped silently.
+
 ## Transition Note
 
 `metricalc` still computes from `_tilde.txt` rather than consuming `_phone.txt` directly.
-During this transition it uses the phonetize defaults internally:
+The transition plan is that metrics eventually consumes the structured `_phone` handoff alongside the prosody-bearing `_tilde` pivot while the contract settles.
+During the current transition it uses the phonetize defaults internally:
 - `wpm = 193`
 - `pause_ratio = 35`
 

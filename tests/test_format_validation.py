@@ -20,7 +20,7 @@ def test_validate_syl_ok(tmp_path):
 
 def test_validate_tilde_ok(tmp_path):
     p = tmp_path / "ok_tilde.txt"
-    p.write_text("gi.mir_dad~.me\n", encoding="utf-8")
+    p.write_text("u+˙a·na&šar~·ri\n", encoding="utf-8")
     validate_intermediate_format(p, expected_kind="tilde")
 
 

@@ -82,7 +82,8 @@ Key phonological constraints that must be respected:
 ## Output
 
 - [ ] Output file is `<prefix>_tilde.txt`.
-- [ ] `+` in output marks merged/prosodically linked words (no pause between them).
+- [ ] `+` in output marks explicit merges inherited from input.
+- [ ] `&` in output marks automatic internal merges introduced by prosody.
 - [ ] Space in output marks ordinary word boundaries.
 - [ ] `~` marks the prosody-realized (accentuated) syllable.
 - [ ] `--test` runs the built-in test suite and exits with code 0 on pass.
@@ -110,7 +111,8 @@ Key phonological constraints that must be respected:
   | Symbol | Meaning |
   |--------|---------|
   | `·` / `-` | Syllable separators |
-  | `+` | Merged words (prosodic unit, no pause) |
+      | `+` | Explicit merge inherited from input (no pause) |
+      | `&` | Internal merge introduced by prosody (no pause) |
   | space | Ordinary word boundary |
   | `~` | Accentuated syllable marker |
 

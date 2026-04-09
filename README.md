@@ -40,6 +40,7 @@ Developed for Assyriologists, historical linguists, and digital humanities resea
 |--------|-------------|
 | `demo_syl.txt` | Syllabified text with boundaries |
 | `demo_tilde.txt` | Prosody-realized pivot format |
+| `demo_phone.txt` | Canonical phone-row artifact for the phonetize stage |
 | `demo_metrics.txt` | Human-readable metrics table |
 | `demo_accent_bold.md` | Bold-marked text for visual inspection |
 

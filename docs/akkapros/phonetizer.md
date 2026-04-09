@@ -20,6 +20,8 @@ The current implementation now follows the CR-036 row contract for `<prefix>_pho
 - canonical segment and pause inventories
 - placeholder `duration=0000` until later duration-realization work lands
 
+The contract is intentionally structured for downstream traversal. Neighborhood logic may cross word boundaries inside one prosodic unit; silence rows are the only mandatory stopping points for that local traversal.
+
 ## Input and Output
 
 Input:
@@ -27,6 +29,8 @@ Input:
 
 Output:
 - `<prefix>_phone.txt`
+
+The consumed `_tilde` contract may contain armored punctuation spans as `⟦...⟧`, explicit inherited merges as `+`, and internal prosody merges as `&`.
 
 The body is a flat line-oriented format. Each row uses the canonical ten-field order:
 
@@ -43,6 +47,8 @@ ZEN-S-S-L-S-N-P-ZP-0000:<EOL>
 ```
 
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
+
+During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_phone.txt` becomes the structured phonetic handoff artifact while `_tilde.txt` remains the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
 
 ## Command Syntax
 
@@ -85,6 +91,8 @@ Representative keys:
 - `phonetize.process.drift_tolerance`
 - `phonetize.timing_model.speech.wpm`
 - `phonetize.timing_model.durations.cvc_reference`
+
+`phonetize.process` keys are policy controls and tolerances for later duration realization. `perception_limits` under `phonetize.timing_model` are classification boundaries, not alternate emitted duration rows.
 
 `confwriter --list phonetize` is the supported way to inspect the live schema.
 

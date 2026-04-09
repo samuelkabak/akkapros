@@ -58,6 +58,10 @@ serializing them into output front matter.
 
 Diphthongs are **always restored automatically** after prosody realization. The `_tilde.txt` pivot output now keeps the diphthong memory marker `¨` (for example `ti¨ā~m·tu`) so metrics and printer can still see the internal syllable boundary. The printer removes `¨` only in final user-facing outputs.
 
+The `_tilde.txt` pivot also preserves armored punctuation and escaped chunks as `⟦...⟧`. Downstream stages consume that armor directly, and printer restores normal visible punctuation only when rendering user-facing outputs.
+
+The `_tilde.txt` pivot now also preserves merge provenance directly: explicit links inherited from input remain `+`, while automatic merges introduced by prosody are serialized as `&`.
+
 ---
 
 ## 🎯 Accent Styles
@@ -85,6 +89,8 @@ but it also does not use bimoraic forward merge as a repair step.
 ## 🔗 Explicit Linker (`+`) Behavior
 
 The `+` marker in syllabified input indicates a forced prosodic unit.
+
+In `_tilde.txt`, explicit `+` links remain `+`. If prosody extends that linked group further, the added internal merge boundary is written as `&`.
 
 | Mode | Behavior |
 |------|----------|

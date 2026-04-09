@@ -199,7 +199,7 @@ def test_function_words_remain_syllabified_in_tilde_output() -> None:
         engine.accentuation_line(parse_syl_line(syllabified.strip()))
     ])[0]
 
-    assert tilde == "˙u+˙a·na+˙i·na+šar·ri"
+    assert tilde == "˙u&˙a·na&˙i·na&šar·ri"
 
 
 def test_metrics_accepts_armored_punctuation_in_tilde_contract() -> None:

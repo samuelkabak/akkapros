@@ -190,7 +190,7 @@ def main() -> None:
         sys.exit(2)
 
     input_frontmatter, tilde_body = read_text_file(input_path)
-    rows = build_phone_rows(tilde_body, phonetize_config)
+    rows = build_phone_rows(tilde_body, phonetize_config, input_frontmatter)
     body = serialize_phone_rows(rows)
 
     outdir = Path(args.outdir)

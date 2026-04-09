@@ -1,10 +1,10 @@
 ---
 req_id: REQ-022
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-05
+updated: 2026-04-09
 related_adrs: 'ADR-001, ADR-003, ADR-004, ADR-021, ADR-036'
 implemented_by: 'CR-030, CR-034'
 ---
@@ -48,22 +48,22 @@ keys.
 # Acceptance Criteria
 *Verifiable conditions that must be met. Use Given/When/Then format where appropriate.*
 
-- [ ] Given any Python file-processing CLI under `src/akkapros/cli/`, when its
+- [x] Given any Python file-processing CLI under `src/akkapros/cli/`, when its
       parser is built, then it exposes a shared `--conf FILE` option.
-- [ ] Given no `--conf FILE` argument is supplied, when a CLI runs, then the
+- [x] Given no `--conf FILE` argument is supplied, when a CLI runs, then the
       current built-in defaults continue to operate.
-- [ ] Given `--conf FILE` and an input file are supplied, when the config file
+- [x] Given `--conf FILE` and an input file are supplied, when the config file
       contains the needed non-default settings, then the CLI can run without
       requiring the user to repeat the remaining residual options on the
       command line.
-- [ ] Given a config key is absent from the YAML file, when the CLI resolves
+- [x] Given a config key is absent from the YAML file, when the CLI resolves
       effective options, then the built-in default for that option is used.
-- [ ] Given both a config value and an explicit CLI value are supplied for the
+- [x] Given both a config value and an explicit CLI value are supplied for the
       same option, when effective options are resolved, then the CLI value wins.
-- [ ] Given the package config schema is materialized in source control, when
+- [x] Given the package config schema is materialized in source control, when
       `src/akkapros/config/default.yaml` is inspected, then all supported keys
       are present and documented.
-- [ ] Given the phonetize stage is part of the config schema, when
+- [x] Given the phonetize stage is part of the config schema, when
       `src/akkapros/config/default.yaml`, emitted help comments, or
       `confwriter` output are inspected, then the nested phonetize keys use the
       approved structure and names exactly, including the current
@@ -72,76 +72,76 @@ keys.
       `onset` / `coda` / `geminate` anchors with
       `perception_limits.geminate_min`, vowel perception limits, and pause
       min/max bands.
-- [ ] Given `src/akkapros/config/default.yaml` is inspected, when the YAML is
+- [x] Given `src/akkapros/config/default.yaml` is inspected, when the YAML is
       read, then it documents the stage sections used by `fullprosmaker`
       instead of repeating a duplicated `fullprosmaker` config section.
-- [ ] Given the config schema contains shared output naming settings, when
+- [x] Given the config schema contains shared output naming settings, when
       common keys are defined, then `prefix` and `outdir` exist in the common
       config area.
-- [ ] Given the config schema is inspected, when output-prefix keys are listed,
+- [x] Given the config schema is inspected, when output-prefix keys are listed,
       then `metrics_prefix`, `print_prefix`, and equivalent stage-specific
       prefix keys are absent.
-- [ ] Given config keys map to stage behavior, when a CLI reads config, then it
+- [x] Given config keys map to stage behavior, when a CLI reads config, then it
       consumes only the sections relevant to that command plus the shared common
       section.
-- [ ] Given `fullprosmaker` reads config, when effective options are resolved,
+- [x] Given `fullprosmaker` reads config, when effective options are resolved,
       then it consumes `common` plus the shared stage sections it orchestrates
       rather than a second duplicated full-pipeline section.
-- [ ] Given all config-eligible CLI options are documented, when users read the
+- [x] Given all config-eligible CLI options are documented, when users read the
       config documentation, then they can identify the YAML key, the related CLI
       flag, the default value, and the override rule.
-- [ ] Given documented YAML is emitted, when comments are written, then they
+- [x] Given documented YAML is emitted, when comments are written, then they
       reuse canonical help text shared with CLI help surfaces.
-- [ ] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
+- [x] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
       more additional schema-driven operations, when `FILE` does not exist, then the
       command creates a full config file programmatically from the canonical
       schema and applies the supplied overrides.
-- [ ] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
+- [x] Given the new `confwriter` CLI is invoked with `--conf FILE` and one or
       more additional schema-driven operations, when `FILE` already exists, then the
       command updates only the specified config values and preserves the rest of
       the file's effective configuration.
-- [ ] Given `confwriter` is used to write values, when a user passes repeatable
+- [x] Given `confwriter` is used to write values, when a user passes repeatable
       `--set key=value` arguments with full YAML-path keys, then the command
       validates those keys against the canonical schema before writing.
-- [ ] Given a requested `confwriter` key is invalid, when validation fails,
+- [x] Given a requested `confwriter` key is invalid, when validation fails,
       then the command exits without modifying the config file.
-- [ ] Given `confwriter --list` is run, when the key inventory is printed, then
+- [x] Given `confwriter --list` is run, when the key inventory is printed, then
       each entry shows the full path, type, default-or-required state, and
       canonical help text.
-- [ ] Given `confwriter --get KEY` is run, when the key exists in schema, then
+- [x] Given `confwriter --get KEY` is run, when the key exists in schema, then
       the command prints the current stored effective value for that key.
-- [ ] Given `confwriter --unset KEY` is run, when the key is valid, then the
+- [x] Given `confwriter --unset KEY` is run, when the key is valid, then the
       config stores `null` so the option is treated as not explicitly set.
-- [ ] Given `confwriter --set-default KEY` is run, when the key is valid, then
+- [x] Given `confwriter --set-default KEY` is run, when the key is valid, then
       the config stores the canonical schema default value explicitly.
-- [ ] Given a nested config key exists, when `confwriter` addresses it by full
+- [x] Given a nested config key exists, when `confwriter` addresses it by full
       path such as `phonetize.timing_model.speech.wpm`, then the same schema-
       driven set/get/list/unset/set-default behavior applies.
-- [ ] Given `confwriter` is run successively with different options, when the
+- [x] Given `confwriter` is run successively with different options, when the
       same config file is updated across multiple invocations, then the file is
       filled incrementally and retains earlier values that were not overridden.
-- [ ] Given `confwriter` generates a config file, when it writes YAML, then it
+- [x] Given `confwriter` generates a config file, when it writes YAML, then it
       uses programmatic schema emission rather than copying `default.yaml`
       directly.
-- [ ] Given a user runs `python confwriter.py --conf test.yaml --prefix one`
+- [x] Given a user runs `python confwriter.py --conf test.yaml --prefix one`
       and then `python confwriter.py --conf test.yaml --outdir two`, when the
       second command completes, then the resulting config file contains both
       `prefix: one` and `outdir: two` under the correct shared config area.
-- [ ] Given package docs are updated, when users look for config guidance, then
+- [x] Given package docs are updated, when users look for config guidance, then
       one dedicated documentation page fully explains the config file structure,
       common keys, stage-specific keys, override precedence, and `confwriter`
       usage.
-- [ ] Given the implementation is complete, when tests are run, then unit and
+- [x] Given the implementation is complete, when tests are run, then unit and
       integration coverage validate config loading, precedence resolution,
       config generation, incremental updates, and representative CLI behavior.
-- [ ] Given the implementation is complete, when integration tests are run,
+- [x] Given the implementation is complete, when integration tests are run,
       then at least one representative CLI succeeds using `--conf FILE` for
       non-default settings without repeating those settings on the command line.
-- [ ] Given the implementation is complete, when integration tests are run,
+- [x] Given the implementation is complete, when integration tests are run,
       then at least one representative CLI demonstrates that an explicit CLI
       flag overrides the corresponding value in the config file while other
       config-supplied values still apply.
-- [ ] Given the implementation is complete, when integration tests are run,
+- [x] Given the implementation is complete, when integration tests are run,
       then a config file created and incrementally updated by successive
       `confwriter` invocations can be consumed successfully by a representative
       package CLI.

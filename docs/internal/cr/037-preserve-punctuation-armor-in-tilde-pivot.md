@@ -4,7 +4,7 @@ status: Done
 priority: High
 impact: Mutative
 created: 2026-04-05
-updated: 2026-04-05
+updated: 2026-04-09
 implements: 'ADR-004, REQ-004, REQ-005, REQ-011'
 ---
 
@@ -215,42 +215,42 @@ punctuation semantics from scratch.
 
 # Acceptance Criteria
 
-- [ ] `prosmaker` preserves armored punctuation and escaped chunks as `⟦...⟧`
+- [x] `prosmaker` preserves armored punctuation and escaped chunks as `⟦...⟧`
       when writing `<prefix>_tilde.txt`.
-- [ ] `_tilde` is documented as allowing punctuation armor as part of the
+- [x] `_tilde` is documented as allowing punctuation armor as part of the
       stable internal pivot contract.
-- [ ] `metricalc` accepts armored punctuation in `_tilde` as its supported
+- [x] `metricalc` accepts armored punctuation in `_tilde` as its supported
       input contract.
-- [ ] `printer` accepts armored punctuation in `_tilde` as its supported input
+- [x] `printer` accepts armored punctuation in `_tilde` as its supported input
       contract.
-- [ ] `printer` restores normal visible punctuation only during rendering of
+- [x] `printer` restores normal visible punctuation only during rendering of
       user-facing outputs.
-- [ ] Visible printer outputs remain unchanged for existing valid fixtures,
+- [x] Visible printer outputs remain unchanged for existing valid fixtures,
       unless a later CR explicitly changes presentation behavior.
-- [ ] Metrics retains ownership of punctuation tokenization and short/long
+- [x] Metrics retains ownership of punctuation tokenization and short/long
       pause identification in this architecture step.
-- [ ] Metrics exposes a dedicated helper function or helper family for armored
+- [x] Metrics exposes a dedicated helper function or helper family for armored
       punctuation tokenization and pause classification.
-- [ ] The dedicated metrics helper is documented and shaped for later reuse by
+- [x] The dedicated metrics helper is documented and shaped for later reuse by
       `phonetizer`.
-- [ ] Metrics does not scatter punctuation tokenization logic across unrelated
+- [x] Metrics does not scatter punctuation tokenization logic across unrelated
       code paths after this change.
-- [ ] The new pivot contract is covered by extensive unit tests.
-- [ ] The new pivot contract is covered by extensive integration tests across at
+- [x] The new pivot contract is covered by extensive unit tests.
+- [x] The new pivot contract is covered by extensive integration tests across at
       least `syllabify -> prosmaker -> metrics` and `syllabify -> prosmaker -> printer`.
-- [ ] Regression fixtures verify that punctuation armored in `_syl` remains
+- [x] Regression fixtures verify that punctuation armored in `_syl` remains
       armored in `_tilde`.
-- [ ] Regression fixtures verify that metrics can classify short versus long
+- [x] Regression fixtures verify that metrics can classify short versus long
       pause behavior from armored punctuation without relying on raw restored
       punctuation.
-- [ ] Regression fixtures verify that printer still emits unchanged visible
+- [x] Regression fixtures verify that printer still emits unchanged visible
       punctuation in user-facing outputs.
-- [ ] User-facing and developer-facing docs are updated extensively to explain
+- [x] User-facing and developer-facing docs are updated extensively to explain
       the pivot-format change and its rationale.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in separate phonetizer and algorithm files,
+- [x] Documentation is updated in separate phonetizer and algorithm files,
   configuration/confwriter docs where relevant, and impacted downstream
   program docs such as fullprosmaker.
 
@@ -343,40 +343,40 @@ would leave the central pivot ambiguous and break stage interoperability.
 
 ## Implementation
 
-- [ ] Preserve `⟦...⟧` armor in prosmaker `_tilde` output
-- [ ] Update metrics to consume armored `_tilde`
-- [ ] Isolate metrics punctuation tokenization and pause classification in a
+- [x] Preserve `⟦...⟧` armor in prosmaker `_tilde` output
+- [x] Update metrics to consume armored `_tilde`
+- [x] Isolate metrics punctuation tokenization and pause classification in a
       dedicated reusable helper
-- [ ] Update printer to consume armored `_tilde` and de-armor at render time
-- [ ] Update full-pipeline orchestration for the changed pivot contract
+- [x] Update printer to consume armored `_tilde` and de-armor at render time
+- [x] Update full-pipeline orchestration for the changed pivot contract
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add extensive pytest unit coverage for prosody serialization, metrics
+- [x] Add extensive pytest unit coverage for prosody serialization, metrics
   helper behavior, and printer de-armoring
-- [ ] Add extensive pytest integration coverage for both metrics-facing and
+- [x] Add extensive pytest integration coverage for both metrics-facing and
   printer-facing stage paths
-- [ ] Add pivot gold fixtures covering punctuation-bearing `_syl` and `_tilde`
+- [x] Add pivot gold fixtures covering punctuation-bearing `_syl` and `_tilde`
 
 ## Documentation
 
-- [ ] Update `docs/akkapros/phonetizer.md` for the changed pivot input contract
+- [x] Update `docs/akkapros/phonetizer.md` for the changed pivot input contract
   and downstream stage expectations
-- [ ] Update `docs/akkapros/phonetizer-algorithm.md` for punctuation armor and
+- [x] Update `docs/akkapros/phonetizer-algorithm.md` for punctuation armor and
   pause-classification semantics
-- [ ] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
+- [x] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
   if punctuation-related config or examples are affected
-- [ ] Update user docs for prosmaker, metrics, printer, and
+- [x] Update user docs for prosmaker, metrics, printer, and
   `docs/akkapros/fullprosmaker.md`
-- [ ] Update internal docs that describe `_tilde` as the pivot contract
-- [ ] Record the pivot-format change in release-facing notes
+- [x] Update internal docs that describe `_tilde` as the pivot contract
+- [x] Record the pivot-format change in release-facing notes
 
 ## Review
 
-- [ ] Verify acceptance criteria
-- [ ] Confirm the isolated metrics helper is reusable enough for later
+- [x] Verify acceptance criteria
+- [x] Confirm the isolated metrics helper is reusable enough for later
       phonetizer migration
 
 ---

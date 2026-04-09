@@ -26,8 +26,12 @@ Metrics uses prosody-realized text in `*_tilde.txt` format.
 | Symbol | Meaning |
 |--------|---------|
 | `.`, `-` | Syllable separators |
-| `+` | Linker between words (no pause) |
+| `+` | Explicit inherited linker between words (no pause) |
+| `&` | Internal prosody linker between words (no pause) |
+| `⟦...⟧` | Armored punctuation or escaped non-lexical chunk |
 | `~` | Prosody realization / accent marker |
+
+Metrics keeps punctuation tokenization and short/long pause classification on armored `⟦...⟧` tokens inside dedicated helper functions in the metrics layer. That interface is intentionally narrow so the same classification model can move later into phonetizer without redefining the `_tilde` contract.
 
 ### Main Symbols in Output Formulas
 

@@ -44,6 +44,7 @@ After running the command, check these files in the `outputs/` directory:
 |------|-------------|
 | `demo_syl.txt` | Syllabified output with syllable boundaries |
 | `demo_tilde.txt` | Prosody-realized pivot format with `~` markers |
+| `demo_phone.txt` | Canonical phone-row artifact emitted by the phonetize stage |
 | `demo_metrics.json` | Metrics in machine-readable format |
 | `demo_metrics.txt` | Human-readable metrics table |
 | `demo_accent_bold.md` | Bold-marked text for visual inspection |

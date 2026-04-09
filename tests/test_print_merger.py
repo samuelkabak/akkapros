@@ -106,6 +106,13 @@ def test_convert_line_dearmors_pivot_punctuation_only_at_render_time() -> None:
     assert printlib.convert_line(tilde, "bold") == "gimir **dad**mē : šar"
 
 
+def test_convert_line_accepts_internal_merge_connector() -> None:
+    tilde = "gi·mir&dad~·mē"
+
+    assert printlib.convert_line(tilde, "acute") == "gimir dad´mē"
+    assert printlib.convert_line(tilde, "ipa") == "gi.mir.ˈdadː.meː"
+
+
 def test_fullprosmaker_default_print_merger_false(tmp_path: Path) -> None:
     _run_cli(
         "akkapros.cli.fullprosmaker",

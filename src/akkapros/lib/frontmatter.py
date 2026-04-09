@@ -29,6 +29,8 @@ from akkapros.lib.constants import (
     SYL_SEPARATOR,
     SYL_WORD_ENDING,
     WORD_LINKER,
+        INTERNAL_WORD_LINKER,
+        MERGE_LINKERS,
 )
 
 
@@ -50,6 +52,7 @@ FORMAT_VERSIONS = {
 }
 SUPPORTED_TEXT_FORMATS = {"orig", "proc", "trans", "syl", "tilde", "phone", "metrics", "acute", "bold", "ipa", "xar", "mbrola"}
 ESCAPE_RE = re.compile(rf"{re.escape(OPEN_ESCAPE)}.*?{re.escape(CLOSE_ESCAPE)}")
+MERGE_LINKER_RE = re.compile(rf"[{re.escape(WORD_LINKER)}{re.escape(INTERNAL_WORD_LINKER)}]")
 AKKADIAN_LETTERS = set(AKKADIAN_VOWELS) | set(AKKADIAN_CONSONANTS)
 APPEND_TITLE_SEPARATOR = " | "
 
@@ -660,7 +663,7 @@ def extract_lexical_words(text: str) -> list[str]:
     if SYL_WORD_ENDING in cleaned:
         for segment in re.findall(rf"[^{re.escape(SYL_WORD_ENDING)}]+{re.escape(SYL_WORD_ENDING)}", cleaned):
             core = segment[:-1]
-            for piece in core.split(WORD_LINKER):
+            for piece in MERGE_LINKER_RE.split(core):
                 normalized = _normalize_word_piece(piece)
                 if normalized and any(ch in AKKADIAN_LETTERS for ch in normalized):
                     words.append(normalized)
@@ -668,7 +671,7 @@ def extract_lexical_words(text: str) -> list[str]:
 
     normalized_text = cleaned.replace(":", " ")
     for token in normalized_text.split():
-        for piece in token.split(WORD_LINKER):
+        for piece in MERGE_LINKER_RE.split(token):
             normalized = _normalize_word_piece(piece)
             if normalized and any(ch in AKKADIAN_LETTERS for ch in normalized):
                 words.append(normalized)
@@ -700,13 +703,13 @@ def extract_raw_lexical_words(text: str) -> list[str]:
     if SYL_WORD_ENDING in cleaned:
         for segment in re.findall(rf"[^{re.escape(SYL_WORD_ENDING)}]+{re.escape(SYL_WORD_ENDING)}", cleaned):
             core = segment[:-1]
-            for piece in core.split(WORD_LINKER):
+            for piece in MERGE_LINKER_RE.split(core):
                 if any(ch in AKKADIAN_LETTERS for ch in piece):
                     words.append(piece)
         return words
     normalized_text = cleaned.replace(":", " ")
     for token in normalized_text.split():
-        for piece in token.split(WORD_LINKER):
+        for piece in MERGE_LINKER_RE.split(token):
             if any(ch in AKKADIAN_LETTERS for ch in piece):
                 words.append(piece)
     return words

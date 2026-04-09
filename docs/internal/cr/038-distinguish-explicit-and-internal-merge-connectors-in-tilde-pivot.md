@@ -1,10 +1,10 @@
 ---
 cr_id: CR-038
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-05
-updated: 2026-04-05
+updated: 2026-04-09
 implements: 'REQ-003, REQ-004, REQ-005'
 ---
 
@@ -192,30 +192,30 @@ Phonetizer alignment:
 
 # Acceptance Criteria
 
-- [ ] `prosmaker` / `prosody` preserves explicit input merges as `+` in
+- [x] `prosmaker` / `prosody` preserves explicit input merges as `+` in
       `_tilde.txt`.
-- [ ] `prosmaker` / `prosody` serializes automatic internal merges as `&` in
+- [x] `prosmaker` / `prosody` serializes automatic internal merges as `&` in
       `_tilde.txt`.
-- [ ] `_tilde` documentation states clearly that `+` and `&` are both legal
+- [x] `_tilde` documentation states clearly that `+` and `&` are both legal
       no-pause merge connectors with different provenance.
-- [ ] Metrics accepts both `+` and `&` as legal within-unit connectors.
-- [ ] Printer accepts both `+` and `&` as legal within-unit connectors.
-- [ ] Phonetizer-facing logic accepts both `+` and `&` and preserves the
+- [x] Metrics accepts both `+` and `&` as legal within-unit connectors.
+- [x] Printer accepts both `+` and `&` as legal within-unit connectors.
+- [x] Phonetizer-facing logic accepts both `+` and `&` and preserves the
       distinction for non-final word endings inside a prosodic unit.
-- [ ] Full-pipeline orchestration accepts `_tilde` files containing both `+`
+- [x] Full-pipeline orchestration accepts `_tilde` files containing both `+`
       and `&`.
-- [ ] The merge-provenance distinction no longer depends on introducing a new
+- [x] The merge-provenance distinction no longer depends on introducing a new
       front matter field.
-- [ ] Unit tests cover parsing and serialization of explicit-only, internal-
+- [x] Unit tests cover parsing and serialization of explicit-only, internal-
       only, and mixed merge chains.
-- [ ] Integration tests cover representative `_tilde` flows into metrics,
+- [x] Integration tests cover representative `_tilde` flows into metrics,
       printer, and phonetizer-facing consumers.
-- [ ] Documentation updates explain the connector distinction and the reason the
+- [x] Documentation updates explain the connector distinction and the reason the
       pivot now carries it directly.
-- [ ] Built-in `run_tests()` coverage is updated in affected modules, and
+- [x] Built-in `run_tests()` coverage is updated in affected modules, and
   pytest coverage remains split between detailed unit checks and
   representative integration flows.
-- [ ] Documentation is updated in separate phonetizer and algorithm files,
+- [x] Documentation is updated in separate phonetizer and algorithm files,
   configuration/confwriter docs where relevant, and impacted downstream
   program docs such as fullprosmaker.
 
@@ -296,34 +296,34 @@ expecting two connectors while others still emit or accept only one.
 
 ## Implementation
 
-- [ ] Preserve explicit `+` merges in `_tilde`
-- [ ] Serialize automatic prosody merges as `&`
-- [ ] Update `_tilde` consumers to accept both connectors
-- [ ] Preserve the distinction through phonetizer-facing boundary encoding
+- [x] Preserve explicit `+` merges in `_tilde`
+- [x] Serialize automatic prosody merges as `&`
+- [x] Update `_tilde` consumers to accept both connectors
+- [x] Preserve the distinction through phonetizer-facing boundary encoding
 
 ## Tests
 
-- [ ] Add or extend detailed built-in `run_tests()` coverage in affected
+- [x] Add or extend detailed built-in `run_tests()` coverage in affected
   modules
-- [ ] Add pytest unit coverage for dual-connector parsing and serialization
-- [ ] Add pytest integration coverage across prosody, metrics, printer, and
+- [x] Add pytest unit coverage for dual-connector parsing and serialization
+- [x] Add pytest integration coverage across prosody, metrics, printer, and
   phonetizer
 
 ## Documentation
 
-- [ ] Update `docs/akkapros/phonetizer.md` for the changed `_tilde` input
+- [x] Update `docs/akkapros/phonetizer.md` for the changed `_tilde` input
   contract and downstream boundary semantics
-- [ ] Update `docs/akkapros/phonetizer-algorithm.md` for explicit-versus-
+- [x] Update `docs/akkapros/phonetizer-algorithm.md` for explicit-versus-
   internal merge provenance rules
-- [ ] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
+- [x] Update `docs/akkapros/configuration.md` and `docs/akkapros/confwriter.md`
   if connector-related examples or validation text are affected
-- [ ] Update `_tilde` pivot docs, prosody docs, and impacted downstream stage
+- [x] Update `_tilde` pivot docs, prosody docs, and impacted downstream stage
   docs including `docs/akkapros/fullprosmaker.md` so all `_tilde`
   consumers document the dual connector contract
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

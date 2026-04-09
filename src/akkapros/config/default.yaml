@@ -91,7 +91,11 @@ phonetize:
     # short pause discharge policy
     # - strict: the pause must realize a preferred legal short-band target
     # derived from the nearest integer multiple of cvc_reference, and it must
-    # discharge drift reserve through that target as far as the band allows
+    # discharge drift reserve through that target as far as the band allows;
+    # config validation should warn if no integer multiple N * cvc_reference
+    # remains inside the empirically grounded short-pause band, and should fail
+    # only if the nearest-multiple gap exceeds the vowel perception-gap
+    # threshold used by shared semantic verification
     # - best_effort: the pause may choose any legal short-band realization that
     # maximizes drift discharge, and any remainder carries into the following
     # phrase
@@ -117,6 +121,9 @@ phonetize:
       segmental_ceiling: 310
       # Central heavy-syllable timing reference used by accentuation and pause
       # alignment. Set inside the empirically grounded CVC interval 286-306 ms.
+      # This keeps the control value conservative and compatible with pause-band
+      # alignment whenever at least one integer multiple N * cvc_reference falls
+      # inside a configured pause band.
       cvc_reference: 305
       consonants:
         # Stop-like closure class. Includes lexical ʾ.
@@ -200,14 +207,18 @@ phonetize:
           max: 240
       pauses:
         # Default short-pause band. Empirically grounded short-pause region from
-        # comparative studies.
+        # comparative studies. Rhythmic alignment remains possible when at
+        # least one integer multiple N * cvc_reference falls inside this band
+        # without redefining the empirical range.
         short:
           # Minimum short-pause duration.
           min: 600
           # Maximum short-pause duration.
           max: 680
         # Default long-pause band. Clause-boundary range from comparative pause
-        # data.
+        # data. If rhythmic alignment is used, enumerate all integer multiples
+        # N * cvc_reference inside this band. Choose the candidate nearest the
+        # band center; if two are equally near, choose the smaller one.
         long:
           # Minimum long-pause duration.
           min: 1200

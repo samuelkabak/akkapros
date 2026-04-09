@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-039
-status: Proposed
+status: Accepted
 created: 2026-04-03
-updated: 2026-04-05
+updated: 2026-04-09
 superseded_by: null
 ---
 
@@ -151,4 +151,4 @@ Near-term child CRs may therefore:
 
 ## Reviewed By
 
-- Pending maintainer review
+- Accepted during CR-033 through CR-038 verification and contract audit.
