@@ -1,6 +1,6 @@
 # Phonetizer CLI (`phonetizer.py`)
 
-`phonetizer.py` turns a prosody-realized `*_tilde.txt` file into two finalized phone-row artifacts: `<prefix>_ophone.txt` for the original stream and `<prefix>_phone.txt` for the accentuated stream.
+`phonetizer.py` turns a prosody-realized `*_tilde.txt` file into two finalized phone-row artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`, plus two phonetizer-owned MBROLA `.pho` artifacts, `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho`.
 
 ## Purpose
 
@@ -8,7 +8,7 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 
 1. `*_proc.txt` -> `*_syl.txt`
 2. `*_syl.txt` -> `*_tilde.txt`
-3. `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`
+3. `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho`
 4. `*_tilde.txt` -> metrics outputs
 5. `*_tilde.txt` -> print outputs
 
@@ -23,9 +23,9 @@ The current implementation now follows the CR-039 structural contract and the CR
 - drift reporting in front matter under `metadata.data.phonetize.drift`
 
 Before runtime realization begins, the CLI now also runs shared semantic config
-verification. Blocking failures stop the command before `_ophone.txt` and
-`_phone.txt` are written. Warning-only conditions are reported distinctly and
-allow processing to continue.
+verification. Blocking failures stop the command before `_ophone.txt`,
+`_phone.txt`, `_ombrola.pho`, and `_mbrola.pho` are written. Warning-only
+conditions are reported distinctly and allow processing to continue.
 
 The contract is intentionally structured for downstream traversal. Neighborhood logic may cross word boundaries inside one prosodic unit; silence rows are the only mandatory stopping points for that local traversal.
 
@@ -37,6 +37,8 @@ Input:
 Output:
 - `<prefix>_ophone.txt`
 - `<prefix>_phone.txt`
+- `<prefix>_ombrola.pho`
+- `<prefix>_mbrola.pho`
 
 The original stream is derived from the accentuated `_tilde` input by removing `~` and replacing internal merges `&` with spaces, while preserving explicit lexical merges `+` and the other structural separators needed for reconstruction.
 
@@ -67,6 +69,8 @@ Worked baseline, pause, and same-consonant examples are documented in `docs/akka
 
 During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_ophone.txt` and `_phone.txt` remain the structured phonetic handoff artifacts while `_tilde.txt` stays the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
 
+The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
+
 ## Command Syntax
 
 ```bash
@@ -84,7 +88,7 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 | `--short-pause-policy {strict,best_effort}` | Override `phonetize.process.timing_model.short_pause_policy` |
 | `--drift-policy {strict,extensible}` | Override `phonetize.process.timing_model.drift_policy` |
 | `--drift-tolerance <int>` | Override `phonetize.process.timing_model.drift_tolerance` |
-| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
+| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` |
 | `--conf <file>` | Load shared grouped config |
 | `--test` | Run CLI self-tests |
 
@@ -105,6 +109,8 @@ python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.duration
 The phonetizer is the canonical owner of the top-level `phonetize` config section.
 
 Representative grouped-config keys:
+- `phonetize.process.intonation.f0`
+- `phonetize.process.intonation.stress_rise`
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.accentuation_distribution_policy`
 - `phonetize.process.timing_model.short_pause_policy`
@@ -113,9 +119,9 @@ Representative grouped-config keys:
 - `phonetize.process.timing_model.speech.wpm`
 - `phonetize.process.timing_model.durations.cvc_reference`
 
-At runtime, path-scoped help and `-t/--option` overrides expose the same canonical phonetize subtree: `phonetize.process.timing_model.*`.
+At runtime, path-scoped help and `-t/--option` overrides expose the same canonical phonetize subtree: `phonetize.process.intonation.*` and `phonetize.process.timing_model.*`.
 
-`phonetize.process.timing_model` contains both the process-policy controls and the timing-model subtree used during realization. `perception_limits` inside that subtree are classification boundaries, not alternate emitted duration rows.
+`phonetize.process.intonation` and `phonetize.process.timing_model` are siblings under `phonetize.process`. The former governs emitted pitch for `.pho` export, and the latter contains both the process-policy controls and the timing-model subtree used during realization. `perception_limits` inside the timing-model subtree are classification boundaries, not alternate emitted duration rows.
 
 ## Preflight Verification
 
@@ -146,4 +152,4 @@ FAIL phonetize.process.timing_model.speech.pause_ratio | relation: 0 < pause_rat
 
 See also:
 - `docs/akkapros/phonetizer-algorithm.md` for the row and boundary model
-- `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_ophone.txt` and `_phone.txt`
+- `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_ophone.txt`, `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho`

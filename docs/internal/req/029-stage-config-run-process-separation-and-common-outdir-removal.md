@@ -23,6 +23,13 @@ currently exposed in YAML shall be removed from the config surface, and the
 current phonetize timing-model branch shall move under
 `phonetize.process.timing_model`.
 
+Historical note:
+
+- [CR-045](../cr/045-move-mbrola-pho-output-to-phonetizer.md) later supersedes
+      the MBROLA-related print-stage portion of this requirement that kept
+      `print.run.mbrola` in the approved config surface.
+- The broader run/process regrouping requirement remains implemented.
+
 ---
 
 # Motivation

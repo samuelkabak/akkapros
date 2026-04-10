@@ -19,6 +19,7 @@ from akkapros.lib.phonetize import (
     realize_phone_rows,
     realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
+    serialize_mbrola_rows,
     serialize_phone_row,
     verify_phonetize_config,
 )
@@ -240,6 +241,35 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert original_report['drift']['stddev'] >= 0
     assert accentuated_report['drift']['stddev'] >= 0
     assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
+
+
+def test_mbrola_rows_use_baseline_and_stress_rise_f0() -> None:
+    original_rows, accentuated_rows = build_phone_streams('at·ta~')
+    realize_phone_rows(original_rows, allow_accentuation=False)
+    realize_phone_rows(accentuated_rows, allow_accentuation=True)
+
+    original_lines = serialize_mbrola_rows(original_rows, accentuated=False).strip().splitlines()
+    accentuated_lines = serialize_mbrola_rows(accentuated_rows, accentuated=True).strip().splitlines()
+
+    assert all(len(line.split()) == 3 for line in original_lines)
+    assert all(line.endswith(' 120') for line in original_lines)
+    assert any(line.endswith(' 135') for line in accentuated_lines)
+
+
+def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
+    rows = build_phone_rows('at·ta')
+    realize_phone_rows(rows, allow_accentuation=False)
+
+    lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
+
+    assert any(line.startswith('TA 195 120') for line in lines)
+
+
+def test_verification_rejects_non_positive_intonation_f0() -> None:
+    result = verify_phonetize_config({'process': {'intonation': {'f0': 0}}})
+
+    assert result.status == 'failure'
+    assert any(issue.path == 'phonetize.process.intonation.f0' for issue in result.failures)
 
 
 def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_discharge() -> None:

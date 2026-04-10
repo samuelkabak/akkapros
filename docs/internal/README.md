@@ -6,13 +6,19 @@ Purpose
 Principles / Workflow
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
 - CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). CR status workflow is `Draft -> Approved -> Done` for accepted work, or `Draft -> Rejected` for declined work. Use `Blocked` as a temporary status when a CR cannot be implemented or verified safely as written.
+- CR sequencing rule: implement CRs in identifier order. A later CR must not be implemented while an earlier CR remains not `Done`. For example, if `CR-146` is not `Done`, do not implement `CR-147` yet.
 - Req: short, testable requirement documents describing what to implement. It is acceptable for `req/` to be empty until requirements are added.
 - Change-management rule: do not rewrite older accepted ADRs, REQs, or CRs as though a later decision had always been true. This applies to any future change that alters, narrows, removes, replaces, or reinterprets an earlier documented decision or contract. Preserve historical records and record the newer decision additively in new documents or explicit supersession notes, using short forward references when readers need help understanding the relationship between past and current state.
+- Incremental precedence rule: ADRs, REQs, and CRs are additive and incremental. A newer higher-numbered record may narrow, replace, rehome, or otherwise override behavior previously approved by an older accepted record. That alone is not a blocker. For active implementation and verification, follow the newest directly relevant higher-numbered record while keeping the older record intact as historical context.
+- Supersession hygiene: when a newer higher-numbered record changes behavior approved by an older record, make that relationship explicit with forward references, supersession notes, or linked rationale where needed. Do not silently ignore the older record, but do not treat its older behavior as still controlling once the newer record clearly replaces it.
+- Lookback rule for spec writing: when drafting or updating an ADR, REQ, or CR, check the directly relevant earlier records to see whether the new document replaces or narrows an older decision or contract. If it does, say so explicitly in the new document and name the superseded record or records.
 
 Blocked CR methodology
 - `Blocked` means the CR is not executable as written: the contract is too weak, contradictory, mismatched to the codebase, governance-constrained, or otherwise not safely implementable/verifiable.
+- A CR is also not executable yet if one or more earlier CRs in sequence are still not `Done`.
 - The source of truth for blocking information is the `# Implementation Blockers` section in the CR document.
 - Implementers record concrete blocker entries there and set CR status to `Blocked` when they encounter blockers that prevent safe progress.
+- A CR is not blocked merely because it conflicts with an older accepted ADR, REQ, or CR if the target CR or its directly linked newer higher-numbered governing records explicitly update or supersede that older behavior.
 - Spec writers resolving a blocked CR must read the `# Implementation Blockers` section first, then repair the affected CR sections so the contract becomes implementable and testable.
 - When a blocker is resolved by a spec rewrite, keep the blocker entry for history and append `Resolved on: YYYY-MM-DD` and `Resolution: <short description of the spec change that resolved it>`.
 - If all blocker entries are resolved, change status from `Blocked` back to `Draft` unless a different status is explicitly requested.
@@ -26,10 +32,11 @@ Directory layout
 - `review/` — Project and code reviews. Use `000-review-template.md` as a starting point. Review files should use a numeric prefix for ordering (e.g., `001-review.md` or `review-001.md`). Files beginning with `000-` are reserved for templates and ignored by indexers.
 
 Naming & numbering
-- ADRs and CRs use short kebab-case filenames prefixed with a 3-digit number for stable ordering: `NNN-short-kebab-title.md`.
-- Numbering within each document type (`adr/`, `cr/`, `req/`, `review/`) must be contiguous once numbers are assigned. Do not leave permanent gaps such as `040` followed by `042` with no `041` record.
+- ADRs, CRs, REQs, and reviews use short kebab-case filenames prefixed with a stable ordered identifier such as `NNN-short-kebab-title.md`.
+- Identifier progression is base-36 by leading character group for stable ordering: `000` through `999`, then `A00`, `A01` ... `A99`, then `B00` ... `B99`, then `C00` ... `C99`, then `D00`, and so on. In other words, the first character advances through `0..9` and then `A..Z`; examples: after `999` comes `A00`, and after `C99` comes `D00`.
+- Numbering within each document type (`adr/`, `cr/`, `req/`, `review/`) must be contiguous once identifiers are assigned. Do not leave permanent gaps such as `040` followed by `042` with no `041` record, or `A03` followed by `A05` with no `A04` record.
 - If a number has already been referenced or effectively reserved, close the gap by adding a narrow placeholder or follow-up record rather than silently skipping it. Renumbering later documents is allowed only before references have spread and only when the renumber is low-risk.
-- Refer to ADRs/CRs by their canonical number (e.g., `ADR-023`, `CR-004`) in code, tests, and commit messages.
+- Refer to ADRs/CRs by their canonical identifier (e.g., `ADR-023`, `CR-004`, `CR-A00`) in code, tests, and commit messages.
 - When committing an implementation for a CR, the commit subject must use this pattern: `Implement CR-{CR number NNN}: {CR title copy/paste}`.
 
 Index generation

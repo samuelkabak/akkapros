@@ -7,7 +7,6 @@ Converts *_tilde text into:
 - <prefix>_accent_ipa.txt
 - <prefix>_accent_xar.txt
 - <prefix>_xar.txt
-- <prefix>_accent_mbrola.txt
 """
 
 import sys
@@ -147,8 +146,6 @@ def main() -> None:
                         help=help_for('printer.circ_hiatus'))
     parser.add_argument('--xar', action='store_true',
                         help=help_for('printer.xar'))
-    parser.add_argument('--mbrola', action='store_true',
-                        help=help_for('printer.mbrola'))
     parser.add_argument('--print-merger', action='store_true',
                         help=help_for('printer.print_merger'))
     parser.add_argument('--test', action='store_true', help=help_for('printer.test'))
@@ -200,9 +197,8 @@ def main() -> None:
     write_bold = args.bold
     write_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
     write_xar = args.xar
-    write_mbrola = args.mbrola
 
-    if not (write_acute or write_bold or write_ipa or write_xar or write_mbrola):
+    if not (write_acute or write_bold or write_ipa or write_xar):
         write_acute = True
         write_bold = True
 
@@ -211,7 +207,6 @@ def main() -> None:
     ipa_out = outdir / f"{prefix}_accent_ipa.txt"
     xar_out = outdir / f"{prefix}_accent_xar.txt"
     xar_plain_out = outdir / f"{prefix}_xar.txt"
-    mbrola_out = outdir / f"{prefix}_accent_mbrola.txt"
 
     accent_print.process_file(
         input_file=str(input_path),
@@ -220,12 +215,10 @@ def main() -> None:
         output_ipa_file=str(ipa_out),
         output_xar_file=str(xar_out),
         output_xar_plain_file=str(xar_plain_out),
-        output_mbrola_file=str(mbrola_out),
         write_acute=write_acute,
         write_bold=write_bold,
         write_ipa=write_ipa,
         write_xar=write_xar,
-        write_mbrola=write_mbrola,
         ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         print_merger=args.print_merger,
@@ -247,8 +240,6 @@ def main() -> None:
     if write_xar:
         logger.info('Written file: %s', format_path_for_logging(xar_out))
         logger.info('Written file: %s', format_path_for_logging(xar_plain_out))
-    if write_mbrola:
-        logger.info('Written file: %s', format_path_for_logging(mbrola_out))
 
 
 if __name__ == '__main__':

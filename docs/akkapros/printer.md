@@ -10,7 +10,7 @@ This document explains what `printer.py` does, how to run it, and what output fo
 
 ## 📋 Purpose
 
-`printer.py` converts prosody-realized pivot text (`*_tilde.txt`) into user-facing reading and phonetic outputs.
+`printer.py` converts prosody-realized pivot text (`*_tilde.txt`) into user-facing reading outputs.
 
 ### Supported Output Formats
 
@@ -20,7 +20,6 @@ This document explains what `printer.py` does, how to run it, and what output fo
 | **Bold** | Stress marked with bold in Markdown | `_accent_bold.md` |
 | **IPA** | International Phonetic Alphabet transcription | `_accent_ipa.txt` |
 | **XAR** | Specialized transliteration (accented and plain) | `_accent_xar.txt`, `_xar.txt` |
-| **MBROLA** | X-SAMPA-like format for speech synthesis | `_accent_mbrola.txt` |
 
 ---
 
@@ -39,7 +38,6 @@ frontmatter counters from upstream stages.
 - `<prefix>_accent_ipa.txt`
 - `<prefix>_accent_xar.txt`
 - `<prefix>_xar.txt`
-- `<prefix>_accent_mbrola.txt`
 
 **Default behavior:** If no output flags are selected, acute + bold are generated.
 
@@ -70,7 +68,6 @@ frontmatter counters from upstream stages.
 | `--bold` | Bold-marked Markdown |
 | `--ipa` | IPA transcription |
 | `--xar` | Both XAR files (accented and plain) |
-| `--mbrola` | MBROLA/X-SAMPA-like output |
 | `--print-merger` | Show the visible merge connector `‿` in acute, bold, and accented XAR output |
 
 ### IPA-Specific Options
@@ -109,7 +106,7 @@ frontmatter counters from upstream stages.
 ### Generate All Display Outputs
 
     python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
-      --acute --bold --ipa --xar --mbrola \
+  --acute --bold --ipa --xar \
       -p erra \
       --outdir outputs
 
@@ -181,9 +178,7 @@ Two files are generated:
 
 In `_accent_xar.txt`, merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`. The plain `_xar.txt` output keeps space-separated word boundaries.
 
-### MBROLA Format (`_accent_mbrola.txt`)
-
-X-SAMPA-like format designed for speech synthesis, compatible with the MBROLA diphone synthesizer. Used with the 878-word recording script included in the toolkit.
+Speech-synthesis `.pho` export is no longer owned by `printer.py`. Use `phonetizer.py` or `fullprosmaker.py` to produce `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho` from the phonetize stage.
 
 ---
 
@@ -202,7 +197,7 @@ For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 
 ## ✅ Summary
 
-`printer.py` transforms the internal prosody-realized pivot format into multiple human-readable and machine-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), specialized transliteration (XAR), and speech synthesis preparation (MBROLA). The flexible flag system allows researchers to generate exactly the formats they need.
+`printer.py` transforms the internal prosody-realized pivot format into multiple human-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), and specialized transliteration (XAR). Speech-synthesis `.pho` export now belongs to the phonetize stage.
 
 By default, input format is validated at startup and reports precise source + line details for obvious corruption in `*_tilde.txt` input.
 

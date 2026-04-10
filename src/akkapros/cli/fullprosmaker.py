@@ -54,6 +54,7 @@ from akkapros.lib.phonetize import (
     PROCESS_KEYS,
     build_default_phonetize_config,
     realize_phone_streams,
+    serialize_mbrola_rows,
     serialize_phone_rows,
 )
 from akkapros.lib.prosody import (
@@ -259,6 +260,8 @@ def run_pipeline(
     tilde_file = outdir / f"{safe_prefix}_tilde.txt"
     ophone_file = outdir / f"{safe_prefix}_ophone.txt"
     phone_file = outdir / f"{safe_prefix}_phone.txt"
+    ombrola_file = outdir / f"{safe_prefix}_ombrola.pho"
+    mbrola_file = outdir / f"{safe_prefix}_mbrola.pho"
     metrics_base = outdir / safe_prefix
     acute_file = outdir / f"{safe_prefix}_accent_acute.txt"
     bold_file = outdir / f"{safe_prefix}_accent_bold.md"
@@ -321,6 +324,8 @@ def run_pipeline(
     )
     ophone_body = serialize_phone_rows(ophone_rows)
     phone_body = serialize_phone_rows(phone_rows)
+    ombrola_body = serialize_mbrola_rows(ophone_rows, phonetize_config, accentuated=False)
+    mbrola_body = serialize_mbrola_rows(phone_rows, phonetize_config, accentuated=True)
     ophone_frontmatter = build_output_frontmatter(
         output_path=ophone_file,
         step='phonetize',
@@ -363,6 +368,12 @@ def run_pipeline(
     with open(phone_file, 'w', encoding='utf-8') as f:
         f.write(compose_text_document(phone_frontmatter, phone_body))
     logger.info('Written file: %s', format_path_for_logging(phone_file))
+    with open(ombrola_file, 'w', encoding='utf-8') as f:
+        f.write(ombrola_body)
+    logger.info('Written file: %s', format_path_for_logging(ombrola_file))
+    with open(mbrola_file, 'w', encoding='utf-8') as f:
+        f.write(mbrola_body)
+    logger.info('Written file: %s', format_path_for_logging(mbrola_file))
 
     # 4) Metrics
     inherited_syllabify = resolve_inherited_syllabify_options(tilde_frontmatter)

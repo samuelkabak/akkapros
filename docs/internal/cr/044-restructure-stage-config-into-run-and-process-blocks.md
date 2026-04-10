@@ -21,6 +21,13 @@ This CR coordinates the schema, default YAML, help text, `confwriter`, and
 runtime-resolution changes required to make the new config shape the active
 contract.
 
+Historical note:
+
+- [CR-045](045-move-mbrola-pho-output-to-phonetizer.md) later supersedes the
+  MBROLA-related print-stage portion of this CR that kept `print.run.mbrola`
+  and printer-owned MBROLA output in the active contract.
+- The rest of this regrouping CR remains done and historically accurate.
+
 ---
 
 # Motivation

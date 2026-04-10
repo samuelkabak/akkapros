@@ -39,6 +39,7 @@ from akkapros.lib.phonetize import (
     render_phonetize_verification_lines,
     realize_phone_streams,
     run_tests as run_phonetize_tests,
+    serialize_mbrola_rows,
     serialize_phone_rows,
     verify_phonetize_config,
 )
@@ -198,12 +199,16 @@ def main() -> None:
     )
     original_body = serialize_phone_rows(original_rows)
     accentuated_body = serialize_phone_rows(accentuated_rows)
+    original_mbrola_body = serialize_mbrola_rows(original_rows, phonetize_config, accentuated=False)
+    accentuated_mbrola_body = serialize_mbrola_rows(accentuated_rows, phonetize_config, accentuated=True)
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     safe_prefix = simple_safe_filename(prefix)
     original_output_path = outdir / f'{safe_prefix}_ophone.txt'
     accentuated_output_path = outdir / f'{safe_prefix}_phone.txt'
+    original_mbrola_output_path = outdir / f'{safe_prefix}_ombrola.pho'
+    accentuated_mbrola_output_path = outdir / f'{safe_prefix}_mbrola.pho'
     option_values = effective_options_from_namespace(
         args,
         exclude={'input', 'outdir', 'prefix', 'version', 'test', 'conf'},
@@ -246,8 +251,12 @@ def main() -> None:
     )
     original_output_path.write_text(compose_text_document(original_frontmatter, original_body), encoding='utf-8')
     accentuated_output_path.write_text(compose_text_document(accentuated_frontmatter, accentuated_body), encoding='utf-8')
+    original_mbrola_output_path.write_text(original_mbrola_body, encoding='utf-8')
+    accentuated_mbrola_output_path.write_text(accentuated_mbrola_body, encoding='utf-8')
     logger.info('Written file: %s', format_path_for_logging(original_output_path))
     logger.info('Written file: %s', format_path_for_logging(accentuated_output_path))
+    logger.info('Written file: %s', format_path_for_logging(original_mbrola_output_path))
+    logger.info('Written file: %s', format_path_for_logging(accentuated_mbrola_output_path))
 
 
 if __name__ == '__main__':

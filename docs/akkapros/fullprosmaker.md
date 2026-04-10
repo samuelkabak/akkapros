@@ -23,7 +23,7 @@ This document explains what `fullprosmaker.py` does, how to run it, and what fil
 |-------|----------------|-------------|
 | **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
 | **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Phonetize** | `*_tilde.txt` → `*_ophone.txt`, `*_phone.txt` | Builds and finalizes the original and accentuated phone-row artifacts |
+| **3. Phonetize** | `*_tilde.txt` → `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho` | Builds and finalizes the original and accentuated phone-row artifacts plus raw `.pho` streams |
 | **4. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
 | **5. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
 
@@ -44,6 +44,8 @@ The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic s
 | `<prefix>_tilde.txt` | Prosody-realized pivot format |
 | `<prefix>_ophone.txt` | Original/deaccented finalized phone-row artifact |
 | `<prefix>_phone.txt` | Canonical flat-line finalized phone-row artifact with CR-036 fields |
+| `<prefix>_ombrola.pho` | Original/deaccented raw `.pho` stream |
+| `<prefix>_mbrola.pho` | Accentuated raw `.pho` stream |
 
 The written `_tilde` pivot preserves three kinds of downstream-critical structure: armored punctuation / escaped chunks as `⟦...⟧`, diphthong memory as `¨`, and merge provenance as `+` for explicit inherited links versus `&` for internal prosody merges.
 
@@ -128,7 +130,7 @@ units do not forward-merge; they fall directly to last resort.
 | `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.timing_model.short_pause_policy` |
 | `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.timing_model.drift_policy` |
 | `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.timing_model.drift_tolerance` |
-| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
+| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` |
 
 Dedicated config-backed flags remain supported during the transition, but they are now deprecated in favor of `--option KEY=VALUE` or `--conf FILE`.
 
@@ -147,7 +149,7 @@ metrics-stage CLI option. The current transition also removes metrics-owned
 timing flags; `fullprosmaker` uses the phonetize transition defaults internally
 for metrics (`wpm = 193`, `pause_ratio = 35`).
 
-The longer-term transition target is a structured phonetize handoff where `_ophone.txt` and `_phone.txt` carry the canonical finalized row streams and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
+The longer-term transition target is a structured phonetize handoff where `_ophone.txt`, `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho` carry the canonical phonetic export streams and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
 
 When you are iterating on phonetize timing settings in grouped config, the
 recommended preflight is `confwriter --verify`. That uses the same shared
@@ -206,6 +208,8 @@ This generates:
 - `erra_tilde.txt`
 - `erra_ophone.txt`
 - `erra_phone.txt`
+- `erra_ombrola.pho`
+- `erra_mbrola.pho`
 - `erra_metrics.txt` (default table)
 - `erra_accent_acute.txt` (default acute)
 - `erra_accent_bold.md` (default bold)

@@ -182,6 +182,19 @@ def _assert_phone_artifact(path: Path) -> None:
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['drift']
 
 
+def _assert_pho_artifact(path: Path) -> None:
+    _assert_non_empty_text_file(path)
+    lines = _read_text(path).strip().splitlines()
+    assert lines
+    for line in lines:
+        parts = line.split()
+        assert len(parts) == 3
+        symbol, duration, frequency = parts
+        assert symbol
+        assert int(duration) > 0
+        assert int(frequency) > 0
+
+
 def _build_tilde_file(tmp_path: Path, prefix: str) -> tuple[Path, Path]:
     outdir = tmp_path / prefix
     outdir.mkdir(parents=True, exist_ok=True)
@@ -252,8 +265,12 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
     ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
+    ombrola_file = outdir / f"{prefix}_ombrola.pho"
+    mbrola_file = outdir / f"{prefix}_mbrola.pho"
     _assert_phone_artifact(ophone_file)
     _assert_phone_artifact(phone_file)
+    _assert_pho_artifact(ombrola_file)
+    _assert_pho_artifact(mbrola_file)
 
     _run_cli(
         "akkapros.cli.metricalc",
@@ -287,7 +304,6 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         "--bold",
         "--ipa",
         "--xar",
-        "--mbrola",
     )
     printer_outputs = [
         outdir / f"{prefix}_accent_acute.txt",
@@ -295,7 +311,6 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         outdir / f"{prefix}_accent_ipa.txt",
         outdir / f"{prefix}_accent_xar.txt",
         outdir / f"{prefix}_xar.txt",
-        outdir / f"{prefix}_accent_mbrola.txt",
     ]
     for path in printer_outputs:
         _assert_non_empty_text_file(path)
@@ -312,7 +327,6 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_accent_ipa.txt",
         printer_outputs[3]: STAGE_REF_DIR / "expected_e2e_accent_xar.txt",
         printer_outputs[4]: STAGE_REF_DIR / "expected_e2e_xar.txt",
-        printer_outputs[5]: STAGE_REF_DIR / "expected_e2e_accent_mbrola.txt",
     }
     for generated, reference in reference_map.items():
         _assert_matches_reference(generated, reference)
@@ -344,6 +358,8 @@ def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: P
     assert 'Phonetizer preflight failed before Phase 2 processing continued.' in proc.stderr
     assert not (outdir / f'{prefix}_ophone.txt').exists()
     assert not (outdir / f'{prefix}_phone.txt').exists()
+    assert not (outdir / f'{prefix}_ombrola.pho').exists()
+    assert not (outdir / f'{prefix}_mbrola.pho').exists()
 
 
 def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) -> None:
@@ -370,6 +386,8 @@ def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) 
     assert 'WARN phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
     assert (outdir / f'{prefix}_ophone.txt').exists()
     assert (outdir / f'{prefix}_phone.txt').exists()
+    assert (outdir / f'{prefix}_ombrola.pho').exists()
+    assert (outdir / f'{prefix}_mbrola.pho').exists()
 
 
 def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_path: Path) -> None:
@@ -456,8 +474,12 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
     ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
+    ombrola_file = outdir / f"{prefix}_ombrola.pho"
+    mbrola_file = outdir / f"{prefix}_mbrola.pho"
     _assert_phone_artifact(ophone_file)
     _assert_phone_artifact(phone_file)
+    _assert_pho_artifact(ombrola_file)
+    _assert_pho_artifact(mbrola_file)
 
     _run_cli(
         "akkapros.cli.metricalc",
@@ -490,7 +512,6 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
         "--bold",
         "--ipa",
         "--xar",
-        "--mbrola",
     )
     printer_outputs = [
         outdir / f"{prefix}_accent_acute.txt",
@@ -498,7 +519,6 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
         outdir / f"{prefix}_accent_ipa.txt",
         outdir / f"{prefix}_accent_xar.txt",
         outdir / f"{prefix}_xar.txt",
-        outdir / f"{prefix}_accent_mbrola.txt",
     ]
     for path in printer_outputs:
         _assert_non_empty_text_file(path)
@@ -515,7 +535,6 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
         printer_outputs[2]: STAGE_REF_DIR / "expected_e2e_mono_accent_ipa.txt",
         printer_outputs[3]: STAGE_REF_DIR / "expected_e2e_mono_accent_xar.txt",
         printer_outputs[4]: STAGE_REF_DIR / "expected_e2e_mono_xar.txt",
-        printer_outputs[5]: STAGE_REF_DIR / "expected_e2e_mono_accent_mbrola.txt",
     }
     for generated, reference in reference_map.items():
         _assert_matches_reference(generated, reference)
@@ -547,6 +566,8 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         outdir / "test_tilde.txt",
         outdir / "test_ophone.txt",
         outdir / "test_phone.txt",
+        outdir / "test_ombrola.pho",
+        outdir / "test_mbrola.pho",
         outdir / "test_metrics.txt",
         outdir / "test.json",
         outdir / "test_accent_acute.txt",
@@ -617,6 +638,8 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         outdir / "test_mono_tilde.txt",
         outdir / "test_mono_ophone.txt",
         outdir / "test_mono_phone.txt",
+        outdir / "test_mono_ombrola.pho",
+        outdir / "test_mono_mbrola.pho",
         outdir / "test_mono_metrics.txt",
         outdir / "test_mono.json",
         outdir / "test_mono_accent_acute.txt",

@@ -2,8 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[046. Redesign metricalc Around Phone/Ophone Interval Metrics](046-redesign-metricalc-around-phone-ophone-interval-metrics.md) - Draft
-[045. Move MBROLA `.pho` Output to Phonetizer](045-move-mbrola-pho-output-to-phonetizer.md) - Draft
+[046. Redesign metricalc Around Phone/Ophone Interval Metrics](046-redesign-metricalc-around-phone-ophone-interval-metrics.md) - Blocked
+[045. Move MBROLA `.pho` Output to Phonetizer](045-move-mbrola-pho-output-to-phonetizer.md) - Done
 [044. Restructure Stage Config into Run and Process Blocks](044-restructure-stage-config-into-run-and-process-blocks.md) - Done
 [043. Adopt effective runtime config, path overrides, and scoped help across runtime CLIs](043-adopt-effective-runtime-config-path-overrides-and-scoped-help-across-runtime-clis.md) - Done
 [042. Add shared phonetize config verify and require phonetizer preflight](042-add-shared-phonetize-config-verify-and-require-phonetizer-preflight.md) - Done

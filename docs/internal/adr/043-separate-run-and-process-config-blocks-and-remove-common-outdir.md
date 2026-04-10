@@ -20,6 +20,14 @@ moves the existing top-level phonetize timing-model branch and the former flat
 phonetize process-policy keys under `phonetize.process.timing_model` so the
 whole timing model is grouped under one process branch.
 
+Historical note:
+
+- [CR-045](../cr/045-move-mbrola-pho-output-to-phonetizer.md) later supersedes
+  the MBROLA-related portion of this ADR that listed `print.run.mbrola` as part
+  of the active print-stage config surface.
+- The run/process regrouping decision itself remains accepted; only that
+  printer-owned MBROLA path is historical after CR-045.
+
 ## Context and Problem Statement
 
 The current package-wide YAML config mixes different kinds of settings in the

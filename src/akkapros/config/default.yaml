@@ -79,6 +79,20 @@ prosody:
 # Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.
 phonetize:
   process:
+    intonation:
+      # Baseline speaker pitch in Hertz used for emitted .pho rows.
+      f0: 120
+      # Pitch rise in semitones applied to stressed syllables in the accentuated .pho
+      # stream.
+      stress_rise: 2
+      # Reserved later-use pitch rise in semitones for question-final contours.
+      question_final_rise: 3
+      # Reserved later-use pitch fall in semitones for statement-final contours.
+      statement_final_fall: -2
+      # Reserved later-use pitch rise in semitones for exclamatory contours.
+      exclamation_rise: 4
+      # Reserved later-use pitch rise in semitones for continuation contours.
+      continuation_rise: 1
     timing_model:
       # geminate realization policy
       # - cumulative: keep coda duration + onset duration instead of correcting to the
@@ -254,7 +268,5 @@ print:
     circ_hiatus: false
     # Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.
     xar: false
-    # Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols).
-    mbrola: false
     # Render the visible merge connector in supported outputs.
     print_merger: false

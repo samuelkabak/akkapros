@@ -1,10 +1,10 @@
 ---
 cr_id: CR-045
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-09
+updated: 2026-04-10
 implements: 'ADR-040, ADR-043, REQ-025, REQ-029'
 ---
 
@@ -26,6 +26,13 @@ non-silence phonemes, integer millisecond durations from phone rows, and
 intonation-derived F0 values sourced from a phonetize-owned intonation block.
 For now, only baseline `f0` and stressed-syllable `stress_rise` affect emitted
 Hz values.
+
+This CR explicitly supersedes older accepted MBROLA-related implementation
+assumptions in [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md),
+[REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md), and
+[CR-044](044-restructure-stage-config-into-run-and-process-blocks.md) where
+those records still place MBROLA under `print.run.mbrola` or fail to describe
+the phonetize process surface needed for phonetizer-owned `.pho` export.
 
 ---
 
@@ -142,6 +149,14 @@ at:
 - `phonetize.process.intonation.statement_final_fall`
 - `phonetize.process.intonation.exclamation_rise`
 - `phonetize.process.intonation.continuation_rise`
+
+The active phonetize process contract under this CR is:
+
+- `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` are
+  siblings under `phonetize.process`
+- `phonetize.process.intonation.*` governs pitch, F0, and intonation behavior
+- `phonetize.process.timing_model.*` governs duration, pause, and timing behavior
+- neither subtree is nested inside the other
 
 Default values:
 
@@ -292,6 +307,8 @@ Normative design constraints:
   silence symbol
 - intonation controls belong to `phonetize.process.intonation`, not to an
   MBROLA-specific subtree
+- `phonetize.process.intonation` is a pitch-only sibling of
+  `phonetize.process.timing_model`, which remains the timing-only subtree
 - the current scope applies only baseline `f0` and stressed-syllable
   `stress_rise`; other approved intonation parameters are reserved for later
   CRs
@@ -420,8 +437,11 @@ contract.
   [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md),
   [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md), and
   [CR-044](044-restructure-stage-config-into-run-and-process-blocks.md)
-- Supersedes active implementation assumptions that still place MBROLA under
-  printer-owned config or output selection
+- Supersedes the MBROLA-related portions of
+  [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md),
+  [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md), and
+  [CR-044](044-restructure-stage-config-into-run-and-process-blocks.md) that
+  still place MBROLA under printer-owned config or output selection
 
 ---
 
@@ -443,6 +463,35 @@ contract.
 ---
 
 # Notes for CR-045
+
+Implementation status note:
+
+- This CR is complete in the repository state as of 2026-04-10.
+- The phonetizer now emits `<prefix>_mbrola.pho` and `<prefix>_ombrola.pho`.
+- The approved config/help/docs surface now treats MBROLA `.pho` as a phonetize-owned artifact.
+- The former `print.run.mbrola` surface is no longer part of the active config contract.
+
+# Implementation Blockers
+
+## 2026-04-10 - Active config contract still approves print.run.mbrola
+- Type: governance conflict
+- Observed: Accepted [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) and implemented [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md) both define `print.run.mbrola` as part of the approved current config surface, while this CR requires that `print.run.mbrola` be removed from the active schema, help, docs, and config inventory.
+- Why blocked: Implementing CR-045 as written would directly contradict accepted and already-implemented governance records instead of following them. Under the repository workflow, that conflict must be resolved additively in governance before code can be changed safely.
+- Needed to unblock: Rewrite or supersede the active governance so the current approved schema no longer requires `print.run.mbrola`, with explicit forward references from the older records if needed.
+- Owner: Internal Spec Writer
+- Related refs: [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md), [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md), [CR-044](044-restructure-stage-config-into-run-and-process-blocks.md)
+- Resolved on: 2026-04-10
+- Resolution: The CR now explicitly states that it supersedes the MBROLA-related portions of ADR-043, REQ-029, and CR-044 and removes `print.run.mbrola` from the active contract.
+
+## 2026-04-10 - Phonetize process surface is not formally re-approved for a sibling intonation block
+- Type: governance conflict
+- Observed: The active approved grouped-config contract from [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) and [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md) defines the phonetize process surface as `phonetize.process.timing_model` for the stage's current timing-model and process-policy keys. CR-045 introduces a new sibling branch `phonetize.process.intonation.*` without first updating the accepted governing schema record that defines the phonetize process layout.
+- Why blocked: The requested config shape change is broader than an implementation detail. Without an accepted schema-level update, I cannot safely decide whether `phonetize.process.intonation` is the intended permanent surface, whether intonation belongs under `timing_model`, or how the change should interact with the just-implemented CR-044 contract.
+- Needed to unblock: Update or supersede the accepted schema governance so the approved phonetize process layout explicitly includes the intonation branch and its relationship to `phonetize.process.timing_model`.
+- Owner: Internal Spec Writer
+- Related refs: [ADR-043](../adr/043-separate-run-and-process-config-blocks-and-remove-common-outdir.md), [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md), [CR-044](044-restructure-stage-config-into-run-and-process-blocks.md)
+- Resolved on: 2026-04-10
+- Resolution: The CR now defines `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` as explicit sibling subtrees under `phonetize.process`, with intonation governing pitch and timing_model governing timing.
 
 Assumption: this CR follows the current regrouped phonetize config layout from
 ADR-043 and therefore places intonation controls under

@@ -63,6 +63,15 @@ def _field(default: Any, kind: str, description: str, choices: tuple[str, ...] |
 PHONETIZE_SCHEMA: dict[str, Any] = {
     'process': {
         '__comment__': None,
+        'intonation': {
+            '__comment__': None,
+            'f0': _field(120, 'int', 'Baseline speaker pitch in Hertz used for emitted .pho rows.'),
+            'stress_rise': _field(2, 'int', 'Pitch rise in semitones applied to stressed syllables in the accentuated .pho stream.'),
+            'question_final_rise': _field(3, 'int', 'Reserved later-use pitch rise in semitones for question-final contours.'),
+            'statement_final_fall': _field(-2, 'int', 'Reserved later-use pitch fall in semitones for statement-final contours.'),
+            'exclamation_rise': _field(4, 'int', 'Reserved later-use pitch rise in semitones for exclamatory contours.'),
+            'continuation_rise': _field(1, 'int', 'Reserved later-use pitch rise in semitones for continuation contours.'),
+        },
         'timing_model': {
             '__comment__': None,
             'geminate_policy': _field(
@@ -810,8 +819,13 @@ def _runtime_view_phonetize_config(phonetize_config: dict[str, Any]) -> dict[str
     model_only = {key: deepcopy(value) for key, value in timing_model.items() if key not in PROCESS_KEYS}
     return {
         'process': process,
+        'intonation': deepcopy(phonetize_config['process'].get('intonation', {})),
         'timing_model': model_only,
     }
+
+
+def _semitone_to_hz(base_f0: int, semitones: int) -> int:
+    return max(1, int(round(base_f0 * (2 ** (semitones / 12.0)))))
 
 
 def _make_issue(
@@ -933,6 +947,22 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 path,
                 'value is a positive integer in milliseconds',
                 'Timing-model durations must be positive integers measured in milliseconds.',
+            )
+
+    intonation = raw_config['process']['intonation']
+    if not isinstance(intonation['f0'], int) or isinstance(intonation['f0'], bool) or intonation['f0'] <= 0:
+        add_failure(
+            'phonetize.process.intonation.f0',
+            'f0 > 0',
+            'Baseline emitted F0 must be a positive integer Hertz value.',
+        )
+    for key in ('stress_rise', 'question_final_rise', 'statement_final_fall', 'exclamation_rise', 'continuation_rise'):
+        value = intonation[key]
+        if not isinstance(value, int) or isinstance(value, bool):
+            add_failure(
+                f'phonetize.process.intonation.{key}',
+                f'{key} is an integer number of semitones',
+                'Intonation semitone controls must be integers.',
             )
 
     segmental_ceiling = durations['segmental_ceiling']
@@ -1171,6 +1201,42 @@ def _partition_phone_units(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
     if syllable:
         units.append({'kind': 'syllable', 'indices': syllable})
     return units
+
+
+def _mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | None, *, accentuated: bool) -> list[tuple[str, int, int]]:
+    config = _merge_phonetize_config(phonetize_config)
+    intonation = config['process']['intonation']
+    baseline_f0 = int(intonation['f0'])
+    stressed_f0 = _semitone_to_hz(baseline_f0, int(intonation['stress_rise']))
+    emitted: list[tuple[str, int, int]] = []
+
+    for unit in _partition_phone_units(rows):
+        if unit['kind'] == 'pause':
+            row = rows[unit['index']]
+            emitted.append(('_', int(row['duration']), baseline_f0))
+            continue
+
+        indices = unit['indices']
+        frequency = stressed_f0 if accentuated and any(rows[index]['accent'] == 'A' for index in indices) else baseline_f0
+        for index in indices:
+            row = rows[index]
+            emitted.append((row['realization'], int(row['duration']), frequency))
+
+    merged: list[tuple[str, int, int]] = []
+    for symbol, duration, frequency in emitted:
+        if merged and merged[-1][0] == symbol and merged[-1][2] == frequency:
+            prev_symbol, prev_duration, prev_frequency = merged[-1]
+            merged[-1] = (prev_symbol, prev_duration + duration, prev_frequency)
+        else:
+            merged.append((symbol, duration, frequency))
+    return merged
+
+
+def serialize_mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | None = None, *, accentuated: bool) -> str:
+    return '\n'.join(
+        f'{symbol} {duration} {frequency}'
+        for symbol, duration, frequency in _mbrola_rows(rows, phonetize_config, accentuated=accentuated)
+    ) + '\n'
 
 
 def _analyze_syllable(rows: list[dict[str, str]], indices: list[int]) -> dict[str, Any]:
@@ -1641,6 +1707,7 @@ def run_tests() -> bool:
         lambda: _test_dual_stream_generation(),
         lambda: _test_finalized_stream_generation(),
         lambda: _test_shared_verification(),
+        lambda: _test_mbrola_export(),
     ]
     return all(case() for case in cases)
 
@@ -1702,4 +1769,18 @@ def _test_shared_verification() -> bool:
         warnings_only.status == 'pass-with-warnings'
         and blocking.status == 'failure'
         and any('pause_ratio > 70' in line for line in rendered)
+    )
+
+
+def _test_mbrola_export() -> bool:
+    original_rows, accentuated_rows = build_phone_streams('at·ta~')
+    realize_phone_rows(original_rows, allow_accentuation=False)
+    realize_phone_rows(accentuated_rows, allow_accentuation=True)
+    original_lines = serialize_mbrola_rows(original_rows, accentuated=False).strip().splitlines()
+    accentuated_lines = serialize_mbrola_rows(accentuated_rows, accentuated=True).strip().splitlines()
+    return (
+        len(original_lines) > 0
+        and len(accentuated_lines) > 0
+        and all(len(line.split()) == 3 for line in original_lines + accentuated_lines)
+        and any(line.endswith(' 135') for line in accentuated_lines)
     )
