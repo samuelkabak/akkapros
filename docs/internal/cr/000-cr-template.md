@@ -1,6 +1,6 @@
 ---
 cr_id: CR-XXX
-status: '{Draft | Approved | Rejected | Done}'
+status: '{Draft | Blocked | Approved | Rejected | Done}'
 priority: '{Low | Medium | High}'
 impact: '{Additive | Mutative}'
 created: YYYY-MM-DD
@@ -191,11 +191,43 @@ other CRs
 - [ ] Code review
 - [ ] Verify acceptance criteria
 
+
 ---
 
-# Notes for CR-XXX
+# Implementation Blockers
 
-This document contains optional design notes related to the Change Request.
+Use this section when implementation or verification cannot proceed safely.
+
+Leave the section empty if no blockers are known.
+
+When a blocker is present, set the front matter status to `Blocked` and add one entry per blocker using this structure:
+
+## YYYY-MM-DD - <Short blocker title>
+
+- Type: `{spec weakness | code/spec mismatch | governance conflict | missing dependency | external dependency | other}`
+- Observed: concise description of the concrete problem
+- Why blocked: why safe implementation or verification cannot continue
+- Needed to unblock: the minimum clarification, decision, dependency, or spec rewrite required
+- Owner: `{spec writer | implementer | maintainer | external}`
+- Related refs: ADR-NNN, REQ-NNN, CR-NNN, files, tests, or commits as applicable
+
+Example:
+
+## YYYY-MM-DD - Acceptance criteria do not define output shape
+
+- Type: `spec weakness`
+- Observed: the CR requires a new metrics artifact but does not define the output schema or filename contract
+- Why blocked: implementation would be speculative and acceptance criteria cannot be verified objectively
+- Needed to unblock: specify the artifact path, schema, and verification expectations
+- Owner: `spec writer`
+- Related refs: CR-XXX, REQ-XXX
+
+
+---
+
+# Notes
+
+This section contains optional design notes related to the Change Request.
 
 Possible contents:
 

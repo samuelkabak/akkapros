@@ -5,9 +5,18 @@ Purpose
 
 Principles / Workflow
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
-- CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). Mark CR status clearly (Draft / Proposed / Accepted / Done).
+- CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). CR status workflow is `Draft -> Approved -> Done` for accepted work, or `Draft -> Rejected` for declined work. Use `Blocked` as a temporary status when a CR cannot be implemented or verified safely as written.
 - Req: short, testable requirement documents describing what to implement. It is acceptable for `req/` to be empty until requirements are added.
 - Change-management rule: do not rewrite older accepted ADRs, REQs, or CRs as though a later decision had always been true. This applies to any future change that alters, narrows, removes, replaces, or reinterprets an earlier documented decision or contract. Preserve historical records and record the newer decision additively in new documents or explicit supersession notes, using short forward references when readers need help understanding the relationship between past and current state.
+
+Blocked CR methodology
+- `Blocked` means the CR is not executable as written: the contract is too weak, contradictory, mismatched to the codebase, governance-constrained, or otherwise not safely implementable/verifiable.
+- The source of truth for blocking information is the `# Implementation Blockers` section in the CR document.
+- Implementers record concrete blocker entries there and set CR status to `Blocked` when they encounter blockers that prevent safe progress.
+- Spec writers resolving a blocked CR must read the `# Implementation Blockers` section first, then repair the affected CR sections so the contract becomes implementable and testable.
+- When a blocker is resolved by a spec rewrite, keep the blocker entry for history and append `Resolved on: YYYY-MM-DD` and `Resolution: <short description of the spec change that resolved it>`.
+- If all blocker entries are resolved, change status from `Blocked` back to `Draft` unless a different status is explicitly requested.
+- If any blocker remains unresolved, keep status as `Blocked`.
 
 Directory layout
 - `adr/` — ADR documents and `index.md`. Use the ADR template `000-adr-template.md` and the numeric prefix to order decisions (e.g., `023-rename-repair-to-accentuation.md`).
@@ -35,10 +44,10 @@ Templates
 Status, review & metadata
 - All ADR/CR/REQ/review documents use YAML front matter at the top of the file.
 - Front matter keys use lowercase snake_case names such as `adr_id`, `cr_id`, `req_id`, `review_id`, `created`, and `updated`.
-- Add a clear `status` value in every ADR/CR/REQ/review record (`Draft`, `Proposed`, `Accepted`, `Done`, or the document-type-specific equivalent already in use).
+- Add a clear `status` value in every ADR/CR/REQ/review record using the document-type-specific workflow already in use.
 - When accepting a decision, add reviewer metadata and dates to the ADR/CR.
 - ADRs should carry `adr_id`, `status`, `created`, and `updated` in front matter at minimum.
-- CRs should carry `cr_id`, `status`, `priority`, `impact`, `created`, `updated`, and `implements` in front matter.
+- CRs should carry `cr_id`, `status`, `priority`, `impact`, `created`, `updated`, and `implements` in front matter. Current CR statuses are `Draft`, `Blocked`, `Approved`, `Rejected`, and `Done`.
 - REQs should carry `req_id`, `status`, `priority`, `impact`, `created`, and `updated` in front matter.
 - Reviews should carry `review_id`, `status`, `created`, `updated`, `reviewer`, and `scope` in front matter.
 - If an older accepted document is no longer current, prefer adding an explicit supersession note or a short historical-reference paragraph instead of changing the original decision text to match the newer state.
