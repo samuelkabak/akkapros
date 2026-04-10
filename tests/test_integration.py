@@ -372,6 +372,45 @@ def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) 
     assert (outdir / f'{prefix}_phone.txt').exists()
 
 
+def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_path: Path) -> None:
+    tilde_file, outdir = _build_tilde_file(tmp_path, 'printer_runtime_defaults')
+
+    _run_cli(
+        'akkapros.cli.printer',
+        str(tilde_file),
+        '--outdir',
+        str(outdir),
+        '--option',
+        'print.ipa=true',
+    )
+
+    assert (outdir / 'akkapros_accent_ipa.txt').exists()
+
+
+def test_prosmaker_path_override_wins_over_dedicated_flag(tmp_path: Path) -> None:
+    outdir = tmp_path / 'prosmaker_override'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    _run_cli('akkapros.cli.syllabifier', str(INPUT_PROC), '--outdir', str(outdir))
+    syl_file = outdir / 'akkapros_syl.txt'
+
+    _run_cli(
+        'akkapros.cli.prosmaker',
+        str(syl_file),
+        '--outdir',
+        str(outdir),
+        '--style',
+        'sob',
+        '--option',
+        'prosody.style=lob',
+    )
+
+    tilde_file = outdir / 'akkapros_tilde.txt'
+    frontmatter, _body = split_frontmatter(_read_text(tilde_file))
+    assert frontmatter is not None
+    assert frontmatter['metadata']['options']['style'] == 'lob'
+
+
 def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> None:
     """Run each stage CLI in sequence with prosody mono mode and pin outputs."""
     outdir = tmp_path / "stage_pipeline_mono"

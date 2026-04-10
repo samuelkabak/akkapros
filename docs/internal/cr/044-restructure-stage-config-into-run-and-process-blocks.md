@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-09
+updated: 2026-04-10
 implements: 'ADR-043, REQ-029'
 ---
 
@@ -15,7 +15,7 @@ implements: 'ADR-043, REQ-029'
 Restructure the grouped YAML config so each stage exposes `run` and `process`
 subtrees according to the approved stage mapping, remove the remaining metrics
 timing knobs from the config surface, and move the phonetize process-policy
-block under `phonetize.timing_model`.
+and timing-model contract under `phonetize.process.timing_model`.
 
 This CR coordinates the schema, default YAML, help text, `confwriter`, and
 runtime-resolution changes required to make the new config shape the active
@@ -47,9 +47,10 @@ reorganizes the stage keys by meaning.
 - Remove `metrics.wpm`, `metrics.pause_ratio`, `metrics.long_punct_weight`, and
   `metrics.explicit_link_count` from the config surface.
 - Split `print` into `process` and `run` blocks.
-- Move the current top-level `phonetize.timing_model` block under
-  `phonetize.process` so the timing model remains part of the stage's process
-  contract.
+- Move the current top-level `phonetize.timing_model` block and the former
+  flat `phonetize.process.*` policy keys under
+  `phonetize.process.timing_model` so the whole phonetize timing contract
+  remains part of the stage's process contract.
 - Update `src/akkapros/config/default.yaml` comments, ordering, and path layout
   to the new schema.
 - Update schema validation, `confwriter` inventory, and path-based set/get/list
@@ -161,10 +162,12 @@ Normative rules:
 - removed keys are out of contract and must not remain in emitted default YAML,
   help text, `confwriter` listings, or docs
 - the phonetize timing contract remains otherwise unchanged except for moving
-  the timing-model subtree under `phonetize.process`
+  the timing-model subtree and process-policy keys under
+  `phonetize.process.timing_model`
 - within the migrated `phonetize.process.timing_model` subtree, canonical
   defaults include `accentuation_distribution_policy: 85_15` and
-  `drift_policy: extensible`
+  `drift_policy: extensible`, carrying forward the runtime default established
+  in [CR-043](043-adopt-effective-runtime-config-path-overrides-and-scoped-help-across-runtime-clis.md)
 - metrics timing defaults removed from config are internal runtime concerns
   until a later redesign re-exposes them deliberately
 

@@ -15,7 +15,15 @@ _repo_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
+from akkapros.lib.config import (
+    ConfigError,
+    add_config_argument,
+    add_runtime_interface_arguments,
+    log_deprecated_config_flag_warnings,
+    parse_args_with_config,
+    render_runtime_help,
+    require_effective_prefix,
+)
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     count_function_words,
@@ -60,6 +68,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description='Compute metrics for Akkadian text',
         formatter_class=RawDefaultsHelpFormatter,
+        add_help=False,
         epilog=f"""
 EXAMPLES:
     python metricalc.py erra_tilde.txt --table
@@ -71,6 +80,7 @@ Version {__version__}
     add_standard_version_argument(parser, 'akkapros-metricalc')
     add_standard_logging_arguments(parser)
     add_config_argument(parser)
+    add_runtime_interface_arguments(parser, 'metricalc')
     parser.add_argument('input', nargs='?', help=help_for('metricalc.input'))
     parser.add_argument('--input-list', help=help_for('metricalc.input_list'))
     parser.add_argument('-p', '--prefix', help=help_for('metricalc.prefix'))
@@ -91,15 +101,17 @@ Version {__version__}
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
         log_startup_banner(logger, 'akkapros-metrics', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         success = run_tests()
         sys.exit(0 if success else 1)
 
     if not args.input and not args.input_list:
-        parser.print_help()
+        sys.stdout.write(render_runtime_help(parser, 'metricalc'))
         sys.exit(1)
 
     logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
     log_startup_banner(logger, 'akkapros-metrics', __version__, args)
+    log_deprecated_config_flag_warnings(logger, args)
 
     if not (args.table or args.json):
         args.table = True

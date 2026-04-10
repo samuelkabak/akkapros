@@ -1,12 +1,15 @@
 # Package-Wide Configuration
 
-The package supports one shared YAML configuration file for the file-processing CLIs under `src/akkapros/cli/`. The config file is optional. If you do not pass `--conf FILE`, each CLI keeps its existing built-in defaults.
+The package supports one shared YAML configuration file for the file-processing CLIs under `src/akkapros/cli/`. The config file is optional. Even when you do not pass `--conf FILE`, each runtime CLI now materializes one effective in-memory config object from canonical defaults before processing starts.
 
 Override precedence is always:
 
-1. Explicit CLI option
-2. YAML config value
-3. Built-in default
+1. `-t/--option KEY=VALUE` path override
+2. Dedicated config-backed CLI flag
+3. YAML config value
+4. Built-in default
+
+Dedicated config-backed flags remain supported during the transition, but the preferred runtime interface is now config-first: `--conf FILE` plus optional repeatable `-t/--option KEY=VALUE` overrides.
 
 ## Files
 
@@ -27,6 +30,11 @@ The top-level sections are:
 - `print`
 
 Shared output naming stays in `common`. The schema intentionally does not define stage-specific duplicates such as `metrics_prefix` or `print_prefix`.
+
+At runtime, `--help` is now program-scoped and path-scoped:
+
+- `python -m akkapros.cli.phonetizer --help` shows the `common` section plus the config subtree relevant to `phonetizer`
+- `python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.durations` shows only that requested subtree
 
 `common.prefix` is required for runnable grouped configs. `confwriter` rejects writes that would leave it null, and prefix-dependent CLIs reject execution if no effective prefix is available from `--prefix` or `common.prefix`.
 
@@ -93,6 +101,14 @@ python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --pre
 
 In that case, `--prefix other` overrides the `common.prefix` value from the config file while the remaining config-supplied values continue to apply.
 
+The preferred equivalent is the path-based form:
+
+```bash
+python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --option common.prefix="other"
+```
+
+For phonetize-owned runtime overrides and scoped help, the active runtime path surface is `phonetize.process.timing_model.*`. During the current transition, persisted grouped YAML still stores phonetize policy controls under `phonetize.process.*` and timing values under `phonetize.timing_model.*`, while the runtime override/help surface presents the unified effective-config view.
+
 ## Confwriter
 
 `confwriter` creates missing config files from the canonical schema and updates existing files incrementally. It now uses full YAML-path keys and a small schema-driven operation surface instead of one dedicated writer flag per config key.
@@ -148,5 +164,7 @@ When you run `fullprosmaker`, those stage sections still apply. For example,
 - The config file uses the repository's restricted YAML subset: nested mappings, scalars, and JSON-style lists such as `[]`.
 - Config files are not mandatory.
 - The config file controls only recurring options. Input paths remain normal CLI arguments.
+- Runtime CLIs now expose repeatable `-t/--option KEY=VALUE` overrides for config-backed settings.
+- Runtime `--help [PATH]` is schema-aware; deprecated dedicated flags are listed after the active config-path-driven sections.
 - `confwriter` writes files programmatically from the schema; it does not copy `default.yaml` byte-for-byte.
 - `confwriter --list` is the schema inventory surface; normal `--help` stays concise.

@@ -1,10 +1,10 @@
 ---
 req_id: REQ-028
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-07
+updated: 2026-04-10
 related_adrs: 'ADR-042, ADR-037, ADR-036'
 implemented_by: 'CR-043'
 ---
@@ -53,6 +53,11 @@ can explain either the whole program view or one specific config subtree.
 - [ ] Given no `--conf FILE` argument is supplied, when a runtime CLI resolves
       its effective config, then the config object is still materialized in
       memory from canonical defaults before CLI overrides are applied.
+- [ ] Given defaults-only runtime materialization includes the phonetize-owned
+      subtree, when canonical runtime defaults are inspected, then
+      `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
+      and `phonetize.process.timing_model.drift_policy=extensible` are present
+      in the effective config.
 - [ ] Given `--conf FILE` is supplied, when the file omits some supported keys,
       then those missing keys still retain canonical default values in the
       effective in-memory config object.
@@ -92,8 +97,9 @@ can explain either the whole program view or one specific config subtree.
       when help is rendered, then the output is the same scoped config help as
       the default phonetizer program view for that owned section.
 - [ ] Given a runtime CLI is invoked with
-      `python phonetizer.py --help phonetize.timing_model.durations`, when help
-      is rendered, then only that requested schema/help subtree is printed.
+      `python phonetizer.py --help phonetize.process.timing_model.durations`,
+      when help is rendered, then only that requested schema/help subtree is
+      printed.
 - [ ] Given a runtime CLI has no `--conf FILE`, when a user supplies only a
       positional input plus one or more path overrides, then the command still
       resolves a valid effective config from defaults plus those overrides.
@@ -142,6 +148,7 @@ can explain either the whole program view or one specific config subtree.
   - `program.py --help SOME.PATH` prints the requested schema/help subtree only
   - default help view includes the relevant `common` view and the command's
     owned or consumed config sections
+      - phonetize-owned subtree examples use `phonetize.process.timing_model.*`
   - deprecated dedicated flags remain visible but are rendered after active
     sections
 - CLI-only arguments:

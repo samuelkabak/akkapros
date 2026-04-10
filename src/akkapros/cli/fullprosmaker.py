@@ -23,7 +23,16 @@ sys.path.insert(0, str(_repo_root / "src"))
 
 from akkapros.lib import syllabify
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
+from akkapros.lib.config import (
+    ConfigError,
+    add_config_argument,
+    add_runtime_interface_arguments,
+    log_deprecated_config_flag_warnings,
+    normalize_runtime_config_path,
+    parse_args_with_config,
+    require_effective_prefix,
+    render_runtime_help,
+)
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
     build_syllabify_stage_data,
@@ -100,14 +109,14 @@ def _apply_phonetize_process_overrides(args: argparse.Namespace) -> dict[str, ob
         value = getattr(args, f'phonetize_{key}')
         if value is not None:
             config['process'][key] = value
-    for raw in args.phonetize_option_values or []:
+    for raw in args.option_values or []:
         path, sep, value = raw.partition('=')
-        if not sep or not path.strip().startswith('phonetize.timing_model.'):
+        if not sep or not path.strip():
             raise ConfigError(
-                f"Invalid phonetize override {raw!r}; expected phonetize.timing_model.*=VALUE"
+                f"Invalid phonetize override {raw!r}; expected KEY=VALUE"
             )
         from akkapros.lib.config import parse_config_cli_value, set_config_value, get_section_config
-        updated = set_config_value({PHONETIZE_SECTION: config}, path.strip(), parse_config_cli_value(value))
+        updated = set_config_value({PHONETIZE_SECTION: config}, normalize_runtime_config_path(path), parse_config_cli_value(value))
         config = get_section_config(updated, PHONETIZE_SECTION)
     return config
 
@@ -478,6 +487,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description='Run full Akkadian pipeline: syllabify -> prosody realization -> metrics',
         formatter_class=RawDefaultsHelpFormatter,
+        add_help=False,
         epilog=f"""
 EXAMPLES:
     python fullprosmaker.py outputs/erra_proc.txt -p erra --outdir outputs --prosody-style lob --metrics-table
@@ -491,6 +501,7 @@ Version: {__version__}
     add_standard_version_argument(parser, 'akkapros-fullprosmaker')
     add_standard_logging_arguments(parser)
     add_config_argument(parser)
+    add_runtime_interface_arguments(parser, 'fullprosmaker')
 
     # Input/output (shared)
     parser.add_argument('input', nargs='?', help=help_for('fullprosmaker.input'))
@@ -532,8 +543,6 @@ Version: {__version__}
                         help=help_for('fullprosmaker.phonetize_drift_policy'))
     parser.add_argument('--phonetize-drift-tolerance', dest='phonetize_drift_tolerance', type=int, default=None,
                         help=help_for('fullprosmaker.phonetize_drift_tolerance'))
-    parser.add_argument('-t', '--option', dest='phonetize_option_values', action='append', default=[], metavar='KEY=VALUE',
-                        help=help_for('fullprosmaker.option'))
 
     # Metricalc options
     parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
@@ -577,12 +586,14 @@ Version: {__version__}
     if args.test_all:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
         log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         ok = _run_all_selftests_with_summary(logger)
         sys.exit(0 if ok else 1)
 
     if args.test_syllabify or args.test_prosody or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
         log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         ok = True
         if args.test_syllabify:
             ok = syllabify.run_tests() and ok
@@ -599,11 +610,12 @@ Version: {__version__}
         sys.exit(0 if ok else 1)
 
     if not args.input:
-        parser.print_help()
+        sys.stdout.write(render_runtime_help(parser, 'fullprosmaker'))
         sys.exit(1)
 
     logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
     log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
+    log_deprecated_config_flag_warnings(logger, args)
 
     try:
         syllabify.configure_punctuation_rules(

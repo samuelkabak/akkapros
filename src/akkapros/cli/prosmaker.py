@@ -22,7 +22,15 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros import __version__
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
+from akkapros.lib.config import (
+    ConfigError,
+    add_config_argument,
+    add_runtime_interface_arguments,
+    log_deprecated_config_flag_warnings,
+    parse_args_with_config,
+    render_runtime_help,
+    require_effective_prefix,
+)
 from akkapros.lib.frontmatter import effective_options_from_namespace
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib.utils import (
@@ -41,10 +49,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description='Apply moraic prosody realization to syllabified Akkadian text',
         formatter_class=RawDefaultsHelpFormatter,
+        add_help=False,
     )
     add_standard_version_argument(parser, 'akkapros-prosmaker')
     add_standard_logging_arguments(parser)
     add_config_argument(parser)
+    add_runtime_interface_arguments(parser, 'prosmaker')
     parser.add_argument('input', nargs='?', help=help_for('prosmaker.input'))
     parser.add_argument('-p', '--prefix', help=help_for('prosmaker.prefix'))
     parser.add_argument('--outdir', default='.', help=help_for('prosmaker.outdir'))
@@ -64,21 +74,24 @@ def main() -> None:
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
         log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         success = run_tests()
         sys.exit(0 if success else 1)
 
     if args.test_diphthongs:
         logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
         log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         success = test_diphthong_restoration()
         sys.exit(0 if success else 1)
 
     if not args.input:
-        parser.print_help()
+        sys.stdout.write(render_runtime_help(parser, 'prosmaker'))
         sys.exit(0)
 
     logger = setup_cli_logging(args, 'akkapros.cli.prosmaker')
     log_startup_banner(logger, 'akkapros-prosmaker', __version__, args)
+    log_deprecated_config_flag_warnings(logger, args)
 
     input_path = Path(args.input)
     if not input_path.exists():

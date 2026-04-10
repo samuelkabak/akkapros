@@ -84,23 +84,27 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 | `--short-pause-policy {strict,best_effort}` | Override `phonetize.process.short_pause_policy` |
 | `--drift-policy {strict,extensible}` | Override `phonetize.process.drift_policy` |
 | `--drift-tolerance <int>` | Override `phonetize.process.drift_tolerance` |
-| `-t, --option phonetize.timing_model...=...` | Override values under `phonetize.timing_model` |
+| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
 | `--conf <file>` | Load shared grouped config |
 | `--test` | Run CLI self-tests |
+
+Dedicated config-backed flags such as `--geminate-policy` remain supported for compatibility, but they are now deprecated in favor of `--option KEY=VALUE` or `--conf FILE`.
 
 ## Examples
 
 ```bash
 python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --outdir outputs
 python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --geminate-policy cumulative
-python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --option phonetize.timing_model.speech.wpm=201
+python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --option phonetize.process.timing_model.speech.wpm=201
+python -m akkapros.cli.phonetizer --help
+python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.durations
 ```
 
 ## Config Ownership
 
 The phonetizer is the canonical owner of the top-level `phonetize` config section.
 
-Representative keys:
+Representative grouped-config keys:
 - `phonetize.process.geminate_policy`
 - `phonetize.process.accentuation_distribution_policy`
 - `phonetize.process.short_pause_policy`
@@ -108,6 +112,8 @@ Representative keys:
 - `phonetize.process.drift_tolerance`
 - `phonetize.timing_model.speech.wpm`
 - `phonetize.timing_model.durations.cvc_reference`
+
+At runtime, path-scoped help and `-t/--option` overrides expose the unified phonetize subtree as `phonetize.process.timing_model.*`. That runtime surface combines the phonetize policy controls with the timing-model subtree used during processing.
 
 `phonetize.process` keys are policy controls and tolerances for later duration realization. `perception_limits` under `phonetize.timing_model` are classification boundaries, not alternate emitted duration rows.
 

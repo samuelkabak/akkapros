@@ -37,7 +37,15 @@ from akkapros.lib.frontmatter import (
     merge_frontmatter_documents,
     read_text_file,
 )
-from akkapros.lib.config import ConfigError, add_config_argument, parse_args_with_config, require_effective_prefix
+from akkapros.lib.config import (
+    ConfigError,
+    add_config_argument,
+    add_runtime_interface_arguments,
+    log_deprecated_config_flag_warnings,
+    parse_args_with_config,
+    render_runtime_help,
+    require_effective_prefix,
+)
 from akkapros.lib.utils import simple_safe_filename
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -120,6 +128,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Convert eBL ATF files to clean Akkadian text',
         formatter_class=RawDefaultsHelpFormatter,
+        add_help=False,
         epilog=f"""
 SOURCE:
   This parser is STRICTLY designed for ATF files from the
@@ -177,6 +186,7 @@ MIT License (c) 2026 Samuel KABAK
     add_standard_version_argument(parser, 'akkapros-atfparser')
     add_standard_logging_arguments(parser)
     add_config_argument(parser)
+    add_runtime_interface_arguments(parser, 'atfparser')
     parser.add_argument('input', nargs='?', help=help_for('atfparser.input'))
     parser.add_argument('-p', '--prefix', 
                         help=help_for('atfparser.prefix'))
@@ -203,16 +213,18 @@ MIT License (c) 2026 Samuel KABAK
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.atfparser')
         log_startup_banner(logger, 'akkapros-atfparser', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         success = run_tests()
         sys.exit(0 if success else 1)
     
     # If no input file, show help
     if not args.input:
-        parser.print_help()
+        sys.stdout.write(render_runtime_help(parser, 'atfparser'))
         sys.exit(0)
 
     logger = setup_cli_logging(args, 'akkapros.cli.atfparser')
     log_startup_banner(logger, 'akkapros-atfparser', __version__, args)
+    log_deprecated_config_flag_warnings(logger, args)
     
     # Regular mode with input file
     input_path = Path(args.input)

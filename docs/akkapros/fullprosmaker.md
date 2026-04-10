@@ -128,7 +128,9 @@ units do not forward-merge; they fall directly to last resort.
 | `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.short_pause_policy` |
 | `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.drift_policy` |
 | `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.drift_tolerance` |
-| `-t, --option phonetize.timing_model...=...` | Override values under `phonetize.timing_model` |
+| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
+
+Dedicated config-backed flags remain supported during the transition, but they are now deprecated in favor of `--option KEY=VALUE` or `--conf FILE`.
 
 ### Metricalc Options
 
@@ -151,6 +153,11 @@ When you are iterating on phonetize timing settings in grouped config, the
 recommended preflight is `confwriter --verify`. That uses the same shared
 semantic verification layer that standalone phonetizer now runs before Phase 2
 continues.
+
+`fullprosmaker` also now exposes program-scoped and path-scoped help:
+
+- `python -m akkapros.cli.fullprosmaker --help`
+- `python -m akkapros.cli.fullprosmaker --help phonetize.process.timing_model`
 
 ### Printer Options
 
@@ -211,6 +218,12 @@ This generates:
       --prosody-style lob \
       --phonetize-geminate-policy corrective \
       --metrics-table
+
+### Config-First Run with a Path Override
+
+    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+      --conf run.yaml \
+      --option phonetize.process.timing_model.speech.wpm=201
 
 ### Run with Mono Mora Mode
 

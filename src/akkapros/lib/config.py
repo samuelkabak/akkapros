@@ -42,6 +42,10 @@ SYLLABIFY_SECTION = "syllabify"
 PROSODY_SECTION = "prosody"
 METRICS_SECTION = "metrics"
 PRINT_SECTION = "print"
+RUNTIME_HELP_DEST = 'help_path'
+RUNTIME_HELP_SENTINEL = '__PROGRAM__'
+RUNTIME_OPTION_DEST = 'option_values'
+RUNTIME_PHONETIZE_ROOT = f'{PHONETIZE_SECTION}.process.timing_model'
 
 CONFIG_SECTION_ORDER = (
     COMMON_SECTION,
@@ -194,6 +198,11 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
     ),
 }
 
+PROGRAM_CONFIG_ROOTS: dict[str, tuple[str, ...]] = {
+    tool_name: tuple(section for section, _field_map in sections)
+    for tool_name, sections in TOOL_CONFIG_SECTIONS.items()
+}
+
 
 def build_default_config() -> dict[str, dict[str, Any]]:
     defaults = {
@@ -201,6 +210,12 @@ def build_default_config() -> dict[str, dict[str, Any]]:
         for section, fields in CONFIG_SCHEMA.items()
     }
     defaults[PHONETIZE_SECTION] = build_default_phonetize_config()
+    return defaults
+
+
+def build_runtime_default_config() -> dict[str, dict[str, Any]]:
+    defaults = build_default_config()
+    defaults[PHONETIZE_SECTION]['process']['drift_policy'] = 'extensible'
     return defaults
 
 
@@ -463,6 +478,36 @@ def apply_overrides(
     return updated
 
 
+def overlay_config_source(
+    base_config: dict[str, dict[str, Any]],
+    source: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    updated = deepcopy(base_config)
+    for section, values in source.items():
+        if section == PHONETIZE_SECTION:
+            updated_section = deepcopy(updated[PHONETIZE_SECTION])
+
+            def _merge(target: dict[str, Any], incoming: dict[str, Any]) -> None:
+                for key, value in incoming.items():
+                    if value is None:
+                        continue
+                    if isinstance(value, dict):
+                        _merge(target[key], value)
+                    else:
+                        target[key] = deepcopy(value)
+
+            _merge(updated_section, values)
+            updated[PHONETIZE_SECTION] = updated_section
+            continue
+        section_values = deepcopy(updated[section])
+        for key, value in values.items():
+            if value is None:
+                continue
+            section_values[key] = deepcopy(value)
+        updated[section] = section_values
+    return normalize_config(updated)
+
+
 def tool_config_values(config: dict[str, dict[str, Any]], tool_name: str) -> dict[str, Any]:
     normalized = normalize_config(config)
     if tool_name not in TOOL_CONFIG_SECTIONS:
@@ -481,11 +526,72 @@ def tool_config_values(config: dict[str, dict[str, Any]], tool_name: str) -> dic
     return merged
 
 
+def tool_dest_to_config_path(tool_name: str) -> dict[str, str]:
+    if tool_name not in TOOL_CONFIG_SECTIONS:
+        raise ConfigError(f"Unsupported tool config section: {tool_name}")
+    mapping: dict[str, str] = {}
+    for section, field_map in TOOL_CONFIG_SECTIONS[tool_name]:
+        if field_map is None:
+            if section == PHONETIZE_SECTION:
+                continue
+            for key in CONFIG_SCHEMA[section]:
+                mapping[key] = f'{section}.{key}'
+            continue
+        for key, dest in field_map.items():
+            mapping[dest] = f'{section}.{key}'
+    return mapping
+
+
+def runtime_display_path(path: str) -> str:
+    if path.startswith(f'{PHONETIZE_SECTION}.process.'):
+        key = path[len(f'{PHONETIZE_SECTION}.process.'):]
+        head = key.split('.', 1)[0]
+        if head in {'geminate_policy', 'accentuation_distribution_policy', 'short_pause_policy', 'drift_policy', 'drift_tolerance'}:
+            return f'{RUNTIME_PHONETIZE_ROOT}.{key}'
+    if path.startswith(f'{PHONETIZE_SECTION}.timing_model.'):
+        key = path[len(f'{PHONETIZE_SECTION}.timing_model.'):]
+        return f'{RUNTIME_PHONETIZE_ROOT}.{key}'
+    return path
+
+
+def normalize_runtime_config_path(path: str) -> str:
+    normalized = path.strip()
+    if normalized.startswith(f'{RUNTIME_PHONETIZE_ROOT}.'):
+        key = normalized[len(f'{RUNTIME_PHONETIZE_ROOT}.'):]
+        head = key.split('.', 1)[0]
+        if head in {'geminate_policy', 'accentuation_distribution_policy', 'short_pause_policy', 'drift_policy', 'drift_tolerance'}:
+            return f'{PHONETIZE_SECTION}.process.{key}'
+        return f'{PHONETIZE_SECTION}.timing_model.{key}'
+    return normalized
+
+
+def build_runtime_effective_config(config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    normalized = normalize_config(config)
+    runtime = deepcopy(normalized)
+    phonetize_section = runtime[PHONETIZE_SECTION]
+    runtime_timing_model = deepcopy(phonetize_section['timing_model'])
+    for key, value in phonetize_section['process'].items():
+        runtime_timing_model[key] = deepcopy(value)
+    runtime[PHONETIZE_SECTION] = {
+        'process': {
+            'timing_model': runtime_timing_model,
+        }
+    }
+    return runtime
+
+
 def get_section_config(config: dict[str, dict[str, Any]], section: str) -> Any:
     normalized = normalize_config(config)
     if section not in normalized:
         raise ConfigError(f"Unsupported config section: {section}")
     return deepcopy(normalized[section])
+
+
+def get_program_config_roots(tool_name: str) -> tuple[str, ...]:
+    try:
+        return PROGRAM_CONFIG_ROOTS[tool_name]
+    except KeyError as exc:
+        raise ConfigError(f'Unsupported tool config section: {tool_name}') from exc
 
 
 def require_effective_prefix(prefix: Any, tool_name: str) -> str:
@@ -577,8 +683,35 @@ def add_config_argument(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('--conf', help=help_for("config.conf"))
 
 
-def _explicit_option_dests(parser: argparse.ArgumentParser, argv: list[str]) -> set[str]:
-    explicit: set[str] = set()
+def add_runtime_interface_arguments(parser: argparse.ArgumentParser, tool_name: str) -> None:
+    parser.add_argument(
+        '-h',
+        '--help',
+        nargs='?',
+        const=RUNTIME_HELP_SENTINEL,
+        default=None,
+        dest=RUNTIME_HELP_DEST,
+        metavar='PATH',
+        help='Show program-scoped help, or help for one config subtree.',
+    )
+    option_help_key = f'{tool_name}.option'
+    try:
+        option_help = help_for(option_help_key)
+    except KeyError:
+        option_help = 'Override one config path with KEY=VALUE syntax; repeatable.'
+    parser.add_argument(
+        '-t',
+        '--option',
+        dest=RUNTIME_OPTION_DEST,
+        action='append',
+        default=[],
+        metavar='KEY=VALUE',
+        help=option_help,
+    )
+
+
+def _explicit_option_map(parser: argparse.ArgumentParser, argv: list[str]) -> dict[str, str]:
+    explicit: dict[str, str] = {}
     option_map = parser._option_string_actions  # type: ignore[attr-defined]
     for token in argv:
         if not token.startswith('-') or token == '-':
@@ -587,8 +720,153 @@ def _explicit_option_dests(parser: argparse.ArgumentParser, argv: list[str]) -> 
         action = option_map.get(option)
         if action is None:
             continue
-        explicit.add(action.dest)
+        explicit[action.dest] = option
     return explicit
+
+
+def _runtime_paths_for_tool(tool_name: str) -> list[tuple[str, Any]]:
+    entries: list[tuple[str, Any]] = []
+    for section in CONFIG_SECTION_ORDER:
+        if section == PHONETIZE_SECTION:
+            for path, field in iter_phonetize_fields():
+                dotted = '.'.join(path)
+                entries.append((runtime_display_path(dotted), field))
+            continue
+        for key, field in CONFIG_SCHEMA[section].items():
+            entries.append((f'{section}.{key}', field))
+    roots = get_program_config_roots(tool_name)
+    allowed_prefixes = tuple(f'{root}.' for root in roots)
+    return [
+        (path, field)
+        for path, field in entries
+        if path in roots or path.startswith(allowed_prefixes)
+    ]
+
+
+def _format_field_kind(kind: str) -> str:
+    labels = {
+        'bool': 'BOOL',
+        'string': 'TEXT',
+        'nullable_string': 'TEXT|null',
+        'nullable_scalar': 'SCALAR|null',
+        'float': 'NUMBER',
+        'int': 'INTEGER',
+        'string_list': 'TEXT[]',
+    }
+    return labels.get(kind, kind.upper())
+
+
+def _render_runtime_config_entries(entries: list[tuple[str, Any]]) -> list[str]:
+    lines: list[str] = []
+    for path, field in entries:
+        choice_suffix = ''
+        if field.choices is not None:
+            choice_suffix = f' choices={", ".join(str(choice) for choice in field.choices)}'
+        lines.append(f'  {path} [{_format_field_kind(field.kind)}] default={_dump_scalar(field.default)}{choice_suffix}')
+        for raw_line in field.description.splitlines():
+            lines.append(f'    {raw_line}')
+    return lines
+
+
+def _classify_parser_actions(
+    parser: argparse.ArgumentParser,
+    tool_name: str,
+) -> tuple[list[tuple[argparse.Action, str]], list[argparse.Action], list[argparse.Action]]:
+    config_backed = tool_dest_to_config_path(tool_name)
+    deprecated_actions: list[tuple[argparse.Action, str]] = []
+    interface_actions: list[argparse.Action] = []
+    cli_only_actions: list[argparse.Action] = []
+    for action in parser._actions:
+        if action.dest == 'help':
+            continue
+        if action.dest == RUNTIME_HELP_DEST or action.dest == RUNTIME_OPTION_DEST or action.dest == 'conf':
+            interface_actions.append(action)
+            continue
+        if action.dest in config_backed:
+            deprecated_actions.append((action, runtime_display_path(config_backed[action.dest])))
+            continue
+        cli_only_actions.append(action)
+    return deprecated_actions, interface_actions, cli_only_actions
+
+
+def _render_action_lines(actions: list[argparse.Action]) -> list[str]:
+    lines: list[str] = []
+    for action in actions:
+        if action.help == argparse.SUPPRESS:
+            continue
+        if action.option_strings:
+            label = ', '.join(action.option_strings)
+            if action.metavar:
+                label = f'{label} {action.metavar}'
+            elif action.nargs not in (0, None) and action.dest:
+                label = f'{label} {action.dest.upper()}'
+        else:
+            label = action.dest
+        lines.append(f'  {label}')
+        if action.help:
+            lines.append(f'    {action.help}')
+    return lines
+
+
+def render_runtime_help(
+    parser: argparse.ArgumentParser,
+    tool_name: str,
+    help_path: str | None = None,
+) -> str:
+    normalized_path = None if help_path in (None, RUNTIME_HELP_SENTINEL) else help_path.strip()
+    lines = [parser.format_usage().rstrip(), '']
+    if parser.description:
+        lines.append(parser.description)
+        lines.append('')
+
+    deprecated_actions, interface_actions, cli_only_actions = _classify_parser_actions(parser, tool_name)
+
+    if interface_actions:
+        lines.append('Runtime Config Interface:')
+        lines.extend(_render_action_lines(interface_actions))
+        lines.append('')
+
+    all_entries = _runtime_paths_for_tool(tool_name)
+    if normalized_path is None:
+        lines.append('Active Config Paths:')
+        lines.extend(_render_runtime_config_entries(all_entries))
+        lines.append('')
+    else:
+        entries = [
+            (path, field)
+            for path, field in all_entries
+            if path == normalized_path or path.startswith(f'{normalized_path}.')
+        ]
+        if not entries and normalized_path not in get_program_config_roots(tool_name):
+            raise ConfigError(f'Unknown help path for {tool_name}: {normalized_path}')
+        lines.append(f'Config Help: {normalized_path}')
+        lines.extend(_render_runtime_config_entries(entries))
+        lines.append('')
+
+    if deprecated_actions and normalized_path is None:
+        lines.append('Deprecated Dedicated Flags:')
+        for action, path in deprecated_actions:
+            label = ', '.join(action.option_strings)
+            lines.append(f'  {label} -> {path}')
+            if action.help:
+                lines.append(f'    {action.help}')
+        lines.append('')
+
+    if cli_only_actions and normalized_path is None:
+        lines.append('CLI-only Arguments:')
+        lines.extend(_render_action_lines(cli_only_actions))
+        lines.append('')
+
+    return '\n'.join(line for line in lines).rstrip() + '\n'
+
+
+def log_deprecated_config_flag_warnings(logger, args: argparse.Namespace) -> None:
+    for option_string, runtime_path in getattr(args, '_deprecated_config_flags', ()):  # pragma: no branch - simple loop
+        logger.info(
+            'Deprecated config-backed flag %s is still supported for compatibility; prefer --option %s=VALUE or --conf FILE.',
+            option_string,
+            runtime_path,
+        )
 
 
 def parse_args_with_config(
@@ -598,17 +876,40 @@ def parse_args_with_config(
 ) -> argparse.Namespace:
     argv = list(sys.argv[1:] if argv is None else argv)
     args = parser.parse_args(argv)
-    conf_path = getattr(args, 'conf', None)
-    if not conf_path:
-        return args
+    help_path = getattr(args, RUNTIME_HELP_DEST, None)
+    if help_path is not None:
+        sys.stdout.write(render_runtime_help(parser, tool_name, help_path))
+        raise SystemExit(0)
 
-    config = load_config_file(conf_path)
-    values = tool_config_values(config, tool_name)
-    explicit = _explicit_option_dests(parser, argv)
-    for dest, value in values.items():
-        if dest in explicit:
+    explicit = _explicit_option_map(parser, argv)
+    config = build_runtime_default_config()
+    conf_path = getattr(args, 'conf', None)
+    if conf_path:
+        config = overlay_config_source(config, load_raw_config_file(conf_path))
+
+    dest_to_path = tool_dest_to_config_path(tool_name)
+    for dest, path in dest_to_path.items():
+        if dest not in explicit:
             continue
+        config = set_config_value(config, path, deepcopy(getattr(args, dest)))
+
+    for raw in getattr(args, RUNTIME_OPTION_DEST, []) or []:
+        path, sep, value = raw.partition('=')
+        if not sep or not path.strip():
+            raise ConfigError(f"Invalid --option argument: {raw!r}; expected KEY=VALUE")
+        config = set_config_value(config, normalize_runtime_config_path(path), parse_config_cli_value(value))
+
+    values = tool_config_values(config, tool_name)
+    for dest, value in values.items():
         setattr(args, dest, deepcopy(value))
+    args._effective_grouped_config = deepcopy(config)
+    args._effective_config = build_runtime_effective_config(config)
+    args._config_roots = get_program_config_roots(tool_name)
+    args._deprecated_config_flags = tuple(
+        (explicit[dest], runtime_display_path(path))
+        for dest, path in dest_to_path.items()
+        if dest in explicit
+    )
     return args
 
 

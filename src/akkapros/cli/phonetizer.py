@@ -14,11 +14,14 @@ from akkapros import __version__
 from akkapros.lib.config import (
     ConfigError,
     add_config_argument,
-    build_default_config,
+    add_runtime_interface_arguments,
+    build_runtime_default_config,
     get_section_config,
-    load_config_file,
+    log_deprecated_config_flag_warnings,
+    normalize_runtime_config_path,
     parse_args_with_config,
     parse_config_cli_value,
+    render_runtime_help,
     require_effective_prefix,
     set_config_value,
 )
@@ -62,11 +65,7 @@ def _apply_path_overrides(phonetize_config: dict[str, object], option_values: li
         path, sep, value = raw.partition('=')
         if not sep or not path.strip():
             raise ConfigError(f"Invalid --option argument: {raw!r}; expected KEY=VALUE")
-        if not path.startswith('phonetize.timing_model.'):
-            raise ConfigError(
-                f"Invalid phonetize timing-model override path: {path!r}; expected path under phonetize.timing_model"
-            )
-        updated = set_config_value(updated, path.strip(), parse_config_cli_value(value))
+        updated = set_config_value(updated, normalize_runtime_config_path(path), parse_config_cli_value(value))
     return get_section_config(updated, PHONETIZE_SECTION)
 
 
@@ -94,11 +93,11 @@ def run_tests() -> bool:
         drift_policy='strict',
         drift_tolerance=12,
     )
-    config = build_default_config()[PHONETIZE_SECTION]
+    config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)
     cases = [
         ('default process overrides', lambda: updated['process']['geminate_policy'] == 'corrective'),
-        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.timing_model.speech.wpm=193'])['timing_model']['speech']['wpm'] == 193),
+        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.speech.wpm=193'])['timing_model']['speech']['wpm'] == 193),
         ('reject bad option path', _selftest_invalid_option_path),
         ('shared preflight catches blocking pause ratio', lambda: not verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}}).ok),
         ('canonical phone rows', run_phonetize_tests),
@@ -116,7 +115,7 @@ def run_tests() -> bool:
 
 def _selftest_invalid_option_path() -> bool:
     try:
-        _apply_path_overrides(build_default_config()[PHONETIZE_SECTION], ['metrics.wpm=193'])
+        _apply_path_overrides(build_runtime_default_config()[PHONETIZE_SECTION], ['metrics.wpm=193'])
     except ConfigError:
         return True
     return False
@@ -126,10 +125,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description='Build the transitional phonetize-stage _phone artifact from *_tilde.txt',
         formatter_class=RawDefaultsHelpFormatter,
+        add_help=False,
     )
     add_standard_version_argument(parser, 'akkapros-phonetizer')
     add_standard_logging_arguments(parser)
     add_config_argument(parser)
+    add_runtime_interface_arguments(parser, 'phonetizer')
     parser.add_argument('input', nargs='?', help=help_for('phonetizer.input'))
     parser.add_argument('-p', '--prefix', help=help_for('phonetizer.prefix'))
     parser.add_argument('--outdir', default='.', help=help_for('phonetizer.outdir'))
@@ -138,7 +139,6 @@ def main() -> None:
     parser.add_argument('--short-pause-policy', dest='short_pause_policy', choices=['strict', 'best_effort'], default=None, help=help_for('phonetizer.short_pause_policy'))
     parser.add_argument('--drift-policy', dest='drift_policy', choices=['strict', 'extensible'], default=None, help=help_for('phonetizer.drift_policy'))
     parser.add_argument('--drift-tolerance', dest='drift_tolerance', type=int, default=None, help=help_for('phonetizer.drift_tolerance'))
-    parser.add_argument('-t', '--option', dest='option_values', action='append', default=[], metavar='KEY=VALUE', help=help_for('phonetizer.option'))
     parser.add_argument('--test', action='store_true', help=help_for('phonetizer.test'))
 
     try:
@@ -150,14 +150,16 @@ def main() -> None:
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.phonetizer')
         log_startup_banner(logger, 'akkapros-phonetizer', __version__, args)
+        log_deprecated_config_flag_warnings(logger, args)
         sys.exit(0 if run_tests() else 1)
 
     if not args.input:
-        parser.print_help()
+        sys.stdout.write(render_runtime_help(parser, 'phonetizer'))
         sys.exit(1)
 
     logger = setup_cli_logging(args, 'akkapros.cli.phonetizer')
     log_startup_banner(logger, 'akkapros-phonetizer', __version__, args)
+    log_deprecated_config_flag_warnings(logger, args)
 
     input_path = Path(args.input)
     if not input_path.exists():
@@ -176,21 +178,7 @@ def main() -> None:
         logger.error('%s', exc)
         sys.exit(2)
 
-    config = build_default_config()
-    if args.conf:
-        try:
-            config = load_config_file(args.conf)
-        except ConfigError as exc:
-            logger.error('Invalid config: %s', exc)
-            sys.exit(2)
-    phonetize_config = get_section_config(config, PHONETIZE_SECTION)
-
-    try:
-        phonetize_config = _apply_process_flag_overrides(args, phonetize_config)
-        phonetize_config = _apply_path_overrides(phonetize_config, args.option_values)
-    except ConfigError as exc:
-        logger.error('Invalid phonetize override: %s', exc)
-        sys.exit(2)
+    phonetize_config = get_section_config(args._effective_grouped_config, PHONETIZE_SECTION)
 
     verification = verify_phonetize_config(phonetize_config)
     for line in render_phonetize_verification_lines(verification)[1:]:

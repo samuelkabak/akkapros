@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-042
-status: Proposed
+status: Accepted
 created: 2026-04-07
-updated: 2026-04-07
+updated: 2026-04-10
 superseded_by: null
 ---
 
@@ -21,7 +21,9 @@ compatibility, but they become deprecated compatibility aliases rather than the
 preferred long-term interface. Help output becomes schema-aware and
 program-scoped, so `program.py --help` shows the common section plus the config
 sections relevant to that program, while `program.py --help SOME.PATH` shows
-only the requested subtree.
+only the requested subtree. For phonetize-owned examples and scoped-help
+queries, the active subtree is `phonetize.process.timing_model` rather than
+legacy top-level `phonetize.timing_model`.
 
 ## Context and Problem Statement
 
@@ -111,6 +113,11 @@ Concretely:
   the shared stage sections relevant to that program rather than inventing a
   second duplicate config namespace.
 - `program.py --help SOME.PATH` prints only the requested schema/help subtree.
+- For phonetize-owned path overrides, scoped help, and defaults-only runtime
+  materialization, the active subtree is `phonetize.process.timing_model.*`,
+  with canonical runtime defaults including
+  `phonetize.process.timing_model.accentuation_distribution_policy=85_15` and
+  `phonetize.process.timing_model.drift_policy=extensible`.
 - Deprecated dedicated config-backed flags remain documented in help output,
   but they must appear after the active config-path-driven help sections.
 - CLI-only operational arguments that are not part of the config schema, such

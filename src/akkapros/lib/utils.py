@@ -302,6 +302,8 @@ def log_startup_banner(
     logger.info('Version: %s', version)
 
     for key in sorted(vars(args)):
+        if key.startswith('_'):
+            continue
         value: Any = _format_log_value(getattr(args, key))
         logger.info('Arg %s=%r', key, value)
 

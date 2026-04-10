@@ -2,12 +2,18 @@ import pytest
 
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
+    effective_options_from_namespace,
     merge_frontmatter_documents,
     read_text_file,
     resolve_inherited_syllabify_options,
     validate_stage_data_consistency,
     with_inherited_syllabify_options,
 )
+
+
+class _NamespaceStub:
+    def __init__(self, **values):
+        self.__dict__.update(values)
 
 
 def test_merge_frontmatter_documents_joins_titles_and_sums_stage_data(tmp_path):
@@ -192,3 +198,18 @@ def test_inherited_syllabify_options_round_trip_lists_and_inventory_settings():
         "extra_short_punct_pattern": ["foo"],
         "extra_long_punct_pattern": ["bar"],
     }
+
+
+def test_effective_options_from_namespace_ignores_internal_runtime_fields():
+    options = effective_options_from_namespace(
+        _NamespaceStub(
+            prefix="corpus",
+            append=True,
+            _effective_grouped_config={"common": {"prefix": "corpus"}},
+            _effective_config={"common": {"prefix": "corpus"}},
+            _config_roots=("common", "atfparse"),
+            _deprecated_config_flags=(("-p", "common.prefix"),),
+        )
+    )
+
+    assert options == {"prefix": "corpus", "append": True}

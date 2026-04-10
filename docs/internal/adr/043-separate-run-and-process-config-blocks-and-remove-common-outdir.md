@@ -2,7 +2,7 @@
 adr_id: ADR-043
 status: Proposed
 created: 2026-04-08
-updated: 2026-04-09
+updated: 2026-04-10
 superseded_by: null
 ---
 
@@ -16,8 +16,9 @@ This keeps execution concerns distinct from linguistic or algorithmic
 behavior and makes the config easier to audit and document.
 
 The decision also removes the remaining metrics timing knobs from YAML and
-moves the existing phonetize policy block under `phonetize.timing_model` so the
-whole timing model is grouped under one branch.
+moves the existing top-level phonetize timing-model branch and the former flat
+phonetize process-policy keys under `phonetize.process.timing_model` so the
+whole timing model is grouped under one process branch.
 
 ## Context and Problem Statement
 
@@ -40,7 +41,8 @@ Several stage sections already show the problem clearly:
   intends to keep internal for now
 - `print` mixes output-selection toggles with one phonological rendering policy
 - `phonetize` separates `process` from `timing_model`, even though those policy
-  controls belong to the timing model contract
+  controls and timing-model controls belong together under the process
+  contract
 
 The project needs one explicit decision that reorganizes the config by meaning,
 not just by stage name.
@@ -78,8 +80,10 @@ Concretely:
   `metrics.explicit_link_count` are removed from the approved config surface.
 - `print` is split so `ipa_proto_semitic` becomes `print.process` and all
   artifact-selection toggles remain in `print.run`.
-- `phonetize.timing_model` is rehomed under `phonetize.process` so the
-  phonetize timing contract remains part of the stage's process block.
+- top-level `phonetize.timing_model` and the former flat
+  `phonetize.process.*` policy keys are rehomed under
+  `phonetize.process.timing_model` so the phonetize timing contract remains
+  part of the stage's process block.
 - Stages that have no keys in one category do not need to expose an empty
   subtree.
 
@@ -99,7 +103,8 @@ The approved stage mapping is:
 - `print.run`: `acute`, `bold`, `ipa`, `circ_hiatus`, `xar`, `mbrola`,
   `print_merger`
 - `phonetize.process.timing_model`: existing phonetize timing-model and
-  process-policy keys
+  process-policy keys, including canonical defaults
+  `accentuation_distribution_policy=85_15` and `drift_policy=extensible`
 
 ## Pros and Cons of the Options
 

@@ -9,6 +9,7 @@ import pytest
 from akkapros.lib.config import (
     ConfigError,
     add_config_argument,
+    add_runtime_interface_arguments,
     apply_overrides,
     build_default_config,
     dump_config_text,
@@ -391,3 +392,68 @@ def test_confwriter_verify_reports_failures_without_mutating_file(tmp_path: Path
     assert "VERIFY STATUS: failure" in proc.stdout
     assert "FAIL phonetize.timing_model.speech.pause_ratio" in proc.stdout
     assert config_path.read_text(encoding="utf-8") == before
+
+
+def test_parse_args_with_config_materializes_defaults_without_conf_and_path_override_wins() -> None:
+    parser = argparse.ArgumentParser(add_help=False)
+    add_config_argument(parser)
+    add_runtime_interface_arguments(parser, "phonetizer")
+    parser.add_argument("input", nargs="?")
+    parser.add_argument("-p", "--prefix")
+    parser.add_argument("--outdir", default=".")
+    parser.add_argument("--drift-policy", dest="drift_policy", choices=["strict", "extensible"], default=None)
+    parser.add_argument("--drift-tolerance", dest="drift_tolerance", type=int, default=None)
+
+    args = parse_args_with_config(
+        parser,
+        "phonetizer",
+        [
+            "sample_tilde.txt",
+            "--drift-policy",
+            "strict",
+            "--option",
+            "phonetize.process.timing_model.drift_policy=extensible",
+        ],
+    )
+
+    assert args.prefix == "akkapros"
+    assert args.outdir == "."
+    assert args.drift_policy == "extensible"
+    assert args._effective_config["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
+    assert args._effective_grouped_config["phonetize"]["process"]["drift_policy"] == "extensible"
+
+
+def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    default_help = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.phonetizer", "--help"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert default_help.returncode == 0, default_help.stderr
+    default_text = default_help.stdout
+    assert "Active Config Paths:" in default_text
+    assert "common.prefix" in default_text
+    assert "phonetize.process.timing_model.durations.cvc_reference" in default_text
+    assert default_text.index("Active Config Paths:") < default_text.index("Deprecated Dedicated Flags:")
+
+    subtree_help = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.phonetizer", "--help", "phonetize.process.timing_model.durations"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert subtree_help.returncode == 0, subtree_help.stderr
+    subtree_text = subtree_help.stdout
+    assert "Config Help: phonetize.process.timing_model.durations" in subtree_text
+    assert "phonetize.process.timing_model.durations.cvc_reference" in subtree_text
+    assert "common.prefix" not in subtree_text
+    assert "Deprecated Dedicated Flags:" not in subtree_text

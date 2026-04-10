@@ -4,7 +4,7 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-09
+updated: 2026-04-10
 related_adrs: 'ADR-043, ADR-036, ADR-039, ADR-040'
 implemented_by: 'CR-044'
 ---
@@ -78,6 +78,11 @@ harder to audit and harder to document clearly.
       are listed, then it contains the timing-model and process-policy keys
       previously approved for phonetize under the current timing-model
       redesign.
+- [ ] Given the phonetize process timing-model block is materialized in
+      emitted grouped config, when canonical defaults are inspected, then
+      `phonetize.process.timing_model.accentuation_distribution_policy`
+      defaults to `85_15` and `phonetize.process.timing_model.drift_policy`
+      defaults to `extensible`.
 - [ ] Given the approved config surface is materialized in
       `src/akkapros/config/default.yaml`, when stage comments and paths are
       inspected, then they use the new `run` / `process` grouping consistently.

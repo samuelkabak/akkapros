@@ -1,10 +1,10 @@
 ---
 cr_id: CR-043
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-09
+updated: 2026-04-10
 implements: 'ADR-042, REQ-028, REQ-022'
 ---
 
@@ -128,6 +128,9 @@ Result:
   whether a config file was supplied
 - missing file keys still inherit canonical defaults
 - path overrides become the highest-precedence config-backed interface
+- for phonetize-owned runtime materialization, canonical defaults are carried
+  under `phonetize.process.timing_model`, including
+  `accentuation_distribution_policy=85_15` and `drift_policy=extensible`
 
 ## 2. Dedicated flag deprecation model
 
@@ -186,8 +189,8 @@ Representative example required by this CR:
   view for `common` plus `phonetize`
 - `python phonetizer.py --help phonetize` prints the same phonetizer-owned
   config help view
-- `python phonetizer.py --help phonetize.timing_model.durations` prints only
-  that subtree
+- `python phonetizer.py --help phonetize.process.timing_model.durations`
+  prints only that subtree
 
 ## 5. Documentation transition
 
@@ -306,8 +309,8 @@ Suggested implementation direction:
       view for `common` plus `phonetize`.
 - [ ] `python phonetizer.py --help phonetize` produces the same phonetizer-
       owned section help view.
-- [ ] `python phonetizer.py --help phonetize.timing_model.durations` prints
-      only that subtree.
+- [ ] `python phonetizer.py --help phonetize.process.timing_model.durations`
+  prints only that subtree.
 - [ ] Default help output keeps deprecated dedicated config-backed flags, but
       they appear after the active config-path-driven sections.
 - [ ] Help rendering continues to document both the deprecated dedicated
@@ -365,7 +368,7 @@ Unit tests:
 - program-relative validation scope selection
 - default help rendering for a representative single-stage CLI
 - subtree help rendering for a representative path such as
-  `phonetize.timing_model.durations`
+  `phonetize.process.timing_model.durations`
 - deprecated-option ordering at the end of help output
 - `confwriter` exclusion from runtime-resolution behavior
 
@@ -377,7 +380,7 @@ Integration tests:
 - representative CLI run where `-t/--option` overrides both file and dedicated
   config-backed flags
 - `phonetizer --help`, `phonetizer --help phonetize`, and
-  `phonetizer --help phonetize.timing_model.durations` output checks
+  `phonetizer --help phonetize.process.timing_model.durations` output checks
 - `fullprosmaker` validation-path coverage over shared stage sections
 
 Manual review:
@@ -455,6 +458,28 @@ leave the active interface ambiguous.
 - [ ] Verify acceptance criteria
 
 ---
+
+# Implementation Blockers
+
+## 2026-04-10 - Defaults-only drift-policy requirement conflicts with accepted grouped-config default
+- Type: governance conflict
+- Observed: CR-043 acceptance criteria require defaults-only runtime config materialization to preserve `phonetize.process.timing_model.drift_policy=extensible`, but the approved grouped config surface and live phonetize schema keep the runtime default at `phonetize.process.drift_policy=strict`; only the shared verification comparison default is `extensible`.
+- Why blocked: The CR currently requires a runtime default that conflicts with accepted config behavior already documented under REQ-022 and implemented in the live schema and default config, so implementation cannot proceed without either changing the contract or explicitly superseding that earlier default.
+- Needed to unblock: Rewrite CR-043 so it either preserves the grouped runtime default `phonetize.process.drift_policy=strict` or explicitly states that this CR supersedes the earlier grouped-config default and updates the affected requirement/decision consistently.
+- Owner: Internal Spec Writer
+- Related refs: REQ-022; CR-042; src/akkapros/lib/phonetize.py; src/akkapros/config/default.yaml
+- Resolved on: 2026-04-10
+- Resolution: CR-043 now states that defaults-only runtime materialization carries phonetize defaults under `phonetize.process.timing_model`, including `drift_policy=extensible`, and the governing draft ADR/REQ records were updated to carry that runtime-default contract forward consistently.
+
+## 2026-04-10 - Normative phonetize paths are malformed
+- Type: spec weakness
+- Observed: CR-043 uses malformed normative paths such as `phonetize.process.timing_model.accentuation_distribution_policy=85_15` and `phonetize.process.timing_model.drift_policy=extensible`, even though the approved config surface separates `phonetize.process.*` from `phonetize.timing_model.*`.
+- Why blocked: The CR contract is not safely executable while it names non-existent schema paths in acceptance criteria, because tests, help text, and override behavior cannot be verified against an ambiguous or invalid config surface.
+- Needed to unblock: Rewrite CR-043 so every normative dotted path matches the live approved schema, including correcting `phonetize.process.*` versus `phonetize.timing_model.*` references throughout acceptance criteria, examples, testing strategy, and tasks where needed.
+- Owner: Internal Spec Writer
+- Related refs: REQ-022; CR-042; src/akkapros/lib/config.py; src/akkapros/lib/phonetize.py
+- Resolved on: 2026-04-10
+- Resolution: CR-043 now uses `phonetize.process.timing_model.*` consistently for phonetize-owned scoped help, examples, defaults, and tests, and the downstream runtime/config regrouping records were updated to use the same moved subtree.
 
 # Notes for CR-043
 

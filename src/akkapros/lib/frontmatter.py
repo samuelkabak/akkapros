@@ -244,6 +244,8 @@ def effective_options_from_namespace(namespace: Any, *, exclude: set[str] | None
     exclude = exclude or set()
     options: dict[str, Any] = {}
     for key, value in vars(namespace).items():
+        if key.startswith("_"):
+            continue
         if key in exclude:
             continue
         if value in (None, False, ""):

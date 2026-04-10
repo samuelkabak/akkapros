@@ -32,7 +32,7 @@ Metrics and printer outputs do not republish `metadata.data`; they keep only
   python -m akkapros.cli.atfparser data/samples/L_I.2_Poem_of_Creation_SB_II.atf -p demo --outdir outputs
   python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt -p demo --outdir outputs
 
-You can also move recurring options into a shared config file and reuse them with `--conf FILE`. See `docs/akkapros/configuration.md` for the package-wide schema and `confwriter` usage.
+You can also move recurring options into a shared config file and reuse them with `--conf FILE`, then layer one-off runtime overrides with repeatable `--option KEY=VALUE`. See `docs/akkapros/configuration.md` for the package-wide schema, the effective runtime config model, and `confwriter` usage.
 
 ---
 
@@ -90,8 +90,7 @@ python -m akkapros.cli.metricalc outputs/demo_tilde.txt --table --no-console --l
 python -m akkapros.cli.phoneprep --coverage 1 --log outputs/phoneprep.log --log-append
 ```
 
-Built-in `--help` and `--version` remain parser-driven. Other runtime status,
-warning, and error messages now use the shared logger.
+Runtime CLIs now expose schema-aware `--help [PATH]` as well as `--version`. Other runtime status, warning, and error messages use the shared logger.
 
 ---
 
@@ -117,7 +116,7 @@ warning, and error messages now use the shared logger.
 
 ## Quick Tips
 
-- Use `--help` with any CLI tool to see all available options
+- Use `--help` with any CLI tool to see the default program-scoped view, or `--help SOME.PATH` to inspect one config subtree
 - The demo scripts in `demo/akkapros/prosmaker/` show batch processing examples
 - All outputs are fully reproducible given the same input and parameters
 - `syllabifier.py` accepts frontmatter-bearing `*_proc.txt` files and plain content-only text files. The supported frontmatter-free path starts at syllabification: `syllabify -> prosmaker -> (metricalc or printer)`.

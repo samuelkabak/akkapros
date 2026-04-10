@@ -4,6 +4,11 @@
 It does not mirror every config key as a dedicated CLI flag. Instead, it works
 with full YAML-path keys and a small set of operations.
 
+`confwriter` is also intentionally outside the runtime effective-config-object
+workflow used by the processing CLIs. It edits grouped config state, while the
+runtime tools materialize their own effective in-memory config view before
+processing begins.
+
 ## Command Model
 
 All normal invocations use `--conf FILE` plus one or more operations:
@@ -48,6 +53,11 @@ Unknown keys are rejected before any file is modified.
 The `phonetize.*` keys edited here govern the phonetizer stage used by both
 `phonetizer` and `fullprosmaker`, including the finalized dual-output handoff
 files `<prefix>_ophone.txt` and `<prefix>_phone.txt`.
+
+During the current runtime transition, the processing CLIs expose phonetize
+path overrides and scoped help under the unified runtime path surface
+`phonetize.process.timing_model.*`, while `confwriter` continues to edit the
+persisted grouped-config paths directly.
 
 ## Value Rules
 
