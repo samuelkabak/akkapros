@@ -14,6 +14,11 @@ It provides:
 
 It now implements the later duration-realization pass over the prebuilt row streams.
 
+It also now has one baseline semantic-validation boundary shared with
+`confwriter --verify`. Schema-valid grouped config is a prerequisite; semantic
+verification then enforces the current narrow invariant inventory and warning
+layer before standalone phonetizer runtime proceeds into Phase 2.
+
 Phase 1 now derives the original stream deterministically from accentuated `_tilde` by removing `~` and replacing internal merges `&` with spaces while preserving explicit lexical merges `+`.
 
 ## Canonical Inventory
@@ -65,6 +70,28 @@ The flat-line form is the canonical file serialization.
 ## Duration Source
 
 The live builder remains structure-first. Phase 1 still materializes the full row contract with placeholder durations, then Phase 2 traverses those rows in place to assign non-zero durations from the active timing model, pause bands, geminate policy, accentuation-distribution policy, and drift policy.
+
+## Shared Validation Boundary
+
+The current shared verification layer is intentionally baseline-only.
+
+It verifies explicit, path-addressable relations such as:
+
+- enum-like process policy inventories
+- positive-integer timing representation for the validated phonetize surface
+- `0 < phonetize.timing_model.speech.pause_ratio < 100`
+- consonant and vowel ordering relations required by the active timing model
+- pause-band ordering and integer-multiple compatibility with
+	`phonetize.timing_model.durations.cvc_reference`
+
+It also emits warning-only signals for the current accepted warning layer,
+including high pause ratios, strong onset/coda divergence inside a consonant
+class, short-pause compatibility warnings, and selected default-deviation
+warnings for the narrow parameter set named by the internal requirement record.
+
+This layer is not the final exhaustive solver-validation regime. It is the
+current shared baseline used by config authoring verification and standalone
+phonetizer preflight.
 
 ## Dual Stream Behavior
 

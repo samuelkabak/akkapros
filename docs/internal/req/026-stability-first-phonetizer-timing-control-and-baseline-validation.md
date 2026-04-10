@@ -1,12 +1,12 @@
 ---
 req_id: REQ-026
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-08
+updated: 2026-04-10
 related_adrs: 'ADR-041, ADR-040, ADR-039'
-implemented_by: 'Follow-up CRs to CR-035 and CR-040'
+implemented_by: 'CR-040, CR-042'
 ---
 
 # Requirement: Stability-First Phonetizer Timing Control and Baseline Validation

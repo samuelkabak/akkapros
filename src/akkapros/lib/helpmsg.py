@@ -136,6 +136,7 @@ OPTION_HELP = {
     "confwriter.list": "List schema-backed config keys, optionally filtered by substring.",
     "confwriter.unset": "Write null for one config key so it is treated as not explicitly set; repeatable.",
     "confwriter.set_default": "Write the schema default value explicitly for one config key; repeatable.",
+    "confwriter.verify": "Run shared phonetize semantic verification against the effective grouped config without modifying the file.",
     "confwriter.stdout": "Print the resulting config file to stdout after writing it.",
     "confwriter.test": "Run confwriter self-tests.",
 

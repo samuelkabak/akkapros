@@ -33,9 +33,11 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
+    render_phonetize_verification_lines,
     realize_phone_streams,
     run_tests as run_phonetize_tests,
     serialize_phone_rows,
+    verify_phonetize_config,
 )
 from akkapros.lib.utils import (
     FormatValidationError,
@@ -98,6 +100,7 @@ def run_tests() -> bool:
         ('default process overrides', lambda: updated['process']['geminate_policy'] == 'corrective'),
         ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.timing_model.speech.wpm=193'])['timing_model']['speech']['wpm'] == 193),
         ('reject bad option path', _selftest_invalid_option_path),
+        ('shared preflight catches blocking pause ratio', lambda: not verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}}).ok),
         ('canonical phone rows', run_phonetize_tests),
     ]
     passed = 0
@@ -187,6 +190,16 @@ def main() -> None:
         phonetize_config = _apply_path_overrides(phonetize_config, args.option_values)
     except ConfigError as exc:
         logger.error('Invalid phonetize override: %s', exc)
+        sys.exit(2)
+
+    verification = verify_phonetize_config(phonetize_config)
+    for line in render_phonetize_verification_lines(verification)[1:]:
+        if line.startswith('FAIL '):
+            logger.error('%s', line)
+        else:
+            logger.warning('%s', line)
+    if verification.failures:
+        logger.error('Phonetizer preflight failed before Phase 2 processing continued.')
         sys.exit(2)
 
     input_frontmatter, tilde_body = read_text_file(input_path)

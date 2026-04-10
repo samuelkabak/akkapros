@@ -232,6 +232,7 @@ def test_confwriter_help_uses_operation_surface() -> None:
     assert "--list [SUBSTRING]" in help_text or "--list [SUBSTRING]".replace("[", "").replace("]", "") in help_text
     assert "--unset KEY" in help_text
     assert "--set-default KEY" in help_text
+    assert "--verify" in help_text
     assert "--prefix" not in help_text
     assert "--prosody-style" not in help_text
 
@@ -311,3 +312,82 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
     loaded = load_config_file(config_path)
     assert loaded["phonetize"]["process"]["geminate_policy"] == "cumulative"
     assert loaded["phonetize"]["timing_model"]["speech"]["wpm"] == 201
+
+
+def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(dump_config_text(build_default_config()), encoding="utf-8")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    before = config_path.read_text(encoding="utf-8")
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--verify"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert "VERIFY STATUS: pass" in proc.stdout
+    assert config_path.read_text(encoding="utf-8") == before
+
+
+def test_confwriter_verify_reports_warnings_without_mutating_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config = apply_overrides(
+        build_default_config(),
+        {("phonetize", "timing_model.speech.pause_ratio"): 71},
+    )
+    config_path.write_text(dump_config_text(config), encoding="utf-8")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    before = config_path.read_text(encoding="utf-8")
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--verify"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert "VERIFY STATUS: pass-with-warnings" in proc.stdout
+    assert "WARN phonetize.timing_model.speech.pause_ratio" in proc.stdout
+    assert config_path.read_text(encoding="utf-8") == before
+
+
+def test_confwriter_verify_reports_failures_without_mutating_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config = apply_overrides(
+        build_default_config(),
+        {("phonetize", "timing_model.speech.pause_ratio"): 100},
+    )
+    config_path.write_text(dump_config_text(config), encoding="utf-8")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    before = config_path.read_text(encoding="utf-8")
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--verify"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 1
+    assert "VERIFY STATUS: failure" in proc.stdout
+    assert "FAIL phonetize.timing_model.speech.pause_ratio" in proc.stdout
+    assert config_path.read_text(encoding="utf-8") == before

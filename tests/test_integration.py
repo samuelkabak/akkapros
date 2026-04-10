@@ -182,6 +182,14 @@ def _assert_phone_artifact(path: Path) -> None:
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['drift']
 
 
+def _build_tilde_file(tmp_path: Path, prefix: str) -> tuple[Path, Path]:
+    outdir = tmp_path / prefix
+    outdir.mkdir(parents=True, exist_ok=True)
+    _run_cli("akkapros.cli.syllabifier", str(INPUT_PROC), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.prosmaker", str(outdir / f"{prefix}_syl.txt"), "-p", prefix, "--outdir", str(outdir), "--style", "lob")
+    return outdir / f"{prefix}_tilde.txt", outdir
+
+
 def _assert_matches_reference(generated: Path, reference: Path) -> None:
     assert reference.exists(), f"Reference file missing: {reference}"
     gen = _read_text(generated)
@@ -308,6 +316,60 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     }
     for generated, reference in reference_map.items():
         _assert_matches_reference(generated, reference)
+
+
+def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: Path) -> None:
+    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_blocking')
+    prefix = 'verify_blocking'
+    config = apply_overrides(
+        build_default_config(),
+        {('phonetize', 'timing_model.speech.pause_ratio'): 100},
+    )
+    config_path = outdir / 'verify.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    proc = _run_cli_expect_failure(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '-p',
+        prefix,
+        '--outdir',
+        str(outdir),
+        '--conf',
+        str(config_path),
+    )
+
+    assert proc.returncode == 2
+    assert 'FAIL phonetize.timing_model.speech.pause_ratio' in proc.stderr
+    assert 'Phonetizer preflight failed before Phase 2 processing continued.' in proc.stderr
+    assert not (outdir / f'{prefix}_ophone.txt').exists()
+    assert not (outdir / f'{prefix}_phone.txt').exists()
+
+
+def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) -> None:
+    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_warning')
+    prefix = 'verify_warning'
+    config = apply_overrides(
+        build_default_config(),
+        {('phonetize', 'timing_model.speech.pause_ratio'): 71},
+    )
+    config_path = outdir / 'verify.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    proc = _run_cli(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '-p',
+        prefix,
+        '--outdir',
+        str(outdir),
+        '--conf',
+        str(config_path),
+    )
+
+    assert 'WARN phonetize.timing_model.speech.pause_ratio' in proc.stderr
+    assert (outdir / f'{prefix}_ophone.txt').exists()
+    assert (outdir / f'{prefix}_phone.txt').exists()
 
 
 def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> None:

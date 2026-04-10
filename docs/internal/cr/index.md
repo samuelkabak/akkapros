@@ -6,7 +6,7 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 [045. Move MBROLA `.pho` Output to Phonetizer](045-move-mbrola-pho-output-to-phonetizer.md) - Draft
 [044. Restructure Stage Config into Run and Process Blocks](044-restructure-stage-config-into-run-and-process-blocks.md) - Draft
 [043. Adopt effective runtime config, path overrides, and scoped help across runtime CLIs](043-adopt-effective-runtime-config-path-overrides-and-scoped-help-across-runtime-clis.md) - Draft
-[042. Add shared phonetize config verify and require phonetizer preflight](042-add-shared-phonetize-config-verify-and-require-phonetizer-preflight.md) - Draft
+[042. Add shared phonetize config verify and require phonetizer preflight](042-add-shared-phonetize-config-verify-and-require-phonetizer-preflight.md) - Done
 [041. Add phonetizer Phase 2 follow-up docs and test coverage](041-add-phonetizer-phase-2-follow-up-docs-and-test-coverage.md) - Done
 [040. Realize phonetizer phase 2 durations from prebuilt rows](040-realize-phonetizer-phase-2-durations-from-prebuilt-rows.md) - Done
 [039. Build phonetizer phase 1 structure-only dual phone outputs](039-build-phonetizer-phase-1-structure-only-dual-phone-outputs.md) - Done

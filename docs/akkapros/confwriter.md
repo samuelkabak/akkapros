@@ -16,6 +16,7 @@ python -m akkapros.cli.confwriter --conf run.yaml --list
 python -m akkapros.cli.confwriter --conf run.yaml --list atfparse
 python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
 python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --verify
 ```
 
 Supported operations:
@@ -25,6 +26,9 @@ Supported operations:
 - `--list [SUBSTRING]`: print the schema-backed key inventory, optionally filtered
 - `--unset KEY`: write `null` for one key; repeatable
 - `--set-default KEY`: write the schema default value explicitly; repeatable
+- `--verify`: run shared phonetize semantic verification against the effective grouped config without modifying the file
+
+`--verify` is a standalone read-only operation.
 
 ## Key Paths
 
@@ -67,6 +71,30 @@ python -m akkapros.cli.confwriter --conf run.yaml --set syllabify.extra_short_pu
 If any requested key or value is invalid, `confwriter` exits with an error and
 does not write the file.
 
+## Shared Verify
+
+`confwriter --verify` runs the same shared phonetize semantic verification layer
+used by standalone phonetizer preflight.
+
+The verify path assumes schema-valid grouped config first, then applies the
+current baseline semantic invariant inventory and warning rules for the active
+phonetize timing model. Output status is one of:
+
+- `VERIFY STATUS: pass`
+- `VERIFY STATUS: pass-with-warnings`
+- `VERIFY STATUS: failure`
+
+When verification fails, output includes the failing full dotted path or paths,
+the failed relation, and the reason. When warnings fire without blocking,
+output includes the warning path, threshold or formula, and configuration-wide
+hint lines for warning sources such as weakened pause-band compatibility.
+
+Example:
+
+```bash
+python -m akkapros.cli.confwriter --conf run.yaml --verify
+```
+
 ## Listing Output
 
 `--list` prints each known key with:
@@ -107,4 +135,5 @@ python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
 - Missing config files are created programmatically from the canonical schema.
 - Existing config files are updated incrementally.
 - `--help` stays concise; use `--list` for the full schema inventory.
+- `--verify` never mutates the config file, whether it passes, warns, or fails.
 - `--stdout` prints the resulting config text after a successful mutating run.

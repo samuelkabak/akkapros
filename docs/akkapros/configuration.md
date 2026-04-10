@@ -52,6 +52,12 @@ Those same `phonetize` settings are used when `phonetizer` and `fullprosmaker`
 materialize and finalize the two phone-row outputs, `<prefix>_ophone.txt` and
 `<prefix>_phone.txt`.
 
+Before standalone phonetizer runtime continues into Phase 2 realization, it
+now runs the shared phonetize semantic verification layer against the effective
+`phonetize` config. Blocking failures stop `_ophone.txt` and `_phone.txt`
+generation before runtime realization begins. Warning-only conditions are
+reported distinctly and allow processing to continue.
+
 ## Example
 
 ```yaml
@@ -103,6 +109,7 @@ python -m akkapros.cli.confwriter --conf run.yaml --get common.log_append
 python -m akkapros.cli.confwriter --conf run.yaml --list phonetize
 python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
 python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --verify
 ```
 
 `--set` is repeatable and validates both key paths and values against the canonical schema before any file is written. If any requested key or value is invalid, `confwriter` exits with an error and leaves the config file unchanged.
@@ -110,6 +117,10 @@ python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
 `--unset KEY` writes `null` for that key. Downstream tools interpret that stored null through normal config/default resolution, so the effective value falls back to the built-in default when the schema defines one.
 
 `--set-default KEY` writes the schema default value explicitly.
+
+`--verify` is a standalone read-only operation. It runs the shared phonetize
+semantic verification layer against the effective grouped config and reports one
+of `pass`, `pass-with-warnings`, or `failure` without modifying the file.
 
 ## Key Mapping
 

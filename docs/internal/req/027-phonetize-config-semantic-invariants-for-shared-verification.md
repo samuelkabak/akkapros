@@ -1,12 +1,12 @@
 ---
 req_id: REQ-027
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-08
+updated: 2026-04-10
 related_adrs: 'ADR-041'
-implemented_by: 'CR-042 and follow-up verification CRs'
+implemented_by: 'CR-042'
 ---
 
 # Requirement: Phonetize Config Semantic Invariants for Shared Verification

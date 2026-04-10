@@ -10,14 +10,17 @@ from akkapros.lib.phonetize import (
     INPUT_TO_REALIZATION_CODES,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_METADATA,
+    build_default_phonetize_verification_config,
     build_phone_streams,
     build_phone_rows,
     derive_original_tilde_text,
     parse_phone_row,
+    render_phonetize_verification_lines,
     realize_phone_rows,
     realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
     serialize_phone_row,
+    verify_phonetize_config,
 )
 
 
@@ -325,3 +328,29 @@ def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> No
         raise AssertionError('Expected strict mode to fail when unresolved drift remains at stream end')
     except ValueError as exc:
         assert 'unresolved drift' in str(exc)
+
+
+def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
+    defaults = build_default_phonetize_verification_config()
+
+    assert defaults['process']['accentuation_distribution_policy'] == '85_15'
+    assert defaults['process']['drift_policy'] == 'extensible'
+
+
+def test_shared_verification_warns_on_high_pause_ratio() -> None:
+    result = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 71}}})
+    lines = render_phonetize_verification_lines(result)
+
+    assert result.status == 'pass-with-warnings'
+    assert not result.failures
+    assert any('phonetize.timing_model.speech.pause_ratio' in line for line in lines)
+    assert any('pause_ratio > 70' in line for line in lines)
+
+
+def test_shared_verification_blocks_invalid_pause_ratio() -> None:
+    result = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}})
+    lines = render_phonetize_verification_lines(result)
+
+    assert result.status == 'failure'
+    assert result.failures
+    assert any('0 < pause_ratio < 100' in line for line in lines)

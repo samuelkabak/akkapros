@@ -105,6 +105,10 @@ phonetize:
     # if the mismatch still cannot be resolved
     # - extensible: use running drift first, then legal vowel adjustment, then
     # extend drift beyond drift_tolerance if needed
+    # Shared semantic verification is run before phonetizer Phase 2 continues;
+    # for shared verification and selected default-deviation reporting, the
+    # canonical comparison default for drift_policy is extensible even though
+    # the grouped-config default remains strict.
     drift_policy: "strict"
     # maximum local timing mismatch tolerated before the algorithm must fail
     drift_tolerance: 12
@@ -112,7 +116,9 @@ phonetize:
     speech:
       # Speech-rate estimate used by timing and pause logic.
       wpm: 193
-      # Share of total time reserved for pauses.
+      # Share of total time reserved for pauses. Shared semantic verification
+      # fails outside 0 < pause_ratio < 100 and emits a warning when
+      # pause_ratio > 70.
       pause_ratio: 35
     durations:
       # Upper ordinary duration for one vowel or consonant. Model-facing ceiling

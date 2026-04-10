@@ -22,6 +22,11 @@ The current implementation now follows the CR-039 structural contract and the CR
 - deterministic original-stream derivation from `_tilde` by removing `~` and replacing `&` with space while preserving `+`
 - drift reporting in front matter under `metadata.data.phonetize.drift`
 
+Before runtime realization begins, the CLI now also runs shared semantic config
+verification. Blocking failures stop the command before `_ophone.txt` and
+`_phone.txt` are written. Warning-only conditions are reported distinctly and
+allow processing to continue.
+
 The contract is intentionally structured for downstream traversal. Neighborhood logic may cross word boundaries inside one prosodic unit; silence rows are the only mandatory stopping points for that local traversal.
 
 ## Input and Output
@@ -105,6 +110,31 @@ Representative keys:
 - `phonetize.timing_model.durations.cvc_reference`
 
 `phonetize.process` keys are policy controls and tolerances for later duration realization. `perception_limits` under `phonetize.timing_model` are classification boundaries, not alternate emitted duration rows.
+
+## Preflight Verification
+
+The standalone phonetizer now uses the same shared semantic verification layer
+as `confwriter --verify`.
+
+That preflight:
+
+- assumes schema-valid key paths and value types first
+- checks the current baseline semantic invariants and warning rules
+- reports full dotted paths, relations, and reasons for blocking failures
+- reports warning paths, thresholds or formulas, and configuration-wide hint
+	summaries for warning-only conditions
+
+Representative warning-only output:
+
+```text
+WARN phonetize.timing_model.speech.pause_ratio | relation: pause_ratio > 70 | reason: pause_ratio above 70 reserves an unusually large share of time for pauses.
+```
+
+Representative blocking output:
+
+```text
+FAIL phonetize.timing_model.speech.pause_ratio | relation: 0 < pause_ratio < 100 | reason: pause_ratio must be a percentage strictly between 0 and 100.
+```
 
 `confwriter --list phonetize` is the supported way to inspect the live schema.
 

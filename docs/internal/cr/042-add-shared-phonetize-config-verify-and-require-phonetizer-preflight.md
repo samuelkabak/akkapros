@@ -1,10 +1,10 @@
 ---
 cr_id: CR-042
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-09
+updated: 2026-04-10
 implements: 'ADR-041, REQ-024, REQ-026, REQ-027'
 ---
 
@@ -149,8 +149,12 @@ At minimum, verification must enforce:
   - `drift_policy: strict | extensible`
 - canonical grouped-config defaults used by shared verification and selected-
   parameter default-deviation reporting include
-  `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
-  and `phonetize.process.timing_model.drift_policy=extensible`
+  `phonetize.process.accentuation_distribution_policy=85_15`
+  and `phonetize.process.drift_policy=extensible`
+- for the purposes of shared verification and selected-parameter
+  default-deviation reporting, `phonetize.process.drift_policy=extensible`
+  is the authoritative canonical default and supersedes the earlier grouped-
+  config default fixed in [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md)
 - millisecond timing values are represented as positive integers in ms
 - `phonetize.timing_model.speech.pause_ratio` is validated as a percentage with
   a blocking domain check `0 < pause_ratio < 100`
@@ -325,8 +329,12 @@ Suggested implementation direction:
 - [ ] Enum-like policy values are restricted to the approved inventories.
 - [ ] Shared verification and selected-parameter default-deviation reporting
   use canonical grouped-config defaults including
-  `phonetize.process.timing_model.accentuation_distribution_policy=85_15`
-  and `phonetize.process.timing_model.drift_policy=extensible`.
+  `phonetize.process.accentuation_distribution_policy=85_15`
+  and `phonetize.process.drift_policy=extensible`.
+- [ ] For shared verification and selected-parameter default-deviation
+  reporting, `phonetize.process.drift_policy=extensible` is treated as the
+  authoritative canonical default and therefore supersedes the earlier grouped-
+  config default fixed in [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md).
 - [ ] Millisecond timing values in the validated phonetize timing surface are
   positive integers in ms.
 - [ ] `phonetize.timing_model.speech.pause_ratio` is blocked unless it
@@ -518,6 +526,32 @@ verification while the other silently bypasses it.
 ## Review
 
 - [ ] Verify acceptance criteria
+
+---
+
+# Implementation Blockers
+
+## 2026-04-10 - Drift-policy default conflicts with accepted config contract
+
+- Type: `governance conflict`
+- Observed: CR-042 requires shared verification and default-deviation logic to use canonical defaults including `phonetize.process.timing_model.drift_policy=extensible` in the Proposed Change and Acceptance Criteria, but accepted [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md) already fixes the grouped-config default as `phonetize.process.drift_policy=strict`, and the live schema/default config implement `strict`.
+- Why blocked: implementing CR-042 as written would require choosing between an accepted earlier contract and the target CR's conflicting default, which would alter runtime semantics rather than just add shared verification.
+- Needed to unblock: rewrite CR-042 so it states the authoritative drift-policy default explicitly and consistently with the accepted record it intends to build on, or explicitly supersede that earlier default in a new approved specification.
+- Owner: `spec writer`
+- Related refs: CR-042, [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md), [ADR-041](../adr/041-stability-first-phonetizer-timing-control-and-validation-boundary.md), src/akkapros/lib/phonetize.py, src/akkapros/config/default.yaml
+- Resolved on: 2026-04-10
+- Resolution: CR-042 now states explicitly in the Proposed Change and Acceptance Criteria that `phonetize.process.drift_policy=extensible` is the authoritative canonical default for shared verification and selected-parameter default-deviation reporting, and that this supersedes the earlier grouped-config default fixed in [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md).
+
+## 2026-04-10 - Several normative dotted paths are malformed
+
+- Type: `spec weakness`
+- Observed: CR-042 uses malformed normative paths such as `phonetize.process.timing_model.accentuation_distribution_policy=85_15` and `phonetize.process.timing_model.drift_policy=extensible`, even though the approved config surface separates `phonetize.process.*` from `phonetize.timing_model.*`.
+- Why blocked: the malformed paths appear in normative verification text and acceptance criteria, so the implementation contract is not self-consistent about which keys shared verification is supposed to read and report.
+- Needed to unblock: rewrite the CR so every normative key path matches the approved grouped-config surface and remove any `process.timing_model` hybrid paths.
+- Owner: `spec writer`
+- Related refs: CR-042, [CR-035](035-add-phonetize-stage-config-and-phone-artifact-contract.md), [REQ-026](../req/026-stability-first-phonetizer-timing-control-and-baseline-validation.md), [REQ-027](../req/027-phonetize-config-semantic-invariants-for-shared-verification.md)
+- Resolved on: 2026-04-10
+- Resolution: malformed `phonetize.process.timing_model.*` references were corrected to the approved `phonetize.process.*` paths in the Proposed Change and Acceptance Criteria.
 
 ---
 

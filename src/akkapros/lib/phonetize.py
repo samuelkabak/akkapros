@@ -29,6 +29,33 @@ class PhonetizeField:
     choices: tuple[str, ...] | None = None
 
 
+@dataclass(frozen=True)
+class VerificationIssue:
+    severity: str
+    path: str
+    relation: str
+    reason: str
+    summary_hint: str | None = None
+
+
+@dataclass(frozen=True)
+class PhonetizeVerificationResult:
+    failures: tuple[VerificationIssue, ...]
+    warnings: tuple[VerificationIssue, ...]
+
+    @property
+    def ok(self) -> bool:
+        return not self.failures
+
+    @property
+    def status(self) -> str:
+        if self.failures:
+            return 'failure'
+        if self.warnings:
+            return 'pass-with-warnings'
+        return 'pass'
+
+
 def _field(default: Any, kind: str, description: str, choices: tuple[str, ...] | None = None) -> PhonetizeField:
     return PhonetizeField(default=default, kind=kind, description=description, choices=choices)
 
@@ -57,7 +84,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
         'drift_policy': _field(
             'strict',
             'string',
-            'drift recovery policy\n- strict: use running drift first, then legal vowel adjustment, and fail if the mismatch still cannot be resolved\n- extensible: use running drift first, then legal vowel adjustment, then extend drift beyond drift_tolerance if needed',
+            'drift recovery policy\n- strict: use running drift first, then legal vowel adjustment, and fail if the mismatch still cannot be resolved\n- extensible: use running drift first, then legal vowel adjustment, then extend drift beyond drift_tolerance if needed\nShared semantic verification is run before phonetizer Phase 2 continues; for shared verification and selected default-deviation reporting, the canonical comparison default for drift_policy is extensible even though the grouped-config default remains strict.',
             choices=('strict', 'extensible'),
         ),
         'drift_tolerance': _field(
@@ -71,7 +98,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
         'speech': {
             '__comment__': None,
             'wpm': _field(193, 'int', 'Speech-rate estimate used by timing and pause logic.'),
-            'pause_ratio': _field(35, 'int', 'Share of total time reserved for pauses.'),
+                'pause_ratio': _field(35, 'int', 'Share of total time reserved for pauses. Shared semantic verification fails outside 0 < pause_ratio < 100 and emits a warning when pause_ratio > 70.'),
         },
         'durations': {
             '__comment__': None,
@@ -397,6 +424,12 @@ def build_default_phonetize_config() -> dict[str, Any]:
         return built
 
     return _build(PHONETIZE_SCHEMA)
+
+
+def build_default_phonetize_verification_config() -> dict[str, Any]:
+    defaults = build_default_phonetize_config()
+    defaults['process']['drift_policy'] = 'extensible'
+    return defaults
 
 
 def iter_phonetize_fields() -> list[tuple[tuple[str, ...], PhonetizeField]]:
@@ -771,6 +804,289 @@ def _merge_phonetize_config(phonetize_config: dict[str, Any] | None) -> dict[str
 
     _merge(merged, phonetize_config)
     return merged
+
+
+def _make_issue(
+    severity: str,
+    path: str,
+    relation: str,
+    reason: str,
+    *,
+    summary_hint: str | None = None,
+) -> VerificationIssue:
+    return VerificationIssue(
+        severity=severity,
+        path=path,
+        relation=relation,
+        reason=reason,
+        summary_hint=summary_hint,
+    )
+
+
+def _interval_distance(value: float, minimum: float, maximum: float) -> float:
+    if minimum <= value <= maximum:
+        return 0.0
+    return min(abs(value - minimum), abs(value - maximum))
+
+
+def _nearest_multiple_gap(minimum: float, maximum: float, cvc_reference: float) -> float:
+    upper = max(1, int(maximum // cvc_reference) + 2)
+    return min(
+        _interval_distance(n * cvc_reference, minimum, maximum)
+        for n in range(1, upper + 1)
+    )
+
+
+def _iter_numeric_leaves(prefix: tuple[str, ...], node: Any) -> list[tuple[str, int]]:
+    leaves: list[tuple[str, int]] = []
+    if isinstance(node, dict):
+        for key, value in node.items():
+            leaves.extend(_iter_numeric_leaves(prefix + (key,), value))
+    elif isinstance(node, int) and not isinstance(node, bool):
+        leaves.append(('.'.join(prefix), node))
+    return leaves
+
+
+def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> PhonetizeVerificationResult:
+    config = _merge_phonetize_config(phonetize_config)
+    verification_defaults = build_default_phonetize_verification_config()
+    failures: list[VerificationIssue] = []
+    warnings: list[VerificationIssue] = []
+
+    def add_failure(path: str, relation: str, reason: str, *, summary_hint: str | None = None) -> None:
+        failures.append(_make_issue('failure', path, relation, reason, summary_hint=summary_hint))
+
+    def add_warning(path: str, relation: str, reason: str, *, summary_hint: str | None = None) -> None:
+        warnings.append(_make_issue('warning', path, relation, reason, summary_hint=summary_hint))
+
+    process = config['process']
+    timing_model = config['timing_model']
+    speech = timing_model['speech']
+    durations = timing_model['durations']
+    consonants = durations['consonants']
+    vowels = durations['vowels']
+    pauses = durations['pauses']
+    verification_hint = (
+        'Configured pause ranges no longer support coherent isochrony organized '
+        'by the phonetize.timing_model.durations.cvc_reference foot.'
+    )
+    short_pause_hint = (
+        'Configured short-pause settings no longer support clean equal-duration '
+        'setup from the phonetize.timing_model.durations.cvc_reference foot.'
+    )
+
+    enum_policies = {
+        'phonetize.process.geminate_policy': ('cumulative', 'corrective'),
+        'phonetize.process.accentuation_distribution_policy': ('100_0', '85_15', '70_30'),
+        'phonetize.process.short_pause_policy': ('strict', 'best_effort'),
+        'phonetize.process.drift_policy': ('strict', 'extensible'),
+    }
+    for path, choices in enum_policies.items():
+        value = get_relative_value(config, tuple(path.split('.')[1:]))
+        if value not in choices:
+            add_failure(
+                path,
+                f'value in {{{" | ".join(choices)}}}',
+                f'Expected one of {choices!r}, got {value!r}.',
+            )
+
+    if not isinstance(process['drift_tolerance'], int) or isinstance(process['drift_tolerance'], bool) or process['drift_tolerance'] < 0:
+        add_failure(
+            'phonetize.process.drift_tolerance',
+            'drift_tolerance is an integer >= 0',
+            'Drift tolerance must be a non-negative integer number of milliseconds.',
+        )
+
+    if not isinstance(speech['wpm'], int) or isinstance(speech['wpm'], bool) or speech['wpm'] <= 0:
+        add_failure(
+            'phonetize.timing_model.speech.wpm',
+            'wpm > 0',
+            'Speech-rate estimate must be a positive integer.',
+        )
+
+    pause_ratio = speech['pause_ratio']
+    if not isinstance(pause_ratio, int) or isinstance(pause_ratio, bool) or not (0 < pause_ratio < 100):
+        add_failure(
+            'phonetize.timing_model.speech.pause_ratio',
+            '0 < pause_ratio < 100',
+            'pause_ratio must be a percentage strictly between 0 and 100.',
+        )
+    elif pause_ratio > 70:
+        add_warning(
+            'phonetize.timing_model.speech.pause_ratio',
+            'pause_ratio > 70',
+            'pause_ratio above 70 reserves an unusually large share of time for pauses.',
+        )
+
+    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations'), durations):
+        if value <= 0:
+            add_failure(
+                path,
+                'value is a positive integer in milliseconds',
+                'Timing-model durations must be positive integers measured in milliseconds.',
+            )
+
+    segmental_ceiling = durations['segmental_ceiling']
+    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations', 'consonants'), consonants):
+        if value > segmental_ceiling:
+            add_failure(
+                f'{path}, phonetize.timing_model.durations.segmental_ceiling',
+                f'{path} <= phonetize.timing_model.durations.segmental_ceiling',
+                f'{path} exceeds the configured segmental ceiling.',
+            )
+    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations', 'vowels'), vowels):
+        if value > segmental_ceiling:
+            add_failure(
+                f'{path}, phonetize.timing_model.durations.segmental_ceiling',
+                f'{path} <= phonetize.timing_model.durations.segmental_ceiling',
+                f'{path} exceeds the configured segmental ceiling.',
+            )
+
+    for consonant_class in ('closure', 'fricative', 'sonorant'):
+        base_path = f'phonetize.timing_model.durations.consonants.{consonant_class}'
+        row = consonants[consonant_class]
+        if not (row['geminate'] > row['perception_limits']['geminate_min'] > row['onset']):
+            add_failure(
+                f'{base_path}.geminate, {base_path}.perception_limits.geminate_min, {base_path}.onset',
+                f'{base_path}.geminate > {base_path}.perception_limits.geminate_min > {base_path}.onset',
+                'Geminate threshold ordering does not hold on the onset side.',
+            )
+        if not (row['geminate'] > row['perception_limits']['geminate_min'] > row['coda']):
+            add_failure(
+                f'{base_path}.geminate, {base_path}.perception_limits.geminate_min, {base_path}.coda',
+                f'{base_path}.geminate > {base_path}.perception_limits.geminate_min > {base_path}.coda',
+                'Geminate threshold ordering does not hold on the coda side.',
+            )
+        if abs(row['onset'] - row['coda']) / row['onset'] >= 0.5:
+            add_warning(
+                f'{base_path}.onset, {base_path}.coda',
+                f'abs({base_path}.onset - {base_path}.coda) / {base_path}.onset >= 0.5',
+                'Onset and coda anchors for this consonant class diverge sharply.',
+            )
+
+    if not (
+        consonants['closure']['special_realization']['hiatus'] < consonants['closure']['onset']
+        and consonants['closure']['special_realization']['hiatus'] < consonants['closure']['coda']
+    ):
+        add_failure(
+            'phonetize.timing_model.durations.consonants.closure.special_realization.hiatus, phonetize.timing_model.durations.consonants.closure.onset, phonetize.timing_model.durations.consonants.closure.coda',
+            'hiatus < onset and hiatus < coda',
+            'Hiatus realization must stay below both closure onset and closure coda anchors.',
+        )
+
+    if not (
+        consonants['sonorant']['special_realization']['vowel_transition'] < consonants['sonorant']['onset']
+        and consonants['sonorant']['special_realization']['vowel_transition'] < consonants['sonorant']['coda']
+    ):
+        add_failure(
+            'phonetize.timing_model.durations.consonants.sonorant.special_realization.vowel_transition, phonetize.timing_model.durations.consonants.sonorant.onset, phonetize.timing_model.durations.consonants.sonorant.coda',
+            'vowel_transition < onset and vowel_transition < coda',
+            'Vowel-transition realization must stay below both sonorant onset and sonorant coda anchors.',
+        )
+
+    vowel_limits = vowels['perception_limits']
+    if not (
+        vowel_limits['short_min'] < vowels['short'] < vowel_limits['long_min'] < vowels['long']
+        < vowel_limits['very_long_min'] < vowels['very_long'] < vowel_limits['max']
+    ):
+        add_failure(
+            'phonetize.timing_model.durations.vowels.perception_limits.short_min, phonetize.timing_model.durations.vowels.short, phonetize.timing_model.durations.vowels.perception_limits.long_min, phonetize.timing_model.durations.vowels.long, phonetize.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.timing_model.durations.vowels.very_long, phonetize.timing_model.durations.vowels.perception_limits.max',
+            'short_min < short < long_min < long < very_long_min < very_long < max',
+            'Vowel category ordering is invalid.',
+        )
+
+    if not (
+        pauses['short']['min'] < pauses['short']['max']
+        and pauses['long']['min'] < pauses['long']['max']
+        and pauses['short']['max'] < pauses['long']['min']
+    ):
+        add_failure(
+            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.pauses.long.min, phonetize.timing_model.durations.pauses.long.max',
+            'short.min < short.max < long.min < long.max',
+            'Pause-band ordering is invalid.',
+        )
+
+    cvc_reference = float(durations['cvc_reference'])
+    short_min = float(pauses['short']['min'])
+    short_max = float(pauses['short']['max'])
+    long_min = float(pauses['long']['min'])
+    long_max = float(pauses['long']['max'])
+
+    if not _pause_multiple_candidates(short_min, short_max, cvc_reference):
+        add_warning(
+            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.cvc_reference',
+            'exists N >= 1 with short.min <= N * cvc_reference <= short.max',
+            'No integer multiple of cvc_reference falls inside the configured short-pause band.',
+            summary_hint=short_pause_hint,
+        )
+
+    short_gap = _nearest_multiple_gap(short_min, short_max, cvc_reference)
+    short_gap_limit = float(vowel_limits['long_min'] - vowel_limits['short_min'])
+    if short_gap > short_gap_limit:
+        add_failure(
+            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.cvc_reference, phonetize.timing_model.durations.vowels.perception_limits.long_min, phonetize.timing_model.durations.vowels.perception_limits.short_min',
+            'short_pause_gap <= long_min - short_min',
+            'The nearest-multiple gap for the short-pause band exceeds the allowed vowel perception-gap threshold.',
+            summary_hint=verification_hint,
+        )
+
+    if not _pause_multiple_candidates(long_min, long_max, cvc_reference):
+        add_failure(
+            'phonetize.timing_model.durations.pauses.long.min, phonetize.timing_model.durations.pauses.long.max, phonetize.timing_model.durations.cvc_reference',
+            'exists N >= 1 with long.min <= N * cvc_reference <= long.max',
+            'No integer multiple of cvc_reference falls inside the configured long-pause band.',
+            summary_hint=verification_hint,
+        )
+
+    selected_default_paths = (
+        ('timing_model', 'speech', 'wpm'),
+        ('timing_model', 'durations', 'segmental_ceiling'),
+        ('timing_model', 'durations', 'cvc_reference'),
+        ('timing_model', 'durations', 'consonants', 'closure', 'perception_limits', 'geminate_min'),
+        ('timing_model', 'durations', 'consonants', 'fricative', 'perception_limits', 'geminate_min'),
+        ('timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'geminate_min'),
+        ('timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
+        ('timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
+        ('timing_model', 'durations', 'pauses', 'short', 'min'),
+        ('timing_model', 'durations', 'pauses', 'long', 'min'),
+    )
+    for relative_path in selected_default_paths:
+        actual = get_relative_value(config, relative_path)
+        default = get_relative_value(verification_defaults, relative_path)
+        if default and abs(actual - default) / default >= 0.5:
+            path = 'phonetize.' + '.'.join(relative_path)
+            add_warning(
+                path,
+                'abs(value - default) / default >= 0.5',
+                f'Value deviates sharply from the canonical verification default {default}.',
+            )
+
+    return PhonetizeVerificationResult(tuple(failures), tuple(warnings))
+
+
+def render_phonetize_verification_lines(result: PhonetizeVerificationResult) -> list[str]:
+    lines = [f'VERIFY STATUS: {result.status}']
+    if result.failures:
+        lines.append(f'Blocking failures ({len(result.failures)}):')
+        for issue in result.failures:
+            lines.append(
+                f'FAIL {issue.path} | relation: {issue.relation} | reason: {issue.reason}'
+            )
+    if result.warnings:
+        lines.append(f'Warnings ({len(result.warnings)}):')
+        for issue in result.warnings:
+            lines.append(
+                f'WARN {issue.path} | relation: {issue.relation} | reason: {issue.reason}'
+            )
+        hints = []
+        for issue in result.warnings + result.failures:
+            if issue.summary_hint and issue.summary_hint not in hints:
+                hints.append(issue.summary_hint)
+        if hints:
+            lines.append('Warning summary hints:')
+            for hint in hints:
+                lines.append(f'Hint: {hint}')
+    return lines
 
 
 def _format_duration(value: float) -> str:
@@ -1315,6 +1631,7 @@ def run_tests() -> bool:
         lambda: _test_transition_resolution(),
         lambda: _test_dual_stream_generation(),
         lambda: _test_finalized_stream_generation(),
+        lambda: _test_shared_verification(),
     ]
     return all(case() for case in cases)
 
@@ -1363,4 +1680,15 @@ def _test_finalized_stream_generation() -> bool:
         and any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _accentuated_rows)
         and 'stddev' in original_report['drift']
         and 'stddev' in accentuated_report['drift']
+    )
+
+
+def _test_shared_verification() -> bool:
+    warnings_only = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 71}}})
+    blocking = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}})
+    rendered = render_phonetize_verification_lines(warnings_only)
+    return (
+        warnings_only.status == 'pass-with-warnings'
+        and blocking.status == 'failure'
+        and any('pause_ratio > 70' in line for line in rendered)
     )

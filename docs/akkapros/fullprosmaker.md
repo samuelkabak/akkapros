@@ -147,6 +147,11 @@ for metrics (`wpm = 193`, `pause_ratio = 35`).
 
 The longer-term transition target is a structured phonetize handoff where `_ophone.txt` and `_phone.txt` carry the canonical finalized row streams and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
 
+When you are iterating on phonetize timing settings in grouped config, the
+recommended preflight is `confwriter --verify`. That uses the same shared
+semantic verification layer that standalone phonetizer now runs before Phase 2
+continues.
+
 ### Printer Options
 
 | Option | Description |
