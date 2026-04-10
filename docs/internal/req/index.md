@@ -4,7 +4,7 @@ This index lists requirement documents. It is maintained by `scripts/update-inde
 
 - [031. Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization](031-phonetizer-phase-2-syllable-scoped-duration-realization.md) - Implemented
 - [030. Requirement: Phone/Ophone-Only Metrics and Interval Rhythm Computation](030-phone-ophone-only-metrics-and-interval-rhythm-computation.md) - Draft
-- [029. Requirement: Stage Config Run/Process Separation](029-stage-config-run-process-separation-and-common-outdir-removal.md) - Draft
+- [029. Requirement: Stage Config Run/Process Separation](029-stage-config-run-process-separation-and-common-outdir-removal.md) - Implemented
 - [028. Requirement: Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](028-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Implemented
 - [027. Requirement: Phonetize Config Semantic Invariants for Shared Verification](027-phonetize-config-semantic-invariants-for-shared-verification.md) - Implemented
 - [026. Requirement: Stability-First Phonetizer Timing Control and Baseline Validation](026-stability-first-phonetizer-timing-control-and-baseline-validation.md) - Implemented

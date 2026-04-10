@@ -36,6 +36,10 @@ class ConfigField:
     choices: tuple[str, ...] | None = None
 
 
+def _is_config_field(value: Any) -> bool:
+    return isinstance(value, ConfigField)
+
+
 COMMON_SECTION = "common"
 ATFPARSE_SECTION = "atfparse"
 SYLLABIFY_SECTION = "syllabify"
@@ -69,130 +73,204 @@ PREFIX_REQUIRED_TOOLS = frozenset(
     }
 )
 
-CONFIG_SCHEMA: dict[str, dict[str, ConfigField]] = {
+COMMON_FIELD_MAP: dict[str, str] = {
+    'run.prefix': 'prefix',
+    'run.outdir': 'outdir',
+    'run.quiet': 'quiet',
+    'run.no_console': 'no_console',
+    'run.log': 'log',
+    'run.log_append': 'log_append',
+}
+
+CONFIG_SCHEMA: dict[str, dict[str, Any]] = {
     COMMON_SECTION: {
-        "prefix": ConfigField("akkapros", "nullable_string", config_help(COMMON_SECTION, "prefix")),
-        "outdir": ConfigField(".", "string", config_help(COMMON_SECTION, "outdir")),
-        "quiet": ConfigField(False, "bool", config_help(COMMON_SECTION, "quiet")),
-        "no_console": ConfigField(False, "bool", config_help(COMMON_SECTION, "no_console")),
-        "log": ConfigField(None, "nullable_string", config_help(COMMON_SECTION, "log")),
-        "log_append": ConfigField(False, "bool", config_help(COMMON_SECTION, "log_append")),
+        'run': {
+            'prefix': ConfigField('akkapros', 'nullable_string', config_help('common.run.prefix')),
+            'outdir': ConfigField('.', 'string', config_help('common.run.outdir')),
+            'quiet': ConfigField(False, 'bool', config_help('common.run.quiet')),
+            'no_console': ConfigField(False, 'bool', config_help('common.run.no_console')),
+            'log': ConfigField(None, 'nullable_string', config_help('common.run.log')),
+            'log_append': ConfigField(False, 'bool', config_help('common.run.log_append')),
+        },
     },
     ATFPARSE_SECTION: {
-        "remove_hyphens": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "remove_hyphens")),
-        "preserve_case": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "preserve_case")),
-        "preserve_h": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "preserve_h")),
-        "strict": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "strict")),
-        "append": ConfigField(False, "bool", config_help(ATFPARSE_SECTION, "append")),
+        'process': {
+            'remove_hyphens': ConfigField(False, 'bool', config_help('atfparse.process.remove_hyphens')),
+            'preserve_case': ConfigField(False, 'bool', config_help('atfparse.process.preserve_case')),
+            'preserve_h': ConfigField(False, 'bool', config_help('atfparse.process.preserve_h')),
+        },
+        'run': {
+            'strict': ConfigField(False, 'bool', config_help('atfparse.run.strict')),
+            'append': ConfigField(False, 'bool', config_help('atfparse.run.append')),
+        },
     },
     SYLLABIFY_SECTION: {
-        "extra_vowels": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_vowels")),
-        "extra_consonants": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_consonants")),
-        "extra_short_punct_chars": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_short_punct_chars")),
-        "extra_long_punct_chars": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "extra_long_punct_chars")),
-        "extra_short_punct_pattern": ConfigField([], "string_list", config_help(SYLLABIFY_SECTION, "extra_short_punct_pattern")),
-        "extra_long_punct_pattern": ConfigField([], "string_list", config_help(SYLLABIFY_SECTION, "extra_long_punct_pattern")),
-        "number_format": ConfigField("", "string", config_help(SYLLABIFY_SECTION, "number_format")),
-        "merge_hyphen": ConfigField(False, "bool", config_help(SYLLABIFY_SECTION, "merge_hyphen")),
-        "merge_lines": ConfigField(False, "bool", config_help(SYLLABIFY_SECTION, "merge_lines")),
-        "title": ConfigField(None, "nullable_string", config_help(SYLLABIFY_SECTION, "title")),
+        'process': {
+            'extra_vowels': ConfigField('', 'string', config_help('syllabify.process.extra_vowels')),
+            'extra_consonants': ConfigField('', 'string', config_help('syllabify.process.extra_consonants')),
+            'extra_short_punct_chars': ConfigField('', 'string', config_help('syllabify.process.extra_short_punct_chars')),
+            'extra_long_punct_chars': ConfigField('', 'string', config_help('syllabify.process.extra_long_punct_chars')),
+            'extra_short_punct_pattern': ConfigField([], 'string_list', config_help('syllabify.process.extra_short_punct_pattern')),
+            'extra_long_punct_pattern': ConfigField([], 'string_list', config_help('syllabify.process.extra_long_punct_pattern')),
+            'number_format': ConfigField('', 'string', config_help('syllabify.process.number_format')),
+            'merge_hyphen': ConfigField(False, 'bool', config_help('syllabify.process.merge_hyphen')),
+            'merge_lines': ConfigField(False, 'bool', config_help('syllabify.process.merge_lines')),
+        },
+        'run': {
+            'title': ConfigField(None, 'nullable_string', config_help('syllabify.run.title')),
+        },
     },
     PROSODY_SECTION: {
-        "style": ConfigField("lob", "string", config_help(PROSODY_SECTION, "style"), choices=("lob", "sob")),
-        "mora_mode": ConfigField("bi", "string", config_help(PROSODY_SECTION, "mora_mode"), choices=("bi", "mono")),
-        "relax_last": ConfigField(False, "bool", config_help(PROSODY_SECTION, "relax_last")),
+        'process': {
+            'style': ConfigField('lob', 'string', config_help('prosody.process.style'), choices=('lob', 'sob')),
+            'mora_mode': ConfigField('bi', 'string', config_help('prosody.process.mora_mode'), choices=('bi', 'mono')),
+            'relax_last': ConfigField(False, 'bool', config_help('prosody.process.relax_last')),
+        },
     },
     METRICS_SECTION: {
-        "csv": ConfigField(False, "bool", config_help(METRICS_SECTION, "csv")),
-        "table": ConfigField(False, "bool", config_help(METRICS_SECTION, "table")),
-        "json": ConfigField(False, "bool", config_help(METRICS_SECTION, "json")),
-        "explicit_link_count": ConfigField(None, "nullable_scalar", config_help(METRICS_SECTION, "explicit_link_count")),
+        'run': {
+            'csv': ConfigField(False, 'bool', config_help('metrics.run.csv')),
+            'table': ConfigField(False, 'bool', config_help('metrics.run.table')),
+            'json': ConfigField(False, 'bool', config_help('metrics.run.json')),
+        },
     },
     PRINT_SECTION: {
-        "acute": ConfigField(False, "bool", config_help(PRINT_SECTION, "acute")),
-        "bold": ConfigField(False, "bool", config_help(PRINT_SECTION, "bold")),
-        "ipa": ConfigField(False, "bool", config_help(PRINT_SECTION, "ipa")),
-        "ipa_proto_semitic": ConfigField("preserve", "string", config_help(PRINT_SECTION, "ipa_proto_semitic"), choices=("preserve", "replace")),
-        "circ_hiatus": ConfigField(False, "bool", config_help(PRINT_SECTION, "circ_hiatus")),
-        "xar": ConfigField(False, "bool", config_help(PRINT_SECTION, "xar")),
-        "mbrola": ConfigField(False, "bool", config_help(PRINT_SECTION, "mbrola")),
-        "print_merger": ConfigField(False, "bool", config_help(PRINT_SECTION, "print_merger")),
+        'process': {
+            'ipa_proto_semitic': ConfigField('preserve', 'string', config_help('print.process.ipa_proto_semitic'), choices=('preserve', 'replace')),
+        },
+        'run': {
+            'acute': ConfigField(False, 'bool', config_help('print.run.acute')),
+            'bold': ConfigField(False, 'bool', config_help('print.run.bold')),
+            'ipa': ConfigField(False, 'bool', config_help('print.run.ipa')),
+            'circ_hiatus': ConfigField(False, 'bool', config_help('print.run.circ_hiatus')),
+            'xar': ConfigField(False, 'bool', config_help('print.run.xar')),
+            'mbrola': ConfigField(False, 'bool', config_help('print.run.mbrola')),
+            'print_merger': ConfigField(False, 'bool', config_help('print.run.print_merger')),
+        },
     },
 }
 
 TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] = {
-    "atfparser": ((COMMON_SECTION, None), (ATFPARSE_SECTION, None)),
-    "syllabifier": ((COMMON_SECTION, None), (SYLLABIFY_SECTION, None)),
-    "prosmaker": ((COMMON_SECTION, None), (PROSODY_SECTION, None)),
+    "atfparser": (
+        (COMMON_SECTION, COMMON_FIELD_MAP),
+        (ATFPARSE_SECTION, {
+            'process.remove_hyphens': 'remove_hyphens',
+            'process.preserve_case': 'preserve_case',
+            'process.preserve_h': 'preserve_h',
+            'run.strict': 'strict',
+            'run.append': 'append',
+        }),
+    ),
+    "syllabifier": (
+        (COMMON_SECTION, COMMON_FIELD_MAP),
+        (SYLLABIFY_SECTION, {
+            'process.extra_vowels': 'extra_vowels',
+            'process.extra_consonants': 'extra_consonants',
+            'process.extra_short_punct_chars': 'extra_short_punct_chars',
+            'process.extra_long_punct_chars': 'extra_long_punct_chars',
+            'process.extra_short_punct_pattern': 'extra_short_punct_pattern',
+            'process.extra_long_punct_pattern': 'extra_long_punct_pattern',
+            'process.number_format': 'number_format',
+            'process.merge_hyphen': 'merge_hyphen',
+            'process.merge_lines': 'merge_lines',
+            'run.title': 'title',
+        }),
+    ),
+    "prosmaker": (
+        (COMMON_SECTION, COMMON_FIELD_MAP),
+        (PROSODY_SECTION, {
+            'process.style': 'style',
+            'process.mora_mode': 'mora_mode',
+            'process.relax_last': 'relax_last',
+        }),
+    ),
     "phonetizer": (
-        (COMMON_SECTION, None),
+        (COMMON_SECTION, COMMON_FIELD_MAP),
         (
             PHONETIZE_SECTION,
             {
-                "process.geminate_policy": "geminate_policy",
-                "process.accentuation_distribution_policy": "accentuation_distribution_policy",
-                "process.short_pause_policy": "short_pause_policy",
-                "process.drift_policy": "drift_policy",
-                "process.drift_tolerance": "drift_tolerance",
+                "process.timing_model.geminate_policy": "geminate_policy",
+                "process.timing_model.accentuation_distribution_policy": "accentuation_distribution_policy",
+                "process.timing_model.short_pause_policy": "short_pause_policy",
+                "process.timing_model.drift_policy": "drift_policy",
+                "process.timing_model.drift_tolerance": "drift_tolerance",
             },
         ),
     ),
-    "metricalc": ((COMMON_SECTION, None), (METRICS_SECTION, None)),
-    "printer": ((COMMON_SECTION, None), (PRINT_SECTION, None)),
+    "metricalc": (
+        (COMMON_SECTION, COMMON_FIELD_MAP),
+        (METRICS_SECTION, {
+            'run.csv': 'csv',
+            'run.table': 'table',
+            'run.json': 'json',
+        }),
+    ),
+    "printer": (
+        (COMMON_SECTION, COMMON_FIELD_MAP),
+        (PRINT_SECTION, {
+            'run.acute': 'acute',
+            'run.bold': 'bold',
+            'run.ipa': 'ipa',
+            'process.ipa_proto_semitic': 'ipa_proto_semitic',
+            'run.circ_hiatus': 'circ_hiatus',
+            'run.xar': 'xar',
+            'run.mbrola': 'mbrola',
+            'run.print_merger': 'print_merger',
+        }),
+    ),
     "fullprosmaker": (
-        (COMMON_SECTION, None),
+        (COMMON_SECTION, COMMON_FIELD_MAP),
         (
             SYLLABIFY_SECTION,
             {
-                "extra_vowels": "extra_vowels",
-                "extra_consonants": "extra_consonants",
-                "extra_short_punct_chars": "extra_short_punct_chars",
-                "extra_long_punct_chars": "extra_long_punct_chars",
-                "extra_short_punct_pattern": "extra_short_punct_pattern",
-                "extra_long_punct_pattern": "extra_long_punct_pattern",
-                "number_format": "number_format",
-                "merge_hyphen": "syl_merge_hyphens",
-                "merge_lines": "syl_merge_lines",
-                "title": "title",
+                "process.extra_vowels": "extra_vowels",
+                "process.extra_consonants": "extra_consonants",
+                "process.extra_short_punct_chars": "extra_short_punct_chars",
+                "process.extra_long_punct_chars": "extra_long_punct_chars",
+                "process.extra_short_punct_pattern": "extra_short_punct_pattern",
+                "process.extra_long_punct_pattern": "extra_long_punct_pattern",
+                "process.number_format": "number_format",
+                "process.merge_hyphen": "syl_merge_hyphens",
+                "process.merge_lines": "syl_merge_lines",
+                "run.title": "title",
             },
         ),
         (
             PROSODY_SECTION,
             {
-                "style": "prosody_style",
-                "mora_mode": "mora_mode",
-                "relax_last": "prosody_relax_last",
+                "process.style": "prosody_style",
+                "process.mora_mode": "mora_mode",
+                "process.relax_last": "prosody_relax_last",
             },
         ),
         (
             PHONETIZE_SECTION,
             {
-                "process.geminate_policy": "phonetize_geminate_policy",
-                "process.accentuation_distribution_policy": "phonetize_accentuation_distribution_policy",
-                "process.short_pause_policy": "phonetize_short_pause_policy",
-                "process.drift_policy": "phonetize_drift_policy",
-                "process.drift_tolerance": "phonetize_drift_tolerance",
+                "process.timing_model.geminate_policy": "phonetize_geminate_policy",
+                "process.timing_model.accentuation_distribution_policy": "phonetize_accentuation_distribution_policy",
+                "process.timing_model.short_pause_policy": "phonetize_short_pause_policy",
+                "process.timing_model.drift_policy": "phonetize_drift_policy",
+                "process.timing_model.drift_tolerance": "phonetize_drift_tolerance",
             },
         ),
         (
             METRICS_SECTION,
             {
-                "csv": "metrics_csv",
-                "table": "metrics_table",
-                "json": "metrics_json",
-                "explicit_link_count": "explicit_link_count",
+                "run.csv": "metrics_csv",
+                "run.table": "metrics_table",
+                "run.json": "metrics_json",
             },
         ),
         (
             PRINT_SECTION,
             {
-                "acute": "print_acute",
-                "bold": "print_bold",
-                "ipa": "print_ipa",
-                "ipa_proto_semitic": "print_ipa_proto_semitic",
-                "circ_hiatus": "print_circ_hiatus",
-                "xar": "print_xar",
-                "print_merger": "print_merger",
+                "run.acute": "print_acute",
+                "run.bold": "print_bold",
+                "run.ipa": "print_ipa",
+                "process.ipa_proto_semitic": "print_ipa_proto_semitic",
+                "run.circ_hiatus": "print_circ_hiatus",
+                "run.xar": "print_xar",
+                "run.print_merger": "print_merger",
             },
         ),
     ),
@@ -205,18 +283,102 @@ PROGRAM_CONFIG_ROOTS: dict[str, tuple[str, ...]] = {
 
 
 def build_default_config() -> dict[str, dict[str, Any]]:
-    defaults = {
-        section: {key: deepcopy(field.default) for key, field in fields.items()}
-        for section, fields in CONFIG_SCHEMA.items()
-    }
+    def _build_node(node: dict[str, Any]) -> dict[str, Any]:
+        built: dict[str, Any] = {}
+        for key, value in node.items():
+            if _is_config_field(value):
+                built[key] = deepcopy(value.default)
+            else:
+                built[key] = _build_node(value)
+        return built
+
+    defaults = {section: _build_node(fields) for section, fields in CONFIG_SCHEMA.items()}
     defaults[PHONETIZE_SECTION] = build_default_phonetize_config()
     return defaults
 
 
 def build_runtime_default_config() -> dict[str, dict[str, Any]]:
-    defaults = build_default_config()
-    defaults[PHONETIZE_SECTION]['process']['drift_policy'] = 'extensible'
-    return defaults
+    return build_default_config()
+
+
+def _iter_section_fields(section: str) -> list[tuple[tuple[str, ...], ConfigField]]:
+    entries: list[tuple[tuple[str, ...], ConfigField]] = []
+
+    def _walk(prefix: tuple[str, ...], node: dict[str, Any]) -> None:
+        for key, value in node.items():
+            path = prefix + (key,)
+            if _is_config_field(value):
+                entries.append((path, value))
+            else:
+                _walk(path, value)
+
+    _walk((), CONFIG_SCHEMA[section])
+    return entries
+
+
+def _get_nested_value(mapping: dict[str, Any], relative_path: tuple[str, ...]) -> Any:
+    current: Any = mapping
+    for part in relative_path:
+        current = current[part]
+    return deepcopy(current)
+
+
+def _set_nested_value(mapping: dict[str, Any], relative_path: tuple[str, ...], value: Any) -> None:
+    current = mapping
+    for part in relative_path[:-1]:
+        current = current.setdefault(part, {})
+    current[relative_path[-1]] = deepcopy(value)
+
+
+def _merge_defined_values(target: dict[str, Any], source: dict[str, Any]) -> None:
+    for key, value in source.items():
+        if value is None:
+            continue
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _merge_defined_values(target[key], value)
+        else:
+            target[key] = deepcopy(value)
+
+
+def _merge_explicit_values(target: dict[str, Any], source: dict[str, Any]) -> None:
+    for key, value in source.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _merge_explicit_values(target[key], value)
+        else:
+            target[key] = deepcopy(value)
+
+
+def _validate_section_source(section: str, raw: dict[str, Any], schema: dict[str, Any], prefix: tuple[str, ...]) -> dict[str, Any]:
+    allowed = set(schema)
+    unknown_keys = sorted(set(raw) - allowed)
+    if unknown_keys:
+        if len(prefix) == 1:
+            raise ConfigError(f"Unknown keys in section {section!r}: {', '.join(unknown_keys)}")
+        joined = ', '.join('.'.join(prefix + (key,)) for key in unknown_keys)
+        raise ConfigError(f'Unknown config keys: {joined}')
+
+    validated: dict[str, Any] = {}
+    for key, raw_value in raw.items():
+        spec = schema[key]
+        path = '.'.join(prefix + (key,))
+        if _is_config_field(spec):
+            if raw_value is None:
+                validated[key] = None
+                continue
+            value = _coerce_scalar(raw_value, spec.kind)
+            if spec.choices is not None and value not in spec.choices:
+                raise ConfigError(
+                    f"Invalid value for {path}: {value!r}; expected one of {spec.choices!r}"
+                )
+            validated[key] = value
+            continue
+        if raw_value is None:
+            validated[key] = None
+            continue
+        if not isinstance(raw_value, dict):
+            raise ConfigError(f"Config path {path!r} must be a mapping")
+        validated[key] = _validate_section_source(section, raw_value, spec, prefix + (key,))
+    return validated
 
 
 def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
@@ -229,13 +391,17 @@ def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
             return PHONETIZE_SECTION, ".".join(parts[1:]), get_phonetize_field(tuple(parts[1:]))  # type: ignore[return-value]
         except KeyError as exc:
             raise ConfigError(f"Unknown config key: {path}") from exc
-    if len(parts) != 2:
-        raise ConfigError(f"Unknown config key: {path}")
-    key = parts[1]
     fields = CONFIG_SCHEMA.get(section)
-    if fields is None or key not in fields:
+    if fields is None or len(parts) < 3:
         raise ConfigError(f"Unknown config key: {path}")
-    return section, key, fields[key]
+    current: Any = fields
+    for part in parts[1:]:
+        if not isinstance(current, dict) or part not in current:
+            raise ConfigError(f"Unknown config key: {path}")
+        current = current[part]
+    if not _is_config_field(current):
+        raise ConfigError(f"Unknown config key: {path}")
+    return section, '.'.join(parts[1:]), current
 
 
 def iter_config_paths() -> list[tuple[str, ConfigField]]:
@@ -245,8 +411,8 @@ def iter_config_paths() -> list[tuple[str, ConfigField]]:
             for path, field in iter_phonetize_fields():
                 entries.append((".".join(path), field))
             continue
-        for key, field in CONFIG_SCHEMA[section].items():
-            entries.append((f"{section}.{key}", field))
+        for relative_path, field in _iter_section_fields(section):
+            entries.append((f"{section}.{".".join(relative_path)}", field))
     return entries
 
 
@@ -384,22 +550,7 @@ def validate_config_source(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
             raw_section = {}
         if not isinstance(raw_section, dict):
             raise ConfigError(f"Config section {section!r} must be a mapping")
-        unknown_keys = sorted(set(raw_section) - set(fields))
-        if unknown_keys:
-            raise ConfigError(f"Unknown keys in section {section!r}: {', '.join(unknown_keys)}")
-        validated_section: dict[str, Any] = {}
-        for key, raw_value in raw_section.items():
-            field = fields[key]
-            if raw_value is None:
-                validated_section[key] = None
-                continue
-            value = _coerce_scalar(raw_value, field.kind)
-            if field.choices is not None and value not in field.choices:
-                raise ConfigError(
-                    f"Invalid value for {section}.{key}: {value!r}; expected one of {field.choices!r}"
-                )
-            validated_section[key] = value
-        validated[section] = validated_section
+        validated[section] = _validate_section_source(section, raw_section, fields, (section,))
     if PHONETIZE_SECTION in config:
         try:
             validated[PHONETIZE_SECTION] = validate_phonetize_source(config[PHONETIZE_SECTION], _coerce_scalar)
@@ -411,15 +562,9 @@ def validate_config_source(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
 def normalize_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
     validated = validate_config_source(config)
     normalized = build_default_config()
-    for section, fields in CONFIG_SCHEMA.items():
+    for section in CONFIG_SCHEMA:
         raw_section = validated.get(section, {})
-        for key in fields:
-            if key not in raw_section:
-                continue
-            value = raw_section[key]
-            if value is None:
-                continue
-            normalized[section][key] = value
+        _merge_defined_values(normalized[section], raw_section)
     if PHONETIZE_SECTION in validated:
         normalized[PHONETIZE_SECTION] = normalize_phonetize_config(validated[PHONETIZE_SECTION], _coerce_scalar)
     return normalized
@@ -466,15 +611,15 @@ def apply_overrides(
                 )
             updated[PHONETIZE_SECTION] = set_phonetize_relative_value(updated[PHONETIZE_SECTION], tuple(path), coerced)
             continue
-        if section not in CONFIG_SCHEMA or key not in CONFIG_SCHEMA[section]:
+        if section not in CONFIG_SCHEMA:
             raise ConfigError(f"Unknown override target: {section}.{key}")
-        field = CONFIG_SCHEMA[section][key]
+        _resolved_section, _resolved_key, field = resolve_config_path(f'{section}.{key}')
         coerced = _coerce_scalar(value, field.kind)
         if field.choices is not None and coerced not in field.choices:
             raise ConfigError(
                 f"Invalid value for {section}.{key}: {coerced!r}; expected one of {field.choices!r}"
             )
-        updated[section][key] = coerced
+        _set_nested_value(updated[section], tuple(key.split('.')), coerced)
     return updated
 
 
@@ -484,26 +629,8 @@ def overlay_config_source(
 ) -> dict[str, dict[str, Any]]:
     updated = deepcopy(base_config)
     for section, values in source.items():
-        if section == PHONETIZE_SECTION:
-            updated_section = deepcopy(updated[PHONETIZE_SECTION])
-
-            def _merge(target: dict[str, Any], incoming: dict[str, Any]) -> None:
-                for key, value in incoming.items():
-                    if value is None:
-                        continue
-                    if isinstance(value, dict):
-                        _merge(target[key], value)
-                    else:
-                        target[key] = deepcopy(value)
-
-            _merge(updated_section, values)
-            updated[PHONETIZE_SECTION] = updated_section
-            continue
         section_values = deepcopy(updated[section])
-        for key, value in values.items():
-            if value is None:
-                continue
-            section_values[key] = deepcopy(value)
+        _merge_defined_values(section_values, values)
         updated[section] = section_values
     return normalize_config(updated)
 
@@ -515,14 +642,11 @@ def tool_config_values(config: dict[str, dict[str, Any]], tool_name: str) -> dic
     merged: dict[str, Any] = {}
     for section, field_map in TOOL_CONFIG_SECTIONS[tool_name]:
         section_values = normalized[section]
-        if field_map is None:
-            merged.update(deepcopy(section_values))
-            continue
         for key, dest in field_map.items():
             if section == PHONETIZE_SECTION:
                 merged[dest] = deepcopy(get_phonetize_relative_value(section_values, tuple(key.split('.'))))
                 continue
-            merged[dest] = deepcopy(section_values[key])
+            merged[dest] = _get_nested_value(section_values, tuple(key.split('.')))
     return merged
 
 
@@ -531,53 +655,21 @@ def tool_dest_to_config_path(tool_name: str) -> dict[str, str]:
         raise ConfigError(f"Unsupported tool config section: {tool_name}")
     mapping: dict[str, str] = {}
     for section, field_map in TOOL_CONFIG_SECTIONS[tool_name]:
-        if field_map is None:
-            if section == PHONETIZE_SECTION:
-                continue
-            for key in CONFIG_SCHEMA[section]:
-                mapping[key] = f'{section}.{key}'
-            continue
         for key, dest in field_map.items():
             mapping[dest] = f'{section}.{key}'
     return mapping
 
 
 def runtime_display_path(path: str) -> str:
-    if path.startswith(f'{PHONETIZE_SECTION}.process.'):
-        key = path[len(f'{PHONETIZE_SECTION}.process.'):]
-        head = key.split('.', 1)[0]
-        if head in {'geminate_policy', 'accentuation_distribution_policy', 'short_pause_policy', 'drift_policy', 'drift_tolerance'}:
-            return f'{RUNTIME_PHONETIZE_ROOT}.{key}'
-    if path.startswith(f'{PHONETIZE_SECTION}.timing_model.'):
-        key = path[len(f'{PHONETIZE_SECTION}.timing_model.'):]
-        return f'{RUNTIME_PHONETIZE_ROOT}.{key}'
     return path
 
 
 def normalize_runtime_config_path(path: str) -> str:
-    normalized = path.strip()
-    if normalized.startswith(f'{RUNTIME_PHONETIZE_ROOT}.'):
-        key = normalized[len(f'{RUNTIME_PHONETIZE_ROOT}.'):]
-        head = key.split('.', 1)[0]
-        if head in {'geminate_policy', 'accentuation_distribution_policy', 'short_pause_policy', 'drift_policy', 'drift_tolerance'}:
-            return f'{PHONETIZE_SECTION}.process.{key}'
-        return f'{PHONETIZE_SECTION}.timing_model.{key}'
-    return normalized
+    return path.strip()
 
 
 def build_runtime_effective_config(config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    normalized = normalize_config(config)
-    runtime = deepcopy(normalized)
-    phonetize_section = runtime[PHONETIZE_SECTION]
-    runtime_timing_model = deepcopy(phonetize_section['timing_model'])
-    for key, value in phonetize_section['process'].items():
-        runtime_timing_model[key] = deepcopy(value)
-    runtime[PHONETIZE_SECTION] = {
-        'process': {
-            'timing_model': runtime_timing_model,
-        }
-    }
-    return runtime
+    return normalize_config(config)
 
 
 def get_section_config(config: dict[str, dict[str, Any]], section: str) -> Any:
@@ -599,7 +691,7 @@ def require_effective_prefix(prefix: Any, tool_name: str) -> str:
         return "" if prefix is None else str(prefix)
     if not isinstance(prefix, str) or not prefix.strip():
         raise ConfigError(
-            f"{tool_name} requires a non-null effective prefix; set common.prefix in --conf or pass --prefix"
+            f"{tool_name} requires a non-null effective prefix; set common.run.prefix in --conf or pass --prefix"
         )
     return prefix
 
@@ -607,18 +699,14 @@ def require_effective_prefix(prefix: Any, tool_name: str) -> str:
 def validate_config_write(config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     source = validate_config_source(config)
     normalized = normalize_config(source)
-    prefix = normalized[COMMON_SECTION].get("prefix")
+    prefix = normalized[COMMON_SECTION]['run'].get('prefix')
     if not isinstance(prefix, str) or not prefix.strip():
         raise ConfigError(
-            "confwriter cannot write a config with a null common.prefix; set --prefix or update the config first"
+            "confwriter cannot write a config with a null common.run.prefix; set --prefix or update the config first"
         )
     materialized = build_default_config()
     for section, values in source.items():
-        if section == PHONETIZE_SECTION:
-            materialized[PHONETIZE_SECTION] = deepcopy(values)
-            continue
-        for key, value in values.items():
-            materialized[section][key] = deepcopy(value)
+        _merge_explicit_values(materialized[section], values)
     return materialized
 
 
@@ -627,7 +715,7 @@ def get_config_value(config: dict[str, Any], path: str) -> Any:
     normalized = normalize_config(config)
     if section == PHONETIZE_SECTION:
         return get_phonetize_relative_value(normalized[PHONETIZE_SECTION], tuple(key.split('.')))
-    return deepcopy(normalized[section][key])
+    return _get_nested_value(normalized[section], tuple(key.split('.')))
 
 
 def set_config_value(config: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
@@ -648,7 +736,7 @@ def set_config_value(config: dict[str, Any], path: str, value: Any) -> dict[str,
         raise ConfigError(
             f"Invalid value for {path}: {coerced!r}; expected one of {field.choices!r}"
         )
-    section_values[key] = coerced
+    _set_nested_value(section_values, tuple(key.split('.')), coerced)
     updated[section] = section_values
     return updated
 
@@ -661,7 +749,7 @@ def unset_config_value(config: dict[str, Any], path: str) -> dict[str, Any]:
         updated[PHONETIZE_SECTION] = set_phonetize_relative_value(section_values, tuple(key.split('.')), None)
         return updated
     section_values = deepcopy(updated.get(section, {}))
-    section_values[key] = None
+    _set_nested_value(section_values, tuple(key.split('.')), None)
     updated[section] = section_values
     return updated
 
@@ -674,7 +762,7 @@ def set_default_config_value(config: dict[str, Any], path: str) -> dict[str, Any
         updated[PHONETIZE_SECTION] = set_phonetize_relative_value(section_values, tuple(key.split('.')), deepcopy(field.default))
         return updated
     section_values = deepcopy(updated.get(section, {}))
-    section_values[key] = deepcopy(field.default)
+    _set_nested_value(section_values, tuple(key.split('.')), deepcopy(field.default))
     updated[section] = section_values
     return updated
 
@@ -732,8 +820,8 @@ def _runtime_paths_for_tool(tool_name: str) -> list[tuple[str, Any]]:
                 dotted = '.'.join(path)
                 entries.append((runtime_display_path(dotted), field))
             continue
-        for key, field in CONFIG_SCHEMA[section].items():
-            entries.append((f'{section}.{key}', field))
+        for relative_path, field in _iter_section_fields(section):
+            entries.append((f'{section}.{".".join(relative_path)}', field))
     roots = get_program_config_roots(tool_name)
     allowed_prefixes = tuple(f'{root}.' for root in roots)
     return [
@@ -937,9 +1025,19 @@ def _append_wrapped_comment(lines: list[str], text: str, indent: int = 0) -> Non
 def _render_documented_section(lines: list[str], section: str, values: dict[str, Any]) -> None:
     _append_wrapped_comment(lines, section_help(section))
     lines.append(f"{section}:")
-    for key, value in values.items():
-        _append_wrapped_comment(lines, config_help(section, key), indent=2)
-        lines.append(f"  {key}: {_dump_scalar(value)}")
+
+    def _render(node: dict[str, Any], schema: dict[str, Any], indent: int) -> None:
+        prefix = ' ' * indent
+        for key, spec in schema.items():
+            value = node[key]
+            if _is_config_field(spec):
+                _append_wrapped_comment(lines, spec.description, indent=indent)
+                lines.append(f'{prefix}{key}: {_dump_scalar(value)}')
+                continue
+            lines.append(f'{prefix}{key}:')
+            _render(value, spec, indent + 2)
+
+    _render(values, CONFIG_SCHEMA[section], 2)
 
 
 def _render_documented_config(config: dict[str, dict[str, Any]]) -> str:

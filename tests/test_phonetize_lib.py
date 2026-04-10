@@ -185,7 +185,9 @@ def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
     cumulative_rows = build_phone_rows('at·ta')
     cumulative_config = {
         'process': {
-            'geminate_policy': 'cumulative',
+            'timing_model': {
+                'geminate_policy': 'cumulative',
+            },
         }
     }
 
@@ -203,8 +205,10 @@ def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
 def test_phase2_supports_all_active_accent_classes() -> None:
     extensible = {
         'process': {
-            'drift_policy': 'extensible',
-            'drift_tolerance': 0,
+            'timing_model': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+            },
         }
     }
     samples = ['b~a', 'bā~', 'bat~', 'bāt~']
@@ -219,8 +223,10 @@ def test_phase2_supports_all_active_accent_classes() -> None:
 def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     config = {
         'process': {
-            'drift_policy': 'extensible',
-            'drift_tolerance': 0,
+            'timing_model': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+            },
         }
     }
 
@@ -239,16 +245,16 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
 def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_discharge() -> None:
     config = {
         'process': {
-            'drift_policy': 'extensible',
-            'drift_tolerance': 0,
-        },
-        'timing_model': {
-            'durations': {
-                'cvc_reference': 200,
-                'pauses': {
-                    'short': {
-                        'min': 600,
-                        'max': 600,
+            'timing_model': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+                'durations': {
+                    'cvc_reference': 200,
+                    'pauses': {
+                        'short': {
+                            'min': 600,
+                            'max': 600,
+                        },
                     },
                 },
             },
@@ -269,20 +275,20 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
 def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
     config = {
         'process': {
-            'drift_policy': 'extensible',
-            'drift_tolerance': 0,
-        },
-        'timing_model': {
-            'durations': {
-                'cvc_reference': 200,
-                'pauses': {
-                    'short': {
-                        'min': 600,
-                        'max': 600,
-                    },
-                    'long': {
-                        'min': 1200,
-                        'max': 1780,
+            'timing_model': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+                'durations': {
+                    'cvc_reference': 200,
+                    'pauses': {
+                        'short': {
+                            'min': 600,
+                            'max': 600,
+                        },
+                        'long': {
+                            'min': 1200,
+                            'max': 1780,
+                        },
                     },
                 },
             },
@@ -307,8 +313,10 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
         rows,
         {
             'process': {
-                'drift_policy': 'extensible',
-                'drift_tolerance': 0,
+                'timing_model': {
+                    'drift_policy': 'extensible',
+                    'drift_tolerance': 0,
+                },
             }
         },
         allow_accentuation=True,
@@ -324,7 +332,17 @@ def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> No
     rows = build_phone_rows('bā~')
 
     try:
-        realize_phone_rows(rows, allow_accentuation=True)
+        realize_phone_rows(
+            rows,
+            {
+                'process': {
+                    'timing_model': {
+                        'drift_policy': 'strict',
+                    },
+                },
+            },
+            allow_accentuation=True,
+        )
         raise AssertionError('Expected strict mode to fail when unresolved drift remains at stream end')
     except ValueError as exc:
         assert 'unresolved drift' in str(exc)
@@ -333,22 +351,22 @@ def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> No
 def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     defaults = build_default_phonetize_verification_config()
 
-    assert defaults['process']['accentuation_distribution_policy'] == '85_15'
-    assert defaults['process']['drift_policy'] == 'extensible'
+    assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '85_15'
+    assert defaults['process']['timing_model']['drift_policy'] == 'extensible'
 
 
 def test_shared_verification_warns_on_high_pause_ratio() -> None:
-    result = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 71}}})
+    result = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 71}}}})
     lines = render_phonetize_verification_lines(result)
 
     assert result.status == 'pass-with-warnings'
     assert not result.failures
-    assert any('phonetize.timing_model.speech.pause_ratio' in line for line in lines)
+    assert any('phonetize.process.timing_model.speech.pause_ratio' in line for line in lines)
     assert any('pause_ratio > 70' in line for line in lines)
 
 
 def test_shared_verification_blocks_invalid_pause_ratio() -> None:
-    result = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}})
+    result = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}})
     lines = render_phonetize_verification_lines(result)
 
     assert result.status == 'failure'

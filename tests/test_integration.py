@@ -323,7 +323,7 @@ def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: P
     prefix = 'verify_blocking'
     config = apply_overrides(
         build_default_config(),
-        {('phonetize', 'timing_model.speech.pause_ratio'): 100},
+        {('phonetize', 'process.timing_model.speech.pause_ratio'): 100},
     )
     config_path = outdir / 'verify.yaml'
     config_path.write_text(dump_config_text(config), encoding='utf-8')
@@ -340,7 +340,7 @@ def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: P
     )
 
     assert proc.returncode == 2
-    assert 'FAIL phonetize.timing_model.speech.pause_ratio' in proc.stderr
+    assert 'FAIL phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
     assert 'Phonetizer preflight failed before Phase 2 processing continued.' in proc.stderr
     assert not (outdir / f'{prefix}_ophone.txt').exists()
     assert not (outdir / f'{prefix}_phone.txt').exists()
@@ -351,7 +351,7 @@ def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) 
     prefix = 'verify_warning'
     config = apply_overrides(
         build_default_config(),
-        {('phonetize', 'timing_model.speech.pause_ratio'): 71},
+        {('phonetize', 'process.timing_model.speech.pause_ratio'): 71},
     )
     config_path = outdir / 'verify.yaml'
     config_path.write_text(dump_config_text(config), encoding='utf-8')
@@ -367,7 +367,7 @@ def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) 
         str(config_path),
     )
 
-    assert 'WARN phonetize.timing_model.speech.pause_ratio' in proc.stderr
+    assert 'WARN phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
     assert (outdir / f'{prefix}_ophone.txt').exists()
     assert (outdir / f'{prefix}_phone.txt').exists()
 
@@ -381,7 +381,7 @@ def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_pat
         '--outdir',
         str(outdir),
         '--option',
-        'print.ipa=true',
+        'print.run.ipa=true',
     )
 
     assert (outdir / 'akkapros_accent_ipa.txt').exists()
@@ -402,7 +402,7 @@ def test_prosmaker_path_override_wins_over_dedicated_flag(tmp_path: Path) -> Non
         '--style',
         'sob',
         '--option',
-        'prosody.style=lob',
+        'prosody.process.style=lob',
     )
 
     tilde_file = outdir / 'akkapros_tilde.txt'
@@ -894,11 +894,11 @@ def test_fullprosmaker_runs_from_config_file(tmp_path: Path) -> None:
     config = apply_overrides(
         build_default_config(),
         {
-            ("common", "prefix"): "cfgdemo",
-            ("common", "outdir"): str(outdir),
-            ("metrics", "json"): True,
-            ("print", "ipa"): True,
-            ("prosody", "style"): "sob",
+            ("common", "run.prefix"): "cfgdemo",
+            ("common", "run.outdir"): str(outdir),
+            ("metrics", "run.json"): True,
+            ("print", "run.ipa"): True,
+            ("prosody", "process.style"): "sob",
         },
     )
     config_path = tmp_path / "fullprosmaker.yaml"
@@ -930,9 +930,9 @@ def test_atfparser_cli_flag_overrides_config_file(tmp_path: Path) -> None:
     config = apply_overrides(
         build_default_config(),
         {
-            ("common", "prefix"): "from_config",
-            ("common", "outdir"): str(outdir),
-            ("atfparse", "preserve_case"): True,
+            ("common", "run.prefix"): "from_config",
+            ("common", "run.outdir"): str(outdir),
+            ("atfparse", "process.preserve_case"): True,
         },
     )
     config_path = tmp_path / "atfparser.yaml"
@@ -964,16 +964,16 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
         "--conf",
         str(config_path),
         "--set",
-        "common.prefix=writerdemo",
+        "common.run.prefix=writerdemo",
     )
     _run_cli(
         "akkapros.cli.confwriter",
         "--conf",
         str(config_path),
         "--set",
-        f"common.outdir={outdir}",
+        f"common.run.outdir={outdir}",
         "--set",
-        "atfparse.preserve_case=true",
+        "atfparse.process.preserve_case=true",
     )
 
     _run_cli(

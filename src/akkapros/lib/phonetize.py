@@ -63,120 +63,120 @@ def _field(default: Any, kind: str, description: str, choices: tuple[str, ...] |
 PHONETIZE_SCHEMA: dict[str, Any] = {
     'process': {
         '__comment__': None,
-        'geminate_policy': _field(
-            'corrective',
-            'string',
-            'geminate realization policy\n- cumulative: keep coda duration + onset duration instead of correcting to the configured geminate target\n- corrective: correct the sequence to the configured geminate target',
-            choices=('cumulative', 'corrective'),
-        ),
-        'accentuation_distribution_policy': _field(
-            '85_15',
-            'string',
-            'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nDistribution stops when legality ranges would be challenged; if full assignment is impossible, Phase 2 must fail fatally.\nAllowed values: 100_0, 85_15, 70_30',
-            choices=('100_0', '85_15', '70_30'),
-        ),
-        'short_pause_policy': _field(
-            'strict',
-            'string',
-            'short pause discharge policy\n- strict: the pause must realize a preferred legal short-band target derived from the nearest integer multiple of cvc_reference, and it must discharge drift reserve through that target as far as the band allows; config validation should warn if no integer multiple N * cvc_reference remains inside the empirically grounded short-pause band, and should fail only if the nearest-multiple gap exceeds the vowel perception-gap threshold used by shared semantic verification\n- best_effort: the pause may choose any legal short-band realization that maximizes drift discharge, and any remainder carries into the following phrase',
-            choices=('strict', 'best_effort'),
-        ),
-        'drift_policy': _field(
-            'strict',
-            'string',
-            'drift recovery policy\n- strict: use running drift first, then legal vowel adjustment, and fail if the mismatch still cannot be resolved\n- extensible: use running drift first, then legal vowel adjustment, then extend drift beyond drift_tolerance if needed\nShared semantic verification is run before phonetizer Phase 2 continues; for shared verification and selected default-deviation reporting, the canonical comparison default for drift_policy is extensible even though the grouped-config default remains strict.',
-            choices=('strict', 'extensible'),
-        ),
-        'drift_tolerance': _field(
-            12,
-            'int',
-            'maximum local timing mismatch tolerated before the algorithm must fail',
-        ),
-    },
-    'timing_model': {
-        '__comment__': None,
-        'speech': {
+        'timing_model': {
             '__comment__': None,
-            'wpm': _field(193, 'int', 'Speech-rate estimate used by timing and pause logic.'),
+            'geminate_policy': _field(
+                'corrective',
+                'string',
+                'geminate realization policy\n- cumulative: keep coda duration + onset duration instead of correcting to the configured geminate target\n- corrective: correct the sequence to the configured geminate target',
+                choices=('cumulative', 'corrective'),
+            ),
+            'accentuation_distribution_policy': _field(
+                '85_15',
+                'string',
+                'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nDistribution stops when legality ranges would be challenged; if full assignment is impossible, Phase 2 must fail fatally.\nAllowed values: 100_0, 85_15, 70_30',
+                choices=('100_0', '85_15', '70_30'),
+            ),
+            'short_pause_policy': _field(
+                'strict',
+                'string',
+                'short pause discharge policy\n- strict: the pause must realize a preferred legal short-band target derived from the nearest integer multiple of cvc_reference, and it must discharge drift reserve through that target as far as the band allows; config validation should warn if no integer multiple N * cvc_reference remains inside the empirically grounded short-pause band, and should fail only if the nearest-multiple gap exceeds the vowel perception-gap threshold used by shared semantic verification\n- best_effort: the pause may choose any legal short-band realization that maximizes drift discharge, and any remainder carries into the following phrase',
+                choices=('strict', 'best_effort'),
+            ),
+            'drift_policy': _field(
+                'extensible',
+                'string',
+                'drift recovery policy\n- strict: use running drift first, then legal vowel adjustment, and fail if the mismatch still cannot be resolved\n- extensible: use running drift first, then legal vowel adjustment, then extend drift beyond drift_tolerance if needed\nShared semantic verification is run before phonetizer Phase 2 continues; the canonical grouped-config default for drift_policy is extensible.',
+                choices=('strict', 'extensible'),
+            ),
+            'drift_tolerance': _field(
+                12,
+                'int',
+                'maximum local timing mismatch tolerated before the algorithm must fail',
+            ),
+            'speech': {
+                '__comment__': None,
+                'wpm': _field(193, 'int', 'Speech-rate estimate used by timing and pause logic.'),
                 'pause_ratio': _field(35, 'int', 'Share of total time reserved for pauses. Shared semantic verification fails outside 0 < pause_ratio < 100 and emits a warning when pause_ratio > 70.'),
-        },
-        'durations': {
-            '__comment__': None,
-            'segmental_ceiling': _field(
-                310,
-                'int',
-                'Upper ordinary duration for one vowel or consonant. Model-facing ceiling from comparative duration limits; does not apply to pauses or CVC totals.',
-            ),
-            'cvc_reference': _field(
-                305,
-                'int',
-                'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
-            ),
-            'consonants': {
-                '__comment__': None,
-                'closure': {
-                    '__comment__': 'Stop-like closure class. Includes lexical ʾ.',
-                    'onset': _field(108, 'int', 'Default onset closure duration. Direct comparative stop-closure anchor.'),
-                    'coda': _field(103, 'int', 'Default post-vocalic closure duration. Direct comparative coda/post-vocalic stop anchor.'),
-                    'geminate': _field(195, 'int', 'Default geminate closure target. Summary point for the attested stop-geminate band.'),
-                    'special_realization': {
-                        '__comment__': None,
-                        'hiatus': _field(18, 'int', 'Hiatus or zero-onset marker between adjacent vowels. Unstressed light glottal-stop realization; stressed cases defer to full geminated closure timing.'),
-                    },
-                    'perception_limits': {
-                        '__comment__': None,
-                        'geminate_min': _field(180, 'int', 'Earliest closure duration treated as geminate-like. Perceptual threshold from the stop singleton/geminate contrast, not the lowest measured token.'),
-                    },
-                },
-                'fricative': {
-                    '__comment__': 'Fricative class. Heavier than closures by manner, but less directly grounded than the stop row.',
-                    'onset': _field(137, 'int', 'Default onset fricative duration. Derived from closure onset plus fricative manner delta.'),
-                    'coda': _field(142, 'int', 'Default post-vocalic fricative duration. Current heavy post-vocalic anchor used by the simplified row.'),
-                    'geminate': _field(279, 'int', 'Default geminate fricative target. Exploratory value based on the current onset + post-vocalic row.'),
-                    'perception_limits': {
-                        '__comment__': None,
-                        'geminate_min': _field(152, 'int', 'Earliest fricative duration treated as held or geminate-like. Class-specific perceptual floor from weak fricative gemination evidence.'),
-                    },
-                },
-                'sonorant': {
-                    '__comment__': 'Sonorant, nasal, and glide class.',
-                    'onset': _field(89, 'int', 'Default onset sonorant duration. Set from the clearer singleton liquid onset anchor.'),
-                    'coda': _field(70, 'int', 'Default post-vocalic sonorant duration. Structural minimum retained on the coda side of the row.'),
-                    'geminate': _field(163, 'int', 'Default geminate sonorant target. Set from the direct glide geminate region.'),
-                    'special_realization': {
-                        '__comment__': None,
-                        'vowel_transition': _field(11, 'int', 'Diphthong-internal or glide-like VV transition marker. Unstressed light glide realization; stressed cases defer to full geminated glide timing.'),
-                    },
-                    'perception_limits': {
-                        '__comment__': None,
-                        'geminate_min': _field(152, 'int', 'Earliest sonorant duration treated as geminate-like. Lower perceptual boundary from moraic nasal/liquid comparison.'),
-                    },
-                },
             },
-            'vowels': {
+            'durations': {
                 '__comment__': None,
-                'short': _field(85, 'int', 'Default short-vowel duration. Production anchor from the retained short-vowel baseline.'),
-                'long': _field(160, 'int', 'Default long-vowel duration. Production anchor from the retained long-vowel baseline.'),
-                'very_long': _field(220, 'int', 'Default very-long vowel duration. Contextual extension anchor, not ordinary lexical default.'),
-                'perception_limits': {
+                'segmental_ceiling': _field(
+                    310,
+                    'int',
+                    'Upper ordinary duration for one vowel or consonant. Model-facing ceiling from comparative duration limits; does not apply to pauses or CVC totals.',
+                ),
+                'cvc_reference': _field(
+                    305,
+                    'int',
+                    'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
+                ),
+                'consonants': {
                     '__comment__': None,
-                    'short_min': _field(40, 'int', 'Minimum duration still treated as a realized short-vowel nucleus.'),
-                    'long_min': _field(123, 'int', 'Earliest duration treated as long. Midpoint-style boundary derived from short and long anchors.'),
-                    'very_long_min': _field(190, 'int', 'Earliest duration treated as very long. Midpoint-style boundary derived from long and very-long anchors.'),
-                    'max': _field(240, 'int', 'Upper ordinary bound for contextual vowel extension.'),
+                    'closure': {
+                        '__comment__': 'Stop-like closure class. Includes lexical ʾ.',
+                        'onset': _field(108, 'int', 'Default onset closure duration. Direct comparative stop-closure anchor.'),
+                        'coda': _field(103, 'int', 'Default post-vocalic closure duration. Direct comparative coda/post-vocalic stop anchor.'),
+                        'geminate': _field(195, 'int', 'Default geminate closure target. Summary point for the attested stop-geminate band.'),
+                        'special_realization': {
+                            '__comment__': None,
+                            'hiatus': _field(18, 'int', 'Hiatus or zero-onset marker between adjacent vowels. Unstressed light glottal-stop realization; stressed cases defer to full geminated closure timing.'),
+                        },
+                        'perception_limits': {
+                            '__comment__': None,
+                            'geminate_min': _field(180, 'int', 'Earliest closure duration treated as geminate-like. Perceptual threshold from the stop singleton/geminate contrast, not the lowest measured token.'),
+                        },
+                    },
+                    'fricative': {
+                        '__comment__': 'Fricative class. Heavier than closures by manner, but less directly grounded than the stop row.',
+                        'onset': _field(137, 'int', 'Default onset fricative duration. Derived from closure onset plus fricative manner delta.'),
+                        'coda': _field(142, 'int', 'Default post-vocalic fricative duration. Current heavy post-vocalic anchor used by the simplified row.'),
+                        'geminate': _field(279, 'int', 'Default geminate fricative target. Exploratory value based on the current onset + post-vocalic row.'),
+                        'perception_limits': {
+                            '__comment__': None,
+                            'geminate_min': _field(152, 'int', 'Earliest fricative duration treated as held or geminate-like. Class-specific perceptual floor from weak fricative gemination evidence.'),
+                        },
+                    },
+                    'sonorant': {
+                        '__comment__': 'Sonorant, nasal, and glide class.',
+                        'onset': _field(89, 'int', 'Default onset sonorant duration. Set from the clearer singleton liquid onset anchor.'),
+                        'coda': _field(70, 'int', 'Default post-vocalic sonorant duration. Structural minimum retained on the coda side of the row.'),
+                        'geminate': _field(163, 'int', 'Default geminate sonorant target. Set from the direct glide geminate region.'),
+                        'special_realization': {
+                            '__comment__': None,
+                            'vowel_transition': _field(11, 'int', 'Diphthong-internal or glide-like VV transition marker. Unstressed light glide realization; stressed cases defer to full geminated glide timing.'),
+                        },
+                        'perception_limits': {
+                            '__comment__': None,
+                            'geminate_min': _field(152, 'int', 'Earliest sonorant duration treated as geminate-like. Lower perceptual boundary from moraic nasal/liquid comparison.'),
+                        },
+                    },
                 },
-            },
-            'pauses': {
-                '__comment__': None,
-                'short': {
-                    '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies. Rhythmic alignment remains possible when at least one integer multiple N * cvc_reference falls inside this band without redefining the empirical range.',
-                    'min': _field(600, 'int', 'Minimum short-pause duration.'),
-                    'max': _field(680, 'int', 'Maximum short-pause duration.'),
+                'vowels': {
+                    '__comment__': None,
+                    'short': _field(85, 'int', 'Default short-vowel duration. Production anchor from the retained short-vowel baseline.'),
+                    'long': _field(160, 'int', 'Default long-vowel duration. Production anchor from the retained long-vowel baseline.'),
+                    'very_long': _field(220, 'int', 'Default very-long vowel duration. Contextual extension anchor, not ordinary lexical default.'),
+                    'perception_limits': {
+                        '__comment__': None,
+                        'short_min': _field(40, 'int', 'Minimum duration still treated as a realized short-vowel nucleus.'),
+                        'long_min': _field(123, 'int', 'Earliest duration treated as long. Midpoint-style boundary derived from short and long anchors.'),
+                        'very_long_min': _field(190, 'int', 'Earliest duration treated as very long. Midpoint-style boundary derived from long and very-long anchors.'),
+                        'max': _field(240, 'int', 'Upper ordinary bound for contextual vowel extension.'),
+                    },
                 },
-                'long': {
-                    '__comment__': 'Default long-pause band. Clause-boundary range from comparative pause data. If rhythmic alignment is used, enumerate all integer multiples N * cvc_reference inside this band. Choose the candidate nearest the band center; if two are equally near, choose the smaller one.',
-                    'min': _field(1200, 'int', 'Minimum long-pause duration.'),
-                    'max': _field(1780, 'int', 'Maximum long-pause duration.'),
+                'pauses': {
+                    '__comment__': None,
+                    'short': {
+                        '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies. Rhythmic alignment remains possible when at least one integer multiple N * cvc_reference falls inside this band without redefining the empirical range.',
+                        'min': _field(600, 'int', 'Minimum short-pause duration.'),
+                        'max': _field(680, 'int', 'Maximum short-pause duration.'),
+                    },
+                    'long': {
+                        '__comment__': 'Default long-pause band. Clause-boundary range from comparative pause data. If rhythmic alignment is used, enumerate all integer multiples N * cvc_reference inside this band. Choose the candidate nearest the band center; if two are equally near, choose the smaller one.',
+                        'min': _field(1200, 'int', 'Minimum long-pause duration.'),
+                        'max': _field(1780, 'int', 'Maximum long-pause duration.'),
+                    },
                 },
             },
         },
@@ -427,9 +427,7 @@ def build_default_phonetize_config() -> dict[str, Any]:
 
 
 def build_default_phonetize_verification_config() -> dict[str, Any]:
-    defaults = build_default_phonetize_config()
-    defaults['process']['drift_policy'] = 'extensible'
-    return defaults
+    return build_default_phonetize_config()
 
 
 def iter_phonetize_fields() -> list[tuple[tuple[str, ...], PhonetizeField]]:
@@ -561,7 +559,7 @@ def set_relative_value(config: dict[str, Any], relative_path: tuple[str, ...], v
 
 def apply_timing_override(config: dict[str, Any], path: str, value: Any) -> dict[str, Any]:
     parts = tuple(part for part in path.split('.') if part)
-    if len(parts) < 4 or parts[0] != PHONETIZE_SECTION or parts[1] != 'timing_model':
+    if len(parts) < 5 or parts[0] != PHONETIZE_SECTION or parts[1] != 'process' or parts[2] != 'timing_model':
         raise ValueError(f'Invalid phonetize timing-model override path: {path}')
     get_phonetize_field(parts[1:])
     return set_relative_value(config, parts[1:], value)
@@ -806,6 +804,16 @@ def _merge_phonetize_config(phonetize_config: dict[str, Any] | None) -> dict[str
     return merged
 
 
+def _runtime_view_phonetize_config(phonetize_config: dict[str, Any]) -> dict[str, Any]:
+    timing_model = deepcopy(phonetize_config['process']['timing_model'])
+    process = {key: deepcopy(timing_model[key]) for key in PROCESS_KEYS}
+    model_only = {key: deepcopy(value) for key, value in timing_model.items() if key not in PROCESS_KEYS}
+    return {
+        'process': process,
+        'timing_model': model_only,
+    }
+
+
 def _make_issue(
     severity: str,
     path: str,
@@ -848,7 +856,8 @@ def _iter_numeric_leaves(prefix: tuple[str, ...], node: Any) -> list[tuple[str, 
 
 
 def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> PhonetizeVerificationResult:
-    config = _merge_phonetize_config(phonetize_config)
+    raw_config = _merge_phonetize_config(phonetize_config)
+    config = _runtime_view_phonetize_config(raw_config)
     verification_defaults = build_default_phonetize_verification_config()
     failures: list[VerificationIssue] = []
     warnings: list[VerificationIssue] = []
@@ -868,21 +877,21 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     pauses = durations['pauses']
     verification_hint = (
         'Configured pause ranges no longer support coherent isochrony organized '
-        'by the phonetize.timing_model.durations.cvc_reference foot.'
+        'by the phonetize.process.timing_model.durations.cvc_reference foot.'
     )
     short_pause_hint = (
         'Configured short-pause settings no longer support clean equal-duration '
-        'setup from the phonetize.timing_model.durations.cvc_reference foot.'
+        'setup from the phonetize.process.timing_model.durations.cvc_reference foot.'
     )
 
     enum_policies = {
-        'phonetize.process.geminate_policy': ('cumulative', 'corrective'),
-        'phonetize.process.accentuation_distribution_policy': ('100_0', '85_15', '70_30'),
-        'phonetize.process.short_pause_policy': ('strict', 'best_effort'),
-        'phonetize.process.drift_policy': ('strict', 'extensible'),
+        'phonetize.process.timing_model.geminate_policy': ('cumulative', 'corrective'),
+        'phonetize.process.timing_model.accentuation_distribution_policy': ('100_0', '85_15', '70_30'),
+        'phonetize.process.timing_model.short_pause_policy': ('strict', 'best_effort'),
+        'phonetize.process.timing_model.drift_policy': ('strict', 'extensible'),
     }
     for path, choices in enum_policies.items():
-        value = get_relative_value(config, tuple(path.split('.')[1:]))
+        value = get_relative_value(raw_config, tuple(path.split('.')[1:]))
         if value not in choices:
             add_failure(
                 path,
@@ -892,14 +901,14 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
 
     if not isinstance(process['drift_tolerance'], int) or isinstance(process['drift_tolerance'], bool) or process['drift_tolerance'] < 0:
         add_failure(
-            'phonetize.process.drift_tolerance',
+            'phonetize.process.timing_model.drift_tolerance',
             'drift_tolerance is an integer >= 0',
             'Drift tolerance must be a non-negative integer number of milliseconds.',
         )
 
     if not isinstance(speech['wpm'], int) or isinstance(speech['wpm'], bool) or speech['wpm'] <= 0:
         add_failure(
-            'phonetize.timing_model.speech.wpm',
+            'phonetize.process.timing_model.speech.wpm',
             'wpm > 0',
             'Speech-rate estimate must be a positive integer.',
         )
@@ -907,18 +916,18 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     pause_ratio = speech['pause_ratio']
     if not isinstance(pause_ratio, int) or isinstance(pause_ratio, bool) or not (0 < pause_ratio < 100):
         add_failure(
-            'phonetize.timing_model.speech.pause_ratio',
+            'phonetize.process.timing_model.speech.pause_ratio',
             '0 < pause_ratio < 100',
             'pause_ratio must be a percentage strictly between 0 and 100.',
         )
     elif pause_ratio > 70:
         add_warning(
-            'phonetize.timing_model.speech.pause_ratio',
+            'phonetize.process.timing_model.speech.pause_ratio',
             'pause_ratio > 70',
             'pause_ratio above 70 reserves an unusually large share of time for pauses.',
         )
 
-    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations'), durations):
+    for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations'), durations):
         if value <= 0:
             add_failure(
                 path,
@@ -927,23 +936,23 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             )
 
     segmental_ceiling = durations['segmental_ceiling']
-    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations', 'consonants'), consonants):
+    for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations', 'consonants'), consonants):
         if value > segmental_ceiling:
             add_failure(
-                f'{path}, phonetize.timing_model.durations.segmental_ceiling',
-                f'{path} <= phonetize.timing_model.durations.segmental_ceiling',
+                f'{path}, phonetize.process.timing_model.durations.segmental_ceiling',
+                f'{path} <= phonetize.process.timing_model.durations.segmental_ceiling',
                 f'{path} exceeds the configured segmental ceiling.',
             )
-    for path, value in _iter_numeric_leaves(('phonetize', 'timing_model', 'durations', 'vowels'), vowels):
+    for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations', 'vowels'), vowels):
         if value > segmental_ceiling:
             add_failure(
-                f'{path}, phonetize.timing_model.durations.segmental_ceiling',
-                f'{path} <= phonetize.timing_model.durations.segmental_ceiling',
+                f'{path}, phonetize.process.timing_model.durations.segmental_ceiling',
+                f'{path} <= phonetize.process.timing_model.durations.segmental_ceiling',
                 f'{path} exceeds the configured segmental ceiling.',
             )
 
     for consonant_class in ('closure', 'fricative', 'sonorant'):
-        base_path = f'phonetize.timing_model.durations.consonants.{consonant_class}'
+        base_path = f'phonetize.process.timing_model.durations.consonants.{consonant_class}'
         row = consonants[consonant_class]
         if not (row['geminate'] > row['perception_limits']['geminate_min'] > row['onset']):
             add_failure(
@@ -969,7 +978,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         and consonants['closure']['special_realization']['hiatus'] < consonants['closure']['coda']
     ):
         add_failure(
-            'phonetize.timing_model.durations.consonants.closure.special_realization.hiatus, phonetize.timing_model.durations.consonants.closure.onset, phonetize.timing_model.durations.consonants.closure.coda',
+            'phonetize.process.timing_model.durations.consonants.closure.special_realization.hiatus, phonetize.process.timing_model.durations.consonants.closure.onset, phonetize.process.timing_model.durations.consonants.closure.coda',
             'hiatus < onset and hiatus < coda',
             'Hiatus realization must stay below both closure onset and closure coda anchors.',
         )
@@ -979,7 +988,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         and consonants['sonorant']['special_realization']['vowel_transition'] < consonants['sonorant']['coda']
     ):
         add_failure(
-            'phonetize.timing_model.durations.consonants.sonorant.special_realization.vowel_transition, phonetize.timing_model.durations.consonants.sonorant.onset, phonetize.timing_model.durations.consonants.sonorant.coda',
+            'phonetize.process.timing_model.durations.consonants.sonorant.special_realization.vowel_transition, phonetize.process.timing_model.durations.consonants.sonorant.onset, phonetize.process.timing_model.durations.consonants.sonorant.coda',
             'vowel_transition < onset and vowel_transition < coda',
             'Vowel-transition realization must stay below both sonorant onset and sonorant coda anchors.',
         )
@@ -990,7 +999,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         < vowel_limits['very_long_min'] < vowels['very_long'] < vowel_limits['max']
     ):
         add_failure(
-            'phonetize.timing_model.durations.vowels.perception_limits.short_min, phonetize.timing_model.durations.vowels.short, phonetize.timing_model.durations.vowels.perception_limits.long_min, phonetize.timing_model.durations.vowels.long, phonetize.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.timing_model.durations.vowels.very_long, phonetize.timing_model.durations.vowels.perception_limits.max',
+            'phonetize.process.timing_model.durations.vowels.perception_limits.short_min, phonetize.process.timing_model.durations.vowels.short, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.long, phonetize.process.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.process.timing_model.durations.vowels.very_long, phonetize.process.timing_model.durations.vowels.perception_limits.max',
             'short_min < short < long_min < long < very_long_min < very_long < max',
             'Vowel category ordering is invalid.',
         )
@@ -1001,7 +1010,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         and pauses['short']['max'] < pauses['long']['min']
     ):
         add_failure(
-            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.pauses.long.min, phonetize.timing_model.durations.pauses.long.max',
+            'phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max',
             'short.min < short.max < long.min < long.max',
             'Pause-band ordering is invalid.',
         )
@@ -1014,7 +1023,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
 
     if not _pause_multiple_candidates(short_min, short_max, cvc_reference):
         add_warning(
-            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.cvc_reference',
+            'phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.cvc_reference',
             'exists N >= 1 with short.min <= N * cvc_reference <= short.max',
             'No integer multiple of cvc_reference falls inside the configured short-pause band.',
             summary_hint=short_pause_hint,
@@ -1024,7 +1033,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     short_gap_limit = float(vowel_limits['long_min'] - vowel_limits['short_min'])
     if short_gap > short_gap_limit:
         add_failure(
-            'phonetize.timing_model.durations.pauses.short.min, phonetize.timing_model.durations.pauses.short.max, phonetize.timing_model.durations.cvc_reference, phonetize.timing_model.durations.vowels.perception_limits.long_min, phonetize.timing_model.durations.vowels.perception_limits.short_min',
+            'phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.cvc_reference, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.perception_limits.short_min',
             'short_pause_gap <= long_min - short_min',
             'The nearest-multiple gap for the short-pause band exceeds the allowed vowel perception-gap threshold.',
             summary_hint=verification_hint,
@@ -1032,26 +1041,26 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
 
     if not _pause_multiple_candidates(long_min, long_max, cvc_reference):
         add_failure(
-            'phonetize.timing_model.durations.pauses.long.min, phonetize.timing_model.durations.pauses.long.max, phonetize.timing_model.durations.cvc_reference',
+            'phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max, phonetize.process.timing_model.durations.cvc_reference',
             'exists N >= 1 with long.min <= N * cvc_reference <= long.max',
             'No integer multiple of cvc_reference falls inside the configured long-pause band.',
             summary_hint=verification_hint,
         )
 
     selected_default_paths = (
-        ('timing_model', 'speech', 'wpm'),
-        ('timing_model', 'durations', 'segmental_ceiling'),
-        ('timing_model', 'durations', 'cvc_reference'),
-        ('timing_model', 'durations', 'consonants', 'closure', 'perception_limits', 'geminate_min'),
-        ('timing_model', 'durations', 'consonants', 'fricative', 'perception_limits', 'geminate_min'),
-        ('timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'geminate_min'),
-        ('timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
-        ('timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
-        ('timing_model', 'durations', 'pauses', 'short', 'min'),
-        ('timing_model', 'durations', 'pauses', 'long', 'min'),
+        ('process', 'timing_model', 'speech', 'wpm'),
+        ('process', 'timing_model', 'durations', 'segmental_ceiling'),
+        ('process', 'timing_model', 'durations', 'cvc_reference'),
+        ('process', 'timing_model', 'durations', 'consonants', 'closure', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'consonants', 'fricative', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
+        ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
+        ('process', 'timing_model', 'durations', 'pauses', 'short', 'min'),
+        ('process', 'timing_model', 'durations', 'pauses', 'long', 'min'),
     )
     for relative_path in selected_default_paths:
-        actual = get_relative_value(config, relative_path)
+        actual = get_relative_value(raw_config, relative_path)
         default = get_relative_value(verification_defaults, relative_path)
         if default and abs(actual - default) / default >= 0.5:
             path = 'phonetize.' + '.'.join(relative_path)
@@ -1392,7 +1401,7 @@ def realize_phone_rows(
     *,
     allow_accentuation: bool,
 ) -> dict[str, Any]:
-    config = _merge_phonetize_config(phonetize_config)
+    config = _runtime_view_phonetize_config(_merge_phonetize_config(phonetize_config))
     units = _partition_phone_units(rows)
     durations: dict[int, float] = {}
     drift_cursor = 0.0
@@ -1667,8 +1676,10 @@ def _test_dual_stream_generation() -> bool:
 def _test_finalized_stream_generation() -> bool:
     config = {
         'process': {
-            'drift_policy': 'extensible',
-            'drift_tolerance': 0,
+            'timing_model': {
+                'drift_policy': 'extensible',
+                'drift_tolerance': 0,
+            },
         }
     }
     (_original_rows, original_report), (_accentuated_rows, accentuated_report) = realize_phone_streams(
@@ -1684,8 +1695,8 @@ def _test_finalized_stream_generation() -> bool:
 
 
 def _test_shared_verification() -> bool:
-    warnings_only = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 71}}})
-    blocking = verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}})
+    warnings_only = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 71}}}})
+    blocking = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}})
     rendered = render_phonetize_verification_lines(warnings_only)
     return (
         warnings_only.status == 'pass-with-warnings'

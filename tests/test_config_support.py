@@ -27,25 +27,28 @@ def test_default_yaml_matches_schema_defaults() -> None:
     text = default_yaml.read_text(encoding="utf-8")
     loaded = load_config_file(default_yaml)
     assert loaded == build_default_config()
-    assert "metrics_prefix" not in loaded["common"]
-    assert "print_prefix" not in loaded["common"]
+    assert "metrics_prefix" not in loaded["common"]["run"]
+    assert "print_prefix" not in loaded["common"]["run"]
     assert "fullprosmaker:" not in text
     assert "fullprosmaker reads common plus the syllabify, prosody, phonetize," in text
+    assert "common:\n  run:" in text
     assert text.count('extra_vowels: ""') == 1
     assert text.count('extra_consonants: ""') == 1
     assert "long_punct_weight" not in text
-    assert "long_punct_weight" not in loaded["metrics"]
-    assert loaded["phonetize"]["timing_model"]["speech"]["wpm"] == 193
+    assert "long_punct_weight" not in loaded["metrics"]["run"]
+    assert "explicit_link_count" not in loaded["metrics"]["run"]
+    assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
+    assert loaded["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
 
 
 def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) -> None:
     config = apply_overrides(
         build_default_config(),
         {
-            ("common", "prefix"): "from-config",
-            ("common", "outdir"): str(tmp_path / "configured"),
-            ("metrics", "json"): True,
-            ("prosody", "style"): "sob",
+            ("common", "run.prefix"): "from-config",
+            ("common", "run.outdir"): str(tmp_path / "configured"),
+            ("metrics", "run.json"): True,
+            ("prosody", "process.style"): "sob",
         },
     )
     config_path = tmp_path / "run.yaml"
@@ -79,7 +82,7 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     cmd_prefix = [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path)]
 
     first = subprocess.run(
-        cmd_prefix + ["--set", "common.prefix=one"],
+        cmd_prefix + ["--set", "common.run.prefix=one"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -91,9 +94,9 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
     second = subprocess.run(
         cmd_prefix + [
             "--set",
-            f"common.outdir={tmp_path / 'out'}",
+            f"common.run.outdir={tmp_path / 'out'}",
             "--set",
-            "atfparse.preserve_case=true",
+            "atfparse.process.preserve_case=true",
         ],
         cwd=REPO_ROOT,
         env=env,
@@ -105,9 +108,9 @@ def test_confwriter_incrementally_updates_config_file(tmp_path: Path) -> None:
 
     loaded = load_config_file(config_path)
     text = config_path.read_text(encoding="utf-8")
-    assert loaded["common"]["prefix"] == "one"
-    assert loaded["common"]["outdir"] == str(tmp_path / "out")
-    assert loaded["atfparse"]["preserve_case"] is True
+    assert loaded["common"]["run"]["prefix"] == "one"
+    assert loaded["common"]["run"]["outdir"] == str(tmp_path / "out")
+    assert loaded["atfparse"]["process"]["preserve_case"] is True
     assert "# Shared output prefix used by file-producing CLIs." in text
     assert "fullprosmaker:" not in text
 
@@ -120,7 +123,7 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     cmd_prefix = [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path)]
 
     seed = subprocess.run(
-        cmd_prefix + ["--set", "common.prefix=demo", "--set", "prosody.style=sob"],
+        cmd_prefix + ["--set", "common.run.prefix=demo", "--set", "prosody.process.style=sob"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -138,11 +141,11 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     assert listed.returncode == 0, listed.stderr
-    assert "prosody.style { TEXT }" in listed.stdout
+    assert "prosody.process.style { TEXT }" in listed.stdout
     assert "Accent style for prosody realization." in listed.stdout
 
     got = subprocess.run(
-        cmd_prefix + ["--get", "prosody.style"],
+        cmd_prefix + ["--get", "prosody.process.style"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -153,7 +156,7 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     assert got.stdout.strip() == '"sob"'
 
     unset = subprocess.run(
-        cmd_prefix + ["--unset", "prosody.style"],
+        cmd_prefix + ["--unset", "prosody.process.style"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -163,10 +166,10 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     assert unset.returncode == 0, unset.stderr
     text = config_path.read_text(encoding="utf-8")
     assert "style: null" in text
-    assert get_config_value(load_config_file(config_path), "prosody.style") == "lob"
+    assert get_config_value(load_config_file(config_path), "prosody.process.style") == "lob"
 
     unset_log = subprocess.run(
-        cmd_prefix + ["--unset", "common.log"],
+        cmd_prefix + ["--unset", "common.run.log"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -177,7 +180,7 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     assert "log: null" in config_path.read_text(encoding="utf-8")
 
     reset = subprocess.run(
-        cmd_prefix + ["--set-default", "prosody.style"],
+        cmd_prefix + ["--set-default", "prosody.process.style"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -186,7 +189,7 @@ def test_confwriter_get_list_unset_and_set_default(tmp_path: Path) -> None:
     )
     assert reset.returncode == 0, reset.stderr
     reloaded = load_config_file(config_path)
-    assert reloaded["prosody"]["style"] == "lob"
+    assert reloaded["prosody"]["process"]["style"] == "lob"
     assert "style: \"lob\"" in config_path.read_text(encoding="utf-8")
 
 
@@ -296,11 +299,11 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--conf",
             str(config_path),
             "--set",
-            "common.prefix=demo",
+            "common.run.prefix=demo",
             "--set",
-            "phonetize.process.geminate_policy=cumulative",
+            "phonetize.process.timing_model.geminate_policy=cumulative",
             "--set",
-            "phonetize.timing_model.speech.wpm=201",
+            "phonetize.process.timing_model.speech.wpm=201",
         ],
         cwd=REPO_ROOT,
         env=env,
@@ -311,8 +314,8 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
     assert proc.returncode == 0, proc.stderr
 
     loaded = load_config_file(config_path)
-    assert loaded["phonetize"]["process"]["geminate_policy"] == "cumulative"
-    assert loaded["phonetize"]["timing_model"]["speech"]["wpm"] == 201
+    assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
+    assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 201
 
 
 def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:
@@ -342,7 +345,7 @@ def test_confwriter_verify_reports_warnings_without_mutating_file(tmp_path: Path
     config_path = tmp_path / "conf.yaml"
     config = apply_overrides(
         build_default_config(),
-        {("phonetize", "timing_model.speech.pause_ratio"): 71},
+        {("phonetize", "process.timing_model.speech.pause_ratio"): 71},
     )
     config_path.write_text(dump_config_text(config), encoding="utf-8")
 
@@ -362,7 +365,7 @@ def test_confwriter_verify_reports_warnings_without_mutating_file(tmp_path: Path
 
     assert proc.returncode == 0, proc.stderr
     assert "VERIFY STATUS: pass-with-warnings" in proc.stdout
-    assert "WARN phonetize.timing_model.speech.pause_ratio" in proc.stdout
+    assert "WARN phonetize.process.timing_model.speech.pause_ratio" in proc.stdout
     assert config_path.read_text(encoding="utf-8") == before
 
 
@@ -370,7 +373,7 @@ def test_confwriter_verify_reports_failures_without_mutating_file(tmp_path: Path
     config_path = tmp_path / "conf.yaml"
     config = apply_overrides(
         build_default_config(),
-        {("phonetize", "timing_model.speech.pause_ratio"): 100},
+        {("phonetize", "process.timing_model.speech.pause_ratio"): 100},
     )
     config_path.write_text(dump_config_text(config), encoding="utf-8")
 
@@ -390,7 +393,7 @@ def test_confwriter_verify_reports_failures_without_mutating_file(tmp_path: Path
 
     assert proc.returncode == 1
     assert "VERIFY STATUS: failure" in proc.stdout
-    assert "FAIL phonetize.timing_model.speech.pause_ratio" in proc.stdout
+    assert "FAIL phonetize.process.timing_model.speech.pause_ratio" in proc.stdout
     assert config_path.read_text(encoding="utf-8") == before
 
 
@@ -420,7 +423,7 @@ def test_parse_args_with_config_materializes_defaults_without_conf_and_path_over
     assert args.outdir == "."
     assert args.drift_policy == "extensible"
     assert args._effective_config["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
-    assert args._effective_grouped_config["phonetize"]["process"]["drift_policy"] == "extensible"
+    assert args._effective_grouped_config["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
 
 
 def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
@@ -439,7 +442,7 @@ def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
     assert default_help.returncode == 0, default_help.stderr
     default_text = default_help.stdout
     assert "Active Config Paths:" in default_text
-    assert "common.prefix" in default_text
+    assert "common.run.prefix" in default_text
     assert "phonetize.process.timing_model.durations.cvc_reference" in default_text
     assert default_text.index("Active Config Paths:") < default_text.index("Deprecated Dedicated Flags:")
 
@@ -455,5 +458,5 @@ def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
     subtree_text = subtree_help.stdout
     assert "Config Help: phonetize.process.timing_model.durations" in subtree_text
     assert "phonetize.process.timing_model.durations.cvc_reference" in subtree_text
-    assert "common.prefix" not in subtree_text
+    assert "common.run.prefix" not in subtree_text
     assert "Deprecated Dedicated Flags:" not in subtree_text

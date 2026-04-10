@@ -14,13 +14,13 @@ processing begins.
 All normal invocations use `--conf FILE` plus one or more operations:
 
 ```bash
-python -m akkapros.cli.confwriter --conf run.yaml --set common.prefix=demo
-python -m akkapros.cli.confwriter --conf run.yaml --set common.outdir=outputs --set prosody.style=sob
-python -m akkapros.cli.confwriter --conf run.yaml --get prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --set common.run.prefix=demo
+python -m akkapros.cli.confwriter --conf run.yaml --set common.run.outdir=outputs --set prosody.process.style=sob
+python -m akkapros.cli.confwriter --conf run.yaml --get prosody.process.style
 python -m akkapros.cli.confwriter --conf run.yaml --list
 python -m akkapros.cli.confwriter --conf run.yaml --list atfparse
-python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
-python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.process.style
+python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.process.style
 python -m akkapros.cli.confwriter --conf run.yaml --verify
 ```
 
@@ -39,14 +39,14 @@ Supported operations:
 
 Keys use full YAML paths such as:
 
-- `common.prefix`
-- `common.outdir`
-- `atfparse.preserve_case`
-- `prosody.style`
-- `phonetize.process.geminate_policy`
-- `phonetize.timing_model.speech.wpm`
-- `metrics.json`
-- `print.ipa`
+- `common.run.prefix`
+- `common.run.outdir`
+- `atfparse.process.preserve_case`
+- `prosody.process.style`
+- `phonetize.process.timing_model.geminate_policy`
+- `phonetize.process.timing_model.speech.wpm`
+- `metrics.run.json`
+- `print.run.ipa`
 
 Unknown keys are rejected before any file is modified.
 
@@ -54,10 +54,8 @@ The `phonetize.*` keys edited here govern the phonetizer stage used by both
 `phonetizer` and `fullprosmaker`, including the finalized dual-output handoff
 files `<prefix>_ophone.txt` and `<prefix>_phone.txt`.
 
-During the current runtime transition, the processing CLIs expose phonetize
-path overrides and scoped help under the unified runtime path surface
-`phonetize.process.timing_model.*`, while `confwriter` continues to edit the
-persisted grouped-config paths directly.
+The processing CLIs and `confwriter` now use the same canonical grouped path
+surface, including `phonetize.process.timing_model.*`.
 
 ## Value Rules
 
@@ -72,10 +70,10 @@ persisted grouped-config paths directly.
 Examples:
 
 ```bash
-python -m akkapros.cli.confwriter --conf run.yaml --set metrics.json=true
-python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.geminate_policy=cumulative
-python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.timing_model.speech.wpm=201
-python -m akkapros.cli.confwriter --conf run.yaml --set syllabify.extra_short_punct_pattern=["\\.\\.\\."]
+python -m akkapros.cli.confwriter --conf run.yaml --set metrics.run.json=true
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.geminate_policy=cumulative
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.speech.wpm=201
+python -m akkapros.cli.confwriter --conf run.yaml --set syllabify.process.extra_short_punct_pattern=["\\.\\.\\."]
 ```
 
 If any requested key or value is invalid, `confwriter` exits with an error and
@@ -117,8 +115,8 @@ python -m akkapros.cli.confwriter --conf run.yaml --verify
 Example shape:
 
 ```text
-common.prefix { TEXT | null } (default: "akkapros") : Shared output prefix used by file-producing CLIs.
-atfparse.preserve_h { true | false } (default: false) : Preserve original h/H characters.
+common.run.prefix { TEXT | null } (default: "akkapros") : Shared output prefix used by file-producing CLIs.
+atfparse.process.preserve_h { true | false } (default: false) : Preserve original h/H characters.
 ```
 
 Filtering is case-insensitive substring matching on the full key path.
@@ -136,8 +134,8 @@ one.
 Examples:
 
 ```bash
-python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
-python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.process.style
+python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.process.style
 ```
 
 ## Notes

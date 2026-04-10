@@ -75,7 +75,7 @@ def _apply_process_flag_overrides(args: argparse.Namespace, phonetize_config: di
         value = getattr(args, key)
         if value is None:
             continue
-        updated = set_config_value(updated, f'phonetize.process.{key}', value)
+        updated = set_config_value(updated, f'phonetize.process.timing_model.{key}', value)
     return get_section_config(updated, PHONETIZE_SECTION)
 
 
@@ -90,16 +90,16 @@ def run_tests() -> bool:
         geminate_policy='corrective',
         accentuation_distribution_policy='85_15',
         short_pause_policy='strict',
-        drift_policy='strict',
+        drift_policy='extensible',
         drift_tolerance=12,
     )
     config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)
     cases = [
-        ('default process overrides', lambda: updated['process']['geminate_policy'] == 'corrective'),
-        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.speech.wpm=193'])['timing_model']['speech']['wpm'] == 193),
+        ('default process overrides', lambda: updated['process']['timing_model']['geminate_policy'] == 'corrective'),
+        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.speech.wpm=193'])['process']['timing_model']['speech']['wpm'] == 193),
         ('reject bad option path', _selftest_invalid_option_path),
-        ('shared preflight catches blocking pause ratio', lambda: not verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 100}}}).ok),
+        ('shared preflight catches blocking pause ratio', lambda: not verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}}).ok),
         ('canonical phone rows', run_phonetize_tests),
     ]
     passed = 0

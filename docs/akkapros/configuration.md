@@ -21,7 +21,7 @@ Dedicated config-backed flags remain supported during the transition, but the pr
 
 The top-level sections are:
 
-- `common`: shared options such as `prefix`, `outdir`, and shared logging controls
+- `common`: shared run options under `common.run.*`
 - `atfparse`
 - `syllabify`
 - `prosody`
@@ -29,14 +29,14 @@ The top-level sections are:
 - `metrics`
 - `print`
 
-Shared output naming stays in `common`. The schema intentionally does not define stage-specific duplicates such as `metrics_prefix` or `print_prefix`.
+Shared output naming stays in `common.run`. The schema intentionally does not define stage-specific duplicates such as `metrics_prefix` or `print_prefix`.
 
 At runtime, `--help` is now program-scoped and path-scoped:
 
 - `python -m akkapros.cli.phonetizer --help` shows the `common` section plus the config subtree relevant to `phonetizer`
 - `python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.durations` shows only that requested subtree
 
-`common.prefix` is required for runnable grouped configs. `confwriter` rejects writes that would leave it null, and prefix-dependent CLIs reject execution if no effective prefix is available from `--prefix` or `common.prefix`.
+`common.run.prefix` is required for runnable grouped configs. `confwriter` rejects writes that would leave it null, and prefix-dependent CLIs reject execution if no effective prefix is available from `--prefix` or `common.run.prefix`.
 
 The `syllabify` section is also the only grouped-config owner for
 `extra_vowels`, `extra_consonants`, and the four `extra_*punct*` settings.
@@ -49,7 +49,7 @@ shared stage sections: `syllabify`, `prosody`, `phonetize`, `metrics`, and `prin
 It does not have a duplicated YAML section of its own for those stage-owned
 options.
 
-The `phonetize` section owns the timing-model and phonetizer process controls.
+The `phonetize` section owns the timing-model and phonetizer process controls under `phonetize.process.timing_model`.
 That means grouped config no longer defines `metrics.wpm` or
 `metrics.pause_ratio`. During the current transition, `metricalc` still computes
 its outputs from `_tilde`, but it uses the phonetize transition defaults
@@ -70,21 +70,26 @@ reported distinctly and allow processing to continue.
 
 ```yaml
 common:
-  prefix: "demo"
-  outdir: "outputs"
+  run:
+    prefix: "demo"
+    outdir: "outputs"
 
 prosody:
-  style: "lob"
+  process:
+    style: "lob"
 
 phonetize:
   process:
-    geminate_policy: "corrective"
+    timing_model:
+      geminate_policy: "corrective"
 
 metrics:
-  json: true
+  run:
+    json: true
 
 print:
-  ipa: true
+  run:
+    ipa: true
 ```
 
 With this file, you can run:
@@ -99,15 +104,15 @@ The command will still accept explicit overrides, for example:
 python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --prefix other
 ```
 
-In that case, `--prefix other` overrides the `common.prefix` value from the config file while the remaining config-supplied values continue to apply.
+In that case, `--prefix other` overrides the `common.run.prefix` value from the config file while the remaining config-supplied values continue to apply.
 
 The preferred equivalent is the path-based form:
 
 ```bash
-python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --option common.prefix="other"
+python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --option common.run.prefix="other"
 ```
 
-For phonetize-owned runtime overrides and scoped help, the active runtime path surface is `phonetize.process.timing_model.*`. During the current transition, persisted grouped YAML still stores phonetize policy controls under `phonetize.process.*` and timing values under `phonetize.timing_model.*`, while the runtime override/help surface presents the unified effective-config view.
+Phonetize-owned runtime overrides and scoped help use the same canonical grouped paths that are stored in YAML, including `phonetize.process.timing_model.*`.
 
 ## Confwriter
 
@@ -116,15 +121,15 @@ For phonetize-owned runtime overrides and scoped help, the active runtime path s
 Examples:
 
 ```bash
-python -m akkapros.cli.confwriter --conf run.yaml --set common.prefix=demo
-python -m akkapros.cli.confwriter --conf run.yaml --set common.outdir=outputs
-python -m akkapros.cli.confwriter --conf run.yaml --set prosody.style=sob
-python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.geminate_policy=cumulative
-python -m akkapros.cli.confwriter --conf run.yaml --set print.ipa=true
-python -m akkapros.cli.confwriter --conf run.yaml --get common.log_append
+python -m akkapros.cli.confwriter --conf run.yaml --set common.run.prefix=demo
+python -m akkapros.cli.confwriter --conf run.yaml --set common.run.outdir=outputs
+python -m akkapros.cli.confwriter --conf run.yaml --set prosody.process.style=sob
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.geminate_policy=cumulative
+python -m akkapros.cli.confwriter --conf run.yaml --set print.run.ipa=true
+python -m akkapros.cli.confwriter --conf run.yaml --get common.run.log_append
 python -m akkapros.cli.confwriter --conf run.yaml --list phonetize
-python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.style
-python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.style
+python -m akkapros.cli.confwriter --conf run.yaml --unset prosody.process.style
+python -m akkapros.cli.confwriter --conf run.yaml --set-default prosody.process.style
 python -m akkapros.cli.confwriter --conf run.yaml --verify
 ```
 
@@ -144,20 +149,20 @@ of `pass`, `pass-with-warnings`, or `failure` without modifying the file.
 
 Examples:
 
-- `common.prefix`
-- `common.outdir`
-- `common.quiet`
-- `atfparse.preserve_case`
-- `syllabify.merge_lines`
-- `prosody.style`
-- `phonetize.process.geminate_policy`
-- `phonetize.timing_model.speech.wpm`
-- `metrics.json`
-- `print.ipa`
+- `common.run.prefix`
+- `common.run.outdir`
+- `common.run.quiet`
+- `atfparse.process.preserve_case`
+- `syllabify.process.merge_lines`
+- `prosody.process.style`
+- `phonetize.process.timing_model.geminate_policy`
+- `phonetize.process.timing_model.speech.wpm`
+- `metrics.run.json`
+- `print.run.ipa`
 
 When you run `fullprosmaker`, those stage sections still apply. For example,
-`prosody.style` feeds `--prosody-style`, `metrics.json` feeds
-`--metrics-json`, and `print.ipa` feeds `--print-ipa`.
+`prosody.process.style` feeds `--prosody-style`, `metrics.run.json` feeds
+`--metrics-json`, and `print.run.ipa` feeds `--print-ipa`.
 
 ## Notes
 

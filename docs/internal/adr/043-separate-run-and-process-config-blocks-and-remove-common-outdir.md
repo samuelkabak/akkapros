@@ -1,6 +1,6 @@
 ---
 adr_id: ADR-043
-status: Proposed
+status: Accepted
 created: 2026-04-08
 updated: 2026-04-10
 superseded_by: null

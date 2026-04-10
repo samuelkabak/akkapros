@@ -79,11 +79,11 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 |--------|-------------|
 | `-p, --prefix <name>` | Output prefix |
 | `--outdir <dir>` | Output directory |
-| `--geminate-policy {corrective,cumulative}` | Override `phonetize.process.geminate_policy` |
-| `--accentuation-distribution-policy {100_0,85_15,70_30}` | Override `phonetize.process.accentuation_distribution_policy` |
-| `--short-pause-policy {strict,best_effort}` | Override `phonetize.process.short_pause_policy` |
-| `--drift-policy {strict,extensible}` | Override `phonetize.process.drift_policy` |
-| `--drift-tolerance <int>` | Override `phonetize.process.drift_tolerance` |
+| `--geminate-policy {corrective,cumulative}` | Override `phonetize.process.timing_model.geminate_policy` |
+| `--accentuation-distribution-policy {100_0,85_15,70_30}` | Override `phonetize.process.timing_model.accentuation_distribution_policy` |
+| `--short-pause-policy {strict,best_effort}` | Override `phonetize.process.timing_model.short_pause_policy` |
+| `--drift-policy {strict,extensible}` | Override `phonetize.process.timing_model.drift_policy` |
+| `--drift-tolerance <int>` | Override `phonetize.process.timing_model.drift_tolerance` |
 | `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
 | `--conf <file>` | Load shared grouped config |
 | `--test` | Run CLI self-tests |
@@ -105,17 +105,17 @@ python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.duration
 The phonetizer is the canonical owner of the top-level `phonetize` config section.
 
 Representative grouped-config keys:
-- `phonetize.process.geminate_policy`
-- `phonetize.process.accentuation_distribution_policy`
-- `phonetize.process.short_pause_policy`
-- `phonetize.process.drift_policy`
-- `phonetize.process.drift_tolerance`
-- `phonetize.timing_model.speech.wpm`
-- `phonetize.timing_model.durations.cvc_reference`
+- `phonetize.process.timing_model.geminate_policy`
+- `phonetize.process.timing_model.accentuation_distribution_policy`
+- `phonetize.process.timing_model.short_pause_policy`
+- `phonetize.process.timing_model.drift_policy`
+- `phonetize.process.timing_model.drift_tolerance`
+- `phonetize.process.timing_model.speech.wpm`
+- `phonetize.process.timing_model.durations.cvc_reference`
 
-At runtime, path-scoped help and `-t/--option` overrides expose the unified phonetize subtree as `phonetize.process.timing_model.*`. That runtime surface combines the phonetize policy controls with the timing-model subtree used during processing.
+At runtime, path-scoped help and `-t/--option` overrides expose the same canonical phonetize subtree: `phonetize.process.timing_model.*`.
 
-`phonetize.process` keys are policy controls and tolerances for later duration realization. `perception_limits` under `phonetize.timing_model` are classification boundaries, not alternate emitted duration rows.
+`phonetize.process.timing_model` contains both the process-policy controls and the timing-model subtree used during realization. `perception_limits` inside that subtree are classification boundaries, not alternate emitted duration rows.
 
 ## Preflight Verification
 
@@ -133,13 +133,13 @@ That preflight:
 Representative warning-only output:
 
 ```text
-WARN phonetize.timing_model.speech.pause_ratio | relation: pause_ratio > 70 | reason: pause_ratio above 70 reserves an unusually large share of time for pauses.
+WARN phonetize.process.timing_model.speech.pause_ratio | relation: pause_ratio > 70 | reason: pause_ratio above 70 reserves an unusually large share of time for pauses.
 ```
 
 Representative blocking output:
 
 ```text
-FAIL phonetize.timing_model.speech.pause_ratio | relation: 0 < pause_ratio < 100 | reason: pause_ratio must be a percentage strictly between 0 and 100.
+FAIL phonetize.process.timing_model.speech.pause_ratio | relation: 0 < pause_ratio < 100 | reason: pause_ratio must be a percentage strictly between 0 and 100.
 ```
 
 `confwriter --list phonetize` is the supported way to inspect the live schema.

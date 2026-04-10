@@ -97,11 +97,11 @@ def _list_lines(filter_text: str | None) -> list[str]:
 def _run_selftests() -> bool:
     logger = setup_cli_logging(argparse.Namespace(quiet=False, no_console=False, log=None, log_append=False), 'akkapros.cli.confwriter')
     cases = [
-        ('set assignment', lambda: _parse_assignment('common.prefix=demo')[0] == 'common.prefix'),
+        ('set assignment', lambda: _parse_assignment('common.run.prefix=demo')[0] == 'common.run.prefix'),
         ('set assignment rejects bad key', _selftest_invalid_key),
         ('list filter works', lambda: all('atfparse' in line for line in _list_lines('atfparse'))),
         ('list inventory non-empty', lambda: len(_list_lines(None)) > 0),
-        ('shared verify warns on high pause ratio', lambda: verify_phonetize_config({'timing_model': {'speech': {'pause_ratio': 71}}}).status == 'pass-with-warnings'),
+        ('shared verify warns on high pause ratio', lambda: verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 71}}}}).status == 'pass-with-warnings'),
     ]
     passed = 0
     total = len(cases)

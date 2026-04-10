@@ -8,13 +8,13 @@ CONFIG_FILE_COMMENTS = [
 ]
 
 CONFIG_SECTION_HELP = {
-    "common": "Shared options used across file-producing CLIs.",
-    "atfparse": "Options specific to the atfparser CLI.",
-    "syllabify": "Options used by the syllabifier CLI and by fullprosmaker during the syllabify stage.",
+    "common": "Shared run options used across file-producing CLIs.",
+    "atfparse": "Options specific to the atfparser CLI, grouped into process and run controls.",
+    "syllabify": "Options used by the syllabifier CLI and by fullprosmaker during the syllabify stage, grouped into process and run controls.",
     "prosody": "Options used by the prosmaker CLI and by fullprosmaker during the prosody stage.",
     "phonetize": "Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.",
-    "metrics": "Options used by the metricalc CLI and by fullprosmaker for metrics outputs.",
-    "print": "Options used by the printer CLI and by fullprosmaker for print outputs.",
+    "metrics": "Options used by the metricalc CLI and by fullprosmaker for metrics output selection.",
+    "print": "Options used by the printer CLI and by fullprosmaker for print outputs, grouped into process and run controls.",
 }
 
 OPTION_HELP = {
@@ -23,6 +23,41 @@ OPTION_HELP = {
     "logging.no_console": "Disable console logging entirely.",
     "logging.log": "Write runtime logs to this file.",
     "logging.log_append": "Append to --log instead of overwriting it.",
+    "common.run.prefix": "Shared output prefix used by file-producing CLIs.",
+    "common.run.outdir": "Shared output directory used by file-producing CLIs.",
+    "common.run.quiet": "Suppress informational console logging while keeping warnings and errors visible.",
+    "common.run.no_console": "Disable console logging entirely.",
+    "common.run.log": "Optional runtime log file path.",
+    "common.run.log_append": "Append to the configured log file instead of overwriting it.",
+    "atfparse.process.remove_hyphens": "Remove sign-boundary hyphens in cleaned output.",
+    "atfparse.process.preserve_case": "Preserve case from the source ATF transliteration.",
+    "atfparse.process.preserve_h": "Preserve original h/H characters.",
+    "atfparse.run.strict": "Enable informational warnings while parsing.",
+    "atfparse.run.append": "Append to output files instead of overwriting them; each appended block starts on a new line.",
+    "syllabify.process.extra_vowels": "Additional characters to treat as vowels.",
+    "syllabify.process.extra_consonants": "Additional characters to treat as consonants.",
+    "syllabify.process.extra_short_punct_chars": "Additional short-pause punctuation characters.",
+    "syllabify.process.extra_long_punct_chars": "Additional long-pause punctuation characters.",
+    "syllabify.process.extra_short_punct_pattern": "Repeatable regexes for short-pause punctuation segments.",
+    "syllabify.process.extra_long_punct_pattern": "Repeatable regexes for long-pause punctuation segments.",
+    "syllabify.process.number_format": "Regex used to recognize numbers; empty uses the built-in English-grouping-compatible pattern.",
+    "syllabify.process.merge_hyphen": "Merge hyphens into syllable separators.",
+    "syllabify.process.merge_lines": "Merge lines instead of preserving source line structure.",
+    "syllabify.run.title": "Override inherited or missing file title in output front matter.",
+    "prosody.process.style": "Accent style for prosody realization.",
+    "prosody.process.mora_mode": "Mora-mode gate for accentuation attempts.",
+    "prosody.process.relax_last": "For explicit + links, allow prosody realization propagation before the last linked word.",
+    "metrics.run.csv": "Emit deprecated CSV output.",
+    "metrics.run.table": "Write human-readable metrics table output.",
+    "metrics.run.json": "Write JSON metrics output.",
+    "print.process.ipa_proto_semitic": "IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger.",
+    "print.run.acute": "Write <prefix>_accent_acute.txt.",
+    "print.run.bold": "Write <prefix>_accent_bold.md.",
+    "print.run.ipa": "Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only).",
+    "print.run.circ_hiatus": "Speculative IPA mode: split circumflex vowels into hiatus (for example qû -> qʊ.ʊ).",
+    "print.run.xar": "Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.",
+    "print.run.mbrola": "Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols).",
+    "print.run.print_merger": "Render the visible merge connector in supported outputs.",
     "common.prefix": "Shared output prefix used by file-producing CLIs.",
     "common.outdir": "Shared output directory used by file-producing CLIs.",
     "common.quiet": "Suppress informational console logging while keeping warnings and errors visible.",
@@ -182,7 +217,9 @@ def help_for(key: str) -> str:
     return OPTION_HELP[key]
 
 
-def config_help(section: str, key: str) -> str:
+def config_help(section: str, key: str | None = None) -> str:
+    if key is None:
+        return help_for(section)
     return help_for(f"{section}.{key}")
 
 

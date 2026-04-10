@@ -1,6 +1,6 @@
 ---
 cr_id: CR-044
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-08
@@ -223,35 +223,35 @@ Suggested implementation direction:
 
 # Acceptance Criteria
 
-- [ ] `src/akkapros/config/default.yaml` uses `common.run` and exposes
+- [x] `src/akkapros/config/default.yaml` uses `common.run` and exposes
   `common.run.outdir`.
-- [ ] `atfparse` config paths are rehomed to `atfparse.process.*` and
+- [x] `atfparse` config paths are rehomed to `atfparse.process.*` and
       `atfparse.run.*` exactly as specified by [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md).
-- [ ] `syllabify` config paths are rehomed to `syllabify.process.*` and
+- [x] `syllabify` config paths are rehomed to `syllabify.process.*` and
       `syllabify.run.*` exactly as specified by [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md).
-- [ ] `prosody` exposes only `prosody.process.*`.
-- [ ] `metrics` exposes only `metrics.run.csv`, `metrics.run.table`, and
+- [x] `prosody` exposes only `prosody.process.*`.
+- [x] `metrics` exposes only `metrics.run.csv`, `metrics.run.table`, and
       `metrics.run.json`.
-- [ ] `metrics.wpm`, `metrics.pause_ratio`, `metrics.long_punct_weight`, and
+- [x] `metrics.wpm`, `metrics.pause_ratio`, `metrics.long_punct_weight`, and
       `metrics.explicit_link_count` are absent from the active schema,
       generated default YAML, `confwriter` key inventory, and config docs.
-- [ ] `print` exposes `print.process.ipa_proto_semitic` and the approved
+- [x] `print` exposes `print.process.ipa_proto_semitic` and the approved
       `print.run.*` artifact toggles only.
-- [ ] Top-level `phonetize.timing_model.*` is removed from the active schema.
-- [ ] `phonetize.process.timing_model.*` exposes the migrated phonetize timing-
+- [x] Top-level `phonetize.timing_model.*` is removed from the active schema.
+- [x] `phonetize.process.timing_model.*` exposes the migrated phonetize timing-
   model and process-policy keys.
-- [ ] `phonetize.process.timing_model.accentuation_distribution_policy`
+- [x] `phonetize.process.timing_model.accentuation_distribution_policy`
   defaults to `85_15` in emitted grouped config.
-- [ ] `phonetize.process.timing_model.drift_policy` defaults to
+- [x] `phonetize.process.timing_model.drift_policy` defaults to
   `extensible` in emitted grouped config.
-- [ ] `confwriter --list`, `--get`, `--set`, `--unset`, and `--set-default`
+- [x] `confwriter --list`, `--get`, `--set`, `--unset`, and `--set-default`
       operate on the new paths and do not advertise removed paths as current
       contract.
-- [ ] Runtime config resolution for stage CLIs and `fullprosmaker` reads the
+- [x] Runtime config resolution for stage CLIs and `fullprosmaker` reads the
       new paths consistently.
-- [ ] User-facing config documentation and generated help comments present the
+- [x] User-facing config documentation and generated help comments present the
       new run/process grouping consistently.
-- [ ] Tests cover both the new path inventory and the explicit handling of
+- [x] Tests cover both the new path inventory and the explicit handling of
       removed legacy paths.
 
 ---
@@ -313,27 +313,27 @@ schema, default YAML, docs, and `confwriter` surfaces together.
 
 ## Implementation
 
-- [ ] Rewrite the canonical schema to the new grouped path layout
-- [ ] Update runtime resolution for stage CLIs and `fullprosmaker`
-- [ ] Move phonetize process-policy paths under `timing_model`
-- [ ] Remove the specified metrics timing keys from the public config surface
+- [x] Rewrite the canonical schema to the new grouped path layout
+- [x] Update runtime resolution for stage CLIs and `fullprosmaker`
+- [x] Move phonetize process-policy paths under `timing_model`
+- [x] Remove the specified metrics timing keys from the public config surface
 
 ## Tests
 
-- [ ] Add schema-inventory coverage for new paths
-- [ ] Add removed-path rejection or migration coverage
-- [ ] Add representative runtime-resolution coverage for the new layout
+- [x] Add schema-inventory coverage for new paths
+- [x] Add removed-path rejection or migration coverage
+- [x] Add representative runtime-resolution coverage for the new layout
 
 ## Documentation
 
-- [ ] Update `default.yaml` comments and ordering
-- [ ] Update config docs and generated help surfaces
-- [ ] Add migration guidance for old-to-new config paths
+- [x] Update `default.yaml` comments and ordering
+- [x] Update config docs and generated help surfaces
+- [x] Add migration guidance for old-to-new config paths
 
 ## Review
 
-- [ ] Review path inventory against [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md)
-- [ ] Verify acceptance criteria
+- [x] Review path inventory against [REQ-029](../req/029-stage-config-run-process-separation-and-common-outdir-removal.md)
+- [x] Verify acceptance criteria
 
 ---
 

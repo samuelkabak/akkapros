@@ -123,11 +123,11 @@ units do not forward-merge; they fall directly to last resort.
 
 | Option | Description |
 |--------|-------------|
-| `--phonetize-geminate-policy {corrective,cumulative}` | Pass through `phonetize.process.geminate_policy` |
-| `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}` | Pass through `phonetize.process.accentuation_distribution_policy` |
-| `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.short_pause_policy` |
-| `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.drift_policy` |
-| `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.drift_tolerance` |
+| `--phonetize-geminate-policy {corrective,cumulative}` | Pass through `phonetize.process.timing_model.geminate_policy` |
+| `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}` | Pass through `phonetize.process.timing_model.accentuation_distribution_policy` |
+| `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.timing_model.short_pause_policy` |
+| `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.timing_model.drift_policy` |
+| `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.timing_model.drift_tolerance` |
 | `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.timing_model.*` |
 
 Dedicated config-backed flags remain supported during the transition, but they are now deprecated in favor of `--option KEY=VALUE` or `--conf FILE`.

@@ -108,7 +108,7 @@ def _apply_phonetize_process_overrides(args: argparse.Namespace) -> dict[str, ob
     for key in PROCESS_KEYS:
         value = getattr(args, f'phonetize_{key}')
         if value is not None:
-            config['process'][key] = value
+            config['process']['timing_model'][key] = value
     for raw in args.option_values or []:
         path, sep, value = raw.partition('=')
         if not sep or not path.strip():

@@ -79,10 +79,10 @@ It verifies explicit, path-addressable relations such as:
 
 - enum-like process policy inventories
 - positive-integer timing representation for the validated phonetize surface
-- `0 < phonetize.timing_model.speech.pause_ratio < 100`
+- `0 < phonetize.process.timing_model.speech.pause_ratio < 100`
 - consonant and vowel ordering relations required by the active timing model
 - pause-band ordering and integer-multiple compatibility with
-	`phonetize.timing_model.durations.cvc_reference`
+	`phonetize.process.timing_model.durations.cvc_reference`
 
 It also emits warning-only signals for the current accepted warning layer,
 including high pause ratios, strong onset/coda divergence inside a consonant

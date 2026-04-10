@@ -5,260 +5,256 @@
 # fullprosmaker reads common plus the syllabify, prosody, phonetize, metrics,
 # and print sections.
 
-# Shared options used across file-producing CLIs.
+# Shared run options used across file-producing CLIs.
 common:
-  # Shared output prefix used by file-producing CLIs.
-  prefix: "akkapros"
-  # Shared output directory used by file-producing CLIs.
-  outdir: "."
-  # Suppress informational console logging while keeping warnings and errors
-  # visible.
-  quiet: false
-  # Disable console logging entirely.
-  no_console: false
-  # Optional runtime log file path.
-  log: null
-  # Append to the configured log file instead of overwriting it.
-  log_append: false
+  run:
+    # Shared output prefix used by file-producing CLIs.
+    prefix: "akkapros"
+    # Shared output directory used by file-producing CLIs.
+    outdir: "."
+    # Suppress informational console logging while keeping warnings and errors
+    # visible.
+    quiet: false
+    # Disable console logging entirely.
+    no_console: false
+    # Optional runtime log file path.
+    log: null
+    # Append to the configured log file instead of overwriting it.
+    log_append: false
 
-# Options specific to the atfparser CLI.
+# Options specific to the atfparser CLI, grouped into process and run controls.
 atfparse:
-  # Remove sign-boundary hyphens in cleaned output.
-  remove_hyphens: false
-  # Preserve case from the source ATF transliteration.
-  preserve_case: false
-  # Preserve original h/H characters.
-  preserve_h: false
-  # Enable informational warnings while parsing.
-  strict: false
-  # Append to output files instead of overwriting them; each appended block
-  # starts on a new line.
-  append: false
+  process:
+    # Remove sign-boundary hyphens in cleaned output.
+    remove_hyphens: false
+    # Preserve case from the source ATF transliteration.
+    preserve_case: false
+    # Preserve original h/H characters.
+    preserve_h: false
+  run:
+    # Enable informational warnings while parsing.
+    strict: false
+    # Append to output files instead of overwriting them; each appended block
+    # starts on a new line.
+    append: false
 
 # Options used by the syllabifier CLI and by fullprosmaker during the syllabify
-# stage.
+# stage, grouped into process and run controls.
 syllabify:
-  # Additional characters to treat as vowels.
-  extra_vowels: ""
-  # Additional characters to treat as consonants.
-  extra_consonants: ""
-  # Additional short-pause punctuation characters.
-  extra_short_punct_chars: ""
-  # Additional long-pause punctuation characters.
-  extra_long_punct_chars: ""
-  # Repeatable regexes for short-pause punctuation segments.
-  extra_short_punct_pattern: []
-  # Repeatable regexes for long-pause punctuation segments.
-  extra_long_punct_pattern: []
-  # Regex used to recognize numbers; empty uses the built-in English-grouping-
-  # compatible pattern.
-  number_format: ""
-  # Merge hyphens into syllable separators.
-  merge_hyphen: false
-  # Merge lines instead of preserving source line structure.
-  merge_lines: false
-  # Override inherited or missing file title in output front matter.
-  title: null
+  process:
+    # Additional characters to treat as vowels.
+    extra_vowels: ""
+    # Additional characters to treat as consonants.
+    extra_consonants: ""
+    # Additional short-pause punctuation characters.
+    extra_short_punct_chars: ""
+    # Additional long-pause punctuation characters.
+    extra_long_punct_chars: ""
+    # Repeatable regexes for short-pause punctuation segments.
+    extra_short_punct_pattern: []
+    # Repeatable regexes for long-pause punctuation segments.
+    extra_long_punct_pattern: []
+    # Regex used to recognize numbers; empty uses the built-in English-grouping-
+    # compatible pattern.
+    number_format: ""
+    # Merge hyphens into syllable separators.
+    merge_hyphen: false
+    # Merge lines instead of preserving source line structure.
+    merge_lines: false
+  run:
+    # Override inherited or missing file title in output front matter.
+    title: null
 
-# Options used by the prosmaker CLI and by fullprosmaker during the prosody
-# stage.
+# Options used by the prosmaker CLI and by fullprosmaker during the prosody stage.
 prosody:
-  # Accent style for prosody realization.
-  style: "lob"
-  # Mora-mode gate for accentuation attempts.
-  mora_mode: "bi"
-  # For explicit + links, allow prosody realization propagation before the last
-  # linked word.
-  relax_last: false
+  process:
+    # Accent style for prosody realization.
+    style: "lob"
+    # Mora-mode gate for accentuation attempts.
+    mora_mode: "bi"
+    # For explicit + links, allow prosody realization propagation before the last
+    # linked word.
+    relax_last: false
 
-# Options used by the phonetizer CLI and by fullprosmaker during the phonetize
-# stage.
+# Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.
 phonetize:
   process:
-    # geminate realization policy
-    # - cumulative: keep coda duration + onset duration instead of correcting to
-    # the configured geminate target
-    # - corrective: correct the sequence to the configured geminate target
-    geminate_policy: "corrective"
-    # this policy indicates how the accentuation mora (0.5 * cvc_reference) is
-    # distributed, format N_M
-    # N = percentage on the accentuated segment; M = percentage on the adjacent
-    # segment
-    # Distribution stops when legality ranges would be challenged; if full
-    # assignment is impossible, Phase 2 must fail fatally.
-    # Allowed values: 100_0, 85_15, 70_30
-    accentuation_distribution_policy: "85_15"
-    # short pause discharge policy
-    # - strict: the pause must realize a preferred legal short-band target
-    # derived from the nearest integer multiple of cvc_reference, and it must
-    # discharge drift reserve through that target as far as the band allows;
-    # config validation should warn if no integer multiple N * cvc_reference
-    # remains inside the empirically grounded short-pause band, and should fail
-    # only if the nearest-multiple gap exceeds the vowel perception-gap
-    # threshold used by shared semantic verification
-    # - best_effort: the pause may choose any legal short-band realization that
-    # maximizes drift discharge, and any remainder carries into the following
-    # phrase
-    short_pause_policy: "strict"
-    # drift recovery policy
-    # - strict: use running drift first, then legal vowel adjustment, and fail
-    # if the mismatch still cannot be resolved
-    # - extensible: use running drift first, then legal vowel adjustment, then
-    # extend drift beyond drift_tolerance if needed
-    # Shared semantic verification is run before phonetizer Phase 2 continues;
-    # for shared verification and selected default-deviation reporting, the
-    # canonical comparison default for drift_policy is extensible even though
-    # the grouped-config default remains strict.
-    drift_policy: "strict"
-    # maximum local timing mismatch tolerated before the algorithm must fail
-    drift_tolerance: 12
-  timing_model:
-    speech:
-      # Speech-rate estimate used by timing and pause logic.
-      wpm: 193
-      # Share of total time reserved for pauses. Shared semantic verification
-      # fails outside 0 < pause_ratio < 100 and emits a warning when
-      # pause_ratio > 70.
-      pause_ratio: 35
-    durations:
-      # Upper ordinary duration for one vowel or consonant. Model-facing ceiling
-      # from comparative duration limits; does not apply to pauses or CVC
-      # totals.
-      segmental_ceiling: 310
-      # Central heavy-syllable timing reference used by accentuation and pause
-      # alignment. Set inside the empirically grounded CVC interval 286-306 ms.
-      # This keeps the control value conservative and compatible with pause-band
-      # alignment whenever at least one integer multiple N * cvc_reference falls
-      # inside a configured pause band.
-      cvc_reference: 305
-      consonants:
-        # Stop-like closure class. Includes lexical ʾ.
-        closure:
-          # Default onset closure duration. Direct comparative stop-closure
-          # anchor.
-          onset: 108
-          # Default post-vocalic closure duration. Direct comparative
-          # coda/post-vocalic stop anchor.
-          coda: 103
-          # Default geminate closure target. Summary point for the attested
-          # stop-geminate band.
-          geminate: 195
-          special_realization:
-            # Hiatus or zero-onset marker between adjacent vowels. Unstressed
-            # light glottal-stop realization; stressed cases defer to full
-            # geminated closure timing.
-            hiatus: 18
+    timing_model:
+      # geminate realization policy
+      # - cumulative: keep coda duration + onset duration instead of correcting to the
+      # configured geminate target
+      # - corrective: correct the sequence to the configured geminate target
+      geminate_policy: "corrective"
+      # this policy indicates how the accentuation mora (0.5 * cvc_reference) is
+      # distributed, format N_M
+      # N = percentage on the accentuated segment; M = percentage on the adjacent
+      # segment
+      # Distribution stops when legality ranges would be challenged; if full assignment
+      # is impossible, Phase 2 must fail fatally.
+      # Allowed values: 100_0, 85_15, 70_30
+      accentuation_distribution_policy: "85_15"
+      # short pause discharge policy
+      # - strict: the pause must realize a preferred legal short-band target derived
+      # from the nearest integer multiple of cvc_reference, and it must discharge drift
+      # reserve through that target as far as the band allows; config validation should
+      # warn if no integer multiple N * cvc_reference remains inside the empirically
+      # grounded short-pause band, and should fail only if the nearest-multiple gap
+      # exceeds the vowel perception-gap threshold used by shared semantic verification
+      # - best_effort: the pause may choose any legal short-band realization that
+      # maximizes drift discharge, and any remainder carries into the following phrase
+      short_pause_policy: "strict"
+      # drift recovery policy
+      # - strict: use running drift first, then legal vowel adjustment, and fail if the
+      # mismatch still cannot be resolved
+      # - extensible: use running drift first, then legal vowel adjustment, then extend
+      # drift beyond drift_tolerance if needed
+      # Shared semantic verification is run before phonetizer Phase 2 continues; the
+      # canonical grouped-config default for drift_policy is extensible.
+      drift_policy: "extensible"
+      # maximum local timing mismatch tolerated before the algorithm must fail
+      drift_tolerance: 12
+      speech:
+        # Speech-rate estimate used by timing and pause logic.
+        wpm: 193
+        # Share of total time reserved for pauses. Shared semantic verification fails
+        # outside 0 < pause_ratio < 100 and emits a warning when pause_ratio > 70.
+        pause_ratio: 35
+      durations:
+        # Upper ordinary duration for one vowel or consonant. Model-facing ceiling from
+        # comparative duration limits; does not apply to pauses or CVC totals.
+        segmental_ceiling: 310
+        # Central heavy-syllable timing reference used by accentuation and pause
+        # alignment. Set inside the empirically grounded CVC interval 286-306 ms. This
+        # keeps the control value conservative and compatible with pause-band alignment
+        # whenever at least one integer multiple N * cvc_reference falls inside a
+        # configured pause band.
+        cvc_reference: 305
+        consonants:
+          # Stop-like closure class. Includes lexical ʾ.
+          closure:
+            # Default onset closure duration. Direct comparative stop-closure anchor.
+            onset: 108
+            # Default post-vocalic closure duration. Direct comparative coda/post-
+            # vocalic stop anchor.
+            coda: 103
+            # Default geminate closure target. Summary point for the attested stop-
+            # geminate band.
+            geminate: 195
+            special_realization:
+              # Hiatus or zero-onset marker between adjacent vowels. Unstressed light
+              # glottal-stop realization; stressed cases defer to full geminated closure
+              # timing.
+              hiatus: 18
+            perception_limits:
+              # Earliest closure duration treated as geminate-like. Perceptual threshold
+              # from the stop singleton/geminate contrast, not the lowest measured
+              # token.
+              geminate_min: 180
+          # Fricative class. Heavier than closures by manner, but less directly grounded
+          # than the stop row.
+          fricative:
+            # Default onset fricative duration. Derived from closure onset plus
+            # fricative manner delta.
+            onset: 137
+            # Default post-vocalic fricative duration. Current heavy post-vocalic anchor
+            # used by the simplified row.
+            coda: 142
+            # Default geminate fricative target. Exploratory value based on the current
+            # onset + post-vocalic row.
+            geminate: 279
+            perception_limits:
+              # Earliest fricative duration treated as held or geminate-like. Class-
+              # specific perceptual floor from weak fricative gemination evidence.
+              geminate_min: 152
+          # Sonorant, nasal, and glide class.
+          sonorant:
+            # Default onset sonorant duration. Set from the clearer singleton liquid
+            # onset anchor.
+            onset: 89
+            # Default post-vocalic sonorant duration. Structural minimum retained on the
+            # coda side of the row.
+            coda: 70
+            # Default geminate sonorant target. Set from the direct glide geminate
+            # region.
+            geminate: 163
+            special_realization:
+              # Diphthong-internal or glide-like VV transition marker. Unstressed light
+              # glide realization; stressed cases defer to full geminated glide timing.
+              vowel_transition: 11
+            perception_limits:
+              # Earliest sonorant duration treated as geminate-like. Lower perceptual
+              # boundary from moraic nasal/liquid comparison.
+              geminate_min: 152
+        vowels:
+          # Default short-vowel duration. Production anchor from the retained short-
+          # vowel baseline.
+          short: 85
+          # Default long-vowel duration. Production anchor from the retained long-vowel
+          # baseline.
+          long: 160
+          # Default very-long vowel duration. Contextual extension anchor, not ordinary
+          # lexical default.
+          very_long: 220
           perception_limits:
-            # Earliest closure duration treated as geminate-like. Perceptual
-            # threshold from the stop singleton/geminate contrast, not the
-            # lowest measured token.
-            geminate_min: 180
-        # Fricative class. Heavier than closures by manner, but less directly
-        # grounded than the stop row.
-        fricative:
-          # Default onset fricative duration. Derived from closure onset plus
-          # fricative manner delta.
-          onset: 137
-          # Default post-vocalic fricative duration. Current heavy post-vocalic
-          # anchor used by the simplified row.
-          coda: 142
-          # Default geminate fricative target. Exploratory value based on the
-          # current onset + post-vocalic row.
-          geminate: 279
-          perception_limits:
-            # Earliest fricative duration treated as held or geminate-like.
-            # Class-specific perceptual floor from weak fricative gemination
-            # evidence.
-            geminate_min: 152
-        # Sonorant, nasal, and glide class.
-        sonorant:
-          # Default onset sonorant duration. Set from the clearer singleton
-          # liquid onset anchor.
-          onset: 89
-          # Default post-vocalic sonorant duration. Structural minimum retained
-          # on the coda side of the row.
-          coda: 70
-          # Default geminate sonorant target. Set from the direct glide
-          # geminate region.
-          geminate: 163
-          special_realization:
-            # Diphthong-internal or glide-like VV transition marker. Unstressed
-            # light glide realization; stressed cases defer to full geminated
-            # glide timing.
-            vowel_transition: 11
-          perception_limits:
-            # Earliest sonorant duration treated as geminate-like. Lower
-            # perceptual boundary from moraic nasal/liquid comparison.
-            geminate_min: 152
-      vowels:
-        # Default short-vowel duration. Production anchor from the retained
-        # short-vowel baseline.
-        short: 85
-        # Default long-vowel duration. Production anchor from the retained
-        # long-vowel baseline.
-        long: 160
-        # Default very-long vowel duration. Contextual extension anchor, not
-        # ordinary lexical default.
-        very_long: 220
-        perception_limits:
-          # Minimum duration still treated as a realized short-vowel nucleus.
-          short_min: 40
-          # Earliest duration treated as long. Midpoint-style boundary derived
-          # from short and long anchors.
-          long_min: 123
-          # Earliest duration treated as very long. Midpoint-style boundary
-          # derived from long and very-long anchors.
-          very_long_min: 190
-          # Upper ordinary bound for contextual vowel extension.
-          max: 240
-      pauses:
-        # Default short-pause band. Empirically grounded short-pause region from
-        # comparative studies. Rhythmic alignment remains possible when at
-        # least one integer multiple N * cvc_reference falls inside this band
-        # without redefining the empirical range.
-        short:
-          # Minimum short-pause duration.
-          min: 600
-          # Maximum short-pause duration.
-          max: 680
-        # Default long-pause band. Clause-boundary range from comparative pause
-        # data. If rhythmic alignment is used, enumerate all integer multiples
-        # N * cvc_reference inside this band. Choose the candidate nearest the
-        # band center; if two are equally near, choose the smaller one.
-        long:
-          # Minimum long-pause duration.
-          min: 1200
-          # Maximum long-pause duration.
-          max: 1780
+            # Minimum duration still treated as a realized short-vowel nucleus.
+            short_min: 40
+            # Earliest duration treated as long. Midpoint-style boundary derived from
+            # short and long anchors.
+            long_min: 123
+            # Earliest duration treated as very long. Midpoint-style boundary derived
+            # from long and very-long anchors.
+            very_long_min: 190
+            # Upper ordinary bound for contextual vowel extension.
+            max: 240
+        pauses:
+          # Default short-pause band. Empirically grounded short-pause region from
+          # comparative studies. Rhythmic alignment remains possible when at least one
+          # integer multiple N * cvc_reference falls inside this band without redefining
+          # the empirical range.
+          short:
+            # Minimum short-pause duration.
+            min: 600
+            # Maximum short-pause duration.
+            max: 680
+          # Default long-pause band. Clause-boundary range from comparative pause data.
+          # If rhythmic alignment is used, enumerate all integer multiples N *
+          # cvc_reference inside this band. Choose the candidate nearest the band
+          # center; if two are equally near, choose the smaller one.
+          long:
+            # Minimum long-pause duration.
+            min: 1200
+            # Maximum long-pause duration.
+            max: 1780
 
-# Options used by the metricalc CLI and by fullprosmaker for metrics outputs.
+# Options used by the metricalc CLI and by fullprosmaker for metrics output selection.
 metrics:
-  # Emit deprecated CSV output.
-  csv: false
-  # Write human-readable metrics table output.
-  table: false
-  # Write JSON metrics output.
-  json: false
-  # Override inherited metadata.data.prosody.explicit_word_link_count.
-  explicit_link_count: null
+  run:
+    # Emit deprecated CSV output.
+    csv: false
+    # Write human-readable metrics table output.
+    table: false
+    # Write JSON metrics output.
+    json: false
 
-# Options used by the printer CLI and by fullprosmaker for print outputs.
+# Options used by the printer CLI and by fullprosmaker for print outputs, grouped into
+# process and run controls.
 print:
-  # Write <prefix>_accent_acute.txt.
-  acute: false
-  # Write <prefix>_accent_bold.md.
-  bold: false
-  # Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only).
-  ipa: false
-  # IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian
-  # merger.
-  ipa_proto_semitic: "preserve"
-  # Speculative IPA mode: split circumflex vowels into hiatus (for example qû
-  # -> qʊ.ʊ).
-  circ_hiatus: false
-  # Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.
-  xar: false
-  # Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols).
-  mbrola: false
-  # Render the visible merge connector in supported outputs.
-  print_merger: false
+  process:
+    # IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger.
+    ipa_proto_semitic: "preserve"
+  run:
+    # Write <prefix>_accent_acute.txt.
+    acute: false
+    # Write <prefix>_accent_bold.md.
+    bold: false
+    # Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only).
+    ipa: false
+    # Speculative IPA mode: split circumflex vowels into hiatus (for example qû ->
+    # qʊ.ʊ).
+    circ_hiatus: false
+    # Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.
+    xar: false
+    # Write <prefix>_accent_mbrola.txt (MBROLA/X-SAMPA-like symbols).
+    mbrola: false
+    # Render the visible merge connector in supported outputs.
+    print_merger: false
