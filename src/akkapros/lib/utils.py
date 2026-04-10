@@ -530,7 +530,7 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
 
     Args:
         file_path: Input path.
-        expected_kind: One of ``atf``, ``proc``, ``syl``, or ``tilde``.
+        expected_kind: One of ``atf``, ``proc``, ``syl``, ``tilde``, or ``phone``.
 
     Raises:
         FormatValidationError: When obvious corruption/partial content is found.
@@ -545,7 +545,7 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
             line_text=line_text,
         )
 
-    if expected_kind not in {"atf", "proc", "syl", "tilde"}:
+    if expected_kind not in {"atf", "proc", "syl", "tilde", "phone"}:
         raise ValueError(f"Unknown expected_kind: {expected_kind!r}")
 
     path = Path(file_path)
@@ -568,7 +568,7 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
     except ValueError as exc:
         fail(f"invalid front matter ({exc})")
 
-    if frontmatter is not None and expected_kind in {"proc", "syl", "tilde"}:
+    if frontmatter is not None and expected_kind in {"proc", "syl", "tilde", "phone"}:
         file_info = frontmatter.get("file", {})
         declared_format = file_info.get("format")
         expected_format = expected_kind
@@ -648,6 +648,22 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
         if any(SYL_WORD_ENDING in ln for _, ln in non_empty):
             idx, ln = next((i, l) for i, l in non_empty if SYL_WORD_ENDING in l)
             fail("appears to be syllabified *_syl.txt content, expected *_tilde.txt", idx, ln)
+    elif expected_kind == "phone":
+        saw_phone_row = False
+        for idx, ln in non_empty:
+            head, sep, _tail = ln.partition(':')
+            if not sep:
+                fail("invalid phone-row content: missing ':' separator", idx, ln)
+            parts = head.split('-')
+            if len(parts) != 9:
+                fail("invalid phone-row content: expected 9 head fields", idx, ln)
+            if parts[1] not in {'C', 'V', 'S'}:
+                fail("invalid phone-row content: unknown category field", idx, ln)
+            if not re.fullmatch(r'\d{4}', parts[8]):
+                fail("invalid phone-row content: duration must be four digits", idx, ln)
+            saw_phone_row = True
+        if not saw_phone_row:
+            fail("file has no valid phone rows")
 
 
 # ============================================================================

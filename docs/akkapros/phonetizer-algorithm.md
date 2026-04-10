@@ -99,7 +99,7 @@ The phonetizer now builds two row streams from one `_tilde` input:
 - accentuated rows preserve `~`, `&`, `+`, `·`, and `-` through the row boundary and accent fields
 - original rows are built from the derived deaccented view where `~` is removed and `&` becomes ordinary space while `+` remains preserved
 
-Round-trip reconstruction uses the emitted row fields rather than hidden builder state. Accentuated rows reconstruct the accentuated `_tilde` structure; original rows reconstruct the derived original view.
+Round-trip reconstruction uses the emitted row fields rather than hidden builder state. Accentuated rows reconstruct the accentuated `_tilde` structure plus the normalized final line break; original rows reconstruct the derived original view plus that same normalized final line break.
 
 ## Boundary Behavior
 
@@ -110,6 +110,8 @@ The current stage:
 - uses `F` for prosodic-unit endings, including space-separated words before the next unit
 - emits `SES` / `SP` rows for short pauses and `ZEN` / `ZP` rows for long pauses and line breaks
 - serializes line breaks as `<EOL>` in the `text` field
+- inserts one final `<EOL>` long-pause row if the consumed `_tilde` text had no terminal line break
+- classifies one punctuation suite as long when any long cue is present, otherwise as short when any short cue is present
 
 Boundary reconstruction examples:
 - `I` reconstructs `·` inside a word.
@@ -165,8 +167,10 @@ discharge. A representative diagnostic setup is:
 - `pauses.short.min = pauses.short.max = 600`
 
 Under that configuration, `qat,` reaches the short pause with positive drift.
-The pause row is still forced to `600 ms`, so the stream remains behind the beat
-after the pause instead of resetting to zero.
+The short-pause row itself is still forced to `600 ms`, so that row cannot
+fully discharge the drift. If the source text had no final line break, the
+normalized terminal `<EOL>` long pause written after the comma then resets the
+stream to zero before the file ends.
 
 The same setup with `qat\n` behaves differently. The long pause is allowed to
 choose any legal value inside the long-pause band and must unload the full drift
@@ -200,5 +204,8 @@ The `_tilde` input contract consumed here may also carry armored punctuation spa
 inputs. The phonetizer owns the duration-bearing representation used for
 interval metrics, drift reporting, and explicit-link reconstruction.
 
-`_tilde.txt` remains the prosody pivot for printer output and upstream
-reconstruction, but it is no longer the active metrics source.
+`_tilde.txt` remains the upstream prosody pivot for phonetizer input and
+upstream reconstruction, but it is no longer the active downstream source for
+metrics or printer.
+
+See also: `docs/akkapros/phonetizer-phone-file-guide.md`

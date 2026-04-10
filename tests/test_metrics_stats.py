@@ -6,7 +6,7 @@ from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import metrics
 from akkapros.lib import print as printlib
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR
-from akkapros.lib.phonetize import build_default_phonetize_config, realize_phone_streams, serialize_phone_rows
+from akkapros.lib.phonetize import build_default_phonetize_config, build_phone_rows, realize_phone_streams, serialize_phone_rows
 from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
 from akkapros.lib.syllabify import syllabify_text
 from akkapros.lib.utils import format_path_for_logging
@@ -229,9 +229,10 @@ def test_metrics_rejects_unknown_armored_punctuation() -> None:
     stats = metrics.analyze_text("at·tā⟦ @ ⟧ā·lik", is_accentuated=True)
 
     try:
-        metrics.compute_pause_metrics("at·tā⟦ @ ⟧ā·lik", stats)
+        rows = build_phone_rows("at·tā⟦ @ ⟧ā·lik")
+        metrics.compute_pause_metrics(rows, stats)
         raise AssertionError("Expected armored unknown punctuation to fail")
-    except metrics.PunctuationConfigError as exc:
+    except ValueError as exc:
         assert "⟦ @ ⟧" in str(exc)
 
 

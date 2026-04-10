@@ -88,7 +88,7 @@ def test_append_pipeline_frontmatter_contract(tmp_path: Path) -> None:
     metrics_frontmatter, _ = _read_frontmatter(metrics_file)
     assert "data" not in metrics_frontmatter["metadata"]
 
-    _run_cli("akkapros.cli.printer", str(tilde_file), "-p", prefix, "--outdir", str(outdir), "--acute")
+    _run_cli("akkapros.cli.printer", str(phone_file), "-p", prefix, "--outdir", str(outdir), "--acute")
     acute_file = outdir / f"{prefix}_accent_acute.txt"
     acute_frontmatter, _ = _read_frontmatter(acute_file)
     assert acute_frontmatter["file"]["title"] == "Title One | Title Two"

@@ -2,7 +2,7 @@
 """
 Akkadian Prosody Toolkit — Accent Printer (Library)
 
-Transforms *_tilde text into three reading-friendly outputs:
+Transforms phonetizer-owned phone rows into reading-friendly outputs:
 - accent_acute text: ~ -> ´
 - accent_bold markdown: syllable containing ~ is bold, ~ removed
 - accent_ipa text: IPA transliteration with stress/length markers
@@ -31,6 +31,13 @@ from akkapros.lib.frontmatter import (
     extract_lexical_words,
     read_text_file,
     resolve_file_title,
+)
+from akkapros.lib.phonetize import (
+    EOL_TEXT,
+    parse_phone_row,
+    realize_phone_streams,
+    reconstruct_tilde_from_phone_rows,
+    serialize_phone_rows,
 )
 from akkapros.lib.constants import (
     SYL_SEPARATOR,
@@ -920,19 +927,131 @@ def _convert_bold_markdown_lines(
         for line in lines
     ]
 
-    for index, rendered in enumerate(bold_lines[:-1]):
-        current_line = rendered[:-1] if rendered.endswith('\n') else rendered
-        next_line = bold_lines[index + 1][:-1] if bold_lines[index + 1].endswith('\n') else bold_lines[index + 1]
-        if rendered.endswith('\n') and current_line and next_line:
-            bold_lines[index] = current_line + '\\\n'
+    return _preserve_markdown_lineation(bold_lines)
 
-    return bold_lines
+
+def _preserve_markdown_lineation(lines: list[str]) -> list[str]:
+    rendered_lines = list(lines)
+
+    for index, rendered in enumerate(rendered_lines[:-1]):
+        current_line = rendered[:-1] if rendered.endswith('\n') else rendered
+        next_line = rendered_lines[index + 1][:-1] if rendered_lines[index + 1].endswith('\n') else rendered_lines[index + 1]
+        if rendered.endswith('\n') and current_line and next_line:
+            rendered_lines[index] = current_line + '\\' + '\n'
+
+    return rendered_lines
+
+
+def _load_phone_rows(filename: str) -> tuple[dict | None, list[dict[str, str]]]:
+    input_frontmatter, body = read_text_file(filename)
+    rows: list[dict[str, str]] = []
+    for line in body.splitlines():
+        if not line.strip():
+            continue
+        rows.append(parse_phone_row(line))
+    if not rows:
+        raise ValueError(f'Printer input file is empty or has no phone rows: {filename}')
+    return input_frontmatter, rows
+
+
+def _resolve_original_phone_path(phone_filename: str, ophone_filename: str | None = None) -> str:
+    if ophone_filename:
+        return ophone_filename
+    if not phone_filename.endswith('_phone.txt'):
+        raise ValueError(
+            'printer requires positional <prefix>_phone.txt input when --ophone is omitted'
+        )
+    derived = phone_filename[:-10] + '_ophone.txt'
+    if not Path(derived).exists():
+        raise ValueError(f'Derived original phone file does not exist: {derived}')
+    return derived
+
+
+def _render_ipa_pause_row(row: dict[str, str]) -> str:
+    if row['text'] == EOL_TEXT:
+        return ' ⟨linebreak⟩ ‖\n'
+
+    out: list[str] = []
+    text = row['text']
+    index = 0
+    while index < len(text):
+        if text[index].isspace():
+            index += 1
+            continue
+        tag, next_index = _detect_ipa_tag(text, index)
+        _append_ipa_tag(out, tag or 'punct')
+        index = next_index
+    if out:
+        out.append(f" {IPA_PROSODY_STRONG if row['length'] == 'L' else IPA_PROSODY_WEAK} ")
+    return ''.join(out)
+
+
+def _render_pause_row(row: dict[str, str], mode: str) -> str:
+    if mode == 'ipa':
+        return _render_ipa_pause_row(row)
+    if row['text'] == EOL_TEXT:
+        return '\n'
+    return f' {row["text"]} '
+
+
+def _normalize_ipa_text(text: str) -> str:
+    normalized_lines: list[str] = []
+    for line in text.splitlines(keepends=True):
+        if line.endswith('\n'):
+            normalized_lines.append(_normalize_ipa_spacing(line[:-1]) + '\n')
+        else:
+            normalized_lines.append(_normalize_ipa_spacing(line))
+    return ''.join(normalized_lines)
+
+
+def _render_phone_rows(
+    rows: list[dict[str, str]],
+    *,
+    mode: str,
+    ipa_mode: str = 'ipa-ob',
+    circ_hiatus: bool = False,
+    print_merger: bool = False,
+) -> str:
+    pieces: list[str] = []
+    chunk: list[dict[str, str]] = []
+
+    def flush_chunk() -> None:
+        nonlocal chunk
+        if not chunk:
+            return
+        chunk_text = reconstruct_tilde_from_phone_rows(chunk)
+        pieces.append(
+            convert_line(
+                chunk_text,
+                mode=mode,
+                ipa_mode=ipa_mode,
+                circ_hiatus=circ_hiatus,
+                print_merger=print_merger,
+            )
+        )
+        chunk = []
+
+    for row in rows:
+        if row['category'] == 'S':
+            flush_chunk()
+            pieces.append(_render_pause_row(row, mode))
+            continue
+        chunk.append(row)
+
+    flush_chunk()
+    rendered = ''.join(pieces)
+    if mode == 'ipa':
+        return _normalize_ipa_text(rendered)
+    if mode == 'bold':
+        return ''.join(_preserve_markdown_lineation(rendered.splitlines(keepends=True)))
+    return rendered
 
 
 def process_file(
     input_file: str,
     output_acute_file: str,
     output_bold_file: str,
+    ophone_file: str = '',
     output_ipa_file: str = '',
     output_xar_file: str = '',
     output_xar_plain_file: str = '',
@@ -947,12 +1066,13 @@ def process_file(
     print_merger: bool = False,
     options: dict | None = None,
 ) -> None:
-    """Read *_tilde input and write selected output files.
+    """Read paired phone-row input and write selected output files.
     
     Args:
-        input_file: Path to *_tilde.txt file
+        input_file: Path to *_phone.txt file
         output_acute_file: Path for accent_acute.txt output
         output_bold_file: Path for accent_bold.md output
+        ophone_file: Optional path to matching *_ophone.txt input
         output_ipa_file: Path for accent_ipa.txt output
         output_xar_file: Path for accent_xar.txt output
         output_xar_plain_file: Path for xar.txt output (same XAR conversion without accent marks)
@@ -965,18 +1085,22 @@ def process_file(
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
-    input_frontmatter, text = read_text_file(input_file)
+    phone_frontmatter, phone_rows = _load_phone_rows(input_file)
+    resolved_ophone = _resolve_original_phone_path(input_file, ophone_file or None)
+    ophone_frontmatter, ophone_rows = _load_phone_rows(resolved_ophone)
+    text = reconstruct_tilde_from_phone_rows(phone_rows)
     logger = get_logger_with_fallback(__name__)
     logger.info('Computed line_count: %d', count_lines(text))
     logger.info('Computed word_count: %d', len(extract_lexical_words(text)))
     logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(text))
 
-    acute_text, bold_text, ipa_text, xar_text, mbrola_text = convert_text_with_ipa_xar_mbrola(
-        text,
-        ipa_mode,
-        circ_hiatus=circ_hiatus,
-        print_merger=print_merger,
-    )
+    title_frontmatter = phone_frontmatter or ophone_frontmatter
+    acute_text = _render_phone_rows(phone_rows, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+    bold_text = _render_phone_rows(phone_rows, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+    ipa_text = _render_phone_rows(phone_rows, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+    xar_text = _render_phone_rows(phone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+    plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
+    mbrola_text = ''
 
     def _write(text: str, path: str) -> None:
         """Write text to path, ensuring a POSIX-compliant trailing newline."""
@@ -984,10 +1108,10 @@ def process_file(
         frontmatter = build_output_frontmatter(
             output_path=path,
             step='print',
-            title=resolve_file_title(input_frontmatter),
+            title=resolve_file_title(title_frontmatter),
             body=normalized,
             options=options,
-            input_frontmatter=input_frontmatter,
+            input_frontmatter=phone_frontmatter,
             include_metadata_data=False,
         )
         with open(path, 'w', encoding='utf-8') as fh:
@@ -1024,9 +1148,6 @@ def process_file(
         Path(output_xar_file).parent.mkdir(parents=True, exist_ok=True)
         _write(xar_text, output_xar_file)
 
-        plain_xar_text = xar_text.replace(ACUTE_MARK, '')
-        # Pure XAR restores word boundaries where visible linkers were used.
-        plain_xar_text = _render_visible_merge_connector(plain_xar_text, print_merger=False)
         Path(plain_xar_file).parent.mkdir(parents=True, exist_ok=True)
         _write(plain_xar_text, plain_xar_file)
 
@@ -1402,18 +1523,27 @@ def run_tests() -> bool:
         )
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        in_path = Path(tmpdir) / "sample_tilde.txt"
+        phone_path = Path(tmpdir) / "sample_phone.txt"
+        ophone_path = Path(tmpdir) / "sample_ophone.txt"
         out_acute = Path(tmpdir) / "sample_accent_acute.txt"
-        out_bold = Path(tmpdir) / "sample_accent_bold.md"
+        out_bold = Path(tmpdir) / "nested" / "sample_accent_bold.md"
         out_ipa = Path(tmpdir) / "sample_accent_ipa.txt"
         out_xar = Path(tmpdir) / "sample_accent_xar.txt"
         out_xar_plain = Path(tmpdir) / "sample_xar.txt"
-        in_path.write_text("k~a·pin + ~a·pil", encoding='utf-8')
+        (ophone_rows, _), (phone_rows, _) = realize_phone_streams("k~a·pin + ~a·pil")
+        phone_path.write_text(serialize_phone_rows(phone_rows), encoding='utf-8')
+        ophone_path.write_text(serialize_phone_rows(ophone_rows), encoding='utf-8')
+
+        expected_acute = _render_phone_rows(phone_rows, mode='acute')
+        expected_ipa = _render_phone_rows(phone_rows, mode='ipa')
+        expected_xar = _render_phone_rows(phone_rows, mode='xar')
+        expected_xar_plain = _render_phone_rows(ophone_rows, mode='xar').replace(ACUTE_MARK, '')
 
         process_file(
-            input_file=str(in_path),
+            input_file=str(phone_path),
             output_acute_file=str(out_acute),
             output_bold_file=str(out_bold),
+            ophone_file=str(ophone_path),
             output_ipa_file=str(out_ipa),
             output_xar_file=str(out_xar),
             output_xar_plain_file=str(out_xar_plain),
@@ -1432,19 +1562,19 @@ def run_tests() -> bool:
             out_acute.exists()
             and acute_frontmatter is not None
             and acute_frontmatter.get('file', {}).get('format') == 'acute'
-            and acute_body == "k´apin ´apil\n"
+            and acute_body == expected_acute
             and out_ipa.exists()
             and ipa_frontmatter is not None
             and ipa_frontmatter.get('file', {}).get('format') == 'ipa'
-            and ipa_body == "ˈkːa.pin.ˈʔːa.pil\n"
+            and ipa_body == expected_ipa
             and out_xar.exists()
             and xar_frontmatter is not None
             and xar_frontmatter.get('file', {}).get('format') == 'xar'
-            and xar_body == "k´apin ´apil\n"
+            and xar_body == expected_xar
             and out_xar_plain.exists()
             and xar_plain_frontmatter is not None
             and xar_plain_frontmatter.get('file', {}).get('format') == 'xar'
-            and xar_plain_body == "kapin apil\n"
+            and xar_plain_body == expected_xar_plain
             and not out_bold.exists()
         )
         if file_ok:

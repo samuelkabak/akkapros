@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[047. Close Phone-Handoff Pause and Downstream Consumption Gaps](047-close-phonetizer-pause-and-reconstruction-gaps.md) - Done
 [046. Redesign metricalc Around Phone/Ophone Interval Metrics](046-redesign-metricalc-around-phone-ophone-interval-metrics.md) - Done
 [045. Move MBROLA `.pho` Output to Phonetizer](045-move-mbrola-pho-output-to-phonetizer.md) - Done
 [044. Restructure Stage Config into Run and Process Blocks](044-restructure-stage-config-into-run-and-process-blocks.md) - Done

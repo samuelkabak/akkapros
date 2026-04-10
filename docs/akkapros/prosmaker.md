@@ -152,7 +152,10 @@ The prosmaker is the **third step** in the akkapros pipeline:
 2. `syllabifier.py` → `*_syl.txt`
 3. **`prosmaker.py`** → `*_tilde.txt`
 4. `phonetizer.py` consumes `*_tilde.txt` and produces `_ophone.txt` plus `_phone.txt`
-5. `metricalc.py` consumes `_ophone.txt` plus `_phone.txt`, and `printer.py` consumes `*_tilde.txt`
+5. `metricalc.py` and `printer.py` both consume `_ophone.txt` plus `_phone.txt`
+
+`_tilde.txt` remains the upstream prosody pivot for phonetizer input. It is no
+longer the active downstream input for metrics or printer.
 
 For one-command execution of all stages, see **`fullprosmaker.py`**.
 

@@ -742,56 +742,6 @@ def count_non_empty_lines(text: str) -> int:
     return sum(1 for line in text.splitlines() if line.strip())
 
 
-def extract_metrics_prominence_counts(
-    input_frontmatter: dict[str, Any] | None,
-) -> dict[str, int]:
-    stage_data = (input_frontmatter or {}).get("metadata", {}).get("data", {})
-    flattened = _flatten_stage_data(stage_data)
-
-    entry = flattened.get("explicit_word_link_count")
-    if entry is None:
-        raise ValueError(
-            "metrics requires front matter with propagated explicit word link count; "
-            "missing required field: metadata.data.prosody.explicit_word_link_count"
-        )
-
-    _, value = entry
-    return {
-        "explicit_word_link_count": int(value),
-    }
-
-
-def resolve_metrics_prominence_counts(
-    text: str,
-    *,
-    input_frontmatter: dict[str, Any] | None = None,
-    explicit_link_count_override: str | int | None = None,
-) -> dict[str, int]:
-    word_count = count_prosodic_units(text)
-    function_word_count = count_function_words(text)
-    max_explicit_links = word_count - function_word_count
-
-    if explicit_link_count_override is None:
-        resolved = extract_metrics_prominence_counts(input_frontmatter)["explicit_word_link_count"]
-    else:
-        try:
-            resolved = int(explicit_link_count_override)
-        except (TypeError, ValueError) as exc:
-            raise ValueError("--explicit-link-count must be a positive integer") from exc
-        if resolved < 0:
-            raise ValueError("--explicit-link-count must be a positive integer")
-        if resolved > max_explicit_links:
-            raise ValueError(
-                "--explicit-link-count must be an integer between 0 and "
-                f"{max_explicit_links}, where {max_explicit_links} = word_count - function_word_count"
-            )
-
-    return {
-        "function_word_count": function_word_count,
-        "explicit_word_link_count": resolved,
-    }
-
-
 def build_atfparse_stage_data(proc_body: str) -> dict[str, int]:
     return {}
 

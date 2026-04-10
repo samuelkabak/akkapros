@@ -39,6 +39,8 @@ Non-inputs:
 - `*_tilde.txt`
 - `*_mbrola.pho` and `*_ombrola.pho`
 
+See also: `docs/akkapros/phonetizer-phone-file-guide.md`
+
 ## Outputs
 
 | Format | File |
@@ -120,4 +122,6 @@ There is no active explicit-link override flag.
 - Hiatus rows and vowel-transition rows are treated as consonantal intervals.
 - Prominence statistics are derived from phone-row structure, not from `_tilde`
   front matter.
+- Any residual direct-text pause helpers in the library are internal
+  compatibility code, not part of the active metrics contract.
 - `--explicit-link-count` is not part of the active CLI contract.

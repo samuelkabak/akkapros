@@ -297,7 +297,7 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
 
     _run_cli(
         "akkapros.cli.printer",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         prefix,
         "--outdir",
@@ -394,10 +394,12 @@ def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) 
 
 def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_path: Path) -> None:
     tilde_file, outdir = _build_tilde_file(tmp_path, 'printer_runtime_defaults')
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '-p', 'printer_runtime_defaults', '--outdir', str(outdir))
+    phone_file = outdir / 'printer_runtime_defaults_phone.txt'
 
     _run_cli(
         'akkapros.cli.printer',
-        str(tilde_file),
+        str(phone_file),
         '--outdir',
         str(outdir),
         '--option',
@@ -507,7 +509,7 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
 
     _run_cli(
         "akkapros.cli.printer",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         prefix,
         "--outdir",

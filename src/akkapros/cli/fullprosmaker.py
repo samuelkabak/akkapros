@@ -4,8 +4,8 @@
 Runs the complete processing pipeline in one command:
 1) syllabify (from *_proc.txt to *_syl.txt)
 2) prosody realization (from *_syl.txt to *_tilde.txt)
-3) metrics   (from *_tilde.txt to selected metrics outputs)
-4) print     (from *_tilde.txt to selected accent outputs)
+3) metrics   (from *_ophone.txt + *_phone.txt to selected metrics outputs)
+4) print     (from *_ophone.txt + *_phone.txt to selected accent outputs)
 
 The CLI deduplicates shared options across stages (for example, --prefix,
 --outdir, --extra-vowels, --extra-consonants).
@@ -464,9 +464,10 @@ def run_pipeline(
 
     # 5) Printer outputs
     accent_print.process_file(
-        input_file=str(tilde_file),
+        input_file=str(phone_file),
         output_acute_file=str(acute_file),
         output_bold_file=str(bold_file),
+        ophone_file=str(ophone_file),
         output_ipa_file=str(ipa_file),
         output_xar_file=str(xar_file),
         output_xar_plain_file=str(xar_plain_file),

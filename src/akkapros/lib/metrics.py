@@ -22,8 +22,14 @@ from collections import Counter
 import math
 
 from akkapros import __version__
-from akkapros.lib.frontmatter import compose_text_document, count_function_words, read_text_file
+from akkapros.lib.frontmatter import (
+    compose_text_document,
+    count_function_words,
+    read_text_file,
+    with_inherited_punctuation_options,
+)
 from akkapros.lib.phonetize import (
+    build_phone_rows,
     build_default_phonetize_config,
     parse_phone_row,
     realize_phone_streams,
@@ -1142,6 +1148,20 @@ def _count_explicit_word_links_from_rows(rows: List[Dict[str, str]]) -> int:
     return sum(1 for row in rows if row['boundary'] == 'X')
 
 
+def _count_pause_rows(rows: List[Dict[str, str]]) -> Dict[str, int]:
+    short_punctuation = sum(1 for row in rows if row['category'] == 'S' and row['length'] == 'S')
+    long_punctuation = sum(1 for row in rows if row['category'] == 'S' and row['length'] == 'L')
+    punctuation = short_punctuation + long_punctuation
+    return {
+        'spaces': 0,
+        'punctuation': punctuation,
+        'short_punctuation': short_punctuation,
+        'long_punctuation': long_punctuation,
+        'defaulted_long_punctuation': 0,
+        'merged_boundaries': _count_explicit_word_links_from_rows(rows),
+    }
+
+
 def _load_phone_rows(filename: str) -> Tuple[Dict | None, List[Dict[str, str]], str]:
     input_frontmatter, body = read_text_file(filename)
     rows: List[Dict[str, str]] = []
@@ -1195,7 +1215,7 @@ def process_phone_pair(
     )
     speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
     speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
-    pause_metrics = compute_pause_metrics(accentuated_text, accentuated_stats)
+    pause_metrics = compute_pause_metrics(phone_rows, accentuated_stats)
     pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
 
     return {
@@ -1396,12 +1416,12 @@ def count_spaces_and_punctuation(text: str) -> Dict:
     }
 
 
-def compute_pause_metrics(text: str, stats: Dict) -> Dict:
+def compute_pause_metrics(rows: List[Dict[str, str]], stats: Dict) -> Dict:
     """
     Compute punctuation pause ratios per syllable.
     
     Args:
-        text: Original text (before preprocessing)
+        rows: Accentuation-bearing phone rows
         stats: Statistics from analyze_text (contains syllable counts)
     
     Returns:
@@ -1414,7 +1434,7 @@ def compute_pause_metrics(text: str, stats: Dict) -> Dict:
             'long_pauseable_boundaries': int
         }
     """
-    counts = count_spaces_and_punctuation(text)
+    counts = _count_pause_rows(rows)
     total_syllables = stats['total_syllables']
     
     if total_syllables == 0:
@@ -1603,11 +1623,36 @@ def process_filetext(
     filesrc: str = 'in-memory',
     prominence_statistics: Optional[Dict[str, int]] = None,
 ) -> Dict:
+    # Preserve the legacy in-memory contract: unknown punctuation must still
+    # fail under the active metrics punctuation whitelist.
+    count_spaces_and_punctuation(text)
+
+    inherited_options = with_inherited_punctuation_options(
+        None,
+        extra_short_punct_chars=''.join(
+            sorted(ACTIVE_SHORT_PAUSE_PUNCTUATION_CHARS - set(SHORT_PAUSE_PUNCTUATION_CHARS))
+        ),
+        extra_long_punct_chars=''.join(
+            sorted(ACTIVE_LONG_PAUSE_PUNCTUATION_CHARS - set(LONG_PAUSE_PUNCTUATION_CHARS))
+        ),
+        extra_short_punct_pattern=list(
+            ACTIVE_SHORT_PAUSE_PUNCTUATION_PATTERNS[len(SHORT_PAUSE_PUNCTUATION_PATTERNS):]
+        ),
+        extra_long_punct_pattern=list(
+            ACTIVE_LONG_PAUSE_PUNCTUATION_PATTERNS[len(LONG_PAUSE_PUNCTUATION_PATTERNS):]
+        ),
+    )
+    inherited_frontmatter = {
+        'metadata': {
+            'options': inherited_options,
+        }
+    }
+
     phonetize_config = build_default_phonetize_config()
     (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
         text,
         phonetize_config,
-        None,
+        inherited_frontmatter,
     )
     original_text = text.replace('~', '')
     accentuated_text = text
@@ -1621,7 +1666,7 @@ def process_filetext(
     )
     speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
     speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
-    pause_metrics = compute_pause_metrics(accentuated_text, accentuated_stats)
+    pause_metrics = compute_pause_metrics(phone_rows, accentuated_stats)
     pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
 
     return {
@@ -2144,12 +2189,13 @@ def _test_punctuation_marks_segment_boundaries() -> bool:
 def _test_pause_metrics_grouping() -> bool:
     text = "at·tā⟦ ?!!! ⟧ā·lik⟦ ), ⟧i·lī⟦ ... ⟧bā·nû"
     stats = analyze_text(text, is_accentuated=True)
-    pm = compute_pause_metrics(text, stats)
+    rows = build_phone_rows(text)
+    pm = compute_pause_metrics(rows, stats)
     if pm['raw_counts']['spaces'] != 0:
         return False
-    if pm['raw_counts']['short_punctuation'] != 2:
+    if pm['raw_counts']['short_punctuation'] != 1:
         return False
-    if pm['raw_counts']['long_punctuation'] != 2:
+    if pm['raw_counts']['long_punctuation'] != 3:
         return False
     return True
 
@@ -2158,9 +2204,10 @@ def _test_unknown_punctuation_raises() -> bool:
     text = "at·tā⟦ @ ⟧ā·lik"
     stats = analyze_text(text, is_accentuated=True)
     try:
-        _ = compute_pause_metrics(text, stats)
+        rows = build_phone_rows(text)
+        _ = compute_pause_metrics(rows, stats)
         return False
-    except PunctuationConfigError:
+    except ValueError:
         return True
 
 

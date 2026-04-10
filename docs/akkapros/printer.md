@@ -10,7 +10,8 @@ This document explains what `printer.py` does, how to run it, and what output fo
 
 ## 📋 Purpose
 
-`printer.py` converts prosody-realized pivot text (`*_tilde.txt`) into user-facing reading outputs.
+`printer.py` converts phonetizer-owned phone rows (`*_phone.txt` and the
+matching `*_ophone.txt`) into user-facing reading outputs.
 
 ### Supported Output Formats
 
@@ -26,11 +27,13 @@ This document explains what `printer.py` does, how to run it, and what output fo
 ## 📂 Input and Output
 
 ### Input
-- One `*_tilde.txt` file (prosody-realized pivot format)
+- One `<prefix>_phone.txt` file
+- Optional matching `<prefix>_ophone.txt` file via `--ophone`; otherwise the
+    CLI derives it from the input name
 
-`printer.py` consumes only inherited `file.title`. It computes any line/word/
-syllable indicators internally for logging and does not verify or require
-frontmatter counters from upstream stages.
+`printer.py` consumes the phonetizer-owned downstream artifacts directly.
+Pause strength and line-break behavior come from phone rows, not from
+re-parsing `_tilde` punctuation as an active downstream source.
 
 ### Outputs (by selected flags)
 - `<prefix>_accent_acute.txt`
@@ -45,7 +48,7 @@ frontmatter counters from upstream stages.
 
 ## 🚀 Command Syntax
 
-    python src/akkapros/cli/printer.py <input_tilde.txt> [options]
+    python src/akkapros/cli/printer.py <input_phone.txt> [options]
 
 ---
 
@@ -56,6 +59,7 @@ frontmatter counters from upstream stages.
 | Option | Description |
 |--------|-------------|
 | `--version` | Print CLI version |
+| `--ophone <file>` | Explicit matching `<prefix>_ophone.txt` |
 | `-p, --prefix <name>` | Output prefix |
 | `--outdir <dir>` | Output directory (default: current directory) |
 | `--test` | Run CLI and library printer tests |
@@ -83,13 +87,13 @@ frontmatter counters from upstream stages.
 
 ### Default Outputs (Acute + Bold)
 
-    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+        python src/akkapros/cli/printer.py outputs/erra_phone.txt \
       -p erra \
       --outdir outputs
 
 ### IPA Output with OB Pharyngeal Policy
 
-    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+        python src/akkapros/cli/printer.py outputs/erra_phone.txt \
       --ipa \
       --ipa-proto-semitic replace \
       -p erra \
@@ -97,7 +101,7 @@ frontmatter counters from upstream stages.
 
 ### IPA Output with Speculative Circumflex Hiatus
 
-    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+        python src/akkapros/cli/printer.py outputs/erra_phone.txt \
       --ipa \
       --circ-hiatus \
       -p erra \
@@ -105,7 +109,7 @@ frontmatter counters from upstream stages.
 
 ### Generate All Display Outputs
 
-    python src/akkapros/cli/printer.py outputs/erra_tilde.txt \
+        python src/akkapros/cli/printer.py outputs/erra_phone.txt \
   --acute --bold --ipa --xar \
       -p erra \
       --outdir outputs
@@ -124,9 +128,9 @@ Stress is marked with an acute accent (`´`) placed **immediately after** the vo
 
 Merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`.
 
-Printer accepts both `_tilde` merge connectors: explicit `+` and internal `&`. Both render with the same visible merge policy.
-
-Printer also accepts armored punctuation in `_tilde` as `⟦...⟧` and restores normal visible punctuation only during user-facing rendering.
+Printer reconstructs lexical rendering from the phone-row stream. Explicit `+`
+and internal `&` distinctions are preserved in the row boundaries and render
+with the same visible merge policy as before.
 
 Example: `tāḫā´za ik´taṣar`
 
@@ -184,12 +188,13 @@ Speech-synthesis `.pho` export is no longer owned by `printer.py`. Use `phonetiz
 
 ## 🔗 Pipeline Position
 
-`printer.py` is typically run after prosody realization:
+`printer.py` is typically run after phonetization:
 
 1. `atfparser.py` → `*_proc.txt`
 2. `syllabifier.py` → `*_syl.txt`
 3. `prosmaker.py` → `*_tilde.txt`
-4. **`printer.py`** → formatted outputs
+4. `phonetizer.py` → `*_ophone.txt`, `*_phone.txt`
+5. **`printer.py`** → formatted outputs
 
 For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 
@@ -197,9 +202,14 @@ For one-command processing that includes all stages, see **`fullprosmaker.py`**.
 
 ## ✅ Summary
 
-`printer.py` transforms the internal prosody-realized pivot format into multiple human-readable outputs. It supports scholarly notation (acute), publication-ready formatting (bold), phonetic analysis (IPA), and specialized transliteration (XAR). Speech-synthesis `.pho` export now belongs to the phonetize stage.
+`printer.py` transforms the phonetizer-owned downstream row stream into
+multiple human-readable outputs. It supports scholarly notation (acute),
+publication-ready formatting (bold), phonetic analysis (IPA), and specialized
+transliteration (XAR). Speech-synthesis `.pho` export now belongs to the
+phonetize stage.
 
-By default, input format is validated at startup and reports precise source + line details for obvious corruption in `*_tilde.txt` input.
+By default, input format is validated at startup and reports precise source +
+line details for obvious corruption in `*_phone.txt` input.
 
 Printer output front matter preserves the standard YAML wrapper used by the
 pipeline text stages, but it does not republish any inherited `metadata.data`
@@ -207,5 +217,18 @@ block. Printer outputs keep `input_file_id` and resolved options only.
 
 ### Validation Rules (Middle Strictness)
 
-`printer.py` expects a `*_tilde.txt` file from the prosody stage. Validation is intentionally moderate: readable short plain tilde lines are accepted, while obvious wrong-stage input (`*_syl.txt` markers like `¦`) and corruption risks (empty/binary) are rejected. A final trailing newline is not mandatory (missing newline is normalized in memory). It does not try to validate every phonological detail before formatting. The purpose is to avoid processing inputs that are clearly from the wrong stage or likely to trigger major runtime exceptions.
+`printer.py` expects a `*_phone.txt` file from the phonetize stage. Validation
+checks the canonical phone-row line format and the `file.format: "phone"`
+frontmatter contract, then processes the matching `_ophone.txt` sibling or the
+path supplied via `--ophone`.
+
+The phonetizer normalizes a missing final break into one final `<EOL>` long-
+pause row before these files are written. `printer.py` therefore inherits the
+final line break from the phone stream instead of inventing a separate EOF
+pause rule downstream.
+
+See also: `docs/akkapros/phonetizer-phone-file-guide.md`
+
+Any residual `_tilde` reconstruction helpers in the library are internal
+compatibility code, not the active printer input contract.
 The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.

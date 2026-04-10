@@ -10,7 +10,7 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 2. `*_syl.txt` -> `*_tilde.txt`
 3. `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho`
 4. `*_ophone.txt` + `*_phone.txt` -> metrics outputs
-5. `*_tilde.txt` -> print outputs
+5. `*_ophone.txt` + `*_phone.txt` -> print outputs
 
 `_ophone.txt` and `_phone.txt` now form the active metrics handoff. They carry
 finalized non-zero durations plus drift summaries in front matter, and
@@ -69,9 +69,21 @@ Phase 2 diagnostics to look for:
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
 
-Metricalc now consumes `_ophone.txt` and `_phone.txt` as its active inputs.
-`_tilde.txt` remains the live prosody-bearing pivot for printer and for
-structure-preserving reconstruction.
+Metricalc and printer now consume `_ophone.txt` and `_phone.txt` as their
+active downstream inputs. `_tilde.txt` remains the live upstream prosody pivot
+for phonetizer input and for structure-preserving reconstruction only.
+
+Before phone output is written, the phonetizer normalizes a missing terminal
+line break into one final `<EOL>` long-pause row. That means downstream stages
+inherit one ordinary long-pause line break instead of inventing a separate EOF
+rule.
+
+When one punctuation suite reaches the phonetizer as one consumed chunk, pause
+classification uses explicit precedence: long if any long cue is present,
+otherwise short if any short cue is present. Mixed suites such as `?!!!` are
+therefore serialized as one long-pause row.
+
+See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 
 The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
 

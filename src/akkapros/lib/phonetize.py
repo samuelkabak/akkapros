@@ -775,6 +775,12 @@ def derive_original_tilde_text(tilde_text: str) -> str:
     return ''.join(pieces)
 
 
+def _normalize_terminal_line_break(tilde_text: str) -> str:
+    if tilde_text.endswith('\n'):
+        return tilde_text
+    return tilde_text + '\n'
+
+
 def build_phone_streams(
     tilde_text: str,
     phonetize_config: dict[str, Any] | None = None,
@@ -1566,6 +1572,7 @@ def build_phone_rows(
     input_frontmatter: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
     _ = phonetize_config
+    tilde_text = _normalize_terminal_line_break(tilde_text)
     rows: list[dict[str, str]] = []
     syllable: list[dict[str, str]] = []
     short_pause_chars, long_pause_chars, short_pause_regex, long_pause_regex = _resolve_pause_punctuation_rules(
@@ -1723,7 +1730,7 @@ def _test_emphatic_vowel_and_row_format() -> bool:
 def _test_boundary_reconstruction() -> bool:
     sample = 'šit·ku·nat-ma'
     rows = build_phone_rows(sample)
-    return reconstruct_tilde_from_phone_rows(rows) == sample
+    return reconstruct_tilde_from_phone_rows(rows) == sample + '\n'
 
 
 def _test_transition_resolution() -> bool:
@@ -1735,8 +1742,8 @@ def _test_transition_resolution() -> bool:
 def _test_dual_stream_generation() -> bool:
     original_rows, accentuated_rows = build_phone_streams('u+ana&šar~·ri')
     return (
-        reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri'
-        and reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri'
+        reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri\n'
+        and reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri\n'
     )
 
 

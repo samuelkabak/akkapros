@@ -75,6 +75,18 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
             'text': 'a',
         },
+        {
+            'label': 'ZEN',
+            'category': 'S',
+            'type': 'S',
+            'length': 'L',
+            'position': 'S',
+            'boundary': 'N',
+            'accent': 'P',
+            'realization': 'ZP',
+            'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'text': '<EOL>',
+        },
     ]
     line = serialize_phone_row(rows[0])
     assert line == 'SUD-C-F-S-O-N-F-SU-0000:ṣ'
@@ -84,13 +96,13 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
 def test_boundaries_preserve_internal_enclitic_and_unit_edges() -> None:
     rows = build_phone_rows('šit·ku·nat-ma')
     assert [row['boundary'] for row in rows if row['boundary'] != 'N'] == ['I', 'I', 'E', 'F']
-    assert reconstruct_tilde_from_phone_rows(rows) == 'šit·ku·nat-ma'
+    assert reconstruct_tilde_from_phone_rows(rows) == 'šit·ku·nat-ma\n'
 
 
 def test_internal_and_explicit_merges_round_trip() -> None:
     sample = 'u+ana&šar~·ri'
     rows = build_phone_rows(sample)
-    assert reconstruct_tilde_from_phone_rows(rows) == sample
+    assert reconstruct_tilde_from_phone_rows(rows) == sample + '\n'
     assert [row['boundary'] for row in rows if row['boundary'] in {'X', 'L', 'I', 'F'}] == ['X', 'L', 'I', 'F']
 
 
@@ -118,8 +130,8 @@ def test_original_stream_derivation_matches_cr039_examples() -> None:
 def test_dual_phone_streams_preserve_accentuated_and_original_forms() -> None:
     original_rows, accentuated_rows = build_phone_streams('u+ana&šar~·ri')
 
-    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri'
-    assert reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri'
+    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'u+ana&šar~·ri\n'
+    assert reconstruct_tilde_from_phone_rows(original_rows) == 'u+ana šar·ri\n'
     assert all(row['duration'] == PHONE_ROW_DURATION_PLACEHOLDER for row in original_rows)
     assert all(row['duration'] == PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
 
@@ -127,15 +139,33 @@ def test_dual_phone_streams_preserve_accentuated_and_original_forms() -> None:
 def test_original_stream_differs_only_by_deaccentuation_when_no_internal_merge() -> None:
     original_rows, accentuated_rows = build_phone_streams('ana+šar~.ri')
 
-    assert reconstruct_tilde_from_phone_rows(original_rows) == 'ana+šar·ri'
-    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'ana+šar~·ri'
+    assert reconstruct_tilde_from_phone_rows(original_rows) == 'ana+šar·ri\n'
+    assert reconstruct_tilde_from_phone_rows(accentuated_rows) == 'ana+šar~·ri\n'
+
+
+def test_missing_final_break_is_normalized_to_long_pause_row() -> None:
+    rows = build_phone_rows('qat')
+
+    assert rows[-1]['category'] == 'S'
+    assert rows[-1]['length'] == 'L'
+    assert rows[-1]['text'] == '<EOL>'
+    assert reconstruct_tilde_from_phone_rows(rows) == 'qat\n'
+
+
+def test_mixed_armored_punctuation_suite_prefers_long_pause() -> None:
+    rows = build_phone_rows('at·tā⟦ ?!!! ⟧ā·lik')
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 2
+    assert pause_rows[0]['length'] == 'L'
+    assert pause_rows[0]['text'] == '?!!!'
 
 
 def test_armored_punctuation_is_accepted_by_phonetizer() -> None:
     rows = build_phone_rows('šar⟦ : ⟧ti·¨ā~m·tu')
 
     pause_rows = [row for row in rows if row['category'] == 'S']
-    assert len(pause_rows) == 1
+    assert len(pause_rows) == 2
     assert pause_rows[0]['label'] == 'SES'
     assert pause_rows[0]['realization'] == 'SP'
     assert pause_rows[0]['text'] == ':'
@@ -156,7 +186,7 @@ def test_armored_punctuation_inherits_extra_chars_from_frontmatter() -> None:
     rows = build_phone_rows('šar⟦ o ⟧ti', input_frontmatter=frontmatter)
 
     pause_rows = [row for row in rows if row['category'] == 'S']
-    assert len(pause_rows) == 1
+    assert len(pause_rows) == 2
     assert pause_rows[0]['label'] == 'SES'
     assert pause_rows[0]['text'] == 'o'
 
@@ -174,7 +204,9 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
 
     report = realize_phone_rows(rows, allow_accentuation=False)
 
-    assert [row['duration'] for row in rows] == ['0108', '0085', '0103']
+    assert [row['duration'] for row in rows[:-1]] == ['0108', '0085', '0103']
+    assert rows[-1]['length'] == 'L'
+    assert int(rows[-1]['duration']) >= 1200
     assert report['one_mora_ref'] == 152.5
     assert report['two_mora_ref'] == 305.0
     assert report['three_mora_ref'] == 457.5
@@ -295,11 +327,12 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
     report = realize_phone_rows(rows, config, allow_accentuation=False)
 
     pause_rows = [row for row in rows if row['category'] == 'S']
-    assert len(pause_rows) == 1
+    assert len(pause_rows) == 2
     assert pause_rows[0]['length'] == 'S'
     assert pause_rows[0]['duration'] == '0600'
-    assert report['drift']['current'] > 0
-    assert report['drift']['label'] == 'Behind (dragging)'
+    assert pause_rows[1]['length'] == 'L'
+    assert report['drift']['current'] == 0
+    assert report['drift']['label'] == 'On the beat'
 
 
 def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
@@ -358,24 +391,23 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
     assert report['max_drift_extension'] > 0
 
 
-def test_phase2_strict_mode_fails_when_stream_ends_with_unresolved_drift() -> None:
+def test_phase2_strict_mode_can_finish_on_normalized_terminal_long_pause() -> None:
     rows = build_phone_rows('bā~')
 
-    try:
-        realize_phone_rows(
-            rows,
-            {
-                'process': {
-                    'timing_model': {
-                        'drift_policy': 'strict',
-                    },
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_policy': 'strict',
                 },
             },
-            allow_accentuation=True,
-        )
-        raise AssertionError('Expected strict mode to fail when unresolved drift remains at stream end')
-    except ValueError as exc:
-        assert 'unresolved drift' in str(exc)
+        },
+        allow_accentuation=True,
+    )
+
+    assert report['drift']['current'] == 0
+    assert report['drift']['label'] == 'On the beat'
 
 
 def test_shared_verification_uses_extensible_canonical_drift_default() -> None:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Akkadian Prosody Toolkit — Printer (CLI wrapper)
 
-Converts *_tilde text into:
+Converts *_phone.txt plus *_ophone.txt into:
 - <prefix>_accent_acute.txt
 - <prefix>_accent_bold.md
 - <prefix>_accent_ipa.txt
@@ -122,7 +122,7 @@ def run_tests() -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Convert *_tilde text into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs',
+        description='Convert *_phone.txt into accent-acute, accent-bold, accent-ipa and accent-xar reading outputs',
         formatter_class=RawDefaultsHelpFormatter,
         add_help=False,
     )
@@ -131,6 +131,7 @@ def main() -> None:
     add_config_argument(parser)
     add_runtime_interface_arguments(parser, 'printer')
     parser.add_argument('input', nargs='?', help=help_for('printer.input'))
+    parser.add_argument('--ophone', help=help_for('printer.ophone'))
     parser.add_argument('-p', '--prefix', help=help_for('printer.prefix'))
     parser.add_argument('--outdir', default='.', help=help_for('printer.outdir'))
 
@@ -177,10 +178,10 @@ def main() -> None:
         sys.exit(1)
 
     try:
-        validate_intermediate_format(input_path, expected_kind='tilde')
+        validate_intermediate_format(input_path, expected_kind='phone')
     except FormatValidationError as exc:
         logger.error('Invalid input format: %s', exc)
-        logger.error('Hint: expected prosody-realized *_tilde.txt content; re-run prosmaker if needed.')
+        logger.error('Hint: expected phonetizer-owned *_phone.txt content; re-run phonetizer if needed.')
         sys.exit(2)
 
     outdir = Path(args.outdir)
@@ -212,6 +213,7 @@ def main() -> None:
         input_file=str(input_path),
         output_acute_file=str(acute_out),
         output_bold_file=str(bold_out),
+        ophone_file=args.ophone or '',
         output_ipa_file=str(ipa_out),
         output_xar_file=str(xar_out),
         output_xar_plain_file=str(xar_plain_out),

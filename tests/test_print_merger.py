@@ -5,6 +5,7 @@ from pathlib import Path
 
 from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import print as printlib
+from akkapros.lib.phonetize import realize_phone_streams, serialize_phone_rows
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,16 +38,21 @@ def _read_frontmatter(path: Path) -> tuple[dict, str]:
 
 
 def test_printer_default_renders_spaces_and_records_false(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "sample_tilde.txt"
-    tilde_file.write_text("gi·mir+dad~·mē\n", encoding="utf-8")
+    phone_file = tmp_path / "sample_phone.txt"
+    ophone_file = tmp_path / "sample_ophone.txt"
+    (ophone_rows, _), (phone_rows, _) = realize_phone_streams("gi·mir+dad~·mē\n")
+    phone_file.write_text(serialize_phone_rows(phone_rows), encoding="utf-8")
+    ophone_file.write_text(serialize_phone_rows(ophone_rows), encoding="utf-8")
 
     _run_cli(
         "akkapros.cli.printer",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "sample",
         "--outdir",
         str(tmp_path),
+        "--ophone",
+        str(ophone_file),
         "--acute",
         "--bold",
         "--xar",
@@ -68,16 +74,21 @@ def test_printer_default_renders_spaces_and_records_false(tmp_path: Path) -> Non
 
 
 def test_printer_print_merger_preserves_visible_connector(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "sample_tilde.txt"
-    tilde_file.write_text("gi·mir+dad~·mē\n", encoding="utf-8")
+    phone_file = tmp_path / "sample_phone.txt"
+    ophone_file = tmp_path / "sample_ophone.txt"
+    (ophone_rows, _), (phone_rows, _) = realize_phone_streams("gi·mir+dad~·mē\n")
+    phone_file.write_text(serialize_phone_rows(phone_rows), encoding="utf-8")
+    ophone_file.write_text(serialize_phone_rows(ophone_rows), encoding="utf-8")
 
     _run_cli(
         "akkapros.cli.printer",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "sample",
         "--outdir",
         str(tmp_path),
+        "--ophone",
+        str(ophone_file),
         "--acute",
         "--bold",
         "--xar",

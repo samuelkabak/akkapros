@@ -50,6 +50,30 @@ def test_validate_tilde_with_diphthong_separator_ok(tmp_path):
     validate_intermediate_format(p, expected_kind="tilde")
 
 
+def test_validate_phone_ok(tmp_path):
+    p = tmp_path / "ok_phone.txt"
+    p.write_text(
+        "---\n"
+        "pipeline: \"pipeline\"\n"
+        "file:\n"
+        "  format: \"phone\"\n"
+        "  version: \"1.0.0\"\n"
+        "---\n\n"
+        "KAP-C-C-S-O-N-F-KA-0108:k\n"
+        "AYA-V-L-S-N-F-F-AA-0085:a\n"
+        "ZEN-S-S-L-S-S-F-ZP-1200:<EOL>\n",
+        encoding="utf-8",
+    )
+    validate_intermediate_format(p, expected_kind="phone")
+
+
+def test_validate_phone_rejects_bad_rows(tmp_path):
+    p = tmp_path / "bad_phone.txt"
+    p.write_text("not-a-phone-row\n", encoding="utf-8")
+    with pytest.raises(FormatValidationError, match="phone-row"):
+        validate_intermediate_format(p, expected_kind="phone")
+
+
 def test_validate_tilde_rejects_syl_word_endings(tmp_path):
     p = tmp_path / "not_tilde.txt"
     p.write_text("gi.mir¦\n", encoding="utf-8")

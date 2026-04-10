@@ -19,7 +19,7 @@ Implementation:
 | 2. Prosody | `*_syl.txt` -> `*_tilde.txt` | Applies accentuation |
 | 3. Phonetize | `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho` | Builds finalized phone-row and raw `.pho` artifacts |
 | 4. Metrics | `_ophone.txt` + `_phone.txt` -> table/json | Computes interval and structural metrics |
-| 5. Print | `*_tilde.txt` -> accent outputs | Generates user-facing text outputs |
+| 5. Print | `*_ophone.txt` + `*_phone.txt` -> accent outputs | Generates user-facing text outputs |
 
 ## Core Outputs
 
@@ -143,9 +143,16 @@ Execution order is fixed:
 4. metrics
 5. print
 
-Metrics now consumes the generated `_ophone.txt` and `_phone.txt` artifacts.
-`_tilde.txt` remains the prosody pivot for printer output and upstream
-reconstruction, but it is no longer the active metrics input.
+Metrics and printer now consume the generated `_ophone.txt` and `_phone.txt`
+artifacts. `_tilde.txt` remains the upstream prosody pivot used by the
+phonetizer and for debugging/reconstruction, but it is no longer the active
+downstream input contract for either stage.
+
+If the consumed text lacks a final line break, the phonetizer normalizes one
+final break before serializing `_ophone.txt` and `_phone.txt`, and that break
+travels downstream as a long-pause `<EOL>` row.
+
+See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 
 Prosody-stage front matter no longer carries explicit-link counts for metrics.
 The metrics stage derives those counts from phone-row structure.
