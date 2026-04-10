@@ -2,7 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
-- [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Proposed
+- [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Accepted
 - [043. Separate Run and Process Config Blocks](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Accepted
 - [042. Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](042-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Accepted
 - [041. Stability-First Phonetizer Timing Control and Validation Boundary](041-stability-first-phonetizer-timing-control-and-validation-boundary.md) - Accepted

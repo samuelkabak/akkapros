@@ -12,7 +12,7 @@ This document describes what the prosmaker does, how to run it, and what files i
 
 `prosmaker.py` applies moraic prosody realization to syllabified Akkadian text.
 
-It takes input produced by the syllabifier (`*_syl.txt`) and creates the prosody-realized pivot format (`*_tilde.txt`), which is used by downstream modules (metrics, printer, full pipeline).
+It takes input produced by the syllabifier (`*_syl.txt`) and creates the prosody-realized pivot format (`*_tilde.txt`), which is used by downstream modules and full-pipeline stages.
 
 ---
 
@@ -56,7 +56,7 @@ serializing them into output front matter.
 
 ### Important Note on Diphthongs
 
-Diphthongs are **always restored automatically** after prosody realization. The `_tilde.txt` pivot output now keeps the diphthong memory marker `¨` (for example `ti¨ā~m·tu`) so metrics and printer can still see the internal syllable boundary. The printer removes `¨` only in final user-facing outputs.
+Diphthongs are **always restored automatically** after prosody realization. The `_tilde.txt` pivot output now keeps the diphthong memory marker `¨` (for example `ti¨ā~m·tu`) so downstream stages can still see the internal syllable boundary. The printer removes `¨` only in final user-facing outputs.
 
 The `_tilde.txt` pivot also preserves armored punctuation and escaped chunks as `⟦...⟧`. Downstream stages consume that armor directly, and printer restores normal visible punctuation only when rendering user-facing outputs.
 
@@ -151,7 +151,8 @@ The prosmaker is the **third step** in the akkapros pipeline:
 1. `atfparser.py` → `*_proc.txt`
 2. `syllabifier.py` → `*_syl.txt`
 3. **`prosmaker.py`** → `*_tilde.txt`
-4. `metricalc.py` and `printer.py` consume `*_tilde.txt` for metrics and formatted output
+4. `phonetizer.py` consumes `*_tilde.txt` and produces `_ophone.txt` plus `_phone.txt`
+5. `metricalc.py` consumes `_ophone.txt` plus `_phone.txt`, and `printer.py` consumes `*_tilde.txt`
 
 For one-command execution of all stages, see **`fullprosmaker.py`**.
 
@@ -168,7 +169,7 @@ For one-command execution of all stages, see **`fullprosmaker.py`**.
 - The prosody realization algorithm is fully deterministic given the input and style choice.
 - Output front matter records `metadata.options.mora_mode` so downstream stages
     can identify whether `bi` or `mono` was used.
-- Output front matter from this stage now keeps only `metadata.data.prosody.explicit_word_link_count` as required downstream prosody metadata.
+- Output front matter from this stage no longer carries explicit-link counts for metrics; downstream metrics derives them from phone-row structure.
 
 ### Validation Rules (Middle Strictness)
 

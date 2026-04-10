@@ -200,8 +200,27 @@ def test_metricalc_consumes_inherited_punctuation_options_from_input(tmp_path):
         [
             sys.executable,
             "-m",
-            "akkapros.cli.metricalc",
+            "akkapros.cli.phonetizer",
             str(outdir / "sample_tilde.txt"),
+            "-p",
+            "sample",
+            "--outdir",
+            str(outdir),
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert metrics_proc.returncode == 0, f"STDOUT:\n{metrics_proc.stdout}\nSTDERR:\n{metrics_proc.stderr}"
+
+    metrics_proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "akkapros.cli.metricalc",
+            str(outdir / "sample_phone.txt"),
             "-p",
             "sample",
             "--outdir",

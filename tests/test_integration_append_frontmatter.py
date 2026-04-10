@@ -69,11 +69,14 @@ def test_append_pipeline_frontmatter_contract(tmp_path: Path) -> None:
     _run_cli("akkapros.cli.prosmaker", str(syl_file), "-p", prefix, "--outdir", str(outdir), "--style", "sob")
     tilde_file = outdir / f"{prefix}_tilde.txt"
     tilde_frontmatter, _ = _read_frontmatter(tilde_file)
-    assert tilde_frontmatter["metadata"]["data"] == {"prosody": {"explicit_word_link_count": 0}}
+    assert tilde_frontmatter["metadata"]["data"] == {}
+
+    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    phone_file = outdir / f"{prefix}_phone.txt"
 
     _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         prefix,
         "--outdir",

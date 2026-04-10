@@ -9,10 +9,12 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 1. `*_proc.txt` -> `*_syl.txt`
 2. `*_syl.txt` -> `*_tilde.txt`
 3. `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho`
-4. `*_tilde.txt` -> metrics outputs
+4. `*_ophone.txt` + `*_phone.txt` -> metrics outputs
 5. `*_tilde.txt` -> print outputs
 
-At this stage of the rollout, `_ophone.txt` and `_phone.txt` carry finalized non-zero durations plus drift summaries in front matter, while metrics still computes from `_tilde.txt` using the phonetize transition defaults internally.
+`_ophone.txt` and `_phone.txt` now form the active metrics handoff. They carry
+finalized non-zero durations plus drift summaries in front matter, and
+metricalc consumes those artifacts directly.
 
 The current implementation now follows the CR-039 structural contract and the CR-040 Phase 2 duration contract for both `<prefix>_ophone.txt` and `<prefix>_phone.txt`:
 - flat-line serialization, one row per line
@@ -67,7 +69,9 @@ Phase 2 diagnostics to look for:
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
 
-During the current transition, metricalc still computes from `_tilde.txt`. The broader stage plan is that `_ophone.txt` and `_phone.txt` remain the structured phonetic handoff artifacts while `_tilde.txt` stays the live prosody-bearing pivot until the phonetize-to-metrics contract is completed.
+Metricalc now consumes `_ophone.txt` and `_phone.txt` as its active inputs.
+`_tilde.txt` remains the live prosody-bearing pivot for printer and for
+structure-preserving reconstruction.
 
 The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
 

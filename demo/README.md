@@ -9,7 +9,8 @@ This folder documents the small demo scripts included with the project. Each dem
   - **Processed text:** [akkapros/prosmaker/results/corpus_proc.txt](akkapros/prosmaker/results/corpus_proc.txt) — cleaned ATF → plain Akkadian.
     - **Syllabified:** [akkapros/prosmaker/results/corpus_syl.txt](akkapros/prosmaker/results/corpus_syl.txt) — shared syllabification output consumed by all prosody branches.
     - **Tilde (prosody-realized):** [akkapros/prosmaker/results/corpus-sob_tilde.txt](akkapros/prosmaker/results/corpus-sob_tilde.txt), [akkapros/prosmaker/results/corpus-lob_tilde.txt](akkapros/prosmaker/results/corpus-lob_tilde.txt), and [akkapros/prosmaker/results/corpus-mono-lob_tilde.txt](akkapros/prosmaker/results/corpus-mono-lob_tilde.txt) — prosody-realized (tilde-marked) pivot formats for SOB, bimoraic LOB, and mono-mode LOB.
-    - **Metrics:** [akkapros/prosmaker/results/corpus-sob-p30_metrics.txt](akkapros/prosmaker/results/corpus-sob-p30_metrics.txt), [akkapros/prosmaker/results/corpus-lob-p30_metrics.txt](akkapros/prosmaker/results/corpus-lob-p30_metrics.txt), and [akkapros/prosmaker/results/corpus-mono-lob-p30_metrics.txt](akkapros/prosmaker/results/corpus-mono-lob-p30_metrics.txt) — example metrics reports (VarcoC, %V, ΔC) for the three demo branches.
+    - **Phone-row metrics handoff:** generated `_ophone.txt` and `_phone.txt` files are the active inputs for demo metrics runs.
+    - **Metrics:** [akkapros/prosmaker/results/corpus-sob_metrics.txt](akkapros/prosmaker/results/corpus-sob_metrics.txt), [akkapros/prosmaker/results/corpus-lob_metrics.txt](akkapros/prosmaker/results/corpus-lob_metrics.txt), and [akkapros/prosmaker/results/corpus-mono-lob_metrics.txt](akkapros/prosmaker/results/corpus-mono-lob_metrics.txt) — example interval-metrics reports for the three demo branches.
     - **Accent/IPA outputs:** [akkapros/prosmaker/results/corpus-sob_accent_ipa.txt](akkapros/prosmaker/results/corpus-sob_accent_ipa.txt), [akkapros/prosmaker/results/corpus-lob_accent_bold.md](akkapros/prosmaker/results/corpus-lob_accent_bold.md), and [akkapros/prosmaker/results/corpus-mono-lob_accent_bold.md](akkapros/prosmaker/results/corpus-mono-lob_accent_bold.md).
 
 **Akkapros Phoneprep Demo**
@@ -39,7 +40,7 @@ On Windows PowerShell:
 ```
 
 **Notes**
-- The shell and PowerShell scripts are small wrappers that call the Python CLI modules in `src/` with example arguments; inspect the scripts for exact command-line flags.
+- The shell and PowerShell scripts are small wrappers that call the Python CLI modules in `src/` with example arguments; the demo metrics commands now run phonetizer first and then feed `metricalc.py` with `<prefix>_phone.txt`.
 - Output files are overwritten on each run; keep copies if you want to compare runs.
 
 

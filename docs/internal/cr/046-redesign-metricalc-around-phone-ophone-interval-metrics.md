@@ -1,10 +1,10 @@
 ---
 cr_id: CR-046
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-10
 implements: 'ADR-044, REQ-024, REQ-030'
 ---
 
@@ -282,43 +282,43 @@ Design requirements:
 
 # Acceptance Criteria
 
-- [ ] metricalc accepts positional `_phone.txt` plus optional `--ophone` and
+- [x] metricalc accepts positional `_phone.txt` plus optional `--ophone` and
   resolves paired `_ophone.txt` and `_phone.txt` as its active metrics
   inputs.
-- [ ] metricalc does not compute active metrics from `_tilde.txt`.
-- [ ] metrics input normalization produces interval tuples with class `V`, `C`,
+- [x] metricalc does not compute active metrics from `_tilde.txt`.
+- [x] metrics input normalization produces interval tuples with class `V`, `C`,
       or `P` and integer duration.
-- [ ] hiatus and vowel-transition phonetizer rows are normalized into
+- [x] hiatus and vowel-transition phonetizer rows are normalized into
   consonantal intervals.
-- [ ] adjacent same-class tuples are merged before metric computation.
-- [ ] `%C`, `meanC`, `ΔC`, `VarcoC`, and `rPVI-C` are computed from consonantal
+- [x] adjacent same-class tuples are merged before metric computation.
+- [x] `%C`, `meanC`, `ΔC`, `VarcoC`, and `rPVI-C` are computed from consonantal
       intervals only.
-- [ ] `%V`, `meanV`, `ΔV`, `VarcoV`, and `nPVI-V` are computed from vocalic
+- [x] `%V`, `meanV`, `ΔV`, `VarcoV`, and `nPVI-V` are computed from vocalic
       intervals only.
-- [ ] pauses remain in the total-duration denominator for `%V` and `%C`.
-- [ ] pauses are excluded from `mean`, `Δ`, `Varco`, and PVI families.
-- [ ] original metrics are derived from `_ophone.txt` and accentuated metrics
+- [x] pauses remain in the total-duration denominator for `%V` and `%C`.
+- [x] pauses are excluded from `mean`, `Δ`, `Varco`, and PVI families.
+- [x] original metrics are derived from `_ophone.txt` and accentuated metrics
       are derived from `_phone.txt`.
-- [ ] explicit word-link counts are computed from phone/ophone structure rather
+- [x] explicit word-link counts are computed from phone/ophone structure rather
       than `_tilde` frontmatter.
-- [ ] `_tilde` frontmatter no longer carries `prosody.explicit_word_link_count`
+- [x] `_tilde` frontmatter no longer carries `prosody.explicit_word_link_count`
       as an active metrics dependency.
-- [ ] metricalc no longer exposes `--explicit-link-count` as an active CLI
+- [x] metricalc no longer exposes `--explicit-link-count` as an active CLI
   interface.
-- [ ] `_phone.txt` and `_ophone.txt` retain frontmatter.
-- [ ] `_mbrola.pho` and `_ombrola.pho` do not carry frontmatter.
-- [ ] the redesign keeps the active metrics indicator inventory complete,
+- [x] `_phone.txt` and `_ophone.txt` retain frontmatter.
+- [x] `_mbrola.pho` and `_ombrola.pho` do not carry frontmatter.
+- [x] the redesign keeps the active metrics indicator inventory complete,
       except for surfaces already removed by separate accepted records.
-- [ ] active metrics documentation is rewritten to describe only the new
+- [x] active metrics documentation is rewritten to describe only the new
       interval definitions and formulas.
-- [ ] active full pipeline documentation and help text are aligned with the new
+- [x] active full pipeline documentation and help text are aligned with the new
   phone/ophone metrics behavior.
-- [ ] demo scripts and demo walkthroughs are aligned with the new phone/ophone
+- [x] demo scripts and demo walkthroughs are aligned with the new phone/ophone
       metrics behavior.
-- [ ] Built-in metrics `run_tests()` coverage asserts all computed indicators
+- [x] Built-in metrics `run_tests()` coverage asserts all computed indicators
   for both original and accentuated streams, including `%C`, `meanC`, `ΔC`,
   `VarcoC`, `rPVI-C`, `%V`, `meanV`, `ΔV`, `VarcoV`, and `nPVI-V`.
-- [ ] Pytest coverage asserts all computed indicators for both original and
+- [x] Pytest coverage asserts all computed indicators for both original and
   accentuated streams, including `%C`, `meanC`, `ΔC`, `VarcoC`, `rPVI-C`,
   `%V`, `meanV`, `ΔV`, `VarcoV`, and `nPVI-V`.
 
@@ -393,35 +393,48 @@ replacement is approved.
 
 ## Implementation
 
-- [ ] Rebase metricalc input handling onto paired phone/ophone artifacts.
-- [ ] Implement row classification and interval coalescing.
-- [ ] Recompute rhythm metrics from interval durations.
-- [ ] Remove `_tilde` explicit-link frontmatter dependency.
-- [ ] Remove the obsolete `--explicit-link-count` interface and related
+- [x] Rebase metricalc input handling onto paired phone/ophone artifacts.
+- [x] Implement row classification and interval coalescing.
+- [x] Recompute rhythm metrics from interval durations.
+- [x] Remove `_tilde` explicit-link frontmatter dependency.
+- [x] Remove the obsolete `--explicit-link-count` interface and related
   fullprosmaker propagation.
-- [ ] Preserve the historical indicator inventory under the new data source.
-- [ ] Add or update built-in `run_tests()` assertions for every computed
+- [x] Preserve the historical indicator inventory under the new data source.
+- [x] Add or update built-in `run_tests()` assertions for every computed
   indicator in original and accentuated outputs.
-- [ ] Add or update pytest coverage for every computed indicator in original
+- [x] Add or update pytest coverage for every computed indicator in original
   and accentuated outputs.
-- [ ] Recreate metrics tests from the existing suite by manually executing the
+- [x] Recreate metrics tests from the existing suite by manually executing the
   new calculations for fixed inputs.
 
 ## Documentation
 
-- [ ] Rewrite active metrics docs around the new formulas only.
-- [ ] Update help text and examples to name `_phone`/`_ophone` as inputs.
-- [ ] Update frontmatter docs to remove `prosody.explicit_word_link_count` from
+- [x] Rewrite active metrics docs around the new formulas only.
+- [x] Update help text and examples to name `_phone`/`_ophone` as inputs.
+- [x] Update frontmatter docs to remove `prosody.explicit_word_link_count` from
       `_tilde` outputs.
-- [ ] Update full pipeline docs and help text so metrics no longer appears as a
+- [x] Update full pipeline docs and help text so metrics no longer appears as a
   `_tilde`-driven stage.
-- [ ] Update demo scripts and demo walkthroughs so they use phone/ophone-driven
+- [x] Update demo scripts and demo walkthroughs so they use phone/ophone-driven
   metrics behavior.
 
 ## Review
 
 - [ ] Confirm the v3 implementation removes the previous `_tilde` metrics input
   contract.
+
+---
+
+# Implementation Blockers
+
+## 2026-04-10 - Earlier CR-045 is not yet Done
+- Type: missing dependency
+- Observed: [CR-045](045-move-mbrola-pho-output-to-phonetizer.md) is still `Draft` in [docs/internal/cr/index.md](index.md), while this repository's CR sequencing rule forbids implementing a later CR before all earlier CRs are `Done`.
+- Why blocked: Safe implementation cannot proceed because CR-046 depends on the sequential-delivery workflow, and the earliest not-`Done` prior CR is still unfinished.
+- Needed to unblock: Complete CR-045 and mark it `Done`, then re-run CR-046 triage.
+- Owner: CR Implementing Agent / project maintainer
+- Related refs: [CR-045](045-move-mbrola-pho-output-to-phonetizer.md), [docs/internal/cr/index.md](index.md), [docs/internal/README.md](../README.md)
+- Resolved: CR-045 was later finalized as `Done`, after which CR-046 implementation and verification completed.
 
 ---
 

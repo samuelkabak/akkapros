@@ -1,303 +1,123 @@
 # Metricalc CLI (`metricalc.py`)
 
-This document explains what `metricalc.py` does, how to run it, and how to interpret its generated files.
+`metricalc.py` computes rhythmic and structural metrics from paired phonetizer
+artifacts.
 
-**Implementation:**
+Implementation:
 - CLI wrapper: `src/akkapros/cli/metricalc.py`
 - Core logic: `src/akkapros/lib/metrics.py`
 - Metric definitions: `docs/akkapros/metrics-computation.md`
 
----
+## Purpose
 
-## 📋 Purpose
+The active metrics contract is phone-driven. Metricalc reads the accentuated
+`<prefix>_phone.txt` stream, resolves the matching original
+`<prefix>_ophone.txt` stream, and computes interval metrics from the realized
+durations in those files.
 
-`metricalc.py` computes rhythmic and structural metrics from prosody-realized text (`*_tilde.txt`).
+The stage also reports the broader structural inventory, including syllable,
+word, mora, merge, prominence, accentuation, pause, speech-rate, and drift
+summaries.
 
-It can output:
-- Human-readable text table
-- JSON
+## Inputs
 
-It supports single-file and batch (`--input-list`) processing.
+Required positional input:
+- `<prefix>_phone.txt`
 
----
+Original-stream resolution:
+- `--ophone <file>` uses the exact `_ophone.txt` path supplied
+- without `--ophone`, metricalc derives the sibling path by replacing
+  `_phone.txt` with `_ophone.txt`
+- if the derived file does not exist, the command fails and emits no metrics
+  outputs
 
-## 📂 Input and Output
+Batch mode:
+- `--input-list` accepts one `<prefix>_phone.txt` path per line
+- `--ophone` is single-file only and cannot be combined with `--input-list`
 
-### Input
-- One `*_tilde.txt` file, or
-- A list file containing one input path per line (`--input-list`)
+Non-inputs:
+- `*_tilde.txt`
+- `*_mbrola.pho` and `*_ombrola.pho`
 
-### Output Formats
+## Outputs
 
-| Format | Output File |
-|--------|-------------|
-| Table | `<base>_metrics.txt` |
-| JSON | `<base>_metrics.json` |
+| Format | File |
+|--------|------|
+| Table | `<prefix>_metrics.txt` |
+| JSON | `<prefix>_metrics.json` |
 
-Metrics artifacts intentionally shorten path-bearing values such as the summary
-path, run-configuration `input`, and top-level JSON `file` field to the shared
-safe display form. Example: `...\results\corpus_tilde.txt`. Drive-root paths
-such as `C:\corpus_tilde.txt` are preserved as-is.
+Path-bearing display fields are shortened to the shared safe display form.
 
-### Base Naming Rules
+## Syntax
 
-- `--prefix` or `common.prefix` must resolve to a non-null effective prefix
-- Metrics outputs are written as `<outdir>/<prefix>_metrics.txt` and/or `<outdir>/<prefix>_metrics.json`
+Single file with sibling discovery:
 
----
+```bash
+python src/akkapros/cli/metricalc.py outputs/erra_phone.txt -p erra --table
+```
 
-## 🚀 Command Syntax
+Single file with explicit original stream:
 
-Single file:
-
-    python src/akkapros/cli/metricalc.py <input_tilde.txt> [options]
+```bash
+python src/akkapros/cli/metricalc.py outputs/erra_phone.txt \
+  --ophone outputs/erra_ophone.txt \
+  -p erra \
+  --json
+```
 
 Batch mode:
 
-    python src/akkapros/cli/metricalc.py --input-list <list.txt> [options]
+```bash
+python src/akkapros/cli/metricalc.py --input-list outputs/phone_files.txt --json
+```
 
----
-
-## ⚙️ Options
+## Options
 
 | Option | Description |
 |--------|-------------|
-| `--version` | Print CLI version |
-| `--input-list <file>` | File with one input path per line |
+| `--input-list <file>` | One `<prefix>_phone.txt` path per line |
+| `--ophone <file>` | Explicit matching `<prefix>_ophone.txt` |
 | `-p, --prefix <name>` | Output prefix |
-| `--outdir <dir>` | Output directory (default: current directory) |
-| `--table` | Write human-readable table output |
+| `--outdir <dir>` | Output directory |
+| `--table` | Write table output |
 | `--json` | Write JSON output |
-| `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` |
-| `--test` | Run metrics test suite |
+| `--test` | Run metrics self-tests |
 
-### Default Format Behavior
+If no output flag is given, table output is enabled automatically.
 
-If none of `--table` or `--json` is specified, `--table` is enabled automatically.
+## Active Metrics
 
----
+For both original and accentuated streams, metricalc reports:
 
-## 💡 Typical Usage Examples
+- `%C`, `%V`
+- `meanC`, `meanV`
+- `ΔC`, `ΔV`
+- `VarcoC`, `VarcoV`
+- `rPVI-C`, `nPVI-V`
 
-### Single File, Default Table Output
+Pause intervals remain in the denominator for `%C` and `%V`, but are excluded
+from `mean`, `Δ`, `Varco`, and PVI calculations.
 
-        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-            -p erra \
-            --outdir outputs \
-            --table
+The stage also reports the phonetizer drift summary consumed from
+`metadata.data.phonetize.drift` in both streams.
 
-Inherited punctuation-extension settings and inherited `extra_vowels` /
-`extra_consonants` values are read from the input file front matter produced
-upstream by syllabifier and preserved by prosmaker. Metricalc does not expose
-separate CLI flags for those inherited syllabify-owned settings.
+## Structural Reporting
 
-Long-pause punctuation weight is no longer a user-configurable option. The
-active implementation fixes it at `2.0`.
+The metrics outputs keep the active structural inventory under the new input
+contract. That includes:
 
-The current transition also removes metrics-owned timing flags. `metricalc`
-uses the phonetize transition defaults internally (`wpm = 193`,
-`pause_ratio = 35`) until the phonetize-to-metrics contract is completed.
+- syllable counts and syllable-type distributions
+- word, mora, merge, and accentuation statistics
+- prominence statistics derived from phone-row structure
+- pause metrics and pause-duration reporting
+- speech-rate summaries for original and accentuated streams
 
-### Override Explicit-Link Metadata
+Prominence statistics are computed internally from the phone-row representation.
+There is no active explicit-link override flag.
 
-        python src/akkapros/cli/metricalc.py outputs/erra_tilde.txt \
-            --table \
-            --explicit-link-count 2
+## Notes
 
-### Inherited Syllabify Settings
-
-    `metricalc.py` reads punctuation and extra inventory settings from the
-    input file front matter. Configure them in `syllabifier.py` or
-    `fullprosmaker.py`, not in `metricalc.py`.
-
-### Batch Mode
-
-    python src/akkapros/cli/metricalc.py \
-      --input-list outputs/tilde_files.txt \
-            --json \
-      --outdir outputs/compare
-
-### Run Tests
-
-    python src/akkapros/cli/metricalc.py --test
-
----
-
-## 📊 What It Computes (Summary)
-
-### Main Metric Families
-
-| Family | Description |
-|--------|-------------|
-| **Syllable types** | Distributions and counts of CV, CVC, CVV, etc. |
-| **Mora statistics** | Per syllable and per word |
-| **Merge statistics** | Words merged, units formed, average unit size |
-| **Prosody realization** | Accentuation rate, accentuation types |
-| **Acoustic/rhythmic metrics** | `%V`, `DeltaC`, `MeanC`, `VarcoC` |
-| **Speech and pause allocation** | Durations, ratios, corrections |
-
-### Output Structure Highlights
-
-- **Syllable statistics** are grouped as one block in both table sections:
-    - `Syllable statistics`
-    - nested `Syllable types`
-    - nested `Total syllables`
-- The same grouping is mirrored in machine outputs:
-    - JSON: `original.stats.syllable_statistics.types`, `original.stats.syllable_statistics.count`,
-      `accentuated.stats.syllable_statistics.types`, `accentuated.stats.syllable_statistics.count`
-- **Word statistics** now appear before **Mora statistics** in both sections.
-- **Prominence statistics** now appear only in the `ORIGINAL TEXT` section,
-  between `Word statistics` and `Mora statistics`:
-    - `Function words`
-    - `Explicitly linked words`
-    - `Prominence candidates`
-- These values are mirrored in JSON only at:
-    - `original.prominence_statistics.function_word_count`
-    - `original.prominence_statistics.explicit_word_link_count`
-    - `original.prominence_statistics.prominence_candidate_word_count`
-- **Mora statistics (original and accentuated)** now include:
-        - `Mean morae per syllable: mean ± stddev mora/syllable`
-        - `Mean morae per word: mean ± stddev mora/word`
-        - `Total morae`
-- The same word/mora grouping is mirrored in machine outputs:
-        - JSON: `original.stats.word_statistics`, `original.stats.mora_statistics`,
-            plus matching `accentuated.*` objects
-- **Speech rate** is reported for both sections:
-    - `Speech rate (original)`
-    - `Speech rate (accentuated)`
-- In table output, each speech-rate block appears before its corresponding acoustic block.
-- **ΔC** and **MeanC** are split into seconds-first dual lines in table output:
-    - `ΔC`, `MeanC` use seconds
-    - `ΔC_mora`, `MeanC_mora` use mora values
-- JSON exposes the same separation with snake_case keys:
-    - `delta_c_seconds`, `delta_c_mora`
-    - `mean_c_seconds`, `mean_c_mora`
-- **VarcoC** is displayed without a trailing `%` sign.
-
-### Pause Output Details
-
-The metrics include detailed pause information:
-
-- `short_pauseable_boundaries` and `long_pauseable_boundaries`
-- Initial pause durations and weights (before correction)
-- **Corrected pause durations**: short pauses constrained to even-mora values
-- Corrected long/short weight derived after conservation adjustment
-
-For formal definitions and equations, see:
-- `docs/akkapros/metrics-computation.md`
-
----
-
-## 📝 Important Notes
-
-### Input Validation Guard
-
-By default, `metricalc.py` validates each input file at startup and fails fast on obviously partial/corrupted intermediate files (for example, empty/truncated files or files with missing prosodic structure markers), with precise source + line error details.
-
-For the `Prominence statistics` block, `metricalc.py` computes `function_word_count` internally from the consumed pivot text. It requires inherited `metadata.data.prosody.explicit_word_link_count` unless you provide `--explicit-link-count`.
-
-`--explicit-link-count` precedence and validation:
-
-- The CLI override wins over inherited front matter.
-- Non-numeric or negative values fail with `--explicit-link-count must be a positive integer`.
-- Values above the computed maximum fail with `--explicit-link-count must be an integer between 0 and <max>, where <max> = word_count - function_word_count`.
-- Invalid overrides emit no metrics output files.
-
-Validation is always enforced at startup.
-
-Regex validation for punctuation options is also fail-fast: invalid patterns stop execution before any file is processed.
-
-Regex anchor semantics use chunk-level `^`/`$`; boundary pseudo-tokens are also supported in patterns: `[:bol:]`, `[:eol:]`. EOF is normalized internally to EOL behavior.
-
-### Quick Intuition: `[:bol:]` and `[:eol:]` (Synthetic Examples)
-
-These examples are synthetic (not linguistic), only to explain boundary matching.
-
-Given a punctuation chunk like:
-
-    # pause
-
-- `^[:bol:]#(?:\s|$)` matches when `#` starts the line.
-- `^[ \t]+#` does not match because the chunk does not begin with spaces.
-
-Given a chunk ending a line:
-
-    ...
-
-- `\.\.\.(?=\s|[:eol:]|$)` matches when ellipsis is followed by line end.
-- `\.\.\.(?=\s)` requires a real whitespace character after `...` and may fail at line end.
-
-Mental model:
-- `[:bol:]` = line start (position `ln[0]`).
-- `[:eol:]` = boundary immediately before newline.
-
-### Validation Rules (Middle Strictness)
-
-`metricalc.py` expects prosody-realized `*_tilde.txt` input. Validation is intentionally permissive for short inputs: plain lines like `ku man su tal` are acceptable tilde-stage text. The guard mainly blocks clearly wrong/corrupted input (empty, binary) and rejects accidental `*_syl.txt` content (`¦` markers). A final trailing newline is not mandatory (missing newline is normalized in memory).
-The validator is gatekeeper-only: it never rewrites or auto-corrects input; it only allows processing to continue or fails with a precise error.
-
-The `_tilde` pivot may legitimately contain armored punctuation and escaped chunks as `⟦...⟧`. Metrics keeps pause classification on those armored tokens rather than re-deriving raw punctuation from restored plain text.
-
-The `_tilde` pivot may legitimately contain the diphthong marker `¨`. Metrics treats `¨` as an intra-word syllable boundary for syllable counting and classification, but not as a consonant in acoustic spacing.
-
-The `_tilde` pivot may also contain both merge connectors: `+` for explicit inherited links and `&` for internal prosody merges. Metrics treats both as no-pause within-unit links.
-
-Metrics consumes only the reduced frontmatter contract: `file.title` plus `metadata.data.prosody.explicit_word_link_count` when no override is supplied.
-
-Metrics output files do not republish any `metadata.data` block. Their output
-front matter keeps `input_file_id` and resolved CLI options only.
-
-### %V Note
-
-Current outputs expose **both** values:
-- `%V (articulate)` — continuous speech, no pauses
-- `%V (normal speech, incl. pauses)` — adjusted for pause ratio
-
-This makes text-derived moraic `%V` directly comparable with pause-inclusive speech measurements from living languages.
-
-### Pause Duration Correction
-
-`metricalc.py` now reports two pause-duration layers:
-
-1. **Initial**: direct weighted allocation from the fixed long-pause weight `2.0`
-2. **Corrected**: short-pause duration snapped to the nearest multiple of `2 * mora_dur`, with long-pause duration adjusted to preserve total punctuation pause time
-
-This correction affects table and JSON outputs. It ensures that short pauses align with the bimoraic rhythm of the text.
-
-### Strict Punctuation Classification
-
-Pause punctuation is allowlist-based. If a punctuation suite is not matched by configured short or long classes (characters or regex patterns), `metricalc.py` now raises an error instead of defaulting that suite to long pause.
-
-### New Fields Across Formats
-
-For both original and accentuated outputs:
-
-- `mora_stats.total` (JSON)
-- `stats.total_syllables` (JSON)
-- speech metrics for original and accentuated sections
-- `DeltaC` and `MeanC` in mora and seconds in the table
-
-For the original section only:
-
-- `Prominence statistics` in the table
-- `original.prominence_statistics` in JSON
-- `prominence_candidate_word_count = total_words - function_word_count - explicit_word_link_count`
-
----
-
-## 🔗 Pipeline Position
-
-`metricalc.py` is typically run after `prosmaker.py`:
-
-1. `atfparser.py` → `*_proc.txt`
-2. `syllabifier.py` → `*_syl.txt`
-3. `prosmaker.py` → `*_tilde.txt`
-4. **`metricalc.py`** → metrics output
-
-For all-in-one execution, see **`fullprosmaker.py`**.
-
----
-
-## ✅ Summary
-
-`metricalc.py` transforms prosody-realized text into quantitative metrics that validate the algorithm and enable cross-linguistic comparison. It supports table and JSON outputs, batch processing, and configurable speech parameters, making it suitable for both single-file analysis and large-scale corpus studies.
+- Hiatus rows and vowel-transition rows are treated as consonantal intervals.
+- Prominence statistics are derived from phone-row structure, not from `_tilde`
+  front matter.
+- `--explicit-link-count` is not part of the active CLI contract.

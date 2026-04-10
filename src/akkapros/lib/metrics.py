@@ -21,7 +21,15 @@ from typing import Dict, List, Tuple, Optional, Union
 from collections import Counter
 import math
 
-from akkapros.lib.frontmatter import read_text_file, resolve_metrics_prominence_counts
+from akkapros import __version__
+from akkapros.lib.frontmatter import compose_text_document, count_function_words, read_text_file
+from akkapros.lib.phonetize import (
+    build_default_phonetize_config,
+    parse_phone_row,
+    realize_phone_streams,
+    reconstruct_tilde_from_phone_rows,
+    serialize_phone_rows,
+)
 
 # shared constants
 from akkapros.lib.constants import (
@@ -1024,6 +1032,193 @@ def enrich_acoustic_metrics(acoustic: Dict, speech: Dict) -> Dict:
     return acoustic
 
 
+def _population_std_dev(values: List[float]) -> float:
+    """Calculate population standard deviation without numpy."""
+    if len(values) < 2:
+        return 0.0
+    mean = sum(values) / len(values)
+    variance = sum((x - mean) ** 2 for x in values) / len(values)
+    return variance ** 0.5
+
+
+def _mean(values: List[float]) -> float:
+    return (sum(values) / len(values)) if values else 0.0
+
+
+def _rpvi(values: List[int]) -> float:
+    if len(values) < 2:
+        return 0.0
+    diffs = [abs(values[index] - values[index + 1]) for index in range(len(values) - 1)]
+    return sum(diffs) / len(diffs)
+
+
+def _npvi(values: List[int]) -> float:
+    if len(values) < 2:
+        return 0.0
+    diffs: List[float] = []
+    for index in range(len(values) - 1):
+        left = values[index]
+        right = values[index + 1]
+        denom = (left + right) / 2.0
+        if denom == 0:
+            continue
+        diffs.append(abs((left - right) / denom))
+    if not diffs:
+        return 0.0
+    return 100.0 * (sum(diffs) / len(diffs))
+
+
+def _phone_row_duration_ms(row: Dict[str, str]) -> int:
+    try:
+        duration = int(row['duration'])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid phone-row duration: {row['duration']!r}") from exc
+    if duration < 0:
+        raise ValueError(f"Invalid negative phone-row duration: {row['duration']!r}")
+    return duration
+
+
+def _normalize_interval_class(row: Dict[str, str]) -> str:
+    if row['category'] == 'V':
+        return 'V'
+    if row['category'] == 'S':
+        return 'P'
+    return 'C'
+
+
+def _coalesce_intervals(rows: List[Dict[str, str]]) -> List[Tuple[str, int]]:
+    intervals: List[Tuple[str, int]] = []
+    for row in rows:
+        interval_class = _normalize_interval_class(row)
+        duration = _phone_row_duration_ms(row)
+        if intervals and intervals[-1][0] == interval_class:
+            prev_class, prev_duration = intervals[-1]
+            intervals[-1] = (prev_class, prev_duration + duration)
+        else:
+            intervals.append((interval_class, duration))
+    return intervals
+
+
+def compute_interval_metrics(rows: List[Dict[str, str]]) -> Dict[str, Union[float, List[int], List[Tuple[str, int]]]]:
+    intervals = _coalesce_intervals(rows)
+    vocalic = [duration for interval_class, duration in intervals if interval_class == 'V']
+    consonantal = [duration for interval_class, duration in intervals if interval_class == 'C']
+    pauses = [duration for interval_class, duration in intervals if interval_class == 'P']
+    total_duration = sum(vocalic) + sum(consonantal) + sum(pauses)
+    mean_v = _mean(vocalic)
+    mean_c = _mean(consonantal)
+    delta_v = _population_std_dev(vocalic)
+    delta_c = _population_std_dev(consonantal)
+
+    return {
+        'intervals': intervals,
+        'v_intervals_ms': vocalic,
+        'c_intervals_ms': consonantal,
+        'p_intervals_ms': pauses,
+        'total_duration_ms': total_duration,
+        'percent_v': (sum(vocalic) / total_duration * 100.0) if total_duration > 0 else 0.0,
+        'percent_c': (sum(consonantal) / total_duration * 100.0) if total_duration > 0 else 0.0,
+        'mean_v_ms': mean_v,
+        'mean_c_ms': mean_c,
+        'delta_v_ms': delta_v if len(vocalic) >= 2 else 0.0,
+        'delta_c_ms': delta_c if len(consonantal) >= 2 else 0.0,
+        'varco_v': ((delta_v / mean_v) * 100.0) if mean_v > 0 and len(vocalic) >= 2 else 0.0,
+        'varco_c': ((delta_c / mean_c) * 100.0) if mean_c > 0 and len(consonantal) >= 2 else 0.0,
+        'rpvi_c': _rpvi(consonantal),
+        'npvi_v': _npvi(vocalic),
+    }
+
+
+def _extract_drift_summary(input_frontmatter: Dict | None) -> Dict[str, float]:
+    drift = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {}).get('drift', {})
+    return {
+        'max': float(drift.get('max', 0.0) or 0.0),
+        'mean': float(drift.get('mean', 0.0) or 0.0),
+        'stddev': float(drift.get('stddev', 0.0) or 0.0),
+    }
+
+
+def _count_explicit_word_links_from_rows(rows: List[Dict[str, str]]) -> int:
+    return sum(1 for row in rows if row['boundary'] == 'X')
+
+
+def _load_phone_rows(filename: str) -> Tuple[Dict | None, List[Dict[str, str]], str]:
+    input_frontmatter, body = read_text_file(filename)
+    rows: List[Dict[str, str]] = []
+    for line in body.splitlines():
+        if not line.strip():
+            continue
+        rows.append(parse_phone_row(line))
+    if not rows:
+        raise ValueError(f"Metrics input file is empty or has no phone rows: {filename}")
+    return input_frontmatter, rows, body
+
+
+def _resolve_original_phone_path(phone_filename: str, ophone_filename: str | None = None) -> str:
+    if ophone_filename:
+        return ophone_filename
+    if not phone_filename.endswith('_phone.txt'):
+        raise ValueError(
+            'metricalc requires positional <prefix>_phone.txt input when --ophone is omitted'
+        )
+    derived = phone_filename[:-10] + '_ophone.txt'
+    if not Path(derived).exists():
+        raise ValueError(f'Derived original phone file does not exist: {derived}')
+    return derived
+
+
+def _prominence_counts_from_phone_rows(text: str, rows: List[Dict[str, str]]) -> Dict[str, int]:
+    return {
+        'function_word_count': count_function_words(text),
+        'explicit_word_link_count': _count_explicit_word_links_from_rows(rows),
+    }
+
+
+def process_phone_pair(
+    phone_filename: str,
+    ophone_filename: str,
+    wpm: float,
+    pause_ratio: float,
+) -> Dict:
+    ophone_frontmatter, ophone_rows, _ = _load_phone_rows(ophone_filename)
+    phone_frontmatter, phone_rows, _ = _load_phone_rows(phone_filename)
+
+    original_text = reconstruct_tilde_from_phone_rows(ophone_rows)
+    accentuated_text = reconstruct_tilde_from_phone_rows(phone_rows)
+
+    original_stats = analyze_text(original_text, is_accentuated=False)
+    accentuated_stats = analyze_text(accentuated_text, is_accentuated=True)
+    accentuation_stats = compute_accentuation_stats(original_stats, accentuated_stats)
+    prominence_statistics = build_prominence_statistics(
+        total_words=original_stats['word_stats']['total_words'],
+        prominence_counts=_prominence_counts_from_phone_rows(original_text, phone_rows),
+    )
+    speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
+    speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
+    pause_metrics = compute_pause_metrics(accentuated_text, accentuated_stats)
+    pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
+
+    return {
+        'file': format_path_for_logging(phone_filename),
+        'original': {
+            'stats': original_stats,
+            'speech': speech_original,
+            'acoustic': compute_interval_metrics(ophone_rows),
+            'drift': _extract_drift_summary(ophone_frontmatter),
+            'prominence_statistics': prominence_statistics,
+        },
+        'accentuated': {
+            'stats': accentuated_stats,
+            'speech': speech_accentuated,
+            'acoustic': compute_interval_metrics(phone_rows),
+            'drift': _extract_drift_summary(phone_frontmatter),
+            'pause_metrics': pause_metrics,
+            'pause_durations': pause_durations,
+        },
+        'accentuation_stats': accentuation_stats,
+    }
+
+
 # ------------------------------------------------------------
 # Pause metrics
 # ------------------------------------------------------------
@@ -1374,22 +1569,11 @@ def process_file(
     filename: str,
     wpm: float,
     pause_ratio: float,
-    explicit_link_count_override: str | int | None = None,
+    ophone_filename: str | None = None,
 ) -> Dict:
-    """Process a single file and return all metrics."""
-    input_frontmatter, text = read_text_file(filename)
-
-    return process_filetext(
-        text,
-        wpm,
-        pause_ratio,
-        filename,
-        prominence_statistics=resolve_metrics_prominence_counts(
-            text,
-            input_frontmatter=input_frontmatter,
-            explicit_link_count_override=explicit_link_count_override,
-        ),
-    )
+    """Process paired phone files and return all metrics."""
+    resolved_ophone = _resolve_original_phone_path(filename, ophone_filename)
+    return process_phone_pair(filename, resolved_ophone, wpm, pause_ratio)
 
 
 def build_prominence_statistics(total_words: int, prominence_counts: Dict[str, int]) -> Dict[str, int]:
@@ -1419,69 +1603,41 @@ def process_filetext(
     filesrc: str = 'in-memory',
     prominence_statistics: Optional[Dict[str, int]] = None,
 ) -> Dict:
-
-    # Analyze original (with ~ removed)
-    original_stats = analyze_text(text.replace('~', ''), is_accentuated=False)
-    resolved_prominence_statistics = None
-    if prominence_statistics is not None:
-        resolved_prominence_statistics = build_prominence_statistics(
-            total_words=original_stats['word_stats']['total_words'],
-            prominence_counts=prominence_statistics,
-        )
-    
-    # Analyze accentuated (with ~ present)
-    accentuated_stats = analyze_text(text, is_accentuated=True)
-    
-    # Compute accentuation stats
-    accentuation_stats = compute_accentuation_stats(original_stats, accentuated_stats)
-    
-    # Compute %V from syllable statistics
-    original_percent_v = compute_percent_v_from_stats(original_stats)
-    accentuated_percent_v = compute_percent_v_from_stats(accentuated_stats)
-    
-    # Preprocess for acoustic metrics (ΔC, etc.)
-    preprocessed_original = preprocess_text(text.replace('~', ''))
-    preprocessed_accentuated = preprocess_text(text)
-    
-    # Compute acoustic metrics (excluding %V)
-    acoustic_original = compute_acoustic_metrics(preprocessed_original)
-    acoustic_accentuated = compute_acoustic_metrics(preprocessed_accentuated)
-    
-    # Override %V with mora-based values and expose both speaking conditions.
-    acoustic_original['percent_v'] = original_percent_v
-    acoustic_original['percent_v_articulate'] = original_percent_v
-    acoustic_original['percent_v_speech'] = compute_percent_v_with_pauses(original_percent_v, pause_ratio)
-    acoustic_accentuated['percent_v'] = accentuated_percent_v
-    acoustic_accentuated['percent_v_articulate'] = accentuated_percent_v
-    acoustic_accentuated['percent_v_speech'] = compute_percent_v_with_pauses(accentuated_percent_v, pause_ratio)
-    
-    # Compute speech rate for original and accentuated text
-    speech_original = compute_speech_rate(preprocessed_original, original_stats, wpm, pause_ratio)
-    speech_accentuated = compute_speech_rate(preprocessed_accentuated, accentuated_stats, wpm, pause_ratio)
-
-    enrich_acoustic_metrics(acoustic_original, speech_original)
-    enrich_acoustic_metrics(acoustic_accentuated, speech_accentuated)
-    
-    # Compute pause metrics
-    pause_metrics = compute_pause_metrics(text, accentuated_stats)
-    pause_durations = compute_pause_durations(
-        pause_metrics,
-        speech_accentuated,
-        pause_ratio,
+    phonetize_config = build_default_phonetize_config()
+    (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
+        text,
+        phonetize_config,
+        None,
     )
+    original_text = text.replace('~', '')
+    accentuated_text = text
+    original_stats = analyze_text(original_text, is_accentuated=False)
+    accentuated_stats = analyze_text(accentuated_text, is_accentuated=True)
+    accentuation_stats = compute_accentuation_stats(original_stats, accentuated_stats)
+    resolved_prominence_counts = prominence_statistics or _prominence_counts_from_phone_rows(original_text, phone_rows)
+    resolved_prominence_statistics = build_prominence_statistics(
+        total_words=original_stats['word_stats']['total_words'],
+        prominence_counts=resolved_prominence_counts,
+    )
+    speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
+    speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
+    pause_metrics = compute_pause_metrics(accentuated_text, accentuated_stats)
+    pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
 
     return {
         'file': format_path_for_logging(filesrc),
         'original': {
             'stats': original_stats,
             'speech': speech_original,
-            'acoustic': acoustic_original,
+            'acoustic': compute_interval_metrics(ophone_rows),
+            'drift': ophone_report['drift'],
             'prominence_statistics': resolved_prominence_statistics,
         },
         'accentuated': {
             'stats': accentuated_stats,
-            'acoustic': acoustic_accentuated,
+            'acoustic': compute_interval_metrics(phone_rows),
             'speech': speech_accentuated,
+            'drift': phone_report['drift'],
             'pause_metrics': pause_metrics,
             'pause_durations': pause_durations
         },
@@ -1549,13 +1705,19 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
 
     # Acoustic metrics (original)
     lines.append(f"\nAcoustic metrics (original):")
-    lines.append(f"  %V (articulate): {orig['acoustic']['percent_v_articulate']:.2f}%")
-    lines.append(f"  %V (normal speech, incl. pauses): {orig['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {orig['acoustic']['delta_c_seconds']:.4f} s")
-    lines.append(f"  ΔC_mora: {orig['acoustic']['delta_c_mora']:.4f} mora")
-    lines.append(f"  MeanC: {orig['acoustic']['mean_c_seconds']:.4f} s")
-    lines.append(f"  MeanC_mora: {orig['acoustic']['mean_c_mora']:.4f} mora")
+    lines.append(f"  %C: {orig['acoustic']['percent_c']:.2f}%")
+    lines.append(f"  %V: {orig['acoustic']['percent_v']:.2f}%")
+    lines.append(f"  meanC: {orig['acoustic']['mean_c_ms']:.2f} ms")
+    lines.append(f"  meanV: {orig['acoustic']['mean_v_ms']:.2f} ms")
+    lines.append(f"  ΔC: {orig['acoustic']['delta_c_ms']:.2f} ms")
+    lines.append(f"  ΔV: {orig['acoustic']['delta_v_ms']:.2f} ms")
     lines.append(f"  VarcoC: {orig['acoustic']['varco_c']:.2f}")
+    lines.append(f"  VarcoV: {orig['acoustic']['varco_v']:.2f}")
+    lines.append(f"  rPVI-C: {orig['acoustic']['rpvi_c']:.2f}")
+    lines.append(f"  nPVI-V: {orig['acoustic']['npvi_v']:.2f}")
+    lines.append(f"  Drift max: {orig['drift']['max']:.2f} ms")
+    lines.append(f"  Drift mean: {orig['drift']['mean']:.2f} ms")
+    lines.append(f"  Drift stddev: {orig['drift']['stddev']:.2f} ms")
     
     # --- ACCENTUATED TEXT ---
     lines.append("\n--- ACCENTUATED TEXT ---")
@@ -1601,13 +1763,19 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
 
     # Acoustic metrics (accentuated)
     lines.append(f"\nAcoustic metrics (accentuated):")
-    lines.append(f"  %V (articulate): {rep['acoustic']['percent_v_articulate']:.2f}%")
-    lines.append(f"  %V (normal speech, incl. pauses): {rep['acoustic']['percent_v_speech']:.2f}%")
-    lines.append(f"  ΔC: {rep['acoustic']['delta_c_seconds']:.4f} s")
-    lines.append(f"  ΔC_mora: {rep['acoustic']['delta_c_mora']:.4f} mora")
-    lines.append(f"  MeanC: {rep['acoustic']['mean_c_seconds']:.4f} s")
-    lines.append(f"  MeanC_mora: {rep['acoustic']['mean_c_mora']:.4f} mora")
+    lines.append(f"  %C: {rep['acoustic']['percent_c']:.2f}%")
+    lines.append(f"  %V: {rep['acoustic']['percent_v']:.2f}%")
+    lines.append(f"  meanC: {rep['acoustic']['mean_c_ms']:.2f} ms")
+    lines.append(f"  meanV: {rep['acoustic']['mean_v_ms']:.2f} ms")
+    lines.append(f"  ΔC: {rep['acoustic']['delta_c_ms']:.2f} ms")
+    lines.append(f"  ΔV: {rep['acoustic']['delta_v_ms']:.2f} ms")
     lines.append(f"  VarcoC: {rep['acoustic']['varco_c']:.2f}")
+    lines.append(f"  VarcoV: {rep['acoustic']['varco_v']:.2f}")
+    lines.append(f"  rPVI-C: {rep['acoustic']['rpvi_c']:.2f}")
+    lines.append(f"  nPVI-V: {rep['acoustic']['npvi_v']:.2f}")
+    lines.append(f"  Drift max: {rep['drift']['max']:.2f} ms")
+    lines.append(f"  Drift mean: {rep['drift']['mean']:.2f} ms")
+    lines.append(f"  Drift stddev: {rep['drift']['stddev']:.2f} ms")
     
     # Pause metrics
     pm = rep['pause_metrics']
@@ -2083,11 +2251,19 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "Prominence candidates: 2 words" not in table:
         return False
-    if "ΔC_mora:" not in table or "MeanC_mora:" not in table:
+    if "meanC:" not in table or "meanV:" not in table:
+        return False
+    if "ΔC:" not in table or "ΔV:" not in table:
+        return False
+    if "rPVI-C:" not in table or "nPVI-V:" not in table:
+        return False
+    if "Drift max:" not in table or "Drift stddev:" not in table:
         return False
     if "VarcoC: " not in table or "%" in "\n".join(
         line for line in table.splitlines() if "VarcoC:" in line
     ):
+        return False
+    if "ΔC_mora:" in table or "MeanC_mora:" in table:
         return False
 
     # Ordering checks: word statistics must precede prominence and mora statistics.
@@ -2209,37 +2385,50 @@ def _test_small_corpus_metrics_consistency() -> bool:
     return True
 
 
-def _test_process_file_requires_frontmatter_prominence_counts() -> bool:
-    document = (
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Metrics Test\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "    prosody:\n"
-        "      explicit_word_link_count: 1\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
+def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
+    phonetize_config = build_default_phonetize_config()
+    (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
+        document_text,
+        phonetize_config,
+        None,
     )
-    with tempfile.NamedTemporaryFile('w+', suffix='_tilde.txt', encoding='utf-8', delete=False) as handle:
-        handle.write(document)
-        temp_path = handle.name
+    ophone_doc = compose_text_document(
+        {
+            'package': {'name': 'akkapros', 'version': __version__},
+            'pipeline': 'pipeline',
+            'step': 'phonetize',
+            'file': {'id': 'ophone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'drift': ophone_report['drift']}}},
+        },
+        serialize_phone_rows(ophone_rows),
+    )
+    phone_doc = compose_text_document(
+        {
+            'package': {'name': 'akkapros', 'version': __version__},
+            'pipeline': 'pipeline',
+            'step': 'phonetize',
+            'file': {'id': 'phone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'drift': phone_report['drift']}}},
+        },
+        serialize_phone_rows(phone_rows),
+    )
+    with tempfile.NamedTemporaryFile('w+', suffix='_ophone.txt', encoding='utf-8', delete=False) as ohandle:
+        ohandle.write(ophone_doc)
+        ophone_path = ohandle.name
+    with tempfile.NamedTemporaryFile('w+', suffix='_phone.txt', encoding='utf-8', delete=False) as phandle:
+        phandle.write(phone_doc)
+        phone_path = phandle.name
+    return phone_path, ophone_path
+
+
+def _test_process_file_derives_prominence_counts_from_phone_rows() -> bool:
+    text = 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n'
+    phone_path, ophone_path = _write_phone_pair_fixture(text)
     try:
-        result = process_file(temp_path, wpm=165, pause_ratio=35.0)
+        result = process_file(phone_path, wpm=165, pause_ratio=35.0, ophone_filename=ophone_path)
     finally:
-        Path(temp_path).unlink(missing_ok=True)
+        Path(phone_path).unlink(missing_ok=True)
+        Path(ophone_path).unlink(missing_ok=True)
 
     prominence = result['original'].get('prominence_statistics') or {}
     return prominence == {
@@ -2249,39 +2438,19 @@ def _test_process_file_requires_frontmatter_prominence_counts() -> bool:
     }
 
 
-def _test_process_file_missing_frontmatter_prominence_counts_fails() -> bool:
-    document = (
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Metrics Test\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n"
-    )
-    with tempfile.NamedTemporaryFile('w+', suffix='_tilde.txt', encoding='utf-8', delete=False) as handle:
-        handle.write(document)
-        temp_path = handle.name
+def _test_process_file_missing_sibling_ophone_fails() -> bool:
+    text = 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n'
+    phone_path, ophone_path = _write_phone_pair_fixture(text)
     try:
+        Path(ophone_path).unlink(missing_ok=True)
         try:
-            process_file(temp_path, wpm=165, pause_ratio=35.0)
+            process_file(phone_path, wpm=165, pause_ratio=35.0)
             return False
         except ValueError as exc:
-            return "missing required field" in str(exc)
+            return 'Derived original phone file does not exist' in str(exc)
     finally:
-        Path(temp_path).unlink(missing_ok=True)
+        Path(phone_path).unlink(missing_ok=True)
+        Path(ophone_path).unlink(missing_ok=True)
 
 
 def _test_percent_v_fallback_safe() -> bool:
@@ -2329,8 +2498,8 @@ def run_tests():
         ("Mora totals and original speech", _test_mora_totals_and_original_speech),
         ("Table fields and CSV removal", _test_table_new_fields_and_no_csv),
         ("Small corpus metrics consistency", _test_small_corpus_metrics_consistency),
-        ("Frontmatter prominence counts", _test_process_file_requires_frontmatter_prominence_counts),
-        ("Missing frontmatter prominence fails", _test_process_file_missing_frontmatter_prominence_counts_fails),
+        ("Phone-row prominence counts", _test_process_file_derives_prominence_counts_from_phone_rows),
+        ("Missing sibling ophone fails", _test_process_file_missing_sibling_ophone_fails),
         ("%V fallback safety", _test_percent_v_fallback_safe),
     ]
 

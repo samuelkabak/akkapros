@@ -2,9 +2,11 @@ import json
 import math
 from pathlib import Path
 
+from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib import metrics
 from akkapros.lib import print as printlib
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR
+from akkapros.lib.phonetize import build_default_phonetize_config, realize_phone_streams, serialize_phone_rows
 from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
 from akkapros.lib.syllabify import syllabify_text
 from akkapros.lib.utils import format_path_for_logging
@@ -34,6 +36,19 @@ def _sample_prominence_counts(function_word_count: int = 2, explicit_word_link_c
         "function_word_count": function_word_count,
         "explicit_word_link_count": explicit_word_link_count,
     }
+
+
+def _write_phone_pair(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
+    (ophone_rows, _ophone_report), (phone_rows, _phone_report) = realize_phone_streams(
+        tilde_text,
+        build_default_phonetize_config(),
+        None,
+    )
+    ophone_file = tmp_path / f"{prefix}_ophone.txt"
+    phone_file = tmp_path / f"{prefix}_phone.txt"
+    ophone_file.write_text(serialize_phone_rows(ophone_rows), encoding="utf-8")
+    phone_file.write_text(serialize_phone_rows(phone_rows), encoding="utf-8")
+    return ophone_file, phone_file
 
 
 def test_small_corpus_metrics_formula_consistency() -> None:
@@ -86,12 +101,20 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert "Mean morae per word:" in table
     assert "Function words: 2 words" in table
     assert "Explicitly linked words: 1 words" in table
-    assert "Prominence candidates: 19 words" in table
-    assert f"ΔC: {result['original']['acoustic']['delta_c_seconds']:.4f} s" in table
-    assert f"ΔC_mora: {result['original']['acoustic']['delta_c_mora']:.4f} mora" in table
-    assert f"MeanC: {result['original']['acoustic']['mean_c_seconds']:.4f} s" in table
-    assert f"MeanC_mora: {result['original']['acoustic']['mean_c_mora']:.4f} mora" in table
+    assert (
+        f"Prominence candidates: {result['original']['prominence_statistics']['prominence_candidate_word_count']} words"
+        in table
+    )
+    assert f"%C: {result['original']['acoustic']['percent_c']:.2f}%" in table
+    assert f"%V: {result['original']['acoustic']['percent_v']:.2f}%" in table
+    assert f"ΔC: {result['original']['acoustic']['delta_c_ms']:.2f} ms" in table
+    assert f"ΔV: {result['original']['acoustic']['delta_v_ms']:.2f} ms" in table
+    assert f"meanC: {result['original']['acoustic']['mean_c_ms']:.2f} ms" in table
+    assert f"meanV: {result['original']['acoustic']['mean_v_ms']:.2f} ms" in table
     assert f"VarcoC: {result['original']['acoustic']['varco_c']:.2f}" in table
+    assert f"VarcoV: {result['original']['acoustic']['varco_v']:.2f}" in table
+    assert f"rPVI-C: {result['original']['acoustic']['rpvi_c']:.2f}" in table
+    assert f"nPVI-V: {result['original']['acoustic']['npvi_v']:.2f}" in table
     assert f"VarcoC: {result['original']['acoustic']['varco_c']:.2f} %" not in table
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
@@ -100,21 +123,26 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert '"syllable_statistics"' in json_text
     assert '"word_statistics"' in json_text
     assert '"mora_statistics"' in json_text
-    assert '"delta_c_seconds"' in json_text
-    assert '"delta_c_mora"' in json_text
-    assert '"mean_c_seconds"' in json_text
-    assert '"mean_c_mora"' in json_text
+    assert '"percent_c"' in json_text
+    assert '"delta_c_ms"' in json_text
+    assert '"delta_v_ms"' in json_text
+    assert '"mean_c_ms"' in json_text
+    assert '"mean_v_ms"' in json_text
     assert '"prominence_statistics"' in json_text
-    assert '"prominence_candidate_word_count": 19' in json_text
+    assert (
+        f'"prominence_candidate_word_count": {result["original"]["prominence_statistics"]["prominence_candidate_word_count"]}'
+        in json_text
+    )
 
     original_stats = result["original"]["stats"]
     assert original_stats["word_statistics"]["total_words"] == original_stats["word_stats"]["total_words"]
     assert original_stats["mora_statistics"]["total_morae"] == original_stats["mora_stats"]["total"]
     assert original_stats["mora_statistics"]["mean_morae_per_word"]["mean"] == original_stats["word_stats"]["morae_per_word"]["mean"]
+    expected_candidate_count = original_stats["word_stats"]["total_words"] - 2 - 1
     assert result["original"]["prominence_statistics"] == {
         "function_word_count": 2,
         "explicit_word_link_count": 1,
-        "prominence_candidate_word_count": 19,
+        "prominence_candidate_word_count": expected_candidate_count,
     }
 
     original_other = result["original"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
@@ -138,36 +166,13 @@ def test_process_filetext_shortens_artifact_file_path() -> None:
 
 
 def test_process_file_uses_safe_path_display(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "alpha" / "beta" / "sample_tilde.txt"
-    tilde_file.parent.mkdir(parents=True)
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Sample\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-29\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "    prosody:\n"
-        "      explicit_word_link_count: 0\n"
-        "---\n\n"
-        "er~·ra\n",
-        encoding="utf-8",
-    )
+    base = tmp_path / "alpha" / "beta"
+    base.mkdir(parents=True)
+    ophone_file, phone_file = _write_phone_pair(base, "sample", "er~·ra\n")
 
-    result = metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
+    result = metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0, ophone_filename=str(ophone_file))
 
-    assert result["file"] == format_path_for_logging(tilde_file)
+    assert result["file"] == format_path_for_logging(phone_file)
 
 
 def test_format_table_shortens_run_context_input_path() -> None:
@@ -304,34 +309,14 @@ def test_enrich_acoustic_metrics_adds_seconds_and_mora_views() -> None:
     assert math.isclose(enriched["mean_c_mora"], 1.25)
 
 
-def test_process_file_reads_prominence_statistics_from_frontmatter(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "sample_tilde.txt"
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Sample\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "    prosody:\n"
-        "      explicit_word_link_count: 1\n"
-        "---\n\n"
+def test_process_file_derives_prominence_statistics_from_phone_rows(tmp_path: Path) -> None:
+    ophone_file, phone_file = _write_phone_pair(
+        tmp_path,
+        "sample",
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
-        encoding="utf-8",
     )
 
-    result = metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
+    result = metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0, ophone_filename=str(ophone_file))
 
     assert result["original"]["prominence_statistics"] == {
         "function_word_count": 0,
@@ -340,68 +325,37 @@ def test_process_file_reads_prominence_statistics_from_frontmatter(tmp_path: Pat
     }
 
 
-def test_process_file_missing_prominence_statistics_fails_clearly(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "sample_tilde.txt"
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Sample\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
-        encoding="utf-8",
-    )
+def test_process_file_missing_derived_ophone_fails_clearly(tmp_path: Path) -> None:
+    phone_file = tmp_path / "sample_phone.txt"
+    phone_file.write_text("AA-V-V-S-N-N-A-AA-0100:a\n", encoding="utf-8")
 
     try:
-        metrics.process_file(str(tilde_file), wpm=165, pause_ratio=35.0)
-        raise AssertionError("Expected missing prominence front matter to fail")
+        metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0)
+        raise AssertionError("Expected missing sibling _ophone.txt to fail")
     except ValueError as exc:
-        assert "missing required field" in str(exc)
+        assert "Derived original phone file does not exist" in str(exc)
 
 
-def test_process_file_accepts_explicit_link_override_without_frontmatter(tmp_path: Path) -> None:
-    tilde_file = tmp_path / "sample_tilde.txt"
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Sample\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
-        encoding="utf-8",
-    )
+def test_compute_interval_metrics_uses_manual_phone_intervals() -> None:
+    rows = [
+        {"category": "V", "duration": "0100"},
+        {"category": "C", "duration": "0080"},
+        {"category": "C", "duration": "0040"},
+        {"category": "S", "duration": "0100"},
+        {"category": "C", "duration": "0045"},
+        {"category": "V", "duration": "0245"},
+    ]
 
-    result = metrics.process_file(
-        str(tilde_file),
-        wpm=165,
-        pause_ratio=35.0,
-        explicit_link_count_override="1",
-    )
+    acoustic = metrics.compute_interval_metrics(rows)
 
-    assert result["original"]["prominence_statistics"]["explicit_word_link_count"] == 1
+    assert acoustic["intervals"] == [("V", 100), ("C", 120), ("P", 100), ("C", 45), ("V", 245)]
+    assert math.isclose(acoustic["percent_v"], 345 / 610 * 100)
+    assert math.isclose(acoustic["percent_c"], 165 / 610 * 100)
+    assert math.isclose(acoustic["mean_v_ms"], 172.5)
+    assert math.isclose(acoustic["mean_c_ms"], 82.5)
+    assert math.isclose(acoustic["delta_v_ms"], 72.5)
+    assert math.isclose(acoustic["delta_c_ms"], 37.5)
+    assert math.isclose(acoustic["varco_v"], 42.028985507246375)
+    assert math.isclose(acoustic["varco_c"], 45.45454545454545)
+    assert math.isclose(acoustic["rpvi_c"], 75.0)
+    assert math.isclose(acoustic["npvi_v"], 84.05797101449275)

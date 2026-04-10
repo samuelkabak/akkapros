@@ -30,17 +30,13 @@ python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p
 
 python "$repoRoot\src\akkapros\cli\prosmaker.py" "$resultsDir\corpus_syl.txt" -p corpus-sob --outdir "$resultsDir" --style sob
 
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 30 -p corpus-lob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 35 -p corpus-lob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_tilde.txt" --table --json --pause-ratio 40 -p corpus-lob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\phonetizer.py" "$resultsDir\corpus-lob_tilde.txt" -p corpus-lob --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\phonetizer.py" "$resultsDir\corpus-mono-lob_tilde.txt" -p corpus-mono-lob --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\phonetizer.py" "$resultsDir\corpus-sob_tilde.txt" -p corpus-sob --outdir "$resultsDir"
 
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 30 -p corpus-mono-lob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 35 -p corpus-mono-lob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_tilde.txt" --table --json --pause-ratio 40 -p corpus-mono-lob-p40 --outdir "$resultsDir"
-
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 30 -p corpus-sob-p30 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 35 -p corpus-sob-p35 --outdir "$resultsDir"
-python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_tilde.txt" --table --json --pause-ratio 40 -p corpus-sob-p40 --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-lob_phone.txt" --table --json -p corpus-lob --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-mono-lob_phone.txt" --table --json -p corpus-mono-lob --outdir "$resultsDir"
+python "$repoRoot\src\akkapros\cli\metricalc.py" "$resultsDir\corpus-sob_phone.txt" --table --json -p corpus-sob --outdir "$resultsDir"
 
 python "$repoRoot\src\akkapros\cli\printer.py" -p corpus-lob --outdir "$resultsDir" --acute --bold --ipa --xar "$resultsDir\corpus-lob_tilde.txt"
 

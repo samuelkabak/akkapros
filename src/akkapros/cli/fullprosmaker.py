@@ -237,7 +237,6 @@ def run_pipeline(
     mora_mode: str,
     only_last: bool,
     phonetize_config: dict[str, object],
-    explicit_link_count: str | None,
     output_table: bool,
     output_json: bool,
     output_csv: bool,
@@ -389,10 +388,10 @@ def run_pipeline(
     )
     try:
         metrics_result = process_metrics_file(
-            str(tilde_file),
+            str(phone_file),
             PHONETIZE_DEFAULT_WPM,
             PHONETIZE_DEFAULT_PAUSE_RATIO,
-            explicit_link_count_override=explicit_link_count,
+            ophone_filename=str(ophone_file),
         )
     except ValueError as exc:
         logger.error('%s', exc)
@@ -445,7 +444,7 @@ def run_pipeline(
             'prosody_style': style,
             'prosody_relax_last': not only_last,
             'prosody_restore_diphthongs': True,
-            'input': format_path_for_logging(tilde_file),
+            'input': format_path_for_logging(phone_file),
         }
         table = format_table(metrics_result, run_context=table_context)
         table_file = metrics_base.with_name(metrics_base.name + '_metrics.txt')
@@ -559,8 +558,6 @@ Version: {__version__}
     parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--metrics-table', action='store_true', help=help_for('fullprosmaker.metrics_table'))
     parser.add_argument('--metrics-json', action='store_true', help=help_for('fullprosmaker.metrics_json'))
-    parser.add_argument('--explicit-link-count',
-                        help=help_for('fullprosmaker.explicit_link_count'))
 
     # Printer options
     parser.add_argument('--print-acute', action='store_true',
@@ -596,14 +593,12 @@ Version: {__version__}
 
     if args.test_all:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
-        log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
         log_deprecated_config_flag_warnings(logger, args)
         ok = _run_all_selftests_with_summary(logger)
         sys.exit(0 if ok else 1)
 
     if args.test_syllabify or args.test_prosody or args.test_diphthongs or args.test_metrics or args.test_print or args.test_cli:
         logger = setup_cli_logging(args, 'akkapros.cli.fullprosmaker')
-        log_startup_banner(logger, 'akkapros-fullprosmaker', __version__, args)
         log_deprecated_config_flag_warnings(logger, args)
         ok = True
         if args.test_syllabify:
@@ -717,7 +712,6 @@ Version: {__version__}
         mora_mode=args.mora_mode,
         only_last=only_last,
         phonetize_config=phonetize_config,
-        explicit_link_count=args.explicit_link_count,
         output_table=output_table,
         output_json=output_json,
         output_csv=output_csv,

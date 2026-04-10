@@ -1,312 +1,168 @@
 # Full Prosmaker CLI (`fullprosmaker.py`)
 
-This document explains what `fullprosmaker.py` does, how to run it, and what files it produces.
+`fullprosmaker.py` runs the complete Akkadian processing pipeline in one
+command.
 
-**Implementation:**
-- CLI wrapper: `src/akkapros/cli/fullprosmaker.py`
-- Uses these libraries internally:
-  - `src/akkapros/lib/syllabify.py`
-  - `src/akkapros/lib/prosody.py`
-  - `src/akkapros/lib/phonetize.py`
-  - `src/akkapros/lib/metrics.py`
-  - `src/akkapros/lib/print.py`
+Implementation:
+- `src/akkapros/cli/fullprosmaker.py`
+- `src/akkapros/lib/syllabify.py`
+- `src/akkapros/lib/prosody.py`
+- `src/akkapros/lib/phonetize.py`
+- `src/akkapros/lib/metrics.py`
+- `src/akkapros/lib/print.py`
 
----
+## Pipeline Stages
 
-## 📋 Purpose
+| Stage | Input -> Output | Description |
+|-------|-----------------|-------------|
+| 1. Syllabify | `*_proc.txt` -> `*_syl.txt` | Adds syllable boundaries |
+| 2. Prosody | `*_syl.txt` -> `*_tilde.txt` | Applies accentuation |
+| 3. Phonetize | `*_tilde.txt` -> `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho` | Builds finalized phone-row and raw `.pho` artifacts |
+| 4. Metrics | `_ophone.txt` + `_phone.txt` -> table/json | Computes interval and structural metrics |
+| 5. Print | `*_tilde.txt` -> accent outputs | Generates user-facing text outputs |
 
-`fullprosmaker.py` runs the complete Akkadian processing pipeline in one command.
+## Core Outputs
 
-### Pipeline Stages
+Always written:
 
-| Stage | Input → Output | Description |
-|-------|----------------|-------------|
-| **1. Syllabify** | `*_proc.txt` → `*_syl.txt` | Adds syllable boundaries |
-| **2. Prosody realization** | `*_syl.txt` → `*_tilde.txt` | Applies accentuation algorithm |
-| **3. Phonetize** | `*_tilde.txt` → `*_ophone.txt`, `*_phone.txt`, `*_ombrola.pho`, `*_mbrola.pho` | Builds and finalizes the original and accentuated phone-row artifacts plus raw `.pho` streams |
-| **4. Metrics** | `*_tilde.txt` → table/json | Computes rhythmic and structural metrics |
-| **5. Print** | `*_tilde.txt` → accent outputs | Generates user-facing formats |
+- `<prefix>_syl.txt`
+- `<prefix>_tilde.txt`
+- `<prefix>_ophone.txt`
+- `<prefix>_phone.txt`
+- `<prefix>_ombrola.pho`
+- `<prefix>_mbrola.pho`
 
-The command centralizes shared options (`--prefix`, `--outdir`, extra phonetic symbols) and writes all selected outputs in one run.
+Optional metrics outputs:
 
----
+- `<prefix>_metrics.txt` with `--metrics-table` or by default when no metrics
+  format flag is set
+- `<prefix>_metrics.json` with `--metrics-json`
 
-## 📂 Input and Core Outputs
+Optional print outputs:
 
-### Input
-- One processed text file, typically `<prefix>_proc.txt` from `atfparser.py`.
+- `<prefix>_accent_acute.txt`
+- `<prefix>_accent_bold.md`
+- `<prefix>_accent_ipa.txt`
+- `<prefix>_accent_xar.txt`
+- `<prefix>_xar.txt`
 
-### Core Outputs (always written)
+## Syntax
 
-| File | Description |
-|------|-------------|
-| `<prefix>_syl.txt` | Syllabified text |
-| `<prefix>_tilde.txt` | Prosody-realized pivot format |
-| `<prefix>_ophone.txt` | Original/deaccented finalized phone-row artifact |
-| `<prefix>_phone.txt` | Canonical flat-line finalized phone-row artifact with CR-036 fields |
-| `<prefix>_ombrola.pho` | Original/deaccented raw `.pho` stream |
-| `<prefix>_mbrola.pho` | Accentuated raw `.pho` stream |
+```bash
+python src/akkapros/cli/fullprosmaker.py <input_proc.txt> [options]
+```
 
-The written `_tilde` pivot preserves three kinds of downstream-critical structure: armored punctuation / escaped chunks as `⟦...⟧`, diphthong memory as `¨`, and merge provenance as `+` for explicit inherited links versus `&` for internal prosody merges.
+## Key Options
 
-### Optional Metrics Outputs
+Shared I/O:
 
-| Flag | File | Description |
-|------|------|-------------|
-| `--metrics-table` | `<prefix>_metrics.txt` | Human-readable table |
-| `--metrics-json` | `<prefix>.json` | JSON format |
+- `-p, --prefix <name>`
+- `--outdir <dir>`
+- `--title <string>`
 
-The metrics outputs include the same `Prominence statistics` contract as
-`metricalc.py`: the table exposes those counters in the `ORIGINAL TEXT`
-section only, and JSON exposes them only under
-`original.prominence_statistics`.
+Prosody:
 
-Like standalone `metricalc.py`, full-pipeline metrics outputs do not republish
-`metadata.data` in their output front matter.
+- `--prosody-style {lob,sob}`
+- `--mora-mode {bi,mono}`
+- `--prosody-relax-last`
 
-### Optional Print Outputs
+Phonetizer timing/config passthrough:
 
-| Flag | File | Description |
-|------|------|-------------|
-| `--print-acute` | `<prefix>_accent_acute.txt` | Acute-marked text |
-| `--print-bold` | `<prefix>_accent_bold.md` | Bold-marked Markdown |
-| `--print-ipa` | `<prefix>_accent_ipa.txt` | IPA transcription |
-| `--print-xar` | `<prefix>_accent_xar.txt`<br>`<prefix>_xar.txt` | XAR transliteration (accented and plain) |
+- `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}`
+- `--phonetize-short-pause-policy {strict,best_effort}`
+- `--phonetize-drift-policy {strict,extensible}`
+- `--phonetize-drift-tolerance <int>`
+- `-t, --option KEY=VALUE`
 
----
+Metrics output selection:
 
-## 🚀 Command Syntax
+- `--metrics-table`
+- `--metrics-json`
 
-    python src/akkapros/cli/fullprosmaker.py <input_proc.txt> [options]
+Print output selection:
 
----
+- `--print-acute`
+- `--print-bold`
+- `--print-ipa`
+- `--print-ipa-proto-semitic {preserve,replace}`
+- `--print-circ-hiatus`
+- `--print-xar`
+- `--print-merger`
 
-## ⚙️ Option Groups
+The full pipeline no longer exposes `--explicit-link-count` for metrics.
+Explicit-link counts are derived from the generated phone-row structure.
 
-### Shared I/O
+## Examples
 
-| Option | Description |
-|--------|-------------|
-| `--version` | Print CLI version |
-| `-p, --prefix <name>` | Output prefix for all generated files |
-| `--outdir <dir>` | Output directory (default: current directory) |
+Minimal full run:
 
-### Syllabifier Options
+```bash
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+  -p erra \
+  --outdir outputs
+```
 
-| Option | Description |
-|--------|-------------|
-| `--extra-vowels <chars>` | Additional vowel characters to recognize in the syllabify stage; downstream metrics inherits them from front matter |
-| `--extra-consonants <chars>` | Additional consonant characters to recognize in the syllabify stage; downstream metrics inherits them from front matter |
-| `--extra-short-punct-chars <chars>` | Additional short-pause punctuation characters for the syllabify stage; downstream metrics inherits them from front matter |
-| `--extra-long-punct-chars <chars>` | Additional long-pause punctuation characters for the syllabify stage; downstream metrics inherits them from front matter |
-| `--extra-short-punct-pattern <regex>` | Repeatable regex for short-pause punctuation segments in the syllabify stage; downstream metrics inherits them from front matter |
-| `--extra-long-punct-pattern <regex>` | Repeatable regex for long-pause punctuation segments in the syllabify stage; downstream metrics inherits them from front matter |
-| `--number-format <regex>` | Number regex passed to syllabifier stage (empty uses built-in English-grouping-compatible pattern) |
-| `--syl-merge-hyphens` | Merge hyphens into syllable separators |
-| `--syl-merge-lines` | Normalize line breaks (default preserves original lines) |
-| `--title <string>` | Override inherited or missing `file.title` for the syllabifier output |
+JSON metrics output:
 
-### Prosmaker Options
-
-| Option | Description |
-|--------|-------------|
-| `--prosody-style {lob,sob}` | Accent style (default: `lob`) |
-| `--mora-mode {bi,mono}` | Accentuation trigger mode passed to the prosody stage (default: `bi`) |
-| `--prosody-relax-last` | Allow prosody realization propagation before last linked word |
-
-**Note:** Diphthong restoration is always applied automatically in the prosody realization stage. The final `_tilde.txt` pivot keeps the diphthong memory marker `¨`, while printer outputs remove it only at display time.
-
-`--mora-mode mono` is the academic comparison mode: it removes the bimoraic
-odd-parity prerequisite for accentuation attempts while keeping the same
-accent-site hierarchy and explicit-link locking. In this mode, unresolved
-units do not forward-merge; they fall directly to last resort.
-
-### Phonetizer Options
-
-| Option | Description |
-|--------|-------------|
-| `--phonetize-geminate-policy {corrective,cumulative}` | Pass through `phonetize.process.timing_model.geminate_policy` |
-| `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}` | Pass through `phonetize.process.timing_model.accentuation_distribution_policy` |
-| `--phonetize-short-pause-policy {strict,best_effort}` | Pass through `phonetize.process.timing_model.short_pause_policy` |
-| `--phonetize-drift-policy {strict,extensible}` | Pass through `phonetize.process.timing_model.drift_policy` |
-| `--phonetize-drift-tolerance <int>` | Pass through `phonetize.process.timing_model.drift_tolerance` |
-| `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` |
-
-Dedicated config-backed flags remain supported during the transition, but they are now deprecated in favor of `--option KEY=VALUE` or `--conf FILE`.
-
-### Metricalc Options
-
-| Option | Description |
-|--------|-------------|
-| `--metrics-table` | Generate human-readable table output |
-| `--metrics-json` | Generate JSON output |
-| `--explicit-link-count <int>` | Override inherited `metadata.data.prosody.explicit_word_link_count` for metrics |
-
-**Default behavior:** If no metrics format flag is provided, table output is enabled automatically.
-
-Long-pause punctuation weight is fixed internally at `2.0` and is no longer a
-metrics-stage CLI option. The current transition also removes metrics-owned
-timing flags; `fullprosmaker` uses the phonetize transition defaults internally
-for metrics (`wpm = 193`, `pause_ratio = 35`).
-
-The longer-term transition target is a structured phonetize handoff where `_ophone.txt`, `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho` carry the canonical phonetic export streams and `_tilde.txt` remains the live prosody-bearing pivot until metricalc fully adopts that handoff.
-
-When you are iterating on phonetize timing settings in grouped config, the
-recommended preflight is `confwriter --verify`. That uses the same shared
-semantic verification layer that standalone phonetizer now runs before Phase 2
-continues.
-
-`fullprosmaker` also now exposes program-scoped and path-scoped help:
-
-- `python -m akkapros.cli.fullprosmaker --help`
-- `python -m akkapros.cli.fullprosmaker --help phonetize.process.timing_model`
-
-### Printer Options
-
-| Option | Description |
-|--------|-------------|
-| `--print-acute` | Generate acute-marked text |
-| `--print-bold` | Generate bold-marked Markdown |
-| `--print-ipa` | Generate IPA transcription |
-| `--print-ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping policy |
-| `--print-circ-hiatus` | Speculative mode: split circumflex vowels into hiatus (e.g., `qû → qʊ.ʊ`) |
-| `--print-xar` | Generate XAR transliteration (both accented and plain) |
-| `--print-merger` | Preserve the visible merge connector `‿` in acute, bold, and accented XAR outputs |
-
-**Default behavior:** If no print output flag is selected, `--print-acute` and `--print-bold` are enabled automatically.
-
-Without `--print-merger`, acute, bold, and accented XAR outputs render merged words with ordinary spaces. IPA is unchanged, and plain `_xar.txt` remains space-separated.
-
----
-
-## 🧪 Test Modes
-
-`fullprosmaker.py` can run stage-specific tests without processing an input file.
-
-| Option | Tests |
-|--------|-------|
-| `--test-syllabify` | Syllabifier tests |
-| `--test-prosody` | Prosody realization tests |
-| `--test-diphthongs` | Diphthong restoration tests |
-| `--test-metrics` | Metrics computation tests |
-| `--test-print` | Printer output tests |
-| `--test-cli` | CLI option-resolution tests |
-| `--test-all` | All of the above |
-
----
-
-## 💡 Typical Usage Examples
-
-### Minimal Full Run (Default Outputs)
-
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs
-
-This generates:
-- `erra_syl.txt`
-- `erra_tilde.txt`
-- `erra_ophone.txt`
-- `erra_phone.txt`
-- `erra_ombrola.pho`
-- `erra_mbrola.pho`
-- `erra_metrics.txt` (default table)
-- `erra_accent_acute.txt` (default acute)
-- `erra_accent_bold.md` (default bold)
-
-### Run with Explicit Style and Metrics Table
-
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs \
-      --prosody-style lob \
-      --phonetize-geminate-policy corrective \
-      --metrics-table
-
-### Config-First Run with a Path Override
-
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      --conf run.yaml \
-      --option phonetize.process.timing_model.speech.wpm=201
-
-### Run with Mono Mora Mode
-
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra-mono \
-      --outdir outputs \
-      --mora-mode mono \
-      --metrics-table
-
-### Run with Machine-Readable Metrics (JSON)
-
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs \
+```bash
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+  -p erra \
+  --outdir outputs \
   --metrics-json
+```
 
-### Start from Content-Only Prepared Text
+Mono-mode comparison run:
 
-    python src/akkapros/cli/fullprosmaker.py prepared_text.txt \
-      --title "Prepared Corpus" \
-      --explicit-link-count 0 \
-      -p prepared \
-      --outdir outputs
+```bash
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+  -p erra-mono \
+  --outdir outputs \
+  --mora-mode mono \
+  --metrics-table
+```
 
-### Full Pipeline with Punctuation Extensions
+Run with punctuation extensions:
 
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs \
-      --extra-short-punct-chars "·" \
-      --extra-long-punct-chars "※" \
-      --extra-short-punct-pattern "^\\s*[·]+\\s*$" \
-      --extra-long-punct-pattern "^\\s*[※]+\\s*$"
+```bash
+python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
+  -p erra \
+  --outdir outputs \
+  --extra-short-punct-chars "·" \
+  --extra-long-punct-chars "※" \
+  --extra-short-punct-pattern "^\\s*[·]+\\s*$" \
+  --extra-long-punct-pattern "^\\s*[※]+\\s*$"
+```
 
-### Run with IPA and Speculative Circumflex Hiatus
+## Stage Behavior Notes
 
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs \
-      --print-ipa \
-      --print-ipa-proto-semitic replace \
-      --print-circ-hiatus
+Execution order is fixed:
 
-### Run with XAR Output (Skip Acute/Bold/IPA)
+1. syllabify
+2. prosody
+3. phonetize
+4. metrics
+5. print
 
-    python src/akkapros/cli/fullprosmaker.py outputs/erra_proc.txt \
-      -p erra \
-      --outdir outputs \
-      --print-xar
+Metrics now consumes the generated `_ophone.txt` and `_phone.txt` artifacts.
+`_tilde.txt` remains the prosody pivot for printer output and upstream
+reconstruction, but it is no longer the active metrics input.
 
-### Run Full Test Suite
+Prosody-stage front matter no longer carries explicit-link counts for metrics.
+The metrics stage derives those counts from phone-row structure.
 
-    python src/akkapros/cli/fullprosmaker.py --test-all
+## Related Commands
 
----
+For isolated stage work:
 
-## 🔄 Stage Order and Internal Behavior
+- `atfparser.py`
+- `syllabifier.py`
+- `prosmaker.py`
+- `phonetizer.py`
+- `metricalc.py`
+- `printer.py`
 
-Execution order is **fixed** and cannot be changed:
-
-1. **Syllabification** always runs first and saves `*_syl.txt`
-2. **Prosody realization** always runs second and saves `*_tilde.txt`
-3. **Metrics** computed from prosody-realized output (if requested)
-4. **Print outputs** generated from prosody-realized output (if requested)
-
-The command exits with non-zero status if any stage fails, making it suitable for scripting and batch processing.
-
-Punctuation regex options are pre-validated before any stage starts. Invalid regex aborts immediately.
-
-By default, the initial input is validated at startup and reports precise source + line details for obvious corruption or wrong stage input (`*_proc.txt` expected).
-
-### Validation Rules (Middle Strictness)
-
-`fullprosmaker.py` validates only the entry input (`*_proc.txt`) at startup with moderate strictness: enough to detect wrong-stage/corrupted files that would break the pipeline, but not so strict that normal textual variation becomes unusable. It does not auto-correct wrong input types (for example raw `.atf`); it fails fast with a precise error instead.
-The validator is gatekeeper-only: it never rewrites input files and never performs hidden precleaning; it only allows processing to continue or fails with a precise error.
-
-This command inherits the same reduced metadata contract as the individual
-stages: `--title` feeds the syllabifier title override, and
-`--explicit-link-count` feeds the metrics override.
+For production runs, use `fullprosmaker.py` so the stage contracts stay aligned
+across the full pipeline.
 
 Front matter for prosody and downstream outputs preserves
 `metadata.options.mora_mode` so artifact consumers can distinguish `bi` from

@@ -20,8 +20,10 @@ PHONEPREP_REF_DIR = INTREF_DIR / "phoneprep"
 INPUT_ATF = INTREF_DIR / "L_I.2_Poem_of_Creation_SB_II.atf"
 INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 
-# Gold-standard values from known-good output for this reference sample.
-GOLD_VARCOC_ACCENTUATED = 86.57
+# Gold-standard values for the current phone-interval metrics model.
+# Metrics are intentionally verified from parsed current outputs and manual
+# formulas, not by pinning old snapshot files from the superseded _tilde model.
+GOLD_VARCOC_ACCENTUATED = 61.35
 GOLD_ACCENTUATION_RATE = 21.74
 GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma⟦ : ⟧ti·¨ā~m·tu pi·tiq·ša"
 GOLD_MONO_TILDE_SAMPLE_LINE = "tā·ḫā~·za ˙ik~·ta·ṣar⟦ : ⟧˙a·na&˙i·lī~ nip·rī~·ša"
@@ -274,7 +276,7 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
 
     _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         prefix,
         "--outdir",
@@ -291,7 +293,7 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     metrics_json_obj = json.loads(_read_text(metrics_json))
     assert "frontmatter" in metrics_json_obj
     assert "data" not in metrics_json_obj["frontmatter"]["metadata"]
-    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, tilde_file)
+    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, phone_file)
 
     _run_cli(
         "akkapros.cli.printer",
@@ -483,11 +485,13 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
 
     _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         prefix,
         "--outdir",
         str(outdir),
+        "--ophone",
+        str(ophone_file),
         "--table",
         "--json",
     )
@@ -499,7 +503,7 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     metrics_json_obj = json.loads(_read_text(metrics_json))
     assert "frontmatter" in metrics_json_obj
     assert metrics_json_obj["frontmatter"]["metadata"]["options"]["mora_mode"] == "mono"
-    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, tilde_file)
+    _assert_metrics_artifact_paths_are_safe(metrics_txt, metrics_json, phone_file)
 
     _run_cli(
         "akkapros.cli.printer",
@@ -607,7 +611,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     for generated, reference in full_reference_map.items():
         _assert_matches_reference(generated, reference)
 
-    _assert_metrics_artifact_paths_are_safe(outdir / "test_metrics.txt", outdir / "test.json", outdir / "test_tilde.txt")
+    _assert_metrics_artifact_paths_are_safe(outdir / "test_metrics.txt", outdir / "test.json", outdir / "test_phone.txt")
 
 
 def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
@@ -678,7 +682,7 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     _assert_metrics_artifact_paths_are_safe(
         outdir / "test_mono_metrics.txt",
         outdir / "test_mono.json",
-        outdir / "test_mono_tilde.txt",
+        outdir / "test_mono_phone.txt",
     )
 
 
@@ -697,10 +701,18 @@ def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
         "--style",
         "lob",
     )
+    _run_cli(
+        "akkapros.cli.phonetizer",
+        str(outdir / "legacy_tilde.txt"),
+        "-p",
+        "legacy",
+        "--outdir",
+        str(outdir),
+    )
 
     proc = _run_cli(
         "akkapros.cli.metricalc",
-        str(outdir / "legacy_tilde.txt"),
+        str(outdir / "legacy_phone.txt"),
         "-p",
         "legacy",
         "--outdir",
@@ -734,36 +746,15 @@ def test_fullprosmaker_legacy_metrics_csv_flag_logs_warning_notice(tmp_path: Pat
     assert not (outdir / "legacy.csv").exists()
 
 
-def test_metricalc_requires_frontmatter_prominence_counts(tmp_path: Path) -> None:
-    outdir = tmp_path / "missing_prominence"
+def test_metricalc_fails_clearly_when_derived_ophone_is_missing(tmp_path: Path) -> None:
+    outdir = tmp_path / "missing_ophone"
     outdir.mkdir(parents=True, exist_ok=True)
-    tilde_file = tmp_path / "missing_prominence_tilde.txt"
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Missing prominence\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-28\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
-        encoding="utf-8",
-    )
+    phone_file = outdir / "broken_phone.txt"
+    phone_file.write_text("AA-V-V-S-N-N-A-AA-0100:a\n", encoding="utf-8")
 
     proc = _run_cli_expect_failure(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "broken",
         "--outdir",
@@ -772,7 +763,7 @@ def test_metricalc_requires_frontmatter_prominence_counts(tmp_path: Path) -> Non
     )
 
     assert proc.returncode != 0
-    assert "missing required field" in proc.stderr or "missing required field" in proc.stdout
+    assert "Derived original phone file does not exist" in (proc.stderr + proc.stdout)
 
 
 def test_syllabifier_accepts_content_only_input_and_title_override(tmp_path: Path) -> None:
@@ -800,74 +791,42 @@ def test_syllabifier_accepts_content_only_input_and_title_override(tmp_path: Pat
     assert body.strip()
 
 
-def test_metricalc_explicit_link_count_override_and_validation(tmp_path: Path) -> None:
+def test_metricalc_rejects_removed_explicit_link_count_flag(tmp_path: Path) -> None:
     outdir = tmp_path / "explicit_override"
     outdir.mkdir(parents=True, exist_ok=True)
-    tilde_file = tmp_path / "override_tilde.txt"
-    tilde_file.write_text(
-        "---\n"
-        "package:\n"
-        "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
-        "pipeline: \"pipeline\"\n"
-        "step: \"prosody\"\n"
-        "file:\n"
-        "  id: \"tilde-id\"\n"
-        "  title: \"Override\"\n"
-        "  format: \"tilde\"\n"
-        "  version: \"1.0.0\"\n"
-        "  date: \"2026-03-29\"\n"
-        "metadata:\n"
-        "  input_file_id: \"syl-id\"\n"
-        "  options:\n"
-        "    style: \"lob\"\n"
-        "  data:\n"
-        "---\n\n"
-        "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
-        encoding="utf-8",
-    )
-
+    _run_cli("akkapros.cli.syllabifier", str(INPUT_PROC), "-p", "override", "--outdir", str(outdir))
     _run_cli(
-        "akkapros.cli.metricalc",
-        str(tilde_file),
+        "akkapros.cli.prosmaker",
+        str(outdir / "override_syl.txt"),
         "-p",
         "override",
+        "--outdir",
+        str(outdir),
+        "--style",
+        "lob",
+    )
+    _run_cli(
+        "akkapros.cli.phonetizer",
+        str(outdir / "override_tilde.txt"),
+        "-p",
+        "override",
+        "--outdir",
+        str(outdir),
+    )
+
+    bad_flag = _run_cli_expect_failure(
+        "akkapros.cli.metricalc",
+        str(outdir / "override_phone.txt"),
+        "-p",
+        "override_bad_flag",
         "--outdir",
         str(outdir),
         "--table",
         "--explicit-link-count",
         "1",
     )
-    assert (outdir / "override_metrics.txt").exists()
-
-    bad_type = _run_cli_expect_failure(
-        "akkapros.cli.metricalc",
-        str(tilde_file),
-        "-p",
-        "override_bad_type",
-        "--outdir",
-        str(outdir),
-        "--table",
-        "--explicit-link-count",
-        "abc",
-    )
-    assert bad_type.returncode != 0
-    assert "--explicit-link-count must be a positive integer" in (bad_type.stderr + bad_type.stdout)
-
-    bad_range = _run_cli_expect_failure(
-        "akkapros.cli.metricalc",
-        str(tilde_file),
-        "-p",
-        "override_bad_range",
-        "--outdir",
-        str(outdir),
-        "--table",
-        "--explicit-link-count",
-        "5",
-    )
-    assert bad_range.returncode != 0
-    assert "--explicit-link-count must be an integer between 0 and 4, where 4 = word_count - function_word_count" in (bad_range.stderr + bad_range.stdout)
-    assert not (outdir / "override_bad_range_metrics.txt").exists()
+    assert bad_flag.returncode != 0
+    assert "unrecognized arguments: --explicit-link-count 1" in (bad_flag.stderr + bad_flag.stdout)
 
 
 def test_cli_phoneprep_outputs(tmp_path: Path) -> None:

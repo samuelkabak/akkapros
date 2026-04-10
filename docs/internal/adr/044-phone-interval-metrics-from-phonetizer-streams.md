@@ -1,8 +1,8 @@
 ---
 adr_id: ADR-044
-status: Proposed
+status: Accepted
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-04-10
 superseded_by: null
 ---
 
@@ -172,4 +172,4 @@ The active rhythm family becomes:
 
 ## Reviewed By
 
-- Pending maintainer review
+- Accepted through CR-046 implementation and verification on 2026-04-10

@@ -26,13 +26,8 @@ from akkapros.lib.config import (
 )
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,
-    count_function_words,
-    count_lines,
-    count_prosodic_units,
-    count_syllables_from_marked_text,
     compose_text_document,
     effective_options_from_namespace,
-    extract_lexical_words,
     read_text_file,
     resolve_inherited_syllabify_options,
     resolve_file_title,
@@ -48,7 +43,6 @@ from akkapros.lib.metrics import (
     run_tests,
 )
 from akkapros.lib.utils import (
-    FormatValidationError,
     RawDefaultsHelpFormatter,
     add_standard_logging_arguments,
     add_standard_version_argument,
@@ -56,7 +50,6 @@ from akkapros.lib.utils import (
     log_startup_banner,
     setup_cli_logging,
     simple_safe_filename,
-    validate_intermediate_format,
 )
 
 
@@ -71,7 +64,8 @@ def main() -> None:
         add_help=False,
         epilog=f"""
 EXAMPLES:
-    python metricalc.py erra_tilde.txt --table
+    python metricalc.py erra_phone.txt --table
+    python metricalc.py erra_phone.txt --ophone erra_ophone.txt --json
     python metricalc.py --test
 
 Version {__version__}
@@ -88,8 +82,7 @@ Version {__version__}
     parser.add_argument('--csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--table', action='store_true', help=help_for('metricalc.table'))
     parser.add_argument('--json', action='store_true', help=help_for('metricalc.json'))
-    parser.add_argument('--explicit-link-count',
-                        help=help_for('metricalc.explicit_link_count'))
+    parser.add_argument('--ophone', help=help_for('metricalc.ophone'))
     parser.add_argument('--test', action='store_true', help=help_for('metricalc.test'))
 
     try:
@@ -100,7 +93,6 @@ Version {__version__}
 
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
-        log_startup_banner(logger, 'akkapros-metrics', __version__, args)
         log_deprecated_config_flag_warnings(logger, args)
         success = run_tests()
         sys.exit(0 if success else 1)
@@ -123,28 +115,24 @@ Version {__version__}
     elif args.input:
         input_files = [args.input]
 
+    if args.input_list and args.ophone:
+        logger.error('--ophone cannot be combined with --input-list')
+        sys.exit(2)
+
     for input_file in input_files:
         if not Path(input_file).exists():
             logger.error('File not found: %s', input_file)
             sys.exit(1)
 
-    for input_file in input_files:
-        try:
-            validate_intermediate_format(input_file, expected_kind='tilde')
-        except FormatValidationError as exc:
-            logger.error('Invalid input format: %s', exc)
-            logger.error('Hint: upstream stage output may be partial/corrupted; re-run prosmaker.')
-            sys.exit(2)
-
     option_values = effective_options_from_namespace(
         args,
-        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv', 'conf'},
+        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv', 'conf', 'ophone'},
     )
 
     results = []
     inherited_syllabify_options = []
     for input_file in input_files:
-        input_frontmatter, tilde_body = read_text_file(input_file)
+        input_frontmatter, phone_body = read_text_file(input_file)
         inherited_syllabify = resolve_inherited_syllabify_options(input_frontmatter)
         try:
             configure_pause_punctuation_rules(
@@ -165,16 +153,11 @@ Version {__version__}
                 input_file,
                 PHONETIZE_DEFAULT_WPM,
                 PHONETIZE_DEFAULT_PAUSE_RATIO,
-                explicit_link_count_override=args.explicit_link_count,
+                ophone_filename=args.ophone,
             )
         except ValueError as exc:
             logger.error('%s', exc)
             sys.exit(2)
-        logger.info('Computed line_count: %d', count_lines(tilde_body))
-        logger.info('Computed word_count: %d', len(extract_lexical_words(tilde_body)))
-        logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(tilde_body))
-        logger.info('Computed function_word_count: %d', count_function_words(tilde_body))
-        logger.info('Computed prosodic_unit_count: %d', count_prosodic_units(tilde_body))
         logger.info('Computed accentuated_syllable_count: %d', int(result['accentuation_stats']['accentuated_syllables']))
         results.append(result)
         inherited_syllabify_options.append(inherited_syllabify)
@@ -211,7 +194,7 @@ Version {__version__}
             _prune_res(pruned)
 
         if len(input_files) == 1 and isinstance(pruned, dict):
-            input_frontmatter, tilde_body = read_text_file(input_files[0])
+            input_frontmatter, phone_body = read_text_file(input_files[0])
             pruned['frontmatter'] = build_output_frontmatter(
                 output_path=json_file,
                 step='metrics',
@@ -245,7 +228,7 @@ Version {__version__}
                 'input': format_path_for_logging(input_files[0]),
             }
             table = format_table(results[0], run_context=table_context)
-            input_frontmatter, tilde_body = read_text_file(input_files[0])
+            input_frontmatter, phone_body = read_text_file(input_files[0])
             table_file = base.with_name(base.name + '_metrics.txt')
 
             frontmatter = build_output_frontmatter(
@@ -277,7 +260,7 @@ Version {__version__}
                 table = format_table(result, run_context=table_context)
                 safe_stem = simple_safe_filename(Path(input_file).stem)
                 table_file = Path(args.outdir) / f"{safe_stem}_metrics.txt"
-                input_frontmatter, tilde_body = read_text_file(input_file)
+                input_frontmatter, phone_body = read_text_file(input_file)
                 frontmatter = build_output_frontmatter(
                     output_path=table_file,
                     step='metrics',

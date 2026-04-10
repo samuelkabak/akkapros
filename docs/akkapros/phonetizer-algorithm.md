@@ -194,12 +194,11 @@ Special-realization note:
 
 The `_tilde` input contract consumed here may also carry armored punctuation spans as `⟦...⟧`; those are preserved as structured pause rows rather than de-armored back to plain punctuation upstream. Unsupported non-punctuation armored content fails explicitly instead of being dropped silently.
 
-## Transition Note
+## Metrics Handoff Note
 
-`metricalc` still computes from `_tilde.txt` rather than consuming `_ophone.txt` and `_phone.txt` directly.
-The transition plan is that metrics eventually consumes the structured `_phone` handoff alongside the prosody-bearing `_tilde` pivot while the contract settles.
-During the current transition it uses the phonetize defaults internally:
-- `wpm = 193`
-- `pause_ratio = 35`
+`metricalc` now consumes `_ophone.txt` and `_phone.txt` directly as its active
+inputs. The phonetizer owns the duration-bearing representation used for
+interval metrics, drift reporting, and explicit-link reconstruction.
 
-That is an implementation bridge, not the final phonetize-to-metrics contract.
+`_tilde.txt` remains the prosody pivot for printer output and upstream
+reconstruction, but it is no longer the active metrics source.

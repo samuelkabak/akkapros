@@ -812,9 +812,7 @@ def build_prosody_stage_data(
     input_frontmatter: dict[str, Any] | None = None,
     accentuated_syllable_count: int | None = None,
 ) -> dict[str, int]:
-    return {
-        "explicit_word_link_count": count_explicit_word_links(syl_body),
-    }
+    return {}
 
 
 def build_metrics_stage_data(

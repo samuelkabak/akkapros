@@ -54,6 +54,21 @@ def _build_tilde(tmp_path: Path) -> Path:
     return outdir / "logging_tilde.txt"
 
 
+def _build_phone(tmp_path: Path) -> Path:
+    tilde_file = _build_tilde(tmp_path)
+    outdir = tilde_file.parent
+    phonetizer = _run_cli(
+        "akkapros.cli.phonetizer",
+        str(tilde_file),
+        "-p",
+        "logging",
+        "--outdir",
+        str(outdir),
+    )
+    assert phonetizer.returncode == 0, phonetizer.stderr or phonetizer.stdout
+    return outdir / "logging_phone.txt"
+
+
 def test_cli_help_lists_shared_logging_options() -> None:
     modules = [
         "akkapros.cli.atfparser",
@@ -83,13 +98,13 @@ def test_cli_log_append_requires_log() -> None:
 
 
 def test_metricalc_no_console_logs_to_file(tmp_path: Path) -> None:
-    tilde_file = _build_tilde(tmp_path)
-    outdir = tilde_file.parent
+    phone_file = _build_phone(tmp_path)
+    outdir = phone_file.parent
     log_file = outdir / "metricalc.log"
 
     proc = _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "logging",
         "--outdir",
@@ -110,13 +125,13 @@ def test_metricalc_no_console_logs_to_file(tmp_path: Path) -> None:
 
 
 def test_metricalc_console_and_logfile_are_coherent(tmp_path: Path) -> None:
-    tilde_file = _build_tilde(tmp_path)
-    outdir = tilde_file.parent
+    phone_file = _build_phone(tmp_path)
+    outdir = phone_file.parent
     log_file = outdir / "metricalc.log"
 
     proc = _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "logging",
         "--outdir",
@@ -134,12 +149,12 @@ def test_metricalc_console_and_logfile_are_coherent(tmp_path: Path) -> None:
 
 
 def test_metricalc_quiet_keeps_warning_channel(tmp_path: Path) -> None:
-    tilde_file = _build_tilde(tmp_path)
-    outdir = tilde_file.parent
+    phone_file = _build_phone(tmp_path)
+    outdir = phone_file.parent
 
     proc = _run_cli(
         "akkapros.cli.metricalc",
-        str(tilde_file),
+        str(phone_file),
         "-p",
         "logging",
         "--outdir",
