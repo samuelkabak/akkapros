@@ -2,6 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[053. Expand prosmaker demo config to full explicit defaults](053-expand-prosmaker-demo-config-to-full-explicit-defaults.md) - Done
+[052. Make prosmaker demo config-driven and restore printer outputs](052-make-prosmaker-demo-config-driven-and-restore-printer-outputs.md) - Done
 [051. Align and enrich research-facing package documentation](051-align-and-enrich-research-facing-package-documentation.md) - Done
 [050. Add Third-Pass Intonation Framework and Silence Typing to Phonetizer](050-add-intonation-token-framework-and-silence-typing-to-phonetizer.md) - Done
 [049. Add X-SAMPA MBROLA Export Column and Remove Printer MBROLA Residue](049-add-xsampa-mbrola-export-column-and-remove-printer-mbrola-residue.md) - Done
