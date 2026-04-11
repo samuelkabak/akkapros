@@ -197,6 +197,14 @@ def _assert_pho_artifact(path: Path) -> None:
         assert int(frequency) > 0
 
 
+def _parse_pho_artifact(path: Path) -> list[tuple[str, int, int]]:
+    rows: list[tuple[str, int, int]] = []
+    for line in _read_text(path).strip().splitlines():
+        symbol, duration, frequency = line.split()
+        rows.append((symbol, int(duration), int(frequency)))
+    return rows
+
+
 def _build_tilde_file(tmp_path: Path, prefix: str) -> tuple[Path, Path]:
     outdir = tmp_path / prefix
     outdir.mkdir(parents=True, exist_ok=True)
@@ -407,6 +415,39 @@ def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_pat
     )
 
     assert (outdir / 'akkapros_accent_ipa.txt').exists()
+
+
+def test_phonetizer_pho_outputs_xsampa_while_phone_rows_keep_realization_codes(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_xsampa'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'sample_tilde.txt'
+    tilde_file.write_text('ḥa ḫa ʿa ʾa qa\n', encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '-p', 'sample', '--outdir', str(outdir))
+
+    phone_body = _strip_yaml_frontmatter(_read_text(outdir / 'sample_phone.txt'))
+    ophone_body = _strip_yaml_frontmatter(_read_text(outdir / 'sample_ophone.txt'))
+    mbrola_rows = _parse_pho_artifact(outdir / 'sample_mbrola.pho')
+    ombrola_rows = _parse_pho_artifact(outdir / 'sample_ombrola.pho')
+
+    assert '-ET-' in phone_body
+    assert '-HE-' in phone_body
+    assert '-AI-' in phone_body
+    assert '-AL-' in phone_body
+    assert '-QU-' in phone_body
+    assert '-AO-' in phone_body
+
+    assert '-ET-' in ophone_body
+    assert '-HE-' in ophone_body
+
+    emitted_symbols = {symbol for symbol, _duration, _frequency in mbrola_rows}
+    assert {'X', 'x', 'H', '?', 'q', 'a.', '_'}.issubset(emitted_symbols)
+    assert not emitted_symbols.intersection({'ET', 'HE', 'AI', 'AL', 'QU', 'AO', 'SP', 'ZP'})
+
+    original_symbols = {symbol for symbol, _duration, _frequency in ombrola_rows}
+    assert '_' in original_symbols
+    assert 'a.' in original_symbols
 
 
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:

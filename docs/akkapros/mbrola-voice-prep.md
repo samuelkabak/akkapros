@@ -13,6 +13,12 @@ Build an Akkadian MBROLA voice using:
 3. **`akkapros` segmenter** (planned, not yet released) to segment WAV chunks
 4. **MBROLATOR** to compile the resulting diphone dataset into an MBROLA voice
 
+Important contract boundary:
+
+- `phoneprep.py` sidecars use their own MBROLA/X-SAMPA-like machine symbols for recording and MBROLATOR preparation
+- phonetizer-owned `.pho` export is a separate downstream rendering derived from internal realization codes
+- these two surfaces are intentionally related but not identical, and this guide concerns the `phoneprep.py` / MBROLATOR side only
+
 ---
 
 ## 📋 Pipeline Overview

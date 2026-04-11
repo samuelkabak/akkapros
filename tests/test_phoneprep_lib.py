@@ -26,3 +26,12 @@ def test_validate_pattern1_sample():
 
 def test_phoneprep_lib_selftest():
     assert phoneprep.run_tests()
+
+
+def test_phoneprep_mbrola_sidecar_mapping_remains_unchanged():
+    assert phoneprep.to_mbrola_symbol('ḥ') == 'X'
+    assert phoneprep.to_mbrola_symbol('ḫ') == 'x'
+    assert phoneprep.to_mbrola_symbol('ʿ') == 'H'
+    assert phoneprep.to_mbrola_symbol('ʾ') == '?'
+    assert phoneprep.to_mbrola_symbol('ɑ') == 'a.'
+    assert phoneprep.to_mbrola_symbol('ā') == 'a a'

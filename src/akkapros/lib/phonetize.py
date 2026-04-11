@@ -282,48 +282,49 @@ INPUT_CHARACTER_LABELS = {text: label for text, label, _length in INPUT_CHARACTE
 INPUT_CHARACTER_LENGTHS = {text: length for text, _label, length in INPUT_CHARACTER_ROWS}
 
 REALIZATION_CODE_ROWS = (
-    ('BE', 'b', 'C', 'C', 'P'),
-    ('DA', 'd', 'C', 'C', 'P'),
-    ('GI', 'ɡ', 'C', 'C', 'P'),
-    ('KA', 'k', 'C', 'C', 'P'),
-    ('PA', 'p', 'C', 'C', 'P'),
-    ('TU', 'tˤ', 'C', 'C', 'E'),
-    ('QU', 'q', 'C', 'C', 'E'),
-    ('SU', 'sˤ', 'C', 'F', 'E'),
-    ('SA', 's', 'C', 'F', 'P'),
-    ('ZI', 'z', 'C', 'F', 'P'),
-    ('SI', 'ʃ', 'C', 'F', 'P'),
-    ('LA', 'l', 'C', 'S', 'P'),
-    ('MI', 'm', 'C', 'S', 'P'),
-    ('NA', 'n', 'C', 'S', 'P'),
-    ('RE', 'r', 'C', 'S', 'P'),
-    ('ET', 'ħ', 'C', 'F', 'P'),
-    ('HE', 'x', 'C', 'F', 'P'),
-    ('AI', 'ʕ', 'C', 'F', 'P'),
-    ('AL', 'ʔ', 'C', 'C', 'P'),
-    ('WA', 'w', 'C', 'S', 'P'),
-    ('YI', 'j', 'C', 'S', 'P'),
-    ('TA', 't', 'C', 'C', 'P'),
-    ('AA', 'a', 'V', 'L', 'P'),
-    ('EE', 'e', 'V', 'M', 'P'),
-    ('II', 'i', 'V', 'H', 'P'),
-    ('UU', 'u', 'V', 'H', 'P'),
-    ('AO', 'ɑ', 'V', 'L', 'P'),
-    ('EO', 'ɛ', 'V', 'M', 'P'),
-    ('IO', 'ɨ', 'V', 'H', 'P'),
-    ('UO', 'ʊ', 'V', 'H', 'P'),
-    ('SP', '|', 'S', 'S', 'P'),
-    ('ZP', '‖', 'S', 'S', 'P'),
+    ('BE', 'b', 'b', 'C', 'C', 'P'),
+    ('DA', 'd', 'd', 'C', 'C', 'P'),
+    ('GI', 'ɡ', 'g', 'C', 'C', 'P'),
+    ('KA', 'k', 'k', 'C', 'C', 'P'),
+    ('PA', 'p', 'p', 'C', 'C', 'P'),
+    ('TU', 'tˤ', 't.', 'C', 'C', 'E'),
+    ('QU', 'q', 'q', 'C', 'C', 'E'),
+    ('SU', 'sˤ', 's.', 'C', 'F', 'E'),
+    ('SA', 's', 's', 'C', 'F', 'P'),
+    ('ZI', 'z', 'z', 'C', 'F', 'P'),
+    ('SI', 'ʃ', 'S', 'C', 'F', 'P'),
+    ('LA', 'l', 'l', 'C', 'S', 'P'),
+    ('MI', 'm', 'm', 'C', 'S', 'P'),
+    ('NA', 'n', 'n', 'C', 'S', 'P'),
+    ('RE', 'r', 'r', 'C', 'S', 'P'),
+    ('ET', 'ħ', 'X', 'C', 'F', 'P'),
+    ('HE', 'x', 'x', 'C', 'F', 'P'),
+    ('AI', 'ʕ', 'H', 'C', 'F', 'P'),
+    ('AL', 'ʔ', '?', 'C', 'C', 'P'),
+    ('WA', 'w', 'w', 'C', 'S', 'P'),
+    ('YI', 'j', 'j', 'C', 'S', 'P'),
+    ('TA', 't', 't', 'C', 'C', 'P'),
+    ('AA', 'a', 'a', 'V', 'L', 'P'),
+    ('EE', 'e', 'e', 'V', 'M', 'P'),
+    ('II', 'i', 'i', 'V', 'H', 'P'),
+    ('UU', 'u', 'u', 'V', 'H', 'P'),
+    ('AO', 'ɑ', 'a.', 'V', 'L', 'P'),
+    ('EO', 'ɛ', 'e.', 'V', 'M', 'P'),
+    ('IO', 'ɨ', 'i.', 'V', 'H', 'P'),
+    ('UO', 'ʊ', 'u.', 'V', 'H', 'P'),
+    ('SP', '|', '_', 'S', 'S', 'P'),
+    ('ZP', '‖', '_', 'S', 'S', 'P'),
 )
 
 REALIZATION_CODE_METADATA = {
     code: {
         'ipa': ipa,
+        'mbrola_xsampa': mbrola_xsampa,
         'category': category,
         'type': type_code,
         'emphaticity': emphaticity,
     }
-    for code, ipa, category, type_code, emphaticity in REALIZATION_CODE_ROWS
+    for code, ipa, mbrola_xsampa, category, type_code, emphaticity in REALIZATION_CODE_ROWS
 }
 
 INPUT_TO_REALIZATION_ROWS = (
@@ -1219,14 +1220,14 @@ def _mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | 
     for unit in _partition_phone_units(rows):
         if unit['kind'] == 'pause':
             row = rows[unit['index']]
-            emitted.append(('_', int(row['duration']), baseline_f0))
+            emitted.append((REALIZATION_CODE_METADATA[row['realization']]['mbrola_xsampa'], int(row['duration']), baseline_f0))
             continue
 
         indices = unit['indices']
         frequency = stressed_f0 if accentuated and any(rows[index]['accent'] == 'A' for index in indices) else baseline_f0
         for index in indices:
             row = rows[index]
-            emitted.append((row['realization'], int(row['duration']), frequency))
+            emitted.append((REALIZATION_CODE_METADATA[row['realization']]['mbrola_xsampa'], int(row['duration']), frequency))
 
     merged: list[tuple[str, int, int]] = []
     for symbol, duration, frequency in emitted:

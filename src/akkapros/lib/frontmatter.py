@@ -48,9 +48,8 @@ FORMAT_VERSIONS = {
     "bold": "1.0.0",
     "ipa": "1.0.0",
     "xar": "1.0.0",
-    "mbrola": "1.0.0",
 }
-SUPPORTED_TEXT_FORMATS = {"orig", "proc", "trans", "syl", "tilde", "phone", "metrics", "acute", "bold", "ipa", "xar", "mbrola"}
+SUPPORTED_TEXT_FORMATS = {"orig", "proc", "trans", "syl", "tilde", "phone", "metrics", "acute", "bold", "ipa", "xar"}
 ESCAPE_RE = re.compile(rf"{re.escape(OPEN_ESCAPE)}.*?{re.escape(CLOSE_ESCAPE)}")
 MERGE_LINKER_RE = re.compile(rf"[{re.escape(WORD_LINKER)}{re.escape(INTERNAL_WORD_LINKER)}]")
 AKKADIAN_LETTERS = set(AKKADIAN_VOWELS) | set(AKKADIAN_CONSONANTS)
@@ -67,8 +66,6 @@ def derive_format_from_path(path: str | Path) -> str:
         return "ipa"
     if stem.endswith("_accent_xar"):
         return "xar"
-    if stem.endswith("_accent_mbrola"):
-        return "mbrola"
     return stem.split("_")[-1]
 
 

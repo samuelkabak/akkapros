@@ -194,7 +194,7 @@ XAR does not infer `ḥ`-conditioned vowel coloring. If the intended reader text
 needs `'e` rather than `'a`, that vowel quality must already be present in the
 input text.
 
-Speech-synthesis `.pho` export is no longer owned by `printer.py`. Use `phonetizer.py` or `fullprosmaker.py` to produce `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho` from the phonetize stage.
+Speech-synthesis `.pho` export is no longer owned by `printer.py`. Use `phonetizer.py` or `fullprosmaker.py` to produce `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho` from the phonetize stage. The printer library no longer provides a separate MBROLA rendering mode.
 
 ---
 

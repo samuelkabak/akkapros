@@ -111,27 +111,6 @@ IPA_VOWELS_EMPHATIC = {
     'â': 'ɑː', 'î': 'ɨː', 'û': 'ʊː', 'ê': 'ɛː',
 }
 
-MBROLA_CONSONANT_MAP = {
-    "'": '?', 'ʾ': '?',
-    'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
-    'q': 'q', 'ṭ': 't.', 'ṣ': 's.', 'š': 'S',
-    's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'X', 'ḫ': 'x', 'ʿ': 'H',
-    'w': 'w', 'y': 'j', 't': 't',
-}
-
-MBROLA_VOWELS_DEFAULT = {
-    'a': 'a', 'i': 'i', 'u': 'u', 'e': 'e',
-    'ā': 'a a', 'ī': 'i i', 'ū': 'u u', 'ē': 'e e',
-    'â': 'a a', 'î': 'i i', 'û': 'u u', 'ê': 'e e',
-}
-
-MBROLA_VOWELS_EMPHATIC = {
-    'a': 'a.', 'i': 'i.', 'u': 'u.', 'e': 'e.',
-    'ā': 'a. a.', 'ī': 'i. i.', 'ū': 'u. u.', 'ē': 'e. e.',
-    'â': 'a. a.', 'î': 'i. i.', 'û': 'u. u.', 'ê': 'e. e.',
-}
-
 XAR_CONSONANT_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'ꝗ', 'ṭ': 'ꞓ', 'ṣ': 'ɉ', 'š': 'x̌',
@@ -297,12 +276,6 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
     if emphatic_context:
         return XAR_VOWELS_EMPHATIC.get(vowel, vowel)
     return XAR_VOWELS_DEFAULT.get(vowel, vowel)
-
-
-def _to_mbrola_vowel(vowel: str, emphatic_context: bool) -> str:
-    if emphatic_context:
-        return MBROLA_VOWELS_EMPHATIC.get(vowel, vowel)
-    return MBROLA_VOWELS_DEFAULT.get(vowel, vowel)
 
 
 def _convert_word_xar(word: str) -> str:
@@ -491,32 +464,6 @@ def _flush_syllable(
                 converted.append(char)
 
         return ''.join(converted)
-
-    if mode == 'mbrola':
-        converted = []
-
-        context_text = source_text if source_text else syllable_text
-        context_skip_chars = {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR} if source_text else {TILDE}
-
-        for idx, char in enumerate(syllable_text):
-            if char in ALL_VOWELS:
-                context_index = source_indices[idx] if source_indices else idx
-                converted.append(
-                    _to_mbrola_vowel(
-                        char,
-                        _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
-                    )
-                )
-            elif char in MBROLA_CONSONANT_MAP:
-                converted.append(MBROLA_CONSONANT_MAP[char])
-            elif char == HIATUS_MARKER:
-                continue
-            elif char == TILDE:
-                converted.append(ACUTE_MARK)
-            else:
-                converted.append(char)
-
-        return ' '.join([item for item in converted if item])
 
     clean = syllable_text.replace(HIATUS_MARKER, '').replace(TILDE, '')
     if TILDE in syllable_text and clean:
@@ -791,8 +738,8 @@ def convert_line(
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
-    if mode not in {'acute', 'bold', 'ipa', 'xar', 'mbrola'}:
-        raise ValueError("mode must be 'acute', 'bold', 'ipa', 'xar' or 'mbrola'")
+    if mode not in {'acute', 'bold', 'ipa', 'xar'}:
+        raise ValueError("mode must be 'acute', 'bold', 'ipa', or 'xar'")
 
     had_newline = line.endswith('\n')
     core_line = line[:-1] if had_newline else line
@@ -884,39 +831,6 @@ def convert_text_with_ipa_xar(
         for line in lines
     ]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
-
-
-def convert_text_with_ipa_xar_mbrola(
-    text: str,
-    ipa_mode: str = 'ipa-ob',
-    circ_hiatus: bool = False,
-    print_merger: bool = False,
-) -> Tuple[str, str, str, str, str]:
-    """Convert full text and return acute, bold, ipa, xar, and mbrola outputs."""
-    lines = text.splitlines(keepends=True)
-    acute_lines = [
-        convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-        for line in lines
-    ]
-    bold_lines = _convert_bold_markdown_lines(
-        lines,
-        ipa_mode=ipa_mode,
-        circ_hiatus=circ_hiatus,
-        print_merger=print_merger,
-    )
-    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    xar_lines = [
-        convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-        for line in lines
-    ]
-    mbrola_lines = [convert_line(line, mode='mbrola', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
-    return (
-        ''.join(acute_lines),
-        ''.join(bold_lines),
-        ''.join(ipa_lines),
-        ''.join(xar_lines),
-        ''.join(mbrola_lines),
-    )
 
 
 def _convert_bold_markdown_lines(
@@ -1059,12 +973,10 @@ def process_file(
     output_ipa_file: str = '',
     output_xar_file: str = '',
     output_xar_plain_file: str = '',
-    output_mbrola_file: str = '',
     write_acute: bool = True,
     write_bold: bool = True,
     write_ipa: bool = False,
     write_xar: bool = False,
-    write_mbrola: bool = False,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
@@ -1079,13 +991,11 @@ def process_file(
         ophone_file: Optional path to matching *_ophone.txt input
         output_ipa_file: Path for accent_ipa.txt output
         output_xar_file: Path for accent_xar.txt output
-        output_xar_plain_file: Path for xar.txt output (same XAR conversion without accent marks)
-        output_mbrola_file: Path for accent_mbrola.txt output
+          output_xar_plain_file: Path for xar.txt output (same XAR conversion without accent marks)
         write_acute: Whether to write acute output
         write_bold: Whether to write bold output
         write_ipa: Whether to write IPA output
         write_xar: Whether to write XAR output
-        write_mbrola: Whether to write MBROLA output
         ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
               'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
@@ -1104,7 +1014,6 @@ def process_file(
     ipa_text = _render_phone_rows(phone_rows, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
     xar_text = _render_phone_rows(phone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
     plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
-    mbrola_text = ''
 
     def _write(text: str, path: str) -> None:
         """Write text to path, ensuring a POSIX-compliant trailing newline."""
@@ -1154,12 +1063,6 @@ def process_file(
 
         Path(plain_xar_file).parent.mkdir(parents=True, exist_ok=True)
         _write(plain_xar_text, plain_xar_file)
-
-    if write_mbrola:
-        if not output_mbrola_file:
-            raise ValueError("output_mbrola_file is required when write_mbrola is True")
-        Path(output_mbrola_file).parent.mkdir(parents=True, exist_ok=True)
-        _write(mbrola_text, output_mbrola_file)
 
 
 def run_tests() -> bool:
@@ -1240,18 +1143,6 @@ def run_tests() -> bool:
         ("qî", "xar", "ꝗèî"),
         ("qû", "xar", "ꝗìû"),
         ("qê", "xar", "ꝗàê"),
-        ("ʾ", "mbrola", "?"),
-        ("ʿ", "mbrola", "H"),
-        ("ḥ", "mbrola", "X"),
-        ("ḫ", "mbrola", "x"),
-        ("š", "mbrola", "S"),
-        ("ṣ", "mbrola", "s."),
-        ("ṭ", "mbrola", "t."),
-        ("qa", "mbrola", "q a."),
-        ("aq", "mbrola", "a q"),
-        ("ā", "mbrola", "a a"),
-        ("qā", "mbrola", "q a. a."),
-        ("ṭe", "mbrola", "t. e."),
         ("aq", "xar", "aꝗ"),
         ("taq", "xar", "taꝗ"),
         ("qat", "xar", "ꝗàt"),

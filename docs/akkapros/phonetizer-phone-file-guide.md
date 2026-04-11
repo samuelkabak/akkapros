@@ -161,6 +161,23 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 
 `metricalc.py` reads drift summary from this frontmatter instead of recomputing it.
 
+## How `.pho` Export Relates to Phone Rows
+
+The phone-row files and the `.pho` files intentionally do not use the same
+surface symbols.
+
+`_phone.txt` and `_ophone.txt`
+- keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `SP`, and `ZP`
+- remain the canonical downstream row contract for metrics and printer
+
+`_mbrola.pho` and `_ombrola.pho`
+- derive MBROLA/X-SAMPA-like export symbols from that same realization inventory
+- emit symbols such as `X`, `x`, `H`, `?`, `a.`, and `_`
+- keep vowel length in duration, not by duplicating the symbol string
+
+This means `.pho` is a backend rendering of the realization inventory, not a
+replacement for the realization codes stored in phone rows.
+
 ## Practical Reading Strategy
 
 When inspecting a phone file manually:

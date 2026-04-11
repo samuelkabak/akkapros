@@ -85,7 +85,14 @@ therefore serialized as one long-pause row.
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 
-The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
+The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where the symbol is now the MBROLA/X-SAMPA-like export value derived from the internal realization inventory, silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
+
+Important distinction:
+
+- `_phone.txt` and `_ophone.txt` keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `SP`, and `ZP`
+- `.pho` export derives MBROLA/X-SAMPA-like symbols such as `X`, `x`, `H`, `?`, `a.`, and `_` from that same realization inventory
+
+This keeps the row contract backend-neutral while making the emitted `.pho` files conventional for MBROLA-style tooling.
 
 ## Command Syntax
 

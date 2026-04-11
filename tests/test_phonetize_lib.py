@@ -9,6 +9,7 @@ from akkapros.lib.phonetize import (
     INPUT_CHARACTER_LENGTHS,
     INPUT_TO_REALIZATION_CODES,
     PHONE_ROW_DURATION_PLACEHOLDER,
+    REALIZATION_CODE_ROWS,
     REALIZATION_CODE_METADATA,
     build_default_phonetize_verification_config,
     build_phone_streams,
@@ -42,10 +43,23 @@ def test_input_inventory_and_realization_inventory_are_explicit() -> None:
     assert INPUT_TO_REALIZATION_CODES['ENA'] == ('WA', 'YI')
     assert REALIZATION_CODE_METADATA['SP'] == {
         'ipa': '|',
+        'mbrola_xsampa': '_',
         'category': 'S',
         'type': 'S',
         'emphaticity': 'P',
     }
+
+
+def test_realization_inventory_exposes_canonical_mbrola_xsampa_mapping() -> None:
+    row_map = {code: (ipa, mbrola_xsampa) for code, ipa, mbrola_xsampa, *_rest in REALIZATION_CODE_ROWS}
+
+    assert row_map['GI'] == ('ɡ', 'g')
+    assert row_map['ET'] == ('ħ', 'X')
+    assert row_map['HE'] == ('x', 'x')
+    assert row_map['AL'] == ('ʔ', '?')
+    assert row_map['AO'] == ('ɑ', 'a.')
+    assert row_map['SP'] == ('|', '_')
+    assert row_map['ZP'] == ('‖', '_')
 
 
 def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
@@ -284,6 +298,9 @@ def test_mbrola_rows_use_baseline_and_stress_rise_f0() -> None:
     accentuated_lines = serialize_mbrola_rows(accentuated_rows, accentuated=True).strip().splitlines()
 
     assert all(len(line.split()) == 3 for line in original_lines)
+    assert all(not line.startswith(('AA ', 'TA ', 'SP ', 'ZP ')) for line in original_lines)
+    assert any(line.startswith('a ') for line in original_lines)
+    assert any(line.startswith('t ') for line in original_lines)
     assert all(line.endswith(' 120') for line in original_lines)
     assert any(line.endswith(' 135') for line in accentuated_lines)
 
@@ -294,7 +311,18 @@ def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
 
     lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
 
-    assert any(line.startswith('TA 195 120') for line in lines)
+    assert any(line.startswith('t 195 120') for line in lines)
+
+
+def test_mbrola_rows_emit_xsampa_pause_and_colored_vowels() -> None:
+    rows = build_phone_rows('qa,\n')
+    realize_phone_rows(rows, allow_accentuation=False)
+
+    lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
+
+    assert any(line.startswith('q ') for line in lines)
+    assert any(line.startswith('a. ') for line in lines)
+    assert any(line.startswith('_ ') for line in lines)
 
 
 def test_verification_rejects_non_positive_intonation_f0() -> None:
