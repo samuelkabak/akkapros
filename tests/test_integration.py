@@ -174,11 +174,13 @@ def _assert_phone_artifact(path: Path) -> None:
     frontmatter, body = split_frontmatter(_read_text(path))
     first_line = body.strip().splitlines()[0]
     first_row = parse_phone_row(first_line)
-    assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'text']
+    assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'intonation', 'text']
     assert first_row['category'] in {'C', 'V', 'S'}
     assert len(first_row['duration']) == 4
+    assert len(first_row['intonation']) == 3
     all_rows = [parse_phone_row(line) for line in body.strip().splitlines()]
     assert any(row['duration'] != '0000' for row in all_rows)
+    assert all(len(row['intonation']) == 3 for row in all_rows)
     assert frontmatter['metadata']['data']['phonetize']['drift']['max'] >= 0
     assert 'mean' in frontmatter['metadata']['data']['phonetize']['drift']
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['drift']
@@ -190,18 +192,19 @@ def _assert_pho_artifact(path: Path) -> None:
     assert lines
     for line in lines:
         parts = line.split()
-        assert len(parts) == 3
-        symbol, duration, frequency = parts
+        assert len(parts) >= 3
+        symbol, duration, *pitch_targets = parts
         assert symbol
         assert int(duration) > 0
-        assert int(frequency) > 0
+        assert pitch_targets
+        assert all(int(target) > 0 for target in pitch_targets)
 
 
 def _parse_pho_artifact(path: Path) -> list[tuple[str, int, int]]:
-    rows: list[tuple[str, int, int]] = []
+    rows: list[tuple[str, int, tuple[int, ...]]] = []
     for line in _read_text(path).strip().splitlines():
-        symbol, duration, frequency = line.split()
-        rows.append((symbol, int(duration), int(frequency)))
+        symbol, duration, *pitch_targets = line.split()
+        rows.append((symbol, int(duration), tuple(int(target) for target in pitch_targets)))
     return rows
 
 

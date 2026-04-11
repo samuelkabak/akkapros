@@ -20,15 +20,15 @@ Both files keep YAML frontmatter. The body is a flat row stream.
 Each body line uses the canonical field order:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration:text
+label-category-type-length-position-boundary-accent-realization-duration-intonation:text
 ```
 
 Example:
 
 ```text
-SUD-C-F-S-O-N-F-SU-0137:ṣ
-AYA-V-L-S-N-F-F-AA-0085:a
-ZEN-S-S-L-S-S-F-ZP-1525:<EOL>
+SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
+AYA-V-L-S-N-F-F-AA-0085-M0C:a
+ZEN-S-S-L-S-S-F-ZP-1525-L2C:<EOL>
 ```
 
 Read this as:
@@ -87,6 +87,11 @@ For pause rows this is the pause class:
 - During Phase 1 this is `0000`.
 - Finalized phonetizer outputs carry non-zero values.
 
+`intonation`
+- Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
+- Pass 3 writes finalized intonation tokens after duration realization.
+- Neutral rows use `M0C`.
+
 `text`
 - The source-facing glyph or pause text.
 - For line breaks the phonetizer writes `<EOL>`.
@@ -114,25 +119,26 @@ Pause ownership now belongs to the phonetizer row stream.
 Short pause row:
 
 ```text
-SES-S-S-S-S-S-F-SP-0600::
+SES-S-C-S-S-S-F-SP-0600-H1C::
 ```
 
 Long pause row:
 
 ```text
-ZEN-S-S-L-S-S-F-ZP-1525:?!!!
+ZEN-S-Q-L-S-S-F-ZP-1525-H3C:?!
 ```
 
 Line break row:
 
 ```text
-ZEN-S-S-L-S-S-F-ZP-1525:<EOL>
+ZEN-S-S-L-S-S-F-ZP-1525-L2C:<EOL>
 ```
 
 Important rules:
 
 - If the consumed upstream text has no final line break, the phonetizer inserts one final `<EOL>` row before writing `_phone.txt` and `_ophone.txt`.
-- If one punctuation suite contains at least one long-pause cue, the whole suite becomes one long-pause row.
+- Pause rows use subtype `Q`, `S`, `E`, `C`, or `I` rather than one generic silence type.
+- Grouped punctuation suites use precedence `Q > E > S > C > I`.
 - Metrics and printer read pause strength from these rows instead of recomputing it from punctuation later.
 
 ## `_phone.txt` versus `_ophone.txt`
@@ -173,6 +179,7 @@ surface symbols.
 `_mbrola.pho` and `_ombrola.pho`
 - derive MBROLA/X-SAMPA-like export symbols from that same realization inventory
 - emit symbols such as `X`, `x`, `H`, `?`, `a.`, and `_`
+- derive one or more pitch targets from the row's `intonation` token plus `f0`
 - keep vowel length in duration, not by duplicating the symbol string
 
 This means `.pho` is a backend rendering of the realization inventory, not a

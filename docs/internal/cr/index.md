@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[050. Add Third-Pass Intonation Framework and Silence Typing to Phonetizer](050-add-intonation-token-framework-and-silence-typing-to-phonetizer.md) - Done
 [049. Add X-SAMPA MBROLA Export Column and Remove Printer MBROLA Residue](049-add-xsampa-mbrola-export-column-and-remove-printer-mbrola-residue.md) - Done
 [048. Correct ḥ Reader Mappings Across XAR and IPA Replace Mode](048-correct-het-reader-mappings-across-xar-and-ipa-replace-mode.md) - Done
 [047. Close Phone-Handoff Pause and Downstream Consumption Gaps](047-close-phonetizer-pause-and-reconstruction-gaps.md) - Done

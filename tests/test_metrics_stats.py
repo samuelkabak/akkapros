@@ -225,15 +225,17 @@ def test_metrics_accepts_armored_punctuation_in_tilde_contract() -> None:
     assert raw_counts["short_punctuation"] == 1
 
 
-def test_metrics_rejects_unknown_armored_punctuation() -> None:
+def test_metrics_accepts_unknown_armored_punctuation_as_internal_pause() -> None:
     stats = metrics.analyze_text("at·tā⟦ @ ⟧ā·lik", is_accentuated=True)
+    rows = build_phone_rows("at·tā⟦ @ ⟧ā·lik")
+    pause_rows = [row for row in rows if row["category"] == "S"]
+    pause_metrics = metrics.compute_pause_metrics(rows, stats)
 
-    try:
-        rows = build_phone_rows("at·tā⟦ @ ⟧ā·lik")
-        metrics.compute_pause_metrics(rows, stats)
-        raise AssertionError("Expected armored unknown punctuation to fail")
-    except ValueError as exc:
-        assert "⟦ @ ⟧" in str(exc)
+    assert len(pause_rows) == 2
+    assert pause_rows[0]["type"] == "I"
+    assert pause_rows[0]["length"] == "S"
+    assert pause_metrics["raw_counts"]["short_punctuation"] == 1
+    assert pause_metrics["raw_counts"]["long_punctuation"] == 1
 
 
 def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:

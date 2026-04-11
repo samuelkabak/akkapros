@@ -66,11 +66,11 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
         'intonation': {
             '__comment__': None,
             'f0': _field(120, 'int', 'Baseline speaker pitch in Hertz used for emitted .pho rows.'),
-            'stress_rise': _field(2, 'int', 'Pitch rise in semitones applied to stressed syllables in the accentuated .pho stream.'),
-            'question_final_rise': _field(3, 'int', 'Reserved later-use pitch rise in semitones for question-final contours.'),
-            'statement_final_fall': _field(-2, 'int', 'Reserved later-use pitch fall in semitones for statement-final contours.'),
-            'exclamation_rise': _field(4, 'int', 'Reserved later-use pitch rise in semitones for exclamatory contours.'),
-            'continuation_rise': _field(1, 'int', 'Reserved later-use pitch rise in semitones for continuation contours.'),
+            'stress': _field('H2', 'string', 'Compact intonation preset for non-pause-governed stressed syllables. Normalized to canonical row token form.'),
+            'question': _field('H3', 'string', 'Compact intonation preset for question-final contours. Normalized to canonical row token form.'),
+            'statement': _field('L2', 'string', 'Compact intonation preset for statement-final contours. Normalized to canonical row token form.'),
+            'exclamation': _field('H4', 'string', 'Compact intonation preset for exclamatory contours. Normalized to canonical row token form.'),
+            'continuation': _field('H1', 'string', 'Compact intonation preset for continuation contours. Normalized to canonical row token form.'),
         },
         'timing_model': {
             '__comment__': None,
@@ -211,9 +211,11 @@ PHONE_ROW_FIELDS = (
     'accent',
     'realization',
     'duration',
+    'intonation',
     'text',
 )
 PHONE_ROW_DURATION_PLACEHOLDER = '0000'
+PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
 EOL_TEXT = '<EOL>'
@@ -231,11 +233,31 @@ LOW_VOWELS = set('aāâ')
 MID_VOWELS = set('eēê')
 HIGH_VOWELS = set('iuīūîû')
 
-SHORT_PAUSE_PUNCTUATION_CHARS = {',', ';', ':', '—', '–', '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'", '/', '\\', '|', '†', '‡'}
+SHORT_PAUSE_PUNCTUATION_CHARS = {',', ';', ':', '—', '–', '…', '(', ')', '«', '»', '“', '”', '‘', '’', '"', "'", '/', '\\', '|', '†', '‡'}
 LONG_PAUSE_PUNCTUATION_CHARS = {'.', '?', '!', '[', ']', '{', '}', '<', '>', '*', '#'}
 INTERNAL_MERGE_CHARS = {'&', '_'}
 DEFAULT_SHORT_PAUSE_PUNCTUATION_PATTERNS: tuple[str, ...] = ()
 DEFAULT_LONG_PAUSE_PUNCTUATION_PATTERNS: tuple[str, ...] = ()
+PRIMARY_CONTINUATION_PUNCTUATION_CHARS = {',', ';', ':', '—', '–', '…'}
+QUESTION_PUNCTUATION_CHARS = {'?'}
+EXCLAMATION_PUNCTUATION_CHARS = {'!'}
+STATEMENT_PUNCTUATION_CHARS = {'.'}
+INTONATION_FAMILY_SHAPES = {
+    'H': 'C',
+    'L': 'C',
+    'M': 'C',
+    'R': 'L',
+    'F': 'L',
+    'P': 'E',
+    'V': 'E',
+}
+PAUSE_TYPE_TO_INTONATION_KEY = {
+    'Q': 'question',
+    'S': 'statement',
+    'E': 'exclamation',
+    'C': 'continuation',
+}
+INTONATION_PRESET_RE = re.compile(r'^[HLMRFPV][0-9](?:[CLE])?$')
 
 INPUT_CHARACTER_ROWS = (
     ('b', 'BET', 'S'),
@@ -631,24 +653,147 @@ def _new_segment_seed(symbol: str) -> dict[str, str]:
         'accent': 'F',
         'realization': _base_realization_for_label(label),
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'intonation': PHONE_ROW_INTONATION_NEUTRAL,
         'text': symbol,
     }
 
 
-def _new_pause_row(text: str, *, is_long: bool) -> dict[str, str]:
+def _new_pause_row(text: str, *, pause_type: str, is_long: bool) -> dict[str, str]:
     label = 'ZEN' if is_long else 'SES'
     return {
         'label': label,
         'category': 'S',
-        'type': 'S',
+        'type': pause_type,
         'length': 'L' if is_long else 'S',
         'position': 'S',
         'boundary': 'N',
         'accent': 'P',
         'realization': 'ZP' if is_long else 'SP',
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'intonation': PHONE_ROW_INTONATION_NEUTRAL,
         'text': text,
     }
+
+
+def _normalize_intonation_token(value: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError('Intonation preset must be a string token.')
+    token = value.strip().upper()
+    if not INTONATION_PRESET_RE.fullmatch(token):
+        raise ValueError(f'Invalid intonation token: {value!r}')
+    family = token[0]
+    degree = token[1]
+    shape = token[2] if len(token) == 3 else INTONATION_FAMILY_SHAPES[family]
+    if INTONATION_FAMILY_SHAPES[family] != shape:
+        raise ValueError(f'Invalid shape {shape!r} for intonation family {family!r}.')
+    if family == 'M' and (degree != '0' or shape != 'C'):
+        raise ValueError('Neutral medium intonation is only valid as M0C.')
+    return f'{family}{degree}{shape}'
+
+
+def _intonation_targets(token: str, base_f0: int) -> tuple[int, ...]:
+    canonical = _normalize_intonation_token(token)
+    family = canonical[0]
+    semitones = int(canonical[1])
+    if family == 'H':
+        return (_semitone_to_hz(base_f0, semitones),)
+    if family == 'L':
+        return (_semitone_to_hz(base_f0, -semitones),)
+    if family == 'M':
+        return (base_f0,)
+    if family == 'R':
+        return (base_f0, _semitone_to_hz(base_f0, semitones))
+    if family == 'F':
+        return (base_f0, _semitone_to_hz(base_f0, -semitones))
+    if family == 'P':
+        peak = _semitone_to_hz(base_f0, semitones)
+        return (base_f0, peak, peak, base_f0)
+    valley = _semitone_to_hz(base_f0, -semitones)
+    return (base_f0, valley, valley, base_f0)
+
+
+def _runtime_intonation_config(intonation_config: dict[str, Any]) -> dict[str, Any]:
+    normalized = {'f0': intonation_config['f0']}
+    for key in ('stress', 'question', 'statement', 'exclamation', 'continuation'):
+        normalized[key] = _normalize_intonation_token(str(intonation_config[key]))
+    return normalized
+
+
+def _suite_has_unknown_alnum(text: str, short_chars: set[str], long_chars: set[str]) -> bool:
+    for symbol in text:
+        if symbol.isspace():
+            continue
+        if symbol.isalnum() and symbol not in short_chars and symbol not in long_chars:
+            return True
+    return False
+
+
+def _classify_pause_suite(
+    suite_text: str,
+    *,
+    short_pause_chars: set[str],
+    long_pause_chars: set[str],
+    short_pause_regex: tuple[re.Pattern[str], ...],
+    long_pause_regex: tuple[re.Pattern[str], ...],
+) -> tuple[str, bool]:
+    normalized = suite_text.strip()
+    if not normalized:
+        raise ValueError('Cannot classify an empty pause suite.')
+
+    has_question = any(symbol in QUESTION_PUNCTUATION_CHARS for symbol in normalized)
+    has_exclamation = any(symbol in EXCLAMATION_PUNCTUATION_CHARS for symbol in normalized)
+    has_ellipsis = '...' in normalized or '…' in normalized
+    statement_candidate = normalized.replace('...', '').replace('…', '')
+    has_statement = '\n' in normalized or any(symbol in STATEMENT_PUNCTUATION_CHARS for symbol in statement_candidate)
+    has_continuation = has_ellipsis or any(symbol in PRIMARY_CONTINUATION_PUNCTUATION_CHARS for symbol in normalized)
+
+    short_internal_chars = {
+        symbol
+        for symbol in normalized
+        if not symbol.isspace() and symbol in short_pause_chars and symbol not in PRIMARY_CONTINUATION_PUNCTUATION_CHARS
+    }
+    long_internal_chars = {
+        symbol
+        for symbol in normalized
+        if not symbol.isspace() and symbol in long_pause_chars and symbol not in QUESTION_PUNCTUATION_CHARS | EXCLAMATION_PUNCTUATION_CHARS | STATEMENT_PUNCTUATION_CHARS
+    }
+    matches_short_internal = any(regex.search(normalized) for regex in short_pause_regex)
+    matches_long_internal = any(regex.search(normalized) for regex in long_pause_regex)
+
+    if has_question:
+        return 'Q', True
+    if has_exclamation:
+        return 'E', True
+    if has_statement:
+        return 'S', True
+    if has_continuation:
+        return 'C', False
+    if short_internal_chars or long_internal_chars or matches_short_internal or matches_long_internal:
+        return 'I', bool(long_internal_chars or matches_long_internal)
+    if _suite_has_unknown_alnum(normalized, short_pause_chars, long_pause_chars):
+        raise ValueError(f'Unsupported armored phonetizer content: {OPEN_ESCAPE}{suite_text}{CLOSE_ESCAPE}')
+    return 'I', False
+
+
+def _consume_pause_suite(
+    tilde_text: str,
+    start_index: int,
+    *,
+    short_pause_chars: set[str],
+    long_pause_chars: set[str],
+) -> tuple[str, int]:
+    index = start_index
+    while index < len(tilde_text):
+        symbol = tilde_text[index]
+        if symbol == '\n' or symbol.isspace():
+            break
+        if symbol in INPUT_CHARACTER_LABELS or symbol in {SYL_SEPARATOR, '.', '-', WORD_LINKER} or symbol in INTERNAL_MERGE_CHARS:
+            break
+        if symbol in short_pause_chars or symbol in long_pause_chars or symbol == '…':
+            index += 1
+            continue
+        break
+    return tilde_text[start_index:index], index
 
 
 def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]], boundary_code: str) -> None:
@@ -701,34 +846,15 @@ def _append_armored_pause_rows(
 ) -> None:
     normalized = armored_text.strip()
     if normalized:
-        if any(regex.search(normalized) for regex in long_pause_regex) or any(
-            symbol in long_pause_chars for symbol in normalized if not symbol.isspace()
-        ):
-            finish_syllable('F')
-            rows.append(_new_pause_row(normalized, is_long=True))
-            return
-        if any(regex.search(normalized) for regex in short_pause_regex) or any(
-            symbol in short_pause_chars for symbol in normalized if not symbol.isspace()
-        ):
-            finish_syllable('F')
-            rows.append(_new_pause_row(normalized, is_long=False))
-            return
-    for symbol in armored_text:
-        if symbol == '\n':
-            finish_syllable('F')
-            rows.append(_new_pause_row(EOL_TEXT, is_long=True))
-            continue
-        if symbol.isspace():
-            continue
-        if symbol in short_pause_chars:
-            finish_syllable('F')
-            rows.append(_new_pause_row(symbol, is_long=False))
-            continue
-        if symbol in long_pause_chars:
-            finish_syllable('F')
-            rows.append(_new_pause_row(symbol, is_long=True))
-            continue
-        raise ValueError(f'Unsupported armored phonetizer content: {OPEN_ESCAPE}{armored_text}{CLOSE_ESCAPE}')
+        pause_type, is_long = _classify_pause_suite(
+            normalized,
+            short_pause_chars=short_pause_chars,
+            long_pause_chars=long_pause_chars,
+            short_pause_regex=short_pause_regex,
+            long_pause_regex=long_pause_regex,
+        )
+        finish_syllable('F')
+        rows.append(_new_pause_row(normalized, pause_type=pause_type, is_long=is_long))
 
 
 def _resolve_pause_punctuation_rules(
@@ -801,6 +927,8 @@ def realize_phone_streams(
     original_rows, accentuated_rows = build_phone_streams(tilde_text, phonetize_config, input_frontmatter)
     original_report = realize_phone_rows(original_rows, phonetize_config, allow_accentuation=False)
     accentuated_report = realize_phone_rows(accentuated_rows, phonetize_config, allow_accentuation=True)
+    realize_row_intonation(original_rows, phonetize_config, accentuated=False)
+    realize_row_intonation(accentuated_rows, phonetize_config, accentuated=True)
     return (original_rows, original_report), (accentuated_rows, accentuated_report)
 
 
@@ -826,7 +954,7 @@ def _runtime_view_phonetize_config(phonetize_config: dict[str, Any]) -> dict[str
     model_only = {key: deepcopy(value) for key, value in timing_model.items() if key not in PROCESS_KEYS}
     return {
         'process': process,
-        'intonation': deepcopy(phonetize_config['process'].get('intonation', {})),
+        'intonation': _runtime_intonation_config(deepcopy(phonetize_config['process'].get('intonation', {}))),
         'timing_model': model_only,
     }
 
@@ -963,13 +1091,22 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             'f0 > 0',
             'Baseline emitted F0 must be a positive integer Hertz value.',
         )
-    for key in ('stress_rise', 'question_final_rise', 'statement_final_fall', 'exclamation_rise', 'continuation_rise'):
+    for key in ('stress', 'question', 'statement', 'exclamation', 'continuation'):
         value = intonation[key]
-        if not isinstance(value, int) or isinstance(value, bool):
+        if not isinstance(value, str):
             add_failure(
                 f'phonetize.process.intonation.{key}',
-                f'{key} is an integer number of semitones',
-                'Intonation semitone controls must be integers.',
+                f'{key} is a compact intonation preset token',
+                'Intonation presets must be compact token strings such as H2, L2, M0, R1, F1, P2, or V2.',
+            )
+            continue
+        try:
+            _normalize_intonation_token(value)
+        except ValueError as exc:
+            add_failure(
+                f'phonetize.process.intonation.{key}',
+                f'{key} normalizes to one legal canonical row token',
+                str(exc),
             )
 
     segmental_ceiling = durations['segmental_ceiling']
@@ -1210,39 +1347,81 @@ def _partition_phone_units(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
     return units
 
 
-def _mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | None, *, accentuated: bool) -> list[tuple[str, int, int]]:
+def realize_row_intonation(
+    rows: list[dict[str, str]],
+    phonetize_config: dict[str, Any] | None = None,
+    *,
+    accentuated: bool,
+) -> None:
     config = _merge_phonetize_config(phonetize_config)
-    intonation = config['process']['intonation']
-    baseline_f0 = int(intonation['f0'])
-    stressed_f0 = _semitone_to_hz(baseline_f0, int(intonation['stress_rise']))
-    emitted: list[tuple[str, int, int]] = []
+    runtime_intonation = _runtime_intonation_config(config['process']['intonation'])
+    units = _partition_phone_units(rows)
 
-    for unit in _partition_phone_units(rows):
-        if unit['kind'] == 'pause':
-            row = rows[unit['index']]
-            emitted.append((REALIZATION_CODE_METADATA[row['realization']]['mbrola_xsampa'], int(row['duration']), baseline_f0))
+    for row in rows:
+        row['intonation'] = PHONE_ROW_INTONATION_NEUTRAL
+
+    if not accentuated:
+        return
+
+    syllable_tokens: dict[int, str] = {}
+    for unit_index, unit in enumerate(units):
+        if unit['kind'] != 'syllable':
             continue
+        token = PHONE_ROW_INTONATION_NEUTRAL
+        if accentuated and any(rows[index]['accent'] == 'A' for index in unit['indices']):
+            token = runtime_intonation['stress']
+        syllable_tokens[unit_index] = token
 
-        indices = unit['indices']
-        frequency = stressed_f0 if accentuated and any(rows[index]['accent'] == 'A' for index in indices) else baseline_f0
-        for index in indices:
-            row = rows[index]
-            emitted.append((REALIZATION_CODE_METADATA[row['realization']]['mbrola_xsampa'], int(row['duration']), frequency))
+    for unit_index, unit in enumerate(units):
+        if unit['kind'] != 'pause':
+            continue
+        pause_row = rows[unit['index']]
+        pause_type = pause_row['type']
+        pause_token = PHONE_ROW_INTONATION_NEUTRAL
+        if pause_type in PAUSE_TYPE_TO_INTONATION_KEY:
+            pause_token = runtime_intonation[PAUSE_TYPE_TO_INTONATION_KEY[pause_type]]
+            previous_index = unit_index - 1
+            if previous_index >= 0 and units[previous_index]['kind'] == 'syllable':
+                syllable_tokens[previous_index] = pause_token
+        pause_row['intonation'] = pause_token
 
-    merged: list[tuple[str, int, int]] = []
-    for symbol, duration, frequency in emitted:
-        if merged and merged[-1][0] == symbol and merged[-1][2] == frequency:
-            prev_symbol, prev_duration, prev_frequency = merged[-1]
-            merged[-1] = (prev_symbol, prev_duration + duration, prev_frequency)
+    for unit_index, unit in enumerate(units):
+        if unit['kind'] != 'syllable':
+            continue
+        token = syllable_tokens[unit_index]
+        for row_index in unit['indices']:
+            rows[row_index]['intonation'] = token
+
+
+def _mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | None, *, accentuated: bool) -> list[tuple[str, int, tuple[int, ...]]]:
+    _ = accentuated
+    config = _merge_phonetize_config(phonetize_config)
+    baseline_f0 = int(config['process']['intonation']['f0'])
+    emitted: list[tuple[str, int, tuple[int, ...]]] = []
+
+    for row in rows:
+        emitted.append(
+            (
+                REALIZATION_CODE_METADATA[row['realization']]['mbrola_xsampa'],
+                int(row['duration']),
+                _intonation_targets(row['intonation'], baseline_f0),
+            )
+        )
+
+    merged: list[tuple[str, int, tuple[int, ...]]] = []
+    for symbol, duration, targets in emitted:
+        if merged and merged[-1][0] == symbol and merged[-1][2] == targets:
+            prev_symbol, prev_duration, prev_targets = merged[-1]
+            merged[-1] = (prev_symbol, prev_duration + duration, prev_targets)
         else:
-            merged.append((symbol, duration, frequency))
+            merged.append((symbol, duration, targets))
     return merged
 
 
 def serialize_mbrola_rows(rows: list[dict[str, str]], phonetize_config: dict[str, Any] | None = None, *, accentuated: bool) -> str:
     return '\n'.join(
-        f'{symbol} {duration} {frequency}'
-        for symbol, duration, frequency in _mbrola_rows(rows, phonetize_config, accentuated=accentuated)
+        ' '.join([symbol, str(duration)] + [str(target) for target in targets])
+        for symbol, duration, targets in _mbrola_rows(rows, phonetize_config, accentuated=accentuated)
     ) + '\n'
 
 
@@ -1617,7 +1796,7 @@ def build_phone_rows(
             continue
         if symbol == '\n':
             _finish('F')
-            rows.append(_new_pause_row(EOL_TEXT, is_long=True))
+            rows.append(_new_pause_row(EOL_TEXT, pause_type='S', is_long=True))
             index += 1
             continue
         if symbol == OPEN_ESCAPE:
@@ -1635,15 +1814,23 @@ def build_phone_rows(
             )
             index = close_index + 1
             continue
-        if symbol in short_pause_chars:
+        if symbol in short_pause_chars or symbol in long_pause_chars or symbol == '…':
+            suite_text, next_index = _consume_pause_suite(
+                tilde_text,
+                index,
+                short_pause_chars=short_pause_chars,
+                long_pause_chars=long_pause_chars,
+            )
+            pause_type, is_long = _classify_pause_suite(
+                suite_text,
+                short_pause_chars=short_pause_chars,
+                long_pause_chars=long_pause_chars,
+                short_pause_regex=short_pause_regex,
+                long_pause_regex=long_pause_regex,
+            )
             _finish('F')
-            rows.append(_new_pause_row(symbol, is_long=False))
-            index += 1
-            continue
-        if symbol in long_pause_chars:
-            _finish('F')
-            rows.append(_new_pause_row(symbol, is_long=True))
-            index += 1
+            rows.append(_new_pause_row(suite_text, pause_type=pause_type, is_long=is_long))
+            index = next_index
             continue
         if symbol in INPUT_CHARACTER_LABELS and symbol not in {INNER_PUNCT_TEXT, PHRASAL_PUNCT_TEXT}:
             syllable.append(_new_segment_seed(symbol))
@@ -1714,6 +1901,7 @@ def run_tests() -> bool:
         lambda: _test_transition_resolution(),
         lambda: _test_dual_stream_generation(),
         lambda: _test_finalized_stream_generation(),
+        lambda: _test_intonation_normalization_and_assignment(),
         lambda: _test_shared_verification(),
         lambda: _test_mbrola_export(),
     ]
@@ -1764,8 +1952,25 @@ def _test_finalized_stream_generation() -> bool:
     return (
         any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _original_rows)
         and any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _accentuated_rows)
+        and all(row['intonation'] for row in _original_rows)
+        and all(row['intonation'] for row in _accentuated_rows)
         and 'stddev' in original_report['drift']
         and 'stddev' in accentuated_report['drift']
+    )
+
+
+def _test_intonation_normalization_and_assignment() -> bool:
+    rows = build_phone_rows('at·ta~?!')
+    realize_phone_rows(rows, allow_accentuation=True)
+    realize_row_intonation(rows, accentuated=True)
+    return (
+        _normalize_intonation_token('H2') == 'H2C'
+        and _normalize_intonation_token('R1') == 'R1L'
+        and rows[-2]['type'] == 'Q'
+        and rows[-2]['intonation'] == 'H3C'
+        and rows[-1]['type'] == 'S'
+        and all(row['intonation'] == 'M0C' for row in rows[:2])
+        and all(row['intonation'] == 'H3C' for row in rows[2:-1])
     )
 
 
@@ -1781,14 +1986,16 @@ def _test_shared_verification() -> bool:
 
 
 def _test_mbrola_export() -> bool:
-    original_rows, accentuated_rows = build_phone_streams('at·ta~')
+    original_rows, accentuated_rows = build_phone_streams('at~·ta')
     realize_phone_rows(original_rows, allow_accentuation=False)
     realize_phone_rows(accentuated_rows, allow_accentuation=True)
+    realize_row_intonation(original_rows, accentuated=False)
+    realize_row_intonation(accentuated_rows, accentuated=True)
     original_lines = serialize_mbrola_rows(original_rows, accentuated=False).strip().splitlines()
     accentuated_lines = serialize_mbrola_rows(accentuated_rows, accentuated=True).strip().splitlines()
     return (
         len(original_lines) > 0
         and len(accentuated_lines) > 0
-        and all(len(line.split()) == 3 for line in original_lines + accentuated_lines)
+        and all(len(line.split()) >= 3 for line in original_lines + accentuated_lines)
         and any(line.endswith(' 135') for line in accentuated_lines)
     )

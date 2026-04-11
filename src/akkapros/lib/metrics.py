@@ -2193,9 +2193,9 @@ def _test_pause_metrics_grouping() -> bool:
     pm = compute_pause_metrics(rows, stats)
     if pm['raw_counts']['spaces'] != 0:
         return False
-    if pm['raw_counts']['short_punctuation'] != 1:
+    if pm['raw_counts']['short_punctuation'] != 2:
         return False
-    if pm['raw_counts']['long_punctuation'] != 3:
+    if pm['raw_counts']['long_punctuation'] != 2:
         return False
     return True
 
@@ -2203,12 +2203,14 @@ def _test_pause_metrics_grouping() -> bool:
 def _test_unknown_punctuation_raises() -> bool:
     text = "at·tā⟦ @ ⟧ā·lik"
     stats = analyze_text(text, is_accentuated=True)
-    try:
-        rows = build_phone_rows(text)
-        _ = compute_pause_metrics(rows, stats)
+    rows = build_phone_rows(text)
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    if len(pause_rows) != 2:
         return False
-    except ValueError:
-        return True
+    if pause_rows[0]['type'] != 'I' or pause_rows[0]['length'] != 'S':
+        return False
+    pm = compute_pause_metrics(rows, stats)
+    return pm['raw_counts']['short_punctuation'] == 1 and pm['raw_counts']['long_punctuation'] == 1
 
 
 def _test_armored_pause_token_classification() -> bool:

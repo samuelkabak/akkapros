@@ -16,11 +16,14 @@ The phonetize stage now sits between prosody and metrics in the documented pipel
 finalized non-zero durations plus drift summaries in front matter, and
 metricalc consumes those artifacts directly.
 
-The current implementation now follows the CR-039 structural contract and the CR-040 Phase 2 duration contract for both `<prefix>_ophone.txt` and `<prefix>_phone.txt`:
+The current implementation now follows a three-pass contract for both
+`<prefix>_ophone.txt` and `<prefix>_phone.txt`:
 - flat-line serialization, one row per line
-- exact field order: `label-category-type-length-position-boundary-accent-realization-duration:text`
+- exact field order: `label-category-type-length-position-boundary-accent-realization-duration-intonation:text`
 - canonical segment and pause inventories
-- non-zero duration realization over the prebuilt row streams
+- Pass 1 builds rows and pause types
+- Pass 2 realizes non-zero durations over the prebuilt row streams
+- Pass 3 assigns row-carried intonation tokens over the duration-bearing rows
 - deterministic original-stream derivation from `_tilde` by removing `~` and replacing `&` with space while preserving `+`
 - drift reporting in front matter under `metadata.data.phonetize.drift`
 
@@ -46,18 +49,18 @@ The original stream is derived from the accentuated `_tilde` input by removing `
 
 The consumed `_tilde` contract may contain armored punctuation spans as `⟦...⟧`, explicit inherited merges as `+`, and internal prosody merges as `&`.
 
-The body is a flat line-oriented format. Each row uses the canonical ten-field order:
+The body is a flat line-oriented format. Each row uses the canonical eleven-field order:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration:text
+label-category-type-length-position-boundary-accent-realization-duration-intonation:text
 ```
 
 Examples:
 
 ```text
-SUD-C-F-S-O-N-F-SU-0137:ṣ
-AYA-V-L-S-N-F-F-AA-0085:a
-ZEN-S-S-L-S-N-P-ZP-1525:<EOL>
+SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
+AYA-V-L-S-N-F-F-AA-0085-M0C:a
+ZEN-S-S-L-S-N-P-ZP-1525-L2C:<EOL>
 ```
 
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
@@ -85,7 +88,13 @@ therefore serialized as one long-pause row.
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 
-The `.pho` outputs are raw three-column files without YAML front matter. Each line is emitted as `symbol duration frequency`, where the symbol is now the MBROLA/X-SAMPA-like export value derived from the internal realization inventory, silence is `_`, duration is milliseconds, and frequency is Hertz. `phonetize.process.intonation.*` governs pitch behavior for these files, while `phonetize.process.timing_model.*` remains the timing and duration subtree.
+The `.pho` outputs are raw MBROLA-style lines without YAML front matter. Each
+line is emitted as `symbol duration pitch_target_1 [pitch_target_2 ...]`, where
+the symbol is the MBROLA/X-SAMPA-like export value derived from the internal
+realization inventory, silence is `_`, duration is milliseconds, and the pitch
+targets are Hertz values derived from the row-carried intonation token plus
+`phonetize.process.intonation.f0`. Constant families emit one target, linear
+families emit two, and peak/valley families emit a longer pitch tail.
 
 Important distinction:
 
@@ -133,7 +142,9 @@ The phonetizer is the canonical owner of the top-level `phonetize` config sectio
 
 Representative grouped-config keys:
 - `phonetize.process.intonation.f0`
-- `phonetize.process.intonation.stress_rise`
+- `phonetize.process.intonation.stress`
+- `phonetize.process.intonation.question`
+- `phonetize.process.intonation.statement`
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.accentuation_distribution_policy`
 - `phonetize.process.timing_model.short_pause_policy`

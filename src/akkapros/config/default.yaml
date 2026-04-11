@@ -82,17 +82,21 @@ phonetize:
     intonation:
       # Baseline speaker pitch in Hertz used for emitted .pho rows.
       f0: 120
-      # Pitch rise in semitones applied to stressed syllables in the accentuated .pho
-      # stream.
-      stress_rise: 2
-      # Reserved later-use pitch rise in semitones for question-final contours.
-      question_final_rise: 3
-      # Reserved later-use pitch fall in semitones for statement-final contours.
-      statement_final_fall: -2
-      # Reserved later-use pitch rise in semitones for exclamatory contours.
-      exclamation_rise: 4
-      # Reserved later-use pitch rise in semitones for continuation contours.
-      continuation_rise: 1
+      # Compact intonation preset for non-pause-governed stressed syllables.
+      # Normalized to canonical row token form.
+      stress: "H2"
+      # Compact intonation preset for question-final contours. Normalized to
+      # canonical row token form.
+      question: "H3"
+      # Compact intonation preset for statement-final contours. Normalized to
+      # canonical row token form.
+      statement: "L2"
+      # Compact intonation preset for exclamatory contours. Normalized to
+      # canonical row token form.
+      exclamation: "H4"
+      # Compact intonation preset for continuation contours. Normalized to
+      # canonical row token form.
+      continuation: "H1"
     timing_model:
       # geminate realization policy
       # - cumulative: keep coda duration + onset duration instead of correcting to the

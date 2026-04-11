@@ -49,7 +49,9 @@ shared stage sections: `syllabify`, `prosody`, `phonetize`, `metrics`, and `prin
 It does not have a duplicated YAML section of its own for those stage-owned
 options.
 
-The `phonetize` section owns the timing-model and phonetizer process controls under `phonetize.process.timing_model`.
+The `phonetize` section owns both the intonation presets under
+`phonetize.process.intonation` and the timing-model controls under
+`phonetize.process.timing_model`.
 That means grouped config no longer defines `metrics.wpm` or
 `metrics.pause_ratio`. Metricalc now computes its outputs from the phonetizer
 artifacts `_ophone.txt` and `_phone.txt`, while still using the phonetize
@@ -112,7 +114,9 @@ The preferred equivalent is the path-based form:
 python -m akkapros.cli.fullprosmaker outputs/demo_proc.txt --conf run.yaml --option common.run.prefix="other"
 ```
 
-Phonetize-owned runtime overrides and scoped help use the same canonical grouped paths that are stored in YAML, including `phonetize.process.timing_model.*`.
+Phonetize-owned runtime overrides and scoped help use the same canonical grouped
+paths that are stored in YAML, including `phonetize.process.intonation.*` and
+`phonetize.process.timing_model.*`.
 
 ## Confwriter
 
@@ -155,6 +159,7 @@ Examples:
 - `atfparse.process.preserve_case`
 - `syllabify.process.merge_lines`
 - `prosody.process.style`
+- `phonetize.process.intonation.stress`
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.speech.wpm`
 - `metrics.run.json`

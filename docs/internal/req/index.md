@@ -2,6 +2,7 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [032. Requirement: Phonetizer Intonation and Three-Pass Finalization](032-phonetizer-intonation-and-three-pass-finalization.md) - Implemented
 - [031. Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization](031-phonetizer-phase-2-syllable-scoped-duration-realization.md) - Implemented
 - [030. Requirement: Phone/Ophone-Only Metrics and Interval Rhythm Computation](030-phone-ophone-only-metrics-and-interval-rhythm-computation.md) - Implemented
 - [029. Requirement: Stage Config Run/Process Separation](029-stage-config-run-process-separation-and-common-outdir-removal.md) - Implemented

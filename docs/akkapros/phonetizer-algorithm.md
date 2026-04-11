@@ -1,6 +1,6 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented two-phase phonetize algorithm as exposed by the live `phonetizer` stage.
+This document describes the currently implemented three-pass phonetize algorithm as exposed by the live `phonetizer` stage.
 
 ## Current Scope
 
@@ -12,7 +12,8 @@ It provides:
 - two materialized artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`
 - one shared library module, `src/akkapros/lib/phonetize.py`
 
-It now implements the later duration-realization pass over the prebuilt row streams.
+It now implements separate duration-realization and intonation-realization
+passes over the prebuilt row streams.
 
 It also now has one baseline semantic-validation boundary shared with
 `confwriter --verify`. Schema-valid grouped config is a prerequisite; semantic
@@ -45,7 +46,7 @@ The realization-code inventory is authoritative for realization-side `Category`,
 The current `_ophone.txt` and `_phone.txt` bodies use the canonical flat-line row contract:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration:text
+label-category-type-length-position-boundary-accent-realization-duration-intonation:text
 ```
 
 Implemented semantics:
@@ -56,20 +57,25 @@ Implemented semantics:
 - `boundary` is `N`, `I`, `E`, `L`, `X`, or `F`
 - `realization` is the two-character code inventory token such as `SU`, `AA`, `AO`, `SP`, or `ZP`
 - `duration` is the finalized millisecond duration emitted by Phase 2
+- `intonation` is the finalized three-character row token emitted by Phase 3
 - `text` preserves the source glyph, punctuation mark, or `<EOL>`
 
 Supported serializations:
 
 ```text
-('SUD','C','F','S','O','N','F','SU','0137','ṣ')
-SUD-C-F-S-O-N-F-SU-0137:ṣ
+('SUD','C','F','S','O','N','F','SU','0137','M0C','ṣ')
+SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
 ```
 
 The flat-line form is the canonical file serialization.
 
 ## Duration Source
 
-The live builder remains structure-first. Phase 1 still materializes the full row contract with placeholder durations, then Phase 2 traverses those rows in place to assign non-zero durations from the active timing model, pause bands, geminate policy, accentuation-distribution policy, and drift policy.
+The live builder remains structure-first. Phase 1 materializes the full row
+contract with placeholder duration and neutral intonation, Phase 2 traverses
+those rows in place to assign non-zero durations from the active timing model,
+and Phase 3 traverses the duration-bearing rows to assign row-carried
+intonation from stress and pause type.
 
 ## Shared Validation Boundary
 

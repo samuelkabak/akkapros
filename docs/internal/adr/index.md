@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [045. Three-Pass Phonetizer Intonation and Row-Derived MBROLA](045-three-pass-phonetizer-intonation-and-row-derived-mbrola.md) - Accepted
 - [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Accepted
 - [043. Separate Run and Process Config Blocks](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Accepted
 - [042. Effective Runtime Config Object, Path Overrides, and Program-Scoped Help](042-effective-runtime-config-object-path-overrides-and-program-scoped-help.md) - Accepted

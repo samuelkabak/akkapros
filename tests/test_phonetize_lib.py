@@ -17,6 +17,7 @@ from akkapros.lib.phonetize import (
     derive_original_tilde_text,
     parse_phone_row,
     render_phonetize_verification_lines,
+    realize_row_intonation,
     realize_phone_rows,
     realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
@@ -75,6 +76,7 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'F',
             'realization': 'SU',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'intonation': 'M0C',
             'text': 'ṣ',
         },
         {
@@ -87,6 +89,7 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'F',
             'realization': 'AO',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'intonation': 'M0C',
             'text': 'a',
         },
         {
@@ -99,11 +102,12 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'P',
             'realization': 'ZP',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'intonation': 'M0C',
             'text': '<EOL>',
         },
     ]
     line = serialize_phone_row(rows[0])
-    assert line == 'SUD-C-F-S-O-N-F-SU-0000:ṣ'
+    assert line == 'SUD-C-F-S-O-N-F-SU-0000-M0C:ṣ'
     assert parse_phone_row(line) == rows[0]
 
 
@@ -126,9 +130,11 @@ def test_pause_rows_and_transition_rows_use_canonical_codes() -> None:
     assert rows[1]['type'] == 'T'
     assert rows[1]['realization'] == 'WA'
     assert rows[3]['label'] == 'SES'
+    assert rows[3]['type'] == 'C'
     assert rows[3]['realization'] == 'SP'
     assert rows[3]['text'] == ','
     assert rows[4]['label'] == 'ZEN'
+    assert rows[4]['type'] == 'S'
     assert rows[4]['realization'] == 'ZP'
     assert rows[4]['text'] == '<EOL>'
 
@@ -172,6 +178,7 @@ def test_mixed_armored_punctuation_suite_prefers_long_pause() -> None:
     pause_rows = [row for row in rows if row['category'] == 'S']
     assert len(pause_rows) == 2
     assert pause_rows[0]['length'] == 'L'
+    assert pause_rows[0]['type'] == 'Q'
     assert pause_rows[0]['text'] == '?!!!'
 
 
@@ -181,6 +188,7 @@ def test_armored_punctuation_is_accepted_by_phonetizer() -> None:
     pause_rows = [row for row in rows if row['category'] == 'S']
     assert len(pause_rows) == 2
     assert pause_rows[0]['label'] == 'SES'
+    assert pause_rows[0]['type'] == 'C'
     assert pause_rows[0]['realization'] == 'SP'
     assert pause_rows[0]['text'] == ':'
 
@@ -202,15 +210,25 @@ def test_armored_punctuation_inherits_extra_chars_from_frontmatter() -> None:
     pause_rows = [row for row in rows if row['category'] == 'S']
     assert len(pause_rows) == 2
     assert pause_rows[0]['label'] == 'SES'
+    assert pause_rows[0]['type'] == 'I'
     assert pause_rows[0]['text'] == 'o'
 
 
-def test_unknown_armored_content_fails_in_phonetizer() -> None:
-    try:
-        build_phone_rows('šar⟦ @ ⟧ti')
-        raise AssertionError('Expected unsupported armored phonetizer content to fail')
-    except ValueError as exc:
-        assert '⟦ @ ⟧' in str(exc)
+def test_unknown_armored_punctuation_maps_to_internal_pause_type() -> None:
+    rows = build_phone_rows('šar⟦ @ ⟧ti')
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert len(pause_rows) == 2
+    assert pause_rows[0]['type'] == 'I'
+    assert pause_rows[0]['text'] == '@'
+
+
+def test_grouped_punctuation_suite_uses_cr050_precedence() -> None:
+    rows = build_phone_rows('at?! ...: \n')
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+    assert [row['type'] for row in pause_rows] == ['Q', 'C', 'S']
+    assert [row['length'] for row in pause_rows] == ['L', 'S', 'L']
 
 
 def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
@@ -289,15 +307,33 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
 
 
-def test_mbrola_rows_use_baseline_and_stress_rise_f0() -> None:
-    original_rows, accentuated_rows = build_phone_streams('at·ta~')
+def test_pass3_assigns_row_level_intonation_tokens() -> None:
+    original_rows, accentuated_rows = build_phone_streams('at·ta~?!')
     realize_phone_rows(original_rows, allow_accentuation=False)
     realize_phone_rows(accentuated_rows, allow_accentuation=True)
+    realize_row_intonation(original_rows, accentuated=False)
+    realize_row_intonation(accentuated_rows, accentuated=True)
+
+    assert all(row['intonation'] == 'M0C' for row in original_rows[:-1])
+    assert original_rows[-1]['intonation'] == 'M0C'
+    assert [row['intonation'] for row in accentuated_rows[:2]] == ['M0C', 'M0C']
+    assert [row['intonation'] for row in accentuated_rows[2:4]] == ['H3C', 'H3C']
+    assert accentuated_rows[-2]['type'] == 'Q'
+    assert accentuated_rows[-2]['intonation'] == 'H3C'
+    assert accentuated_rows[-1]['type'] == 'S'
+
+
+def test_mbrola_rows_use_row_level_intonation_tokens() -> None:
+    original_rows, accentuated_rows = build_phone_streams('at~·ta')
+    realize_phone_rows(original_rows, allow_accentuation=False)
+    realize_phone_rows(accentuated_rows, allow_accentuation=True)
+    realize_row_intonation(original_rows, accentuated=False)
+    realize_row_intonation(accentuated_rows, accentuated=True)
 
     original_lines = serialize_mbrola_rows(original_rows, accentuated=False).strip().splitlines()
     accentuated_lines = serialize_mbrola_rows(accentuated_rows, accentuated=True).strip().splitlines()
 
-    assert all(len(line.split()) == 3 for line in original_lines)
+    assert all(len(line.split()) >= 3 for line in original_lines)
     assert all(not line.startswith(('AA ', 'TA ', 'SP ', 'ZP ')) for line in original_lines)
     assert any(line.startswith('a ') for line in original_lines)
     assert any(line.startswith('t ') for line in original_lines)
@@ -308,6 +344,7 @@ def test_mbrola_rows_use_baseline_and_stress_rise_f0() -> None:
 def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
     rows = build_phone_rows('at·ta')
     realize_phone_rows(rows, allow_accentuation=False)
+    realize_row_intonation(rows, accentuated=False)
 
     lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
 
@@ -317,12 +354,23 @@ def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
 def test_mbrola_rows_emit_xsampa_pause_and_colored_vowels() -> None:
     rows = build_phone_rows('qa,\n')
     realize_phone_rows(rows, allow_accentuation=False)
+    realize_row_intonation(rows, accentuated=False)
 
     lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
 
     assert any(line.startswith('q ') for line in lines)
     assert any(line.startswith('a. ') for line in lines)
     assert any(line.startswith('_ ') for line in lines)
+
+
+def test_mbrola_rows_emit_variable_length_pitch_tails_for_linear_tokens() -> None:
+    rows = build_phone_rows('at~,')
+    realize_phone_rows(rows, allow_accentuation=True)
+    realize_row_intonation(rows, {'process': {'intonation': {'continuation': 'R1'}}}, accentuated=True)
+
+    lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
+
+    assert any(len(line.split()) == 4 for line in lines if line.startswith(('a ', 't ', '_ ')))
 
 
 def test_verification_rejects_non_positive_intonation_f0() -> None:

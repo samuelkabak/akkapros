@@ -655,12 +655,14 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
             if not sep:
                 fail("invalid phone-row content: missing ':' separator", idx, ln)
             parts = head.split('-')
-            if len(parts) != 9:
-                fail("invalid phone-row content: expected 9 head fields", idx, ln)
+            if len(parts) != 10:
+                fail("invalid phone-row content: expected 10 head fields", idx, ln)
             if parts[1] not in {'C', 'V', 'S'}:
                 fail("invalid phone-row content: unknown category field", idx, ln)
             if not re.fullmatch(r'\d{4}', parts[8]):
                 fail("invalid phone-row content: duration must be four digits", idx, ln)
+            if not re.fullmatch(r'[HLMRFPV][0-9][CLE]', parts[9]):
+                fail("invalid phone-row content: intonation must be a canonical three-character token", idx, ln)
             saw_phone_row = True
         if not saw_phone_row:
             fail("file has no valid phone rows")
