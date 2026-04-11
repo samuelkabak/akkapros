@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[054. Add Single-Line Manual Metrics Verification Test](054-add-single-line-manual-metrics-verification-test.md) - Done
 [053. Expand prosmaker demo config to full explicit defaults](053-expand-prosmaker-demo-config-to-full-explicit-defaults.md) - Done
 [052. Make prosmaker demo config-driven and restore printer outputs](052-make-prosmaker-demo-config-driven-and-restore-printer-outputs.md) - Done
 [051. Align and enrich research-facing package documentation](051-align-and-enrich-research-facing-package-documentation.md) - Done

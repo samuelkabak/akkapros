@@ -2,7 +2,7 @@ import json
 import math
 from pathlib import Path
 
-from akkapros.lib.frontmatter import split_frontmatter
+from akkapros.lib.frontmatter import compose_text_document, split_frontmatter
 from akkapros.lib import metrics
 from akkapros.lib import print as printlib
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR
@@ -17,6 +17,42 @@ ina ilī bukrīša : šūt iškunūši puḫra
 ušašqi qingu : ina birīšunu šâšu ušrabbīš
 ālikūt maḫri pān ummāni muʾerrūt puḫri
 """
+
+VARCO_VERIFICATION_SAMPLE = "šazu šuḫgurim ina rebî : šākin tašmê ana ilī abbīšu\n"
+VARCO_VERIFICATION_ORIGINAL = {
+    "percent_c": 36.6510172143975,
+    "percent_v": 29.93740219092332,
+    "mean_c_ms": 117.1,
+    "mean_v_ms": 95.65,
+    "delta_c_ms": 61.97410749659893,
+    "delta_v_ms": 56.628857484501665,
+    "varco_c": 52.924088383090464,
+    "varco_v": 59.20424201202474,
+    "rpvi_c": 63.578947368421055,
+    "npvi_v": 52.75901193008827,
+}
+VARCO_VERIFICATION_ACCENTUATED = {
+    "percent_c": 38.40879874303671,
+    "percent_v": 30.567061848307386,
+    "mean_c_ms": 134.45,
+    "mean_v_ms": 107.0,
+    "delta_c_ms": 84.7794049283197,
+    "delta_v_ms": 69.90708118638626,
+    "varco_c": 63.056455878259364,
+    "varco_v": 65.33372073494044,
+    "rpvi_c": 97.05263157894737,
+    "npvi_v": 57.895234543557784,
+}
+VARCO_VERIFICATION_ORIGINAL_DRIFT = {
+    "max": 12.0,
+    "mean": 1.3636,
+    "stddev": 10.8063,
+}
+VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
+    "max": 65.0,
+    "mean": -3.3182,
+    "stddev": 18.3536,
+}
 
 
 def _build_sample_tilde() -> str:
@@ -48,6 +84,52 @@ def _write_phone_pair(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Pat
     phone_file = tmp_path / f"{prefix}_phone.txt"
     ophone_file.write_text(serialize_phone_rows(ophone_rows), encoding="utf-8")
     phone_file.write_text(serialize_phone_rows(phone_rows), encoding="utf-8")
+    return ophone_file, phone_file
+
+
+def _build_varco_verification_tilde() -> str:
+    syllabified = syllabify_text(VARCO_VERIFICATION_SAMPLE, preserve_lines=True)
+    engine = ProsodyEngine(style=AccentStyle.LOB)
+    accentuated = [engine.accentuation_line(parse_syl_line(line)) for line in syllabified.splitlines() if line.strip()]
+    return "\n".join(postprocess_restore_diphthongs(accentuated)) + "\n"
+
+
+def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
+    (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
+        tilde_text,
+        build_default_phonetize_config(),
+        None,
+    )
+    ophone_frontmatter = {
+        "metadata": {
+            "data": {
+                "phonetize": {
+                    "drift": {
+                        "max": ophone_report["drift"]["max"],
+                        "mean": ophone_report["drift"]["mean"],
+                        "stddev": ophone_report["drift"]["stddev"],
+                    },
+                }
+            }
+        }
+    }
+    phone_frontmatter = {
+        "metadata": {
+            "data": {
+                "phonetize": {
+                    "drift": {
+                        "max": phone_report["drift"]["max"],
+                        "mean": phone_report["drift"]["mean"],
+                        "stddev": phone_report["drift"]["stddev"],
+                    },
+                }
+            }
+        }
+    }
+    ophone_file = tmp_path / f"{prefix}_ophone.txt"
+    phone_file = tmp_path / f"{prefix}_phone.txt"
+    ophone_file.write_text(compose_text_document(ophone_frontmatter, serialize_phone_rows(ophone_rows)), encoding="utf-8")
+    phone_file.write_text(compose_text_document(phone_frontmatter, serialize_phone_rows(phone_rows)), encoding="utf-8")
     return ophone_file, phone_file
 
 
@@ -362,3 +444,27 @@ def test_compute_interval_metrics_uses_manual_phone_intervals() -> None:
     assert math.isclose(acoustic["varco_c"], 45.45454545454545)
     assert math.isclose(acoustic["rpvi_c"], 75.0)
     assert math.isclose(acoustic["npvi_v"], 84.05797101449275)
+
+
+def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path: Path) -> None:
+    ophone_file, phone_file = _write_phone_pair_with_drift_frontmatter(
+        tmp_path,
+        "varco-verification",
+        _build_varco_verification_tilde(),
+    )
+
+    result = metrics.process_file(
+        str(phone_file),
+        wpm=193,
+        pause_ratio=35.0,
+        ophone_filename=str(ophone_file),
+    )
+
+    for key, expected in VARCO_VERIFICATION_ORIGINAL.items():
+        assert math.isclose(result["original"]["acoustic"][key], expected, rel_tol=0.0, abs_tol=1e-9), key
+
+    for key, expected in VARCO_VERIFICATION_ACCENTUATED.items():
+        assert math.isclose(result["accentuated"]["acoustic"][key], expected, rel_tol=0.0, abs_tol=1e-9), key
+
+    assert result["original"]["drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
+    assert result["accentuated"]["drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
