@@ -2,6 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[049. Add X-SAMPA MBROLA Export Column and Remove Printer MBROLA Residue](049-add-xsampa-mbrola-export-column-and-remove-printer-mbrola-residue.md) - Draft
+[048. Correct ḥ Reader Mappings Across XAR and IPA Replace Mode](048-correct-het-reader-mappings-across-xar-and-ipa-replace-mode.md) - Draft
 [047. Close Phone-Handoff Pause and Downstream Consumption Gaps](047-close-phonetizer-pause-and-reconstruction-gaps.md) - Done
 [046. Redesign metricalc Around Phone/Ophone Interval Metrics](046-redesign-metricalc-around-phone-ophone-interval-metrics.md) - Done
 [045. Move MBROLA `.pho` Output to Phonetizer](045-move-mbrola-pho-output-to-phonetizer.md) - Done
