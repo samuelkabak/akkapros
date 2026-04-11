@@ -6,6 +6,10 @@ This document describes the algorithm currently implemented in
 `src/akkapros/lib/prosody.py`. It is written as a readable specification of
 what the engine actually does, not as a loose conceptual overview.
 
+The practical question answered here is: given a syllabified line, where does
+the toolkit realize prominence in connected speech, and when does it treat two
+or more neighboring words as one prosodic unit?
+
 The algorithm has four moving parts that must be kept separate:
 
 - structural grouping of words into a prosodic unit
@@ -32,7 +36,8 @@ The algorithm has four moving parts that must be kept separate:
 | Symbol | Meaning |
 |--------|---------|
 | `~` | one added mora on the chosen target |
-| `+` | prosodic merger / linked unit |
+| `+` | explicit user-supplied link preserved from input |
+| `&` | automatic merge introduced by the engine |
 | space | ordinary boundary between independent units |
 
 ### Syllable Types and Morae
@@ -76,6 +81,36 @@ not use forward merge as a repair strategy.
 
 Mora mode decides **whether** an attempt is made. Accent style decides
 **where** the attempt is made.
+
+For interpretation:
+
+- `bi` is the default research model in this repository
+- `mono` is a comparison mode that keeps the same style hierarchy but removes
+    the odd-mora gate
+- `LOB` and `SOB` do not define different phonetic operations; they only rank
+    candidate sites differently
+
+---
+
+## How to Read the Result
+
+When you inspect `_tilde.txt`, read it in this order:
+
+1. find spaces to see the independent prosodic units
+2. find `+` to identify user-imposed links that the engine preserved
+3. find `&` to identify merges the engine introduced automatically
+4. find `~` to identify the syllable where one mora was realized
+
+Example:
+
+```text
+u&˙a·na&šar·ri
+```
+
+This means the conjunction `u` and the preposition `ana` were not left as
+independent words. They were grouped with `šarri` into one prosodic unit.
+Because the resulting unit did not need a visible internal accentuation under
+the active settings, no `~` appears.
 
 ---
 

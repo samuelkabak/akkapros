@@ -2,6 +2,11 @@
 
 `phonetizer.py` turns a prosody-realized `*_tilde.txt` file into two finalized phone-row artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`, plus two phonetizer-owned MBROLA `.pho` artifacts, `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho`.
 
+For most users, this is the stage where the prosodic analysis becomes a
+phonetic one. It does not merely relabel symbols. It decides segmental
+realization, duration, pause strength, and row-level intonation in a form that
+later metrics and printing stages can reuse directly.
+
 ## Purpose
 
 The phonetize stage now sits between prosody and metrics in the documented pipeline:
@@ -26,6 +31,14 @@ The current implementation now follows a three-pass contract for both
 - Pass 3 assigns row-carried intonation tokens over the duration-bearing rows
 - deterministic original-stream derivation from `_tilde` by removing `~` and replacing `&` with space while preserving `+`
 - drift reporting in front matter under `metadata.data.phonetize.drift`
+
+In researcher-facing terms:
+
+- Pass 1 decides structure: which rows exist, where boundaries fall, and what
+	kind of pause has been encountered.
+- Pass 2 decides timing: how many milliseconds each row receives.
+- Pass 3 decides intonation: which rows stay neutral and which rows receive
+	stress or clause-final contour.
 
 Before runtime realization begins, the CLI now also runs shared semantic config
 verification. Blocking failures stop the command before `_ophone.txt`,
@@ -82,9 +95,11 @@ inherit one ordinary long-pause line break instead of inventing a separate EOF
 rule.
 
 When one punctuation suite reaches the phonetizer as one consumed chunk, pause
-classification uses explicit precedence: long if any long cue is present,
-otherwise short if any short cue is present. Mixed suites such as `?!!!` are
-therefore serialized as one long-pause row.
+classification uses typed precedence rather than a simple short-versus-long
+split. The active precedence is `Q > E > S > C > I`, meaning question outranks
+exclamation, exclamation outranks statement, statement outranks continuation,
+and `I` is the neutral internal type. A mixed suite such as `?!!!` therefore
+becomes one question-governed pause row, not several independent rows.
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 
@@ -102,6 +117,14 @@ Important distinction:
 - `.pho` export derives MBROLA/X-SAMPA-like symbols such as `X`, `x`, `H`, `?`, `a.`, and `_` from that same realization inventory
 
 This keeps the row contract backend-neutral while making the emitted `.pho` files conventional for MBROLA-style tooling.
+
+If you are validating outputs manually:
+
+- read `_phone.txt` when you want the accentuated phonetic stream
+- read `_ophone.txt` when you want the matched original stream
+- read `.pho` only when you need the speech-synthesis export surface
+
+The phone-row files are the authoritative downstream analysis artifacts.
 
 ## Command Syntax
 
@@ -145,6 +168,8 @@ Representative grouped-config keys:
 - `phonetize.process.intonation.stress`
 - `phonetize.process.intonation.question`
 - `phonetize.process.intonation.statement`
+- `phonetize.process.intonation.exclamation`
+- `phonetize.process.intonation.continuation`
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.accentuation_distribution_policy`
 - `phonetize.process.timing_model.short_pause_policy`

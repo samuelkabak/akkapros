@@ -2,6 +2,10 @@
 
 This guide explains the compact fixed-width row format used by the phonetizer.
 
+It is meant to help a reader inspect the files directly without needing to read
+the library code first. The phone-row files are the main downstream analysis
+artifacts of the phonetizer.
+
 ## Purpose
 
 `_phone.txt` is the accentuated downstream stream.
@@ -96,6 +100,21 @@ For pause rows this is the pause class:
 - The source-facing glyph or pause text.
 - For line breaks the phonetizer writes `<EOL>`.
 
+## Pause Type Letters
+
+Pause rows now carry a meaningful subtype rather than one generic silence type.
+
+| Type | Meaning |
+|------|---------|
+| `Q` | question-final pause |
+| `E` | exclamatory pause |
+| `S` | statement-final or ordinary line-final pause |
+| `C` | continuation pause |
+| `I` | internal or sanitizing pause with no clause-final override |
+
+When a punctuation suite contains mixed cues, the phonetizer resolves it by the
+active precedence `Q > E > S > C > I`.
+
 ## How Boundaries Travel
 
 Lexical structure does not need a separate word table downstream.
@@ -140,6 +159,10 @@ Important rules:
 - Pause rows use subtype `Q`, `S`, `E`, `C`, or `I` rather than one generic silence type.
 - Grouped punctuation suites use precedence `Q > E > S > C > I`.
 - Metrics and printer read pause strength from these rows instead of recomputing it from punctuation later.
+
+For interpretation, this means pause meaning is already decided here. Later
+stages do not need to guess again whether a symbol acted as continuation,
+statement, or question punctuation.
 
 ## `_phone.txt` versus `_ophone.txt`
 
@@ -195,6 +218,11 @@ When inspecting a phone file manually:
 4. Read `duration` to see the realized timing.
 5. Read the `text` tail last to map the row back to source material.
 
+If you are comparing `_phone.txt` and `_ophone.txt`, keep the following rule in
+mind: both files preserve the same structural skeleton, but only `_phone.txt`
+shows the accentuated stream. That makes the pair useful for both metrics and
+manual before/after comparison.
+
 For user-facing rendering, `printer.py` reconstructs lexical text from the row
-stream and uses `S` rows to decide whether a pause is short, long, or a line
-break.
+stream and uses the pause rows to decide whether a pause is short, long, or a
+line break.

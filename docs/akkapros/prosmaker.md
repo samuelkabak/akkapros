@@ -14,6 +14,11 @@ This document describes what the prosmaker does, how to run it, and what files i
 
 It takes input produced by the syllabifier (`*_syl.txt`) and creates the prosody-realized pivot format (`*_tilde.txt`), which is used by downstream modules and full-pipeline stages.
 
+For researchers, this is the stage where syllabified words become a prosodic
+analysis. The stage decides whether a word remains independent, whether it
+joins a neighboring word into one prosodic unit, and where the added mora is
+realized. It does not yet assign phonetic duration or pitch.
+
 ---
 
 ## 📂 Input and Output
@@ -73,6 +78,30 @@ The `_tilde.txt` pivot now also preserves merge provenance directly: explicit li
 
 ---
 
+## 🔎 How to Read `_tilde.txt`
+
+`_tilde.txt` is the prosody pivot. It is not a final pronunciation file. It is
+the compact record of the prosodic decisions that later stages inherit.
+
+| Symbol | Meaning |
+|--------|---------|
+| `~` | one extra mora is realized on this syllable |
+| `+` | explicit user-supplied link inherited from the input |
+| `&` | automatic merge introduced by the prosody engine |
+| space | ordinary boundary between separate prosodic units |
+| `·` / `-` | preserved internal syllable or bound-morpheme structure |
+
+Example:
+
+```text
+gi·mir&dad~·mē
+```
+
+This means `gimir` and `dadmē` were merged into one prosodic unit by the
+algorithm, and the added mora was realized on `dad`.
+
+---
+
 ## μ Mora Modes
 
 | Mode | Behavior |
@@ -83,6 +112,14 @@ The `_tilde.txt` pivot now also preserves merge provenance directly: explicit li
 `mono` changes the trigger for attempting accentuation. It does **not** change the
 `lob` / `sob` target-selection hierarchy or the legal accentuation operations,
 but it also does not use bimoraic forward merge as a repair step.
+
+In plain language:
+
+- `bi` keeps the repository's default bimoraic model. Even units can pass
+    through unchanged, while odd units may require accentuation or merging.
+- `mono` is a comparative academic mode. It may accentuate an eligible unit
+    even when that unit is already even, and it does not merge forward merely to
+    satisfy bimoraic parity.
 
 ---
 
@@ -156,6 +193,14 @@ The prosmaker is the **third step** in the akkapros pipeline:
 
 `_tilde.txt` remains the upstream prosody pivot for phonetizer input. It is no
 longer the active downstream input for metrics or printer.
+
+In practice:
+
+- inspect `_tilde.txt` when you want to study grouping and accentuation
+    decisions
+- inspect `_phone.txt` and `_ophone.txt` when you want phonetic timing,
+    intonation, or metrics-ready structure
+- inspect printer outputs when you want a user-facing reading form
 
 For one-command execution of all stages, see **`fullprosmaker.py`**.
 

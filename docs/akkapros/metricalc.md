@@ -19,6 +19,11 @@ The stage also reports the broader structural inventory, including syllable,
 word, mora, merge, prominence, accentuation, pause, speech-rate, and drift
 summaries.
 
+For researchers, the main point is that metricalc no longer reconstructs rhythm
+from the prosody pivot. It reads the phonetizer's realized durations directly,
+so the reported rhythm metrics describe the actual phone-row timing model used
+by the toolkit.
+
 ## Inputs
 
 Required positional input:
@@ -103,6 +108,20 @@ from `mean`, `Δ`, `Varco`, and PVI calculations.
 The stage also reports the phonetizer drift summary consumed from
 `metadata.data.phonetize.drift` in both streams.
 
+Interpretation guide:
+
+- `%V` and `%C` describe how total elapsed time is distributed across vowel and
+  consonant intervals, with pauses still included in the denominator
+- `meanV` and `meanC` describe the average size of vocalic and consonantal
+  intervals
+- `ΔV` and `ΔC` describe variability inside those interval classes
+- `VarcoV` and `VarcoC` normalize that variability against average interval size
+- `nPVI-V` and `rPVI-C` track how sharply adjacent intervals fluctuate from one
+  to the next
+
+For the formulas and discussion of interpretation limits, see
+`docs/akkapros/metrics-computation.md`.
+
 ## Structural Reporting
 
 The metrics outputs keep the active structural inventory under the new input
@@ -125,3 +144,7 @@ There is no active explicit-link override flag.
 - Any residual direct-text pause helpers in the library are internal
   compatibility code, not part of the active metrics contract.
 - `--explicit-link-count` is not part of the active CLI contract.
+
+In practical use, read `_metrics.txt` when you want the human-readable report
+and `_metrics.json` when you want to compare runs or extract specific values
+programmatically.

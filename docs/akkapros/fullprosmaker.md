@@ -3,6 +3,10 @@
 `fullprosmaker.py` runs the complete Akkadian processing pipeline in one
 command.
 
+For most research use, this is the recommended entry point. It keeps the stage
+contracts aligned and writes the full chain of intermediate and final outputs in
+one reproducible run.
+
 Implementation:
 - `src/akkapros/cli/fullprosmaker.py`
 - `src/akkapros/lib/syllabify.py`
@@ -45,6 +49,14 @@ Optional print outputs:
 - `<prefix>_accent_ipa.txt`
 - `<prefix>_accent_xar.txt`
 - `<prefix>_xar.txt`
+
+Artifact roles:
+
+- `_syl.txt` is the syllabified reading of the parsed text
+- `_tilde.txt` is the prosody pivot that records grouping and accentuation
+- `_ophone.txt` and `_phone.txt` are the paired phonetic analysis artifacts
+- `_metrics.*` reports what the phonetizer timing implies rhythmically and structurally
+- print outputs are user-facing renderings for reading or presentation
 
 ## Syntax
 
@@ -154,6 +166,10 @@ downstream input contract for either stage.
 If the consumed text lacks a final line break, the phonetizer normalizes one
 final break before serializing `_ophone.txt` and `_phone.txt`, and that break
 travels downstream as a long-pause `<EOL>` row.
+
+That means the full pipeline treats line-final closure consistently. Metrics and
+printer inherit the same pause representation instead of inventing separate EOF
+rules.
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`
 

@@ -1,10 +1,13 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented three-pass phonetize algorithm as exposed by the live `phonetizer` stage.
+This document describes the currently implemented three-pass phonetize
+algorithm as exposed by the live `phonetizer` stage.
+
+The practical question answered here is: once prosody has already been decided
+in `_tilde.txt`, how does the toolkit turn that structure into a paired
+phonetic representation that can drive both metrics and MBROLA export?
 
 ## Current Scope
-
-The live implementation is intentionally transitional.
 
 It provides:
 - one canonical `phonetize` config section
@@ -12,8 +15,8 @@ It provides:
 - two materialized artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`
 - one shared library module, `src/akkapros/lib/phonetize.py`
 
-It now implements separate duration-realization and intonation-realization
-passes over the prebuilt row streams.
+It implements separate duration-realization and intonation-realization passes
+over the prebuilt row streams.
 
 It also now has one baseline semantic-validation boundary shared with
 `confwriter --verify`. Schema-valid grouped config is a prerequisite; semantic
@@ -24,18 +27,10 @@ Phase 1 now derives the original stream deterministically from accentuated `_til
 
 ## Canonical Inventory
 
-The live implementation keeps the CR-036 inventories in code-owned canonical tables.
-
-Consonant-class sets:
-
-```python
-CONSONANT_HIATUS = set('˙')
-CONSONANT_VOWEL_TRANSITION = set('¨')
-CONSONANT_CLOSURE = set('bdgkptṭqʾ')
-CONSONANT_FRICATIVE = set('szšṣḥḫʿ')
-CONSONANT_SONORANT = set('lrmnwy')
-EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
-```
+The live implementation keeps the segment inventories in code-owned canonical
+tables, but the user-facing point is simpler: the phonetizer distinguishes
+ordinary consonants, vowels, pauses, hiatus markers, and vowel-transition
+markers in a stable way before any duration or pitch is assigned.
 
 The input-character inventory is kept distinct from realization codes. The input side preserves exact source glyph identity, including separate labels for short, long, and circumflex vowels, plus the normalized pause representatives `:inner-punct:` and `:phrasal-punct:`.
 
@@ -77,6 +72,11 @@ those rows in place to assign non-zero durations from the active timing model,
 and Phase 3 traverses the duration-bearing rows to assign row-carried
 intonation from stress and pause type.
 
+That separation matters for interpretation. A row exists before it receives a
+duration, and it receives a duration before it receives a final contour. This
+is why the same phone-row artifacts can support both phonetic analysis and
+speech-synthesis export without keeping separate hidden state.
+
 ## Shared Validation Boundary
 
 The current shared verification layer is intentionally baseline-only.
@@ -117,7 +117,15 @@ The current stage:
 - emits `SES` / `SP` rows for short pauses and `ZEN` / `ZP` rows for long pauses and line breaks
 - serializes line breaks as `<EOL>` in the `text` field
 - inserts one final `<EOL>` long-pause row if the consumed `_tilde` text had no terminal line break
-- classifies one punctuation suite as long when any long cue is present, otherwise as short when any short cue is present
+- classifies one punctuation suite by typed pause precedence: `Q > E > S > C > I`
+
+Pause-type meaning:
+
+- `Q` question-final pause
+- `E` exclamatory pause
+- `S` statement-final pause, including ordinary line-final closure
+- `C` continuation pause such as comma- or semicolon-like carry-on phrasing
+- `I` internal or sanitizing pause that carries no clause-final override
 
 Boundary reconstruction examples:
 - `I` reconstructs `·` inside a word.
@@ -138,6 +146,24 @@ Finalized front matter also carries drift summaries for each emitted stream:
 - `metadata.data.phonetize.drift.stddev`
 - `metadata.data.phonetize.drift_extension_count`
 - `metadata.data.phonetize.max_drift_extension`
+
+## Intonation Outcome
+
+The current implementation uses pause type as the cause-side signal for
+clause-level contour. In the present scope, the visible consequence is applied
+to the last syllable before the pause.
+
+That means:
+
+- an ordinary stressed syllable receives the configured stress color when no
+	clause-final pause overrides it
+- a final question receives the configured question contour on the last
+	syllable before the question pause
+- a final statement receives the configured statement contour on the last
+	syllable before the statement pause
+- internal pauses of type `I` do not impose a clause-final contour
+
+The original stream remains neutral in the present implementation scope.
 
 ## Worked Phase 2 Examples
 

@@ -58,6 +58,17 @@ artifacts `_ophone.txt` and `_phone.txt`, while still using the phonetize
 transition defaults internally (`wpm = 193`, `pause_ratio = 35`) rather than
 exposing separate metrics-owned timing knobs.
 
+The active intonation presets are:
+
+- `phonetize.process.intonation.stress`
+- `phonetize.process.intonation.question`
+- `phonetize.process.intonation.statement`
+- `phonetize.process.intonation.exclamation`
+- `phonetize.process.intonation.continuation`
+
+Those values are normalized into canonical row-level intonation tokens in the
+finalized phone-row artifacts and then reused when `.pho` export is emitted.
+
 Those same `phonetize` settings are used when `phonetizer` and `fullprosmaker`
 materialize and finalize the two phone-row outputs, `<prefix>_ophone.txt` and
 `<prefix>_phone.txt`.
