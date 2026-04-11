@@ -455,7 +455,7 @@ IPA mode is controlled with `--print-ipa-proto-semitic {preserve,replace}`:
 | Mode | Description | Mapping |
 |------|-------------|---------|
 | `preserve` | Old Akkadian distinctions | `ḥ → ħ`, `ḫ → χ`, `ʿ → ʕ`, `ʾ → ʔ` |
-| `replace` | Old Babylonian merger | `ḥ → χ`, `ḫ → χ`, `ʿ → ʔ`, `ʾ → ʔ` |
+| `replace` | Old Babylonian merger | `ḥ → ʔ`, `ḫ → χ`, `ʿ → ʔ`, `ʾ → ʔ` |
 
 ### IPA output conventions
 

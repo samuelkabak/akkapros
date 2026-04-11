@@ -65,7 +65,7 @@ A letter with non-common Latin sound should be visibly marked (`ꝗ`, not plain 
 |---------|-----------|
 | `š` | `x̌` |
 | `y` | `j` |
-| `ḥ` | `ḫ` |
+| `ḥ` | `'` |
 | `ḫ` | `ḫ` |
 | `ʿ` | `'` |
 | `ʾ` | `'` |
@@ -233,9 +233,15 @@ This keeps XAR operable on plain keyboards while maintaining a coherent one-to-o
 
 XAR is aligned with an **Old Babylonian reading profile**:
 
-- pharyngeal and glottal letters are represented by apostrophe (`'`) in final practical text
+- `ḥ`, `ʿ`, and `ʾ` are represented by apostrophe (`'`) in final practical text
+- `ḫ` remains `ḫ` and does not collapse with apostrophe output
 - apostrophe is retained to keep output reversible and avoid hidden deletions
 - both accented and plain XAR outputs follow the same consonant mapping
+
+Automatic vowel coloring is still limited to the emphatic trigger set used by
+the printer (`q`, `ṣ`, `ṭ`). A nearby `ḥ` does not automatically recolor `a`
+to `e` or any other vowel quality. If a reader wants `'e`, that `e` must
+already be present in the input text.
 
 This makes the script easier for continuous reading while preserving enough structure for conversion pipelines.
 
@@ -319,7 +325,7 @@ The following short passage is shown in three parallel forms: standard academic 
 | Long vowels | Doubled: `aa`, `ii`, `uu`, `ee` |
 | Circumflex | Two-vowel memory: `eâ`, `eî`, `iû`, `aê` |
 | Emphatic coloring | Grave accents: `à`, `ì`, `ù`, `è` |
-| Pharyngeals/glottals | Apostrophe: `'` |
+| Pharyngeals/glottals | `ḥ`, `ʿ`, `ʾ` -> apostrophe `'`; `ḫ` stays `ḫ` |
 | Fallback | Clean ASCII mapping |
 | Punctuation | English-like conventions |
 

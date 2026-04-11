@@ -89,6 +89,9 @@ Print output selection:
 - `--print-xar`
 - `--print-merger`
 
+For `--print-ipa-proto-semitic`, `preserve` keeps `ḥ/ḫ/ʿ/ʾ` distinct, while
+`replace` maps `ḥ/ʿ/ʾ` to `ʔ` and keeps `ḫ` as `χ`.
+
 The full pipeline no longer exposes `--explicit-link-count` for metrics.
 Explicit-link counts are derived from the generated phone-row structure.
 

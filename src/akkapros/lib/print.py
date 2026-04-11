@@ -78,6 +78,8 @@ IPA_PROSODY_WEAK = '|'
 IPA_PROSODY_STRONG = '‖'
 
 ALL_VOWELS = set('aeiuāēīūâêîû')
+# Printer-side vowel coloring is limited to the emphatic set; ḥ is intentionally
+# not a recoloring trigger and any desired vowel quality must come from input.
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
 
 IPA_MAP_STRICT = {
@@ -92,7 +94,8 @@ IPA_MAP_OB = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'χ', 'ḫ': 'χ', 'ʿ': 'ʔ', 'ʾ': 'ʔ',
+    # In replace mode, ḥ joins ʿ/ʾ as ʔ while ḫ remains distinct as χ.
+    'r': 'r', 'ḥ': 'ʔ', 'ḫ': 'χ', 'ʿ': 'ʔ', 'ʾ': 'ʔ',
     'w': 'w', 'y': 'j', 't': 't',
 }
 
@@ -133,7 +136,8 @@ XAR_CONSONANT_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'ꝗ', 'ṭ': 'ꞓ', 'ṣ': 'ɉ', 'š': 'x̌',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'ḫ', 'ḫ': 'ḫ', 'ʿ': "'", 'ʾ': "'",
+    # Reader-facing XAR collapses ḥ, ʿ, and ʾ to apostrophe; ḫ stays distinct.
+    'r': 'r', 'ḥ': "'", 'ḫ': 'ḫ', 'ʿ': "'", 'ʾ': "'",
     'w': 'w', 'y': 'j', 't': 't',
 }
 
@@ -1196,7 +1200,8 @@ def run_tests() -> bool:
         ("ṭa", "xar", "ꞓà"),
         ("ṣa", "xar", "ɉà"),
         ("ša", "xar", "x̌a"),
-        ("ḥa", "xar", "ḫa"),
+        ("ḥa", "xar", "'a"),
+        ("baḥk", "xar", "ba'k"),
         ("ya", "xar", "ja"),
         ("ʿa", "xar", "'a"),
         ("qā~", "xar", "ꝗàa´"),
@@ -1303,7 +1308,8 @@ def run_tests() -> bool:
         ("a+ē", "ipa", "a.eː"),
         ("a-ē", "ipa", "a-eː"),
         ("ḫa", "ipa", "χa"),
-        ("ḥa", "ipa", "χa"),
+        ("ḥa", "ipa", "ʔa"),
+        ("baḥk", "ipa", "baʔk"),
         ("ʿa+ʾi", "ipa", "ʔa.ʔi"),
         ("ʾa-ʿi", "ipa", "ʔa-ʔi"),
         (
@@ -1367,7 +1373,7 @@ def run_tests() -> bool:
     ]
 
     ipa_mode_cases = [
-        ("ḥa", "χa", "ħa"),
+        ("ḥa", "ʔa", "ħa"),
         ("ḫa", "χa", "χa"),
         ("ʿa", "ʔa", "ʕa"),
         ("ʾa", "ʔa", "ʔa"),

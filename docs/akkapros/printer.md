@@ -78,7 +78,7 @@ re-parsing `_tilde` punctuation as an active downstream source.
 
 | Option | Description |
 |--------|-------------|
-| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: strict mode (Old Akkadian distinctions)<br>• `replace`: OB-style pharyngeal merger (default) |
+| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: `ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`<br>• `replace`: `ḥ -> ʔ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ` (default) |
 | `--circ-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA<br>Example: `qû → qʊ.ʊ` |
 
 ---
@@ -160,7 +160,14 @@ Full phonetic transcription with:
 
 Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
 
+`--ipa-proto-semitic preserve` keeps `ḥ`, `ḫ`, `ʿ`, and `ʾ` distinct. In
+`replace` mode, `ḥ`, `ʿ`, and `ʾ` converge to `ʔ`, while `ḫ` remains `χ`.
+
 **Emphatic vowel coloring**: In Semitic languages, emphatic consonants (`q`, `ṣ`, `ṭ`) retract the tongue body, lowering the second formant (F2) of following vowels. This is transcribed in IPA as vowel backing: plain `/a/` → `/ɑ/`, `/i/` → `/ɨ/`, `/u/` → `/ʉ/`, `/e/` → `/ɛ/`. Example: sˤɑr (plain sar would be /sar/).
+
+This printer-side vowel coloring is post-emphatic only. `ḥ` does not trigger
+automatic recoloring, so any `ḥ`-conditioned vowel quality must already be
+encoded in the input text.
 
 Escaped chunks from earlier stages are preserved in IPA metadata as:
 
@@ -173,6 +180,7 @@ Tags follow `[0-9a-z_]{1,16}`. Tags beginning with `_` are internal pipeline tag
 
 Specialized transliteration with:
 - Consonant remapping for emphatics
+- Apostrophe convergence for `ḥ`, `ʿ`, and `ʾ`, while `ḫ` remains `ḫ`
 - Doubled notation for long vowels
 - Mixed pairs for circumflex vowels (e.g., `eâ`)
 
@@ -181,6 +189,10 @@ Two files are generated:
 - `_xar.txt`: plain version without accent markers
 
 In `_accent_xar.txt`, merged words print with a normal space by default. Use `--print-merger` to preserve the visible connector `‿`. The plain `_xar.txt` output keeps space-separated word boundaries.
+
+XAR does not infer `ḥ`-conditioned vowel coloring. If the intended reader text
+needs `'e` rather than `'a`, that vowel quality must already be present in the
+input text.
 
 Speech-synthesis `.pho` export is no longer owned by `printer.py`. Use `phonetizer.py` or `fullprosmaker.py` to produce `<prefix>_ombrola.pho` and `<prefix>_mbrola.pho` from the phonetize stage.
 

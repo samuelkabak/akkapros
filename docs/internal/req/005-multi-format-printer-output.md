@@ -4,7 +4,7 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-03-19
-updated: 2026-03-29
+updated: 2026-04-11
 ---
 
 # Requirement: Multi-Format Printer Output
@@ -59,8 +59,8 @@ accentuated representation.
       are rendered as pharyngealized/colored variants).
 - [ ] Given `--ipa-proto-semitic preserve`, pharyngeal `ḥ` and glottal `ʿ`, `ʾ` are
       preserved as distinct IPA symbols (strict Old Akkadian mode).
-- [ ] Given `--ipa-proto-semitic replace` (the default), pharyngeals merge to their OB
-      equivalents and glottals are represented by a single practical symbol.
+- [ ] Given `--ipa-proto-semitic replace` (the default), `ḥ`, `ʿ`, and `ʾ` are
+      represented by `ʔ`, while `ḫ` remains `χ`.
 - [ ] Given `--circ-hiatus`, circumflex vowels are split into a hiatus pair in IPA
       (speculative mode, e.g., `qû → qʊ.ʊ`).
 - [ ] IPA output includes pause tags at boundary positions.
@@ -75,7 +75,8 @@ accentuated representation.
 - [ ] Long (macron) vowels are doubled (e.g., `ā` → `aa`).
 - [ ] Circumflex vowels use the two-vowel memory forms (e.g., `â` → `eâ`).
 - [ ] Grave accent marks emphatic coloring on adjacent vowels.
-- [ ] Pharyngeals `ʿ`, `ʾ` are mapped to `'` in the final reader text.
+- [ ] `ḥ`, `ʿ`, and `ʾ` are mapped to `'` in the final reader text, while `ḫ`
+      remains `ḫ`.
 - [ ] `_accent_xar.txt` carries accentuation marks; `_xar.txt` is the plain (unaccented)
       version.
 

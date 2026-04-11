@@ -1,6 +1,6 @@
 ---
 cr_id: CR-048
-status: Draft
+status: Done
 priority: Medium
 impact: Mutative
 created: 2026-04-11
