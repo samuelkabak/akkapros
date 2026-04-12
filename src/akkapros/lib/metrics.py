@@ -2434,6 +2434,138 @@ def _test_small_corpus_metrics_consistency() -> bool:
     return True
 
 
+def _test_small_corpus_exact_surface_values() -> bool:
+    """Unit test: representative public metrics surfaces stay pinned on a fixed sample."""
+    from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
+    from akkapros.lib.syllabify import syllabify_text
+
+    sample_proc = (
+        "appūnā-ma ištēn-ešret : kīma šuāti uštabši\n"
+        "ina ilī bukrīša : šūt iškunūši puḫra\n"
+        "ušašqi qingu : ina birīšunu šâšu ušrabbīš\n"
+        "ālikūt maḫri pān ummāni muʾerrūt puḫri\n"
+    )
+
+    syllabified = syllabify_text(sample_proc, preserve_lines=True)
+    engine = ProsodyEngine(style=AccentStyle.LOB)
+    accentuated_lines = []
+    for line in syllabified.splitlines():
+        if not line.strip():
+            accentuated_lines.append('')
+            continue
+        accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
+    tilde_text = '\n'.join(postprocess_restore_diphthongs(accentuated_lines)) + '\n'
+
+    result = process_filetext(
+        tilde_text,
+        wpm=165,
+        pause_ratio=35.0,
+        prominence_statistics={
+            'function_word_count': 2,
+            'explicit_word_link_count': 1,
+        },
+    )
+
+    original = result['original']
+    accentuated = result['accentuated']
+    accentuation = result['accentuation_stats']
+    if original['stats']['total_syllables'] != 60:
+        return False
+    if original['stats']['word_stats']['total_words'] != 22:
+        return False
+    if original['stats']['mora_stats']['total'] != 100:
+        return False
+    if original['stats']['syllable_counts'] != {
+        'CV': 22,
+        'CVC': 10,
+        'CVV': 9,
+        'CVVC': 6,
+        'V': 4,
+        'VC': 7,
+        'VV': 2,
+    }:
+        return False
+    if not math.isclose(original['speech']['sps_speech'], 7.5, rel_tol=0.0, abs_tol=1e-12):
+        return False
+    if not math.isclose(original['speech']['mora_duration'], 0.052, rel_tol=0.0, abs_tol=1e-12):
+        return False
+    if original.get('prominence_statistics') != {
+        'function_word_count': 2,
+        'explicit_word_link_count': 1,
+        'prominence_candidate_word_count': 19,
+    }:
+        return False
+    if accentuated['stats']['mora_stats']['total'] != 116:
+        return False
+    if accentuated['stats']['syllable_counts'] != {
+        'CV': 22,
+        'CVC': 5,
+        'CVC:': 5,
+        'CVV': 2,
+        'CVV:': 7,
+        'CVV:C': 3,
+        'CVVC': 3,
+        'V': 4,
+        'VC': 6,
+        'VC:': 1,
+        'VV': 2,
+    }:
+        return False
+    pause_metrics = accentuated['pause_metrics']
+    if pause_metrics['pauseable_boundaries'] != 7:
+        return False
+    if pause_metrics['short_pauseable_boundaries'] != 3:
+        return False
+    if pause_metrics['long_pauseable_boundaries'] != 4:
+        return False
+    if not math.isclose(
+        accentuated['pause_durations']['corrected_short_punctuation_duration'],
+        0.26896551724137935,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        return False
+    if not math.isclose(
+        accentuated['pause_durations']['corrected_long_punctuation_duration'],
+        0.49827586206896557,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        return False
+    if not math.isclose(accentuation['accentuation_rate'], 26.666666666666668, rel_tol=0.0, abs_tol=1e-12):
+        return False
+    if accentuation['accentuation_types'] != {
+        'CVC:': 5,
+        'CVV:': 7,
+        'CVV:C': 3,
+        'VC:': 1,
+    }:
+        return False
+    return True
+
+
+def _test_interval_metrics_zero_case() -> bool:
+    """Unit test: empty interval inputs return zeros across the public surface."""
+    acoustic = compute_interval_metrics([])
+    return acoustic == {
+        'intervals': [],
+        'v_intervals_ms': [],
+        'c_intervals_ms': [],
+        'p_intervals_ms': [],
+        'total_duration_ms': 0,
+        'percent_v': 0.0,
+        'percent_c': 0.0,
+        'mean_v_ms': 0.0,
+        'mean_c_ms': 0.0,
+        'delta_v_ms': 0.0,
+        'delta_c_ms': 0.0,
+        'varco_v': 0.0,
+        'varco_c': 0.0,
+        'rpvi_c': 0.0,
+        'npvi_v': 0.0,
+    }
+
+
 def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
     phonetize_config = build_default_phonetize_config()
     (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
@@ -2547,8 +2679,10 @@ def run_tests():
         ("Mora totals and original speech", _test_mora_totals_and_original_speech),
         ("Table fields and CSV removal", _test_table_new_fields_and_no_csv),
         ("Small corpus metrics consistency", _test_small_corpus_metrics_consistency),
+        ("Small corpus exact public values", _test_small_corpus_exact_surface_values),
         ("Phone-row prominence counts", _test_process_file_derives_prominence_counts_from_phone_rows),
         ("Missing sibling ophone fails", _test_process_file_missing_sibling_ophone_fails),
+        ("Interval metrics zero-case", _test_interval_metrics_zero_case),
         ("%V fallback safety", _test_percent_v_fallback_safe),
     ]
 

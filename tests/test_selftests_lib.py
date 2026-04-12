@@ -47,6 +47,8 @@ def test_metrics_refactored_chunks():
     assert metrics._test_mora_totals_and_original_speech()
     assert metrics._test_table_new_fields_and_no_csv()
     assert metrics._test_small_corpus_metrics_consistency()
+    assert metrics._test_small_corpus_exact_surface_values()
+    assert metrics._test_interval_metrics_zero_case()
     assert metrics._test_percent_v_fallback_safe()
 
 

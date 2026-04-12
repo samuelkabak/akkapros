@@ -23,10 +23,306 @@ INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 # Gold-standard values for the current phone-interval metrics model.
 # Metrics are intentionally verified from parsed current outputs and manual
 # formulas, not by pinning old snapshot files from the superseded _tilde model.
-GOLD_VARCOC_ACCENTUATED = 61.35
-GOLD_ACCENTUATION_RATE = 21.74
 GOLD_TILDE_SAMPLE_LINE = "u·kap·pit-ma⟦ : ⟧ti·¨ā~m·tu pi·tiq·ša"
 GOLD_MONO_TILDE_SAMPLE_LINE = "tā·ḫā~·za ˙ik~·ta·ṣar⟦ : ⟧˙a·na&˙i·lī~ nip·rī~·ša"
+GOLD_REGULAR_METRICS = {
+    "original": {
+        "stats": {
+            "total_syllables": 23,
+            "syllable_counts": {
+                "CV": 9,
+                "CVC": 5,
+                "CVV": 4,
+                "V": 3,
+                "VC": 1,
+                "VVC": 1,
+            },
+            "word_stats": {
+                "total_words": 8,
+                "syllables_per_word": {
+                    "mean": 2.875,
+                    "std": 0.6408699444616558,
+                },
+                "morae_per_word": {
+                    "mean": 4.375,
+                    "std": 1.3024701806293193,
+                },
+            },
+            "mora_stats": {
+                "mean": 1.5217391304347827,
+                "std": 0.5931093121225481,
+                "total": 35,
+            },
+        },
+        "speech": {
+            "wpm": 193,
+            "pause_ratio": 35,
+            "sps_speech": 9.247916666666667,
+            "sps_articulation": 14.227564102564102,
+            "syllable_duration": 0.07028610047307952,
+            "mora_duration": 0.0461880088823094,
+            "word_duration": 0.31088082901554404,
+        },
+        "acoustic": {
+            "percent_c": 29.74808324205915,
+            "percent_v": 23.88828039430449,
+            "mean_c_ms": 113.16666666666667,
+            "mean_v_ms": 94.82608695652173,
+            "delta_c_ms": 65.08754787890607,
+            "delta_v_ms": 55.295767723817264,
+            "varco_c": 57.51476984881243,
+            "varco_v": 58.31282245060968,
+            "rpvi_c": 76.82608695652173,
+            "npvi_v": 55.60672971171431,
+        },
+        "drift": {
+            "max": 12.0,
+            "mean": 2.7407,
+            "stddev": 9.7623,
+        },
+        "prominence_statistics": {
+            "function_word_count": 1,
+            "explicit_word_link_count": 0,
+            "prominence_candidate_word_count": 7,
+        },
+    },
+    "accentuated": {
+        "stats": {
+            "total_syllables": 23,
+            "syllable_counts": {
+                "CV": 9,
+                "CVC": 5,
+                "CVV": 1,
+                "CVV:": 3,
+                "V": 3,
+                "VC:": 1,
+                "VV:C": 1,
+            },
+            "word_stats": {
+                "total_words": 7,
+                "syllables_per_word": {
+                    "mean": 3.2857142857142856,
+                    "std": 0.4879500364742666,
+                },
+                "morae_per_word": {
+                    "mean": 5.714285714285714,
+                    "std": 0.7559289460184545,
+                },
+            },
+            "mora_stats": {
+                "mean": 1.7391304347826086,
+                "std": 0.91539317456032,
+                "total": 40,
+            },
+        },
+        "speech": {
+            "wpm": 193,
+            "pause_ratio": 35,
+            "sps_speech": 10.56904761904762,
+            "sps_articulation": 16.26007326007326,
+            "syllable_duration": 0.06150033791394459,
+            "mora_duration": 0.03536269430051814,
+            "word_duration": 0.31088082901554404,
+        },
+        "acoustic": {
+            "percent_c": 31.709781729991914,
+            "percent_v": 25.303152789005658,
+            "mean_c_ms": 130.75,
+            "mean_v_ms": 108.8695652173913,
+            "delta_c_ms": 80.22117862509874,
+            "delta_v_ms": 66.81597332311571,
+            "varco_c": 61.354629923593684,
+            "varco_v": 61.37249945813345,
+            "rpvi_c": 100.82608695652173,
+            "npvi_v": 54.81327367839272,
+        },
+        "drift": {
+            "max": 74.5,
+            "mean": -5.7593,
+            "stddev": 21.3205,
+        },
+        "pause_metrics": {
+            "spaces_per_syllable": 0.0,
+            "punctuation_per_syllable": 0.17391304347826086,
+            "short_punctuation_per_syllable": 0.08695652173913043,
+            "long_punctuation_per_syllable": 0.08695652173913043,
+            "total_boundaries": 4,
+            "pauseable_boundaries": 4,
+            "short_pauseable_boundaries": 2,
+            "long_pauseable_boundaries": 2,
+            "raw_counts": {
+                "spaces": 0,
+                "punctuation": 4,
+                "short_punctuation": 2,
+                "long_punctuation": 2,
+                "defaulted_long_punctuation": 0,
+                "merged_boundaries": 0,
+            },
+        },
+        "pause_durations": {
+            "corrected_short_punctuation_duration": 0.14145077720207255,
+            "corrected_long_punctuation_duration": 0.23937823834196875,
+            "corrected_long_punct_weight": 1.692307692307691,
+        },
+    },
+    "accentuation_stats": {
+        "accentuated_syllables": 5,
+        "accentuation_rate": 21.73913043478261,
+        "accentuation_types": {
+            "CVV:": 3,
+            "VC:": 1,
+            "VV:C": 1,
+        },
+        "merged_words": 2,
+        "merged_units": 1,
+        "avg_unit_size": 2.0,
+    },
+}
+GOLD_MONO_METRICS = {
+    "original": {
+        "stats": {
+            "total_syllables": 23,
+            "syllable_counts": {
+                "CV": 9,
+                "CVC": 5,
+                "CVV": 4,
+                "V": 3,
+                "VC": 1,
+                "VVC": 1,
+            },
+            "word_stats": {
+                "total_words": 8,
+                "syllables_per_word": {
+                    "mean": 2.875,
+                    "std": 0.6408699444616558,
+                },
+                "morae_per_word": {
+                    "mean": 4.375,
+                    "std": 1.3024701806293193,
+                },
+            },
+            "mora_stats": {
+                "mean": 1.5217391304347827,
+                "std": 0.5931093121225481,
+                "total": 35,
+            },
+        },
+        "speech": {
+            "wpm": 193,
+            "pause_ratio": 35,
+            "sps_speech": 9.247916666666667,
+            "sps_articulation": 14.227564102564102,
+            "syllable_duration": 0.07028610047307952,
+            "mora_duration": 0.0461880088823094,
+            "word_duration": 0.31088082901554404,
+        },
+        "acoustic": {
+            "percent_c": 29.74808324205915,
+            "percent_v": 23.88828039430449,
+            "mean_c_ms": 113.16666666666667,
+            "mean_v_ms": 94.82608695652173,
+            "delta_c_ms": 65.08754787890607,
+            "delta_v_ms": 55.295767723817264,
+            "varco_c": 57.51476984881243,
+            "varco_v": 58.31282245060968,
+            "rpvi_c": 76.82608695652173,
+            "npvi_v": 55.60672971171431,
+        },
+        "prominence_statistics": {
+            "function_word_count": 1,
+            "explicit_word_link_count": 0,
+            "prominence_candidate_word_count": 7,
+        },
+    },
+    "accentuated": {
+        "stats": {
+            "total_syllables": 23,
+            "syllable_counts": {
+                "CV": 9,
+                "CVC": 3,
+                "CVC:": 2,
+                "CVV": 1,
+                "CVV:": 3,
+                "V": 3,
+                "VC:": 1,
+                "VV:C": 1,
+            },
+            "word_stats": {
+                "total_words": 7,
+                "syllables_per_word": {
+                    "mean": 3.2857142857142856,
+                    "std": 0.4879500364742666,
+                },
+                "morae_per_word": {
+                    "mean": 6.0,
+                    "std": 0.5773502691896257,
+                },
+            },
+            "mora_stats": {
+                "mean": 1.826086956521739,
+                "std": 0.9840627249521833,
+                "total": 42,
+            },
+        },
+        "speech": {
+            "wpm": 193,
+            "pause_ratio": 35,
+            "sps_speech": 10.56904761904762,
+            "sps_articulation": 16.26007326007326,
+            "syllable_duration": 0.06150033791394459,
+            "mora_duration": 0.033678756476683946,
+            "word_duration": 0.31088082901554404,
+        },
+        "acoustic": {
+            "percent_c": 33.30719466771222,
+            "percent_v": 24.99509900019604,
+            "mean_c_ms": 141.58333333333334,
+            "mean_v_ms": 110.8695652173913,
+            "delta_c_ms": 97.844228524505,
+            "delta_v_ms": 66.56497600274297,
+            "varco_c": 69.10716552643083,
+            "varco_v": 60.03899796325837,
+            "rpvi_c": 123.17391304347827,
+            "npvi_v": 58.782841133685395,
+        },
+        "pause_metrics": {
+            "spaces_per_syllable": 0.0,
+            "punctuation_per_syllable": 0.17391304347826086,
+            "short_punctuation_per_syllable": 0.08695652173913043,
+            "long_punctuation_per_syllable": 0.08695652173913043,
+            "total_boundaries": 4,
+            "pauseable_boundaries": 4,
+            "short_pauseable_boundaries": 2,
+            "long_pauseable_boundaries": 2,
+            "raw_counts": {
+                "spaces": 0,
+                "punctuation": 4,
+                "short_punctuation": 2,
+                "long_punctuation": 2,
+                "defaulted_long_punctuation": 0,
+                "merged_boundaries": 0,
+            },
+        },
+        "pause_durations": {
+            "corrected_short_punctuation_duration": 0.13471502590673579,
+            "corrected_long_punctuation_duration": 0.24611398963730552,
+            "corrected_long_punct_weight": 1.826923076923075,
+        },
+    },
+    "accentuation_stats": {
+        "accentuated_syllables": 7,
+        "accentuation_rate": 30.434782608695656,
+        "accentuation_types": {
+            "CVC:": 2,
+            "CVV:": 3,
+            "VC:": 1,
+            "VV:C": 1,
+        },
+        "merged_words": 2,
+        "merged_units": 1,
+        "avg_unit_size": 2.0,
+    },
+}
 
 
 def _run_cli(*module_and_args: str) -> subprocess.CompletedProcess:
@@ -115,6 +411,18 @@ def _parse_metrics_table(metrics_text: str) -> tuple[float, float]:
 
 def _norm_lines(text: str) -> list[str]:
     return [ln.rstrip() for ln in text.replace("\r\n", "\n").splitlines()]
+
+
+def _assert_nested_expected(actual: dict, expected: dict) -> None:
+    for key, expected_value in expected.items():
+        actual_value = actual[key]
+        if isinstance(expected_value, dict):
+            assert isinstance(actual_value, dict), key
+            _assert_nested_expected(actual_value, expected_value)
+        elif isinstance(expected_value, float):
+            assert abs(actual_value - expected_value) < 1e-12, key
+        else:
+            assert actual_value == expected_value, key
 
 
 def _sanitize_metrics_table_lines(lines: list[str]) -> list[str]:
@@ -678,13 +986,33 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     assert "frontmatter" in json.loads(_read_text(outdir / "test.json"))
 
     metrics_text = _read_text(outdir / "test_metrics.txt")
-    varcoc, acc_rate = _parse_metrics_table(metrics_text)
-    assert abs(varcoc - GOLD_VARCOC_ACCENTUATED) < 0.5, (
-        f"VarcoC differs: {varcoc} != {GOLD_VARCOC_ACCENTUATED}"
-    )
-    assert abs(acc_rate - GOLD_ACCENTUATION_RATE) < 0.5, (
-        f"Accentuation rate differs: {acc_rate} != {GOLD_ACCENTUATION_RATE}"
-    )
+    metrics_json = json.loads(_read_text(outdir / "test.json"))
+    _assert_nested_expected(metrics_json["original"], GOLD_REGULAR_METRICS["original"])
+    _assert_nested_expected(metrics_json["accentuated"], GOLD_REGULAR_METRICS["accentuated"])
+    _assert_nested_expected(metrics_json["accentuation_stats"], GOLD_REGULAR_METRICS["accentuation_stats"])
+
+    for expected_line in [
+        "Total syllables: 23 syllables",
+        "Total words: 8 words",
+        "Total words: 7 words",
+        "Function words: 1 words",
+        "Prominence candidates: 7 words",
+            "WPM: 193 words/min",
+            "SPS (speech): 9.248 syllable/s",
+            "SPS (speech): 10.569 syllable/s",
+        "%C: 29.75%",
+        "%V: 23.89%",
+        "%C: 31.71%",
+        "%V: 25.30%",
+        "VarcoC: 57.51",
+        "VarcoC: 61.35",
+        "Accentuation rate: 21.74%",
+        "Accentuated syllables: 5 syllables",
+        "Drift max: 12.00 ms",
+        "Drift max: 74.50 ms",
+        "Pauseable boundaries: 4 boundaries",
+    ]:
+        assert expected_line in metrics_text
 
     tilde_text = _read_text(outdir / "test_tilde.txt")
     assert GOLD_TILDE_SAMPLE_LINE in tilde_text, "Pinned sample line not found in _tilde output"
@@ -751,11 +1079,31 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     metrics_json = json.loads(_read_text(outdir / "test_mono.json"))
     assert "frontmatter" in metrics_json
     assert metrics_json["frontmatter"]["metadata"]["options"]["mora_mode"] == "mono"
+    _assert_nested_expected(metrics_json["original"], GOLD_MONO_METRICS["original"])
+    _assert_nested_expected(metrics_json["accentuated"], GOLD_MONO_METRICS["accentuated"])
+    _assert_nested_expected(metrics_json["accentuation_stats"], GOLD_MONO_METRICS["accentuation_stats"])
 
     tilde_frontmatter, tilde_body = split_frontmatter(_read_text(outdir / "test_mono_tilde.txt"))
     assert tilde_frontmatter is not None
     assert tilde_frontmatter["metadata"]["options"]["mora_mode"] == "mono"
     assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
+
+    metrics_text = _read_text(outdir / "test_mono_metrics.txt")
+    for expected_line in [
+        "Total syllables: 23 syllables",
+        "Total words: 8 words",
+        "Total words: 7 words",
+        "%C: 29.75%",
+        "%V: 23.89%",
+        "%C: 33.31%",
+        "%V: 25.00%",
+        "VarcoC: 57.51",
+        "VarcoC: 69.11",
+        "Pauseable boundaries: 4 boundaries",
+        "Accentuated syllables: 7 syllables",
+        "Accentuation rate: 30.43%",
+    ]:
+        assert expected_line in metrics_text
 
     full_reference_map = {
         outdir / "test_mono_syl.txt": FULL_REF_DIR / "expected_test_syl.txt",
