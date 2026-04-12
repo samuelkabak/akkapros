@@ -1,0 +1,209 @@
+---
+package:
+  name: "akkapros"
+  version: "2.0.0"
+pipeline: "pipeline"
+step: "atfparse"
+file:
+  id: "f6e1bc7d-56fb-5352-81ec-22aee6598893"
+  title: "L I.5 Erra and Išum SB I"
+  format: "trans"
+  version: "1.0.0"
+  date: "2026-04-12"
+metadata:
+  input_file_id: null
+  options:
+  data:
+---
+
+King of all settlements, creator of the universe, […]!
+Hendursanga, first-born son of Enlil, [...],
+Bearer of the august scepter, shepherd of the black-headed people, herdsman of [@i{mankind}]!
+Išum, zealous butcher whose hands are suited to bear his fierce weapons,
+And at the lightning of whose wrathful spears even Erra, the warrior of the gods, trembles in (his) abode!
+His heart yearned for combat;
+To his weapons he exhorted, “Smear yourselves with deadly venom!”
+To the Seven, peerless warriors, “Gird your arms!”
+And he said to you, (Išum): “I shall head for the (battle) field!”
+You alone are the torch, it is your light they look to!
+You alone are the champion, the gods [@i{march behind}!]
+You alone are the sword, the butcher […]!
+Should Erra arise, when he destroys the country,
+Your mind will not rejoice, your heart will not be joyous.
+Erra, like a sleepless man, his limbs are weary,
+To his heart he said: “Shall I arise? Or shall I sleep on?”
+To his weapons he exhorted, “Keep leaning on the corners!”
+To the Seven, peerless warriors, “Return to your abode!”.
+Until you should wake him, he is asleep in his bed,
+Together with Mami, his wife, he revels.
+O Engidudu, lord who wanders in the night, who guides the princes,
+Who leads safely lad and girl, illuminating (them) like the light of day!
+The divinity of the Seven, peerless warriors, is quite another:
+Their origin is strange; they are charged with terror;
+Whoever looks at them is paralyzed with fear: their breath is death,
+People are terrified and dare not approach it.
+Išum is a door: before them it is barred.
+Anu, the king of the gods, impregnated Earth,
+It bore him seven gods, whom he named “the Seven”.
+These stood before him as he assigned them their functions.
+He summoned the first and gave him orders:
+“Wherever you go in your rage — you shall have no rival!”
+He said to the second: “Burn like fire and blaze like a flame!”
+He exhorted the third: “Let your face be that of a lion so that whoever beholds you melts down!”
+He said to the fourth: “May the mountain be destroyed at the attack of your fiery weapons!”
+And then to the fifth he said: “Blow like the wind and overwhelm the world!”
+To the sixth he commanded: “sweep over above and below, sparing no one!”
+The seventh he filled with viper’s venom: “Finish (all) life!”.
+Once Anu had fixed the lot of all Seven,
+He handed them over to Erra, the warrior of the gods, (saying): “Let them march at your flank!
+“When the noise of the peoples in settlements becomes unbearable to you,
+“And your temper drives you to decimate them,
+“To ravage the black-headed and the wild beasts to destroy,
+“Let these be your wrathful weapons, that they march at your flank!”.
+They are furious, their weapons are raised,
+They turn to Erra: “Rise! Stand up!
+“Why, like a worn-out old man, do you reside in a city,
+“Like a little child do you reside in a house?
+“As one who knows not the (battle) field, will we eat the bread of women?
+“As if we did not know how to fight, should we tremble and fear?
+“Going to the (battle) field is becoming for manhood, like a festival!
+“The city dweller, be he a prince, bread does not satiate him,
+“Criticized by his own people, despised,
+“He will have to beg to the humblest soldier.
+“The city dweller, however mighty his strength,
+“In what does it advantage the humblest soldier?
+“The abundant bread of the city cannot compare with the cake baked in embers!
+“The fine, honeyed beer cannot compare with the water from a waterskin!
+“The palace on the citadel cannot compare with the shepherd’s hut!
+“Warrior Erra, go out into the (battle) field, rattle your weapons!
+“Make your noise loud, so that those above and below tremble!
+“Let the Igigi hear it and extol your name!
+“Let the Anunnaki hear it and fear the mention of you!
+“Let the gods hear it and bend for your yoke!
+“Let the kings hear it and kneel before you!
+“Let the countries hear it and bring you their tribute!
+“Let the demons hear it and die for themselves!
+“Let the mighty one hear it and diminish his strength!
+“Let the tall mountains hear it and @i{be destroyed}, and their summits be leveled!
+“Let the rolling seas hear it and be troubled, and destroy (their) fauna!
+“From the thickest forests let its trunks be uprooted!
+“In the impenetrable reed-bed, let its reeds be snapped!
+“May the peoples fear and their noise be quieted!
+“Let the wild beasts shake and be brought to dust!
+“May your fathers the gods regard and praise your heroism!
+“Warrior Erra, why have you forsaken the (battle) field and reside in the city?
+“The wild cattle and the wild beasts have despised us.
+“Erra warrior, to you we address ourselves: Let our speech be unberable to you!
+“Before the whole country belittles us,
+“You must surely hear our advice!
+“Do a kindness to the Anunnaki, who love silence:
+“The Anunnaki, because of the noise of the people, are unable to fall asleep.
+“The pastures – the source of life of the country – are trodden by cattle.
+“The farmer, over @i{his land}, weeps bitterly.
+“The lion and the wolf destroy the wild cattle.
+“The shepherd, for his herd sleepless night and day, beseeches you,
+“And we, who (once) knew the mountain passes, have forgotten every way.
+“On our war-gear are spun cobwebs;
+“Our precious bow offers resistance and has become too stiff for our strength,
+“The tip of our sharp arrow is dulled,
+“Our sword, for lack of bloodshed, is covered with rust.”
+Warrior Erra heard them,
+The words of the Seven pleased him like the finest of oils.
+He prepared to speak, addressing Išum:
+“Why, having heard this, are you sitting silent?
+“Open the path, I shall take to the road!
+“Let the Seven, the peerless warriors, make war!
+“Make my fierce weapons march to my flank!
+“And you, my champion, come before me!”.
+[When] Išum [heard] these words,
+Moved with compassion he said, [“alas!”]
+“Warrior Erra, why have you devised insidious plots against the gods?
+“You have plotted to ravage the earth and destroy [its inhabitants]; will you not desist?”
+Erra prepared to speak,
+Addressing Išum, his champion, in these words:
+“Išum, pay attention, listen to my words!
+“Concerning the peoples in settlements, whose pardon you requested,
+“O champion of the gods, wise Išum, whose counsel is sweet!
+“In heaven I am a wild bull, on earth I am a lion,
+“In the land I am a king, among the gods a fury,
+“Among the Igigi I am a hero, among the Anunnaki a champion,
+“Among the beasts I am a bowhunter, in the mountain the pit-trap,
+“In the reedbed I am the fire, in the forest the axe,
+“In campaign I am the standard,
+“As the wind I blow, as Adad I thunder;
+“Like the sun god I oversee the whole orb.
+“When I go forth into the field I am a wild goat;
+“When I enter the steppe, as Nergal do I take residence.
+“The gods all fear my name.
+“And yet, the black-headed people despise me.
+“I — for they have not feared my name
+“And have neglected the orders of prince Marduk, I shall do as he pleases.
+“I shall make prince Marduk angry, I shall raise him from his throne and devastate mankind.”
+The warrior Erra set off to Šuʾanna, the city of the king of the gods,
+He entered the Esagil, the palace of heaven and earth, and presented himself before him.
+He prepared to speak, addressing the king of the gods:
+“The image, the ornament of your lordship, which, like the stars of heaven, was full of splendor, why is it covered with filth?
+“The diadem of your lordship, which used to make the Eḫalanki shine like the Etemenanki, why is it dimmed?
+The king of the gods prepared to speak,
+To Erra, the warrior of the gods, he addressed (his) word:
+“Warrior Erra! Regarding that action you suggested:
+“Once, in my anger, I arose from my throne, causing a flood;
+“I arose from my residence, and the seams of heaven and earth were rent asunder.
+“The heavens that were shaken: (for this cause,) the celestial bodies changed their positions, and I did not restore them to their places;
+“The netherworld that trembled: (for this cause,) the (production) of the furrow decreased to such an extent that it was forever difficult to levy (taxes on it);
+“The seams of heaven and earth that were rent asunder: the springs diminished and the floods receded. When I looked again, it was scarcely enough.
+“The progeny of the living beings was scarce, but I did not restore things;
+“Till, like a farmer, I took their seedlings in my hand.
+“I built a(nother) house and settled therein.
+“My image, which by reason of the deluge was removed, whose appearance was tarnished;
+“I ordered the fire god to polish my face and cleanse my garments.
+“When he had polished my image and fulfilled the action,
+“And I had girded on the diadem of my lordship and returned to my place,
+“My countenance was haughty, terrifying was my glance!
+“The people that escaped the flood saw the action fulfilled:
+“If I should now lift up my weapons, I would destroy the rest.
+“Those craftsmen I brought down to the Apsû, and I have not yet decreed their return,
+“I changed the location of the @i{mēsu}-tree (and its) amber, and revealed it to none.
+“Now about that action you mentioned, O hero Erra!
+“Where is the @i{mēsu}-tree, the flesh of the gods, fitting for the king of the universe?
+“The pure tree, the splendid lad, which is meet for lordship;
+“That in the waters of the vast sea spreads its roots a hundred double-hours to reach the depths of the Netherworld;
+“Whose top in the heights touches the sky of Anu?
+“Where is the pure blue pigment that was made (as) splendid (as) lapis lazuli?
+“Where is Ninildu, master carpenter of my sovereignty?
+“Bearer of the pure golden axe, skilled in the (carving of) that tree (@i{scil.} the @i{mēsu}-tree),
+“Who makes (it) shine like the noonday and places (it) at my feet?
+“Where is Kusibanda, the creator (of the images) of god and men, whose hands are choice?
+“Where is Ninagal, the bearer of the upper and lower millstones,
+“Who @i{molds} strong copper as (easily as) leather, the inventor of in[struments]?
+“Where the choice pearls, the fruit of the vast sea, fitting for a diadem?
+“Where the seven sages of the Apsû, pure carps, who like Ea their lord are perfect in their august wisdom, the purifiers of my body?
+Warrior Erra heard him.
+He prepared to speak, addressing prince Marduk:
+“[…] … from the Apsû […] … to the heights.
+“[The @i{mēsu}-tree, @i{which} …], I will cause its equal to ascend [...] the @i{mēsu}-tree,
+“The pure amber, @i{which} […], I will cause its equal to ascend … […] … the amber.”
+Marduk, hearing this,
+Addressing warrior Erra, said to him:
+“If I should rise up [from] my residence, the seams of heaven and earth would be torn asunder;
+“The waters would rise and sweep away the land;
+“They would turn a bright day into darkness;
+“A storm would arise and [@i{cover}] the stars of the sky;
+“An evil [wind] would arise and [@i{obscure}] the sight of the people, all living beings,
+“The @i{gallû}-demons would ascend and seize [@i{mankind}];
+“The unarmed man who confronts them […]
+“The Anunnaki would ascend to the earth and ravage the living beings.
+“[Until] I gird myself with my weapons, who will send them back?”
+Erra, hearing this,
+He prepared to speak, addressing prince Marduk:
+“Prince Marduk, until you enter that house and the fire god purifies your garment and so return to your temple,
+“Till that time I will assume command and strengthen the seams of heaven and earth.
+“I will ascend to the sky to give orders to the Igigi,
+“I will go down to the Apsû to inspect the Anunnaki.
+“The fierce @i{gallû}-demons I will drive off to the Netherworld,
+“I will oppose them my wrathful weapons.
+“Of the evil wind – like a bird, I will bind its wings.
+“When you enter that house, O prince Marduk,
+“On the right and on the left of your door I will station Anu and Enlil like bulls.”
+Prince Marduk heard it:
+The words spoken by Erra pleased him.

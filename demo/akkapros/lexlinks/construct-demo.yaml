@@ -1,0 +1,115 @@
+common:
+  run:
+    prefix: "erra_construct"
+    outdir: "demo/akkapros/lexlinks/results"
+    quiet: false
+    no_console: false
+    log: null
+    log_append: false
+
+atfparse:
+  process:
+    remove_hyphens: false
+    preserve_case: false
+    preserve_h: false
+  run:
+    strict: false
+    append: true
+
+syllabify:
+  process:
+    extra_vowels: ""
+    extra_consonants: ""
+    extra_short_punct_chars: ""
+    extra_long_punct_chars: ""
+    extra_short_punct_pattern: []
+    extra_long_punct_pattern: []
+    number_format: ""
+    merge_hyphen: false
+    merge_lines: false
+  run:
+    title: null
+
+prosody:
+  process:
+    style: "lob"
+    mora_mode: "bi"
+    relax_last: false
+
+phonetize:
+  process:
+    intonation:
+      f0: 120
+      stress: "H2"
+      question: "H3"
+      statement: "L2"
+      exclamation: "H4"
+      continuation: "H1"
+    timing_model:
+      geminate_policy: "corrective"
+      accentuation_distribution_policy: "85_15"
+      short_pause_policy: "strict"
+      drift_policy: "extensible"
+      drift_tolerance: 12
+      speech:
+        wpm: 193
+        pause_ratio: 35
+      durations:
+        segmental_ceiling: 310
+        cvc_reference: 305
+        consonants:
+          closure:
+            onset: 108
+            coda: 103
+            geminate: 195
+            special_realization:
+              hiatus: 18
+            perception_limits:
+              geminate_min: 180
+          fricative:
+            onset: 137
+            coda: 142
+            geminate: 279
+            perception_limits:
+              geminate_min: 152
+          sonorant:
+            onset: 89
+            coda: 70
+            geminate: 163
+            special_realization:
+              vowel_transition: 11
+            perception_limits:
+              geminate_min: 152
+        vowels:
+          short: 85
+          long: 160
+          very_long: 220
+          perception_limits:
+            short_min: 40
+            long_min: 123
+            very_long_min: 190
+            max: 240
+        pauses:
+          short:
+            min: 600
+            max: 680
+          long:
+            min: 1200
+            max: 1780
+
+metrics:
+  run:
+    csv: false
+    table: true
+    json: true
+
+print:
+  process:
+    ipa_proto_semitic: "preserve"
+  run:
+    acute: true
+    bold: true
+    ipa: false
+    circ_hiatus: false
+    xar: true
+    print_merger: false

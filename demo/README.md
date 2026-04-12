@@ -14,6 +14,13 @@ This folder documents the small demo scripts included with the project. Each dem
     - **Metrics:** [akkapros/prosmaker/results/corpus-sob_metrics.txt](akkapros/prosmaker/results/corpus-sob_metrics.txt), [akkapros/prosmaker/results/corpus-lob_metrics.txt](akkapros/prosmaker/results/corpus-lob_metrics.txt), and [akkapros/prosmaker/results/corpus-mono-lob_metrics.txt](akkapros/prosmaker/results/corpus-mono-lob_metrics.txt) — example interval-metrics reports for the three demo branches.
     - **Printer outputs:** each branch now regenerates acute, bold, accented XAR, and plain XAR outputs from the generated `_phone.txt` plus matching `_ophone.txt` pair. Representative files are [akkapros/prosmaker/results/corpus-sob_accent_acute.txt](akkapros/prosmaker/results/corpus-sob_accent_acute.txt), [akkapros/prosmaker/results/corpus-lob_accent_bold.md](akkapros/prosmaker/results/corpus-lob_accent_bold.md), [akkapros/prosmaker/results/corpus-mono-lob_accent_xar.txt](akkapros/prosmaker/results/corpus-mono-lob_accent_xar.txt), and [akkapros/prosmaker/results/corpus-lob_xar.txt](akkapros/prosmaker/results/corpus-lob_xar.txt).
 
+**Akkapros Lexlinks Demo**
+ - **Script (POSIX):** [akkapros/lexlinks/construct-demo.sh](akkapros/lexlinks/construct-demo.sh) — runs `fullprosmaker.py` on the checked-in construct-prepared Erra lexical-links input.
+ - **Script (PowerShell):** [akkapros/lexlinks/construct-demo.ps1](akkapros/lexlinks/construct-demo.ps1) — PowerShell variant of the same full-pipeline demo.
+ - **Config:** [akkapros/lexlinks/construct-demo.yaml](akkapros/lexlinks/construct-demo.yaml) — grouped YAML config shared by both launchers. It sets the runnable prefix to `erra_construct` and keeps the demo outputs in `demo/akkapros/lexlinks/results/`.
+ - **Input:** `data/lexlinks/construct_prep/erra_construct_proc.txt` — prebuilt cleaned construct text consumed directly by `fullprosmaker.py`.
+ - **Outputs (in results/):** the run emits the standard `fullprosmaker` artifact set for the `erra_construct` prefix, including `_syl.txt`, `_tilde.txt`, `_ophone.txt`, `_phone.txt`, `_metrics.txt`, `_metrics.json`, `_accent_acute.txt`, `_accent_bold.md`, `_accent_xar.txt`, `_xar.txt`, `_ombrola.pho`, and `_mbrola.pho`.
+
 **Akkapros Phoneprep Demo**
  - **Script (POSIX):** [akkapros/phoneprep/phoneprep-demo.sh](akkapros/phoneprep/phoneprep-demo.sh) — runs the phone-preparation demo in the `akkapros` toolchain.
  - **Script (PowerShell):** [akkapros/phoneprep/phoneprep-demo.ps1](akkapros/phoneprep/phoneprep-demo.ps1) — PowerShell variant.
@@ -30,6 +37,7 @@ On Unix-like systems (bash):
 
 ```bash
 sh demo/akkapros/prosmaker/corpus-demo.sh
+sh demo/akkapros/lexlinks/construct-demo.sh
 sh demo/akkapros/phoneprep/phoneprep-demo.sh
 ```
 
@@ -37,6 +45,7 @@ On Windows PowerShell:
 
 ```powershell
 .\demo\akkapros\prosmaker\corpus-demo.ps1
+.\demo\akkapros\lexlinks\construct-demo.ps1
 .\demo\akkapros\phoneprep\phoneprep-demo.ps1
 ```
 

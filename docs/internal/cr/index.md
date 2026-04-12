@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[055. Add config-backed lexlinks construct demo](055-add-config-backed-lexlinks-construct-demo.md) - Done
 [054. Add Single-Line Manual Metrics Verification Test](054-add-single-line-manual-metrics-verification-test.md) - Done
 [053. Expand prosmaker demo config to full explicit defaults](053-expand-prosmaker-demo-config-to-full-explicit-defaults.md) - Done
 [052. Make prosmaker demo config-driven and restore printer outputs](052-make-prosmaker-demo-config-driven-and-restore-printer-outputs.md) - Done

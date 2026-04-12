@@ -1,0 +1,214 @@
+---
+package:
+  name: "akkapros"
+  version: "2.0.0"
+pipeline: "pipeline"
+step: "atfparse"
+file:
+  id: "e48fe592-234c-50d2-bc41-ae69e09d37e5"
+  title: "L I.5 Erra and Išum SB I"
+  format: "orig"
+  version: "1.0.0"
+  date: "2026-04-12"
+metadata:
+  input_file_id: null
+  options:
+  data:
+---
+
+šar (|) gimir (|) dadmē | bānû (|) kibrā[ti (|) ... ]
+hendursanga | apil (|) ellil | rēšt[û | ... ]
+nāš (|) haṭṭi | ṣīrti | nāqid (|) ṣalmāt (|) qaqqadi | rēʾû | [tenēšēti?]
+īšum | ṭābihu | naʾdu | ša ana našê (|) kakkīšu | ezzūti | qātāšu | asmā
+(u) ana šubruq (|) ulmīšu | šērūti | erra | qarrād (|) ilī | inūšu | ina šubti
+īrissū-ma | libbašu || epēš (|) tāhāzi
+ītammi | ana kakkīšu || litpatā | imat (|) mūti
+ana sebetti | qarrād (|) lā šanān || nandiqā | kakkīkun
+iqabbīku | ana kâša || luṣī-ma | ana ṣēri
+attā | dipārum-ma || inaṭṭalū | nūrka
+attā | ālik (|) mahrim-ma || ilū (|) ... [ ... ]
+attā | namṣarum-ma | ṭābih[u (|) ... ]
+erra | tebī-ma || ina sapān (|) māti
+kī namrat | kabtatka || (u) hadû | libbuk
+erra | kī ša amēli | dalpi || idāšu | an[hā]
+iqabbi | ana libbīšu || lutbe | luṣlal-ma
+ītamma | ana kakkīšu || ummedā | tubqāti
+ana sebetti | qarrād (|) lā šanān || ana šubtīkunu | tūrā-ma
+adi attā | tadekkûšu || ṣalil | uršuššu
+itti māmi | hīratuš || ippuša | ulṣam-ma
+engidudu | bēlu | muttallik (|) mūši | muttarrû (|) rubê
+ša eṭla (|) u ardata | (ina šulmi) | ittanarrû | unammaru | kīma ūmi
+ša sebetti | qarrād (|) lā šanān || šunnât | ilūssun
+ilittašunu | ahât-ma || malû | pulhāti
+āmiršunu | uštahhat-ma || napīssunu | mūtum-ma
+nišū | šahtū-ma || ul iʾirrū | ana šâšu
+īšum | daltum-ma || edil | pānu[ššu]n
+ānu | šar (|) ilī || erṣeta | irhē-ma
+sebetti (|) ilī | uldaššum-ma || sebetta | ittabi | zikiršun
+izzazzū | ina mahrīšū-ma || šīmassunu | išīm-ma
+issī-ma | ištēn || išakkana | ṭēma
+ēma (|) tandirū-ma | tattalku || māhira | ē tarši
+iqabbi | ana šanî | kīma gīri | kubum-ma || humuṭ | kīma nabli
+ītammi | ana šalši | zīm (|) labbi | lū šaknātā-ma | āmirka | lišharmiṭ
+iqabbi | ana rebî | ana našê (|) kakkīka | ezzūti | šadû | lītabbit
+ana hamši | iqtabi | kīma šāri | zīq-ma || kippata | hīṭa
+šešša | umtaʾʾer | eliš (|) u šapliš | bāʾam-ma || lā tagammil | mamma
+sibâ | imat (|) bašmi | iṣēnšū-ma | šumqita | napišta
+ultu (|) šīmat (|) sebetti | napharšunu || išīmu | ānu
+iddinšunūtī-ma | ana erra | qarrād (|) ilī || lillikū | idāka
+kī ša nišī (|) dadmē | hubūršina || elīka | imtarṣu
+ublam-ma | libbaka || ana šakān (|) kamāri
+ṣalmāt (|) qaqqadi | ana šumutti || šumqut(u) (|) būl (|) šakkan
+lū kakkūka | ezzūtu | šunū-ma || lillikū | idāka
+šunu | ezzū-ma || tebû | kakkūšun
+ītammû | ana erra || tibe | iziz-ma
+minsu | kī šībi | muqqi || tušib | ina āli
+kī šerri | laʾî || tušib | ina bīti
+kī lā ālik (|) ṣēri || nikkala | akal (|) sinniš
+kī ša tāhāza | lā nīdû || niplaha | nirūda
+alāk (|) ṣēri | ša eṭlūti | kī ša isinnum-ma
+āšib (|) āli | lū rubû || ul išebbi | akla
+šumsuk | ina pī (|) nišīšū-ma || qalil | qaqqassu
+ana ālik (|) ṣēri | akî || itarraṣ | qāssu
+ša āšib (|) āli || lū puggulat | kubukkuš
+ana ālik (|) ṣēri | akî || idannin | mīna
+akal (|) āli | lullû || ul ubbala | kamān (|) tumri
+šikar (|) našpi || duššupi || ul ubbala | mê (|) nādi
+ēkal (|) tamlî | ul ubbala | maṣallu | ša r[ēʾ]î
+qurādu | erra | ṣī-ma | ana ṣēri | turuk | kakkīka
+rigimka | dunnin-ma || lištarʾibū | eliš (|) u šapliš
+igīgū | lišmû-ma || lišarbû | šumka
+anunnakū | lišmû-ma || lišhuṭ[ū] | zikirka
+ilū | lišmû-ma || liknušū | ana nīrīka
+malkū | lišmû-ma || likmisū | šapalka
+mātātu | lišmâ-ma || bilassin[a] | [liš]šâka
+gallû | lišmû-ma || ina ramā[nīš]unu | l[im]ūtū
+dannu | lišmē-ma || liššur | em[ūq]īšu
+hursānū | zaqrūtu | lišmû-ma | l[ītabb]itū-ma? | lišpilā | rēš[āš]un
+tâmātu | gallātu | lišmâ-ma | l[idd]alhā-ma | lihalliqā | m[eš]erta
+ša qīši | danni || liktappirū | gupnūšu
+apu | ša nēreba | lā īšû || li[h]taṣṣiṣū | qanûšu
+nišū | liplahā-ma || litquna | hubūršin
+būlu | līrur-ma || litūr | ana ṭiṭṭi
+ilū | abbūka | līmurū-ma || linādū | qurdīk[a]
+qurādu | erra | minsu | ṣēra | tumaššir-ma || tušib | ina āli
+būl (|) šakkan | (u) nammaššû || leqû | šēṭūtni
+qurādu | erra | niqabbīkum-ma | atmûni | l[i]mruṣ | elīka
+adi mātu | napharša || irbû | elīni
+mindē-ma | attā || šemâta | amātni
+[mindē-ma | amātn]i || ul šemâta | [attā]
+ana anunnakī | [r]āʾim (|) šahrarti || damiqta | epša
+anunnakū | ina hubūr (|) nišī || ul irehhû | šitta
+napišti (|) māti | gipāra || rahiṣ | būlu
+ikkaru | ina muhhi (|) ... || ibakki | [ṣa]rpiš
+nēšu (|) u barbaru | [uš]amqatū | būl (|) šakkan
+rēʾû | aššu ṣēnīšu | urra (|) u mūša | ul iṣallal | iballa | [k]âša
+u nīnu | mūdê (|) nēreb (|) šadî || nimtaš[ši | h]arrāna
+ina muhhi (|) tillê (|) ṣērīni || šatât | qê (|) e[tt]ūtu
+qašatni | ṭābtu | ibbalkit-ma || idnina | eli em[ūq]īni
+ša uṣṣīni | zaqti || kepât | lišāššu
+patarni | ina lā ṭabāhi | itt[ad]i | šuhta
+išmēšunūtī-(ma) | qurādu | erra
+amāt (|) se[bet]ti | iqbû | kī ulu (|) š[amn]i | elīšu | iṭīb
+amāt (|) sebetti | iqbûšu | el[īšu | (kī ulu (|) šamni) || i]ṭīb
+īpuš-ma | pâšu || izakkar | ana [īš]um
+minsu | šemâtā-ma || qâliš | tuš[ša]b
+ṭūda | pitē-ma || luṣbat | harrā[n]a
+sebettu | qarrād (|) lā šanān || lupp[išū] | t[āhāz]a
+kakkī[y]a | ezzūti || šūlika | idāya
+u attā | ālik (|) mahrīya || alik | pā[nī]ya
+īšum | annīta | [ina šemêšu]
+[iš]mē-ma | īš[um | ann]â | qabâ | [(ša) err]a
+rēma | irt[ašī-(ma) || iqt]abi | [ahūlap]
+īpuš-ma | pâšu | izakkar | [ana qurā]di | e[rra]
+(qurādu | erra) | minsu | ana il[ī || lemu]tta | takp[ud]
+ana sapān | mātāti | hulluq (|) [nišīšin | lemu]tta | takpud-ma | lā t[atūr | ana a]rkīka
+erra | pâšu || īpuš-[ma] | iqabbi
+ana īšum | ā[li]k (|) mahrīšu || [amāta] | izakkar
+īšum | qūlam-ma || šime | qabâya
+aššu nišī (|) dadmē || ša taqbû | gamālšin
+ālik (|) mahri (|) ilī | enqu | īšum | ša milikšu | damqu
+ina šamê | rīmāku || ina erṣeti | labbāku
+ina māti | šarrāku || ina ilī | ezzāku
+ina igīgī | qardāku || ina anunnakī | gašrāku
+ina būli | māhiṣāku || ina šadî | šubāku
+ina api | gīrāk[u] || ina qīši | magšarāku
+ina alāk (|) harrāni | urinnāku
+kī šāri | azâq || kī addi | ur[t]aṣṣan
+kī [ša]mši | abarri || [k]ippata | [k]alāma
+ana ṣ[ē]ri | uṣṣī-ma | bi[b]bāku
+ana n[a]mî | errub-ma | nergal | ram[âk]u | šubta
+ilū | napharšunu || nib[ī]tī | šahtū
+u nišī | ṣalmā[t (|) q]aqqadi || leq[û] | šēṭūtī
+anāku | aššu lā išhuṭū-(ma) | zikrī
+u ša rubê | marūtuk | amāssu | iddû-ma | eppuš(u) | kī libbuš
+rubâ | marūtuk | ušaggag-ma | ina šubtīšu | adekkē-ma | nišī | asappan
+qurādu | erra | ana šuʾanna | āl (|) šar (|) ilī | ištakan | pānīšu
+ana ēsagil | ēkal (|) šamê (|) (u) erṣeti | īrum-ma | ittaziz | pānuššu
+īpuš-ma | pâšu || ana šar (|) ilī | ītammi
+minsu | šukuttu | simat (|) bēlūtīka | ša kīma kakkab(ī) (|) šamāmī | lulâ | malât | leqât | urūša
+agê (|) bēlūtīka | (ša) kīma ētemenanki | ušanbiṭu | ēhalanki | pānūšu | katmū
+īpuš-ma | pâšu || šar (|) ilī | ītammi
+ana erra | qarrād (|) ilī || amāta | izakkar
+qurādu | erra | aššu šipri | šâšu | ša taqbû | epēša
+ultu (|) ullu | āgugū-ma | ina šubtīya | atbû-ma | aškuna | abūba
+ina šub[t]īya | atbē-ma | šipīt (|) šamê (|) (u) erṣeti | uptaṭṭir
+šamê | ša uštarʾibū | ša kakkabī (|) šamāmī | manzāssunu | išnī-ma | ul utīr | ašruššun
+erkallu | ša inūšu | ša šerʾi | bilassu | imṭī-ma | adi ulla | ana emēdi | ašṭa
+šipīt (|) šamê (|) (u) erṣeti | ša uptaṭṭiru | nagbu | imtaṭī-ma | mīlū | ittahsū | atūr | āmur-ma | ana šebê | imtarṣa
+ša šiknāt (|) napišti | nabnīssina | iṣhir-ma || ul utī[r] | ašruššun
+adi kī(ma) ikkari | zērīšin || aṣbat(u) | ina qātīya
+bīta | ēpuš-ma || ušib | ina libbi
+šukuttī | ša ina abūbi | uddaʾʾipū-ma || īkilu | šikinša
+ana šunbuṭ (|) zīmīya (|) (u) ubbub (|) ṣubātīya || gīra | umtaʾʾer
+ultu (|) šukuttī | unammerū-ma || uqattû | šipra
+agê (|) bēlūtīya | annadqū-ma || ana ašrīya | atūru
+zīmūʾa | tubbû-(ma) || galit | niṭlī
+nišū | ša ina abūbi | isītā-ma | īmurā | epēš (|) šipri
+kakk[īy]a | ušatbā-ma || uhall[a]q | rēha
+kakkīka | tušatbī-ma || tuhalliq | rē[ha]
+ummânī | šunūti | ana apsî | ušērid-ma || elâšunu | ul aqbi
+ša mēsi (|) elmēši | ašaršun | unakkir-ma || ul ukallim | mamma
+enna | aššu šipri | šâšu | ša taqbû | qurādu | erra
+ali | mēsu | šīr (|) ilī | simat (|) šar (|) gimri
+iṣu | ellu | eṭlu | ṣīru || ša šūluku | ana bēlūti
+ša ina tâmti | rapašti | (ina) mê | meʾat (|) bērī | išissu | ikšudu | šupul (|) aralli
+[(u)] qimmassu | (ina) elâti | emdet | šamê | ša ānu
+ali | ebbu | zagindurû || ša ušamsakū | uqnâ
+ali | ninildu || nagargal (|) ānūtīya
+nāš (|) pāši (|) šašši | ebbi || mūdû (|) iṣi | šâšu
+ša kīma ūmi | ušanbaṭū-ma || (ina) šaplūʾa | ukann[u]
+ali | kusibanda | bān (|) ili (|) u amēli || ša qātāšu | na[sqā]
+ali | ninagal || nāš (|) (e)sî (|) (u) šapilti | [ ( ... ) ]
+ša danna | erâ | kī(ma) maški | ilēmu || pātiqu (|) u[nūti]
+ali | abnū | nasqūtu | binût (|) tâmti | rapašti | simat (|) ag[ê]
+ali | sebet (|) apkallū (|) apsî | purādū ebbūtu | ša kīma ēa | bēlīšunu | uzna | ṣīrta | šuklulū | mubbibū (|) zumrīya
+išmēšū-ma | qu[r]ādu | erra
+[īp]uš-ma | pâ[šu] | izakkar | ana rubê | marūtuk
+[ ... ] ... | [u]ltu? apsî | [ ... ] ... | ana elâti
+[mēsu ... | m]eheršu | ušellâm-ma | [ ... ] | mēsa
+[e]lmēša | ebba | š[a? ... ] ... | meheršu | ušellâm-ma | [ ... ] ... | elmēšu
+[mar]ūtuk | annīta | ina šemêšu
+[īp]uš-ma | pâšu | izakkar | ana qurādi | erra
+[ina š]ubtīya | atebbī-ma || šipīt šamê (|) erṣeti | uptaṭṭar
+[m]û | illûnim-ma || ibaʾʾū | māta
+ūma | namra || ana daʾummati | uta[rrū]
+[meh]û | itebbâ-ma | kakkabī (|) šamām[ī | ( ... ) ukattam?]
+[šāru] | lemnu | iziqqam-ma | ša nišī | šiknāt (|) napišt[i] | niṭi[lšin | uṭṭa?]
+[ga]llû | illûnim-ma | iṣabbat(ū) | [ ... ]
+[ša] qablī (|) paṭrāti | māhiršun[u | ... ]
+anunnakū | illûnim-ma || šiknāt (|) napišti | imessū
+[adi] kakkīya | lā annadqu || utâršunūti | mannu
+erra | annīta | ina šemêšu
+īpuš-ma | pâšu | izakkar | ana rubê | marūtuk
+rubû | marūtuk | adi attā | ana bīti | šâšu | terrubū-ma | gīru | ṣubātka | ubbabū-ma | tatūra | ašrukka
+adi (|) ulla | araddī-ma || šipīt (|) šamê (|) erṣeti | udannan
+ana šamê | ellī-ma | ana igīgī | anaddin | ûrta
+urrad | ana apsî || anunnakī | upaqqad
+gallê | šamrūti || ana kurnugî | aṭarrad-(ma)
+kakkīya | ezzūti || elīšunu | ušzaz(za)
+ša šāri (|) lemni | kīma iṣṣūri || akassâ | idīšu
+ana bīti (|) šâšu | ašar (|) terrubu | rubû | marūtuk
+imna (|) u šumēla | ša bābīka | ānu (|) (u) ellil | ušarbaṣa | kīma alpi
+išmē(šū)-ma | rubû | marūtuk
+amāt (|) erra | iqbû(šu) || elīšu | iṭīb
