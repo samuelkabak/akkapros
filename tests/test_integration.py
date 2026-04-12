@@ -7,7 +7,6 @@ from pathlib import Path
 
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
 from akkapros.lib.frontmatter import split_frontmatter
-from akkapros.lib import metrics
 from akkapros.lib.phonetize import parse_phone_row
 from akkapros.lib.utils import format_path_for_logging
 
@@ -1124,8 +1123,8 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     )
 
 
-def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
-    outdir = tmp_path / "legacy_metricalc_csv"
+def test_metricalc_removed_csv_flag_is_rejected(tmp_path: Path) -> None:
+    outdir = tmp_path / "removed_metricalc_csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
     _run_cli("akkapros.cli.syllabifier", str(INPUT_PROC), "-p", "legacy", "--outdir", str(outdir))
@@ -1148,7 +1147,7 @@ def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
         str(outdir),
     )
 
-    proc = _run_cli(
+    proc = _run_cli_expect_failure(
         "akkapros.cli.metricalc",
         str(outdir / "legacy_phone.txt"),
         "-p",
@@ -1158,17 +1157,17 @@ def test_metricalc_legacy_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
         "--csv",
     )
 
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stdout
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stderr
-    _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
+    assert proc.returncode == 2
+    assert "unrecognized arguments: --csv" in proc.stderr
+    assert not (outdir / "legacy_metrics.txt").exists()
     assert not (outdir / "legacy_metrics.csv").exists()
 
 
-def test_fullprosmaker_legacy_metrics_csv_flag_logs_warning_notice(tmp_path: Path) -> None:
-    outdir = tmp_path / "legacy_fullprosmaker_csv"
+def test_fullprosmaker_removed_metrics_csv_flag_is_rejected(tmp_path: Path) -> None:
+    outdir = tmp_path / "removed_fullprosmaker_csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
-    proc = _run_cli(
+    proc = _run_cli_expect_failure(
         "akkapros.cli.fullprosmaker",
         str(INPUT_PROC),
         "-p",
@@ -1178,9 +1177,9 @@ def test_fullprosmaker_legacy_metrics_csv_flag_logs_warning_notice(tmp_path: Pat
         "--metrics-csv",
     )
 
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE not in proc.stdout
-    assert metrics.METRICS_CSV_DEPRECATION_MESSAGE in proc.stderr
-    _assert_non_empty_text_file(outdir / "legacy_metrics.txt")
+    assert proc.returncode == 2
+    assert "unrecognized arguments: --metrics-csv" in proc.stderr
+    assert not (outdir / "legacy_metrics.txt").exists()
     assert not (outdir / "legacy.csv").exists()
 
 

@@ -148,7 +148,7 @@ def test_metricalc_console_and_logfile_are_coherent(tmp_path: Path) -> None:
     assert "INFO:akkapros.cli.metricalc:" in proc.stdout
 
 
-def test_metricalc_quiet_keeps_warning_channel(tmp_path: Path) -> None:
+def test_metricalc_quiet_keeps_parser_error_channel_for_removed_csv_flag(tmp_path: Path) -> None:
     phone_file = _build_phone(tmp_path)
     outdir = phone_file.parent
 
@@ -163,10 +163,9 @@ def test_metricalc_quiet_keeps_warning_channel(tmp_path: Path) -> None:
         "--csv",
     )
 
-    assert proc.returncode == 0, proc.stderr or proc.stdout
+    assert proc.returncode == 2
     assert "Processing:" not in proc.stdout
-    assert "WARNING:" in proc.stderr
-    assert "--csv option is not anymore supported" in proc.stderr
+    assert "unrecognized arguments: --csv" in proc.stderr
 
 
 def test_format_path_for_logging_redacts_to_one_parent() -> None:

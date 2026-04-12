@@ -65,7 +65,6 @@ from akkapros.lib.prosody import (
     test_diphthong_restoration,
 )
 from akkapros.lib.metrics import (
-    METRICS_CSV_DEPRECATION_MESSAGE,
     configure_pause_punctuation_rules,
     update_character_sets,
     process_file as process_metrics_file,
@@ -239,7 +238,6 @@ def run_pipeline(
     phonetize_config: dict[str, object],
     output_table: bool,
     output_json: bool,
-    output_csv: bool,
     output_acute: bool,
     output_bold: bool,
     output_ipa: bool,
@@ -429,9 +427,6 @@ def run_pipeline(
             f.write('\n')
         logger.info('Written file: %s', format_path_for_logging(json_file))
 
-    if output_csv:
-        logger.warning('%s', METRICS_CSV_DEPRECATION_MESSAGE)
-
     if output_table:
         table_context = {
             'cli': 'fullprosmaker.py',
@@ -556,7 +551,6 @@ Version: {__version__}
                         help=help_for('fullprosmaker.phonetize_drift_tolerance'))
 
     # Metricalc options
-    parser.add_argument('--metrics-csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--metrics-table', action='store_true', help=help_for('fullprosmaker.metrics_table'))
     parser.add_argument('--metrics-json', action='store_true', help=help_for('fullprosmaker.metrics_json'))
 
@@ -656,7 +650,6 @@ Version: {__version__}
 
     output_table = args.metrics_table
     output_json = args.metrics_json
-    output_csv = args.metrics_csv
     output_acute = args.print_acute
     output_bold = args.print_bold
     output_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
@@ -683,7 +676,7 @@ Version: {__version__}
         {
             **effective_options_from_namespace(
                 args,
-                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'metrics_csv', 'conf'},
+                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'conf'},
             ),
             'print_merger': args.print_merger,
         },
@@ -715,7 +708,6 @@ Version: {__version__}
         phonetize_config=phonetize_config,
         output_table=output_table,
         output_json=output_json,
-        output_csv=output_csv,
         output_acute=output_acute,
         output_bold=output_bold,
         output_ipa=output_ipa,

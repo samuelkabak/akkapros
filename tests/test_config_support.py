@@ -8,6 +8,8 @@ import pytest
 
 from akkapros.lib.config import (
     ConfigError,
+    CONFIG_SCHEMA,
+    METRICS_SECTION,
     add_config_argument,
     add_runtime_interface_arguments,
     apply_overrides,
@@ -17,6 +19,7 @@ from akkapros.lib.config import (
     load_config_file,
     parse_args_with_config,
 )
+from akkapros.lib.helpmsg import OPTION_HELP
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,8 +40,33 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "long_punct_weight" not in text
     assert "long_punct_weight" not in loaded["metrics"]["run"]
     assert "explicit_link_count" not in loaded["metrics"]["run"]
+    assert "csv" not in loaded["metrics"]["run"]
+    assert "csv:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
     assert loaded["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
+
+
+def test_metrics_schema_and_help_no_longer_expose_csv() -> None:
+    metrics_run_keys = CONFIG_SCHEMA[METRICS_SECTION]["run"].keys()
+
+    assert set(metrics_run_keys) == {"table", "json"}
+    assert "metrics.run.csv" not in OPTION_HELP
+    assert "metricalc.csv" not in OPTION_HELP
+    assert "fullprosmaker.metrics_csv" not in OPTION_HELP
+    assert "metrics.csv" not in OPTION_HELP
+
+
+def test_removed_metrics_csv_config_key_is_rejected(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(
+        "metrics:\n  run:\n    csv: false\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError) as excinfo:
+        load_config_file(config_path)
+
+    assert "Unknown config keys: metrics.run.csv" in str(excinfo.value)
 
 
 def test_parse_args_with_config_applies_config_and_cli_override(tmp_path: Path) -> None:

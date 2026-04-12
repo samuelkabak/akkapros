@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-10
+updated: 2026-04-12
 related_adrs: 'ADR-043, ADR-036, ADR-039, ADR-040'
-implemented_by: 'CR-044'
+implemented_by: 'CR-044, CR-057'
 ---
 
 # Requirement: Stage Config Run/Process Separation
@@ -28,6 +28,9 @@ Historical note:
 - [CR-045](../cr/045-move-mbrola-pho-output-to-phonetizer.md) later supersedes
       the MBROLA-related print-stage portion of this requirement that kept
       `print.run.mbrola` in the approved config surface.
+- [CR-057](../cr/057-remove-residual-metrics-csv-code-and-config-surface.md)
+      later narrows the metrics run block so `metrics.run.csv` is no longer an
+      active approved key.
 - The broader run/process regrouping requirement remains implemented.
 
 ---
@@ -66,7 +69,7 @@ harder to audit and harder to document clearly.
       contains exactly `style`, `mora_mode`, and `relax_last`.
 - [ ] Given the `metrics` stage config is inspected, when keys are grouped,
       then the approved surface exposes `metrics.run` only and that block
-      contains exactly `csv`, `table`, and `json`.
+      contains exactly `table` and `json`.
 - [ ] Given the `metrics` stage config is inspected, when removed keys are
       checked, then `metrics.wpm`, `metrics.pause_ratio`,
       `metrics.long_punct_weight`, and `metrics.explicit_link_count` are absent
@@ -127,6 +130,7 @@ harder to audit and harder to document clearly.
   - `print.process.*`, `print.run.*`
       - `phonetize.process.timing_model.*`
 - Removed paths include:
+      - `metrics.run.csv`
   - `metrics.wpm`
   - `metrics.pause_ratio`
   - `metrics.long_punct_weight`

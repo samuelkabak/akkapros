@@ -4,7 +4,7 @@ status: Done
 priority: Medium
 impact: Mutative
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-04-12
 implements: REQ-014
 ---
 
@@ -22,6 +22,13 @@ maintenance.
 Legacy `--csv` invocations shall pass through only a short deprecation phase,
 with the notice printed to standard output rather than standard error. No
 remark shall be displayed unless `--csv` is explicitly used.
+
+Historical note:
+
+- [CR-057](057-remove-residual-metrics-csv-code-and-config-surface.md) later
+  closes the deprecation window described here and removes the remaining hidden
+  compatibility flag, config key, and help-surface residue from the active
+  package contract.
 
 ---
 

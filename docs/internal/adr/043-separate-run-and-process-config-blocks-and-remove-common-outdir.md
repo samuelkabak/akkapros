@@ -2,7 +2,7 @@
 adr_id: ADR-043
 status: Accepted
 created: 2026-04-08
-updated: 2026-04-10
+updated: 2026-04-12
 superseded_by: null
 ---
 
@@ -25,6 +25,9 @@ Historical note:
 - [CR-045](../cr/045-move-mbrola-pho-output-to-phonetizer.md) later supersedes
   the MBROLA-related portion of this ADR that listed `print.run.mbrola` as part
   of the active print-stage config surface.
+- [CR-057](../cr/057-remove-residual-metrics-csv-code-and-config-surface.md)
+  later narrows the metrics run block so `metrics.run.csv` is no longer part
+  of the active config surface.
 - The run/process regrouping decision itself remains accepted; only that
   printer-owned MBROLA path is historical after CR-045.
 
@@ -106,7 +109,7 @@ The approved stage mapping is:
   `merge_hyphen`, `merge_lines`
 - `syllabify.run`: `title`
 - `prosody.process`: `style`, `mora_mode`, `relax_last`
-- `metrics.run`: `csv`, `table`, `json`
+- `metrics.run`: `table`, `json`
 - `print.process`: `ipa_proto_semitic`
 - `print.run`: `acute`, `bold`, `ipa`, `circ_hiatus`, `xar`, `mbrola`,
   `print_merger`

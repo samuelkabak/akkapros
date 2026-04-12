@@ -247,8 +247,6 @@ phonetize:
 # Options used by the metricalc CLI and by fullprosmaker for metrics output selection.
 metrics:
   run:
-    # Emit deprecated CSV output.
-    csv: false
     # Write human-readable metrics table output.
     table: false
     # Write JSON metrics output.

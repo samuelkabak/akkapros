@@ -1897,10 +1897,6 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append("\n" + "="*80)
     return '\n'.join(lines) + '\n'
 
-
-METRICS_CSV_DEPRECATION_MESSAGE = "--csv option is not anymore supported, the csv file will not be generated."
-
-
 # ------------------------------------------------------------
 # Unit tests
 # ------------------------------------------------------------

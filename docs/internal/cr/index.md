@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[057. Remove Residual Metrics CSV Code and Config Surface](057-remove-residual-metrics-csv-code-and-config-surface.md) - Done
 [056. Broaden Metrics Coverage to High-Confidence Indicator Verification](056-add-manual-lexlinks-word-count-verification.md) - Done
 [055. Add config-backed lexlinks construct demo](055-add-config-backed-lexlinks-construct-demo.md) - Done
 [054. Add Single-Line Manual Metrics Verification Test](054-add-single-line-manual-metrics-verification-test.md) - Done

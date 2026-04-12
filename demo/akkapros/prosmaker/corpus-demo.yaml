@@ -99,7 +99,6 @@ phonetize:
 
 metrics:
   run:
-    csv: false
     table: true
     json: true
 

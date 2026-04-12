@@ -129,7 +129,6 @@ CONFIG_SCHEMA: dict[str, dict[str, Any]] = {
     },
     METRICS_SECTION: {
         'run': {
-            'csv': ConfigField(False, 'bool', config_help('metrics.run.csv')),
             'table': ConfigField(False, 'bool', config_help('metrics.run.table')),
             'json': ConfigField(False, 'bool', config_help('metrics.run.json')),
         },
@@ -199,7 +198,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
     "metricalc": (
         (COMMON_SECTION, COMMON_FIELD_MAP),
         (METRICS_SECTION, {
-            'run.csv': 'csv',
             'run.table': 'table',
             'run.json': 'json',
         }),
@@ -254,7 +252,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
         (
             METRICS_SECTION,
             {
-                "run.csv": "metrics_csv",
                 "run.table": "metrics_table",
                 "run.json": "metrics_json",
             },

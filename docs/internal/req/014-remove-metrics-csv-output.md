@@ -4,7 +4,7 @@ status: Implemented
 priority: Medium
 impact: Mutative
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-04-12
 ---
 
 # Requirement: Remove Metrics CSV Output
@@ -23,6 +23,13 @@ Legacy `--csv` usage shall pass through a short deprecation phase with a brief
 message emitted on standard output, not standard error, before the flag is
 removed from the package. No message shall be displayed unless `--csv` is
 explicitly used.
+
+Historical note:
+
+- [CR-057](../cr/057-remove-residual-metrics-csv-code-and-config-surface.md)
+      later closes the deprecation window described here. The hidden compatibility
+      flag and residual config/help surface are no longer part of the active
+      runtime contract after that change.
 
 ---
 

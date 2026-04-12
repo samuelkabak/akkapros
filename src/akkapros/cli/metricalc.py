@@ -34,7 +34,6 @@ from akkapros.lib.frontmatter import (
 )
 from akkapros.lib.helpmsg import help_for
 from akkapros.lib.metrics import (
-    METRICS_CSV_DEPRECATION_MESSAGE,
     PunctuationConfigError,
     configure_pause_punctuation_rules,
     update_character_sets,
@@ -79,7 +78,6 @@ Version {__version__}
     parser.add_argument('--input-list', help=help_for('metricalc.input_list'))
     parser.add_argument('-p', '--prefix', help=help_for('metricalc.prefix'))
     parser.add_argument('--outdir', default='.', help=help_for('metricalc.outdir'))
-    parser.add_argument('--csv', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--table', action='store_true', help=help_for('metricalc.table'))
     parser.add_argument('--json', action='store_true', help=help_for('metricalc.json'))
     parser.add_argument('--ophone', help=help_for('metricalc.ophone'))
@@ -126,7 +124,7 @@ Version {__version__}
 
     option_values = effective_options_from_namespace(
         args,
-        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'csv', 'conf', 'ophone'},
+        exclude={'input', 'input_list', 'outdir', 'prefix', 'test', 'version', 'conf', 'ophone'},
     )
 
     results = []
@@ -210,9 +208,6 @@ Version {__version__}
             json.dump(pruned, f, indent=2, ensure_ascii=False)
             f.write('\n')
         logger.info('JSON saved to: %s', format_path_for_logging(json_file))
-
-    if args.csv:
-        logger.warning('%s', METRICS_CSV_DEPRECATION_MESSAGE)
 
     if args.table:
         if len(results) == 1:
