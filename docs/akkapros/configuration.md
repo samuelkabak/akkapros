@@ -54,9 +54,9 @@ The `phonetize` section owns both the intonation presets under
 `phonetize.process.timing_model`.
 That means grouped config no longer defines `metrics.wpm` or
 `metrics.pause_ratio`. Metricalc now computes its outputs from the phonetizer
-artifacts `_ophone.txt` and `_phone.txt`, while still using the phonetize
-transition defaults internally (`wpm = 193`, `pause_ratio = 35`) rather than
-exposing separate metrics-owned timing knobs.
+artifacts `_ophone.txt` and `_phone.txt`. The metrics stage does not expose
+separate metrics-owned timing knobs and does not reconstruct speech reporting
+from phonetizer defaults after the phone rows are realized.
 
 The active intonation presets are:
 

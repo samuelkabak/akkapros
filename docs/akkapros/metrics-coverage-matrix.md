@@ -13,7 +13,7 @@ The suite now uses four complementary reference sources.
 
 1. Independent interval arithmetic on a hand-built row sequence in [tests/test_metrics_stats.py](../../tests/test_metrics_stats.py).
 2. A manually audited single-line phone/ophone reference documented in [varco-verification.md](varco-verification.md).
-3. A fixed representative small corpus generated from [tests/test_metrics_stats.py](../../tests/test_metrics_stats.py), with exact expected structural, prominence, speech, pause, and accentuation values pinned outside the production implementation.
+3. A fixed representative small corpus generated from [tests/test_metrics_stats.py](../../tests/test_metrics_stats.py), with exact expected structural, prominence, row-derived speech, and accentuation values pinned outside the production implementation.
 4. Real checked-in corpus and pipeline fixtures:
    - the lexlinks construct corpus for broad corpus-level regression
    - the fullprosmaker regular fixture
@@ -25,8 +25,7 @@ The suite now uses four complementary reference sources.
 | --- | --- | --- | --- |
 | Structural metrics | Yes | Unit/regression, integration, self-test | Fixed small sample, lexlinks corpus, fullprosmaker fixtures |
 | Prominence metrics | Yes | Unit/regression, integration, self-test | Fixed small sample, lexlinks corpus, fullprosmaker fixtures |
-| Speech and timing metrics | Yes | Unit/regression, integration, self-test | Fixed small sample, fullprosmaker fixtures |
-| Pause metrics | Yes | Unit/regression, integration, self-test | Fixed small sample, fullprosmaker fixtures, lexlinks corpus |
+| Speech metrics | Yes | Unit/regression, integration, self-test | Fixed small sample, fullprosmaker fixtures |
 | Drift metrics | Yes | Unit/regression, integration | Manual single-line phone/ophone fixture, lexlinks corpus, fullprosmaker fixture |
 | Acoustic interval metrics | Yes | Unit/regression, integration, self-test | Hand-built rows, manual single-line verification, lexlinks corpus, fullprosmaker fixtures |
 
@@ -35,10 +34,10 @@ The suite now uses four complementary reference sources.
 ### Exact-value tests
 
 - [tests/test_metrics_stats.py](../../tests/test_metrics_stats.py)
-  - fixed small-corpus structural, prominence, speech, pause, and accentuation regressions
+  - fixed small-corpus structural, prominence, row-derived speech, and accentuation regressions
   - manual interval-row verification
   - manual single-line phone/ophone interval verification
-  - lexlinks corpus regression covering structural, prominence, speech, pause, drift, accentuation, and acoustic families
+  - lexlinks corpus regression covering structural, prominence, drift, accentuation, and acoustic families
 - [tests/test_integration.py](../../tests/test_integration.py)
   - broadened fullprosmaker regular metrics JSON assertions
   - broadened fullprosmaker mono metrics JSON assertions

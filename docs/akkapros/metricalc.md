@@ -130,8 +130,12 @@ contract. That includes:
 - syllable counts and syllable-type distributions
 - word, mora, merge, and accentuation statistics
 - prominence statistics derived from phone-row structure
-- pause metrics and pause-duration reporting
-- speech-rate summaries for original and accentuated streams
+- row-derived `Speech metrics:` sections for original and accentuated streams
+
+Those speech sections now report `Total duration`, `Total pause duration`,
+`Total articulate duration`, `Pause ratio`, and `WPM` from the realized phone
+rows. The older synthetic `Speech rate (...)`, `Pause metrics:`, and `Pause
+duration allocation` blocks are no longer emitted.
 
 Prominence statistics are computed internally from the phone-row representation.
 There is no active explicit-link override flag.

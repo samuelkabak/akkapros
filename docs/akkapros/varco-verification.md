@@ -56,13 +56,9 @@ reproduced without relying on hidden defaults.
 
 ### Speech-level settings
 
-- `wpm = 193`
-- `pause_ratio = 35`
-
-`wpm` and `pause_ratio` affect speech-rate and pause reporting surfaces. The
-interval metrics below are computed from emitted phone durations, but these
-settings are still part of the effective runtime context used to produce those
-durations.
+The phonetizer still owns speech-model settings upstream, but the metrics stage
+now reports `WPM` and `Pause ratio` from realized phone-row durations rather
+than from copied metrics-side defaults.
 
 ### Core duration anchors
 

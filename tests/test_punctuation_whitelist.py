@@ -80,13 +80,13 @@ def test_syllabify_merges_only_immediate_cross_line_linker():
 
 def test_metrics_rejects_unknown_punctuation_gap():
     with pytest.raises(metrics.PunctuationConfigError):
-        metrics.process_filetext("at·ta @ a·lik", wpm=165, pause_ratio=35.0)
+        metrics.process_filetext("at·ta @ a·lik")
 
 
 def test_metrics_accepts_extension_char():
     metrics.configure_pause_punctuation_rules(short_punct_chars='@')
-    result = metrics.process_filetext("at·ta @ a·lik", wpm=165, pause_ratio=35.0)
-    assert result["accentuated"]["pause_metrics"]["raw_counts"]["short_punctuation"] >= 1
+    result = metrics.process_filetext("at·ta @ a·lik")
+    assert result["accentuated"]["speech"]["pause_row_count"] >= 1
 
 
 def test_fullprosmaker_passes_punctuation_options(tmp_path):

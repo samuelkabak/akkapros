@@ -137,7 +137,20 @@ the paired phone artifacts:
 - merge statistics
 - accentuation statistics
 - prominence statistics
-- pause and speech-rate summaries
+- row-derived speech metrics
+
+The human-readable table now reports a `Speech metrics:` section for each
+stream with these row-derived fields:
+
+- total duration
+- total pause duration
+- total articulate duration
+- pause ratio
+- WPM
+
+The older synthetic `Speech rate (...)`, standalone `Pause metrics:`, and
+`Pause duration allocation` blocks are no longer part of the active metrics
+contract.
 
 Prominence statistics are derived from phone structure:
 

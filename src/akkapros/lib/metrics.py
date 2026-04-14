@@ -8,7 +8,7 @@ Computes comprehensive metrics from Akkadian text with proper handling of:
 - Glottal stops: ʾ for initial vowels
 - Distance-based ΔC calculation
 - Punctuation boundaries marked with $
-- Pause metrics for punctuation only (short vs long pause classes)
+- Row-derived speech metrics from realized phone streams
 """
 
 import logging
@@ -151,10 +151,6 @@ def configure_pause_punctuation_rules(
 
 # Initialize with default punctuation classes/patterns.
 configure_pause_punctuation_rules()
-
-# Pause weights: long is expressed relative to short.
-SHORT_PAUSE_PUNCT_WEIGHT = 1.0
-DEFAULT_LONG_PAUSE_PUNCT_WEIGHT = 2.0
 
 # All possible syllable types
 SYLLABLE_TYPES = [
@@ -983,59 +979,32 @@ def preprocess_text(text: str) -> str:
 
 
 # ------------------------------------------------------------
-# Speech rate calculation
+# Speech metrics
 # ------------------------------------------------------------
-def compute_speech_rate(text: str, stats: Dict, wpm: float, pause_ratio: float) -> Dict:
+def compute_speech_metrics_from_rows(rows: List[Dict[str, str]], stats: Dict) -> Dict:
     """
-    Compute speech rate metrics.
-    
-    Args:
-        text: The text (not used directly, kept for API consistency)
-        stats: Statistics from analyze_text containing syllables_per_word
-        wpm: Words per minute (input parameter)
-        pause_ratio: Percentage of time spent in pauses (e.g., 35 for 35%)
-    
-    Returns:
-        Dictionary with speech rate metrics
+    Compute row-derived speech metrics from realized phone rows.
     """
-    spw = stats['word_stats']['syllables_per_word']['mean']
-    
-    # Syllables per second (speech rate - INCLUDING pauses)
-    # This comes directly from WPM and SPW
-    sps_speech = (wpm / 60) * spw
+    total_duration_ms = sum(_phone_row_duration_ms(row) for row in rows)
+    pause_duration_ms = sum(_phone_row_duration_ms(row) for row in rows if row['category'] == 'S')
+    articulation_duration_ms = total_duration_ms - pause_duration_ms
+    total_words = stats['word_stats']['total_words']
 
-    # Syllables per second (articulation rate - EXCLUDING pauses)
-    # If pause_ratio% of time is pauses, then articulation time = (100 - pause_ratio)% of total time
-    # So articulation rate = speech rate / (1 - pause_ratio/100)
-    sps_articulation = sps_speech / (1 - (pause_ratio / 100))
-    
-    # Durations
-    syllable_duration = 1 / sps_articulation
-    mora_duration = syllable_duration / stats['mora_stats']['mean'] if stats['mora_stats']['mean'] > 0 else 0
-    word_duration = 60 / wpm
-    
+    if total_duration_ms > 0:
+        pause_ratio = (pause_duration_ms / total_duration_ms) * 100.0
+        wpm = total_words / (total_duration_ms / 60000.0)
+    else:
+        pause_ratio = 0.0
+        wpm = 0.0
+
     return {
+        'total_duration_ms': total_duration_ms,
+        'pause_duration_ms': pause_duration_ms,
+        'articulation_duration_ms': articulation_duration_ms,
         'wpm': wpm,
         'pause_ratio': pause_ratio,
-        'sps_speech': sps_speech,
-        'sps_articulation': sps_articulation,
-        'syllable_duration': syllable_duration,
-        'mora_duration': mora_duration,
-        'word_duration': word_duration
+        'pause_row_count': sum(1 for row in rows if row['category'] == 'S'),
     }
-
-
-def enrich_acoustic_metrics(acoustic: Dict, speech: Dict) -> Dict:
-    """Add explicit seconds and mora views for acoustic interval metrics."""
-    delta_c_mora = acoustic['delta_c']
-    mean_c_mora = acoustic['mean_interval']
-    mora_duration = speech['mora_duration']
-
-    acoustic['delta_c_seconds'] = delta_c_mora * mora_duration
-    acoustic['delta_c_mora'] = delta_c_mora
-    acoustic['mean_c_seconds'] = mean_c_mora * mora_duration
-    acoustic['mean_c_mora'] = mean_c_mora
-    return acoustic
 
 
 def _population_std_dev(values: List[float]) -> float:
@@ -1197,8 +1166,6 @@ def _prominence_counts_from_phone_rows(text: str, rows: List[Dict[str, str]]) ->
 def process_phone_pair(
     phone_filename: str,
     ophone_filename: str,
-    wpm: float,
-    pause_ratio: float,
 ) -> Dict:
     ophone_frontmatter, ophone_rows, _ = _load_phone_rows(ophone_filename)
     phone_frontmatter, phone_rows, _ = _load_phone_rows(phone_filename)
@@ -1213,10 +1180,8 @@ def process_phone_pair(
         total_words=original_stats['word_stats']['total_words'],
         prominence_counts=_prominence_counts_from_phone_rows(original_text, phone_rows),
     )
-    speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
-    speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
-    pause_metrics = compute_pause_metrics(phone_rows, accentuated_stats)
-    pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
+    speech_original = compute_speech_metrics_from_rows(ophone_rows, original_stats)
+    speech_accentuated = compute_speech_metrics_from_rows(phone_rows, accentuated_stats)
 
     return {
         'file': format_path_for_logging(phone_filename),
@@ -1232,8 +1197,6 @@ def process_phone_pair(
             'speech': speech_accentuated,
             'acoustic': compute_interval_metrics(phone_rows),
             'drift': _extract_drift_summary(phone_frontmatter),
-            'pause_metrics': pause_metrics,
-            'pause_durations': pause_durations,
         },
         'accentuation_stats': accentuation_stats,
     }
@@ -1470,130 +1433,16 @@ def compute_pause_metrics(rows: List[Dict[str, str]], stats: Dict) -> Dict:
     }
 
 
-def compute_pause_durations(
-    pause_metrics: Dict,
-    speech_metrics: Dict,
-    pause_ratio: float,
-) -> Dict:
-    """
-    Compute duration per short and long punctuation pause based on pause ratio.
-    
-    Args:
-        pause_metrics: Output from compute_pause_metrics
-        speech_metrics: Output from compute_speech_rate
-        pause_ratio: Total pause ratio percentage
-    Returns:
-        Dictionary with space and punctuation durations
-    """
-    # Get metrics
-    short_per_syllable = pause_metrics['short_punctuation_per_syllable']
-    long_per_syllable = pause_metrics['long_punctuation_per_syllable']
-    short_event_count = pause_metrics['raw_counts']['short_punctuation']
-    long_event_count = pause_metrics['raw_counts']['long_punctuation']
-    
-    # Speech metrics
-    syllable_duration = speech_metrics['syllable_duration']
-    sps_speech = speech_metrics['sps_speech']
-    
-    # Total time per syllable including pauses
-    total_time_per_syllable = 1 / sps_speech
-    
-    # Pause time per syllable
-    pause_time_per_syllable = total_time_per_syllable - syllable_duration
-    
-    # Distribute pause time using short/long punctuation weights (initial model).
-    long_punct_weight = DEFAULT_LONG_PAUSE_PUNCT_WEIGHT
-    total_pause_units = (
-        short_per_syllable * SHORT_PAUSE_PUNCT_WEIGHT
-        + long_per_syllable * long_punct_weight
-    )
-    if total_pause_units == 0:
-        initial_short_duration = 0.0
-        initial_long_duration = 0.0
-        initial_short_contribution = 0.0
-        initial_long_contribution = 0.0
-    else:
-        unit_duration = pause_time_per_syllable / total_pause_units
-        initial_short_duration = unit_duration * SHORT_PAUSE_PUNCT_WEIGHT
-        initial_long_duration = unit_duration * long_punct_weight
-        initial_short_contribution = short_per_syllable * initial_short_duration
-        initial_long_contribution = long_per_syllable * initial_long_duration
-
-    # Correct short pause duration to nearest multiple of 2 morae.
-    mora_duration = speech_metrics.get('mora_duration', 0.0)
-    if mora_duration > 0 and initial_short_duration > 0:
-        short_mora_ratio = initial_short_duration / mora_duration
-        corrected_short_mora_multiple = int(round(short_mora_ratio / 2.0) * 2)
-        corrected_short_duration = corrected_short_mora_multiple * mora_duration
-    else:
-        short_mora_ratio = 0.0
-        corrected_short_mora_multiple = 0
-        corrected_short_duration = initial_short_duration
-
-    # Keep total punctuation pause time conserved across event counts.
-    initial_total_from_counts = (
-        initial_short_duration * short_event_count
-        + initial_long_duration * long_event_count
-    )
-
-    if long_event_count > 0:
-        corrected_long_duration = (
-            initial_total_from_counts - corrected_short_duration * short_event_count
-        ) / long_event_count
-        if corrected_long_duration < 0:
-            corrected_long_duration = 0.0
-    else:
-        corrected_long_duration = initial_long_duration
-
-    corrected_short_contribution = short_per_syllable * corrected_short_duration
-    corrected_long_contribution = long_per_syllable * corrected_long_duration
-
-    if corrected_short_duration > 0:
-        corrected_long_weight = corrected_long_duration / corrected_short_duration
-    else:
-        corrected_long_weight = 0.0
-    
-    return {
-        # Initial model outputs
-        'initial_short_punctuation_duration': initial_short_duration,
-        'initial_long_punctuation_duration': initial_long_duration,
-        'initial_short_punctuation_contribution': initial_short_contribution,
-        'initial_long_punctuation_contribution': initial_long_contribution,
-        'initial_short_punctuation_percent': (initial_short_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'initial_long_punctuation_percent': (initial_long_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'short_punct_weight': SHORT_PAUSE_PUNCT_WEIGHT,
-        'initial_long_punct_weight': long_punct_weight,
-        # Corrected model outputs
-        'short_mora_ratio_initial': short_mora_ratio,
-        'corrected_short_mora_multiple': corrected_short_mora_multiple,
-        'corrected_short_punctuation_duration': corrected_short_duration,
-        'corrected_long_punctuation_duration': corrected_long_duration,
-        'corrected_short_punctuation_contribution': corrected_short_contribution,
-        'corrected_long_punctuation_contribution': corrected_long_contribution,
-        'corrected_short_punctuation_percent': (corrected_short_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'corrected_long_punctuation_percent': (corrected_long_contribution / pause_time_per_syllable * 100) if pause_time_per_syllable > 0 else 0,
-        'corrected_long_punct_weight': corrected_long_weight,
-        # Shared
-        'total_pause_time': pause_time_per_syllable,
-        'pause_time_per_syllable': pause_time_per_syllable,
-        'short_event_count': short_event_count,
-        'long_event_count': long_event_count,
-        # Backward-compatible aliases removed: keep canonical field names only
-    }
-
-
 # ------------------------------------------------------------
 # Main processing
 # ------------------------------------------------------------
 def process_file(
     filename: str,
-    wpm: float,
-    pause_ratio: float,
     ophone_filename: str | None = None,
 ) -> Dict:
     """Process paired phone files and return all metrics."""
     resolved_ophone = _resolve_original_phone_path(filename, ophone_filename)
-    return process_phone_pair(filename, resolved_ophone, wpm, pause_ratio)
+    return process_phone_pair(filename, resolved_ophone)
 
 
 def build_prominence_statistics(total_words: int, prominence_counts: Dict[str, int]) -> Dict[str, int]:
@@ -1618,8 +1467,6 @@ def build_prominence_statistics(total_words: int, prominence_counts: Dict[str, i
 
 def process_filetext(
     text: str,
-    wpm: float,
-    pause_ratio: float,
     filesrc: str = 'in-memory',
     prominence_statistics: Optional[Dict[str, int]] = None,
 ) -> Dict:
@@ -1664,10 +1511,8 @@ def process_filetext(
         total_words=original_stats['word_stats']['total_words'],
         prominence_counts=resolved_prominence_counts,
     )
-    speech_original = compute_speech_rate(original_text, original_stats, wpm, pause_ratio)
-    speech_accentuated = compute_speech_rate(accentuated_text, accentuated_stats, wpm, pause_ratio)
-    pause_metrics = compute_pause_metrics(phone_rows, accentuated_stats)
-    pause_durations = compute_pause_durations(pause_metrics, speech_accentuated, pause_ratio)
+    speech_original = compute_speech_metrics_from_rows(ophone_rows, original_stats)
+    speech_accentuated = compute_speech_metrics_from_rows(phone_rows, accentuated_stats)
 
     return {
         'file': format_path_for_logging(filesrc),
@@ -1683,8 +1528,6 @@ def process_filetext(
             'acoustic': compute_interval_metrics(phone_rows),
             'speech': speech_accentuated,
             'drift': phone_report['drift'],
-            'pause_metrics': pause_metrics,
-            'pause_durations': pause_durations
         },
         'accentuation_stats': accentuation_stats
     }
@@ -1738,15 +1581,12 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Mean morae per word: {orig['stats']['word_stats']['morae_per_word']['mean']:.3f} ± {orig['stats']['word_stats']['morae_per_word']['std']:.3f} mora/word")
     lines.append(f"  Total morae: {orig['stats']['mora_stats']['total']} mora")
     
-    # Speech rate (original)
-    lines.append(f"\nSpeech rate (original):")
-    lines.append(f"  WPM: {orig['speech']['wpm']} words/min")
-    lines.append(f"  Pause ratio: {orig['speech']['pause_ratio']}%")
-    lines.append(f"  SPS (speech): {orig['speech']['sps_speech']:.3f} syllable/s")
-    lines.append(f"  SPS (articulation): {orig['speech']['sps_articulation']:.3f} syllable/s")
-    lines.append(f"  Average syllable duration: {orig['speech']['syllable_duration']:.3f} s/syllable")
-    lines.append(f"  Mora duration: {orig['speech']['mora_duration']:.3f} s/mora")
-    lines.append(f"  Word duration: {orig['speech']['word_duration']:.3f} s/word")
+    lines.append(f"\nSpeech metrics:")
+    lines.append(f"  Total duration: {orig['speech']['total_duration_ms']} ms")
+    lines.append(f"  Total pause duration: {orig['speech']['pause_duration_ms']} ms")
+    lines.append(f"  Total articulate duration: {orig['speech']['articulation_duration_ms']} ms")
+    lines.append(f"  Pause ratio: {orig['speech']['pause_ratio']:.2f}%")
+    lines.append(f"  WPM: {orig['speech']['wpm']:.2f} word/minute")
 
     # Acoustic metrics (original)
     lines.append(f"\nAcoustic metrics (original):")
@@ -1796,15 +1636,12 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Merged units: {rep['stats']['merge_stats']['merged_units']} units")
     lines.append(f"  Average unit size: {rep['stats']['merge_stats']['avg_unit_size']:.2f} words")
     
-    # Speech rate (accentuated)
-    lines.append(f"\nSpeech rate (accentuated):")
-    lines.append(f"  WPM: {rep['speech']['wpm']} words/min")
-    lines.append(f"  Pause ratio: {rep['speech']['pause_ratio']}%")
-    lines.append(f"  SPS (speech): {rep['speech']['sps_speech']:.3f} syllable/s")
-    lines.append(f"  SPS (articulation): {rep['speech']['sps_articulation']:.3f} syllable/s")
-    lines.append(f"  Average syllable duration: {rep['speech']['syllable_duration']:.3f} s/syllable")
-    lines.append(f"  Mora duration: {rep['speech']['mora_duration']:.3f} s/mora")
-    lines.append(f"  Word duration: {rep['speech']['word_duration']:.3f} s/word")
+    lines.append(f"\nSpeech metrics:")
+    lines.append(f"  Total duration: {rep['speech']['total_duration_ms']} ms")
+    lines.append(f"  Total pause duration: {rep['speech']['pause_duration_ms']} ms")
+    lines.append(f"  Total articulate duration: {rep['speech']['articulation_duration_ms']} ms")
+    lines.append(f"  Pause ratio: {rep['speech']['pause_ratio']:.2f}%")
+    lines.append(f"  WPM: {rep['speech']['wpm']:.2f} word/minute")
 
     # Acoustic metrics (accentuated)
     lines.append(f"\nAcoustic metrics (accentuated):")
@@ -1822,68 +1659,6 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  Drift mean: {rep['drift']['mean']:.2f} ms")
     lines.append(f"  Drift stddev: {rep['drift']['stddev']:.2f} ms")
     
-    # Pause metrics
-    pm = rep['pause_metrics']
-    pd = rep['pause_durations']
-    # Keep ratio audit-consistent with displayed durations by using the same rounded values.
-    avg_syllable_duration_display = round(rep['speech']['syllable_duration'], 3)
-    initial_short_punctuation_duration_display = round(pd['initial_short_punctuation_duration'], 3)
-    initial_long_punctuation_duration_display = round(pd['initial_long_punctuation_duration'], 3)
-    corrected_short_punctuation_duration_display = round(pd['corrected_short_punctuation_duration'], 3)
-    corrected_long_punctuation_duration_display = round(pd['corrected_long_punctuation_duration'], 3)
-    initial_short_pause_syllable_ratio = (
-        initial_short_punctuation_duration_display / avg_syllable_duration_display
-        if avg_syllable_duration_display > 0 else 0
-    )
-    initial_long_pause_syllable_ratio = (
-        initial_long_punctuation_duration_display / avg_syllable_duration_display
-        if avg_syllable_duration_display > 0 else 0
-    )
-    corrected_short_pause_syllable_ratio = (
-        corrected_short_punctuation_duration_display / avg_syllable_duration_display
-        if avg_syllable_duration_display > 0 else 0
-    )
-    corrected_long_pause_syllable_ratio = (
-        corrected_long_punctuation_duration_display / avg_syllable_duration_display
-        if avg_syllable_duration_display > 0 else 0
-    )
-    
-    lines.append(f"\nPause metrics:")
-    lines.append(f"  Short pause punctuation per syllable: {pm['short_punctuation_per_syllable']:.3f} pause/syllable")
-    lines.append(f"  Long pause punctuation per syllable: {pm['long_punctuation_per_syllable']:.3f} pause/syllable")
-    lines.append(f"  Total punctuation pauses per syllable: {pm['punctuation_per_syllable']:.3f} pause/syllable")
-    lines.append(f"  Total boundaries: {pm['total_boundaries']} boundaries")
-    lines.append(f"  Pauseable boundaries: {pm['pauseable_boundaries']} boundaries")
-    lines.append(f"  Short pauseable boundaries: {pm['short_pauseable_boundaries']} boundaries")
-    lines.append(f"  Long pauseable boundaries: {pm['long_pauseable_boundaries']} boundaries")
-    
-    lines.append(f"\nPause duration allocation (total pause: {pd['pause_time_per_syllable']:.3f} s/syllable):")
-    lines.append(f"  Short pause punctuation weight: always {pd['short_punct_weight']:.1f} (no unit)")
-    lines.append(f"  Fixed long pause punctuation weight relative to short: {pd['initial_long_punct_weight']:.1f} (no unit)")
-    lines.append(
-        f"  Initial short pause punctuation duration: {initial_short_punctuation_duration_display:.3f} s/pause "
-        f"({initial_short_pause_syllable_ratio:.4f} average syllable duration) "
-        f"({pd['initial_short_punctuation_percent']:.1f}% of pause time)"
-    )
-    lines.append(
-        f"  Initial average long pause punctuation duration: {initial_long_punctuation_duration_display:.3f} s/pause "
-        f"({initial_long_pause_syllable_ratio:.4f} average syllable duration) "
-        f"({pd['initial_long_punctuation_percent']:.1f}% of pause time)"
-    )
-    lines.append(
-        f"  Corrected (multiple of 2*morae) short pause punctuation duration: {corrected_short_punctuation_duration_display:.3f} s/pause "
-        f"({corrected_short_pause_syllable_ratio:.4f} average syllable duration) "
-        f"({pd['corrected_short_punctuation_percent']:.1f}% of pause time)"
-    )
-    lines.append(
-        f"  Corrected average long pause punctuation duration: {corrected_long_punctuation_duration_display:.3f} s/pause "
-        f"({corrected_long_pause_syllable_ratio:.4f} average syllable duration) "
-        f"({pd['corrected_long_punctuation_percent']:.1f}% of pause time)"
-    )
-    lines.append(
-        f"  Corrected average long pause punctuation weight relative to short: {pd['corrected_long_punct_weight']:.1f} (no unit)"
-    )
-
     # --- ACCENTUATION STATISTICS ---
     lines.append("\n--- ACCENTUATION STATISTICS ---")
     rs = result['accentuation_stats']
@@ -2220,12 +1995,10 @@ def _test_armored_pause_token_classification() -> bool:
 
 
 def _test_mora_totals_and_original_speech() -> bool:
-    """Unit test: total morae and original speech metrics are exposed."""
+    """Unit test: total morae and row-derived speech metrics are exposed."""
     text = "tā·ḫā~·za ik~·ta·ṣar"
     result = process_filetext(
         text,
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             'function_word_count': 0,
             'explicit_word_link_count': 0,
@@ -2247,10 +2020,18 @@ def _test_mora_totals_and_original_speech() -> bool:
 
     orig_speech = result['original'].get('speech', {})
     accentuated_speech = result['accentuated'].get('speech', {})
-    required = {'wpm', 'pause_ratio', 'sps_speech', 'sps_articulation', 'syllable_duration', 'mora_duration', 'word_duration'}
+    required = {'total_duration_ms', 'pause_duration_ms', 'articulation_duration_ms', 'wpm', 'pause_ratio', 'pause_row_count'}
     if set(orig_speech.keys()) != required:
         return False
     if set(accentuated_speech.keys()) != required:
+        return False
+    if orig_speech['total_duration_ms'] <= 0 or accentuated_speech['total_duration_ms'] <= 0:
+        return False
+    if orig_speech['pause_duration_ms'] < 0 or accentuated_speech['pause_duration_ms'] < 0:
+        return False
+    if orig_speech['articulation_duration_ms'] != orig_speech['total_duration_ms'] - orig_speech['pause_duration_ms']:
+        return False
+    if accentuated_speech['articulation_duration_ms'] != accentuated_speech['total_duration_ms'] - accentuated_speech['pause_duration_ms']:
         return False
 
     # Morae per word must differ when accentuation adds morae.
@@ -2267,8 +2048,6 @@ def _test_table_new_fields_and_no_csv() -> bool:
     text = "šar gi·mir+dad~·mē bā·nû kib·rā~·ti"
     result = process_filetext(
         text,
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             'function_word_count': 1,
             'explicit_word_link_count': 1,
@@ -2284,9 +2063,13 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "Total syllables:" not in table:
         return False
-    if "Speech rate (original):" not in table:
+    if table.count("Speech metrics:") != 2:
         return False
-    if "Speech rate (accentuated):" not in table:
+    if "Speech rate (original):" in table or "Speech rate (accentuated):" in table:
+        return False
+    if "Pause metrics:" in table or "Pause duration allocation" in table:
+        return False
+    if "SPS (speech):" in table or "Average syllable duration:" in table:
         return False
     if "Prominence statistics:" not in table:
         return False
@@ -2318,9 +2101,9 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
 
     # Ordering checks: speech blocks should come before acoustic blocks.
-    if table.find("Speech rate (original):") > table.find("Acoustic metrics (original):"):
+    if table.find("Speech metrics:") > table.find("Acoustic metrics (original):"):
         return False
-    if table.find("Speech rate (accentuated):") > table.find("Acoustic metrics (accentuated):"):
+    if table.rfind("Speech metrics:") > table.find("Acoustic metrics (accentuated):"):
         return False
     return 'format_csv' not in globals()
 
@@ -2349,8 +2132,6 @@ def _test_small_corpus_metrics_consistency() -> bool:
 
     result = process_filetext(
         tilde_text,
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             'function_word_count': 2,
             'explicit_word_link_count': 1,
@@ -2381,22 +2162,17 @@ def _test_small_corpus_metrics_consistency() -> bool:
             abs_tol=1e-12,
         ):
             return False
-        if not math.isclose(
-            speech['sps_speech'],
-            (speech['wpm'] / 60.0) * stats['word_stats']['syllables_per_word']['mean'],
-            rel_tol=0.0,
-            abs_tol=1e-12,
-        ):
+        if speech['articulation_duration_ms'] != speech['total_duration_ms'] - speech['pause_duration_ms']:
+            return False
+        expected_wpm = total_words / (speech['total_duration_ms'] / 60000.0) if speech['total_duration_ms'] else 0.0
+        expected_pause_ratio = (speech['pause_duration_ms'] / speech['total_duration_ms'] * 100.0) if speech['total_duration_ms'] else 0.0
+        if not math.isclose(speech['wpm'], expected_wpm, rel_tol=0.0, abs_tol=1e-12):
+            return False
+        if not math.isclose(speech['pause_ratio'], expected_pause_ratio, rel_tol=0.0, abs_tol=1e-12):
             return False
 
-    pause_metrics = result['accentuated']['pause_metrics']
-    accentuated_total_syllables = result['accentuated']['stats']['total_syllables']
-    if not math.isclose(
-        pause_metrics['punctuation_per_syllable'],
-        pause_metrics['raw_counts']['punctuation'] / accentuated_total_syllables,
-        rel_tol=0.0,
-        abs_tol=1e-12,
-    ):
+    pause_counts = _count_pause_rows(build_phone_rows(tilde_text))
+    if pause_counts['punctuation'] <= 0:
         return False
 
     accentuation_stats = result['accentuation_stats']
@@ -2454,8 +2230,6 @@ def _test_small_corpus_exact_surface_values() -> bool:
 
     result = process_filetext(
         tilde_text,
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             'function_word_count': 2,
             'explicit_word_link_count': 1,
@@ -2481,9 +2255,7 @@ def _test_small_corpus_exact_surface_values() -> bool:
         'VV': 2,
     }:
         return False
-    if not math.isclose(original['speech']['sps_speech'], 7.5, rel_tol=0.0, abs_tol=1e-12):
-        return False
-    if not math.isclose(original['speech']['mora_duration'], 0.052, rel_tol=0.0, abs_tol=1e-12):
+    if original['speech']['total_duration_ms'] <= 0:
         return False
     if original.get('prominence_statistics') != {
         'function_word_count': 2,
@@ -2507,26 +2279,7 @@ def _test_small_corpus_exact_surface_values() -> bool:
         'VV': 2,
     }:
         return False
-    pause_metrics = accentuated['pause_metrics']
-    if pause_metrics['pauseable_boundaries'] != 7:
-        return False
-    if pause_metrics['short_pauseable_boundaries'] != 3:
-        return False
-    if pause_metrics['long_pauseable_boundaries'] != 4:
-        return False
-    if not math.isclose(
-        accentuated['pause_durations']['corrected_short_punctuation_duration'],
-        0.26896551724137935,
-        rel_tol=0.0,
-        abs_tol=1e-12,
-    ):
-        return False
-    if not math.isclose(
-        accentuated['pause_durations']['corrected_long_punctuation_duration'],
-        0.49827586206896557,
-        rel_tol=0.0,
-        abs_tol=1e-12,
-    ):
+    if accentuated['speech']['total_duration_ms'] <= original['speech']['total_duration_ms']:
         return False
     if not math.isclose(accentuation['accentuation_rate'], 26.666666666666668, rel_tol=0.0, abs_tol=1e-12):
         return False
@@ -2602,7 +2355,7 @@ def _test_process_file_derives_prominence_counts_from_phone_rows() -> bool:
     text = 'šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n'
     phone_path, ophone_path = _write_phone_pair_fixture(text)
     try:
-        result = process_file(phone_path, wpm=165, pause_ratio=35.0, ophone_filename=ophone_path)
+        result = process_file(phone_path, ophone_filename=ophone_path)
     finally:
         Path(phone_path).unlink(missing_ok=True)
         Path(ophone_path).unlink(missing_ok=True)
@@ -2621,7 +2374,7 @@ def _test_process_file_missing_sibling_ophone_fails() -> bool:
     try:
         Path(ophone_path).unlink(missing_ok=True)
         try:
-            process_file(phone_path, wpm=165, pause_ratio=35.0)
+            process_file(phone_path)
             return False
         except ValueError as exc:
             return 'Derived original phone file does not exist' in str(exc)

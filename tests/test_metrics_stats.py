@@ -94,15 +94,6 @@ SMALL_SAMPLE_REFERENCE = {
                 "total": 100,
             },
         },
-        "speech": {
-            "wpm": 165,
-            "pause_ratio": 35.0,
-            "sps_speech": 7.499999999999999,
-            "sps_articulation": 11.538461538461537,
-            "syllable_duration": 0.08666666666666668,
-            "mora_duration": 0.052000000000000005,
-            "word_duration": 0.36363636363636365,
-        },
         "prominence_statistics": {
             "function_word_count": 2,
             "explicit_word_link_count": 1,
@@ -142,44 +133,6 @@ SMALL_SAMPLE_REFERENCE = {
                 "total": 116,
             },
         },
-        "speech": {
-            "wpm": 165,
-            "pause_ratio": 35.0,
-            "sps_speech": 7.499999999999999,
-            "sps_articulation": 11.538461538461537,
-            "syllable_duration": 0.08666666666666668,
-            "mora_duration": 0.04482758620689656,
-            "word_duration": 0.36363636363636365,
-        },
-        "pause_metrics": {
-            "spaces_per_syllable": 0.0,
-            "punctuation_per_syllable": 0.11666666666666667,
-            "short_punctuation_per_syllable": 0.05,
-            "long_punctuation_per_syllable": 0.06666666666666667,
-            "total_boundaries": 7,
-            "pauseable_boundaries": 7,
-            "short_pauseable_boundaries": 3,
-            "long_pauseable_boundaries": 4,
-            "raw_counts": {
-                "spaces": 0,
-                "punctuation": 7,
-                "short_punctuation": 3,
-                "long_punctuation": 4,
-                "defaulted_long_punctuation": 0,
-                "merged_boundaries": 0,
-            },
-        },
-        "pause_durations": {
-            "initial_short_punctuation_duration": 0.2545454545454546,
-            "initial_long_punctuation_duration": 0.5090909090909091,
-            "corrected_short_punctuation_duration": 0.26896551724137935,
-            "corrected_long_punctuation_duration": 0.49827586206896557,
-            "corrected_long_punct_weight": 1.8525641025641024,
-            "short_mora_ratio_initial": 5.678321678321678,
-            "corrected_short_mora_multiple": 6,
-            "short_event_count": 3,
-            "long_event_count": 4,
-        },
     },
     "accentuation_stats": {
         "accentuated_syllables": 16,
@@ -216,15 +169,6 @@ LEXLINKS_REFERENCE_METRICS = {
                 "merged_units": 61,
                 "avg_unit_size": 2.0327868852459017,
             },
-        },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 8.224650698602794,
-            "sps_articulation": 12.65330876708122,
-            "syllable_duration": 0.07903071191952532,
-            "mora_duration": 0.050833397445117535,
-            "word_duration": 0.31088082901554404,
         },
         "acoustic": {
             "percent_c": 33.82503040253243,
@@ -270,15 +214,6 @@ LEXLINKS_REFERENCE_METRICS = {
                 "avg_unit_size": 2.0632411067193677,
             },
         },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 9.984025614399446,
-            "sps_articulation": 15.360039406768378,
-            "syllable_duration": 0.06510399963943787,
-            "mora_duration": 0.03746550922646897,
-            "word_duration": 0.31088082901554404,
-        },
         "acoustic": {
             "percent_c": 35.84986208390239,
             "percent_v": 29.52773805070229,
@@ -295,30 +230,6 @@ LEXLINKS_REFERENCE_METRICS = {
             "max": 98.5,
             "mean": -2.4919,
             "stddev": 16.1451,
-        },
-        "pause_metrics": {
-            "punctuation_per_syllable": 0.11375041820006691,
-            "short_punctuation_per_syllable": 0.04817664770826363,
-            "long_punctuation_per_syllable": 0.06557377049180328,
-            "total_boundaries": 403,
-            "pauseable_boundaries": 340,
-            "short_pauseable_boundaries": 144,
-            "long_pauseable_boundaries": 196,
-            "raw_counts": {
-                "spaces": 0,
-                "punctuation": 340,
-                "short_punctuation": 144,
-                "long_punctuation": 196,
-                "defaulted_long_punctuation": 0,
-                "merged_boundaries": 63,
-            },
-        },
-        "pause_durations": {
-            "initial_short_punctuation_duration": 0.1954895213053901,
-            "initial_long_punctuation_duration": 0.3909790426107802,
-            "corrected_short_punctuation_duration": 0.22479305535881383,
-            "corrected_long_punctuation_duration": 0.36944991555112194,
-            "corrected_long_punct_weight": 1.6435112506541065,
         },
     },
     "accentuation_stats": {
@@ -453,8 +364,6 @@ def _count_reference_words_from_phone_file(path: Path) -> int:
 def test_small_corpus_metrics_formula_consistency() -> None:
     result = metrics.process_filetext(
         _build_sample_tilde(),
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics=_sample_prominence_counts(),
     )
 
@@ -468,9 +377,16 @@ def test_small_corpus_metrics_formula_consistency() -> None:
         assert sum(stats["syllable_counts"].values()) == total_syllables
         assert stats["word_stats"]["syllables_per_word"]["mean"] == total_syllables / total_words
         assert stats["word_stats"]["morae_per_word"]["mean"] == total_morae / total_words
-        assert speech["sps_speech"] == (speech["wpm"] / 60.0) * stats["word_stats"]["syllables_per_word"]["mean"]
+        assert speech["articulation_duration_ms"] == speech["total_duration_ms"] - speech["pause_duration_ms"]
+        expected_wpm = total_words / (speech["total_duration_ms"] / 60000.0) if speech["total_duration_ms"] else 0.0
+        expected_pause_ratio = (speech["pause_duration_ms"] / speech["total_duration_ms"] * 100.0) if speech["total_duration_ms"] else 0.0
+        assert speech["wpm"] == expected_wpm
+        assert speech["pause_ratio"] == expected_pause_ratio
 
-    pause_metrics = result["accentuated"]["pause_metrics"]
+    pause_metrics = metrics.compute_pause_metrics(
+        build_phone_rows(_build_sample_tilde()),
+        result["accentuated"]["stats"],
+    )
     accentuated_total_syllables = result["accentuated"]["stats"]["total_syllables"]
     assert pause_metrics["punctuation_per_syllable"] == pause_metrics["raw_counts"]["punctuation"] / accentuated_total_syllables
     assert pause_metrics["short_punctuation_per_syllable"] == pause_metrics["raw_counts"]["short_punctuation"] / accentuated_total_syllables
@@ -484,8 +400,6 @@ def test_small_corpus_metrics_formula_consistency() -> None:
 def test_small_corpus_metrics_match_fixed_reference_values() -> None:
     result = metrics.process_filetext(
         _build_sample_tilde(),
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics=_sample_prominence_counts(),
     )
 
@@ -494,37 +408,33 @@ def test_small_corpus_metrics_match_fixed_reference_values() -> None:
     _assert_nested_expected(result["accentuation_stats"], SMALL_SAMPLE_REFERENCE["accentuation_stats"])
 
 
-def test_compute_speech_rate_matches_hand_checked_reference_values() -> None:
-    stats = {
-        "word_stats": {
-            "syllables_per_word": {
-                "mean": SMALL_SAMPLE_REFERENCE["original"]["stats"]["word_stats"]["syllables_per_word"]["mean"],
-            },
-        },
-        "mora_stats": {
-            "mean": SMALL_SAMPLE_REFERENCE["original"]["stats"]["mora_stats"]["mean"],
-        },
+def test_compute_speech_metrics_from_rows_matches_manual_formula() -> None:
+    (_ophone_rows, _ophone_report), (rows, _phone_report) = realize_phone_streams(
+        _build_sample_tilde(),
+        build_default_phonetize_config(),
+        None,
+    )
+    stats = metrics.analyze_text(_build_sample_tilde(), is_accentuated=True)
+
+    speech = metrics.compute_speech_metrics_from_rows(rows, stats)
+
+    total_duration_ms = sum(int(row["duration"]) for row in rows)
+    pause_duration_ms = sum(int(row["duration"]) for row in rows if row["category"] == "S")
+    expected_wpm = stats["word_stats"]["total_words"] / (total_duration_ms / 60000.0) if total_duration_ms else 0.0
+
+    assert speech == {
+        "total_duration_ms": total_duration_ms,
+        "pause_duration_ms": pause_duration_ms,
+        "articulation_duration_ms": total_duration_ms - pause_duration_ms,
+        "wpm": expected_wpm,
+        "pause_ratio": pause_duration_ms / total_duration_ms * 100.0,
+        "pause_row_count": sum(1 for row in rows if row["category"] == "S"),
     }
-
-    speech = metrics.compute_speech_rate("ignored", stats, wpm=165, pause_ratio=35.0)
-
-    _assert_nested_expected(speech, SMALL_SAMPLE_REFERENCE["original"]["speech"])
-
-
-def test_compute_pause_durations_matches_hand_checked_reference_values() -> None:
-    pause_metrics = SMALL_SAMPLE_REFERENCE["accentuated"]["pause_metrics"]
-    speech = SMALL_SAMPLE_REFERENCE["accentuated"]["speech"]
-
-    pause_durations = metrics.compute_pause_durations(pause_metrics, speech, pause_ratio=35.0)
-
-    _assert_nested_expected(pause_durations, SMALL_SAMPLE_REFERENCE["accentuated"]["pause_durations"])
 
 
 def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     result = metrics.process_filetext(
         _build_sample_tilde(),
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics=_sample_prominence_counts(),
     )
 
@@ -556,6 +466,16 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
     assert f"VarcoC: {result['original']['acoustic']['varco_c']:.2f} %" not in table
     assert f"Total syllables: {result['original']['stats']['total_syllables']} syllables" in table
     assert f"Total syllables: {result['accentuated']['stats']['total_syllables']} syllables" in table
+    assert table.count("Speech metrics:") == 2
+    assert "Speech rate (original):" not in table
+    assert "Speech rate (accentuated):" not in table
+    assert "Pause metrics:" not in table
+    assert "Pause duration allocation" not in table
+    assert "SPS (speech):" not in table
+    assert "Average syllable duration:" not in table
+    assert "Total duration:" in table
+    assert "Total pause duration:" in table
+    assert "Total articulate duration:" in table
 
     json_text = json.dumps(result, ensure_ascii=False)
     assert '"syllable_statistics"' in json_text
@@ -582,6 +502,24 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
         "explicit_word_link_count": 1,
         "prominence_candidate_word_count": expected_candidate_count,
     }
+    assert set(result["original"]["speech"]) == {
+        "total_duration_ms",
+        "pause_duration_ms",
+        "articulation_duration_ms",
+        "wpm",
+        "pause_ratio",
+        "pause_row_count",
+    }
+    assert set(result["accentuated"]["speech"]) == {
+        "total_duration_ms",
+        "pause_duration_ms",
+        "articulation_duration_ms",
+        "wpm",
+        "pause_ratio",
+        "pause_row_count",
+    }
+    assert "pause_metrics" not in result["accentuated"]
+    assert "pause_durations" not in result["accentuated"]
 
     original_other = result["original"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
     accentuated_other = result["accentuated"]["stats"]["syllable_counts"].get(metrics.UNCLASSIFIED_SYLLABLE_TYPE, 0)
@@ -594,8 +532,6 @@ def test_small_corpus_metrics_outputs_surface_totals(tmp_path: Path) -> None:
 def test_process_filetext_shortens_artifact_file_path() -> None:
     result = metrics.process_filetext(
         _build_sample_tilde(),
-        wpm=165,
-        pause_ratio=35.0,
         filesrc=r"C:\Users\samue\private\results\sample_tilde.txt",
         prominence_statistics=_sample_prominence_counts(),
     )
@@ -608,7 +544,7 @@ def test_process_file_uses_safe_path_display(tmp_path: Path) -> None:
     base.mkdir(parents=True)
     ophone_file, phone_file = _write_phone_pair(base, "sample", "er~·ra\n")
 
-    result = metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0, ophone_filename=str(ophone_file))
+    result = metrics.process_file(str(phone_file), ophone_filename=str(ophone_file))
 
     assert result["file"] == format_path_for_logging(phone_file)
 
@@ -616,8 +552,6 @@ def test_process_file_uses_safe_path_display(tmp_path: Path) -> None:
 def test_format_table_shortens_run_context_input_path() -> None:
     result = metrics.process_filetext(
         _build_sample_tilde(),
-        wpm=165,
-        pause_ratio=35.0,
         filesrc=r"...\results\sample_tilde.txt",
         prominence_statistics=_sample_prominence_counts(),
     )
@@ -650,15 +584,16 @@ def test_metrics_accepts_armored_punctuation_in_tilde_contract() -> None:
 
     result = metrics.process_filetext(
         tilde,
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             "function_word_count": 0,
             "explicit_word_link_count": 0,
         },
     )
 
-    raw_counts = result["accentuated"]["pause_metrics"]["raw_counts"]
+    raw_counts = metrics.compute_pause_metrics(
+        build_phone_rows(tilde),
+        result["accentuated"]["stats"],
+    )["raw_counts"]
     assert raw_counts["long_punctuation"] == 1
     assert raw_counts["short_punctuation"] == 1
 
@@ -685,8 +620,6 @@ def test_diphthong_separator_propagates_to_tilde_metrics_and_print() -> None:
 
     result = metrics.process_filetext(
         tilde + "\n",
-        wpm=165,
-        pause_ratio=35.0,
         prominence_statistics={
             "function_word_count": 0,
             "explicit_word_link_count": 0,
@@ -732,24 +665,6 @@ def test_compute_percent_v_from_stats_fallback_is_safe() -> None:
     assert math.isclose(metrics.compute_percent_v_from_stats(stats), expected)
 
 
-def test_enrich_acoustic_metrics_adds_seconds_and_mora_views() -> None:
-    acoustic = {
-        "delta_c": 0.75,
-        "mean_interval": 1.25,
-        "varco_c": 60.0,
-    }
-    speech = {
-        "mora_duration": 0.05,
-    }
-
-    enriched = metrics.enrich_acoustic_metrics(acoustic, speech)
-
-    assert math.isclose(enriched["delta_c_seconds"], 0.0375)
-    assert math.isclose(enriched["delta_c_mora"], 0.75)
-    assert math.isclose(enriched["mean_c_seconds"], 0.0625)
-    assert math.isclose(enriched["mean_c_mora"], 1.25)
-
-
 def test_process_file_derives_prominence_statistics_from_phone_rows(tmp_path: Path) -> None:
     ophone_file, phone_file = _write_phone_pair(
         tmp_path,
@@ -757,7 +672,7 @@ def test_process_file_derives_prominence_statistics_from_phone_rows(tmp_path: Pa
         "šar gi·mir+dad~·mē bā·nû kib·rā~·ti\n",
     )
 
-    result = metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0, ophone_filename=str(ophone_file))
+    result = metrics.process_file(str(phone_file), ophone_filename=str(ophone_file))
 
     assert result["original"]["prominence_statistics"] == {
         "function_word_count": 0,
@@ -771,7 +686,7 @@ def test_process_file_missing_derived_ophone_fails_clearly(tmp_path: Path) -> No
     phone_file.write_text("AA-V-V-S-N-N-A-AA-0100:a\n", encoding="utf-8")
 
     try:
-        metrics.process_file(str(phone_file), wpm=165, pause_ratio=35.0)
+        metrics.process_file(str(phone_file))
         raise AssertionError("Expected missing sibling _ophone.txt to fail")
     except ValueError as exc:
         assert "Derived original phone file does not exist" in str(exc)
@@ -831,8 +746,6 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
 
     result = metrics.process_file(
         str(phone_file),
-        wpm=193,
-        pause_ratio=35.0,
         ophone_filename=str(ophone_file),
     )
 
@@ -855,8 +768,6 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
 
     result = metrics.process_file(
         str(LEXLINKS_CONSTRUCT_PHONE),
-        wpm=193,
-        pause_ratio=35.0,
         ophone_filename=str(LEXLINKS_CONSTRUCT_OPHONE),
     )
 
@@ -880,8 +791,10 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Function words: 189 words" in table
     assert "Explicitly linked words: 63 words" in table
     assert "Prominence candidates: 917 words" in table
-    assert "WPM: 193 words/min" in table
-    assert "SPS (speech): 8.225" in table
+    assert table.count("Speech metrics:") == 2
+    assert "Speech rate (original):" not in table
+    assert "Pause metrics:" not in table
+    assert "Pause duration allocation" not in table
     assert "%C: 33.83%" in table
     assert "%V: 28.92%" in table
     assert "meanC: 115.05 ms" in table
@@ -895,6 +808,5 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Drift max: 34.50 ms" in table
     assert "Drift mean: 1.42 ms" in table
     assert "Drift stddev: 10.43 ms" in table
-    assert "Pauseable boundaries: 340 boundaries" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

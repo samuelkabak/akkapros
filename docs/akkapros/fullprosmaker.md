@@ -58,6 +58,10 @@ Artifact roles:
 - `_metrics.*` reports what the phonetizer timing implies rhythmically and structurally
 - print outputs are user-facing renderings for reading or presentation
 
+When metrics output is enabled, the table now reports row-derived `Speech
+metrics:` sections from the realized phone artifacts rather than reconstructing
+speech-rate or pause-allocation summaries from metrics-owned defaults.
+
 ## Syntax
 
 ```bash

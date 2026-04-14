@@ -387,8 +387,6 @@ def run_pipeline(
     try:
         metrics_result = process_metrics_file(
             str(phone_file),
-            PHONETIZE_DEFAULT_WPM,
-            PHONETIZE_DEFAULT_PAUSE_RATIO,
             ophone_filename=str(ophone_file),
         )
     except ValueError as exc:
@@ -430,10 +428,6 @@ def run_pipeline(
     if output_table:
         table_context = {
             'cli': 'fullprosmaker.py',
-                'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
-                'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
-            'short_pause_punct_weight_unitless': 1.0,
-            'fixed_long_pause_punct_weight_unitless': 2.0,
             'extra_consonants': inherited_syllabify['extra_consonants'],
             'extra_vowels': inherited_syllabify['extra_vowels'],
             'prosody_style': style,

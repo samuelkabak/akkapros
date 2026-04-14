@@ -53,15 +53,6 @@ GOLD_REGULAR_METRICS = {
                 "total": 35,
             },
         },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 9.247916666666667,
-            "sps_articulation": 14.227564102564102,
-            "syllable_duration": 0.07028610047307952,
-            "mora_duration": 0.0461880088823094,
-            "word_duration": 0.31088082901554404,
-        },
         "acoustic": {
             "percent_c": 29.74808324205915,
             "percent_v": 23.88828039430449,
@@ -114,15 +105,6 @@ GOLD_REGULAR_METRICS = {
                 "total": 40,
             },
         },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 10.56904761904762,
-            "sps_articulation": 16.26007326007326,
-            "syllable_duration": 0.06150033791394459,
-            "mora_duration": 0.03536269430051814,
-            "word_duration": 0.31088082901554404,
-        },
         "acoustic": {
             "percent_c": 31.709781729991914,
             "percent_v": 25.303152789005658,
@@ -139,29 +121,6 @@ GOLD_REGULAR_METRICS = {
             "max": 74.5,
             "mean": -5.7593,
             "stddev": 21.3205,
-        },
-        "pause_metrics": {
-            "spaces_per_syllable": 0.0,
-            "punctuation_per_syllable": 0.17391304347826086,
-            "short_punctuation_per_syllable": 0.08695652173913043,
-            "long_punctuation_per_syllable": 0.08695652173913043,
-            "total_boundaries": 4,
-            "pauseable_boundaries": 4,
-            "short_pauseable_boundaries": 2,
-            "long_pauseable_boundaries": 2,
-            "raw_counts": {
-                "spaces": 0,
-                "punctuation": 4,
-                "short_punctuation": 2,
-                "long_punctuation": 2,
-                "defaulted_long_punctuation": 0,
-                "merged_boundaries": 0,
-            },
-        },
-        "pause_durations": {
-            "corrected_short_punctuation_duration": 0.14145077720207255,
-            "corrected_long_punctuation_duration": 0.23937823834196875,
-            "corrected_long_punct_weight": 1.692307692307691,
         },
     },
     "accentuation_stats": {
@@ -205,15 +164,6 @@ GOLD_MONO_METRICS = {
                 "std": 0.5931093121225481,
                 "total": 35,
             },
-        },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 9.247916666666667,
-            "sps_articulation": 14.227564102564102,
-            "syllable_duration": 0.07028610047307952,
-            "mora_duration": 0.0461880088823094,
-            "word_duration": 0.31088082901554404,
         },
         "acoustic": {
             "percent_c": 29.74808324205915,
@@ -263,15 +213,6 @@ GOLD_MONO_METRICS = {
                 "total": 42,
             },
         },
-        "speech": {
-            "wpm": 193,
-            "pause_ratio": 35,
-            "sps_speech": 10.56904761904762,
-            "sps_articulation": 16.26007326007326,
-            "syllable_duration": 0.06150033791394459,
-            "mora_duration": 0.033678756476683946,
-            "word_duration": 0.31088082901554404,
-        },
         "acoustic": {
             "percent_c": 33.30719466771222,
             "percent_v": 24.99509900019604,
@@ -283,29 +224,6 @@ GOLD_MONO_METRICS = {
             "varco_v": 60.03899796325837,
             "rpvi_c": 123.17391304347827,
             "npvi_v": 58.782841133685395,
-        },
-        "pause_metrics": {
-            "spaces_per_syllable": 0.0,
-            "punctuation_per_syllable": 0.17391304347826086,
-            "short_punctuation_per_syllable": 0.08695652173913043,
-            "long_punctuation_per_syllable": 0.08695652173913043,
-            "total_boundaries": 4,
-            "pauseable_boundaries": 4,
-            "short_pauseable_boundaries": 2,
-            "long_pauseable_boundaries": 2,
-            "raw_counts": {
-                "spaces": 0,
-                "punctuation": 4,
-                "short_punctuation": 2,
-                "long_punctuation": 2,
-                "defaulted_long_punctuation": 0,
-                "merged_boundaries": 0,
-            },
-        },
-        "pause_durations": {
-            "corrected_short_punctuation_duration": 0.13471502590673579,
-            "corrected_long_punctuation_duration": 0.24611398963730552,
-            "corrected_long_punct_weight": 1.826923076923075,
         },
     },
     "accentuation_stats": {
@@ -431,24 +349,6 @@ def _sanitize_metrics_table_lines(lines: list[str]) -> list[str]:
         if ln.startswith("METRICS SUMMARY:"):
             continue
         if ln.startswith("  input:"):
-            continue
-        if ln.startswith("  WPM:"):
-            continue
-        if ln.startswith("  Pause ratio:"):
-            continue
-        if ln.startswith("  SPS (speech):"):
-            continue
-        if ln.startswith("  SPS (articulation):"):
-            continue
-        if ln.startswith("  Average syllable duration:"):
-            continue
-        if ln.startswith("  Mora duration:"):
-            continue
-        if ln.startswith("  Word duration:"):
-            continue
-        if ln.startswith("  wpm_words_per_min:"):
-            continue
-        if ln.startswith("  pause_ratio_percent:"):
             continue
         out.append(ln)
     return out
@@ -996,9 +896,6 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
-            "WPM: 193 words/min",
-            "SPS (speech): 9.248 syllable/s",
-            "SPS (speech): 10.569 syllable/s",
         "%C: 29.75%",
         "%V: 23.89%",
         "%C: 31.71%",
@@ -1009,9 +906,13 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Accentuated syllables: 5 syllables",
         "Drift max: 12.00 ms",
         "Drift max: 74.50 ms",
-        "Pauseable boundaries: 4 boundaries",
     ]:
         assert expected_line in metrics_text
+    assert metrics_text.count("Speech metrics:") == 2
+    assert "Speech rate (original):" not in metrics_text
+    assert "Speech rate (accentuated):" not in metrics_text
+    assert "Pause metrics:" not in metrics_text
+    assert "Pause duration allocation" not in metrics_text
 
     tilde_text = _read_text(outdir / "test_tilde.txt")
     assert GOLD_TILDE_SAMPLE_LINE in tilde_text, "Pinned sample line not found in _tilde output"
@@ -1098,11 +999,13 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "%V: 25.00%",
         "VarcoC: 57.51",
         "VarcoC: 69.11",
-        "Pauseable boundaries: 4 boundaries",
         "Accentuated syllables: 7 syllables",
         "Accentuation rate: 30.43%",
     ]:
         assert expected_line in metrics_text
+    assert metrics_text.count("Speech metrics:") == 2
+    assert "Pause metrics:" not in metrics_text
+    assert "Pause duration allocation" not in metrics_text
 
     full_reference_map = {
         outdir / "test_mono_syl.txt": FULL_REF_DIR / "expected_test_syl.txt",

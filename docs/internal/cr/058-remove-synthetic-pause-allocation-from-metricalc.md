@@ -1,10 +1,10 @@
 ---
 cr_id: CR-058
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-13
-updated: 2026-04-14
+updated: 2026-04-15
 implements: 'ADR-044, ADR-045, REQ-030'
 ---
 
@@ -557,34 +557,34 @@ partial toggle.
 
 ## Implementation
 
-- [ ] Remove synthetic speech-rate and pause-allocation helpers from metricalc
-- [ ] Compute row-derived speech metrics for both streams
-- [ ] Rewrite metrics table output so speech totals and rates appear only under
+- [x] Remove synthetic speech-rate and pause-allocation helpers from metricalc
+- [x] Compute row-derived speech metrics for both streams
+- [x] Rewrite metrics table output so speech totals and rates appear only under
   `Speech metrics:`
-- [ ] Remove obsolete metrics run-context fields from CLI wrappers
+- [x] Remove obsolete metrics run-context fields from CLI wrappers
 
 ## Tests
 
-- [ ] Rewrite unit tests that currently assert `compute_speech_rate()` or
+- [x] Rewrite unit tests that currently assert `compute_speech_rate()` or
       `compute_pause_durations()`
-- [ ] Rewrite metrics self-tests for the new table/result shape
-- [ ] Update integration expectations for removed output fields and renamed
+- [x] Rewrite metrics self-tests for the new table/result shape
+- [x] Update integration expectations for removed output fields and renamed
       sections
 
 ## Documentation
 
-- [ ] Rewrite active metrics docs that still describe the hard-coded transition
+- [x] Rewrite active metrics docs that still describe the hard-coded transition
       timing model
-- [ ] Add explicit explanation of the new metrics output sections, removed
+- [x] Add explicit explanation of the new metrics output sections, removed
   sections, and the expanded `Speech metrics:` fields in the affected public
   docs
-- [ ] Update package docs/help so metricalc is described as row-derived for
+- [x] Update package docs/help so metricalc is described as row-derived for
       pause and speech reporting
 
 ## Review
 
-- [ ] Verify acceptance criteria against emitted metrics artifacts
-- [ ] Confirm no active doc/help surface still presents synthetic pause
+- [x] Verify acceptance criteria against emitted metrics artifacts
+- [x] Confirm no active doc/help surface still presents synthetic pause
       allocation as current behavior
 
 ---
@@ -597,7 +597,6 @@ None currently identified.
 
 # Notes
 
-- This CR is intentionally specification-only. Implementation is deferred.
 - This CR does not remove upstream phonetizer timing controls. It removes only
   downstream metricalc's reuse of a synthetic timing model after realized phone
   rows already exist.

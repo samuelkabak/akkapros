@@ -52,10 +52,6 @@ from akkapros.lib.utils import (
 )
 
 
-PHONETIZE_DEFAULT_WPM = 193
-PHONETIZE_DEFAULT_PAUSE_RATIO = 35
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(
         description='Compute metrics for Akkadian text',
@@ -149,8 +145,6 @@ Version {__version__}
         try:
             result = process_file(
                 input_file,
-                PHONETIZE_DEFAULT_WPM,
-                PHONETIZE_DEFAULT_PAUSE_RATIO,
                 ophone_filename=args.ophone,
             )
         except ValueError as exc:
@@ -214,10 +208,6 @@ Version {__version__}
             inherited_syllabify = inherited_syllabify_options[0]
             table_context = {
                 'cli': 'metricalc.py',
-                'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
-                'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
-                'short_pause_punct_weight_unitless': 1.0,
-                'fixed_long_pause_punct_weight_unitless': 2.0,
                 'extra_consonants': inherited_syllabify['extra_consonants'],
                 'extra_vowels': inherited_syllabify['extra_vowels'],
                 'input': format_path_for_logging(input_files[0]),
@@ -244,10 +234,6 @@ Version {__version__}
             for input_file, result, inherited_syllabify in zip(input_files, results, inherited_syllabify_options):
                 table_context = {
                     'cli': 'metricalc.py',
-                    'wpm_words_per_min': PHONETIZE_DEFAULT_WPM,
-                    'pause_ratio_percent': PHONETIZE_DEFAULT_PAUSE_RATIO,
-                    'short_pause_punct_weight_unitless': 1.0,
-                    'fixed_long_pause_punct_weight_unitless': 2.0,
                     'extra_consonants': inherited_syllabify['extra_consonants'],
                     'extra_vowels': inherited_syllabify['extra_vowels'],
                     'input': format_path_for_logging(input_file),
