@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [046. Phonetizer mini-band and row-derived pause reporting](046-phonetizer-mini-band-and-row-derived-pause-reporting.md) - Accepted
 - [045. Three-Pass Phonetizer Intonation and Row-Derived MBROLA](045-three-pass-phonetizer-intonation-and-row-derived-mbrola.md) - Accepted
 - [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Accepted
 - [043. Separate Run and Process Config Blocks](043-separate-run-and-process-config-blocks-and-remove-common-outdir.md) - Accepted
