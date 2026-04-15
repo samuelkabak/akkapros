@@ -4,85 +4,160 @@ status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-14
-updated: 2026-04-14
-related_adrs: 'ADR-046'
-implemented_by: 'CR-058, CR-059'
+updated: 2026-04-15
+related_adrs: 'ADR-046, ADR-041'
+implemented_by: 'CR-059'
 ---
 
-# Requirement: Phonetizer Pause Bands and Pause Metrics Reporting
+# Requirement: Phonetizer Timeline Drift Assignment with Hard Short Vowels
 
-# Summary
+## Summary
 
-Define a three-band pause-duration model for phonetizer-emitted silence rows
-(mini `M`, short `S`, long `L`), add a phonetizer-inserted recovery pause type
-(`R`), and require downstream metrics to report per-type pause counts and
-average durations in both human-readable table output and JSON output.
+The system shall keep the current phonetizer timeline model based on
+`cvc_reference`, but it shall stop treating short vowels as ordinary
+drift-recovery space.
 
-This requirement legalizes the changes requested in [CR-058](../cr/058-remove-synthetic-pause-allocation-from-metricalc.md)
-and [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md).
-
----
-
-# Motivation
-
-Accurate rhythm and metrical reporting require that pause durations be row-
-derived from the phonetizer's finalized phone streams instead of being
-reconstructed from guessed WPM/pause-ratio models. Having a mini pause band
-enables more frequent drift discharge without changing punctuation semantics,
-and per-type pause reporting allows reproducible downstream analysis.
+Short vowels become hard timing anchors like singleton consonants. Long vowels
+remain flexible inside their legal range, punctuation-owned pauses remain
+flexible inside their legal ranges, and phonetizer-inserted mini pauses remain
+available at eligible merged-unit boundaries. The default `drift_tolerance`
+shall be `0`.
 
 ---
 
-# Acceptance Criteria
+## Motivation
 
-- [ ] The grouped config schema exposes `phonetize.process.timing_model.durations.pauses` with `mini`, `short`, and `long` objects having `min` and `max` integer ms fields.
-- [ ] Default values: `pauses.mini.min = 100`, `pauses.mini.max = 200`, `pauses.short.min = 280`, `pauses.short.max = 350`, `pauses.long.min = 730`, `pauses.long.max = 930` in `src/akkapros/config/default.yaml`.
-- [ ] `phonetize.process.timing_model.short_pause_policy` is removed from the active schema and CLI surfaces.
-- [ ] `phonetize.process.timing_model.drift_tolerance` default is set to `70` ms.
-- [ ] Phonetizer frontmatter includes `recovery_pause_count`, `short_pause_partial_unload_count`, and `long_pause_partial_unload_count` for both original and accentuated streams.
-- [ ] `realize_phone_rows()` (Pass 2) may insert recovery pause rows (`category='S', type='R', length='M'`) only after `boundary='F'` and only when the following row is non-silence and `abs(running_drift_ms) >= pauses.mini.min`.
-- [ ] `metricalc` and `metrics` emit a per-stream `Pause metrics` section in human-readable table output labeled exactly `Pause metrics:` and a per-stream `pause_metrics` object in JSON output keyed by `Q`, `S`, `E`, `C`, `I`, `R` with `count` and `average_duration_ms` numeric fields (zero when count is zero).
-- [ ] Tests cover recovery insertion eligibility, punctuation-owned pause precedence, mini-band discharge behavior, residual partial-unload counting, and per-type pause aggregation in both table and JSON outputs.
+The live Phase 2 implementation already has a coherent timeline solver, but its
+generic nucleus-correction step still allows short vowels to absorb ordinary
+drift. That is broader than the requested model.
 
----
-
-# Interface Notes
-
-- Input: `_tilde.txt` → phonetizer builds `_phone.txt`/`_ophone.txt` streams where silence rows carry `category='S'`, `type ∈ {Q,E,S,C,I,R}`, and `length ∈ {M,S,L}` plus `duration` in ms.
-- Phonetizer frontmatter: include drift summary and the three counters named above under `metadata.data.phonetize`.
-- Metrics JSON per stream example:
-
-```json
-"pause_metrics": {
-  "Q": {"count": 10, "average_duration_ms": 812.3},
-  "S": {"count": 45, "average_duration_ms": 312.0},
-  "E": {"count": 1, "average_duration_ms": 915.0},
-  "C": {"count": 12, "average_duration_ms": 322.1},
-  "I": {"count": 5, "average_duration_ms": 298.6},
-  "R": {"count": 8, "average_duration_ms": 150.0}
-}
-```
-
-# Open Questions
-
-- Should the recovery pause trigger use a separate explicit config key (for example `pauses.mini.trigger_ms`) rather than `pauses.mini.min`? Current CR-059 normalizes to `pauses.mini.min`.
+This requirement narrows the existing solver without replacing it. It keeps the
+same syllable inventory, the same beat mapping, the same accentuation increment,
+and the same pause logic family, but it makes the legal recovery space explicit:
+short vowels are fixed, long vowels and pauses remain flexible.
 
 ---
 
-# Implementation Notes (optional)
+## Acceptance Criteria
 
-- Affected components: `src/akkapros/lib/phonetize.py`, `src/akkapros/lib/metrics.py`, `src/akkapros/cli/phonetizer.py`, `src/akkapros/cli/fullprosmaker.py`, `src/akkapros/config/default.yaml`, documentation and tests listed in CR-059.
-- Implementation is by CR-059 (pause restructure) and CR-058 (metrics shape changes).
+*Verifiable conditions that must be met. Use Given/When/Then format where appropriate.*
 
-# Related
+- [ ] Given Phase 2 timing is entered, when syllables are classified for timing,
+      then the active non-accentuated classes remain exactly `CV`, `CVC`, `CVV`,
+      and `CVVC` and the active accentuated classes remain exactly `C:V`,
+      `CVC:`, `CVV:`, and `CVV:C`.
+- [ ] Given Phase 2 timing is entered, when the row stream is interpreted, then
+      each syllable still begins with a consonant or pseudo-consonant in timing
+      terms, including hiatus and vowel-transition rows.
+- [ ] Given nominal beat values are computed, when a non-accentuated syllable is
+      targeted, then `CV = 0.5 * cvc_reference`, `CVC = 1.0 * cvc_reference`,
+      `CVV = 1.0 * cvc_reference`, and `CVVC = 1.5 * cvc_reference` remain the
+      active targets.
+- [ ] Given a syllable is accentuated, when its target is computed, then the
+      solver still adds exactly `0.5 * cvc_reference` beyond the corresponding
+      non-accentuated target.
+- [ ] Given a non-accentuated `CV` or `CVC` syllable is realized, when ordinary
+      drift recovery is applied, then the short vowel duration is not changed.
+- [ ] Given a non-accentuated `CVV` or `CVVC` syllable is realized, when
+      ordinary drift recovery is applied, then the long vowel may still move
+      inside its legal range.
+- [ ] Given a punctuation-owned short or long pause is realized, when the solver
+      chooses a pause duration, then it chooses one legal duration inside the
+      configured band that brings signed drift as close to zero as that band
+      allows.
+- [ ] Given a punctuation-owned pause cannot bring signed drift exactly to zero,
+      when the pause is realized, then the realized pause duration is clamped
+      inside the legal band and the residual drift is carried forward.
+- [ ] Given the stream reaches a merged-unit boundary with no punctuation-owned
+      pause, when `abs(drift_cursor) >= pauses.mini.min`, then the phonetizer
+      may insert one mini pause to bring drift as close as possible to zero
+      inside the configured mini band.
+- [ ] Given a mini pause is inserted, when its function is described, then it is
+      treated as a non-voluntary phonetizer recovery gap rather than as lexical
+      phoneme structure or punctuation-owned pause structure.
+- [ ] Given accentuation is realized, when the solver distributes the added
+      `0.5 * cvc_reference`, then it does not use short vowels as accentuation
+      targets.
+- [ ] Given the default phonetize timing config is inspected, when
+      `drift_tolerance` is read, then the default value is `0`.
+- [ ] Given the implementation is reviewed, when tolerance handling is traced,
+      then `drift_tolerance` is isolated enough that a later narrow change could
+      remove it without redesigning the whole solver.
+- [ ] Given public phonetizer documentation is updated, when
+      `docs/akkapros/phonetizer-algorithm.md` is read, then it explains the
+      timeline model, the hard-short-vowel rule, the role of long vowels and
+      pauses as remaining recovery space, and the mini-pause rule clearly.
 
-- Related ADRs: [ADR-046](../adr/046-phonetizer-mini-band-and-row-derived-pause-reporting.md)
-- Implementation CRs: [CR-058](../cr/058-remove-synthetic-pause-allocation-from-metricalc.md), [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md)
+---
 
-# Non-Goals
+## User Story (optional)
 
-- This requirement does not mandate exact duration-selection algorithms inside the phonetizer beyond legal-band selection and recovery-trigger eligibility.
+> As the maintainer of the phonetizer timing model, I want short vowels treated
+> as hard anchors so the emitted rhythm reflects drift carried across the
+> timeline instead of being hidden inside local short-vowel stretching.
 
-# Security / Safety Considerations
+---
 
-- None specific beyond avoiding failure modes: in case of malformed streams phonetizer must emit diagnostics and not crash.
+## Interface Notes
+
+- Timing reference:
+  - `cvc_reference`
+- Non-accentuated classes:
+  - `CV`
+  - `CVC`
+  - `CVV`
+  - `CVVC`
+- Accentuated classes:
+  - `C:V`
+  - `CVC:`
+  - `CVV:`
+  - `CVV:C`
+- Recovery-space contract:
+  - singleton consonants: hard
+  - short vowels: hard
+  - long vowels: flexible inside legal range
+  - pauses: flexible inside legal band
+- Grouping model:
+  - syllables belong to words
+  - words belong to merged units
+  - `&` marks algorithmic merge
+  - `+` marks user-declared merge
+- Pause interpretation:
+  - punctuation and newlines create voluntary short or long pauses
+  - mini pauses are phonetizer-inserted recovery gaps only
+
+---
+
+## Open Questions
+
+- [ ] Should a later record introduce a separate mini-pause trigger parameter
+      instead of reusing `pauses.mini.min` as the trigger threshold?
+- [ ] After observing the solver with `drift_tolerance = 0`, should a later
+      record remove `drift_tolerance` entirely?
+
+---
+
+## Implementation Notes (optional)
+
+- Primary implementation target: `src/akkapros/lib/phonetize.py`
+- Config default update: `src/akkapros/config/default.yaml`
+- User-facing documentation obligation includes `docs/akkapros/phonetizer-algorithm.md`
+- Implementation is by [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md)
+
+## Related
+
+- Related ADRs: [ADR-041](../adr/041-stability-first-phonetizer-timing-control-and-validation-boundary.md), [ADR-046](../adr/046-phonetizer-mini-band-and-row-derived-pause-reporting.md)
+- Implementation CRs: [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md)
+
+## Non-Goals
+
+- This requirement does not replace the current phonetizer architecture.
+- This requirement does not change the syllable inventory or the beat mapping.
+- This requirement does not remove `drift_tolerance`; it only changes the
+  default and requires future-safe isolation.
+- This requirement does not redefine downstream metrics output.
+
+## Security / Safety Considerations
+
+- None specific beyond the research-grade safety requirement that the solver be
+  explicit and reproducible rather than silently changing timing behavior.

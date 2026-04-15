@@ -2,126 +2,150 @@
 adr_id: ADR-046
 status: Accepted
 created: 2026-04-14
-updated: 2026-04-14
+updated: 2026-04-15
 superseded_by: null
 ---
 
-# 46. Phonetizer mini-band and row-derived pause reporting
+# 46. Phonetizer Timeline Drift Assignment with Hard Short Vowels
 
 ## Plain Summary
 
-Adopt a row-derived pause model for downstream metrics and introduce a
-mini (`M`) pause band plus a phonetizer-inserted recovery pause type (`R`).
-Downstream metrics shall report per-type pause counts and average durations in
-both human-readable table output and JSON output. Drift handling remains
-extensible-only and `drift_tolerance` increases to 70 ms.
+The phonetizer timing model remains a timeline organized by `cvc_reference`
+beat units, but short vowels are no longer part of the ordinary drift-recovery
+space. They become hard anchors like singleton consonants. Long vowels and
+pauses remain the legal spaces where the solver may absorb mismatch, and the
+mini-pause recovery idea remains available between merged units.
 
-TL;DR: metrics must use realized phone rows as the single source of truth for
-pause durations; phonetizer may insert small recovery pauses to discharge drift
-inside the mini band; metrics shall report per-type pause aggregates.
+TL;DR: keep the existing timeline solver, keep the same syllable classes and
+accentuation increment, but stop using short vowels as elastic timing repair.
 
 ## Context and Problem Statement
 
-Recent verification showed two overlapping mismatches in pause handling:
+[ADR-041](041-stability-first-phonetizer-timing-control-and-validation-boundary.md)
+already fixed the broader stability-first architecture: consonants are stable,
+drift is consumed before vowel movement, and pause discharge operates on the
+same beat reference. The live implementation in `src/akkapros/lib/phonetize.py`
+still follows that architecture, but it currently leaves one ambiguity that now
+needs to be resolved more narrowly.
 
-- `metricalc` still reconstructed pause durations from guessed `wpm` and
-  `pause_ratio` and applied synthetic allocation and mora-correction logic
-  (see [CR-058](../cr/058-remove-synthetic-pause-allocation-from-metricalc.md)).
-- The phonetizer used only two pause bands (short/long) and had no mechanism
-  to insert brief recovery pauses to discharge running drift more frequently
-  (see [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md)).
+At present, `_apply_vowel_correction()` can move any nucleus within its legal
+category bounds, and `_vowel_bounds()` gives short vowels a flexible band. That
+means short vowels still function as ordinary local drift-recovery space.
 
-These gaps reduce reproducibility and create duplicate inference paths between
-phonetizer and metrics.
+The requested change does not replace the current solver. It narrows one part
+of it: short vowels must be treated as hard anchors, while long vowels and
+pauses remain flexible. The mini-pause idea already associated with CR-059
+remains part of the architecture and now matters more, because some mismatch
+that was previously hidden inside short-vowel correction will instead remain in
+drift until a later compensating site is reached.
 
 ## Decision Drivers
 
-- Accuracy: metrics should reflect realized durations rather than reconstructed
-  allocations.
-- Reproducibility: downstream consumers must get the same pause durations the
-  phonetizer produced.
-- Robustness: the phonetizer should avoid hard failures in normal parameter
-  ranges (`extensible` drift behavior preferred).
-- Minimal surface change: keep existing pause `type` letters and add `R` and
-  `M` length codes to preserve most row contract fields.
+- Clarity: the repository needs one unambiguous statement of where drift may and
+  may not be discharged.
+- Minimal change: preserve the current solver structure instead of opening a new
+  timing model.
+- Phonological coherence: short vowels should behave like fixed short units,
+  not like elastic local repair buffers.
+- Research legibility: the difference between the old and new solver must be
+  easy to explain and test.
+- Refactorability: `drift_tolerance` may later be removed, so the change should
+  not make tolerance central to the solver design.
 
 ## Considered Options
 
-- Option A — Keep synthetic pause allocation in `metricalc` and add mini-band
-  simulation there.
-- Option B — Move to a row-derived pause model; add mini-band recovery in
-  phonetizer and require metrics to report per-type aggregates. (Chosen)
-- Option C — Hybrid: phonetizer emits band hints and metrics reconstructs
-  durations using the hints plus global pause-ratio.
-
-Rationale: Option B places responsibility for pause durations with the stage
-that realizes durations (phonetizer), eliminates duplicated logic, and gives
-metrics a deterministic artifact to consume.
+- Option A: keep the current generic vowel-correction model in which short and
+  long vowels both remain ordinary recovery space.
+- Option B: preserve the current solver but harden short vowels, keeping long
+  vowels and pauses as the remaining ordinary recovery space. (Chosen)
+- Option C: remove `drift_tolerance` immediately and redesign the whole solver
+  around pause-only discharge.
 
 ## Decision Outcome
 
-We choose Option B: a row-derived pause model with a mini band and an
-`R` recovery pause. Implementation is performed by CR-059 (pause restructure)
-and CR-058 (metrics contract change). Key configuration and output contracts:
+We choose Option B.
 
-- `phonetize.process.timing_model.durations.pauses` must include `mini`,
-  `short`, `long` bands (min/max ms).
-- `phonetize.process.timing_model.drift_tolerance` default is increased to
-  70 ms.
-- `short_pause_policy` is removed from the active schema; only `extensible`
-  drift behavior is supported as the documented runtime contract.
-- `realize_phone_rows()` may insert recovery pauses (`type='R', length='M'`) at
-  eligible `boundary='F'` locations when `abs(running_drift_ms) >= pauses.mini.min`.
-- `metricalc` must emit per-stream `Pause metrics` (human table) and
-  `pause_metrics` (JSON) with `count` and `average_duration_ms` for the types
-  `Q`, `S`, `E`, `C`, `I`, `R`.
+The phonetizer continues to realize timing on a timeline divided into
+`cvc_reference` units. The syllable classes and their nominal beat values do not
+change:
+
+- `CV = 0.5 * cvc_reference`
+- `CVC = 1.0 * cvc_reference`
+- `CVV = 1.0 * cvc_reference`
+- `CVVC = 1.5 * cvc_reference`
+
+Accentuation also does not change. It still adds exactly
+`0.5 * cvc_reference` and still uses accentable consonants or long-vowel space,
+not short vowels, as its realization targets.
+
+What changes is the ordinary recovery-space contract:
+
+- singleton consonants remain hard anchors
+- short vowels also become hard anchors
+- long vowels remain flexible within their legal bounds
+- punctuation-owned pauses remain flexible within their legal bands
+- mini pauses remain available as phonetizer-inserted recovery gaps where no
+  punctuation-owned pause already exists and drift reaches the configured mini
+  threshold
+
+The default `drift_tolerance` is changed to `0`. The parameter stays in the
+architecture for now, but it must remain an isolated policy layer so a later
+record can remove it cleanly if repository experience shows that the tolerance
+band is no longer needed.
 
 ## Pros and Cons of the Options
 
-### Chosen Option (Option B)
+### Chosen Option
 
 - Pros:
-  - Single source of truth for pause durations (phonetizer rows).
-  - Deterministic metrics computed from rows; increased reproducibility.
-  - Mini recovery band reduces the need for destructive vowel-length changes.
+  - keeps the current solver recognizable and testable
+  - makes the requested change very small and explicit
+  - avoids hiding timing mismatch inside short-vowel stretching
+  - works naturally with punctuation-owned pause discharge and mini-pause
+    recovery
 - Cons:
-  - Requires changes across phonetizer, fullprosmaker, and metricalc.
-  - Emitted durations and demo snapshots will change; tests must be updated.
+  - more drift will remain visible after `CV` and `CVC` syllables
+  - timings and diagnostics will change for existing examples and tests
 
-### Option A (Keep synthetic allocation)
+### Other Options
 
-- Pros: minimal phonetizer change; metrics continues to use existing code.
-- Cons: duplication of logic; less reproducible and more brittle to upstream
-  changes.
-
-### Option C (Hybrid)
-
-- Pros: partial compatibility with older outputs.
-- Cons: retains ambiguity; requires careful specification of hint semantics.
+- Option A:
+  - Pro: minimal implementation disturbance
+  - Con: preserves the exact behavior the new decision is trying to forbid
+- Option C:
+  - Pro: conceptually cleaner in the long term
+  - Con: larger than the requested change and therefore too speculative here
 
 ## Implications and Consequences
 
-- Code: modify `src/akkapros/lib/phonetize.py` to support `mini` band and
-  recovery insertion; modify `src/akkapros/lib/metrics.py` to aggregate per-
-  type pause metrics and include them in table/JSON outputs; update
-  `src/akkapros/config/default.yaml`.
-- Docs: update `docs/akkapros/phonetizer*.md`, `docs/akkapros/metrics-computation.md`,
-  config docs, and CLI help.
-- Tests: add unit and integration tests for recovery insertion, partial-unload
-  counting, and per-type pause aggregation.
-- Migration: demo result artifacts and snapshots will need regeneration.
+- `CR-059` must describe both the extracted current algorithm and the requested
+  new algorithm side by side.
+- `REQ-033` must state the hard-short-vowel rule directly and testably.
+- The implementation in `src/akkapros/lib/phonetize.py` will need a narrower
+  ordinary correction path that excludes short vowels.
+- The default config must set `drift_tolerance` to `0`.
+- Public phonetizer documentation, especially
+  `docs/akkapros/phonetizer-algorithm.md`, must explain the timeline model, the
+  new hard-short-vowel rule, and the role of mini pauses clearly.
+- The implementation should keep tolerance handling isolated so later removal is
+  low risk.
 
 ## Links
 
-- [CR-058](../cr/058-remove-synthetic-pause-allocation-from-metricalc.md)
+- [ADR-041](041-stability-first-phonetizer-timing-control-and-validation-boundary.md)
+- [CR-040](../cr/040-realize-phonetizer-phase-2-durations-from-prebuilt-rows.md)
 - [CR-059](../cr/059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md)
+- [REQ-031](../req/031-phonetizer-phase-2-syllable-scoped-duration-realization.md)
 - [REQ-033](../req/033-phonetizer-pause-bands-and-pause-metrics-reporting.md)
 
 ## Implementation Notes (optional)
 
-- Next steps: implement CR-059 then CR-058 in sequence; update tests and
-  regenerate demo artifacts.
+- The implementation should separate short-vowel immutability from long-vowel
+  correction and from pause discharge instead of keeping one undifferentiated
+  vowel-correction step.
+- The future possible removal of `drift_tolerance` is explicitly deferred, not
+  rejected.
 
 ## Reviewed By
 
-- Phonetizer maintainers (TBD)
+- Internal phonetizer specification review pending implementation.

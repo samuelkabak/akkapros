@@ -1,10 +1,9 @@
----
 cr_id: CR-060
-status: Blocked
+status: Draft
 priority: High
 impact: Mutative
 created: 2026-04-14
-updated: 2026-04-14
+updated: 2026-04-15
 implements: 'ADR-045, REQ-030, REQ-031, REQ-032'
 ---
 
@@ -16,9 +15,9 @@ Extend the serialized `_phone.txt` and `_ophone.txt` row schema with one new
 fixed-width drift column placed immediately after `duration`.
 
 The new column carries the running post-hedging drift state as a four-character
-code such as `A000`, `A012`, or `B003`, where `A` means ahead of the beat,
-`B` means behind the beat, and the three digits encode the absolute drift in
-milliseconds. This CR keeps the existing frontmatter drift summary but adds a
+code such as `O000`, `A012`, or `B003`, where `O` means on the beat,
+`A` means ahead of the beat, `B` means behind the beat, and the three digits
+encode the absolute drift in milliseconds. This CR keeps the existing frontmatter drift summary but adds a
 row-level drift trace to the phone artifacts so downstream inspection and later
 analysis can see where drift stands after each completed syllable or pause.
 
@@ -26,7 +25,8 @@ This CR narrows the active phone-row serialization contract in
 [CR-050](050-add-intonation-token-framework-and-silence-typing-to-phonetizer.md)
 and adds a more detailed drift-trace surface on top of the drift-summary
 behavior documented in [CR-040](040-realize-phonetizer-phase-2-durations-from-prebuilt-rows.md)
-and [CR-059](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md).
+while remaining compatible with any later pause-band changes adopted by
+[CR-059](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md).
 
 ---
 
@@ -62,8 +62,8 @@ metrics and frontmatter consumers.
 - Extend the `_phone.txt` / `_ophone.txt` row schema with one new serialized
   field immediately after `duration`.
 - Define the new field as a four-character drift-status token.
-- Require that the token format is one sign letter plus three digits.
-- Define `A` as ahead of the beat and `B` as behind the beat.
+- Require that the token format is one state letter plus three digits.
+- Define `O` as on the beat, `A` as ahead of the beat, and `B` as behind the beat.
 - Define the beat as the currently relevant integer multiple `N *
   cvc_reference` used by the live duration solver.
 - Define when the per-row drift token is updated: at the end of a syllable and
@@ -190,7 +190,7 @@ column glossary such as the following.
 | `accent` | 1 char | Accentuation-bearing status of the row | In `_ophone.txt` this normally reflects the deaccented stream; in `_phone.txt` it shows the accentuated stream contract |
 | `realization` | fixed | Emitted realization code | This is the phonetizer's realized code inventory, not merely the source symbol |
 | `duration` | 4 digits | Realized duration in milliseconds | Read as the final row duration after timing realization |
-| `drift` | 4 chars | Signed running drift token after the most recently completed syllable or pause | `A` = ahead, `B` = behind, digits = absolute milliseconds; non-final rows repeat the latest completed-unit value |
+| `drift` | 4 chars | Signed running drift token after the most recently completed syllable or pause | `O` = on the beat, `A` = ahead, `B` = behind, digits = absolute milliseconds; non-final rows repeat the latest completed-unit value |
 | `intonation` | 3 chars | Realized intonation token carried by the row | Read as the row-level contour token already normalized by the phonetizer |
 | `text` | variable | Source-facing glyph or pause text associated with the row | Lets analysts relate the realized row back to the originating segment, punctuation, or normalized pause text |
 
@@ -212,22 +212,23 @@ The `drift` field is a fixed-width four-character token.
 
 Format:
 
-- first character: `A` or `B`
+- first character: `O`, `A`, or `B`
 - next three characters: zero-padded decimal digits `000` through `999`
 
 Meaning:
 
+- `O` = on the beat
 - `A` = ahead of the beat
 - `B` = behind the beat
 
 Special zero rule:
 
-- exact zero shall serialize as `A000`
-- `B000` is not an active serialized form under this contract
+- exact zero shall serialize as `O000`
+- `A000` and `B000` are not active serialized forms under this contract
 
 Interpretation examples:
 
-- `A000` = exactly on the beat / no signed drift carried forward
+- `O000` = exactly on the beat / no signed drift carried forward
 - `A005` = five milliseconds ahead of the beat
 - `A012` = twelve milliseconds ahead of the beat
 - `B003` = three milliseconds behind the beat
@@ -262,7 +263,7 @@ completed-unit drift token.
 Operationally:
 
 - before the first completed syllable or completed pause in a stream, rows
-  shall carry `A000`
+  shall carry `O000`
 - when a row is inside a syllable but does not close that syllable, its `drift`
   field shall still show the drift state from the previous completed unit
 - when a row closes a syllable, its `drift` field shall show the newly computed
@@ -280,8 +281,8 @@ change the drift value.
 Given a stream where drift is evaluated only at unit-final points, the row-level
 `drift` field behaves like this:
 
-- first consonant of `CVC` -> `A000`
-- vowel of that same `CVC` -> `A000`
+- first consonant of `CVC` -> `O000`
+- vowel of that same `CVC` -> `O000`
 - final consonant of that `CVC` -> `A005`
 - next consonant of `CV` -> `A005`
 - vowel closing that `CV` -> `A009`
@@ -293,8 +294,8 @@ Given a stream where drift is evaluated only at unit-final points, the row-level
 Illustrative serialized rows:
 
 ```text
-C > A000
-V > A000
+C > O000
+V > O000
 C > A005
 C > A005
 V > A009
@@ -324,7 +325,7 @@ The active contract after this CR is:
 
 Where both surfaces exist, they must remain internally consistent:
 
-- the final unit-final row in a stream shall agree in sign and magnitude with
+- the final unit-final row in a stream shall agree in state and magnitude with
   the final running drift state represented by the report/frontmatter
   `current` value after the same serialization rounding rules are applied
 - row-level drift tokens shall not be back-computed from frontmatter only;
@@ -391,7 +392,7 @@ Analyst-facing interpretation for metricalc consumers:
 ## 8. Default unresolved value before duration realization
 
 Because Phase 1 still emits structure before drift is solved, the unresolved
-row default shall be `A000`.
+row default shall be `O000`.
 
 That placeholder is allowed only until Phase 2 finishes. Once durations are
 realized, every row must carry the correct row-level drift token defined by the
@@ -414,8 +415,8 @@ The docs must explain all of the following:
 - `drift` is a row field, not only frontmatter data
 - `drift` updates at syllable-final and pause-final points only
 - non-final rows repeat the latest completed-unit drift token
-- `A000` is the canonical zero token
-- `A` means ahead of the beat and `B` means behind the beat
+- `O000` is the canonical zero token
+- `O` means on the beat, `A` means ahead of the beat, and `B` means behind the beat
 
 ---
 
@@ -436,7 +437,7 @@ Design requirements:
 - Extend the in-memory row dictionary shape with `drift`.
 - Update the canonical serialized field order to insert `drift` after
   `duration`.
-- Initialize row defaults to `drift='A000'` before Phase 2 realization.
+- Initialize row defaults to `drift='O000'` before Phase 2 realization.
 - During Phase 2 traversal, keep a running signed drift state as today.
 - After each completed syllable and after each completed pause, convert the
   current signed drift to the four-character row token and write it onto the
@@ -496,7 +497,7 @@ Implementation guidance:
   are not shifted relative to the active schema.
 - [ ] Given a row is emitted before any completed syllable or completed pause
       has updated running drift, when the row is serialized, then its `drift`
-      field is `A000`.
+  field is `O000`.
 - [ ] Given a row does not close a syllable or a pause, when the row is
       serialized, then its `drift` field equals the most recent completed-unit
       drift token rather than a provisional recomputation.
@@ -507,7 +508,7 @@ Implementation guidance:
       hedging for that pause, then that row's `drift` field equals the
       post-pause drift token.
 - [ ] Given the signed drift magnitude is zero, when the row token is
-      serialized, then the token is exactly `A000`.
+  serialized, then the token is exactly `O000`.
 - [ ] Given the signed drift is positive, when the row token is serialized,
       then it begins with `A` and uses three zero-padded digits.
 - [ ] Given the signed drift is negative, when the row token is serialized,
@@ -552,7 +553,7 @@ Possible issues:
 Unit tests:
 
 - verify phone-row parse/serialize round-trip with the new `drift` field
-- verify `A000` is the canonical zero token
+- verify `O000` is the canonical zero token
 - verify positive signed drift formats as `Axyz`
 - verify negative signed drift formats as `Bxyz`
 - verify non-final rows repeat the last completed-unit drift token
@@ -648,6 +649,11 @@ Because this CR changes the serialized row contract, rollback must include:
   explicitly re-sequence/split the affected work under maintainer direction.
 - Owner: `maintainer`
 - Related refs: CR-058, CR-059, docs/internal/README.md
+- Resolved on: 2026-04-15
+- Resolution: this CR is now explicitly scoped as a phone-row format change that
+  remains compatible with both the current pause inventory and any later pause-band
+  changes from [CR-059](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md),
+  so it no longer depends on CR-059 being implemented first.
 
 ---
 
