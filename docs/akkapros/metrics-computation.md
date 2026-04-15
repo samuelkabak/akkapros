@@ -33,6 +33,8 @@ Metricalc consumes paired phonetizer artifacts:
 MBROLA `.pho` files are not metrics inputs, and `_tilde.txt` is no longer the
 active metrics input contract.
 
+The consumed phone-row schema now carries the head sequence `duration-drift-intonation` before the source-facing `text` tail. Under the active contract, metricalc must parse that `drift` column without shifting `duration`, `intonation`, or `text`, while interval formulas continue to depend on `category` and `duration` rather than on the drift token itself.
+
 ## Interval Normalization
 
 Each phone row is mapped to one of three interval classes:

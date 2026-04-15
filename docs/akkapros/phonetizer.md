@@ -24,7 +24,7 @@ metricalc consumes those artifacts directly.
 The current implementation now follows a three-pass contract for both
 `<prefix>_ophone.txt` and `<prefix>_phone.txt`:
 - flat-line serialization, one row per line
-- exact field order: `label-category-type-length-position-boundary-accent-realization-duration-intonation:text`
+- exact field order: `label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text`
 - canonical segment and pause inventories
 - Pass 1 builds rows and pause types
 - Pass 2 realizes non-zero durations over the prebuilt row streams
@@ -62,24 +62,32 @@ The original stream is derived from the accentuated `_tilde` input by removing `
 
 The consumed `_tilde` contract may contain armored punctuation spans as `⟦...⟧`, explicit inherited merges as `+`, and internal prosody merges as `&`.
 
-The body is a flat line-oriented format. Each row uses the canonical eleven-field order:
+The body is a flat line-oriented format. Each row uses the canonical twelve-field order:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration-intonation:text
+label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text
 ```
 
 Examples:
 
 ```text
-SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
-AYA-V-L-S-N-F-F-AA-0085-M0C:a
-ZEN-S-S-L-S-N-P-ZP-1525-L2C:<EOL>
+SUD-C-F-S-O-N-F-SU-0137-O000-M0C:ṣ
+AYA-V-L-S-N-F-F-AA-0085-B023-M0C:a
+ZEN-S-S-L-S-N-P-ZP-1525-O000-L2C:<EOL>
 ```
 
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
 
+The new `drift` field is a row-level trace token written after Phase 2 timing realization:
+
+- `O000` means the most recently completed syllable or pause ended on the beat
+- `Axyz` means the stream stands `xyz` ms ahead of the beat
+- `Bxyz` means the stream stands `xyz` ms behind the beat
+- non-final rows repeat the latest completed-unit value until the next syllable-final row or pause row updates it
+
 Phase 2 diagnostics to look for:
 - row durations are finalized non-zero millisecond values rather than `0000`
+- row-level drift changes only on syllable-final rows and pause rows
 - front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
 - short pauses discharge as much drift as their band allows, while long pauses must reset the running drift reserve to zero
 

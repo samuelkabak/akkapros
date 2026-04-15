@@ -381,12 +381,14 @@ def _assert_phone_artifact(path: Path) -> None:
     frontmatter, body = split_frontmatter(_read_text(path))
     first_line = body.strip().splitlines()[0]
     first_row = parse_phone_row(first_line)
-    assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'intonation', 'text']
+    assert list(first_row) == ['label', 'category', 'type', 'length', 'position', 'boundary', 'accent', 'realization', 'duration', 'drift', 'intonation', 'text']
     assert first_row['category'] in {'C', 'V', 'S'}
     assert len(first_row['duration']) == 4
+    assert len(first_row['drift']) == 4
     assert len(first_row['intonation']) == 3
     all_rows = [parse_phone_row(line) for line in body.strip().splitlines()]
     assert any(row['duration'] != '0000' for row in all_rows)
+    assert all(re.fullmatch(r'(?:O000|[AB]\d{3})', row['drift']) for row in all_rows)
     assert all(len(row['intonation']) == 3 for row in all_rows)
     assert frontmatter['metadata']['data']['phonetize']['drift']['max'] >= 0
     assert 'mean' in frontmatter['metadata']['data']['phonetize']['drift']

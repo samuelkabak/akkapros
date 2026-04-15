@@ -24,15 +24,15 @@ Both files keep YAML frontmatter. The body is a flat row stream.
 Each body line uses the canonical field order:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration-intonation:text
+label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text
 ```
 
 Example:
 
 ```text
-SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
-AYA-V-L-S-N-F-F-AA-0085-M0C:a
-ZEN-S-S-L-S-S-F-ZP-1525-L2C:<EOL>
+SUD-C-F-S-O-N-F-SU-0137-O000-M0C:ṣ
+AYA-V-L-S-N-F-F-AA-0085-B023-M0C:a
+ZEN-S-S-L-S-S-F-ZP-1525-O000-L2C:<EOL>
 ```
 
 Read this as:
@@ -91,6 +91,13 @@ For pause rows this is the pause class:
 - During Phase 1 this is `0000`.
 - Finalized phonetizer outputs carry non-zero values.
 
+`drift`
+- Four-character post-unit drift token.
+- `O000` means on the beat.
+- `Axyz` means the stream stands `xyz` ms ahead of the beat after the most recently completed unit.
+- `Bxyz` means the stream stands `xyz` ms behind the beat after the most recently completed unit.
+- Non-final rows repeat the most recent completed-unit value; the token changes on syllable-final rows and pause rows.
+
 `intonation`
 - Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
 - Pass 3 writes finalized intonation tokens after duration realization.
@@ -138,19 +145,19 @@ Pause ownership now belongs to the phonetizer row stream.
 Short pause row:
 
 ```text
-SES-S-C-S-S-S-F-SP-0600-H1C::
+SES-S-C-S-S-S-F-SP-0600-B023-H1C::
 ```
 
 Long pause row:
 
 ```text
-ZEN-S-Q-L-S-S-F-ZP-1525-H3C:?!
+ZEN-S-Q-L-S-S-F-ZP-1525-O000-H3C:?!
 ```
 
 Line break row:
 
 ```text
-ZEN-S-S-L-S-S-F-ZP-1525-L2C:<EOL>
+ZEN-S-S-L-S-S-F-ZP-1525-O000-L2C:<EOL>
 ```
 
 Important rules:
@@ -188,7 +195,7 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 - `metadata.data.phonetize.drift.mean`
 - `metadata.data.phonetize.drift.stddev`
 
-`metricalc.py` reads drift summary from this frontmatter instead of recomputing it.
+`metricalc.py` reads drift summary from this frontmatter instead of recomputing it, while the row-level `drift` column remains available for local inspection of where the solver stood after each completed syllable or pause.
 
 ## How `.pho` Export Relates to Phone Rows
 
@@ -215,7 +222,7 @@ When inspecting a phone file manually:
 1. Read `category` first to separate phoneme rows from pause rows.
 2. Read `boundary` to understand word, syllable, and merge structure.
 3. Read `accent` to locate the accentuated segment in `_phone.txt`.
-4. Read `duration` to see the realized timing.
+4. Read `duration` and `drift` together to see realized timing and the running post-unit beat offset.
 5. Read the `text` tail last to map the row back to source material.
 
 If you are comparing `_phone.txt` and `_ophone.txt`, keep the following rule in

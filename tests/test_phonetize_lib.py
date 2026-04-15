@@ -1,3 +1,7 @@
+import re
+
+import pytest
+
 from akkapros.lib.phonetize import (
     CONSONANT_CLOSURE,
     CONSONANT_FRICATIVE,
@@ -9,9 +13,11 @@ from akkapros.lib.phonetize import (
     INPUT_CHARACTER_LENGTHS,
     INPUT_TO_REALIZATION_CODES,
     MINI_PAUSE_TEXT,
+    PHONE_ROW_DRIFT_NEUTRAL,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_ROWS,
     REALIZATION_CODE_METADATA,
+    _format_row_drift_token,
     build_default_phonetize_verification_config,
     build_phone_streams,
     build_phone_rows,
@@ -77,6 +83,7 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'F',
             'realization': 'SU',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'drift': PHONE_ROW_DRIFT_NEUTRAL,
             'intonation': 'M0C',
             'text': 'ṣ',
         },
@@ -90,6 +97,7 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'F',
             'realization': 'AO',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'drift': PHONE_ROW_DRIFT_NEUTRAL,
             'intonation': 'M0C',
             'text': 'a',
         },
@@ -103,13 +111,32 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
             'accent': 'P',
             'realization': 'ZP',
             'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+            'drift': PHONE_ROW_DRIFT_NEUTRAL,
             'intonation': 'M0C',
             'text': '<EOL>',
         },
     ]
     line = serialize_phone_row(rows[0])
-    assert line == 'SUD-C-F-S-O-N-F-SU-0000-M0C:ṣ'
+    assert line == 'SUD-C-F-S-O-N-F-SU-0000-O000-M0C:ṣ'
     assert parse_phone_row(line) == rows[0]
+
+
+def test_row_drift_token_format_is_canonical() -> None:
+    assert _format_row_drift_token(0.0) == 'O000'
+    assert _format_row_drift_token(-12.2) == 'A012'
+    assert _format_row_drift_token(3.4) == 'B003'
+
+    with pytest.raises(ValueError, match='exceeds three digits'):
+        _format_row_drift_token(1000.0)
+
+
+def test_parse_phone_row_accepts_legacy_eleven_field_rows() -> None:
+    row = parse_phone_row('SUD-C-F-S-O-N-F-SU-0000-M0C:ṣ')
+
+    assert row['duration'] == '0000'
+    assert row['drift'] == 'O000'
+    assert row['intonation'] == 'M0C'
+    assert row['text'] == 'ṣ'
 
 
 def test_boundaries_preserve_internal_enclitic_and_unit_edges() -> None:
@@ -238,7 +265,10 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
     report = realize_phone_rows(rows, allow_accentuation=False)
 
     assert [row['duration'] for row in rows[:-1]] == ['0108', '0085', '0103']
+    assert [row['drift'] for row in rows[:2]] == ['O000', 'O000']
+    assert rows[2]['drift'].startswith(('A', 'B'))
     assert rows[-1]['length'] == 'L'
+    assert rows[-1]['drift'] == _format_row_drift_token(report['drift']['current'])
     assert int(rows[-1]['duration']) >= 1200
     assert report['one_mora_ref'] == 152.5
     assert report['two_mora_ref'] == 305.0
@@ -303,9 +333,21 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
 
     assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in original_rows)
     assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
+    assert all(re.fullmatch(r'(?:O000|[AB]\d{3})', row['drift']) for row in original_rows)
+    assert all(re.fullmatch(r'(?:O000|[AB]\d{3})', row['drift']) for row in accentuated_rows)
     assert original_report['drift']['stddev'] >= 0
     assert accentuated_report['drift']['stddev'] >= 0
     assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
+
+
+def test_phase2_non_final_rows_keep_last_completed_unit_drift() -> None:
+    rows = build_phone_rows('qat pa')
+
+    realize_phone_rows(rows, allow_accentuation=False)
+
+    assert [row['drift'] for row in rows[:2]] == ['O000', 'O000']
+    assert rows[2]['drift'].startswith(('A', 'B'))
+    assert rows[3]['drift'] == rows[2]['drift']
 
 
 def test_pass3_assigns_row_level_intonation_tokens() -> None:
@@ -484,6 +526,7 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
     mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
     assert len(mini_pause_rows) == 1
     assert mini_pause_rows[0]['duration'] == '0054'
+    assert mini_pause_rows[0]['drift'] == 'O000'
     assert reconstruct_tilde_from_phone_rows(rows) == 'qat pa\n'
 
 

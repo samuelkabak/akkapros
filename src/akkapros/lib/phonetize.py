@@ -216,10 +216,12 @@ PHONE_ROW_FIELDS = (
     'accent',
     'realization',
     'duration',
+    'drift',
     'intonation',
     'text',
 )
 PHONE_ROW_DURATION_PLACEHOLDER = '0000'
+PHONE_ROW_DRIFT_NEUTRAL = 'O000'
 PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
@@ -659,6 +661,7 @@ def _new_segment_seed(symbol: str) -> dict[str, str]:
         'accent': 'F',
         'realization': _base_realization_for_label(label),
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'drift': PHONE_ROW_DRIFT_NEUTRAL,
         'intonation': PHONE_ROW_INTONATION_NEUTRAL,
         'text': symbol,
     }
@@ -677,6 +680,7 @@ def _new_pause_row(text: str, *, pause_type: str, length_code: str) -> dict[str,
         'accent': 'P',
         'realization': 'ZP' if is_long else 'SP',
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'drift': PHONE_ROW_DRIFT_NEUTRAL,
         'intonation': PHONE_ROW_INTONATION_NEUTRAL,
         'text': text,
     }
@@ -1667,6 +1671,16 @@ def _drift_label(drift_value: float) -> str:
     return 'Behind (dragging)'
 
 
+def _format_row_drift_token(drift_value: float) -> str:
+    magnitude = int(round(abs(drift_value)))
+    if magnitude == 0:
+        return PHONE_ROW_DRIFT_NEUTRAL
+    if magnitude > 999:
+        raise ValueError(f'Row-level drift token magnitude exceeds three digits: {drift_value!r}')
+    state = 'A' if drift_value < 0 else 'B'
+    return f'{state}{magnitude:03d}'
+
+
 def _maybe_insert_mini_pause(
     rows: list[dict[str, str]],
     units: list[dict[str, Any]],
@@ -1708,7 +1722,9 @@ def realize_phone_rows(
     drift_extension_count = 0
     max_drift_extension = 0.0
     tolerance = float(config['process']['drift_tolerance'])
-    inserted_after: dict[int, list[tuple[dict[str, str], float]]] = {}
+    inserted_after: dict[int, list[tuple[dict[str, str], float, str]]] = {}
+    row_drift_tokens: dict[int, str] = {}
+    last_completed_drift_token = PHONE_ROW_DRIFT_NEUTRAL
 
     analyses: dict[int, dict[str, Any]] = {}
     for unit_index, unit in enumerate(units):
@@ -1720,12 +1736,17 @@ def realize_phone_rows(
             pause_duration, drift_cursor = _pause_duration_and_drift(rows[unit['index']], config, drift_cursor)
             durations[unit['index']] = pause_duration
             drift_history.append(drift_cursor)
+            last_completed_drift_token = _format_row_drift_token(drift_cursor)
+            row_drift_tokens[unit['index']] = last_completed_drift_token
             continue
 
         analysis = analyses[unit_index]
         next_analysis = None
         if unit_index + 1 < len(units) and units[unit_index + 1]['kind'] == 'syllable':
             next_analysis = analyses[unit_index + 1]
+
+        for row_index in analysis['indices']:
+            row_drift_tokens[row_index] = last_completed_drift_token
 
         for onset_index in analysis['onset_indices']:
             durations.setdefault(onset_index, _consonant_anchor(rows[onset_index], config, 'O'))
@@ -1758,11 +1779,14 @@ def realize_phone_rows(
                     max_drift_extension = max(max_drift_extension, extension)
         drift_cursor = drift_after_assignment
         drift_history.append(drift_cursor)
+        last_completed_drift_token = _format_row_drift_token(drift_cursor)
+        row_drift_tokens[analysis['indices'][-1]] = last_completed_drift_token
 
         mini_pause = _maybe_insert_mini_pause(rows, units, unit_index, analysis, config, drift_cursor)
         if mini_pause is not None:
             mini_row, mini_duration, drift_cursor = mini_pause
-            inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration))
+            last_completed_drift_token = _format_row_drift_token(drift_cursor)
+            inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration, last_completed_drift_token))
             drift_history.append(drift_cursor)
 
     if config['process']['drift_policy'] == 'strict' and abs(drift_cursor) > tolerance:
@@ -1773,9 +1797,11 @@ def realize_phone_rows(
     finalized_rows: list[dict[str, str]] = []
     for index, row in enumerate(rows):
         row['duration'] = _format_duration(durations.get(index, 0.0))
+        row['drift'] = row_drift_tokens.get(index, PHONE_ROW_DRIFT_NEUTRAL)
         finalized_rows.append(row)
-        for inserted_row, inserted_duration in inserted_after.get(index, ()):
+        for inserted_row, inserted_duration, inserted_drift in inserted_after.get(index, ()):
             inserted_row['duration'] = _format_duration(inserted_duration)
+            inserted_row['drift'] = inserted_drift
             finalized_rows.append(inserted_row)
     rows[:] = finalized_rows
 
@@ -1919,7 +1945,9 @@ def parse_phone_row(line: str) -> dict[str, str]:
     if not sep:
         raise ValueError(f'Invalid phone row: {line!r}')
     parts = head.split('-')
-    if len(parts) != len(PHONE_ROW_FIELDS) - 1:
+    if len(parts) == len(PHONE_ROW_FIELDS) - 2:
+        parts = parts[:9] + [PHONE_ROW_DRIFT_NEUTRAL] + parts[9:]
+    elif len(parts) != len(PHONE_ROW_FIELDS) - 1:
         raise ValueError(f'Invalid phone row field count: {line!r}')
     return dict(zip(PHONE_ROW_FIELDS, parts + [text]))
 

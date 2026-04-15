@@ -737,6 +737,25 @@ def test_compute_interval_metrics_zero_case_returns_zero_public_metrics() -> Non
     assert acoustic["npvi_v"] == 0.0
 
 
+def test_metrics_loader_accepts_phone_rows_with_drift_column(tmp_path: Path) -> None:
+    phone_file = tmp_path / "sample_phone.txt"
+    phone_file.write_text(
+        "---\n"
+        "file:\n"
+        "  format: \"phone\"\n"
+        "---\n\n"
+        "KAP-C-C-S-O-N-F-KA-0108-B003-M0C:k\n",
+        encoding="utf-8",
+    )
+
+    _frontmatter, rows, _body = metrics._load_phone_rows(str(phone_file))
+
+    assert rows[0]["duration"] == "0108"
+    assert rows[0]["drift"] == "B003"
+    assert rows[0]["intonation"] == "M0C"
+    assert rows[0]["text"] == "k"
+
+
 def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path: Path) -> None:
     ophone_file, phone_file = _write_phone_pair_with_drift_frontmatter(
         tmp_path,

@@ -1,5 +1,5 @@
 cr_id: CR-060
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-14
@@ -482,46 +482,46 @@ Implementation guidance:
 
 # Acceptance Criteria
 
-- [ ] Given `_phone.txt` or `_ophone.txt` rows are serialized under the active
+- [x] Given `_phone.txt` or `_ophone.txt` rows are serialized under the active
       contract, when the field order is inspected, then `drift` appears
       immediately after `duration` and immediately before `intonation`.
-- [ ] Given a serialized phone row is parsed, when the row uses the new active
+- [x] Given a serialized phone row is parsed, when the row uses the new active
       schema, then the parser accepts the twelve-field row and preserves the
       `drift` token exactly.
-- [ ] Given metricalc loads `_phone.txt` and `_ophone.txt` under the active
+- [x] Given metricalc loads `_phone.txt` and `_ophone.txt` under the active
   contract, when rows include the new `drift` field, then file loading
   succeeds without treating the row as malformed.
-- [ ] Given metricalc loads `_phone.txt` and `_ophone.txt` under the active
+- [x] Given metricalc loads `_phone.txt` and `_ophone.txt` under the active
   contract, when the new `drift` field is present, then `duration`,
   `drift`, `intonation`, and `text` are parsed into the correct columns and
   are not shifted relative to the active schema.
-- [ ] Given a row is emitted before any completed syllable or completed pause
+- [x] Given a row is emitted before any completed syllable or completed pause
       has updated running drift, when the row is serialized, then its `drift`
   field is `O000`.
-- [ ] Given a row does not close a syllable or a pause, when the row is
+- [x] Given a row does not close a syllable or a pause, when the row is
       serialized, then its `drift` field equals the most recent completed-unit
       drift token rather than a provisional recomputation.
-- [ ] Given a row closes a syllable, when the solver finishes all active
+- [x] Given a row closes a syllable, when the solver finishes all active
       hedging for that syllable, then that row's `drift` field equals the
       post-syllable drift token.
-- [ ] Given a pause row is realized, when the solver finishes all active
+- [x] Given a pause row is realized, when the solver finishes all active
       hedging for that pause, then that row's `drift` field equals the
       post-pause drift token.
-- [ ] Given the signed drift magnitude is zero, when the row token is
+- [x] Given the signed drift magnitude is zero, when the row token is
   serialized, then the token is exactly `O000`.
-- [ ] Given the signed drift is positive, when the row token is serialized,
+- [x] Given the signed drift is positive, when the row token is serialized,
       then it begins with `A` and uses three zero-padded digits.
-- [ ] Given the signed drift is negative, when the row token is serialized,
+- [x] Given the signed drift is negative, when the row token is serialized,
       then it begins with `B` and uses three zero-padded digits for the
       absolute magnitude.
-- [ ] Given a stream finishes realization, when the final unit-final row is
+- [x] Given a stream finishes realization, when the final unit-final row is
       inspected together with the drift summary/report output for that same
       stream, then both surfaces agree on the final drift state after the same
       row-token rounding rules are applied.
-- [ ] Given docs describing the `_phone.txt` / `_ophone.txt` schema are
+- [x] Given docs describing the `_phone.txt` / `_ophone.txt` schema are
       inspected, when field order and semantics are explained, then the new
       `drift` column and its update timing are documented.
-- [ ] Given metricalc documentation or help surfaces describe the phone/ophone
+- [x] Given metricalc documentation or help surfaces describe the phone/ophone
   file format it consumes, when the active row schema is explained, then
   the new `drift` column is included with correct meaning and placement.
 
@@ -609,28 +609,28 @@ Because this CR changes the serialized row contract, rollback must include:
 
 ## Implementation
 
-- [ ] Extend the canonical phone-row schema with `drift`
-- [ ] Update row builders, serializers, and parsers to the twelve-field format
-- [ ] Write per-row drift tokens during duration realization
-- [ ] Preserve frontmatter/report drift summary alongside the new row field
-- [ ] Update downstream row consumers to accept the new schema
+- [x] Extend the canonical phone-row schema with `drift`
+- [x] Update row builders, serializers, and parsers to the twelve-field format
+- [x] Write per-row drift tokens during duration realization
+- [x] Preserve frontmatter/report drift summary alongside the new row field
+- [x] Update downstream row consumers to accept the new schema
 
 ## Tests
 
-- [ ] Add unit coverage for drift-token formatting and row update timing
-- [ ] Update round-trip and integration tests for the twelve-field schema
-- [ ] Update self-tests and demo validations that inspect phone rows
+- [x] Add unit coverage for drift-token formatting and row update timing
+- [x] Update round-trip and integration tests for the twelve-field schema
+- [x] Update self-tests and demo validations that inspect phone rows
 
 ## Documentation
 
-- [ ] Update phone-file guides and phonetizer docs for the new schema
-- [ ] Update examples that show `_phone.txt` / `_ophone.txt` rows
-- [ ] Document the difference between row-level drift trace and drift summary
+- [x] Update phone-file guides and phonetizer docs for the new schema
+- [x] Update examples that show `_phone.txt` / `_ophone.txt` rows
+- [x] Document the difference between row-level drift trace and drift summary
 
 ## Review
 
-- [ ] Verify acceptance criteria against representative realized phone files
-- [ ] Confirm active docs no longer describe the row schema as eleven fields
+- [x] Verify acceptance criteria against representative realized phone files
+- [x] Confirm active docs no longer describe the row schema as eleven fields
 
 ---
 
@@ -659,7 +659,7 @@ Because this CR changes the serialized row contract, rollback must include:
 
 # Notes
 
-- This CR is intentionally specification-only. Implementation is deferred.
+- Implemented on 2026-04-15.
 - The paragraph or pause-type examples discussed elsewhere do not constrain this
   CR. The controlling requirement here is unit-final drift serialization,
   regardless of which specific pause subtype or length later records choose for

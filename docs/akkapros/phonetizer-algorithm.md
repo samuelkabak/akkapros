@@ -26,7 +26,7 @@ The difference is only structural input:
 Each output row uses this flat-line format:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration-intonation:text
+label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text
 ```
 
 Important fields:
@@ -35,6 +35,7 @@ Important fields:
 - `position` is onset `O`, coda `C`, nucleus `N`, or silence `S`
 - `boundary` records the closing structure carried by the row
 - `duration` is the Phase 2 millisecond result
+- `drift` is the post-unit drift token written after the most recently completed syllable or pause
 - `intonation` is the Phase 3 row token
 - `text` preserves the source glyph, punctuation suite, `<EOL>`, or the
   inserted mini-pause marker
@@ -85,6 +86,14 @@ The solver carries one signed running value, `drift_cursor`:
 
 - negative drift means the stream is ahead of the beat
 - positive drift means the stream is behind the beat
+
+The serialized row-level `drift` field uses a fixed-width token:
+
+- `O000` for exactly on the beat after row-token rounding
+- `Axyz` for `xyz` ms ahead of the beat
+- `Bxyz` for `xyz` ms behind the beat
+
+Rows that do not close a syllable or pause repeat the most recent completed-unit token. The token becomes newly informative only on syllable-final rows and pause rows.
 
 ## Phase 1: Row Building
 
