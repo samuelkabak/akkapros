@@ -388,7 +388,7 @@ def _assert_phone_artifact(path: Path) -> None:
     assert len(first_row['intonation']) == 3
     all_rows = [parse_phone_row(line) for line in body.strip().splitlines()]
     assert any(row['duration'] != '0000' for row in all_rows)
-    assert all(re.fullmatch(r'(?:O000|[AB]\d{3})', row['drift']) for row in all_rows)
+    assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in all_rows)
     assert all(len(row['intonation']) == 3 for row in all_rows)
     assert frontmatter['metadata']['data']['phonetize']['drift']['max'] >= 0
     assert 'mean' in frontmatter['metadata']['data']['phonetize']['drift']
@@ -643,15 +643,15 @@ def test_phonetizer_pho_outputs_xsampa_while_phone_rows_keep_realization_codes(t
     mbrola_rows = _parse_pho_artifact(outdir / 'sample_mbrola.pho')
     ombrola_rows = _parse_pho_artifact(outdir / 'sample_ombrola.pho')
 
-    assert '-ET-' in phone_body
-    assert '-HE-' in phone_body
-    assert '-AI-' in phone_body
-    assert '-AL-' in phone_body
-    assert '-QU-' in phone_body
-    assert '-AO-' in phone_body
+    assert '|ET|' in phone_body
+    assert '|HE|' in phone_body
+    assert '|AI|' in phone_body
+    assert '|AL|' in phone_body
+    assert '|QU|' in phone_body
+    assert '|AO|' in phone_body
 
-    assert '-ET-' in ophone_body
-    assert '-HE-' in ophone_body
+    assert '|ET|' in ophone_body
+    assert '|HE|' in ophone_body
 
     emitted_symbols = {symbol for symbol, _duration, _frequency in mbrola_rows}
     assert {'X', 'x', 'H', '?', 'q', 'a.', '_'}.issubset(emitted_symbols)

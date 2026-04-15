@@ -744,14 +744,14 @@ def test_metrics_loader_accepts_phone_rows_with_drift_column(tmp_path: Path) -> 
         "file:\n"
         "  format: \"phone\"\n"
         "---\n\n"
-        "KAP-C-C-S-O-N-F-KA-0108-B003-M0C:k\n",
+        "KAP|C|C|S|O|N|F|KA|0108|+003|M0C|k\n",
         encoding="utf-8",
     )
 
     _frontmatter, rows, _body = metrics._load_phone_rows(str(phone_file))
 
     assert rows[0]["duration"] == "0108"
-    assert rows[0]["drift"] == "B003"
+    assert rows[0]["drift"] == "+003"
     assert rows[0]["intonation"] == "M0C"
     assert rows[0]["text"] == "k"
 

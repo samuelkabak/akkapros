@@ -26,7 +26,7 @@ The difference is only structural input:
 Each output row uses this flat-line format:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text
+label|category|type|length|position|boundary|accent|realization|duration|drift|intonation|text
 ```
 
 Important fields:
@@ -89,9 +89,9 @@ The solver carries one signed running value, `drift_cursor`:
 
 The serialized row-level `drift` field uses a fixed-width token:
 
-- `O000` for exactly on the beat after row-token rounding
-- `Axyz` for `xyz` ms ahead of the beat
-- `Bxyz` for `xyz` ms behind the beat
+- `+000` for exactly on the beat after row-token rounding
+- `-xyz` for `xyz` ms ahead of the beat
+- `+xyz` for `xyz` ms behind the beat
 
 Rows that do not close a syllable or pause repeat the most recent completed-unit token. The token becomes newly informative only on syllable-final rows and pause rows.
 

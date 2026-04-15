@@ -208,7 +208,7 @@ PHONE_ROW_FIELDS = (
     'text',
 )
 PHONE_ROW_DURATION_PLACEHOLDER = '0000'
-PHONE_ROW_DRIFT_NEUTRAL = 'O000'
+PHONE_ROW_DRIFT_NEUTRAL = '+000'
 PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
@@ -1670,8 +1670,8 @@ def _format_row_drift_token(drift_value: float) -> str:
         return PHONE_ROW_DRIFT_NEUTRAL
     if magnitude > 999:
         raise ValueError(f'Row-level drift token magnitude exceeds three digits: {drift_value!r}')
-    state = 'A' if drift_value < 0 else 'B'
-    return f'{state}{magnitude:03d}'
+    sign = '-' if drift_value < 0 else '+'
+    return f'{sign}{magnitude:03d}'
 
 
 def _maybe_insert_mini_pause(
@@ -1916,8 +1916,7 @@ def build_phone_rows(
 
 
 def serialize_phone_row(row: dict[str, str]) -> str:
-    head = '-'.join(row[field] for field in PHONE_ROW_FIELDS[:-1])
-    return f'{head}:{row[PHONE_ROW_FIELDS[-1]]}'
+    return '|'.join(row[field] for field in PHONE_ROW_FIELDS)
 
 
 def serialize_phone_rows(rows: list[dict[str, str]]) -> str:
@@ -1928,15 +1927,16 @@ def parse_phone_row(line: str) -> dict[str, str]:
     stripped = line.strip()
     if not stripped:
         raise ValueError('Phone row is empty')
-    head, sep, text = stripped.partition(':')
-    if not sep:
+    parts = stripped.split('|', len(PHONE_ROW_FIELDS) - 1)
+    if len(parts) != len(PHONE_ROW_FIELDS):
         raise ValueError(f'Invalid phone row: {line!r}')
-    parts = head.split('-')
-    if len(parts) == len(PHONE_ROW_FIELDS) - 2:
-        parts = parts[:9] + [PHONE_ROW_DRIFT_NEUTRAL] + parts[9:]
-    elif len(parts) != len(PHONE_ROW_FIELDS) - 1:
-        raise ValueError(f'Invalid phone row field count: {line!r}')
-    return dict(zip(PHONE_ROW_FIELDS, parts + [text]))
+    if not re.fullmatch(r'\d{4}', parts[8]):
+        raise ValueError(f'Invalid phone row duration token: {parts[8]!r}')
+    if not re.fullmatch(r'[+-]\d{3}', parts[9]):
+        raise ValueError(f'Invalid phone row drift token: {parts[9]!r}')
+    if not re.fullmatch(r'[HLMRFPV][0-9][CLE]', parts[10]):
+        raise ValueError(f'Invalid phone row intonation token: {parts[10]!r}')
+    return dict(zip(PHONE_ROW_FIELDS, parts))
 
 
 def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:

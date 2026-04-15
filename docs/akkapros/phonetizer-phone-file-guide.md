@@ -24,21 +24,21 @@ Both files keep YAML frontmatter. The body is a flat row stream.
 Each body line uses the canonical field order:
 
 ```text
-label-category-type-length-position-boundary-accent-realization-duration-drift-intonation:text
+label|category|type|length|position|boundary|accent|realization|duration|drift|intonation|text
 ```
 
 Example:
 
 ```text
-SUD-C-F-S-O-N-F-SU-0137-O000-M0C:ṣ
-AYA-V-L-S-N-F-F-AA-0085-B023-M0C:a
-ZEN-S-S-L-S-S-F-ZP-1525-O000-L2C:<EOL>
+SUD|C|F|S|O|N|F|SU|0137|+000|M0C|ṣ
+AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a
+ZEN|S|S|L|S|S|F|ZP|1525|+000|L2C|<EOL>
 ```
 
 Read this as:
 
-- left of `:`: fixed-width structural fields
-- right of `:`: source-facing text tail
+- fields are pipe-delimited; `text` is the final field
+- parsers must use bounded splitting (for example `split('|', 11)`) to preserve any `|` in text
 
 ## Field Meanings
 
@@ -93,9 +93,9 @@ For pause rows this is the pause class:
 
 `drift`
 - Four-character post-unit drift token.
-- `O000` means on the beat.
-- `Axyz` means the stream stands `xyz` ms ahead of the beat after the most recently completed unit.
-- `Bxyz` means the stream stands `xyz` ms behind the beat after the most recently completed unit.
+- `+000` means on the beat.
+- `-xyz` means the stream stands `xyz` ms ahead of the beat after the most recently completed unit.
+- `+xyz` means the stream stands `xyz` ms behind the beat after the most recently completed unit.
 - Non-final rows repeat the most recent completed-unit value; the token changes on syllable-final rows and pause rows.
 
 `intonation`
@@ -145,19 +145,19 @@ Pause ownership now belongs to the phonetizer row stream.
 Short pause row:
 
 ```text
-SES-S-C-S-S-S-F-SP-0600-B023-H1C::
+SES|S|C|S|S|S|F|SP|0600|+023|H1C|:
 ```
 
 Long pause row:
 
 ```text
-ZEN-S-Q-L-S-S-F-ZP-1525-O000-H3C:?!
+ZEN|S|Q|L|S|S|F|ZP|1525|+000|H3C|?!
 ```
 
 Line break row:
 
 ```text
-ZEN-S-S-L-S-S-F-ZP-1525-O000-L2C:<EOL>
+ZEN|S|S|L|S|S|F|ZP|1525|+000|L2C|<EOL>
 ```
 
 Important rules:

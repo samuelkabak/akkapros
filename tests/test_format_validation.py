@@ -59,9 +59,9 @@ def test_validate_phone_ok(tmp_path):
         "  format: \"phone\"\n"
         "  version: \"1.0.0\"\n"
         "---\n\n"
-        "KAP-C-C-S-O-N-F-KA-0108-O000-M0C:k\n"
-        "AYA-V-L-S-N-F-F-AA-0085-B023-M0C:a\n"
-        "ZEN-S-S-L-S-S-F-ZP-1200-O000-L2C:<EOL>\n",
+        "KAP|C|C|S|O|N|F|KA|0108|+000|M0C|k\n"
+        "AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a\n"
+        "ZEN|S|S|L|S|S|F|ZP|1200|+000|L2C|<EOL>\n",
         encoding="utf-8",
     )
     validate_intermediate_format(p, expected_kind="phone")

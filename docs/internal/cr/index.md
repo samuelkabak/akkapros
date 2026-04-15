@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[062. Unify phone/ophone row separator and adopt signed numeric drift token](062-unify-phone-ophone-row-separator.md) - Done
 [061. Remove User-Facing Short-Pause and Drift Policy Options](061-remove-user-facing-short-pause-and-drift-policy-options.md) - Done
 [060. Add Per-Row Drift Column to Phone and Ophone Artifacts](060-add-per-row-drift-column-to-phone-and-ophone-artifacts.md) - Done
 [059. Clarify Phonetizer Duration and Drift Assignment with Hard Short Vowels](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md) - Done

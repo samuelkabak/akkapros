@@ -651,18 +651,15 @@ def validate_intermediate_format(file_path: str | Path, expected_kind: str) -> N
     elif expected_kind == "phone":
         saw_phone_row = False
         for idx, ln in non_empty:
-            head, sep, _tail = ln.partition(':')
-            if not sep:
-                fail("invalid phone-row content: missing ':' separator", idx, ln)
-            parts = head.split('-')
-            if len(parts) != 11:
-                fail("invalid phone-row content: expected 11 head fields", idx, ln)
+            parts = ln.split('|', 11)
+            if len(parts) != 12:
+                fail("invalid phone-row content: expected 12 '|' separated fields", idx, ln)
             if parts[1] not in {'C', 'V', 'S'}:
                 fail("invalid phone-row content: unknown category field", idx, ln)
             if not re.fullmatch(r'\d{4}', parts[8]):
                 fail("invalid phone-row content: duration must be four digits", idx, ln)
-            if not re.fullmatch(r'(?:O000|[AB]\d{3})', parts[9]):
-                fail("invalid phone-row content: drift must be O000 or an A/B token with three digits", idx, ln)
+            if not re.fullmatch(r'[+-]\d{3}', parts[9]):
+                fail("invalid phone-row content: drift must be a signed token with three digits", idx, ln)
             if not re.fullmatch(r'[HLMRFPV][0-9][CLE]', parts[10]):
                 fail("invalid phone-row content: intonation must be a canonical three-character token", idx, ln)
             saw_phone_row = True
