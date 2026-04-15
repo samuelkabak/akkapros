@@ -92,7 +92,7 @@ def run_tests() -> bool:
         accentuation_distribution_policy='85_15',
         short_pause_policy='strict',
         drift_policy='extensible',
-        drift_tolerance=12,
+        drift_tolerance=0,
     )
     config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)

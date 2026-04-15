@@ -1,6 +1,6 @@
 ---
 cr_id: CR-059
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-14
@@ -101,9 +101,10 @@ neither.
 - Preserve the accentuation increment model: accentuation still adds exactly
   `0.5 * cvc_reference` and still does not use short vowels as its target.
 - Preserve the mini-pause recovery idea already introduced in this CR family:
-  when no punctuation-owned pause follows a merged unit boundary and the drift
-  magnitude reaches the configured mini threshold, the phonetizer may insert a
-  mini pause to bring drift as close as possible to zero.
+  when no punctuation-owned pause follows a merged unit boundary and the stream
+  is ahead of the beat by at least the configured mini threshold, the
+  phonetizer may insert a mini pause to bring drift as close as possible to
+  zero.
 - Change the default `drift_tolerance` to `0` while retaining the parameter for
   now.
 - Require the implementation shape to keep `drift_tolerance` easy to remove in
@@ -257,8 +258,9 @@ Algorithm B, the requested solver, is:
    - If zero drift is not reachable inside the band, clamp inside the band and
      carry the remainder forward.
 9. If the current position is after a merged unit boundary, there is no
-   punctuation-owned pause, and `abs(drift_cursor)` reaches the mini threshold,
-   the phonetizer may insert one mini pause inside the configured mini band.
+  punctuation-owned pause, and the stream is ahead of the beat by at least the
+  mini threshold, the phonetizer may insert one mini pause inside the
+  configured mini band.
    The inserted mini pause shall choose the legal mini-band duration that brings
    drift as close as possible to zero.
 10. `drift_tolerance` remains a parameter, but its default is `0`. The active
@@ -314,7 +316,7 @@ inside the new solver as follows.
 - They may be inserted only after a merged unit boundary where no punctuation-
   owned pause already exists.
 - They use the configured `mini.min .. mini.max` band.
-- They are triggered when `abs(drift_cursor) >= pauses.mini.min` unless a later
+- They are triggered when `drift_cursor <= -pauses.mini.min` unless a later
   record introduces a separate trigger key.
 
 ### 6. Accentuation model remains unchanged
@@ -399,36 +401,36 @@ Recommended implementation direction:
 
 ## Acceptance Criteria
 
-- [ ] Given CR-059 is reviewed, when its algorithm sections are read, then it
+- [x] Given CR-059 is reviewed, when its algorithm sections are read, then it
       contains one extracted current algorithm and one requested new algorithm
       written as separate, explicit solver descriptions.
-- [ ] Given CR-059 is reviewed, when its comparison section is read, then it
+- [x] Given CR-059 is reviewed, when its comparison section is read, then it
       states directly that the change is the reclassification of short vowels
       from flexible recovery space to hard anchors.
-- [ ] Given the active solver is implemented under this CR, when ordinary drift
+- [x] Given the active solver is implemented under this CR, when ordinary drift
       recovery is applied to a `CV` or `CVC` syllable, then the short vowel is
       not lengthened or shortened.
-- [ ] Given the active solver is implemented under this CR, when ordinary drift
+- [x] Given the active solver is implemented under this CR, when ordinary drift
       recovery is applied to a `CVV` or `CVVC` syllable, then the long vowel may
       still move inside its legal range.
-- [ ] Given the active solver is implemented under this CR, when a punctuation-
+- [x] Given the active solver is implemented under this CR, when a punctuation-
       owned short or long pause is realized, then the pause duration is chosen
       inside its legal band so the resulting drift is as close to zero as that
       band allows.
-- [ ] Given the active solver is implemented under this CR, when a merged unit
-      ends without punctuation and `abs(drift_cursor) >= pauses.mini.min`, then
-      one mini pause may be inserted to bring drift as close to zero as the mini
-      band allows.
-- [ ] Given the default phonetize timing config is inspected, when
+- [x] Given the active solver is implemented under this CR, when a merged unit
+  ends without punctuation and `drift_cursor <= -pauses.mini.min`, then one
+  mini pause may be inserted to bring drift as close to zero as the mini
+  band allows.
+- [x] Given the default phonetize timing config is inspected, when
       `drift_tolerance` is read, then the active default is `0`.
-- [ ] Given the active solver is implemented under this CR, when accentuation is
+- [x] Given the active solver is implemented under this CR, when accentuation is
       realized, then the solver still adds exactly `0.5 * cvc_reference` and
       does not use short vowels as accentuation targets.
-- [ ] Given the phonetizer algorithm docs are updated during implementation,
+- [x] Given the phonetizer algorithm docs are updated during implementation,
       when `docs/akkapros/phonetizer-algorithm.md` is read, then it explains the
       timeline model, the hard-short-vowel rule, the long-vowel and pause
       recovery space, and the mini-pause rule clearly.
-- [ ] Given implementation code is reviewed, when tolerance handling is traced,
+- [x] Given implementation code is reviewed, when tolerance handling is traced,
       then `drift_tolerance` remains isolated enough to be removable by a later
       narrow follow-up.
 
@@ -502,28 +504,28 @@ the earlier default tolerance.
 
 ### Implementation
 
-- [ ] Exclude short vowels from ordinary drift-correction logic
-- [ ] Preserve long-vowel and pause-band correction paths
-- [ ] Add or retain mini-pause insertion at eligible merged-unit boundaries
-- [ ] Change default `drift_tolerance` to `0`
-- [ ] Keep tolerance handling isolated for later removal
+- [x] Exclude short vowels from ordinary drift-correction logic
+- [x] Preserve long-vowel and pause-band correction paths
+- [x] Add or retain mini-pause insertion at eligible merged-unit boundaries
+- [x] Change default `drift_tolerance` to `0`
+- [x] Keep tolerance handling isolated for later removal
 
 ### Tests
 
-- [ ] Add unit coverage for hard short vowels
-- [ ] Add unit coverage for long-vowel recovery and pause recovery
-- [ ] Add unit coverage for mini-pause eligibility
-- [ ] Update config and integration tests for the new default tolerance
+- [x] Add unit coverage for hard short vowels
+- [x] Add unit coverage for long-vowel recovery and pause recovery
+- [x] Add unit coverage for mini-pause eligibility
+- [x] Update config and integration tests for the new default tolerance
 
 ### Documentation
 
-- [ ] Update public phonetizer timing documentation
-- [ ] Rewrite `docs/akkapros/phonetizer-algorithm.md` around the clarified
+- [x] Update public phonetizer timing documentation
+- [x] Rewrite `docs/akkapros/phonetizer-algorithm.md` around the clarified
       timeline model and old-vs-new contrast
 
 ### Review
 
-- [ ] Verify the implementation against the extracted current algorithm and the
+- [x] Verify the implementation against the extracted current algorithm and the
       requested new algorithm in this CR
 
 ---

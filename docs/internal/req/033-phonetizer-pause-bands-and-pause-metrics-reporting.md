@@ -1,6 +1,6 @@
 ---
 req_id: REQ-033
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-14
@@ -42,48 +42,48 @@ short vowels are fixed, long vowels and pauses remain flexible.
 
 *Verifiable conditions that must be met. Use Given/When/Then format where appropriate.*
 
-- [ ] Given Phase 2 timing is entered, when syllables are classified for timing,
+- [x] Given Phase 2 timing is entered, when syllables are classified for timing,
       then the active non-accentuated classes remain exactly `CV`, `CVC`, `CVV`,
       and `CVVC` and the active accentuated classes remain exactly `C:V`,
       `CVC:`, `CVV:`, and `CVV:C`.
-- [ ] Given Phase 2 timing is entered, when the row stream is interpreted, then
+- [x] Given Phase 2 timing is entered, when the row stream is interpreted, then
       each syllable still begins with a consonant or pseudo-consonant in timing
       terms, including hiatus and vowel-transition rows.
-- [ ] Given nominal beat values are computed, when a non-accentuated syllable is
+- [x] Given nominal beat values are computed, when a non-accentuated syllable is
       targeted, then `CV = 0.5 * cvc_reference`, `CVC = 1.0 * cvc_reference`,
       `CVV = 1.0 * cvc_reference`, and `CVVC = 1.5 * cvc_reference` remain the
       active targets.
-- [ ] Given a syllable is accentuated, when its target is computed, then the
+- [x] Given a syllable is accentuated, when its target is computed, then the
       solver still adds exactly `0.5 * cvc_reference` beyond the corresponding
       non-accentuated target.
-- [ ] Given a non-accentuated `CV` or `CVC` syllable is realized, when ordinary
+- [x] Given a non-accentuated `CV` or `CVC` syllable is realized, when ordinary
       drift recovery is applied, then the short vowel duration is not changed.
-- [ ] Given a non-accentuated `CVV` or `CVVC` syllable is realized, when
+- [x] Given a non-accentuated `CVV` or `CVVC` syllable is realized, when
       ordinary drift recovery is applied, then the long vowel may still move
       inside its legal range.
-- [ ] Given a punctuation-owned short or long pause is realized, when the solver
+- [x] Given a punctuation-owned short or long pause is realized, when the solver
       chooses a pause duration, then it chooses one legal duration inside the
       configured band that brings signed drift as close to zero as that band
       allows.
-- [ ] Given a punctuation-owned pause cannot bring signed drift exactly to zero,
+- [x] Given a punctuation-owned pause cannot bring signed drift exactly to zero,
       when the pause is realized, then the realized pause duration is clamped
       inside the legal band and the residual drift is carried forward.
-- [ ] Given the stream reaches a merged-unit boundary with no punctuation-owned
-      pause, when `abs(drift_cursor) >= pauses.mini.min`, then the phonetizer
-      may insert one mini pause to bring drift as close as possible to zero
-      inside the configured mini band.
-- [ ] Given a mini pause is inserted, when its function is described, then it is
+- [x] Given the stream reaches a merged-unit boundary with no punctuation-owned
+      pause, when `drift_cursor <= -pauses.mini.min`, then the phonetizer may
+      insert one mini pause to bring drift as close as possible to zero inside
+      the configured mini band.
+- [x] Given a mini pause is inserted, when its function is described, then it is
       treated as a non-voluntary phonetizer recovery gap rather than as lexical
       phoneme structure or punctuation-owned pause structure.
-- [ ] Given accentuation is realized, when the solver distributes the added
+- [x] Given accentuation is realized, when the solver distributes the added
       `0.5 * cvc_reference`, then it does not use short vowels as accentuation
       targets.
-- [ ] Given the default phonetize timing config is inspected, when
+- [x] Given the default phonetize timing config is inspected, when
       `drift_tolerance` is read, then the default value is `0`.
-- [ ] Given the implementation is reviewed, when tolerance handling is traced,
+- [x] Given the implementation is reviewed, when tolerance handling is traced,
       then `drift_tolerance` is isolated enough that a later narrow change could
       remove it without redesigning the whole solver.
-- [ ] Given public phonetizer documentation is updated, when
+- [x] Given public phonetizer documentation is updated, when
       `docs/akkapros/phonetizer-algorithm.md` is read, then it explains the
       timeline model, the hard-short-vowel rule, the role of long vowels and
       pauses as remaining recovery space, and the mini-pause rule clearly.

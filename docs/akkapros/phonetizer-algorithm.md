@@ -1,243 +1,329 @@
 # Phonetizer Algorithm
 
-This document describes the currently implemented three-pass phonetize
-algorithm as exposed by the live `phonetizer` stage.
+This document describes the live phonetizer solver used by the `phonetizer`
+stage and by `fullprosmaker` during phonetization.
 
-The practical question answered here is: once prosody has already been decided
-in `_tilde.txt`, how does the toolkit turn that structure into a paired
-phonetic representation that can drive both metrics and MBROLA export?
+The practical question is simple: once prosody has already been fixed in
+`_tilde.txt`, how are concrete phone-row durations and row-level intonation
+assigned?
 
-## Current Scope
+## Scope
 
-It provides:
-- one canonical `phonetize` config section
-- one executable `phonetizer` CLI
-- two materialized artifacts, `<prefix>_ophone.txt` and `<prefix>_phone.txt`
-- one shared library module, `src/akkapros/lib/phonetize.py`
+The phonetizer produces two phone-row streams from one `_tilde` input:
 
-It implements separate duration-realization and intonation-realization passes
-over the prebuilt row streams.
+- `<prefix>_ophone.txt` for the derived original stream
+- `<prefix>_phone.txt` for the accentuated stream
 
-It also now has one baseline semantic-validation boundary shared with
-`confwriter --verify`. Schema-valid grouped config is a prerequisite; semantic
-verification then enforces the current narrow invariant inventory and warning
-layer before standalone phonetizer runtime proceeds into Phase 2.
+Both streams use the same row contract and the same Phase 2 duration solver.
+The difference is only structural input:
 
-Phase 1 now derives the original stream deterministically from accentuated `_tilde` by removing `~` and replacing internal merges `&` with spaces while preserving explicit lexical merges `+`.
-
-## Canonical Inventory
-
-The live implementation keeps the segment inventories in code-owned canonical
-tables, but the user-facing point is simpler: the phonetizer distinguishes
-ordinary consonants, vowels, pauses, hiatus markers, and vowel-transition
-markers in a stable way before any duration or pitch is assigned.
-
-The input-character inventory is kept distinct from realization codes. The input side preserves exact source glyph identity, including separate labels for short, long, and circumflex vowels, plus the normalized pause representatives `:inner-punct:` and `:phrasal-punct:`.
-
-The realization-code inventory is authoritative for realization-side `Category`, `Type`, and `Emphaticity`. Representative pause rows use `SP` with IPA `|` and `ZP` with IPA `‖`.
+- the accentuated stream preserves `~`, `&`, `+`, `·`, and `-`
+- the original stream is derived by removing `~` and replacing internal merge
+  marks `&` with spaces while preserving explicit lexical merges `+`
 
 ## Row Model
 
-The current `_ophone.txt` and `_phone.txt` bodies use the canonical flat-line row contract:
+Each output row uses this flat-line format:
 
 ```text
 label-category-type-length-position-boundary-accent-realization-duration-intonation:text
 ```
 
-Implemented semantics:
-- `label` is the canonical source-facing row label such as `SUD`, `AYA`, `ARU`, or `ZEN`
+Important fields:
+
 - `category` is `C`, `V`, or `S`
-- `type` is split from `length` and preserves hiatus (`H`), vowel-transition (`T`), closure (`C`), fricative (`F`), sonorant (`S`), and vowel-height classes
-- `position` is `O`, `C`, `N`, or `S`
-- `boundary` is `N`, `I`, `E`, `L`, `X`, or `F`
-- `realization` is the two-character code inventory token such as `SU`, `AA`, `AO`, `SP`, or `ZP`
-- `duration` is the finalized millisecond duration emitted by Phase 2
-- `intonation` is the finalized three-character row token emitted by Phase 3
-- `text` preserves the source glyph, punctuation mark, or `<EOL>`
+- `position` is onset `O`, coda `C`, nucleus `N`, or silence `S`
+- `boundary` records the closing structure carried by the row
+- `duration` is the Phase 2 millisecond result
+- `intonation` is the Phase 3 row token
+- `text` preserves the source glyph, punctuation suite, `<EOL>`, or the
+  inserted mini-pause marker
 
-Supported serializations:
+Pause rows use the same code inventory as before:
 
-```text
-('SUD','C','F','S','O','N','F','SU','0137','M0C','ṣ')
-SUD-C-F-S-O-N-F-SU-0137-M0C:ṣ
-```
+- short-like pauses use `SES` / `SP`
+- long pauses and line breaks use `ZEN` / `ZP`
 
-The flat-line form is the canonical file serialization.
-
-## Duration Source
-
-The live builder remains structure-first. Phase 1 materializes the full row
-contract with placeholder duration and neutral intonation, Phase 2 traverses
-those rows in place to assign non-zero durations from the active timing model,
-and Phase 3 traverses the duration-bearing rows to assign row-carried
-intonation from stress and pause type.
-
-That separation matters for interpretation. A row exists before it receives a
-duration, and it receives a duration before it receives a final contour. This
-is why the same phone-row artifacts can support both phonetic analysis and
-speech-synthesis export without keeping separate hidden state.
+The phonetizer may also insert a non-punctuation mini-pause row during Phase 2.
+That row is a phone-row artifact only. It is not part of lexical structure and
+is ignored when reconstructing upstream `_tilde` text from finalized rows.
 
 ## Shared Validation Boundary
 
-The current shared verification layer is intentionally baseline-only.
+Before standalone phonetizer runtime enters Phase 2, the effective grouped
+config is passed through the shared semantic verification layer also used by
+`confwriter --verify`.
 
-It verifies explicit, path-addressable relations such as:
+That layer validates the current live timing model, including:
 
-- enum-like process policy inventories
-- positive-integer timing representation for the validated phonetize surface
-- `0 < phonetize.process.timing_model.speech.pause_ratio < 100`
-- consonant and vowel ordering relations required by the active timing model
-- pause-band ordering and integer-multiple compatibility with
-	`phonetize.process.timing_model.durations.cvc_reference`
+- enum-like process-policy values
+- positive integer timing leaves
+- consonant and vowel ordering constraints
+- pause-band ordering
+- short- and long-pause compatibility against `cvc_reference`
+- the non-negative integer requirement for `drift_tolerance`
 
-It also emits warning-only signals for the current accepted warning layer,
-including high pause ratios, strong onset/coda divergence inside a consonant
-class, short-pause compatibility warnings, and selected default-deviation
-warnings for the narrow parameter set named by the internal requirement record.
+The live default now sets `drift_tolerance = 0`.
 
-This layer is not the final exhaustive solver-validation regime. It is the
-current shared baseline used by config authoring verification and standalone
-phonetizer preflight.
+## Timeline Model
 
-## Dual Stream Behavior
+Phase 2 is a timeline solver organized around one beat reference:
 
-The phonetizer now builds two row streams from one `_tilde` input:
-- accentuated rows preserve `~`, `&`, `+`, `·`, and `-` through the row boundary and accent fields
-- original rows are built from the derived deaccented view where `~` is removed and `&` becomes ordinary space while `+` remains preserved
+- `cvc_reference`
 
-Round-trip reconstruction uses the emitted row fields rather than hidden builder state. Accentuated rows reconstruct the accentuated `_tilde` structure plus the normalized final line break; original rows reconstruct the derived original view plus that same normalized final line break.
+The nominal non-accentuated targets are:
 
-## Boundary Behavior
+- `CV = 0.5 * cvc_reference`
+- `CVC = 1.0 * cvc_reference`
+- `CVV = 1.0 * cvc_reference`
+- `CVVC = 1.5 * cvc_reference`
 
-The current stage:
-- carries the closing structure on the last segment of each syllable or prosodic unit
-- uses `I` for ordinary internal syllable breaks and `E` for enclitic dashes
-- uses `L` for internal merges (`&`) and `X` for explicit merges (`+`)
-- uses `F` for prosodic-unit endings, including space-separated words before the next unit
-- emits `SES` / `SP` rows for short pauses and `ZEN` / `ZP` rows for long pauses and line breaks
-- serializes line breaks as `<EOL>` in the `text` field
-- inserts one final `<EOL>` long-pause row if the consumed `_tilde` text had no terminal line break
-- classifies one punctuation suite by typed pause precedence: `Q > E > S > C > I`
+Accentuated shapes still add exactly `0.5 * cvc_reference` beyond the matching
+non-accentuated target.
 
-Pause-type meaning:
+The solver carries one signed running value, `drift_cursor`:
 
-- `Q` question-final pause
-- `E` exclamatory pause
-- `S` statement-final pause, including ordinary line-final closure
-- `C` continuation pause such as comma- or semicolon-like carry-on phrasing
-- `I` internal or sanitizing pause that carries no clause-final override
+- negative drift means the stream is ahead of the beat
+- positive drift means the stream is behind the beat
 
-Boundary reconstruction examples:
-- `I` reconstructs `·` inside a word.
-- `E` reconstructs `-` for enclitic attachment.
-- `L` reconstructs `&` for internal merges inside a prosodic unit.
-- `X` reconstructs `+` for explicit inherited merges.
-- `F` closes the current prosodic unit rather than reconstructing another separator.
+## Phase 1: Row Building
 
-Examples:
-- `šit·ku·nat-ma` yields `I`, `I`, `E`, `F` on the boundary-bearing rows.
-- `u+ana&šar~·ri` yields `X`, `L`, `I`, `F` and reconstructs to the same `_tilde` structure.
+The row builder is structure-first.
 
-Neighborhood traversal across emitted rows may cross word boundaries. Silence rows are the only mandatory stopping points for local look-behind or look-ahead logic.
+It does not assign timings yet. It only materializes rows with:
 
-Finalized front matter also carries drift summaries for each emitted stream:
+- placeholder duration `0000`
+- neutral intonation `M0C`
+- explicit syllable and boundary structure
+
+Boundary behavior remains:
+
+- `I` for internal syllable breaks
+- `E` for enclitic dashes
+- `L` for internal merges (`&`)
+- `X` for explicit merges (`+`)
+- `F` for prosodic-unit endings
+
+Punctuation suites are classified once by pause precedence:
+
+- `Q > E > S > C > I`
+
+The builder also normalizes a missing terminal line break into one final
+`<EOL>` long-pause row.
+
+## Phase 2: Duration Solver
+
+### Overview
+
+Phase 2 partitions the prebuilt stream into syllables and pauses. It then walks
+left to right and updates `drift_cursor` after each realized unit.
+
+The solver is conservative about what may move:
+
+- consonants are hard anchors
+- short vowels are also hard anchors
+- long vowels remain the only syllable-internal recovery space
+- pauses remain inter-unit recovery space
+
+This is the key current rule: ordinary drift recovery never changes a short
+vowel.
+
+### Step Order
+
+For each syllable unit, the solver does the following.
+
+1. Assign baseline onset anchors.
+2. Assign coda anchors if present.
+3. Assign the nucleus anchor.
+4. If the coda is followed by the same onset consonant, pre-assign the next
+   onset through the geminate policy.
+5. If the stream is accentuated and this syllable carries accentuation, add
+   exactly `0.5 * cvc_reference` using the configured accentuation-distribution
+   policy.
+6. Compute the current syllable target from the beat mapping.
+7. Compute signed post-assignment drift:
+
+```text
+drift_after_assignment = drift_cursor + (realized_total - shape_ref)
+```
+
+8. Apply ordinary vowel correction only if the nucleus is long.
+9. If unresolved absolute drift still exceeds `drift_tolerance`, branch by
+   `drift_policy`.
+10. If the current boundary is eligible and the stream is still ahead of the
+    beat by at least the mini minimum, optionally insert one mini pause.
+
+### Hard Short Vowels
+
+The implementation now treats short vowels as fixed anchors.
+
+Operationally, that means the legal ordinary-recovery bounds for a short vowel
+collapse to the configured short-vowel anchor itself. The short vowel is not
+shortened, lengthened, or used as a hidden local repair buffer.
+
+Consequences:
+
+- `CV` and `CVC` syllables may leave substantial drift behind
+- that drift must be discharged later by a long vowel, a punctuation-owned
+  pause, a mini pause, or retained drift
+
+### Long-Vowel Recovery
+
+Long vowels still provide ordinary syllable-internal flexibility.
+
+Their legal recovery space runs from the configured long-vowel threshold to the
+ configured vowel maximum. In practice, that means a `CVV` or `CVVC` syllable
+can still absorb timing mismatch locally when the nucleus has legal room left.
+
+### Accentuation Routing
+
+Accentuation still adds exactly `0.5 * cvc_reference`.
+
+What did not change:
+
+- the increment size
+- the distribution-policy family (`100_0`, `85_15`, `70_30`)
+- the same-consonant handling logic around coda/onset pairs
+
+What did change:
+
+- short vowels are not accentuation targets
+
+So the extra mora is realized through accentable consonants or long-vowel space
+only.
+
+### Pause Realization
+
+Punctuation-owned pauses still use legal pause bands.
+
+- short pause band: `pauses.short.min .. pauses.short.max`
+- long pause band: `pauses.long.min .. pauses.long.max`
+
+The solver chooses one legal value inside the active band that brings signed
+drift as close to zero as the band allows.
+
+This has two important consequences:
+
+- if zero drift is reachable inside the band, the realized pause lands there
+- if zero drift is not reachable, the pause clamps inside the band and carries
+  residual drift forward
+
+Long pauses no longer have a special conceptual status beyond their wider band.
+They usually reset drift in normal configurations because their legal space is
+much larger, but the rule is still "closest legal discharge," not an automatic
+magical reset.
+
+### Mini Pauses
+
+Mini pauses are non-punctuation recovery gaps inserted by the phonetizer.
+
+They are not lexical phoneme structure and are not punctuation-owned pauses.
+
+The live solver inserts at most one mini pause at an eligible boundary when all
+of the following are true:
+
+- the current drift is negative, so the stream is ahead of the beat
+- the absolute drift is at least `pauses.mini.min`
+- the next unit is another syllable, not an existing pause row
+- the current syllable ends at a plain word boundary (`F`)
+
+The mini pause then chooses a legal duration inside:
+
+- `pauses.mini.min .. pauses.mini.max`
+
+It uses the duration that brings drift as close as possible to zero.
+
+The default mini band is:
+
+- `pauses.mini.min = 100`
+- `pauses.mini.max = 200`
+
+## Worked Examples
+
+### Baseline `qat`
+
+With the default timing model, `qat` is realized as one closed syllable plus
+the normalized terminal `<EOL>` row.
+
+The consonantal anchors contribute `108 + 103 = 211 ms`, the short vowel stays
+fixed at `85 ms`, and the closed syllable therefore realizes as `296 ms`.
+
+Its nominal `CVC` target is one `cvc_reference`, or `305 ms`, so the stream
+leaves the syllable with `-9 ms` of drift before the terminal long pause is
+processed.
+
+### Short vowels no longer absorb local mismatch
+
+Consider a diagnostic setup with:
+
+- `cvc_reference = 350`
+- ordinary `qat`
+
+The segment anchors still sum to `296 ms`, so the syllable is `54 ms` ahead of
+the beat.
+
+Under the live solver, the short vowel remains `85 ms`. That mismatch is not
+hidden inside the vowel. It must be discharged later.
+
+### Long vowels still can
+
+For a long-vowel syllable such as `qā`, the nucleus remains legal recovery
+space. If the beat target demands more duration and the configured long-vowel
+range still has room, the solver may extend that long vowel before carrying any
+remaining drift forward.
+
+### Mini-pause example
+
+With a diagnostic mini band of `50 .. 80 ms` and `cvc_reference = 350`, the
+sequence `qat pa` leaves the first word `54 ms` ahead of the beat.
+
+Because that boundary is a plain word boundary, the next unit is another
+syllable, and no punctuation-owned pause already exists there, the phonetizer
+may insert one `54 ms` mini pause before `pa`.
+
+That mini pause is visible in the phone-row stream but not in reconstructed
+upstream `_tilde` text.
+
+## Phase 3: Intonation
+
+Intonation remains a separate pass over duration-bearing rows.
+
+The accentuated stream assigns row-level contour from:
+
+- lexical stress when no pause-final override applies
+- question pauses
+- statement pauses
+- exclamation pauses
+- continuation pauses
+
+Internal pauses, including inserted mini pauses, do not impose a clause-final
+contour.
+
+The original stream remains neutral in the current scope.
+
+## Drift Reporting
+
+Finalized front matter carries the phonetizer drift summary for each emitted
+stream:
+
 - `metadata.data.phonetize.drift.max`
 - `metadata.data.phonetize.drift.mean`
 - `metadata.data.phonetize.drift.stddev`
+- `metadata.data.phonetize.drift.current`
+- `metadata.data.phonetize.drift.label`
 - `metadata.data.phonetize.drift_extension_count`
 - `metadata.data.phonetize.max_drift_extension`
 
-## Intonation Outcome
+## Metrics Handoff
 
-The current implementation uses pause type as the cause-side signal for
-clause-level contour. In the present scope, the visible consequence is applied
-to the last syllable before the pause.
+`metricalc` consumes `_ophone.txt` and `_phone.txt` as the active downstream
+inputs.
 
-That means:
+That means the phonetizer owns the duration-bearing representation used for:
 
-- an ordinary stressed syllable receives the configured stress color when no
-	clause-final pause overrides it
-- a final question receives the configured question contour on the last
-	syllable before the question pause
-- a final statement receives the configured statement contour on the last
-	syllable before the statement pause
-- internal pauses of type `I` do not impose a clause-final contour
-
-The original stream remains neutral in the present implementation scope.
-
-## Worked Phase 2 Examples
-
-### Baseline syllable realization
-
-With the default timing model, the baseline `qat` stream is realized as one
-closed syllable:
-
-```text
-QUP-C-C-S-O-N-F-QU-0108:q
-AYA-V-L-S-N-N-F-AA-0085:a
-TAW-C-C-S-C-F-F-TA-0103:t
-```
-
-The consonantal anchors contribute `108 + 103 = 211 ms`, the short vowel is
-realized at `85 ms`, and the total realized syllable duration is therefore
-`296 ms`. The default `CVC` target is one `cvc_reference`, or `305 ms`, so the
-stream leaves this syllable with `-9 ms` of running drift. That is why the
-reported drift label stays on the rushing side until a later syllable or pause
-discharges it.
-
-### Pause discharge versus pause reset
-
-The solver treats short and long pauses differently.
-
-For an ordinary short pause, the row must stay inside the configured short band
-and may therefore carry residual drift forward if the band blocks complete
-discharge. A representative diagnostic setup is:
-
-- `cvc_reference = 200`
-- `drift_policy = extensible`
-- `drift_tolerance = 0`
-- `pauses.short.min = pauses.short.max = 600`
-
-Under that configuration, `qat,` reaches the short pause with positive drift.
-The short-pause row itself is still forced to `600 ms`, so that row cannot
-fully discharge the drift. If the source text had no final line break, the
-normalized terminal `<EOL>` long pause written after the comma then resets the
-stream to zero before the file ends.
-
-The same setup with `qat\n` behaves differently. The long pause is allowed to
-choose any legal value inside the long-pause band and must unload the full drift
-reserve, so the post-pause drift returns to `0` and the report ends `On the
-beat`.
-
-### Same-consonant boundary handling
-
-Same-consonant coda/onset chains are decided during realization of the first
-syllable, not delayed until the following syllable becomes current.
-
-In `at·ta`, the first `t` is the coda of the first syllable and the second `t`
-is the onset of the next one. Under `geminate_policy = corrective`, the solver
-normalizes that pair toward the configured geminate target, so the coda keeps
-its ordinary `103 ms` closure while the next onset is pre-assigned the reduced
-companion duration used by the geminate pair. Under
-`geminate_policy = cumulative`, the second onset keeps its ordinary onset anchor
-instead of being corrected downward. The emitted rows stay identical; only the
-durations differ.
-
-Special-realization note:
-- hiatus rows use the closure special-realization anchor only as an unstressed baseline
-- vowel-transition rows use the sonorant special-realization anchor only as an unstressed baseline
-- when those rows are accentuated in later duration realization, timing escalates to the corresponding class geminate target without changing row identity
-
-The `_tilde` input contract consumed here may also carry armored punctuation spans as `⟦...⟧`; those are preserved as structured pause rows rather than de-armored back to plain punctuation upstream. Unsupported non-punctuation armored content fails explicitly instead of being dropped silently.
-
-## Metrics Handoff Note
-
-`metricalc` now consumes `_ophone.txt` and `_phone.txt` directly as its active
-inputs. The phonetizer owns the duration-bearing representation used for
-interval metrics, drift reporting, and explicit-link reconstruction.
-
-`_tilde.txt` remains the upstream prosody pivot for phonetizer input and
-upstream reconstruction, but it is no longer the active downstream source for
-metrics or printer.
+- interval metrics
+- pause totals
+- drift reporting
+- downstream printer and MBROLA export
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`

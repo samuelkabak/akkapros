@@ -130,7 +130,7 @@ phonetize:
       # canonical grouped-config default for drift_policy is extensible.
       drift_policy: "extensible"
       # maximum local timing mismatch tolerated before the algorithm must fail
-      drift_tolerance: 12
+      drift_tolerance: 0
       speech:
         # Speech-rate estimate used by timing and pause logic.
         wpm: 193
@@ -225,6 +225,14 @@ phonetize:
             # Upper ordinary bound for contextual vowel extension.
             max: 240
         pauses:
+          # Default mini-pause band. Non-punctuation recovery gap used only when the
+          # stream is ahead of the beat and no punctuation-owned pause already follows
+          # the current merged unit boundary.
+          mini:
+            # Minimum mini-pause duration.
+            min: 100
+            # Maximum mini-pause duration.
+            max: 200
           # Default short-pause band. Empirically grounded short-pause region from
           # comparative studies. Rhythmic alignment remains possible when at least one
           # integer multiple N * cvc_reference falls inside this band without redefining

@@ -8,6 +8,7 @@ from akkapros.lib.phonetize import (
     INPUT_CHARACTER_LABELS,
     INPUT_CHARACTER_LENGTHS,
     INPUT_TO_REALIZATION_CODES,
+    MINI_PAUSE_TEXT,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_ROWS,
     REALIZATION_CODE_METADATA,
@@ -411,6 +412,109 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
     assert report['drift']['label'] == 'On the beat'
 
 
+def test_phase2_short_vowels_stay_hard_during_ordinary_drift_recovery() -> None:
+    rows = build_phone_rows('qat')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_policy': 'extensible',
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 350,
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0085'
+
+
+def test_phase2_long_vowels_remain_available_for_ordinary_drift_recovery() -> None:
+    rows = build_phone_rows('qā')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_policy': 'extensible',
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 400,
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert int(rows[1]['duration']) > 160
+
+
+def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
+    rows = build_phone_rows('qat pa')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_policy': 'extensible',
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 350,
+                        'pauses': {
+                            'mini': {
+                                'min': 50,
+                                'max': 80,
+                            },
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
+    assert len(mini_pause_rows) == 1
+    assert mini_pause_rows[0]['duration'] == '0054'
+    assert reconstruct_tilde_from_phone_rows(rows) == 'qat pa\n'
+
+
+def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> None:
+    rows = build_phone_rows('qat, pa')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_policy': 'extensible',
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 350,
+                        'pauses': {
+                            'mini': {
+                                'min': 50,
+                                'max': 80,
+                            },
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+
+
 def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
     config = {
         'process': {
@@ -491,6 +595,7 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
 
     assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '85_15'
     assert defaults['process']['timing_model']['drift_policy'] == 'extensible'
+    assert defaults['process']['timing_model']['drift_tolerance'] == 0
 
 
 def test_shared_verification_warns_on_high_pause_ratio() -> None:

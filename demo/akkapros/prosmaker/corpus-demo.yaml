@@ -50,7 +50,7 @@ phonetize:
       accentuation_distribution_policy: "85_15"
       short_pause_policy: "strict"
       drift_policy: "extensible"
-      drift_tolerance: 12
+      drift_tolerance: 0
       speech:
         wpm: 193
         pause_ratio: 35
@@ -90,6 +90,9 @@ phonetize:
             very_long_min: 190
             max: 240
         pauses:
+          mini:
+            min: 100
+            max: 200
           short:
             min: 600
             max: 680

@@ -46,6 +46,9 @@ The following effective phonetizer timing parameters are the ones used for this
 verification sample. They must be stated explicitly so the computation can be
 reproduced without relying on hidden defaults.
 
+This page records one fixed sample configuration. It is not a statement of the
+current package defaults after later phonetizer timing changes such as CR-059.
+
 ### Policy settings
 
 - `geminate_policy = corrective`

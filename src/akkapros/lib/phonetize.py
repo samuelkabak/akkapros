@@ -99,7 +99,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 choices=('strict', 'extensible'),
             ),
             'drift_tolerance': _field(
-                12,
+                0,
                 'int',
                 'maximum local timing mismatch tolerated before the algorithm must fail',
             ),
@@ -176,6 +176,11 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 },
                 'pauses': {
                     '__comment__': None,
+                    'mini': {
+                        '__comment__': 'Default mini-pause band. Non-punctuation recovery gap used only when the stream is ahead of the beat and no punctuation-owned pause already follows the current merged unit boundary.',
+                        'min': _field(100, 'int', 'Minimum mini-pause duration.'),
+                        'max': _field(200, 'int', 'Maximum mini-pause duration.'),
+                    },
                     'short': {
                         '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies. Rhythmic alignment remains possible when at least one integer multiple N * cvc_reference falls inside this band without redefining the empirical range.',
                         'min': _field(600, 'int', 'Minimum short-pause duration.'),
@@ -219,6 +224,7 @@ PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
 EOL_TEXT = '<EOL>'
+MINI_PAUSE_TEXT = ':mini-pause:'
 
 CONSONANT_HIATUS = set('˙')
 CONSONANT_VOWEL_TRANSITION = set('¨')
@@ -658,13 +664,14 @@ def _new_segment_seed(symbol: str) -> dict[str, str]:
     }
 
 
-def _new_pause_row(text: str, *, pause_type: str, is_long: bool) -> dict[str, str]:
+def _new_pause_row(text: str, *, pause_type: str, length_code: str) -> dict[str, str]:
+    is_long = length_code == 'L'
     label = 'ZEN' if is_long else 'SES'
     return {
         'label': label,
         'category': 'S',
         'type': pause_type,
-        'length': 'L' if is_long else 'S',
+        'length': length_code,
         'position': 'S',
         'boundary': 'N',
         'accent': 'P',
@@ -673,6 +680,14 @@ def _new_pause_row(text: str, *, pause_type: str, is_long: bool) -> dict[str, st
         'intonation': PHONE_ROW_INTONATION_NEUTRAL,
         'text': text,
     }
+
+
+def _new_mini_pause_row() -> dict[str, str]:
+    return _new_pause_row(MINI_PAUSE_TEXT, pause_type='I', length_code='S')
+
+
+def _is_mini_pause_row(row: dict[str, str]) -> bool:
+    return row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT
 
 
 def _normalize_intonation_token(value: str) -> str:
@@ -854,7 +869,7 @@ def _append_armored_pause_rows(
             long_pause_regex=long_pause_regex,
         )
         finish_syllable('F')
-        rows.append(_new_pause_row(normalized, pause_type=pause_type, is_long=is_long))
+        rows.append(_new_pause_row(normalized, pause_type=pause_type, length_code='L' if is_long else 'S'))
 
 
 def _resolve_pause_punctuation_rules(
@@ -1179,13 +1194,15 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         )
 
     if not (
-        pauses['short']['min'] < pauses['short']['max']
-        and pauses['long']['min'] < pauses['long']['max']
+        pauses['mini']['min'] < pauses['mini']['max']
+        and pauses['mini']['max'] < pauses['short']['min']
+        and pauses['short']['min'] < pauses['short']['max']
         and pauses['short']['max'] < pauses['long']['min']
+        and pauses['long']['min'] < pauses['long']['max']
     ):
         add_failure(
-            'phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max',
-            'short.min < short.max < long.min < long.max',
+            'phonetize.process.timing_model.durations.pauses.mini.min, phonetize.process.timing_model.durations.pauses.mini.max, phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max',
+            'mini.min < mini.max < short.min < short.max < long.min < long.max',
             'Pause-band ordering is invalid.',
         )
 
@@ -1230,6 +1247,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         ('process', 'timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'geminate_min'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
+        ('process', 'timing_model', 'durations', 'pauses', 'mini', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'short', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'long', 'min'),
     )
@@ -1319,7 +1337,8 @@ def _vowel_bounds(row: dict[str, str], config: dict[str, Any]) -> tuple[float, f
     vowels_cfg = config['timing_model']['durations']['vowels']
     limits = vowels_cfg['perception_limits']
     if row['length'] == 'S':
-        return float(limits['short_min']), float(limits['long_min'] - 1)
+        anchor = float(vowels_cfg['short'])
+        return anchor, anchor
     return float(limits['long_min']), float(limits['max'])
 
 
@@ -1517,14 +1536,15 @@ def _preferred_pause_target(row: dict[str, str], config: dict[str, Any]) -> floa
 
 def _pause_duration_and_drift(row: dict[str, str], config: dict[str, Any], drift_cursor: float) -> tuple[float, float]:
     pauses_cfg = config['timing_model']['durations']['pauses']
-    band = pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short']
+    band = pauses_cfg['mini'] if _is_mini_pause_row(row) else (pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short'])
     minimum = float(band['min'])
     maximum = float(band['max'])
+    if _is_mini_pause_row(row):
+        actual = min(max(-drift_cursor, minimum), maximum)
+        return actual, drift_cursor + actual
     preferred = _preferred_pause_target(row, config)
     desired = preferred - drift_cursor
     actual = min(max(desired, minimum), maximum)
-    if row['length'] == 'L':
-        return actual, 0.0
     new_drift = drift_cursor + (actual - preferred)
     return actual, new_drift
 
@@ -1647,6 +1667,33 @@ def _drift_label(drift_value: float) -> str:
     return 'Behind (dragging)'
 
 
+def _maybe_insert_mini_pause(
+    rows: list[dict[str, str]],
+    units: list[dict[str, Any]],
+    unit_index: int,
+    analysis: dict[str, Any],
+    config: dict[str, Any],
+    drift_cursor: float,
+) -> tuple[dict[str, str], float, float] | None:
+    if drift_cursor >= 0:
+        return None
+    if unit_index + 1 >= len(units) or units[unit_index + 1]['kind'] != 'syllable':
+        return None
+    if rows[analysis['indices'][-1]]['boundary'] != 'F':
+        return None
+
+    mini_cfg = config['timing_model']['durations']['pauses']['mini']
+    mini_min = float(mini_cfg['min'])
+    if abs(drift_cursor) < mini_min:
+        return None
+
+    mini_row = _new_mini_pause_row()
+    pause_duration, new_drift = _pause_duration_and_drift(mini_row, config, drift_cursor)
+    if abs(new_drift) >= abs(drift_cursor):
+        return None
+    return mini_row, pause_duration, new_drift
+
+
 def realize_phone_rows(
     rows: list[dict[str, str]],
     phonetize_config: dict[str, Any] | None = None,
@@ -1661,6 +1708,7 @@ def realize_phone_rows(
     drift_extension_count = 0
     max_drift_extension = 0.0
     tolerance = float(config['process']['drift_tolerance'])
+    inserted_after: dict[int, list[tuple[dict[str, str], float]]] = {}
 
     analyses: dict[int, dict[str, Any]] = {}
     for unit_index, unit in enumerate(units):
@@ -1711,13 +1759,25 @@ def realize_phone_rows(
         drift_cursor = drift_after_assignment
         drift_history.append(drift_cursor)
 
+        mini_pause = _maybe_insert_mini_pause(rows, units, unit_index, analysis, config, drift_cursor)
+        if mini_pause is not None:
+            mini_row, mini_duration, drift_cursor = mini_pause
+            inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration))
+            drift_history.append(drift_cursor)
+
     if config['process']['drift_policy'] == 'strict' and abs(drift_cursor) > tolerance:
         raise ValueError(
             f'Phase 2 ended with unresolved drift {drift_cursor:.2f} beyond tolerance {int(tolerance)}'
         )
 
+    finalized_rows: list[dict[str, str]] = []
     for index, row in enumerate(rows):
         row['duration'] = _format_duration(durations.get(index, 0.0))
+        finalized_rows.append(row)
+        for inserted_row, inserted_duration in inserted_after.get(index, ()):
+            inserted_row['duration'] = _format_duration(inserted_duration)
+            finalized_rows.append(inserted_row)
+    rows[:] = finalized_rows
 
     if drift_history:
         mean = sum(drift_history) / len(drift_history)
@@ -1796,7 +1856,7 @@ def build_phone_rows(
             continue
         if symbol == '\n':
             _finish('F')
-            rows.append(_new_pause_row(EOL_TEXT, pause_type='S', is_long=True))
+            rows.append(_new_pause_row(EOL_TEXT, pause_type='S', length_code='L'))
             index += 1
             continue
         if symbol == OPEN_ESCAPE:
@@ -1829,7 +1889,7 @@ def build_phone_rows(
                 long_pause_regex=long_pause_regex,
             )
             _finish('F')
-            rows.append(_new_pause_row(suite_text, pause_type=pause_type, is_long=is_long))
+            rows.append(_new_pause_row(suite_text, pause_type=pause_type, length_code='L' if is_long else 'S'))
             index = next_index
             continue
         if symbol in INPUT_CHARACTER_LABELS and symbol not in {INNER_PUNCT_TEXT, PHRASAL_PUNCT_TEXT}:
@@ -1871,8 +1931,12 @@ def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:
         if row['category'] != 'S' and previous_boundary == 'F':
             pieces.append(' ')
         if row['category'] == 'S':
-            pieces.append('\n' if row['text'] == EOL_TEXT else row['text'])
-            previous_boundary = ''
+            if row['text'] == EOL_TEXT:
+                pieces.append('\n')
+                previous_boundary = ''
+            elif row['text'] != MINI_PAUSE_TEXT:
+                pieces.append(row['text'])
+                previous_boundary = ''
             continue
         pieces.append(row['text'])
         if row['accent'] == 'A':

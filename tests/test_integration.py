@@ -7,7 +7,7 @@ from pathlib import Path
 
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
 from akkapros.lib.frontmatter import split_frontmatter
-from akkapros.lib.phonetize import parse_phone_row
+from akkapros.lib.phonetize import MINI_PAUSE_TEXT, parse_phone_row, reconstruct_tilde_from_phone_rows
 from akkapros.lib.utils import format_path_for_logging
 
 
@@ -54,21 +54,21 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 29.74808324205915,
-            "percent_v": 23.88828039430449,
+            "percent_c": 29.735055835340486,
+            "percent_v": 25.607619881760456,
             "mean_c_ms": 113.16666666666667,
-            "mean_v_ms": 94.82608695652173,
+            "mean_v_ms": 101.69565217391305,
             "delta_c_ms": 65.08754787890607,
-            "delta_v_ms": 55.295767723817264,
+            "delta_v_ms": 35.27585056763793,
             "varco_c": 57.51476984881243,
-            "varco_v": 58.31282245060968,
+            "varco_v": 34.68766836492828,
             "rpvi_c": 76.82608695652173,
-            "npvi_v": 55.60672971171431,
+            "npvi_v": 19.877389043078438,
         },
         "drift": {
-            "max": 12.0,
-            "mean": 2.7407,
-            "stddev": 9.7623,
+            "max": 174.5,
+            "mean": 54.6481,
+            "stddev": 43.6963,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -106,21 +106,21 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.709781729991914,
-            "percent_v": 25.303152789005658,
-            "mean_c_ms": 130.75,
-            "mean_v_ms": 108.8695652173913,
-            "delta_c_ms": 80.22117862509874,
-            "delta_v_ms": 66.81597332311571,
-            "varco_c": 61.354629923593684,
-            "varco_v": 61.37249945813345,
-            "rpvi_c": 100.82608695652173,
-            "npvi_v": 54.81327367839272,
+            "percent_c": 31.92929292929293,
+            "percent_v": 26.13131313131313,
+            "mean_c_ms": 131.70833333333334,
+            "mean_v_ms": 112.47826086956522,
+            "delta_c_ms": 82.82233956219515,
+            "delta_v_ms": 55.277064640194986,
+            "varco_c": 62.88314297667458,
+            "varco_v": 49.14466512270911,
+            "rpvi_c": 102.82608695652173,
+            "npvi_v": 30.627868758254856,
         },
         "drift": {
-            "max": 74.5,
-            "mean": -5.7593,
-            "stddev": 21.3205,
+            "max": 137.5,
+            "mean": 28.5,
+            "stddev": 42.4133,
         },
     },
     "accentuation_stats": {
@@ -166,16 +166,16 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 29.74808324205915,
-            "percent_v": 23.88828039430449,
+            "percent_c": 29.735055835340486,
+            "percent_v": 25.607619881760456,
             "mean_c_ms": 113.16666666666667,
-            "mean_v_ms": 94.82608695652173,
+            "mean_v_ms": 101.69565217391305,
             "delta_c_ms": 65.08754787890607,
-            "delta_v_ms": 55.295767723817264,
+            "delta_v_ms": 35.27585056763793,
             "varco_c": 57.51476984881243,
-            "varco_v": 58.31282245060968,
+            "varco_v": 34.68766836492828,
             "rpvi_c": 76.82608695652173,
-            "npvi_v": 55.60672971171431,
+            "npvi_v": 19.877389043078438,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -214,16 +214,16 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 33.30719466771222,
-            "percent_v": 24.99509900019604,
-            "mean_c_ms": 141.58333333333334,
-            "mean_v_ms": 110.8695652173913,
-            "delta_c_ms": 97.844228524505,
-            "delta_v_ms": 66.56497600274297,
-            "varco_c": 69.10716552643083,
-            "varco_v": 60.03899796325837,
-            "rpvi_c": 123.17391304347827,
-            "npvi_v": 58.782841133685395,
+            "percent_c": 33.97021359984323,
+            "percent_v": 25.347834607093866,
+            "mean_c_ms": 144.45833333333334,
+            "mean_v_ms": 112.47826086956522,
+            "delta_c_ms": 103.90940732462849,
+            "delta_v_ms": 55.277064640194986,
+            "varco_c": 71.93036561266466,
+            "varco_v": 49.14466512270911,
+            "rpvi_c": 129.17391304347825,
+            "npvi_v": 30.627868758254856,
         },
     },
     "accentuation_stats": {
@@ -660,6 +660,80 @@ def test_phonetizer_pho_outputs_xsampa_while_phone_rows_keep_realization_codes(t
     assert 'a.' in original_symbols
 
 
+def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_short_vowel_anchor'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'anchor_tilde.txt'
+    tilde_file.write_text('qat\n', encoding='utf-8')
+
+    config = apply_overrides(
+        build_default_config(),
+        {('phonetize', 'process.timing_model.durations.cvc_reference'): 350},
+    )
+    config_path = outdir / 'anchor.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    _run_cli(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '-p',
+        'anchor',
+        '--outdir',
+        str(outdir),
+        '--conf',
+        str(config_path),
+    )
+
+    phone_body = _strip_yaml_frontmatter(_read_text(outdir / 'anchor_phone.txt'))
+    phone_rows = [parse_phone_row(line) for line in phone_body.strip().splitlines()]
+
+    vowel_row = next(row for row in phone_rows if row['category'] == 'V')
+    assert vowel_row['text'] == 'a'
+    assert vowel_row['duration'] == '0085'
+
+
+def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_mini_pause'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'mini_tilde.txt'
+    tilde_file.write_text('qat pa\n', encoding='utf-8')
+
+    config = apply_overrides(
+        build_default_config(),
+        {
+            ('phonetize', 'process.timing_model.durations.cvc_reference'): 350,
+            ('phonetize', 'process.timing_model.durations.pauses.mini.min'): 50,
+            ('phonetize', 'process.timing_model.durations.pauses.mini.max'): 80,
+        },
+    )
+    config_path = outdir / 'mini.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    _run_cli(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '-p',
+        'mini',
+        '--outdir',
+        str(outdir),
+        '--conf',
+        str(config_path),
+    )
+
+    phone_text = _read_text(outdir / 'mini_phone.txt')
+    frontmatter, phone_body = split_frontmatter(phone_text)
+    assert frontmatter is not None
+    phone_rows = [parse_phone_row(line) for line in phone_body.strip().splitlines()]
+
+    mini_rows = [row for row in phone_rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
+    assert len(mini_rows) == 1
+    assert mini_rows[0]['duration'] == '0054'
+    assert reconstruct_tilde_from_phone_rows(phone_rows) == 'qat pa\n'
+    assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
+
+
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:
     outdir = tmp_path / 'printer_het_mapping'
     outdir.mkdir(parents=True, exist_ok=True)
@@ -896,16 +970,16 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
-        "%C: 29.75%",
-        "%V: 23.89%",
-        "%C: 31.71%",
-        "%V: 25.30%",
+        "%C: 29.74%",
+        "%V: 25.61%",
+        "%C: 31.93%",
+        "%V: 26.13%",
         "VarcoC: 57.51",
-        "VarcoC: 61.35",
+        "VarcoC: 62.88",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Drift max: 12.00 ms",
-        "Drift max: 74.50 ms",
+        "Drift max: 174.50 ms",
+        "Drift max: 137.50 ms",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2
@@ -993,12 +1067,12 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "Total syllables: 23 syllables",
         "Total words: 8 words",
         "Total words: 7 words",
-        "%C: 29.75%",
-        "%V: 23.89%",
-        "%C: 33.31%",
-        "%V: 25.00%",
+        "%C: 29.74%",
+        "%V: 25.61%",
+        "%C: 33.97%",
+        "%V: 25.35%",
         "VarcoC: 57.51",
-        "VarcoC: 69.11",
+        "VarcoC: 71.93",
         "Accentuated syllables: 7 syllables",
         "Accentuation rate: 30.43%",
     ]:

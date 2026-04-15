@@ -20,38 +20,38 @@ ušašqi qingu : ina birīšunu šâšu ušrabbīš
 
 VARCO_VERIFICATION_SAMPLE = "šazu šuḫgurim ina rebî : šākin tašmê ana ilī abbīšu\n"
 VARCO_VERIFICATION_ORIGINAL = {
-    "percent_c": 36.6510172143975,
-    "percent_v": 29.93740219092332,
+    "percent_c": 36.639549436795996,
+    "percent_v": 30.757196495619528,
     "mean_c_ms": 117.1,
-    "mean_v_ms": 95.65,
+    "mean_v_ms": 98.3,
     "delta_c_ms": 61.97410749659893,
-    "delta_v_ms": 56.628857484501665,
+    "delta_v_ms": 25.183526361492746,
     "varco_c": 52.924088383090464,
-    "varco_v": 59.20424201202474,
+    "varco_v": 25.619050215150303,
     "rpvi_c": 63.578947368421055,
-    "npvi_v": 52.75901193008827,
+    "npvi_v": 20.618952107544832,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
-    "percent_c": 38.40879874303671,
-    "percent_v": 30.567061848307386,
-    "mean_c_ms": 134.45,
-    "mean_v_ms": 107.0,
-    "delta_c_ms": 84.7794049283197,
-    "delta_v_ms": 69.90708118638626,
-    "varco_c": 63.056455878259364,
-    "varco_v": 65.33372073494044,
-    "rpvi_c": 97.05263157894737,
-    "npvi_v": 57.895234543557784,
+    "percent_c": 38.717509283061986,
+    "percent_v": 30.634104541559555,
+    "mean_c_ms": 135.55,
+    "mean_v_ms": 107.25,
+    "delta_c_ms": 88.0383297206393,
+    "delta_v_ms": 44.78266963904675,
+    "varco_c": 64.94897065336723,
+    "varco_v": 41.75540292685012,
+    "rpvi_c": 99.36842105263158,
+    "npvi_v": 30.246095025522852,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
-    "max": 12.0,
-    "mean": 1.3636,
-    "stddev": 10.8063,
+    "max": 225.0,
+    "mean": 81.75,
+    "stddev": 58.9321,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
-    "max": 65.0,
-    "mean": -3.3182,
-    "stddev": 18.3536,
+    "max": 225.0,
+    "mean": 55.3864,
+    "stddev": 71.0904,
 }
 LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
 LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")
