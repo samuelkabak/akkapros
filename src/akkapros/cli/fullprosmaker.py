@@ -537,10 +537,6 @@ Version: {__version__}
                         help=help_for('fullprosmaker.phonetize_geminate_policy'))
     parser.add_argument('--phonetize-accentuation-distribution-policy', dest='phonetize_accentuation_distribution_policy', choices=['100_0', '85_15', '70_30'], default=None,
                         help=help_for('fullprosmaker.phonetize_accentuation_distribution_policy'))
-    parser.add_argument('--phonetize-short-pause-policy', dest='phonetize_short_pause_policy', choices=['strict', 'best_effort'], default=None,
-                        help=help_for('fullprosmaker.phonetize_short_pause_policy'))
-    parser.add_argument('--phonetize-drift-policy', dest='phonetize_drift_policy', choices=['strict', 'extensible'], default=None,
-                        help=help_for('fullprosmaker.phonetize_drift_policy'))
     parser.add_argument('--phonetize-drift-tolerance', dest='phonetize_drift_tolerance', type=int, default=None,
                         help=help_for('fullprosmaker.phonetize_drift_tolerance'))
 

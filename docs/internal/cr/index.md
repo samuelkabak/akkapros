@@ -2,8 +2,9 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[060. Add Per-Row Drift Column to Phone and Ophone Artifacts](060-add-per-row-drift-column-to-phone-and-ophone-artifacts.md) - Draft
-[059. Restructure Phonetizer Pauses with Mini-Band Recovery Discharge](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md) - Draft
+[061. Remove User-Facing Short-Pause and Drift Policy Options](061-remove-user-facing-short-pause-and-drift-policy-options.md) - Done
+[060. Add Per-Row Drift Column to Phone and Ophone Artifacts](060-add-per-row-drift-column-to-phone-and-ophone-artifacts.md) - Done
+[059. Clarify Phonetizer Duration and Drift Assignment with Hard Short Vowels](059-restructure-phonetizer-pauses-with-mini-band-recovery-discharge.md) - Done
 [058. Remove Synthetic Pause Allocation from Metricalc](058-remove-synthetic-pause-allocation-from-metricalc.md) - Done
 [057. Remove Residual Metrics CSV Code and Config Surface](057-remove-residual-metrics-csv-code-and-config-surface.md) - Done
 [056. Broaden Metrics Coverage to High-Confidence Indicator Verification](056-add-manual-lexlinks-word-count-verification.md) - Done

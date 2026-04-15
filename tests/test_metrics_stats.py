@@ -171,21 +171,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 33.82503040253243,
-            "percent_v": 28.92366811753904,
+            "percent_c": 33.80988575506675,
+            "percent_v": 30.159637325040084,
             "mean_c_ms": 115.04639684106614,
-            "mean_v_ms": 100.0214118434259,
+            "mean_v_ms": 104.34225493476079,
             "delta_c_ms": 62.169530288002036,
-            "delta_v_ms": 55.12636000099703,
+            "delta_v_ms": 36.80209781903035,
             "varco_c": 54.03865918016343,
-            "varco_v": 55.11455895792808,
+            "varco_v": 35.27056017913412,
             "rpvi_c": 74.48650427913101,
-            "npvi_v": 55.543935458882935,
+            "npvi_v": 25.954999811845013,
         },
         "drift": {
-            "max": 34.5,
-            "mean": 1.4229,
-            "stddev": 10.4312,
+            "max": 413.5,
+            "mean": 51.1553,
+            "stddev": 57.114,
         },
         "prominence_statistics": {
             "function_word_count": 189,
@@ -215,21 +215,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 35.84986208390239,
-            "percent_v": 29.52773805070229,
-            "mean_c_ms": 131.80881869035866,
-            "mean_v_ms": 110.38039478086317,
-            "delta_c_ms": 83.91477822466435,
-            "delta_v_ms": 64.44101587480576,
-            "varco_c": 63.66400902339807,
-            "varco_v": 58.38085287042115,
-            "rpvi_c": 101.76234364713628,
-            "npvi_v": 59.06326979306342,
+            "percent_c": 36.16407440583521,
+            "percent_v": 29.987838849997274,
+            "mean_c_ms": 132.93782894736842,
+            "mean_v_ms": 112.11508865841418,
+            "delta_c_ms": 86.60433935598454,
+            "delta_v_ms": 50.35950518318846,
+            "varco_c": 65.14649745805023,
+            "varco_v": 44.917687517173455,
+            "rpvi_c": 104.12043435340573,
+            "npvi_v": 32.86408015178339,
         },
         "drift": {
-            "max": 98.5,
-            "mean": -2.4919,
-            "stddev": 16.1451,
+            "max": 312.5,
+            "mean": 35.8225,
+            "stddev": 54.1531,
         },
     },
     "accentuation_stats": {
@@ -814,18 +814,18 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 33.83%" in table
-    assert "%V: 28.92%" in table
+    assert "%C: 33.81%" in table
+    assert "%V: 30.16%" in table
     assert "meanC: 115.05 ms" in table
-    assert "meanV: 100.02 ms" in table
+    assert "meanV: 104.34 ms" in table
     assert "ΔC: 62.17 ms" in table
-    assert "ΔV: 55.13 ms" in table
+    assert "ΔV: 36.80 ms" in table
     assert "VarcoC: 54.04" in table
-    assert "VarcoV: 55.11" in table
+    assert "VarcoV: 35.27" in table
     assert "rPVI-C: 74.49" in table
-    assert "nPVI-V: 55.54" in table
-    assert "Drift max: 34.50 ms" in table
-    assert "Drift mean: 1.42 ms" in table
-    assert "Drift stddev: 10.43 ms" in table
+    assert "nPVI-V: 25.95" in table
+    assert "Drift max: 413.50 ms" in table
+    assert "Drift mean: 51.16 ms" in table
+    assert "Drift stddev: 57.11 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

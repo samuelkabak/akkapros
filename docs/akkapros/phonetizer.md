@@ -148,8 +148,6 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 | `--outdir <dir>` | Output directory |
 | `--geminate-policy {corrective,cumulative}` | Override `phonetize.process.timing_model.geminate_policy` |
 | `--accentuation-distribution-policy {100_0,85_15,70_30}` | Override `phonetize.process.timing_model.accentuation_distribution_policy` |
-| `--short-pause-policy {strict,best_effort}` | Override `phonetize.process.timing_model.short_pause_policy` |
-| `--drift-policy {strict,extensible}` | Override `phonetize.process.timing_model.drift_policy` |
 | `--drift-tolerance <int>` | Override `phonetize.process.timing_model.drift_tolerance` |
 | `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` |
 | `--conf <file>` | Load shared grouped config |
@@ -180,11 +178,16 @@ Representative grouped-config keys:
 - `phonetize.process.intonation.continuation`
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.accentuation_distribution_policy`
-- `phonetize.process.timing_model.short_pause_policy`
-- `phonetize.process.timing_model.drift_policy`
 - `phonetize.process.timing_model.drift_tolerance`
 - `phonetize.process.timing_model.speech.wpm`
 - `phonetize.process.timing_model.durations.cvc_reference`
+
+Removed in CR-061:
+
+- `phonetize.process.timing_model.short_pause_policy`
+- `phonetize.process.timing_model.drift_policy`
+
+Both behaviors are now fixed internally and are no longer user-configurable.
 
 At runtime, path-scoped help and `-t/--option` overrides expose the same canonical phonetize subtree: `phonetize.process.intonation.*` and `phonetize.process.timing_model.*`.
 

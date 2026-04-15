@@ -157,8 +157,8 @@ drift_after_assignment = drift_cursor + (realized_total - shape_ref)
 ```
 
 8. Apply ordinary vowel correction only if the nucleus is long.
-9. If unresolved absolute drift still exceeds `drift_tolerance`, branch by
-   `drift_policy`.
+9. If unresolved absolute drift still exceeds `drift_tolerance`, continue with
+  the fixed extensible drift-carry behavior.
 10. If the current boundary is eligible and the stream is still ahead of the
     beat by at least the mini minimum, optionally insert one mini pause.
 

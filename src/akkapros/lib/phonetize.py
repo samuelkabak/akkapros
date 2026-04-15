@@ -19,6 +19,7 @@ from akkapros.lib.utils import compile_contextual_regex
 
 PHONETIZE_SECTION = 'phonetize'
 PHONETIZE_SECTION_HELP = 'Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.'
+REMOVED_TIMING_MODEL_KEYS = frozenset({'short_pause_policy', 'drift_policy'})
 
 
 @dataclass(frozen=True)
@@ -85,18 +86,6 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'string',
                 'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nDistribution stops when legality ranges would be challenged; if full assignment is impossible, Phase 2 must fail fatally.\nAllowed values: 100_0, 85_15, 70_30',
                 choices=('100_0', '85_15', '70_30'),
-            ),
-            'short_pause_policy': _field(
-                'strict',
-                'string',
-                'short pause discharge policy\n- strict: the pause must realize a preferred legal short-band target derived from the nearest integer multiple of cvc_reference, and it must discharge drift reserve through that target as far as the band allows; config validation should warn if no integer multiple N * cvc_reference remains inside the empirically grounded short-pause band, and should fail only if the nearest-multiple gap exceeds the vowel perception-gap threshold used by shared semantic verification\n- best_effort: the pause may choose any legal short-band realization that maximizes drift discharge, and any remainder carries into the following phrase',
-                choices=('strict', 'best_effort'),
-            ),
-            'drift_policy': _field(
-                'extensible',
-                'string',
-                'drift recovery policy\n- strict: use running drift first, then legal vowel adjustment, and fail if the mismatch still cannot be resolved\n- extensible: use running drift first, then legal vowel adjustment, then extend drift beyond drift_tolerance if needed\nShared semantic verification is run before phonetizer Phase 2 continues; the canonical grouped-config default for drift_policy is extensible.',
-                choices=('strict', 'extensible'),
             ),
             'drift_tolerance': _field(
                 0,
@@ -201,8 +190,6 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
 PROCESS_KEYS = (
     'geminate_policy',
     'accentuation_distribution_policy',
-    'short_pause_policy',
-    'drift_policy',
     'drift_tolerance',
 )
 
@@ -508,6 +495,14 @@ def validate_phonetize_source(section: Any, coerce_scalar) -> dict[str, Any]:
         allowed = {key for key in schema if key != '__comment__'}
         unknown_keys = sorted(set(raw) - allowed)
         if unknown_keys:
+            if prefix == (PHONETIZE_SECTION, 'process', 'timing_model'):
+                removed = [key for key in unknown_keys if key in REMOVED_TIMING_MODEL_KEYS]
+                if removed:
+                    joined = ', '.join('.'.join(prefix + (key,)) for key in removed)
+                    raise ValueError(
+                        f'Removed config keys (CR-061): {joined}. '
+                        'These options were removed and behavior is now fixed internally.'
+                    )
             joined = ', '.join('.'.join(prefix + (key,)) for key in unknown_keys)
             raise ValueError(f'Unknown config keys: {joined}')
 
@@ -1055,8 +1050,6 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     enum_policies = {
         'phonetize.process.timing_model.geminate_policy': ('cumulative', 'corrective'),
         'phonetize.process.timing_model.accentuation_distribution_policy': ('100_0', '85_15', '70_30'),
-        'phonetize.process.timing_model.short_pause_policy': ('strict', 'best_effort'),
-        'phonetize.process.timing_model.drift_policy': ('strict', 'extensible'),
     }
     for path, choices in enum_policies.items():
         value = get_relative_value(raw_config, tuple(path.split('.')[1:]))
@@ -1772,11 +1765,10 @@ def realize_phone_rows(
             config,
         )
         if abs(drift_after_assignment) > tolerance:
-            if config['process']['drift_policy'] == 'extensible':
-                extension = abs(drift_after_assignment) - tolerance
-                if extension > 0:
-                    drift_extension_count += 1
-                    max_drift_extension = max(max_drift_extension, extension)
+            extension = abs(drift_after_assignment) - tolerance
+            if extension > 0:
+                drift_extension_count += 1
+                max_drift_extension = max(max_drift_extension, extension)
         drift_cursor = drift_after_assignment
         drift_history.append(drift_cursor)
         last_completed_drift_token = _format_row_drift_token(drift_cursor)
@@ -1788,11 +1780,6 @@ def realize_phone_rows(
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
             inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration, last_completed_drift_token))
             drift_history.append(drift_cursor)
-
-    if config['process']['drift_policy'] == 'strict' and abs(drift_cursor) > tolerance:
-        raise ValueError(
-            f'Phase 2 ended with unresolved drift {drift_cursor:.2f} beyond tolerance {int(tolerance)}'
-        )
 
     finalized_rows: list[dict[str, str]] = []
     for index, row in enumerate(rows):
@@ -2032,7 +2019,6 @@ def _test_finalized_stream_generation() -> bool:
     config = {
         'process': {
             'timing_model': {
-                'drift_policy': 'extensible',
                 'drift_tolerance': 0,
             },
         }

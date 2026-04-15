@@ -43,7 +43,8 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "csv" not in loaded["metrics"]["run"]
     assert "csv:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
-    assert loaded["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
+    assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
+    assert "short_pause_policy" not in loaded["phonetize"]["process"]["timing_model"]
 
 
 def test_metrics_schema_and_help_no_longer_expose_csv() -> None:
@@ -432,7 +433,6 @@ def test_parse_args_with_config_materializes_defaults_without_conf_and_path_over
     parser.add_argument("input", nargs="?")
     parser.add_argument("-p", "--prefix")
     parser.add_argument("--outdir", default=".")
-    parser.add_argument("--drift-policy", dest="drift_policy", choices=["strict", "extensible"], default=None)
     parser.add_argument("--drift-tolerance", dest="drift_tolerance", type=int, default=None)
 
     args = parse_args_with_config(
@@ -440,18 +440,54 @@ def test_parse_args_with_config_materializes_defaults_without_conf_and_path_over
         "phonetizer",
         [
             "sample_tilde.txt",
-            "--drift-policy",
-            "strict",
+            "--drift-tolerance",
+            "3",
             "--option",
-            "phonetize.process.timing_model.drift_policy=extensible",
+            "phonetize.process.timing_model.drift_tolerance=7",
         ],
     )
 
     assert args.prefix == "akkapros"
     assert args.outdir == "."
-    assert args.drift_policy == "extensible"
-    assert args._effective_config["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
-    assert args._effective_grouped_config["phonetize"]["process"]["timing_model"]["drift_policy"] == "extensible"
+    assert args.drift_tolerance == 7
+    assert args._effective_config["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 7
+    assert args._effective_grouped_config["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 7
+
+
+def test_removed_phonetize_policy_option_path_is_rejected() -> None:
+    parser = argparse.ArgumentParser(add_help=False)
+    add_config_argument(parser)
+    add_runtime_interface_arguments(parser, "phonetizer")
+    parser.add_argument("input", nargs="?")
+
+    with pytest.raises(ConfigError) as excinfo:
+        parse_args_with_config(
+            parser,
+            "phonetizer",
+            [
+                "sample_tilde.txt",
+                "--option",
+                "phonetize.process.timing_model.drift_policy=extensible",
+            ],
+        )
+
+    assert "Removed config key (CR-061): phonetize.process.timing_model.drift_policy" in str(excinfo.value)
+
+
+def test_removed_phonetize_policy_keys_in_file_are_rejected(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(
+        "phonetize:\n"
+        "  process:\n"
+        "    timing_model:\n"
+        "      drift_policy: \"extensible\"\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError) as excinfo:
+        load_config_file(config_path)
+
+    assert "Removed config keys (CR-061): phonetize.process.timing_model.drift_policy" in str(excinfo.value)
 
 
 def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:

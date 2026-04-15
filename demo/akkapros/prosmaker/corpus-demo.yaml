@@ -48,8 +48,6 @@ phonetize:
     timing_model:
       geminate_policy: "corrective"
       accentuation_distribution_policy: "85_15"
-      short_pause_policy: "strict"
-      drift_policy: "extensible"
       drift_tolerance: 0
       speech:
         wpm: 193

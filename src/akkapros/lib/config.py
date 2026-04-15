@@ -50,6 +50,12 @@ RUNTIME_HELP_DEST = 'help_path'
 RUNTIME_HELP_SENTINEL = '__PROGRAM__'
 RUNTIME_OPTION_DEST = 'option_values'
 RUNTIME_PHONETIZE_ROOT = f'{PHONETIZE_SECTION}.process.timing_model'
+REMOVED_CONFIG_PATHS = frozenset(
+    {
+        'phonetize.process.timing_model.short_pause_policy',
+        'phonetize.process.timing_model.drift_policy',
+    }
+)
 
 CONFIG_SECTION_ORDER = (
     COMMON_SECTION,
@@ -189,8 +195,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             {
                 "process.timing_model.geminate_policy": "geminate_policy",
                 "process.timing_model.accentuation_distribution_policy": "accentuation_distribution_policy",
-                "process.timing_model.short_pause_policy": "short_pause_policy",
-                "process.timing_model.drift_policy": "drift_policy",
                 "process.timing_model.drift_tolerance": "drift_tolerance",
             },
         ),
@@ -244,8 +248,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             {
                 "process.timing_model.geminate_policy": "phonetize_geminate_policy",
                 "process.timing_model.accentuation_distribution_policy": "phonetize_accentuation_distribution_policy",
-                "process.timing_model.short_pause_policy": "phonetize_short_pause_policy",
-                "process.timing_model.drift_policy": "phonetize_drift_policy",
                 "process.timing_model.drift_tolerance": "phonetize_drift_tolerance",
             },
         ),
@@ -380,6 +382,12 @@ def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
     parts = [part for part in path.split(".") if part]
     if not parts:
         raise ConfigError(f"Unknown config key: {path}")
+    normalized_path = '.'.join(parts)
+    if normalized_path in REMOVED_CONFIG_PATHS:
+        raise ConfigError(
+            f"Removed config key (CR-061): {normalized_path}. "
+            "This option was removed and behavior is now fixed internally."
+        )
     section = parts[0]
     if section == PHONETIZE_SECTION:
         try:

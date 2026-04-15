@@ -85,8 +85,6 @@ Prosody:
 Phonetizer timing/config passthrough:
 
 - `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}`
-- `--phonetize-short-pause-policy {strict,best_effort}`
-- `--phonetize-drift-policy {strict,extensible}`
 - `--phonetize-drift-tolerance <int>`
 - `-t, --option KEY=VALUE`
 

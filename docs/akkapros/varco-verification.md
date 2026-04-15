@@ -53,9 +53,10 @@ current package defaults after later phonetizer timing changes such as CR-059.
 
 - `geminate_policy = corrective`
 - `accentuation_distribution_policy = 85_15`
-- `short_pause_policy = strict`
-- `drift_policy = extensible`
 - `drift_tolerance = 12`
+
+Note: `short_pause_policy` and `drift_policy` were removed from the public
+config surface in CR-061; behavior for both is now fixed internally.
 
 ### Speech-level settings
 

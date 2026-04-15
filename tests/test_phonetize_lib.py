@@ -299,14 +299,7 @@ def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
 
 
 def test_phase2_supports_all_active_accent_classes() -> None:
-    extensible = {
-        'process': {
-            'timing_model': {
-                'drift_policy': 'extensible',
-                'drift_tolerance': 0,
-            },
-        }
-    }
+    extensible = {'process': {'timing_model': {'drift_tolerance': 0}}}
     samples = ['b~a', 'bā~', 'bat~', 'bāt~']
 
     for sample in samples:
@@ -317,14 +310,7 @@ def test_phase2_supports_all_active_accent_classes() -> None:
 
 
 def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
-    config = {
-        'process': {
-            'timing_model': {
-                'drift_policy': 'extensible',
-                'drift_tolerance': 0,
-            },
-        }
-    }
+    config = {'process': {'timing_model': {'drift_tolerance': 0}}}
 
     (original_rows, original_report), (accentuated_rows, accentuated_report) = realize_phone_streams(
         'b~a, bāt~\n',
@@ -427,7 +413,6 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
     config = {
         'process': {
             'timing_model': {
-                'drift_policy': 'extensible',
                 'drift_tolerance': 0,
                 'durations': {
                     'cvc_reference': 200,
@@ -462,7 +447,6 @@ def test_phase2_short_vowels_stay_hard_during_ordinary_drift_recovery() -> None:
         {
             'process': {
                 'timing_model': {
-                    'drift_policy': 'extensible',
                     'drift_tolerance': 0,
                     'durations': {
                         'cvc_reference': 350,
@@ -484,7 +468,6 @@ def test_phase2_long_vowels_remain_available_for_ordinary_drift_recovery() -> No
         {
             'process': {
                 'timing_model': {
-                    'drift_policy': 'extensible',
                     'drift_tolerance': 0,
                     'durations': {
                         'cvc_reference': 400,
@@ -506,7 +489,6 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
         {
             'process': {
                 'timing_model': {
-                    'drift_policy': 'extensible',
                     'drift_tolerance': 0,
                     'durations': {
                         'cvc_reference': 350,
@@ -538,7 +520,6 @@ def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> N
         {
             'process': {
                 'timing_model': {
-                    'drift_policy': 'extensible',
                     'drift_tolerance': 0,
                     'durations': {
                         'cvc_reference': 350,
@@ -562,7 +543,6 @@ def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
     config = {
         'process': {
             'timing_model': {
-                'drift_policy': 'extensible',
                 'drift_tolerance': 0,
                 'durations': {
                     'cvc_reference': 200,
@@ -600,7 +580,6 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
         {
             'process': {
                 'timing_model': {
-                    'drift_policy': 'extensible',
                     'drift_tolerance': 0,
                 },
             }
@@ -614,18 +593,12 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
     assert report['max_drift_extension'] > 0
 
 
-def test_phase2_strict_mode_can_finish_on_normalized_terminal_long_pause() -> None:
+def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
     rows = build_phone_rows('bā~')
 
     report = realize_phone_rows(
         rows,
-        {
-            'process': {
-                'timing_model': {
-                    'drift_policy': 'strict',
-                },
-            },
-        },
+        None,
         allow_accentuation=True,
     )
 
@@ -637,7 +610,8 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     defaults = build_default_phonetize_verification_config()
 
     assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '85_15'
-    assert defaults['process']['timing_model']['drift_policy'] == 'extensible'
+    assert 'drift_policy' not in defaults['process']['timing_model']
+    assert 'short_pause_policy' not in defaults['process']['timing_model']
     assert defaults['process']['timing_model']['drift_tolerance'] == 0
 
 
