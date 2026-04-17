@@ -54,6 +54,7 @@ phonetize:
         pause_ratio: 35
       durations:
         segmental_ceiling: 310
+        segmental_floor: 10
         cvc_reference: 306
         consonants:
           closure:
@@ -64,12 +65,14 @@ phonetize:
               hiatus: 18
             perception_limits:
               geminate_min: 180
+              gemination_max: 221
           fricative:
             onset: 137
             coda: 142
-            geminate: 279
+            geminate: 224
             perception_limits:
-              geminate_min: 152
+              geminate_min: 210
+              gemination_max: 250
           sonorant:
             onset: 89
             coda: 70
@@ -78,6 +81,7 @@ phonetize:
               vowel_transition: 11
             perception_limits:
               geminate_min: 152
+              gemination_max: 182
         vowels:
           short: 85
           long: 160
@@ -86,7 +90,7 @@ phonetize:
             short_min: 40
             long_min: 123
             very_long_min: 190
-            max: 240
+            elongation_max: 250
         pauses:
           mini:
             min: 100

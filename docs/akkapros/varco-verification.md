@@ -67,7 +67,8 @@ than from copied metrics-side defaults.
 ### Core duration anchors
 
 - `segmental_ceiling = 310`
-- `cvc_reference = 305`
+- `segmental_floor = 10`
+- `cvc_reference = 306`
 
 ### Consonant timings
 
@@ -78,13 +79,15 @@ Closure class:
 - `closure.geminate = 195`
 - `closure.special_realization.hiatus = 18`
 - `closure.perception_limits.geminate_min = 180`
+- `closure.perception_limits.gemination_max = 221`
 
 Fricative class:
 
 - `fricative.onset = 137`
 - `fricative.coda = 142`
-- `fricative.geminate = 279`
-- `fricative.perception_limits.geminate_min = 152`
+- `fricative.geminate = 224`
+- `fricative.perception_limits.geminate_min = 210`
+- `fricative.perception_limits.gemination_max = 250`
 
 Sonorant class:
 
@@ -93,6 +96,7 @@ Sonorant class:
 - `sonorant.geminate = 163`
 - `sonorant.special_realization.vowel_transition = 11`
 - `sonorant.perception_limits.geminate_min = 152`
+- `sonorant.perception_limits.gemination_max = 182`
 
 ### Vowel timings
 
@@ -102,7 +106,7 @@ Sonorant class:
 - `vowels.perception_limits.short_min = 40`
 - `vowels.perception_limits.long_min = 123`
 - `vowels.perception_limits.very_long_min = 190`
-- `vowels.perception_limits.max = 240`
+- `vowels.perception_limits.elongation_max = 250`
 
 ### Pause bands
 

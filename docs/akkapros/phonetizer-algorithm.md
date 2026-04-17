@@ -103,6 +103,8 @@ That layer validates the current live timing model, including:
 
 - enum-like process-policy values
 - positive integer timing leaves
+- validation-only `segmental_floor` lower bounds for vowel minima, consonant anchors and minima, and hiatus/transition special realizations
+- class-local consonant `gemination_max` ordering and `segmental_ceiling` checks
 - consonant and vowel ordering constraints
 - pause-band ordering
 - short- and long-pause compatibility against `cvc_reference`
@@ -136,6 +138,14 @@ The nominal non-accentuated targets are:
 
 Accentuated shapes still add exactly `0.5 * cvc_reference` beyond the matching
 non-accentuated target.
+
+Current legality limits also distinguish validation bounds from runtime caps:
+
+- adjacent accent spill into a short vowel is legal only up to `long_min - 1`
+- under the live defaults, `long_min = 123`, so the maximum adjacent short-vowel outcome is `122 ms`
+- runtime consonant saturation uses class-local `perception_limits.gemination_max`
+- `segmental_ceiling` remains a validation ceiling rather than the runtime consonant cap
+- `segmental_floor` remains a validation-only lower bound and is not used as a runtime timing control
 
 The solver carries one signed running value, `drift_cursor`:
 

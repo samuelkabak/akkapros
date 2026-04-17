@@ -103,7 +103,12 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'segmental_ceiling': _field(
                     310,
                     'int',
-                    'Upper ordinary duration for one vowel or consonant. Model-facing ceiling from comparative duration limits; does not apply to pauses or CVC totals.',
+                    'Global validation ceiling for class-local consonant gemination maxima and the vowel elongation max. This key remains part of the config and verification surface, but runtime consonant saturation uses class-local gemination_max values instead.',
+                ),
+                'segmental_floor': _field(
+                    10,
+                    'int',
+                    'Global validation floor for vowel minima, consonant anchors and minima, and the hiatus and vowel-transition special realizations. Validation-only; not a runtime timing control.',
                 ),
                 'cvc_reference': _field(
                     306,
@@ -124,16 +129,18 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'perception_limits': {
                             '__comment__': None,
                             'geminate_min': _field(180, 'int', 'Earliest closure duration treated as geminate-like. Perceptual threshold from the stop singleton/geminate contrast, not the lowest measured token.'),
+                            'gemination_max': _field(221, 'int', 'Latest closure duration treated as the legal runtime geminate-like maximum. Runtime same-consonant saturation and accent-extension ceilings use this class-local bound rather than the global segmental ceiling.'),
                         },
                     },
                     'fricative': {
                         '__comment__': 'Fricative class. Heavier than closures by manner, but less directly grounded than the stop row.',
                         'onset': _field(137, 'int', 'Default onset fricative duration. Derived from closure onset plus fricative manner delta.'),
                         'coda': _field(142, 'int', 'Default post-vocalic fricative duration. Current heavy post-vocalic anchor used by the simplified row.'),
-                        'geminate': _field(279, 'int', 'Default geminate fricative target. Exploratory value based on the current onset + post-vocalic row.'),
+                        'geminate': _field(224, 'int', 'Default geminate fricative target. Retuned summary point for the live fricative geminate-like row.'),
                         'perception_limits': {
                             '__comment__': None,
-                            'geminate_min': _field(152, 'int', 'Earliest fricative duration treated as held or geminate-like. Class-specific perceptual floor from weak fricative gemination evidence.'),
+                            'geminate_min': _field(210, 'int', 'Earliest fricative duration treated as held or geminate-like. Retuned class-specific perceptual floor.'),
+                            'gemination_max': _field(250, 'int', 'Latest fricative duration treated as the legal runtime geminate-like maximum. Runtime same-consonant saturation and accent-extension ceilings use this class-local bound rather than the global segmental ceiling.'),
                         },
                     },
                     'sonorant': {
@@ -148,6 +155,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'perception_limits': {
                             '__comment__': None,
                             'geminate_min': _field(152, 'int', 'Earliest sonorant duration treated as geminate-like. Lower perceptual boundary from moraic nasal/liquid comparison.'),
+                            'gemination_max': _field(182, 'int', 'Latest sonorant duration treated as the legal runtime geminate-like maximum. Runtime same-consonant saturation and accent-extension ceilings use this class-local bound rather than the global segmental ceiling.'),
                         },
                     },
                 },
@@ -161,7 +169,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'short_min': _field(40, 'int', 'Minimum duration still treated as a realized short-vowel nucleus.'),
                         'long_min': _field(123, 'int', 'Earliest duration treated as long. Midpoint-style boundary derived from short and long anchors.'),
                         'very_long_min': _field(190, 'int', 'Earliest duration treated as very long. Midpoint-style boundary derived from long and very-long anchors. Ordinary non-accentual long-vowel recovery must stop at very_long_min - 1.'),
-                        'max': _field(240, 'int', 'Upper contextual bound for vowel extension. Ordinary non-accentual long-vowel recovery still stops at very_long_min - 1.'),
+                        'elongation_max': _field(250, 'int', 'Upper contextual bound for vowel extension. Ordinary non-accentual long-vowel recovery still stops at very_long_min - 1.'),
                     },
                 },
                 'pauses': {
@@ -1146,36 +1154,42 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             )
 
     segmental_ceiling = durations['segmental_ceiling']
-    for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations', 'consonants'), consonants):
-        if value > segmental_ceiling:
-            add_failure(
-                f'{path}, phonetize.process.timing_model.durations.segmental_ceiling',
-                f'{path} <= phonetize.process.timing_model.durations.segmental_ceiling',
-                f'{path} exceeds the configured segmental ceiling.',
-            )
-    for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations', 'vowels'), vowels):
-        if value > segmental_ceiling:
-            add_failure(
-                f'{path}, phonetize.process.timing_model.durations.segmental_ceiling',
-                f'{path} <= phonetize.process.timing_model.durations.segmental_ceiling',
-                f'{path} exceeds the configured segmental ceiling.',
-            )
+    segmental_floor = durations['segmental_floor']
+    if vowels['perception_limits']['elongation_max'] > segmental_ceiling:
+        add_failure(
+            'phonetize.process.timing_model.durations.vowels.perception_limits.elongation_max, phonetize.process.timing_model.durations.segmental_ceiling',
+            'phonetize.process.timing_model.durations.vowels.perception_limits.elongation_max <= phonetize.process.timing_model.durations.segmental_ceiling',
+            'The vowel contextual max exceeds the configured segmental ceiling.',
+        )
 
     for consonant_class in ('closure', 'fricative', 'sonorant'):
         base_path = f'phonetize.process.timing_model.durations.consonants.{consonant_class}'
         row = consonants[consonant_class]
-        if not (row['geminate'] > row['perception_limits']['geminate_min'] > row['onset']):
+        geminate_min = row['perception_limits']['geminate_min']
+        gemination_max = row['perception_limits']['gemination_max']
+        if not (row['onset'] < geminate_min <= row['geminate'] <= gemination_max <= segmental_ceiling):
             add_failure(
-                f'{base_path}.geminate, {base_path}.perception_limits.geminate_min, {base_path}.onset',
-                f'{base_path}.geminate > {base_path}.perception_limits.geminate_min > {base_path}.onset',
-                'Geminate threshold ordering does not hold on the onset side.',
+                f'{base_path}.onset, {base_path}.perception_limits.geminate_min, {base_path}.geminate, {base_path}.perception_limits.gemination_max, phonetize.process.timing_model.durations.segmental_ceiling',
+                f'{base_path}.onset < {base_path}.perception_limits.geminate_min <= {base_path}.geminate <= {base_path}.perception_limits.gemination_max <= phonetize.process.timing_model.durations.segmental_ceiling',
+                'Consonant timing ordering does not hold on the onset side.',
             )
-        if not (row['geminate'] > row['perception_limits']['geminate_min'] > row['coda']):
+        if not (row['coda'] < geminate_min <= row['geminate'] <= gemination_max <= segmental_ceiling):
             add_failure(
-                f'{base_path}.geminate, {base_path}.perception_limits.geminate_min, {base_path}.coda',
-                f'{base_path}.geminate > {base_path}.perception_limits.geminate_min > {base_path}.coda',
-                'Geminate threshold ordering does not hold on the coda side.',
+                f'{base_path}.coda, {base_path}.perception_limits.geminate_min, {base_path}.geminate, {base_path}.perception_limits.gemination_max, phonetize.process.timing_model.durations.segmental_ceiling',
+                f'{base_path}.coda < {base_path}.perception_limits.geminate_min <= {base_path}.geminate <= {base_path}.perception_limits.gemination_max <= phonetize.process.timing_model.durations.segmental_ceiling',
+                'Consonant timing ordering does not hold on the coda side.',
             )
+        for min_path, min_value in (
+            (f'{base_path}.onset', row['onset']),
+            (f'{base_path}.coda', row['coda']),
+            (f'{base_path}.perception_limits.geminate_min', geminate_min),
+        ):
+            if min_value < segmental_floor:
+                add_failure(
+                    f'{min_path}, phonetize.process.timing_model.durations.segmental_floor',
+                    f'phonetize.process.timing_model.durations.segmental_floor <= {min_path}',
+                    'The configured segmental floor is above a required consonant anchor or minimum.',
+                )
         if abs(row['onset'] - row['coda']) / row['onset'] >= 0.5:
             add_warning(
                 f'{base_path}.onset, {base_path}.coda',
@@ -1183,6 +1197,12 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 'Onset and coda anchors for this consonant class diverge sharply.',
             )
 
+    if consonants['closure']['special_realization']['hiatus'] < segmental_floor:
+        add_failure(
+            'phonetize.process.timing_model.durations.consonants.closure.special_realization.hiatus, phonetize.process.timing_model.durations.segmental_floor',
+            'phonetize.process.timing_model.durations.segmental_floor <= phonetize.process.timing_model.durations.consonants.closure.special_realization.hiatus',
+            'Hiatus realization must stay at or above the configured segmental floor.',
+        )
     if not (
         consonants['closure']['special_realization']['hiatus'] < consonants['closure']['onset']
         and consonants['closure']['special_realization']['hiatus'] < consonants['closure']['coda']
@@ -1193,6 +1213,12 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             'Hiatus realization must stay below both closure onset and closure coda anchors.',
         )
 
+    if consonants['sonorant']['special_realization']['vowel_transition'] < segmental_floor:
+        add_failure(
+            'phonetize.process.timing_model.durations.consonants.sonorant.special_realization.vowel_transition, phonetize.process.timing_model.durations.segmental_floor',
+            'phonetize.process.timing_model.durations.segmental_floor <= phonetize.process.timing_model.durations.consonants.sonorant.special_realization.vowel_transition',
+            'Vowel-transition realization must stay at or above the configured segmental floor.',
+        )
     if not (
         consonants['sonorant']['special_realization']['vowel_transition'] < consonants['sonorant']['onset']
         and consonants['sonorant']['special_realization']['vowel_transition'] < consonants['sonorant']['coda']
@@ -1204,13 +1230,20 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         )
 
     vowel_limits = vowels['perception_limits']
+    for vowel_min_key in ('short_min', 'long_min', 'very_long_min'):
+        if vowel_limits[vowel_min_key] < segmental_floor:
+            add_failure(
+                f'phonetize.process.timing_model.durations.vowels.perception_limits.{vowel_min_key}, phonetize.process.timing_model.durations.segmental_floor',
+                f'phonetize.process.timing_model.durations.segmental_floor <= phonetize.process.timing_model.durations.vowels.perception_limits.{vowel_min_key}',
+                'A vowel perception minimum falls below the configured segmental floor.',
+            )
     if not (
         vowel_limits['short_min'] < vowels['short'] < vowel_limits['long_min'] < vowels['long']
-        < vowel_limits['very_long_min'] < vowels['very_long'] < vowel_limits['max']
+        < vowel_limits['very_long_min'] < vowels['very_long'] < vowel_limits['elongation_max']
     ):
         add_failure(
-            'phonetize.process.timing_model.durations.vowels.perception_limits.short_min, phonetize.process.timing_model.durations.vowels.short, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.long, phonetize.process.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.process.timing_model.durations.vowels.very_long, phonetize.process.timing_model.durations.vowels.perception_limits.max',
-            'short_min < short < long_min < long < very_long_min < very_long < max',
+            'phonetize.process.timing_model.durations.vowels.perception_limits.short_min, phonetize.process.timing_model.durations.vowels.short, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.long, phonetize.process.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.process.timing_model.durations.vowels.very_long, phonetize.process.timing_model.durations.vowels.perception_limits.elongation_max',
+            'short_min < short < long_min < long < very_long_min < very_long < elongation_max',
             'Vowel category ordering is invalid.',
         )
 
@@ -1262,12 +1295,17 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     selected_default_paths = (
         ('process', 'timing_model', 'speech', 'wpm'),
         ('process', 'timing_model', 'durations', 'segmental_ceiling'),
+        ('process', 'timing_model', 'durations', 'segmental_floor'),
         ('process', 'timing_model', 'durations', 'cvc_reference'),
         ('process', 'timing_model', 'durations', 'consonants', 'closure', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'consonants', 'closure', 'perception_limits', 'gemination_max'),
         ('process', 'timing_model', 'durations', 'consonants', 'fricative', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'consonants', 'fricative', 'perception_limits', 'gemination_max'),
         ('process', 'timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'geminate_min'),
+        ('process', 'timing_model', 'durations', 'consonants', 'sonorant', 'perception_limits', 'gemination_max'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
+        ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'elongation_max'),
         ('process', 'timing_model', 'durations', 'pauses', 'mini', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'short', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'long', 'min'),
@@ -1349,8 +1387,10 @@ def _consonant_geminate_target(row: dict[str, str], config: dict[str, Any]) -> f
     return float(durations['consonants'][timing_key]['geminate'])
 
 
-def _consonant_maximum(config: dict[str, Any]) -> float:
-    return float(config['timing_model']['durations']['segmental_ceiling'])
+def _consonant_maximum(row: dict[str, str], config: dict[str, Any]) -> float:
+    durations = config['timing_model']['durations']
+    timing_key = _consonant_timing_key(row)
+    return float(durations['consonants'][timing_key]['perception_limits']['gemination_max'])
 
 
 def _vowel_anchor(row: dict[str, str], config: dict[str, Any]) -> float:
@@ -1370,18 +1410,18 @@ def _vowel_bounds(
         anchor = float(vowels_cfg['short'])
         return anchor, anchor
     if ordinary_recovery:
-        ordinary_maximum = min(float(limits['max']), float(limits['very_long_min']) - 1.0)
+        ordinary_maximum = min(float(limits['elongation_max']), float(limits['very_long_min']) - 1.0)
         ordinary_maximum = max(float(limits['long_min']), ordinary_maximum)
         return float(limits['long_min']), ordinary_maximum
-    return float(limits['long_min']), float(limits['max'])
+    return float(limits['long_min']), float(limits['elongation_max'])
 
 
 def _accent_adjacent_vowel_limit(row: dict[str, str], config: dict[str, Any]) -> float:
     vowels_cfg = config['timing_model']['durations']['vowels']
     limits = vowels_cfg['perception_limits']
     if row['length'] == 'S':
-        return float(limits['long_min'])
-    return float(limits['max'])
+        return float(limits['long_min']) - 1.0
+    return float(limits['elongation_max'])
 
 
 def _timing_refs(config: dict[str, Any]) -> tuple[float, float, float]:
@@ -1671,7 +1711,7 @@ def _apply_accent_increment(
         row = rows[index]
         timing_key = _consonant_timing_key(row)
         geminate_min = float(consonants_cfg[timing_key]['perception_limits']['geminate_min'])
-        return min(_consonant_maximum(config), geminate_min - 1.0)
+        return min(_consonant_maximum(row, config), geminate_min - 1.0)
 
     def _segment_limit(index: int, *, adjacent: bool) -> float:
         row = rows[index]
@@ -1682,8 +1722,8 @@ def _apply_accent_increment(
         if adjacent:
             return _adjacent_singleton_limit(index)
         if next_same_onset is not None and analysis['accent_shape'] in {'CVC:', 'CVV:C'} and index in analysis['coda_indices']:
-            return max(0.0, _consonant_maximum(config) - durations.get(next_same_onset, 0.0))
-        return _consonant_maximum(config)
+            return max(0.0, _consonant_maximum(row, config) - durations.get(next_same_onset, 0.0))
+        return _consonant_maximum(row, config)
 
     primary_slack = max(0.0, _segment_limit(primary_index, adjacent=False) - durations[primary_index])
     primary_gain = min(total_increment * primary_share, primary_slack)
@@ -1709,7 +1749,7 @@ def _apply_accent_increment(
 
     if analysis['accent_shape'] in {'CVC:', 'CVV:C'} and analysis['coda_indices'] and next_same_onset is not None:
         coda_index = analysis['coda_indices'][0]
-        ceiling = _consonant_maximum(config)
+        ceiling = _consonant_maximum(rows[coda_index], config)
         combined = durations[coda_index] + durations[next_same_onset]
         if combined > ceiling:
             reduce_onset = min(durations[next_same_onset], combined - ceiling)
@@ -1737,7 +1777,7 @@ def _same_consonant_next_onset(
         return None
     coda_duration = durations[coda_index]
     onset_anchor = _consonant_anchor(rows[onset_index], config, 'O')
-    ceiling = _consonant_maximum(config)
+    ceiling = _consonant_maximum(rows[coda_index], config)
     if config['process']['geminate_policy'] == 'corrective':
         pair_total = min(_consonant_geminate_target(rows[coda_index], config), ceiling)
     else:

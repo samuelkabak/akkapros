@@ -92,6 +92,12 @@ phonetize timing model. Output status is one of:
 - `VERIFY STATUS: pass-with-warnings`
 - `VERIFY STATUS: failure`
 
+The live verification surface includes the validation-only bounds
+`segmental_floor` and `segmental_ceiling`, plus class-local consonant
+`perception_limits.gemination_max` values. Runtime consonant saturation uses the
+class-local maxima, while verification still checks those maxima against the
+global ceiling.
+
 When verification fails, output includes the failing full dotted path or paths,
 the failed relation, and the reason. When warnings fire without blocking,
 output includes the warning path, threshold or formula, and configuration-wide

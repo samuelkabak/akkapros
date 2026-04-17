@@ -121,8 +121,13 @@ phonetize:
         pause_ratio: 35
       durations:
         # Upper ordinary duration for one vowel or consonant. Model-facing ceiling from
-        # comparative duration limits; does not apply to pauses or CVC totals.
+        # comparative duration limits; used as a validation ceiling for class-local
+        # consonant gemination maxima and the vowel elongation max.
         segmental_ceiling: 310
+        # Global validation floor for vowel minima, consonant anchors and minima, and
+        # the hiatus and vowel-transition special realizations. Validation-only; not a
+        # runtime timing control.
+        segmental_floor: 10
         # Central heavy-syllable timing reference used by accentuation and pause
         # alignment. Set inside the empirically grounded CVC interval 286-306 ms. This
         # keeps the control value conservative and compatible with pause-band alignment
@@ -150,6 +155,10 @@ phonetize:
               # from the stop singleton/geminate contrast, not the lowest measured
               # token.
               geminate_min: 180
+              # Latest closure duration treated as the legal runtime geminate-like
+              # maximum. Runtime same-consonant saturation and accent-extension ceilings
+              # use this class-local bound.
+              gemination_max: 221
           # Fricative class. Heavier than closures by manner, but less directly grounded
           # than the stop row.
           fricative:
@@ -161,11 +170,15 @@ phonetize:
             coda: 142
             # Default geminate fricative target. Exploratory value based on the current
             # onset + post-vocalic row.
-            geminate: 279
+            geminate: 224
             perception_limits:
               # Earliest fricative duration treated as held or geminate-like. Class-
               # specific perceptual floor from weak fricative gemination evidence.
-              geminate_min: 152
+              geminate_min: 210
+              # Latest fricative duration treated as the legal runtime geminate-like
+              # maximum. Runtime same-consonant saturation and accent-extension ceilings
+              # use this class-local bound.
+              gemination_max: 250
           # Sonorant, nasal, and glide class.
           sonorant:
             # Default onset sonorant duration. Set from the clearer singleton liquid
@@ -185,6 +198,10 @@ phonetize:
               # Earliest sonorant duration treated as geminate-like. Lower perceptual
               # boundary from moraic nasal/liquid comparison.
               geminate_min: 152
+              # Latest sonorant duration treated as the legal runtime geminate-like
+              # maximum. Runtime same-consonant saturation and accent-extension ceilings
+              # use this class-local bound.
+              gemination_max: 182
         vowels:
           # Default short-vowel duration. Production anchor from the retained short-
           # vowel baseline.
@@ -207,7 +224,7 @@ phonetize:
             very_long_min: 190
             # Upper contextual bound for vowel extension. Ordinary non-accentual
             # long-vowel recovery still stops at very_long_min - 1.
-            max: 240
+            elongation_max: 250
         pauses:
           # Default mini-pause band. Non-punctuation recovery gap used only when one
           # legal mini duration lands the stream on an equivalent beat checkpoint:

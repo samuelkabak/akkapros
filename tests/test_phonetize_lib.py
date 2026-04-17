@@ -635,6 +635,14 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert 'drift_policy' not in defaults['process']['timing_model']
     assert 'short_pause_policy' not in defaults['process']['timing_model']
     assert defaults['process']['timing_model']['drift_tolerance'] == 0
+    durations = defaults['process']['timing_model']['durations']
+    assert durations['segmental_floor'] == 10
+    assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 221
+    assert durations['consonants']['fricative']['geminate'] == 224
+    assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 210
+    assert durations['consonants']['fricative']['perception_limits']['gemination_max'] == 250
+    assert durations['consonants']['sonorant']['perception_limits']['gemination_max'] == 182
+    assert durations['vowels']['perception_limits']['elongation_max'] == 250
 
 
 def test_shared_verification_warns_on_high_pause_ratio() -> None:
@@ -654,6 +662,47 @@ def test_shared_verification_blocks_invalid_pause_ratio() -> None:
     assert result.status == 'failure'
     assert result.failures
     assert any('0 < pause_ratio < 100' in line for line in lines)
+
+
+def test_shared_verification_rejects_gemination_max_above_segmental_ceiling() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'segmental_ceiling': 200,
+                        'consonants': {
+                            'closure': {
+                                'perception_limits': {
+                                    'gemination_max': 221,
+                                }
+                            }
+                        },
+                    }
+                }
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any('gemination_max <= phonetize.process.timing_model.durations.segmental_ceiling' in issue.relation for issue in result.failures)
+
+
+def test_shared_verification_rejects_segmental_floor_above_vowel_and_consonant_minima() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'segmental_floor': 120,
+                    }
+                }
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any('segmental_floor' in issue.path for issue in result.failures)
 
 
 def _first_syllable_analysis(sample: str) -> dict[str, object]:
@@ -764,7 +813,7 @@ def test_path_3_2_long_vowel_correction_without_legal_room() -> None:
                 'timing_model': {
                     'durations': {
                         'cvc_reference': 500,
-                        'vowels': {'perception_limits': {'max': 160}},
+                        'vowels': {'perception_limits': {'elongation_max': 160}},
                     }
                 }
             }
@@ -910,11 +959,12 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
         'timing_model': {
             'durations': {
                 'segmental_ceiling': 310,
+                'segmental_floor': 10,
                 'cvc_reference': 306,
                 'consonants': {
-                    'closure': {'perception_limits': {'geminate_min': 180}},
-                    'fricative': {'perception_limits': {'geminate_min': 152}},
-                    'sonorant': {'perception_limits': {'geminate_min': 152}},
+                    'closure': {'perception_limits': {'geminate_min': 180, 'gemination_max': 221}},
+                    'fricative': {'perception_limits': {'geminate_min': 210, 'gemination_max': 250}},
+                    'sonorant': {'perception_limits': {'geminate_min': 152, 'gemination_max': 182}},
                 },
                 'vowels': {
                     'short': 85,
@@ -922,7 +972,7 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
                     'perception_limits': {
                         'long_min': 123,
                         'very_long_min': 190,
-                        'max': 240,
+                        'elongation_max': 250,
                     },
                 },
             },
@@ -965,7 +1015,7 @@ def test_path_6_1_primary_saturation_spills_to_adjacent() -> None:
             'process': {
                 'timing_model': {
                     'durations': {
-                        'vowels': {'perception_limits': {'max': 170}},
+                        'vowels': {'perception_limits': {'elongation_max': 170}},
                     }
                 }
             }
@@ -984,8 +1034,14 @@ def test_path_6_2_full_saturation_keeps_residual_drift() -> None:
             'process': {
                 'timing_model': {
                     'durations': {
-                        'segmental_ceiling': 108,
-                        'vowels': {'perception_limits': {'max': 160}},
+                        'consonants': {
+                            'closure': {
+                                'perception_limits': {
+                                    'gemination_max': 108,
+                                }
+                            }
+                        },
+                        'vowels': {'perception_limits': {'elongation_max': 160}},
                     }
                 }
             }
@@ -1003,12 +1059,23 @@ def test_path_7_1_same_consonant_chain_ceiling_is_enforced() -> None:
     rows = build_phone_rows('at~·ta')
     realize_phone_rows(
         rows,
-        {'process': {'timing_model': {'durations': {'segmental_ceiling': 210}}}},
+        {'process': {'timing_model': {'durations': {'consonants': {'closure': {'perception_limits': {'gemination_max': 210}}}}}}},
         allow_accentuation=True,
     )
     t_rows = [row for row in rows if row['text'] == 't' and row['category'] == 'C']
     assert len(t_rows) >= 2
     assert int(t_rows[0]['duration']) + int(t_rows[1]['duration']) <= 210
+
+
+def test_path_7_3_adjacent_short_vowel_spill_stops_below_long_min() -> None:
+    """Path 7.3"""
+    rows = build_phone_rows('nim~·ma')
+
+    realize_phone_rows(rows, allow_accentuation=True)
+
+    vowel_row = next(row for row in rows if row['text'] == 'i' and row['category'] == 'V')
+    assert vowel_row['length'] == 'S'
+    assert vowel_row['duration'] == '0122'
 
 
 def test_path_7_2_adjacent_consonant_stays_singleton() -> None:

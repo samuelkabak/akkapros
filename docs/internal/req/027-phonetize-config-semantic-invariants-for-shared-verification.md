@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-10
+updated: 2026-04-17
 related_adrs: 'ADR-041'
-implemented_by: 'CR-042'
+implemented_by: 'CR-042, CR-067'
 ---
 
 # Requirement: Phonetize Config Semantic Invariants for Shared Verification
@@ -28,7 +28,8 @@ specific, consistent, and auditable.
 
 This requirement also preserves the current project stance that consonant onset
 and coda anchors are the hard lower-side pillars, that the exposed
-consonant-side threshold is `geminate_min`, that pauses and
+consonant-side legality surface now spans `geminate_min` through
+`gemination_max`, and that pauses and
 `phonetize.timing_model.durations.cvc_reference` are empirically grounded but
 speech-rate-sensitive, and that runtime isochrony may use these values
 internally without claiming that the empirical pause studies directly measured
@@ -61,12 +62,6 @@ unaccepted absolute hard limits.
 - [ ] Given phonetize process-policy values are verified, when enum membership
       is checked, then `phonetize.process.accentuation_distribution_policy` is
       restricted to `100_0 | 85_15 | 70_30`.
-- [ ] Given phonetize process-policy values are verified, when enum membership
-      is checked, then `phonetize.process.short_pause_policy` is restricted to
-      `strict | best_effort`.
-- [ ] Given phonetize process-policy values are verified, when enum membership
-      is checked, then `phonetize.process.drift_policy` is restricted to
-      `strict | extensible`.
 - [ ] Given phonetize timing config is verified, when the integer timing
       representation is checked, then `phonetize.process.drift_tolerance` and
       every numeric value under `phonetize.timing_model.durations` are positive
@@ -75,17 +70,28 @@ unaccepted absolute hard limits.
       are checked, then `phonetize.timing_model.speech.wpm` is a positive
       integer and `phonetize.timing_model.speech.pause_ratio` satisfies
       `0 < phonetize.timing_model.speech.pause_ratio < 100`.
-- [ ] Given segment and vowel timing values are verified, when the ordinary
-      segment ceiling is checked, then every value under
-      `phonetize.timing_model.durations.consonants.*` and
-      `phonetize.timing_model.durations.vowels.*` is less than or equal to
-      `phonetize.timing_model.durations.segmental_ceiling`.
+- [ ] Given segment and vowel timing values are verified, when the shared
+  validation bounds are checked, then
+  `phonetize.timing_model.durations.vowels.perception_limits.elongation_max` and each
+  `phonetize.timing_model.durations.consonants.<class>.perception_limits.gemination_max`
+  are less than or equal to
+  `phonetize.timing_model.durations.segmental_ceiling`.
+- [ ] Given lower timing bounds are verified, when the shared validation floor
+  is checked, then
+  `phonetize.timing_model.durations.vowels.perception_limits.short_min`,
+  `phonetize.timing_model.durations.vowels.perception_limits.long_min`,
+  `phonetize.timing_model.durations.vowels.perception_limits.very_long_min`,
+  each consonant-class `onset`, `coda`, and `perception_limits.geminate_min`,
+  plus `phonetize.timing_model.durations.consonants.closure.special_realization.hiatus`
+  and
+  `phonetize.timing_model.durations.consonants.sonorant.special_realization.vowel_transition`
+  are greater than or equal to
+  `phonetize.timing_model.durations.segmental_floor`.
 - [ ] Given a consonant class `K` in `{closure, fricative, sonorant}` is
       verified, when its core timing row is checked, then all of the following
       hold:
-      `phonetize.timing_model.durations.consonants.K.geminate > phonetize.timing_model.durations.consonants.K.perception_limits.geminate_min`,
-      `phonetize.timing_model.durations.consonants.K.perception_limits.geminate_min > phonetize.timing_model.durations.consonants.K.onset`, and
-      `phonetize.timing_model.durations.consonants.K.perception_limits.geminate_min > phonetize.timing_model.durations.consonants.K.coda`.
+  `phonetize.timing_model.durations.consonants.K.onset < phonetize.timing_model.durations.consonants.K.perception_limits.geminate_min <= phonetize.timing_model.durations.consonants.K.geminate <= phonetize.timing_model.durations.consonants.K.perception_limits.gemination_max <= phonetize.timing_model.durations.segmental_ceiling`, and
+  `phonetize.timing_model.durations.consonants.K.coda < phonetize.timing_model.durations.consonants.K.perception_limits.geminate_min <= phonetize.timing_model.durations.consonants.K.geminate <= phonetize.timing_model.durations.consonants.K.perception_limits.gemination_max <= phonetize.timing_model.durations.segmental_ceiling`.
 - [ ] Given `phonetize.timing_model.durations.consonants.closure.special_realization.hiatus`
       is verified, when its ordering is checked, then it is a positive integer
       in ms and it is less than both
@@ -98,7 +104,7 @@ unaccepted absolute hard limits.
       `phonetize.timing_model.durations.consonants.sonorant.coda`.
 - [ ] Given vowel timings are verified, when category ordering is checked, then
       all of the following hold:
-      `phonetize.timing_model.durations.vowels.perception_limits.short_min < phonetize.timing_model.durations.vowels.short < phonetize.timing_model.durations.vowels.perception_limits.long_min < phonetize.timing_model.durations.vowels.long < phonetize.timing_model.durations.vowels.perception_limits.very_long_min < phonetize.timing_model.durations.vowels.very_long < phonetize.timing_model.durations.vowels.perception_limits.max`.
+      `phonetize.timing_model.durations.vowels.perception_limits.short_min < phonetize.timing_model.durations.vowels.short < phonetize.timing_model.durations.vowels.perception_limits.long_min < phonetize.timing_model.durations.vowels.long < phonetize.timing_model.durations.vowels.perception_limits.very_long_min < phonetize.timing_model.durations.vowels.very_long < phonetize.timing_model.durations.vowels.perception_limits.elongation_max`.
 - [ ] Given pause timings are verified, when band ordering is checked, then all
       of the following hold:
       `phonetize.timing_model.durations.pauses.short.min < phonetize.timing_model.durations.pauses.short.max`,
@@ -143,10 +149,13 @@ unaccepted absolute hard limits.
       hard limits are added:
       `phonetize.timing_model.speech.wpm`,
       `phonetize.timing_model.durations.segmental_ceiling`,
+  `phonetize.timing_model.durations.segmental_floor`,
       `phonetize.timing_model.durations.cvc_reference`,
       `phonetize.timing_model.durations.consonants.<class>.perception_limits.geminate_min`,
+  `phonetize.timing_model.durations.consonants.<class>.perception_limits.gemination_max`,
       `phonetize.timing_model.durations.vowels.perception_limits.long_min`,
       `phonetize.timing_model.durations.vowels.perception_limits.very_long_min`,
+  `phonetize.timing_model.durations.vowels.perception_limits.elongation_max`,
       `phonetize.timing_model.durations.pauses.short.min`, and
       `phonetize.timing_model.durations.pauses.long.min`,
       when relative deviation from the documented default is checked, then a
@@ -178,8 +187,9 @@ unaccepted absolute hard limits.
       terms of the full dotted paths under
       `phonetize.timing_model.durations.consonants.closure.*`,
       `phonetize.timing_model.durations.consonants.fricative.*`, and
-      `phonetize.timing_model.durations.consonants.sonorant.*` with exposed
-      `onset`, `coda`, `geminate`, and `perception_limits.geminate_min`, and
+  `phonetize.timing_model.durations.consonants.sonorant.*` with exposed
+  `onset`, `coda`, `geminate`, `perception_limits.geminate_min`, and
+  `perception_limits.gemination_max`, and
       without introducing an exposed `singleton_min` requirement.
 
 ---
@@ -199,8 +209,6 @@ unaccepted absolute hard limits.
 - Active accepted process surface:
   - `phonetize.process.geminate_policy: cumulative | corrective`
   - `phonetize.process.accentuation_distribution_policy: 100_0 | 85_15 | 70_30`
-  - `phonetize.process.short_pause_policy: strict | best_effort`
-  - `phonetize.process.drift_policy: strict | extensible`
   - `phonetize.process.drift_tolerance` as an integer-millisecond value
 - Active numeric representation:
   - every numeric value under `phonetize.timing_model.durations` is an
@@ -209,8 +217,10 @@ unaccepted absolute hard limits.
   - `phonetize.timing_model.speech.pause_ratio` is a percentage
 - Consonant-row methodology:
   - consonant onset and coda anchors are the hard lower-side pillars
-  - the exposed operative consonant-side threshold is
+  - the exposed operative consonant-side legality band spans
     `phonetize.timing_model.durations.consonants.<class>.perception_limits.geminate_min`
+    through
+    `phonetize.timing_model.durations.consonants.<class>.perception_limits.gemination_max`
   - the active surface does not expose `singleton_min`
 - Pause and CVC methodology:
   - pause-band bounds and `phonetize.timing_model.durations.cvc_reference`

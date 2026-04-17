@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[067. Narrow Short-Vowel Spill and Adopt Class-Local Gemination Max Caps](067-cap-adjacent-short-vowel-accent-spill-below-long-min.md) - Done
 [066. Promote Mini Pauses to a Distinct Phone-Row Contract](066-promote-mini-pauses-to-a-distinct-phone-row-contract.md) - 'Done'
 [065. Add Code-Derived Mermaid Flowcharts to User-Facing Docs](065-add-code-derived-mermaid-flowcharts-to-user-facing-docs.md) - Done
 [064. Correct User-Facing Docs and Remove Internal Governance References](064-correct-user-facing-docs-and-remove-internal-governance-references.md) - Done

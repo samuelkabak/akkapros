@@ -96,6 +96,9 @@ For pause rows this is the pause class:
 - Four-digit millisecond duration.
 - During Phase 1 this is `0000`.
 - Finalized phonetizer outputs carry non-zero values.
+- Adjacent accent spill does not let a short-vowel row enter the long-vowel
+  field. Under the live defaults, `long_min = 123`, so a short-vowel row may
+  reach `0122` but not `0123`.
 
 `drift`
 - Four-character post-unit drift token.
@@ -105,6 +108,12 @@ For pause rows this is the pause class:
 - Non-final rows repeat the most recent completed-unit value; the token changes on syllable-final rows and pause rows.
 - For syllables inside a merged prosodic unit, an internal final row with boundary `L`, `X`, `E`, or `I` may still show raw unfolded drift.
 - The beat-folded canonical drift is only written after the unit-closing `F` boundary or after a pause row.
+
+The current consonant-timing contract also uses class-local runtime maxima.
+Same-consonant saturation and accent-extension ceilings are taken from the
+active consonant class `perception_limits.gemination_max`, while
+`segmental_ceiling` remains part of config verification rather than the direct
+runtime consonant cap.
 
 Debug note:
 

@@ -33,15 +33,15 @@ VARCO_VERIFICATION_ORIGINAL = {
 }
 VARCO_VERIFICATION_ACCENTUATED = {
     "percent_c": 34.54901960784314,
-    "percent_v": 30.96732026143791,
+    "percent_v": 31.333333333333336,
     "mean_c_ms": 132.15,
-    "mean_v_ms": 118.45,
+    "mean_v_ms": 119.85,
     "delta_c_ms": 79.24914826040718,
-    "delta_v_ms": 58.354498541243586,
+    "delta_v_ms": 61.42171847156346,
     "varco_c": 59.96908684101944,
-    "varco_v": 49.26508952405537,
+    "varco_v": 51.24882642600206,
     "rpvi_c": 92.21052631578948,
-    "npvi_v": 39.99720102030459,
+    "npvi_v": 41.03169107000619,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "max": 149.0,
@@ -49,9 +49,9 @@ VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "stddev": 69.3961,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
-    "max": 140.0,
-    "mean": -24.0417,
-    "stddev": 66.4238,
+    "max": 138.0,
+    "mean": -22.2917,
+    "stddev": 66.129,
 }
 LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
 LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")
@@ -171,21 +171,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 32.03613143000085,
-            "percent_v": 30.26804441109123,
-            "mean_c_ms": 113.7735112268142,
-            "mean_v_ms": 110.5152224824356,
-            "delta_c_ms": 62.167719683023634,
-            "delta_v_ms": 43.52536266947372,
-            "varco_c": 54.64164638383061,
-            "varco_v": 39.384042932539266,
-            "rpvi_c": 74.36197916666667,
-            "npvi_v": 32.142654746482414,
+            "percent_c": 31.793444599516068,
+            "percent_v": 30.34329553806641,
+            "mean_c_ms": 112.60675983100423,
+            "mean_v_ms": 110.63466042154566,
+            "delta_c_ms": 59.83111911232471,
+            "delta_v_ms": 43.67900892958426,
+            "varco_c": 53.13279522660708,
+            "varco_v": 39.480402220385855,
+            "rpvi_c": 72.50585175552666,
+            "npvi_v": 32.238025778638516,
         },
         "drift": {
             "max": 315.0,
-            "mean": -29.5045,
-            "stddev": 65.7989,
+            "mean": -32.0933,
+            "stddev": 65.2012,
         },
         "prominence_statistics": {
             "function_word_count": 189,
@@ -215,21 +215,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 34.34723440339603,
-            "percent_v": 30.421220716030767,
-            "mean_c_ms": 131.05251141552512,
-            "mean_v_ms": 119.06289729006356,
-            "delta_c_ms": 86.83049623757223,
-            "delta_v_ms": 54.346115095115785,
-            "varco_c": 66.25626269935478,
-            "varco_v": 45.64487874229754,
-            "rpvi_c": 102.91549755301794,
-            "npvi_v": 40.73923911336132,
+            "percent_c": 33.14144039904045,
+            "percent_v": 31.13352600456254,
+            "mean_c_ms": 124.91492829204694,
+            "mean_v_ms": 120.44831047172967,
+            "delta_c_ms": 74.31371974760972,
+            "delta_v_ms": 56.822572145599395,
+            "varco_c": 59.49146412177952,
+            "varco_v": 47.175898045440974,
+            "rpvi_c": 90.61102054124552,
+            "npvi_v": 41.781706015357734,
         },
         "drift": {
-            "max": 283.0,
-            "mean": -32.8275,
-            "stddev": 68.653,
+            "max": 412.0,
+            "mean": -36.9931,
+            "stddev": 74.6999,
         },
     },
     "accentuation_stats": {
@@ -814,18 +814,18 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 32.04%" in table
-    assert "%V: 30.27%" in table
-    assert "meanC: 113.77 ms" in table
-    assert "meanV: 110.52 ms" in table
-    assert "ΔC: 62.17 ms" in table
-    assert "ΔV: 43.53 ms" in table
-    assert "VarcoC: 54.64" in table
-    assert "VarcoV: 39.38" in table
-    assert "rPVI-C: 74.36" in table
-    assert "nPVI-V: 32.14" in table
+    assert "%C: 31.79%" in table
+    assert "%V: 30.34%" in table
+    assert "meanC: 112.61 ms" in table
+    assert "meanV: 110.63 ms" in table
+    assert "ΔC: 59.83 ms" in table
+    assert "ΔV: 43.68 ms" in table
+    assert "VarcoC: 53.13" in table
+    assert "VarcoV: 39.48" in table
+    assert "rPVI-C: 72.51" in table
+    assert "nPVI-V: 32.24" in table
     assert "Drift max: 315.00 ms" in table
-    assert "Drift mean: -29.50 ms" in table
-    assert "Drift stddev: 65.80 ms" in table
+    assert "Drift mean: -32.09 ms" in table
+    assert "Drift stddev: 65.20 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

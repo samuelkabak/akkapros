@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-09
+updated: 2026-04-17
 related_adrs: 'ADR-041, ADR-040, ADR-039'
-implemented_by: 'CR-040'
+implemented_by: 'CR-040, CR-067'
 ---
 
 # Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization
@@ -41,8 +41,8 @@ baseline duration from the geminate logic rather than treating the pair as two
 independent singleton anchors. If later accentuation creates an additional
 coda extension on that same consonant chain, the solver must treat the result
 as a double-gemination case and reduce the second onset first if the combined
-same-consonant duration would exceed
-`phonetize.timing_model.durations.segmental_ceiling`.
+same-consonant duration would exceed the active class-local
+`phonetize.timing_model.durations.consonants.<class>.perception_limits.gemination_max`.
 
 Phase 2 shall also maintain an internal ordered list of drift values observed
 during traversal so the finalized phone artifacts can expose drift summary
@@ -145,6 +145,10 @@ phonetizer used, without recomputing that history independently.
   the whole accent increment, then the remaining duration is assigned to the
   adjacent segment chosen by syllable type as follows: `C:V -> V`,
   `CVV: -> C`, `CVC: -> V`, and `CVV:C -> C`.
+- [ ] Given the adjacent accent target is a short vowel, when legality is
+  checked, then its maximum legal emitted duration is
+  `phonetize.timing_model.durations.vowels.perception_limits.long_min - 1`
+  and it is never equal to or greater than `long_min`.
 - [ ] Given `phonetize.process.accentuation_distribution_policy` is `85_15`,
   when accentuation is realized, then the solver begins from an intended
   eighty-five/fifteen split between the accentuated segment and the
@@ -158,7 +162,7 @@ phonetizer used, without recomputing that history independently.
 - [ ] Given accentuation is realized on a long vowel or consonant, when the
   increment is applied, then the accentuated segment is not extended beyond
   the configured legal maximum for its segment class, including long-vowel
-  maxima and geminate maxima.
+  maxima and gemination maxima.
 - [ ] Given accentuation distribution and ordinary legality checks are applied,
   when a non-zero `drift_cursor` enters the accentuated syllable, then the
   solver uses the accentuation increment as additional recovery space and
@@ -204,10 +208,10 @@ phonetizer used, without recomputing that history independently.
   treats the coda-plus-next-onset chain as a double-gemination case.
 - [ ] Given a double-gemination case was created across a syllable boundary,
   when the combined duration of the current coda and the pre-assigned next
-  onset would exceed
-  `phonetize.timing_model.durations.segmental_ceiling`, then the solver
+  onset would exceed the active class-local
+  `phonetize.timing_model.durations.consonants.<class>.perception_limits.gemination_max`, then the solver
   reduces the second onset first until the total same-consonant duration is
-  less than or equal to that ceiling.
+  less than or equal to that class-local maximum.
 - [ ] Given a pause is realized, when pause duration is assigned, then the
       solver uses the configured pause band plus the current signed
       `drift_cursor` as the discharge space.
@@ -300,7 +304,7 @@ phonetizer used, without recomputing that history independently.
   - `CVV:C -> C`
 - Accentuation-distribution limits:
   - long-vowel extension stops at the configured long-vowel maximum
-  - consonant extension stops at the configured geminate maximum for the
+  - consonant extension stops at the configured gemination maximum for the
     relevant consonant class
 - Runtime state:
   - signed `drift_cursor`, initialized to `0`

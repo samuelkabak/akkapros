@@ -6,7 +6,7 @@ impact: Mutative
 created: 2026-04-16
 updated: 2026-04-17
 related_adrs: 'ADR-046, ADR-041'
-implemented_by: 'CR-063'
+implemented_by: 'CR-063, CR-067'
 ---
 
 # Requirement: Phonetizer Phase 2 Path-Complete Unit Test Coverage

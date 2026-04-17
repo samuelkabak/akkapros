@@ -43,6 +43,15 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "csv" not in loaded["metrics"]["run"]
     assert "csv:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
+    durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
+    assert durations["segmental_floor"] == 10
+    assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 10") < text.index("cvc_reference: 306")
+    assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 221
+    assert durations["consonants"]["fricative"]["geminate"] == 224
+    assert durations["consonants"]["fricative"]["perception_limits"]["geminate_min"] == 210
+    assert durations["consonants"]["fricative"]["perception_limits"]["gemination_max"] == 250
+    assert durations["consonants"]["sonorant"]["perception_limits"]["gemination_max"] == 182
+    assert durations["vowels"]["perception_limits"]["elongation_max"] == 250
     assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
     assert "short_pause_policy" not in loaded["phonetize"]["process"]["timing_model"]
 

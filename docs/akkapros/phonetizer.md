@@ -186,7 +186,13 @@ Representative grouped-config keys:
 - `phonetize.process.timing_model.accentuation_distribution_policy`
 - `phonetize.process.timing_model.drift_tolerance`
 - `phonetize.process.timing_model.speech.wpm`
+- `phonetize.process.timing_model.durations.segmental_ceiling`
+- `phonetize.process.timing_model.durations.segmental_floor`
 - `phonetize.process.timing_model.durations.cvc_reference`
+- `phonetize.process.timing_model.durations.consonants.closure.perception_limits.gemination_max`
+- `phonetize.process.timing_model.durations.consonants.fricative.perception_limits.gemination_max`
+- `phonetize.process.timing_model.durations.consonants.sonorant.perception_limits.gemination_max`
+- `phonetize.process.timing_model.durations.vowels.perception_limits.long_min`
 
 No longer user-configurable:
 
@@ -199,6 +205,12 @@ At runtime, path-scoped help and `-t/--option` overrides expose the same canonic
 
 `phonetize.process.intonation` and `phonetize.process.timing_model` are siblings under `phonetize.process`. The former governs emitted pitch for `.pho` export, and the latter contains both the process-policy controls and the timing-model subtree used during realization. `perception_limits` inside the timing-model subtree are classification boundaries, not alternate emitted duration rows.
 
+Current legality notes:
+
+- adjacent accent spill into a short vowel is strictly sub-long and stops at `long_min - 1`
+- runtime consonant saturation uses class-local `perception_limits.gemination_max`
+- `segmental_ceiling` and `segmental_floor` remain validation-facing config bounds rather than direct runtime timing knobs
+
 ## Preflight Verification
 
 The standalone phonetizer now uses the same shared semantic verification layer
@@ -208,6 +220,8 @@ That preflight:
 
 - assumes schema-valid key paths and value types first
 - checks the current baseline semantic invariants and warning rules
+- checks the validation-only `segmental_floor` lower-bound relations
+- checks class-local consonant `gemination_max` values against the global `segmental_ceiling`
 - reports full dotted paths, relations, and reasons for blocking failures
 - reports warning paths, thresholds or formulas, and configuration-wide hint
 	summaries for warning-only conditions

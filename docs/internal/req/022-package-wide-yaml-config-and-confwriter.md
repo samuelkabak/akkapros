@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-09
+updated: 2026-04-17
 related_adrs: 'ADR-001, ADR-003, ADR-004, ADR-021, ADR-036'
-implemented_by: 'CR-030, CR-034'
+implemented_by: 'CR-030, CR-034, CR-067'
 ---
 
 # Requirement: Package-Wide YAML Config and Confwriter CLI
@@ -68,10 +68,11 @@ keys.
       `confwriter` output are inspected, then the nested phonetize keys use the
       approved structure and names exactly, including the current
       `phonetize.process` policies, `phonetize.timing_model.durations.cvc_reference`,
-      `phonetize.timing_model.durations.segmental_ceiling`, consonant-class
+      `phonetize.timing_model.durations.segmental_ceiling`,
+      `phonetize.timing_model.durations.segmental_floor`, consonant-class
       `onset` / `coda` / `geminate` anchors with
-      `perception_limits.geminate_min`, vowel perception limits, and pause
-      min/max bands.
+      `perception_limits.geminate_min` and `perception_limits.gemination_max`,
+      vowel perception limits, and pause min/max bands.
 - [x] Given `src/akkapros/config/default.yaml` is inspected, when the YAML is
       read, then it documents the stage sections used by `fullprosmaker`
       instead of repeating a duplicated `fullprosmaker` config section.
