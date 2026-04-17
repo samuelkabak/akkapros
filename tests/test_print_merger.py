@@ -176,3 +176,46 @@ def test_fullprosmaker_print_merger_true(tmp_path: Path) -> None:
     assert "‿" in acute_body
     assert "‿" in bold_body
     assert "‿" in xar_body
+
+
+def test_printer_hides_internal_mini_pause_marker(tmp_path: Path) -> None:
+    phone_file = tmp_path / "sample_phone.txt"
+    ophone_file = tmp_path / "sample_ophone.txt"
+    config = {
+        "process": {
+            "timing_model": {
+                "durations": {
+                    "cvc_reference": 350,
+                    "pauses": {
+                        "mini": {"min": 50, "max": 80},
+                    },
+                }
+            }
+        }
+    }
+
+    (ophone_rows, _), (phone_rows, _) = realize_phone_streams("qat pa\n", config)
+    phone_file.write_text(serialize_phone_rows(phone_rows), encoding="utf-8")
+    ophone_file.write_text(serialize_phone_rows(ophone_rows), encoding="utf-8")
+
+    _run_cli(
+        "akkapros.cli.printer",
+        str(phone_file),
+        "-p",
+        "sample",
+        "--outdir",
+        str(tmp_path),
+        "--ophone",
+        str(ophone_file),
+        "--acute",
+        "--bold",
+        "--xar",
+    )
+
+    _acute_frontmatter, acute_body = _read_frontmatter(tmp_path / "sample_accent_acute.txt")
+    _bold_frontmatter, bold_body = _read_frontmatter(tmp_path / "sample_accent_bold.md")
+    _xar_frontmatter, xar_body = _read_frontmatter(tmp_path / "sample_accent_xar.txt")
+
+    assert ":mini-pause:" not in acute_body
+    assert ":mini-pause:" not in bold_body
+    assert ":mini-pause:" not in xar_body

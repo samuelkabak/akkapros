@@ -2,6 +2,7 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [035. Requirement: Phonetizer Phase 2 Path-Complete Unit Test Coverage](035-phonetizer-phase2-path-complete-unit-test-coverage.md) - Implemented
 - [034. Requirement: Pipe-Delimited Phone/Ophone Rows and Signed Drift Token](034-phone-ophone-pipe-delimiter-and-signed-drift-token.md) - Implemented
 - [033. Requirement: Phonetizer Timeline Drift Assignment with Hard Short Vowels](033-phonetizer-pause-bands-and-pause-metrics-reporting.md) - Implemented
 - [032. Requirement: Phonetizer Intonation and Three-Pass Finalization](032-phonetizer-intonation-and-three-pass-finalization.md) - Implemented

@@ -34,6 +34,7 @@ from akkapros.lib.frontmatter import (
 )
 from akkapros.lib.phonetize import (
     EOL_TEXT,
+    MINI_PAUSE_TEXT,
     parse_phone_row,
     realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
@@ -905,6 +906,10 @@ def _render_ipa_pause_row(row: dict[str, str]) -> str:
 
 
 def _render_pause_row(row: dict[str, str], mode: str) -> str:
+    if row['text'] == MINI_PAUSE_TEXT:
+        if mode == 'ipa':
+            return '.'
+        return ' '
     if mode == 'ipa':
         return _render_ipa_pause_row(row)
     if row['text'] == EOL_TEXT:

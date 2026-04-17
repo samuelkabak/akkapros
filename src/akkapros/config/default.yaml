@@ -128,7 +128,7 @@ phonetize:
         # keeps the control value conservative and compatible with pause-band alignment
         # whenever at least one integer multiple N * cvc_reference falls inside a
         # configured pause band.
-        cvc_reference: 305
+        cvc_reference: 306
         consonants:
           # Stop-like closure class. Includes lexical ʾ.
           closure:
@@ -202,14 +202,17 @@ phonetize:
             # short and long anchors.
             long_min: 123
             # Earliest duration treated as very long. Midpoint-style boundary derived
-            # from long and very-long anchors.
+            # from long and very-long anchors. Ordinary non-accentual long-vowel
+            # recovery must stop at very_long_min - 1.
             very_long_min: 190
-            # Upper ordinary bound for contextual vowel extension.
+            # Upper contextual bound for vowel extension. Ordinary non-accentual
+            # long-vowel recovery still stops at very_long_min - 1.
             max: 240
         pauses:
-          # Default mini-pause band. Non-punctuation recovery gap used only when the
-          # stream is ahead of the beat and no punctuation-owned pause already follows
-          # the current merged unit boundary.
+          # Default mini-pause band. Non-punctuation recovery gap used only when one
+          # legal mini duration lands the stream on an equivalent beat checkpoint:
+          # directly to 0 for negative drift, or to +cvc_reference for positive drift
+          # before the hard-coded beat fold maps that checkpoint back to 0.
           mini:
             # Minimum mini-pause duration.
             min: 100

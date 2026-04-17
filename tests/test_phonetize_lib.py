@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from akkapros.lib import constants as lib_constants
 from akkapros.lib.phonetize import (
     CONSONANT_CLOSURE,
     CONSONANT_FRICATIVE,
@@ -17,7 +18,17 @@ from akkapros.lib.phonetize import (
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_ROWS,
     REALIZATION_CODE_METADATA,
+    _apply_accent_increment,
+    _adjacent_accent_index,
+    _analyze_syllable,
+    _consonant_timing_key,
     _format_row_drift_token,
+    _is_chrono_checkpoint_row,
+    _normalize_drift_to_nearest_branch,
+    _partition_phone_units,
+    _primary_accent_index,
+    _round_half_up,
+    _validate_chrono_checkpoints,
     build_default_phonetize_verification_config,
     build_phone_streams,
     build_phone_rows,
@@ -266,9 +277,9 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
     assert rows[-1]['length'] == 'L'
     assert rows[-1]['drift'] == _format_row_drift_token(report['drift']['current'])
     assert int(rows[-1]['duration']) >= 1200
-    assert report['one_mora_ref'] == 152.5
-    assert report['two_mora_ref'] == 305.0
-    assert report['three_mora_ref'] == 457.5
+    assert report['one_mora_ref'] == 153.0
+    assert report['two_mora_ref'] == 306.0
+    assert report['three_mora_ref'] == 459.0
     assert report['drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
 
 
@@ -518,7 +529,7 @@ def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> N
                 'timing_model': {
                     'drift_tolerance': 0,
                     'durations': {
-                        'cvc_reference': 350,
+                        'cvc_reference': 306,
                         'pauses': {
                             'mini': {
                                 'min': 50,
@@ -628,3 +639,547 @@ def test_shared_verification_blocks_invalid_pause_ratio() -> None:
     assert result.status == 'failure'
     assert result.failures
     assert any('0 < pause_ratio < 100' in line for line in lines)
+
+
+def _first_syllable_analysis(sample: str) -> dict[str, object]:
+    """Helper for Path-indexed tests."""
+    rows = build_phone_rows(sample)
+    units = _partition_phone_units(rows)
+    first = next(unit for unit in units if unit['kind'] == 'syllable')
+    return _analyze_syllable(rows, first['indices'])
+
+
+def test_path_1_1_normalization_keeps_in_range_value() -> None:
+    """Path 1.1"""
+    assert _normalize_drift_to_nearest_branch(120.0, 306.0) == 120.0
+
+
+def test_path_1_2_normalization_wraps_positive_overflow() -> None:
+    """Path 1.2"""
+    assert _normalize_drift_to_nearest_branch(200.0, 306.0) == -106.0
+
+
+def test_path_1_3_normalization_wraps_negative_overflow() -> None:
+    """Path 1.3"""
+    assert _normalize_drift_to_nearest_branch(-200.0, 306.0) == 106.0
+
+
+def test_path_1_3b_normalization_keeps_exact_thresholds_unchanged() -> None:
+    """Path 1.3b"""
+    threshold = _round_half_up(0.5 * 306.0)
+    assert _normalize_drift_to_nearest_branch(float(threshold), 306.0) == float(threshold)
+    assert _normalize_drift_to_nearest_branch(float(-threshold), 306.0) == float(-threshold)
+
+
+def test_path_1_4_normalization_can_be_disabled() -> None:
+    """Path 1.4"""
+    assert _normalize_drift_to_nearest_branch(250.0, 306.0) == -56.0
+
+
+def test_path_1_5_normalization_rotates_exactly_one_branch_when_enabled() -> None:
+    """Path 1.5"""
+    assert _normalize_drift_to_nearest_branch(-250.0, 306.0) == 56.0
+
+
+def test_path_1_5b_normalization_wraps_minus_303_to_plus_3_for_306_reference() -> None:
+    """Path 1.5b"""
+    assert _normalize_drift_to_nearest_branch(-303.0, 306.0) == 3.0
+
+
+def test_path_1_6_fold_is_deferred_until_prosodic_unit_final_boundary() -> None:
+    """Path 1.6"""
+    rows = build_phone_rows('qā&bā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 600,
+                        'vowels': {'perception_limits': {'very_long_min': 190, 'max': 240}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    vowel_rows = [row for row in rows if row['category'] == 'V']
+    assert len(vowel_rows) >= 2
+    assert vowel_rows[0]['boundary'] == 'L'
+    assert vowel_rows[0]['duration'] == '0189'
+    assert vowel_rows[0]['drift'] == '-303'
+    assert vowel_rows[1]['boundary'] == 'F'
+    assert vowel_rows[1]['duration'] == '0189'
+    assert vowel_rows[1]['drift'] == '-006'
+
+
+def test_path_2_tolerance_gate_skips_long_vowel_correction() -> None:
+    """Path 2"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 500,
+                    'durations': {'cvc_reference': 306},
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+    assert rows[1]['duration'] == '0160'
+
+
+def test_path_3_1_long_vowel_correction_with_legal_room() -> None:
+    """Path 3.1"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 400}}}}, allow_accentuation=False)
+    assert int(rows[1]['duration']) > 160
+
+
+def test_path_3_2_long_vowel_correction_without_legal_room() -> None:
+    """Path 3.2"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 500,
+                        'vowels': {'perception_limits': {'max': 160}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+    assert rows[1]['duration'] == '0160'
+
+
+def test_path_3_3_short_vowel_stays_fixed() -> None:
+    """Path 3.3"""
+    rows = build_phone_rows('qat')
+    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 400}}}}, allow_accentuation=False)
+    assert rows[1]['duration'] == '0085'
+
+
+def test_path_3_3b_accentuation_inactive_does_not_apply_increment() -> None:
+    """Path 3.3b"""
+    plain_rows = build_phone_rows('bā')
+    inactive_rows = build_phone_rows('bā~')
+    active_rows = build_phone_rows('bā~')
+
+    realize_phone_rows(plain_rows, allow_accentuation=False)
+    realize_phone_rows(inactive_rows, allow_accentuation=False)
+    realize_phone_rows(active_rows, allow_accentuation=True)
+
+    assert [row['duration'] for row in inactive_rows] == [row['duration'] for row in plain_rows]
+    assert int(active_rows[0]['duration']) >= int(inactive_rows[0]['duration'])
+    assert int(active_rows[1]['duration']) >= int(inactive_rows[1]['duration'])
+
+
+def test_path_3_4_non_accentual_long_vowel_stops_before_very_long_band_and_keeps_residual_drift() -> None:
+    """Path 3.4"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 500,
+                        'vowels': {'perception_limits': {'very_long_min': 190, 'max': 240}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0189'
+    assert rows[1]['drift'] == '-203'
+
+
+def test_path_3_5_unit_final_fold_happens_after_syllable_completion_for_current_reference() -> None:
+    """Path 3.5"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 600,
+                        'vowels': {'perception_limits': {'very_long_min': 190, 'max': 240}},
+                    },
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0189'
+    # With cvc_reference = 600, raw -303 folds to +297 because the equivalence
+    # class is modulo the current reference, not modulo the default 306 value.
+    assert rows[1]['drift'] == '+297'
+
+
+def test_path_4_1_accent_route_c_colon_v() -> None:
+    """Path 4.1"""
+    analysis = _first_syllable_analysis('b~a')
+    assert analysis['accent_shape'] == 'C:V'
+    assert _primary_accent_index(analysis) == analysis['onset_indices'][0]
+    assert _adjacent_accent_index(analysis) == analysis['nucleus_index']
+
+
+def test_path_4_2_accent_route_cvv_colon() -> None:
+    """Path 4.2"""
+    analysis = _first_syllable_analysis('bā~')
+    assert analysis['accent_shape'] == 'CVV:'
+    assert _primary_accent_index(analysis) == analysis['nucleus_index']
+    assert _adjacent_accent_index(analysis) == analysis['onset_indices'][0]
+
+
+def test_path_4_3_accent_route_cvc_colon() -> None:
+    """Path 4.3"""
+    analysis = _first_syllable_analysis('bat~')
+    assert analysis['accent_shape'] == 'CVC:'
+    assert _primary_accent_index(analysis) == analysis['coda_indices'][0]
+    assert _adjacent_accent_index(analysis) == analysis['nucleus_index']
+
+
+def test_path_4_4_accent_route_cvv_colon_c() -> None:
+    """Path 4.4"""
+    analysis = _first_syllable_analysis('bāt~')
+    assert analysis['accent_shape'] == 'CVV:C'
+    assert _primary_accent_index(analysis) == analysis['nucleus_index']
+    assert _adjacent_accent_index(analysis) == analysis['coda_indices'][0]
+
+
+def test_path_5_1_policy_100_0_primary_first() -> None:
+    """Path 5.1"""
+    rows = build_phone_rows('bā~')
+    realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '100_0'}}}, allow_accentuation=True)
+    assert int(rows[1]['duration']) >= 160
+
+
+def test_path_5_2_policy_85_15_split() -> None:
+    """Path 5.2"""
+    rows = build_phone_rows('bā~')
+    realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '85_15'}}}, allow_accentuation=True)
+    assert int(rows[0]['duration']) > 108
+
+
+def test_path_5_3_policy_70_30_split() -> None:
+    """Path 5.3"""
+    rows = build_phone_rows('bā~')
+    realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '70_30'}}}, allow_accentuation=True)
+    assert int(rows[0]['duration']) > 108
+
+
+def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None:
+    """Path 5.4"""
+    rows = build_phone_rows('bā~')
+    analysis = _first_syllable_analysis('bā~')
+    durations = {
+        analysis['onset_indices'][0]: 108.0,
+        analysis['nucleus_index']: 160.0,
+    }
+    config = {
+        'process': {
+            'accentuation_distribution_policy': '100_0',
+        },
+        'timing_model': {
+            'durations': {
+                'segmental_ceiling': 310,
+                'cvc_reference': 306,
+                'consonants': {
+                    'closure': {'perception_limits': {'geminate_min': 180}},
+                    'fricative': {'perception_limits': {'geminate_min': 152}},
+                    'sonorant': {'perception_limits': {'geminate_min': 152}},
+                },
+                'vowels': {
+                    'short': 85,
+                    'long': 160,
+                    'perception_limits': {
+                        'long_min': 123,
+                        'very_long_min': 190,
+                        'max': 240,
+                    },
+                },
+            },
+        },
+    }
+
+    applied = _apply_accent_increment(
+        rows,
+        analysis,
+        durations,
+        config,
+        40.0,
+        None,
+    )
+
+    assert applied == 113.0
+
+
+def test_path_5_5_consonant_class_mapping_covers_accent_legality_inventory() -> None:
+    """Path 5.5"""
+    closure_row = next(row for row in build_phone_rows('ba') if row['text'] == 'b')
+    fricative_row = next(row for row in build_phone_rows('ša') if row['text'] == 'š')
+    sonorant_row = next(row for row in build_phone_rows('la') if row['text'] == 'l')
+    hiatus_row = next(row for row in build_phone_rows('a˙a') if row['text'] == '˙')
+    transition_row = next(row for row in build_phone_rows('a¨a') if row['text'] == '¨')
+
+    assert _consonant_timing_key(closure_row) == 'closure'
+    assert _consonant_timing_key(fricative_row) == 'fricative'
+    assert _consonant_timing_key(sonorant_row) == 'sonorant'
+    assert _consonant_timing_key(hiatus_row) == 'closure'
+    assert _consonant_timing_key(transition_row) == 'sonorant'
+
+
+def test_path_6_1_primary_saturation_spills_to_adjacent() -> None:
+    """Path 6.1"""
+    rows = build_phone_rows('bā~')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'vowels': {'perception_limits': {'max': 170}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=True,
+    )
+    assert int(rows[0]['duration']) > 108
+
+
+def test_path_6_2_full_saturation_keeps_residual_drift() -> None:
+    """Path 6.2"""
+    rows = build_phone_rows('bā~')
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'segmental_ceiling': 108,
+                        'vowels': {'perception_limits': {'max': 160}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=True,
+    )
+    # Accent increment is fully constrained here; any remaining mismatch can be
+    # discharged by later pauses in the stream.
+    assert rows[0]['duration'] == '0108'
+    assert rows[1]['duration'] == '0160'
+
+
+def test_path_7_1_same_consonant_chain_ceiling_is_enforced() -> None:
+    """Path 7.1"""
+    rows = build_phone_rows('at~·ta')
+    realize_phone_rows(
+        rows,
+        {'process': {'timing_model': {'durations': {'segmental_ceiling': 210}}}},
+        allow_accentuation=True,
+    )
+    t_rows = [row for row in rows if row['text'] == 't' and row['category'] == 'C']
+    assert len(t_rows) >= 2
+    assert int(t_rows[0]['duration']) + int(t_rows[1]['duration']) <= 210
+
+
+def test_path_7_2_adjacent_consonant_stays_singleton() -> None:
+    """Path 7.2"""
+    rows = build_phone_rows('bā~')
+    realize_phone_rows(rows, allow_accentuation=True)
+    onset = rows[0]
+    assert int(onset['duration']) <= 179
+
+
+def test_path_8_1_mini_pause_inserted_when_eligible() -> None:
+    """Path 8.1"""
+    rows = build_phone_rows('qat pa')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 350,
+                        'pauses': {'mini': {'min': 50, 'max': 80}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+    assert any(row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT for row in rows)
+
+
+def test_path_8_2_mini_pause_not_inserted_when_not_eligible() -> None:
+    """Path 8.2"""
+    rows = build_phone_rows('qat, pa')
+    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 306}}}}, allow_accentuation=False)
+    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+
+
+def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
+    """Path 8.3"""
+    rows = build_phone_rows('ša pa')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 300,
+                        'pauses': {'mini': {'min': 220, 'max': 230}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
+    assert len(mini_pause_rows) == 1
+    assert mini_pause_rows[0]['duration'] == '0228'
+    assert mini_pause_rows[0]['drift'] == '+000'
+
+
+def test_path_8_4_negative_drift_outside_mini_band_does_not_clamp_partial_pause() -> None:
+    """Path 8.4"""
+    rows = build_phone_rows('qat pa')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 500,
+                        'pauses': {'mini': {'min': 100, 'max': 200}},
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+
+
+def test_path_9_1_short_pause_uses_nearest_discharge_in_band() -> None:
+    """Path 9.1"""
+    rows = build_phone_rows('qat,')
+    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 200, 'pauses': {'short': {'min': 600, 'max': 600}}}}}}, allow_accentuation=False)
+    short_pause = next(row for row in rows if row['category'] == 'S' and row['length'] == 'S')
+    assert short_pause['duration'] == '0600'
+
+
+def test_path_9_2_long_pause_uses_nearest_discharge_in_band() -> None:
+    """Path 9.2"""
+    rows = build_phone_rows('qat\n')
+    realize_phone_rows(rows, allow_accentuation=False)
+    long_pause = next(row for row in rows if row['category'] == 'S' and row['length'] == 'L')
+    assert long_pause['duration'] == '1540'
+
+
+def test_path_9_3_pause_clamps_and_carries_residual() -> None:
+    """Path 9.3"""
+    rows = build_phone_rows('qat,')
+    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 200, 'pauses': {'short': {'min': 600, 'max': 600}}}}}}, allow_accentuation=False)
+    short_pause = next(row for row in rows if row['category'] == 'S' and row['length'] == 'S')
+    assert short_pause['drift'] != '+000'
+
+
+def test_path_10_1_non_final_rows_keep_previous_drift_token() -> None:
+    """Path 10.1"""
+    rows = build_phone_rows('qat pa')
+    realize_phone_rows(rows, allow_accentuation=False)
+    assert rows[0]['drift'] == '+000'
+    assert rows[1]['drift'] == '+000'
+
+
+def test_path_10_2_unit_final_row_updates_drift_token() -> None:
+    """Path 10.2"""
+    rows = build_phone_rows('qat pa')
+    realize_phone_rows(rows, allow_accentuation=False)
+    assert rows[2]['drift'] != '+000'
+
+
+def test_path_11_round_half_up_behavior() -> None:
+    """Path 11"""
+    assert _round_half_up(2.5) == 3
+    assert _round_half_up(152.5) == 153
+
+
+def test_phase2_first_construct_demo_line_preserves_half_foot_checkpoint_invariant() -> None:
+    from pathlib import Path
+
+    from akkapros.lib.phonetize import build_phone_streams, realize_phone_rows
+
+    lines = Path('demo/akkapros/lexlinks/results/erra_construct_tilde.txt').read_text(encoding='utf-8').splitlines()
+    content_lines = [
+        line
+        for line in lines
+        if line
+        and not line.startswith('---')
+        and not line.startswith('package:')
+        and not line.startswith('pipeline:')
+        and not line.startswith('step:')
+        and not line.startswith('file:')
+        and not line.startswith('metadata:')
+        and not line.startswith('  ')
+    ]
+    first_line = content_lines[0] + '\n'
+    _original_rows, accentuated_rows = build_phone_streams(first_line)
+    realize_phone_rows(accentuated_rows, allow_accentuation=True)
+
+    total = 0
+    failures = []
+    for index, row in enumerate(accentuated_rows, start=1):
+        total += int(row['duration'])
+        if not _is_chrono_checkpoint_row(row):
+            continue
+        drift = int(row['drift'])
+        numerator = 2 * (total - drift)
+        if numerator % 306 != 0:
+            failures.append((index, row['label'], row['duration'], row['drift'], total, numerator))
+
+    assert not failures
+
+
+def test_debug_chrono_raises_fatally_on_checkpoint_mismatch() -> None:
+    assert lib_constants.DEBUG_CHRONO is False
+
+    rows = build_phone_rows('qat')
+    realize_phone_rows(rows, allow_accentuation=False)
+
+    rows[2]['drift'] = '-013'
+
+    with pytest.raises(ValueError, match='DEBUG_CHRONO checkpoint mismatch'):
+        monkeypatch = pytest.MonkeyPatch()
+        try:
+            monkeypatch.setattr(lib_constants, 'DEBUG_CHRONO', True)
+            _validate_chrono_checkpoints(rows, 306)
+        finally:
+            monkeypatch.undo()
+
+
+def test_normal_mode_does_not_trigger_debug_chrono_checkpoint_guard() -> None:
+    assert lib_constants.DEBUG_CHRONO is False
+
+    rows = build_phone_rows('qat')
+    realize_phone_rows(rows, allow_accentuation=False)
+
+    rows[2]['drift'] = '-013'
+
+    _validate_chrono_checkpoints(rows, 306)

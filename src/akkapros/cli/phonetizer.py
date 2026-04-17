@@ -95,7 +95,7 @@ def run_tests() -> bool:
     config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)
     cases = [
-        ('default process overrides', lambda: updated['process']['timing_model']['geminate_policy'] == 'corrective'),
+        ('default process overrides', lambda: updated['process']['timing_model']['geminate_policy'] == 'corrective' and updated['process']['timing_model']['drift_tolerance'] == 0),
         ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.speech.wpm=193'])['process']['timing_model']['speech']['wpm'] == 193),
         ('reject bad option path', _selftest_invalid_option_path),
         ('shared preflight catches blocking pause ratio', lambda: not verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}}).ok),

@@ -7,6 +7,24 @@ The practical question is simple: once prosody has already been fixed in
 `_tilde.txt`, how are concrete phone-row durations and row-level intonation
 assigned?
 
+## Governing Records
+
+This live algorithm page reflects the current internal contract across:
+
+- `ADR-046` / `REQ-033` for the hard-short-vowel timeline model
+- `REQ-031` for the syllable-scoped Phase 2 solver contract
+- `REQ-035` for numbered path-complete unit-test coverage
+- `CR-063` for clarified step order, drift-aware accentuation distribution,
+  rounding, and beat-folding documentation
+- `CR-064` for the later narrowing that caps ordinary non-accentual long-vowel
+  recovery at `very_long_min - 1`
+- `CR-065` for restoring hard-coded beat folding and extending mini-pause
+  synchronization to equivalent beat checkpoints
+
+Superseded assumption to avoid carrying forward: beat folding is not a user
+policy surface. It is part of the fixed solver. Equivalent checkpoints spaced
+by `cvc_reference` are synchronized as the same beat position.
+
 ## Scope
 
 The phonetizer produces two phone-row streams from one `_tilde` input:
@@ -66,6 +84,17 @@ That layer validates the current live timing model, including:
 
 The live default now sets `drift_tolerance = 0`.
 
+When `DEBUG_CHRONO` is enabled in the library constants, runtime also enforces
+a checkpoint integrality invariant at every syllable-final and pause row. At
+each checkpoint, the value
+
+```text
+2 * (cumulative_duration - drift)
+```
+
+must be divisible by `cvc_reference`. If it is not, runtime fails immediately.
+This is a debug invariant for the beat model itself, not a soft warning.
+
 ## Timeline Model
 
 Phase 2 is a timeline solver organized around one beat reference:
@@ -87,6 +116,11 @@ The solver carries one signed running value, `drift_cursor`:
 - negative drift means the stream is ahead of the beat
 - positive drift means the stream is behind the beat
 
+Synchronization is modulo the beat reference. The checkpoints
+`-cvc_reference`, `0`, and `+cvc_reference` are equivalent from the solver's
+point of view because each one lands on a beat boundary separated by one full
+foot.
+
 The serialized row-level `drift` field uses a fixed-width token:
 
 - `+000` for exactly on the beat after row-token rounding
@@ -94,6 +128,10 @@ The serialized row-level `drift` field uses a fixed-width token:
 - `+xyz` for `xyz` ms behind the beat
 
 Rows that do not close a syllable or pause repeat the most recent completed-unit token. The token becomes newly informative only on syllable-final rows and pause rows.
+
+Under `DEBUG_CHRONO`, those syllable-final and pause rows are also the enforced
+checkpoint rows. They must land on the integer beat lattice implied by
+`cvc_reference`; otherwise the solver raises a checkpoint mismatch error.
 
 ## Phase 1: Row Building
 
@@ -146,21 +184,50 @@ For each syllable unit, the solver does the following.
 3. Assign the nucleus anchor.
 4. If the coda is followed by the same onset consonant, pre-assign the next
    onset through the geminate policy.
-5. If the stream is accentuated and this syllable carries accentuation, add
-   exactly `0.5 * cvc_reference` using the configured accentuation-distribution
-   policy.
-6. Compute the current syllable target from the beat mapping.
-7. Compute signed post-assignment drift:
+5. Compute the current non-accentuated syllable target from the beat mapping.
+6. Compute signed post-assignment drift:
 
 ```text
 drift_after_assignment = drift_cursor + (realized_total - shape_ref)
 ```
 
-8. Apply ordinary vowel correction only if the nucleus is long.
-9. If unresolved absolute drift still exceeds `drift_tolerance`, continue with
-  the fixed extensible drift-carry behavior.
-10. If the current boundary is eligible and the stream is still ahead of the
-    beat by at least the mini minimum, optionally insert one mini pause.
+7. Do not fold drift inside a merged prosodic unit. Internal syllables carry
+  raw drift forward until the unit-closing `F` syllable is complete.
+
+8. After the closing `F` syllable of the prosodic unit has been fully realized,
+  fold the completed-unit drift to the nearest equivalent beat branch:
+
+```text
+if drift_after_assignment > round_half_up(0.5 * cvc_reference):
+  drift_after_assignment -= cvc_reference
+if drift_after_assignment < -round_half_up(0.5 * cvc_reference):
+  drift_after_assignment += cvc_reference
+```
+
+This keeps the completed-unit drift inside the canonical interval centered on
+the nearest beat. Folding is always modulo the current `cvc_reference`.
+For example, with `cvc_reference = 306`, `+250` folds to `-56` because reaching
+`+306` is nearer than returning to `0`, while `-250` folds to `+56` because
+reaching `-306` is nearer than returning to `0`. Likewise, `-303` folds to
+`+3` when `cvc_reference = 306` because `-303 + 306 = 3`.
+
+The crucial restriction is timing: this fold is prosodic-unit-final, not
+syllable-local. If a syllable closes with `L`, `X`, `E`, or `I`, its raw drift
+is carried into the next syllable because the merged unit is not complete yet.
+
+9. If unresolved absolute drift still exceeds `drift_tolerance`, apply ordinary
+  vowel correction only if the nucleus is long.
+10. If the stream is accentuated and this syllable carries accentuation,
+  distribute an accent increment computed as:
+
+```text
+AA = round_half_up(0.5 * cvc_reference) - drift_portion
+```
+
+where `drift_portion` is the signed drift value at accent-distribution entry.
+11. If the current boundary is eligible and the stream is synchronized at the
+  completed `F` boundary, optionally insert one mini pause using the
+  equivalent-beat rule.
 
 ### Hard Short Vowels
 
@@ -180,17 +247,33 @@ Consequences:
 
 Long vowels still provide ordinary syllable-internal flexibility.
 
-Their legal recovery space runs from the configured long-vowel threshold to the
- configured vowel maximum. In practice, that means a `CVV` or `CVVC` syllable
-can still absorb timing mismatch locally when the nucleus has legal room left.
+Their legal recovery space now depends on why the vowel is moving.
+
+For ordinary non-accentual recovery in `CVV` and `CVVC`, the solver may move a
+long vowel only inside:
+
+- `long_min .. very_long_min - 1`
+
+This means ordinary recovery may use the long vowel as local slack, but it may
+not push that vowel into the very-long category. If more correction would still
+be needed after reaching `very_long_min - 1`, the unresolved mismatch remains in
+drift.
+
+Accentuation legality is broader. Accentuated long-vowel targets still use the
+configured contextual maximum when the accent distribution step has legal room.
 
 ### Accentuation Routing
 
-Accentuation still adds exactly `0.5 * cvc_reference`.
+Accentuation still uses the half-foot reference, but runtime distribution is
+drift-aware.
+
+Increment quantity:
+
+- `AA = round_half_up(0.5 * cvc_reference) - drift_portion`
+- `round_half_up` means halves round up (`2.5 -> 3`)
 
 What did not change:
 
-- the increment size
 - the distribution-policy family (`100_0`, `85_15`, `70_30`)
 - the same-consonant handling logic around coda/onset pairs
 
@@ -200,6 +283,13 @@ What did change:
 
 So the extra mora is realized through accentable consonants or long-vowel space
 only.
+
+Primary/adjacent routing by accent shape:
+
+- `C:V` -> primary `C`, adjacent `V`
+- `CVV:` -> primary `VV`, adjacent preceding `C`
+- `CVC:` -> primary final `C`, adjacent preceding `V`
+- `CVV:C` -> primary `VV`, adjacent following `C`
 
 ### Pause Realization
 
@@ -231,16 +321,25 @@ They are not lexical phoneme structure and are not punctuation-owned pauses.
 The live solver inserts at most one mini pause at an eligible boundary when all
 of the following are true:
 
-- the current drift is negative, so the stream is ahead of the beat
-- the absolute drift is at least `pauses.mini.min`
 - the next unit is another syllable, not an existing pause row
 - the current syllable ends at a plain word boundary (`F`)
 
-The mini pause then chooses a legal duration inside:
+Mini pauses use the same beat-equivalence logic as drift folding.
+
+If the current drift is negative, the target checkpoint is `0`, so the legal
+mini-pause duration must be exactly `abs(drift)`.
+
+If the current drift is positive, the target checkpoint is `+cvc_reference`, so
+the legal mini-pause duration must be exactly `cvc_reference - drift`.
+
+The mini pause is inserted only when that exact target duration lies inside:
 
 - `pauses.mini.min .. pauses.mini.max`
 
-It uses the duration that brings drift as close as possible to zero.
+When inserted, the pause lands the stream on an equivalent beat checkpoint,
+which then folds back to zero drift in the canonical interval. Because mini
+pauses are only eligible at plain `F` boundaries, they are always evaluated
+after the merged prosodic unit has been completed and folded.
 
 The default mini band is:
 
@@ -257,8 +356,8 @@ the normalized terminal `<EOL>` row.
 The consonantal anchors contribute `108 + 103 = 211 ms`, the short vowel stays
 fixed at `85 ms`, and the closed syllable therefore realizes as `296 ms`.
 
-Its nominal `CVC` target is one `cvc_reference`, or `305 ms`, so the stream
-leaves the syllable with `-9 ms` of drift before the terminal long pause is
+Its nominal `CVC` target is one `cvc_reference`, or `306 ms`, so the stream
+leaves the syllable with `-10 ms` of drift before the terminal long pause is
 processed.
 
 ### Short vowels no longer absorb local mismatch
@@ -281,7 +380,7 @@ space. If the beat target demands more duration and the configured long-vowel
 range still has room, the solver may extend that long vowel before carrying any
 remaining drift forward.
 
-### Mini-pause example
+### Mini-pause examples
 
 With a diagnostic mini band of `50 .. 80 ms` and `cvc_reference = 350`, the
 sequence `qat pa` leaves the first word `54 ms` ahead of the beat.
@@ -289,6 +388,12 @@ sequence `qat pa` leaves the first word `54 ms` ahead of the beat.
 Because that boundary is a plain word boundary, the next unit is another
 syllable, and no punctuation-owned pause already exists there, the phonetizer
 may insert one `54 ms` mini pause before `pa`.
+
+Positive drift works the same way against the next equivalent checkpoint.
+With `cvc_reference = 300`, the syllable `ša` realizes `72 ms` behind the beat.
+If the mini band includes `228 ms`, the phonetizer may insert one `228 ms`
+mini pause because `72 + 228 = 300`, and `+300` is synchronization-equivalent
+to `0` after beat folding.
 
 That mini pause is visible in the phone-row stream but not in reconstructed
 upstream `_tilde` text.

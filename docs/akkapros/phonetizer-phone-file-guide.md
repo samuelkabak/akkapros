@@ -97,6 +97,17 @@ For pause rows this is the pause class:
 - `-xyz` means the stream stands `xyz` ms ahead of the beat after the most recently completed unit.
 - `+xyz` means the stream stands `xyz` ms behind the beat after the most recently completed unit.
 - Non-final rows repeat the most recent completed-unit value; the token changes on syllable-final rows and pause rows.
+- For syllables inside a merged prosodic unit, an internal final row with boundary `L`, `X`, `E`, or `I` may still show raw unfolded drift.
+- The beat-folded canonical drift is only written after the unit-closing `F` boundary or after a pause row.
+
+Debug note:
+
+- When `DEBUG_CHRONO` is enabled, every syllable-final row and every pause row
+	is treated as a chrono checkpoint.
+- At those rows, runtime requires `2 * (cumulative_duration - drift)` to be an
+	integer multiple of `cvc_reference`.
+- If that divisibility fails, the phonetizer raises a debug checkpoint error
+	instead of writing a silently inconsistent timeline.
 
 `intonation`
 - Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
@@ -133,6 +144,10 @@ Examples:
 - `L` means an internal merge connector `&`
 - `E` means a hyphen/enclitic boundary
 - `F` closes a prosodic unit
+
+This distinction matters for drift reading. Internal merge boundaries do not
+close the prosodic timing unit, so the solver carries raw drift across them.
+Only the `F` boundary closes the full prosodic unit and triggers beat folding.
 
 This is how metrics derives explicit-link counts from phone rows and how the
 printer reconstructs lexical rendering without using `_tilde.txt` as its active

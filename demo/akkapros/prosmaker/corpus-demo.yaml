@@ -54,7 +54,7 @@ phonetize:
         pause_ratio: 35
       durations:
         segmental_ceiling: 310
-        cvc_reference: 305
+        cvc_reference: 306
         consonants:
           closure:
             onset: 108

@@ -2,6 +2,8 @@
 Shared constants for Akkadian Prosody Toolkit library modules.
 """
 
+DEBUG_CHRONO = False
+
 # ---- User-customizable character policy -----------------------------------
 # This section is intended for controlled extension of the toolkit's visible
 # character inventory and symbol policy.

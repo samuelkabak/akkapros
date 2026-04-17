@@ -6,6 +6,7 @@ import math
 import re
 from typing import Any
 
+from akkapros.lib import constants as lib_constants
 from akkapros.lib.constants import (
     CLOSE_ESCAPE,
     HIATUS_MARKER,
@@ -105,7 +106,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                     'Upper ordinary duration for one vowel or consonant. Model-facing ceiling from comparative duration limits; does not apply to pauses or CVC totals.',
                 ),
                 'cvc_reference': _field(
-                    305,
+                    306,
                     'int',
                     'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
                 ),
@@ -159,8 +160,8 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         '__comment__': None,
                         'short_min': _field(40, 'int', 'Minimum duration still treated as a realized short-vowel nucleus.'),
                         'long_min': _field(123, 'int', 'Earliest duration treated as long. Midpoint-style boundary derived from short and long anchors.'),
-                        'very_long_min': _field(190, 'int', 'Earliest duration treated as very long. Midpoint-style boundary derived from long and very-long anchors.'),
-                        'max': _field(240, 'int', 'Upper ordinary bound for contextual vowel extension.'),
+                        'very_long_min': _field(190, 'int', 'Earliest duration treated as very long. Midpoint-style boundary derived from long and very-long anchors. Ordinary non-accentual long-vowel recovery must stop at very_long_min - 1.'),
+                        'max': _field(240, 'int', 'Upper contextual bound for vowel extension. Ordinary non-accentual long-vowel recovery still stops at very_long_min - 1.'),
                     },
                 },
                 'pauses': {
@@ -1287,8 +1288,12 @@ def render_phonetize_verification_lines(result: PhonetizeVerificationResult) -> 
     return lines
 
 
+def _rounded_duration_value(value: float) -> int:
+    return max(0, int(round(value)))
+
+
 def _format_duration(value: float) -> str:
-    bounded = max(0, int(round(value)))
+    bounded = _rounded_duration_value(value)
     return f'{bounded:04d}'
 
 
@@ -1330,18 +1335,53 @@ def _vowel_anchor(row: dict[str, str], config: dict[str, Any]) -> float:
     return float(vowels_cfg['short'] if row['length'] == 'S' else vowels_cfg['long'])
 
 
-def _vowel_bounds(row: dict[str, str], config: dict[str, Any]) -> tuple[float, float]:
+def _vowel_bounds(
+    row: dict[str, str],
+    config: dict[str, Any],
+    *,
+    ordinary_recovery: bool = False,
+) -> tuple[float, float]:
     vowels_cfg = config['timing_model']['durations']['vowels']
     limits = vowels_cfg['perception_limits']
     if row['length'] == 'S':
         anchor = float(vowels_cfg['short'])
         return anchor, anchor
+    if ordinary_recovery:
+        ordinary_maximum = min(float(limits['max']), float(limits['very_long_min']) - 1.0)
+        ordinary_maximum = max(float(limits['long_min']), ordinary_maximum)
+        return float(limits['long_min']), ordinary_maximum
     return float(limits['long_min']), float(limits['max'])
+
+
+def _accent_adjacent_vowel_limit(row: dict[str, str], config: dict[str, Any]) -> float:
+    vowels_cfg = config['timing_model']['durations']['vowels']
+    limits = vowels_cfg['perception_limits']
+    if row['length'] == 'S':
+        return float(limits['long_min'])
+    return float(limits['max'])
 
 
 def _timing_refs(config: dict[str, Any]) -> tuple[float, float, float]:
     cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
     return cvc_reference / 2.0, cvc_reference, cvc_reference * 1.5
+
+
+def _round_half_up(value: float) -> int:
+    if value >= 0:
+        return int(math.floor(value + 0.5))
+    return -int(math.floor(abs(value) + 0.5))
+
+
+def _normalize_drift_to_nearest_branch(
+    drift_value: float,
+    cvc_reference: float,
+) -> float:
+    threshold = float(_round_half_up(0.5 * cvc_reference))
+    while drift_value > threshold:
+        drift_value -= cvc_reference
+    while drift_value < -threshold:
+        drift_value += cvc_reference
+    return drift_value
 
 
 def _partition_phone_units(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
@@ -1477,8 +1517,6 @@ def _analyze_syllable(rows: list[dict[str, str]], indices: list[int]) -> dict[st
 
 def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool) -> float:
     one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
-    closure_onset = float(config['timing_model']['durations']['consonants']['closure']['onset'])
-    closure_coda = float(config['timing_model']['durations']['consonants']['closure']['coda'])
     base_map = {
         'CV': one_mora_ref,
         'CVV': two_mora_ref,
@@ -1486,14 +1524,6 @@ def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accent
         'CVVC': three_mora_ref,
     }
     target = base_map[analysis['base_shape']]
-    if not analysis['onset_indices']:
-        target -= closure_onset
-    else:
-        onset_index = analysis['onset_indices'][0]
-        target += _consonant_anchor(analysis['rows'][onset_index], config, 'O') - closure_onset
-    if analysis['coda_indices']:
-        coda_index = analysis['coda_indices'][0]
-        target += _consonant_anchor(analysis['rows'][coda_index], config, 'C') - closure_coda
     if accentuated and analysis['accent_shape'] is not None:
         target += one_mora_ref
     return target
@@ -1508,8 +1538,21 @@ def _adjacent_accent_index(analysis: dict[str, Any]) -> int | None:
     if accent_shape == 'CVC:':
         return analysis['nucleus_index']
     if accent_shape == 'CVV:C':
-        return analysis['onset_indices'][0] if analysis['onset_indices'] else analysis['nucleus_index']
+        return analysis['coda_indices'][0] if analysis['coda_indices'] else None
     return None
+
+
+def _primary_accent_index(analysis: dict[str, Any]) -> int | None:
+    accent_shape = analysis['accent_shape']
+    if accent_shape == 'C:V':
+        return analysis['onset_indices'][0] if analysis['onset_indices'] else analysis['accent_index']
+    if accent_shape == 'CVV:':
+        return analysis['nucleus_index']
+    if accent_shape == 'CVC:':
+        return analysis['coda_indices'][0] if analysis['coda_indices'] else analysis['accent_index']
+    if accent_shape == 'CVV:C':
+        return analysis['nucleus_index']
+    return analysis['accent_index']
 
 
 def _pause_multiple_candidates(minimum: float, maximum: float, cvc_reference: float) -> list[float]:
@@ -1537,13 +1580,16 @@ def _pause_duration_and_drift(row: dict[str, str], config: dict[str, Any], drift
     minimum = float(band['min'])
     maximum = float(band['max'])
     if _is_mini_pause_row(row):
-        actual = min(max(-drift_cursor, minimum), maximum)
-        return actual, drift_cursor + actual
+        cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+        actual = -drift_cursor if drift_cursor < 0 else (cvc_reference - drift_cursor)
+        emitted = float(_rounded_duration_value(actual))
+        return emitted, _normalize_drift_to_nearest_branch(drift_cursor + emitted, cvc_reference)
     preferred = _preferred_pause_target(row, config)
     desired = preferred - drift_cursor
     actual = min(max(desired, minimum), maximum)
-    new_drift = drift_cursor + (actual - preferred)
-    return actual, new_drift
+    emitted = float(_rounded_duration_value(actual))
+    new_drift = drift_cursor + (emitted - preferred)
+    return emitted, new_drift
 
 
 def _apply_vowel_correction(
@@ -1555,7 +1601,7 @@ def _apply_vowel_correction(
     config: dict[str, Any],
 ) -> float:
     vowel_index = analysis['nucleus_index']
-    minimum, maximum = _vowel_bounds(rows[vowel_index], config)
+    minimum, maximum = _vowel_bounds(rows[vowel_index], config, ordinary_recovery=True)
     current = durations[vowel_index]
     if drift_after_assignment > tolerance:
         reducible = min(current - minimum, drift_after_assignment - tolerance)
@@ -1575,12 +1621,16 @@ def _apply_accent_increment(
     analysis: dict[str, Any],
     durations: dict[int, float],
     config: dict[str, Any],
+    drift_portion: float,
     next_same_onset: int | None,
-) -> None:
+) -> float:
     accent_index = analysis['accent_index']
     if accent_index is None:
-        return
-    primary_index = accent_index
+        return 0.0
+    primary_index = _primary_accent_index(analysis)
+    if primary_index is None:
+        return 0.0
+    before_total = sum(durations[index] for index in analysis['indices'])
     adjacent_index = _adjacent_accent_index(analysis)
     one_mora_ref, _two_mora_ref, _three_mora_ref = _timing_refs(config)
     policy = config['process']['accentuation_distribution_policy']
@@ -1590,21 +1640,35 @@ def _apply_accent_increment(
         '70_30': (0.70, 0.30),
     }
     primary_share, adjacent_share = share_map[policy]
-    total_increment = one_mora_ref
+    total_increment = max(0.0, float(_round_half_up(one_mora_ref)) - drift_portion)
 
-    def _segment_limit(index: int) -> float:
+    consonants_cfg = config['timing_model']['durations']['consonants']
+
+    def _adjacent_singleton_limit(index: int) -> float:
+        row = rows[index]
+        timing_key = _consonant_timing_key(row)
+        geminate_min = float(consonants_cfg[timing_key]['perception_limits']['geminate_min'])
+        return min(_consonant_maximum(config), geminate_min - 1.0)
+
+    def _segment_limit(index: int, *, adjacent: bool) -> float:
         row = rows[index]
         if row['category'] == 'V':
+            if adjacent:
+                return _accent_adjacent_vowel_limit(row, config)
             return _vowel_bounds(row, config)[1]
+        if adjacent:
+            return _adjacent_singleton_limit(index)
+        if next_same_onset is not None and analysis['accent_shape'] in {'CVC:', 'CVV:C'} and index in analysis['coda_indices']:
+            return max(0.0, _consonant_maximum(config) - durations.get(next_same_onset, 0.0))
         return _consonant_maximum(config)
 
-    primary_slack = max(0.0, _segment_limit(primary_index) - durations[primary_index])
+    primary_slack = max(0.0, _segment_limit(primary_index, adjacent=False) - durations[primary_index])
     primary_gain = min(total_increment * primary_share, primary_slack)
     durations[primary_index] += primary_gain
     remaining = total_increment - primary_gain
 
     if adjacent_index is not None:
-        adjacent_slack = max(0.0, _segment_limit(adjacent_index) - durations[adjacent_index])
+        adjacent_slack = max(0.0, _segment_limit(adjacent_index, adjacent=True) - durations[adjacent_index])
         adjacent_gain = min(total_increment * adjacent_share, adjacent_slack, remaining)
         durations[adjacent_index] += adjacent_gain
         remaining -= adjacent_gain
@@ -1630,6 +1694,9 @@ def _apply_accent_increment(
             combined = durations[coda_index] + durations[next_same_onset]
             if combined > ceiling:
                 durations[coda_index] = max(0.0, ceiling - durations[next_same_onset])
+
+    after_total = sum(durations[index] for index in analysis['indices'])
+    return max(0.0, after_total - before_total)
 
 
 def _same_consonant_next_onset(
@@ -1674,6 +1741,42 @@ def _format_row_drift_token(drift_value: float) -> str:
     return f'{sign}{magnitude:03d}'
 
 
+def _is_chrono_checkpoint_row(row: dict[str, str]) -> bool:
+    return row['category'] == 'S' or row['boundary'] in {'F', 'I', 'L', 'X', 'E'}
+
+
+def _should_fold_completed_syllable(rows: list[dict[str, str]], analysis: dict[str, Any]) -> bool:
+    return rows[analysis['indices'][-1]]['boundary'] == 'F'
+
+
+def _validate_chrono_checkpoints(rows: list[dict[str, str]], cvc_reference: int) -> None:
+    if not lib_constants.DEBUG_CHRONO:
+        return
+    if isinstance(cvc_reference, bool) or not isinstance(cvc_reference, int) or cvc_reference <= 0:
+        raise ValueError(
+            'DEBUG_CHRONO requires phonetize.process.timing_model.durations.cvc_reference '
+            'to be a positive integer.'
+        )
+
+    cumulative_duration = 0
+    for index, row in enumerate(rows, start=1):
+        cumulative_duration += int(row['duration'])
+        if not _is_chrono_checkpoint_row(row):
+            continue
+
+        drift_value = int(row['drift'])
+        numerator = 2 * (cumulative_duration - drift_value)
+        if numerator % cvc_reference != 0:
+            raise ValueError(
+                'DEBUG_CHRONO checkpoint mismatch at row '
+                f'{index} ({row["label"]}/{row["text"]}): '
+                f'2 * (cumulative_duration - drift) = {numerator} is not divisible by '
+                f'cvc_reference = {cvc_reference}. '
+                f'cumulative_duration={cumulative_duration}, drift={drift_value}, '
+                f'duration={row["duration"]}, boundary={row["boundary"]}.'
+            )
+
+
 def _maybe_insert_mini_pause(
     rows: list[dict[str, str]],
     units: list[dict[str, Any]],
@@ -1682,8 +1785,6 @@ def _maybe_insert_mini_pause(
     config: dict[str, Any],
     drift_cursor: float,
 ) -> tuple[dict[str, str], float, float] | None:
-    if drift_cursor >= 0:
-        return None
     if unit_index + 1 >= len(units) or units[unit_index + 1]['kind'] != 'syllable':
         return None
     if rows[analysis['indices'][-1]]['boundary'] != 'F':
@@ -1691,12 +1792,22 @@ def _maybe_insert_mini_pause(
 
     mini_cfg = config['timing_model']['durations']['pauses']['mini']
     mini_min = float(mini_cfg['min'])
-    if abs(drift_cursor) < mini_min:
+    mini_max = float(mini_cfg['max'])
+    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+
+    if drift_cursor < 0:
+        target_duration = abs(drift_cursor)
+    elif drift_cursor > 0:
+        target_duration = abs(drift_cursor - cvc_reference)
+    else:
+        return None
+
+    if target_duration < mini_min or target_duration > mini_max:
         return None
 
     mini_row = _new_mini_pause_row()
     pause_duration, new_drift = _pause_duration_and_drift(mini_row, config, drift_cursor)
-    if abs(new_drift) >= abs(drift_cursor):
+    if abs(new_drift) >= abs(drift_cursor) and abs(new_drift) >= 0.5:
         return None
     return mini_row, pause_duration, new_drift
 
@@ -1726,13 +1837,16 @@ def realize_phone_rows(
 
     for unit_index, unit in enumerate(units):
         if unit['kind'] == 'pause':
+            entry_drift = drift_cursor
             pause_duration, drift_cursor = _pause_duration_and_drift(rows[unit['index']], config, drift_cursor)
             durations[unit['index']] = pause_duration
+            drift_cursor = entry_drift + (float(_rounded_duration_value(pause_duration)) - (_preferred_pause_target(rows[unit['index']], config) if not _is_mini_pause_row(rows[unit['index']]) else 0.0))
             drift_history.append(drift_cursor)
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
             row_drift_tokens[unit['index']] = last_completed_drift_token
             continue
 
+        entry_drift = drift_cursor
         analysis = analyses[unit_index]
         next_analysis = None
         if unit_index + 1 < len(units) and units[unit_index + 1]['kind'] == 'syllable':
@@ -1750,20 +1864,41 @@ def realize_phone_rows(
 
         next_same_onset = _same_consonant_next_onset(rows, analysis, next_analysis, durations, config)
 
-        if allow_accentuation and analysis['accent_shape'] is not None:
-            _apply_accent_increment(rows, analysis, durations, config, next_same_onset)
-
-        shape_ref = _shape_reference(analysis, config, accentuated=allow_accentuation and analysis['accent_shape'] is not None)
+        shape_ref = _shape_reference(analysis, config, accentuated=False)
         realized_total = sum(durations[index] for index in analysis['indices'])
         drift_after_assignment = drift_cursor + (realized_total - shape_ref)
-        drift_after_assignment = _apply_vowel_correction(
-            rows,
-            analysis,
-            durations,
-            drift_after_assignment,
-            tolerance,
-            config,
-        )
+        cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+
+        nucleus_row = rows[analysis['nucleus_index']]
+        if abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
+            drift_after_assignment = _apply_vowel_correction(
+                rows,
+                analysis,
+                durations,
+                drift_after_assignment,
+                tolerance,
+                config,
+            )
+
+        drift_portion = drift_after_assignment
+        accent_target = 0.0
+        if allow_accentuation and analysis['accent_shape'] is not None:
+            accent_increment_applied = _apply_accent_increment(
+                rows,
+                analysis,
+                durations,
+                config,
+                drift_portion,
+                next_same_onset,
+            )
+            accent_target = float(_round_half_up(0.5 * cvc_reference))
+            drift_after_assignment = drift_portion + (accent_increment_applied - accent_target)
+
+        emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
+        drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
+        if _should_fold_completed_syllable(rows, analysis):
+            drift_after_assignment = _normalize_drift_to_nearest_branch(drift_after_assignment, cvc_reference)
+
         if abs(drift_after_assignment) > tolerance:
             extension = abs(drift_after_assignment) - tolerance
             if extension > 0:
@@ -1791,6 +1926,10 @@ def realize_phone_rows(
             inserted_row['drift'] = inserted_drift
             finalized_rows.append(inserted_row)
     rows[:] = finalized_rows
+    _validate_chrono_checkpoints(
+        rows,
+        int(config['timing_model']['durations']['cvc_reference']),
+    )
 
     if drift_history:
         mean = sum(drift_history) / len(drift_history)
