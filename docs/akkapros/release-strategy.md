@@ -2,7 +2,7 @@
 
 ## Document Purpose
 This document defines the versioning and release process for `akkapros`.
-It incorporates ADR-002, which requires centralized version management.
+It uses one centralized package version source and one coordinated release workflow.
 
 ## Versioning Strategy
 We follow **Semantic Versioning** (`MAJOR.MINOR.PATCH`) as defined at

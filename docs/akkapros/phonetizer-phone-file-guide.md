@@ -32,7 +32,7 @@ Example:
 ```text
 SUD|C|F|S|O|N|F|SU|0137|+000|M0C|ṣ
 AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a
-ZEN|S|S|L|S|S|F|ZP|1525|+000|L2C|<EOL>
+ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
 Read this as:
@@ -103,11 +103,11 @@ For pause rows this is the pause class:
 Debug note:
 
 - When `DEBUG_CHRONO` is enabled, every syllable-final row and every pause row
-	is treated as a chrono checkpoint.
+  is treated as a chrono checkpoint.
 - At those rows, runtime requires `2 * (cumulative_duration - drift)` to be an
-	integer multiple of `cvc_reference`.
+  integer multiple of `cvc_reference`.
 - If that divisibility fails, the phonetizer raises a debug checkpoint error
-	instead of writing a silently inconsistent timeline.
+  instead of writing a silently inconsistent timeline.
 
 `intonation`
 - Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
@@ -160,19 +160,19 @@ Pause ownership now belongs to the phonetizer row stream.
 Short pause row:
 
 ```text
-SES|S|C|S|S|S|F|SP|0600|+023|H1C|:
+SES|S|C|S|S|N|P|SP|0600|+023|H1C|:
 ```
 
 Long pause row:
 
 ```text
-ZEN|S|Q|L|S|S|F|ZP|1525|+000|H3C|?!
+ZEN|S|Q|L|S|N|P|ZP|1525|+000|H3C|?!
 ```
 
 Line break row:
 
 ```text
-ZEN|S|S|L|S|S|F|ZP|1525|+000|L2C|<EOL>
+ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
 Important rules:

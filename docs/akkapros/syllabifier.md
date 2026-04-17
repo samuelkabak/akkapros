@@ -78,7 +78,7 @@ The `*_syl.txt` file uses these markers:
 | `+` | Linker boundary (prosodic attachment) |
 | `⟦...⟧` | Escaped punctuation or non-word segments |
 
-Escaped non-Akkadian chunks use CR-005 syntax inside `⟦...⟧`:
+Escaped non-Akkadian chunks use the package's escaped-chunk syntax inside `⟦...⟧`:
 
 - `{{text}}` (plain escaped chunk)
 - `{tag{text}}` (tagged escape, `tag` matches `[0-9a-z_]{1,16}`)

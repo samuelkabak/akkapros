@@ -24,7 +24,7 @@ Pipeline assumptions used for this verification:
 - prosody mora mode is `bi`
 - explicit `+` propagation remains at the default `only-last` behavior
 - metrics are computed from paired `_ophone.txt` and `_phone.txt` streams under
-  the active phone/ophone contract from REQ-030
+  the active phone/ophone metrics contract
 
 Observed current intermediate forms:
 
@@ -46,8 +46,8 @@ The following effective phonetizer timing parameters are the ones used for this
 verification sample. They must be stated explicitly so the computation can be
 reproduced without relying on hidden defaults.
 
-This page records one fixed sample configuration. It is not a statement of the
-current package defaults after later phonetizer timing changes such as CR-059.
+This page records one fixed sample configuration. It is not a statement of all
+current package defaults outside this worked verification example.
 
 ### Policy settings
 
@@ -55,8 +55,8 @@ current package defaults after later phonetizer timing changes such as CR-059.
 - `accentuation_distribution_policy = 85_15`
 - `drift_tolerance = 12`
 
-Note: `short_pause_policy` and `drift_policy` were removed from the public
-config surface in CR-061; behavior for both is now fixed internally.
+Note: `short_pause_policy` and `drift_policy` are no longer part of the public
+config surface; behavior for both is now fixed internally.
 
 ### Speech-level settings
 
@@ -129,7 +129,8 @@ phone/ophone metadata rather than recomputing them from interval arithmetic.
 
 ## Metric Formulas
 
-The active formulas are the interval formulas defined by REQ-030.
+The active formulas are the interval formulas used by the current metrics
+pipeline.
 
 Let `V` be the list of vocalic interval durations, `C` the list of consonantal
 interval durations, `P` the pause intervals, and `Total = sum(V) + sum(C) +
@@ -167,7 +168,7 @@ Accentuated stream (`_phone.txt`):
 
 The arithmetic below starts from the interval lists above. Those interval lists
 are the durations emitted under the stated timing parameters. The computation of
-the indicators then uses only the public formulas from REQ-030.
+the indicators then uses only the public interval formulas stated above.
 
 ### Original Stream: Worked Derivation
 

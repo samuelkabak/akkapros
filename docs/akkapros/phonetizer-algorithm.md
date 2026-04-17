@@ -7,23 +7,9 @@ The practical question is simple: once prosody has already been fixed in
 `_tilde.txt`, how are concrete phone-row durations and row-level intonation
 assigned?
 
-## Governing Records
-
-This live algorithm page reflects the current internal contract across:
-
-- `ADR-046` / `REQ-033` for the hard-short-vowel timeline model
-- `REQ-031` for the syllable-scoped Phase 2 solver contract
-- `REQ-035` for numbered path-complete unit-test coverage
-- `CR-063` for clarified step order, drift-aware accentuation distribution,
-  rounding, and beat-folding documentation
-- `CR-064` for the later narrowing that caps ordinary non-accentual long-vowel
-  recovery at `very_long_min - 1`
-- `CR-065` for restoring hard-coded beat folding and extending mini-pause
-  synchronization to equivalent beat checkpoints
-
-Superseded assumption to avoid carrying forward: beat folding is not a user
-policy surface. It is part of the fixed solver. Equivalent checkpoints spaced
-by `cvc_reference` are synchronized as the same beat position.
+This page describes current user-facing behavior only. Beat folding is part of
+the fixed solver, not a user policy surface, and checkpoints separated by one
+full `cvc_reference` remain synchronization-equivalent beat positions.
 
 ## Scope
 

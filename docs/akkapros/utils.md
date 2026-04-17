@@ -47,7 +47,7 @@ simple_safe_filename('')              # → 'unnamed'
 ```
 
 **Why it exists**: Previously every CLI module had its own variation.
-This single version is the canonical one (see CR-010).
+This single version is the canonical one used across the package.
 
 ---
 
@@ -360,11 +360,3 @@ Run `utils.run_tests()` and the full test suite after any adjustment.
 
 ---
 
-## Related ADRs and Specs
-
-| Doc | Relevance |
-|-----|-----------|
-| [ADR-001](../internal/adr/001-cli-lib-separation.md) | lib/ vs cli/ separation |
-| [ADR-009](../internal/adr/009-function-word-and-merge-policy.md) | `FUNCTION_WORDS` canonical definition |
-| [CR-013](../internal/cr/013-migrate-akkascore-to-utils.md) | Migration from `akkascore.py` |
-| [SPEC-010](../internal/req/010-built-in-self-tests-and-test-infrastructure.md) | Self-test infrastructure |

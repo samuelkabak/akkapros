@@ -89,7 +89,8 @@ Phase 2 diagnostics to look for:
 - row durations are finalized non-zero millisecond values rather than `0000`
 - row-level drift changes only on syllable-final rows and pause rows
 - front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
-- short pauses discharge as much drift as their band allows, while long pauses must reset the running drift reserve to zero
+- short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
+- internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
 
@@ -182,7 +183,7 @@ Representative grouped-config keys:
 - `phonetize.process.timing_model.speech.wpm`
 - `phonetize.process.timing_model.durations.cvc_reference`
 
-Removed in CR-061:
+No longer user-configurable:
 
 - `phonetize.process.timing_model.short_pause_policy`
 - `phonetize.process.timing_model.drift_policy`

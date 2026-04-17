@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This note documents the post-CR-056 confidence model for metrics verification.
+This note documents the current confidence model for metrics verification.
 The goal is not exhaustive snapshotting. The goal is that every public metrics
 family has at least one exact-value verification path, and that research-
 critical interval metrics are defended by more than one layer.
@@ -29,7 +29,7 @@ The suite now uses four complementary reference sources.
 | Drift metrics | Yes | Unit/regression, integration | Manual single-line phone/ophone fixture, lexlinks corpus, fullprosmaker fixture |
 | Acoustic interval metrics | Yes | Unit/regression, integration, self-test | Hand-built rows, manual single-line verification, lexlinks corpus, fullprosmaker fixtures |
 
-## Test Classification After CR-056
+## Test Classification for the Current Metrics Suite
 
 ### Exact-value tests
 
@@ -48,7 +48,7 @@ The suite now uses four complementary reference sources.
 ### Consistency-only tests retained intentionally
 
 - Internal arithmetic/coherence checks that prove invariants such as syllable and mora totals, pause-ratio derivations, and accentuation-rate formulas.
-- These are still useful, but after CR-056 they no longer stand alone for any major public family.
+- These are still useful, but they no longer stand alone for any major public family.
 
 ### Presence-only checks retained intentionally
 
@@ -69,5 +69,5 @@ references are:
 
 This coverage model deliberately avoids whole-file opaque golden snapshots for
 metrics text and JSON. Exact selected fields are preferred because they are
-more auditable when the contract changes. If a future CR changes the approved
-metrics contract, update the fixed-value references and this matrix together.
+more auditable when the contract changes. If the approved metrics contract
+changes, update the fixed-value references and this matrix together.

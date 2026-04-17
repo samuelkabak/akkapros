@@ -196,7 +196,7 @@ Front matter for prosody and downstream outputs preserves
 `metadata.options.mora_mode` so artifact consumers can distinguish `bi` from
 `mono` runs.
 
-Escaped chunks are preserved through the full pipeline using CR-005 syntax:
+Escaped chunks are preserved through the full pipeline using the package's escaped-chunk syntax:
 
 - `{{text}}`
 - `{tag{text}}` where `tag` matches `[0-9a-z_]{1,16}`
