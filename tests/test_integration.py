@@ -7,7 +7,14 @@ from pathlib import Path
 
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
 from akkapros.lib.frontmatter import split_frontmatter
-from akkapros.lib.phonetize import MINI_PAUSE_TEXT, parse_phone_row, reconstruct_tilde_from_phone_rows
+from akkapros.lib.phonetize import (
+    MINI_PAUSE_LABEL,
+    MINI_PAUSE_REALIZATION,
+    MINI_PAUSE_TEXT,
+    MINI_PAUSE_TYPE,
+    parse_phone_row,
+    reconstruct_tilde_from_phone_rows,
+)
 from akkapros.lib.utils import format_path_for_logging
 
 
@@ -731,6 +738,9 @@ def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(
 
     mini_rows = [row for row in phone_rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
     assert len(mini_rows) == 1
+    assert mini_rows[0]['label'] == MINI_PAUSE_LABEL
+    assert mini_rows[0]['type'] == MINI_PAUSE_TYPE
+    assert mini_rows[0]['realization'] == MINI_PAUSE_REALIZATION
     assert mini_rows[0]['duration'] == '0054'
     assert reconstruct_tilde_from_phone_rows(phone_rows) == 'qat pa\n'
     assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)

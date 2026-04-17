@@ -13,7 +13,10 @@ from akkapros.lib.phonetize import (
     INPUT_CHARACTER_LABELS,
     INPUT_CHARACTER_LENGTHS,
     INPUT_TO_REALIZATION_CODES,
+    MINI_PAUSE_LABEL,
+    MINI_PAUSE_REALIZATION,
     MINI_PAUSE_TEXT,
+    MINI_PAUSE_TYPE,
     PHONE_ROW_DRIFT_NEUTRAL,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_ROWS,
@@ -67,6 +70,14 @@ def test_input_inventory_and_realization_inventory_are_explicit() -> None:
         'type': 'S',
         'emphaticity': 'P',
     }
+    assert INPUT_TO_REALIZATION_CODES[MINI_PAUSE_LABEL] == (MINI_PAUSE_REALIZATION,)
+    assert REALIZATION_CODE_METADATA[MINI_PAUSE_REALIZATION] == {
+        'ipa': '.',
+        'mbrola_xsampa': '_',
+        'category': 'S',
+        'type': 'S',
+        'emphaticity': 'P',
+    }
 
 
 def test_realization_inventory_exposes_canonical_mbrola_xsampa_mapping() -> None:
@@ -77,6 +88,7 @@ def test_realization_inventory_exposes_canonical_mbrola_xsampa_mapping() -> None
     assert row_map['HE'] == ('x', 'x')
     assert row_map['AL'] == ('ʔ', '?')
     assert row_map['AO'] == ('ɑ', 'a.')
+    assert row_map[MINI_PAUSE_REALIZATION] == ('.', '_')
     assert row_map['SP'] == ('|', '_')
     assert row_map['ZP'] == ('‖', '_')
 
@@ -514,6 +526,9 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
 
     mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
     assert len(mini_pause_rows) == 1
+    assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
+    assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
+    assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
     assert mini_pause_rows[0]['duration'] == '0054'
     assert mini_pause_rows[0]['drift'] == '+000'
     assert reconstruct_tilde_from_phone_rows(rows) == 'qat pa\n'
@@ -1022,6 +1037,10 @@ def test_path_8_1_mini_pause_inserted_when_eligible() -> None:
         allow_accentuation=False,
     )
     assert any(row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT for row in rows)
+    mini_row = next(row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT)
+    assert mini_row['label'] == MINI_PAUSE_LABEL
+    assert mini_row['type'] == MINI_PAUSE_TYPE
+    assert mini_row['realization'] == MINI_PAUSE_REALIZATION
 
 
 def test_path_8_2_mini_pause_not_inserted_when_not_eligible() -> None:
@@ -1051,6 +1070,9 @@ def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
 
     mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
     assert len(mini_pause_rows) == 1
+    assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
+    assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
+    assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
     assert mini_pause_rows[0]['duration'] == '0228'
     assert mini_pause_rows[0]['drift'] == '+000'
 

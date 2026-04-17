@@ -499,6 +499,10 @@ to `0` after beat folding.
 That mini pause is visible in the phone-row stream but not in reconstructed
 upstream `_tilde` text.
 
+Under the current row contract, an inserted mini pause is emitted as a
+dedicated silence row such as `MEN|S|M|S|S|N|P|MP|0054|+000|M0C| `.
+The last field is one literal space character, not a named sentinel token.
+
 ## Phase 3: Intonation
 
 Intonation remains a separate pass over duration-bearing rows.

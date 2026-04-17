@@ -73,6 +73,7 @@ Examples:
 ```text
 SUD|C|F|S|O|N|F|SU|0137|+000|M0C|ṣ
 AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a
+MEN|S|M|S|S|N|P|MP|0054|+000|M0C| 
 ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
@@ -90,9 +91,13 @@ Phase 2 diagnostics to look for:
 - row-level drift changes only on syllable-final rows and pause rows
 - front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
 - short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
+- inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...| `, where the final field is one literal space character
 - internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
+
+For the canonical row tables, field inventory, and parsing constraints, see
+`docs/akkapros/phonetizer-data-model.md`.
 
 Metricalc and printer now consume `_ophone.txt` and `_phone.txt` as their
 active downstream inputs. `_tilde.txt` remains the live upstream prosody pivot
@@ -122,7 +127,7 @@ families emit two, and peak/valley families emit a longer pitch tail.
 
 Important distinction:
 
-- `_phone.txt` and `_ophone.txt` keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `SP`, and `ZP`
+- `_phone.txt` and `_ophone.txt` keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `MP`, `SP`, and `ZP`
 - `.pho` export derives MBROLA/X-SAMPA-like symbols such as `X`, `x`, `H`, `?`, `a.`, and `_` from that same realization inventory
 
 This keeps the row contract backend-neutral while making the emitted `.pho` files conventional for MBROLA-style tooling.
@@ -222,5 +227,6 @@ FAIL phonetize.process.timing_model.speech.pause_ratio | relation: 0 < pause_rat
 `confwriter --list phonetize` is the supported way to inspect the live schema.
 
 See also:
+- `docs/akkapros/phonetizer-data-model.md` for the centralized row contract and canonical inventories
 - `docs/akkapros/phonetizer-algorithm.md` for the row and boundary model
 - `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_ophone.txt`, `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho`

@@ -61,6 +61,7 @@ def test_validate_phone_ok(tmp_path):
         "---\n\n"
         "KAP|C|C|S|O|N|F|KA|0108|+000|M0C|k\n"
         "AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a\n"
+        "MEN|S|M|S|S|N|P|MP|0054|+000|M0C| \n"
         "ZEN|S|S|L|S|S|F|ZP|1200|+000|L2C|<EOL>\n",
         encoding="utf-8",
     )

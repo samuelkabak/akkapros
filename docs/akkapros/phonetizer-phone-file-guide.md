@@ -6,6 +6,9 @@ It is meant to help a reader inspect the files directly without needing to read
 the library code first. The phone-row files are the main downstream analysis
 artifacts of the phonetizer.
 
+If you need the centralized canonical tables and contract summary rather than a
+reading walkthrough, see `docs/akkapros/phonetizer-data-model.md`.
+
 ## Purpose
 
 `_phone.txt` is the accentuated downstream stream.
@@ -39,11 +42,12 @@ Read this as:
 
 - fields are pipe-delimited; `text` is the final field
 - parsers must use bounded splitting (for example `split('|', 11)`) to preserve any `|` in text
+- parsers must not trim the serialized row before splitting, because the final `text` field may legally be one literal space character for an inserted mini pause
 
 ## Field Meanings
 
 `label`
-- Canonical source-side symbol label such as `SUD`, `AYA`, `ARU`, `SES`, `ZEN`.
+- Canonical source-side symbol label such as `SUD`, `AYA`, `ARU`, `SES`, `ZEN`, `MEN`.
 
 `category`
 - `C` consonant row
@@ -53,6 +57,7 @@ Read this as:
 `type`
 - Consonant and vowel subclass code used by runtime logic.
 - Typical values include closure/fricative/sonorant classes and the special hiatus/transition rows.
+- For pause rows, `Q`, `E`, `S`, `C`, and `I` are punctuation-owned pause subtypes, while `M` marks an inserted mini pause.
 
 `length`
 - `S` short
@@ -82,7 +87,8 @@ For pause rows this is the pause class:
 - `P` pause row accent placeholder
 
 `realization`
-- Two-letter realization code such as `SU`, `AA`, `AO`, `SP`, `ZP`.
+- Two-letter realization code such as `SU`, `AA`, `AO`, `MP`, `SP`, `ZP`.
+- `MP` is the mini-pause marker used for algorithmically inserted prosodic-space rows.
 - `SP` is the short-pause IPA-like marker `|`.
 - `ZP` is the long-pause IPA-like marker `‖`.
 
@@ -116,6 +122,7 @@ Debug note:
 
 `text`
 - The source-facing glyph or pause text.
+- Inserted mini pauses use one literal ASCII space character in this field.
 - For line breaks the phonetizer writes `<EOL>`.
 
 ## Pause Type Letters
@@ -129,6 +136,7 @@ Pause rows now carry a meaningful subtype rather than one generic silence type.
 | `S` | statement-final or ordinary line-final pause |
 | `C` | continuation pause |
 | `I` | internal or sanitizing pause with no clause-final override |
+| `M` | inserted mini pause used to discharge drift between ordinary units |
 
 When a punctuation suite contains mixed cues, the phonetizer resolves it by the
 active precedence `Q > E > S > C > I`.
@@ -163,6 +171,12 @@ Short pause row:
 SES|S|C|S|S|N|P|SP|0600|+023|H1C|:
 ```
 
+Inserted mini pause row:
+
+```text
+MEN|S|M|S|S|N|P|MP|0054|+000|M0C| 
+```
+
 Long pause row:
 
 ```text
@@ -178,7 +192,9 @@ ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 Important rules:
 
 - If the consumed upstream text has no final line break, the phonetizer inserts one final `<EOL>` row before writing `_phone.txt` and `_ophone.txt`.
-- Pause rows use subtype `Q`, `S`, `E`, `C`, or `I` rather than one generic silence type.
+- Punctuation-owned pause rows use subtype `Q`, `S`, `E`, `C`, or `I`; inserted mini pauses use subtype `M`.
+- Inserted mini pauses use `MEN` plus realization code `MP`; they are not punctuation-owned `SES ... SP` rows.
+- The mini-pause `text` field is one literal space character, not a sentinel token.
 - Grouped punctuation suites use precedence `Q > E > S > C > I`.
 - Metrics and printer read pause strength from these rows instead of recomputing it from punctuation later.
 
@@ -218,7 +234,7 @@ The phone-row files and the `.pho` files intentionally do not use the same
 surface symbols.
 
 `_phone.txt` and `_ophone.txt`
-- keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `SP`, and `ZP`
+- keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `MP`, `SP`, and `ZP`
 - remain the canonical downstream row contract for metrics and printer
 
 `_mbrola.pho` and `_ombrola.pho`

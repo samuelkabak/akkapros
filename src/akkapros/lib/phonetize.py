@@ -214,7 +214,10 @@ PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
 EOL_TEXT = '<EOL>'
-MINI_PAUSE_TEXT = ':mini-pause:'
+MINI_PAUSE_LABEL = 'MEN'
+MINI_PAUSE_TYPE = 'M'
+MINI_PAUSE_REALIZATION = 'MP'
+MINI_PAUSE_TEXT = ' '
 
 CONSONANT_HIATUS = set('˙')
 CONSONANT_VOWEL_TRANSITION = set('¨')
@@ -330,6 +333,7 @@ REALIZATION_CODE_ROWS = (
     ('EO', 'ɛ', 'e.', 'V', 'M', 'P'),
     ('IO', 'ɨ', 'i.', 'V', 'H', 'P'),
     ('UO', 'ʊ', 'u.', 'V', 'H', 'P'),
+    (MINI_PAUSE_REALIZATION, '.', '_', 'S', 'S', 'P'),
     ('SP', '|', '_', 'S', 'S', 'P'),
     ('ZP', '‖', '_', 'S', 'S', 'P'),
 )
@@ -395,6 +399,7 @@ INPUT_TO_REALIZATION_ROWS = (
     ('EWI', 'EO'),
     ('IWI', 'IO'),
     ('UWI', 'UO'),
+    (MINI_PAUSE_LABEL, MINI_PAUSE_REALIZATION),
     ('SES', 'SP'),
     ('ZEN', 'ZP'),
 )
@@ -683,11 +688,29 @@ def _new_pause_row(text: str, *, pause_type: str, length_code: str) -> dict[str,
 
 
 def _new_mini_pause_row() -> dict[str, str]:
-    return _new_pause_row(MINI_PAUSE_TEXT, pause_type='I', length_code='S')
+    return {
+        'label': MINI_PAUSE_LABEL,
+        'category': 'S',
+        'type': MINI_PAUSE_TYPE,
+        'length': 'S',
+        'position': 'S',
+        'boundary': 'N',
+        'accent': 'P',
+        'realization': MINI_PAUSE_REALIZATION,
+        'duration': PHONE_ROW_DURATION_PLACEHOLDER,
+        'drift': PHONE_ROW_DRIFT_NEUTRAL,
+        'intonation': PHONE_ROW_INTONATION_NEUTRAL,
+        'text': MINI_PAUSE_TEXT,
+    }
 
 
 def _is_mini_pause_row(row: dict[str, str]) -> bool:
-    return row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT
+    return (
+        row['category'] == 'S'
+        and row['label'] == MINI_PAUSE_LABEL
+        and row['type'] == MINI_PAUSE_TYPE
+        and row['realization'] == MINI_PAUSE_REALIZATION
+    )
 
 
 def _normalize_intonation_token(value: str) -> str:
@@ -2063,7 +2086,7 @@ def serialize_phone_rows(rows: list[dict[str, str]]) -> str:
 
 
 def parse_phone_row(line: str) -> dict[str, str]:
-    stripped = line.strip()
+    stripped = line.rstrip('\r\n')
     if not stripped:
         raise ValueError('Phone row is empty')
     parts = stripped.split('|', len(PHONE_ROW_FIELDS) - 1)
@@ -2088,7 +2111,7 @@ def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:
             if row['text'] == EOL_TEXT:
                 pieces.append('\n')
                 previous_boundary = ''
-            elif row['text'] != MINI_PAUSE_TEXT:
+            elif not _is_mini_pause_row(row):
                 pieces.append(row['text'])
                 previous_boundary = ''
             continue
@@ -2113,8 +2136,10 @@ def run_tests() -> bool:
         lambda: CONSONANT_HIATUS == set('˙') and CONSONANT_VOWEL_TRANSITION == set('¨'),
         lambda: INPUT_CHARACTER_LABELS['ṣ'] == 'SUD' and INPUT_CHARACTER_LENGTHS['û'] == 'L',
         lambda: REALIZATION_CODE_METADATA['SP']['category'] == 'S' and INPUT_TO_REALIZATION_CODES['ENA'] == ('WA', 'YI'),
+        lambda: REALIZATION_CODE_METADATA[MINI_PAUSE_REALIZATION]['ipa'] == '.' and INPUT_TO_REALIZATION_CODES[MINI_PAUSE_LABEL] == (MINI_PAUSE_REALIZATION,),
         lambda: derive_original_tilde_text('u+ana&šar~.ri') == 'u+ana šar.ri',
         lambda: _test_emphatic_vowel_and_row_format(),
+        lambda: _test_mini_pause_row_contract(),
         lambda: _test_boundary_reconstruction(),
         lambda: _test_transition_resolution(),
         lambda: _test_dual_stream_generation(),
@@ -2132,6 +2157,16 @@ def _test_emphatic_vowel_and_row_format() -> bool:
         return False
     line = serialize_phone_row(rows[0])
     return parse_phone_row(line) == rows[0] and rows[0]['duration'] == PHONE_ROW_DURATION_PLACEHOLDER
+
+
+def _test_mini_pause_row_contract() -> bool:
+    row = _new_mini_pause_row()
+    return (
+        row['label'] == MINI_PAUSE_LABEL
+        and row['type'] == MINI_PAUSE_TYPE
+        and row['realization'] == MINI_PAUSE_REALIZATION
+        and parse_phone_row(serialize_phone_row(row))['text'] == MINI_PAUSE_TEXT
+    )
 
 
 def _test_boundary_reconstruction() -> bool:
