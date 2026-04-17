@@ -15,6 +15,24 @@ Implementation:
 - `src/akkapros/lib/metrics.py`
 - `src/akkapros/lib/print.py`
 
+## Flowchart
+
+This flowchart summarizes the fixed pipeline order and output handoff. It is
+generated from repository-owned workflow data and checked against the live
+pipeline implementation.
+
+<!-- GENERATED FLOWCHART: fullprosmaker-pipeline -->
+
+```mermaid
+flowchart TD
+    A["_proc.txt input"] --> B["Syllabify\nwrite _syl.txt"]
+    B --> C["Prosody realization\nwrite _tilde.txt"]
+    C --> D["Phonetize\nwrite _ophone.txt, _phone.txt,\n_ombrola.pho, _mbrola.pho"]
+    D --> E["Metrics\nread paired phone streams\nwrite _metrics.txt and/or _metrics.json"]
+    E --> F["Print\nread paired phone streams\nwrite accent outputs"]
+```
+<!-- END GENERATED FLOWCHART: fullprosmaker-pipeline -->
+
 ## Pipeline Stages
 
 | Stage | Input -> Output | Description |

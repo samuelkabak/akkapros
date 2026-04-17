@@ -9,6 +9,24 @@ Implementation scope:
 - `src/akkapros/cli/metricalc.py`
 - `src/akkapros/cli/fullprosmaker.py`
 
+## Flowchart
+
+This flowchart summarizes how metricalc turns paired phone artifacts into the
+active metrics reports. It is generated from repository-owned workflow data and
+checked against the current implementation.
+
+<!-- GENERATED FLOWCHART: metrics-computation -->
+
+```mermaid
+flowchart TD
+    A["_ophone.txt and _phone.txt"] --> B["Load paired phone rows"]
+    B --> C["Normalize each row to V, C, or P"]
+    C --> D["Coalesce adjacent rows\ninto interval stretches"]
+    D --> E["Compute rhythmic and structural summaries"]
+    E --> F["Write _metrics.txt and/or _metrics.json"]
+```
+<!-- END GENERATED FLOWCHART: metrics-computation -->
+
 ## What the Metrics Stage Measures
 
 The metrics stage answers two related questions.

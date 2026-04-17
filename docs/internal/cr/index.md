@@ -2,7 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[064. Correct user-facing docs and remove internal governance references](064-correct-user-facing-docs-and-remove-internal-governance-references.md) - Done
+[065. Add Code-Derived Mermaid Flowcharts to User-Facing Docs](065-add-code-derived-mermaid-flowcharts-to-user-facing-docs.md) - Done
+[064. Correct User-Facing Docs and Remove Internal Governance References](064-correct-user-facing-docs-and-remove-internal-governance-references.md) - Done
 [063. Tune the phonetizer solver](063-tune-the-phonetizer-solver.md) - Done
 [062. Unify phone/ophone row separator and adopt signed numeric drift token](062-unify-phone-ophone-row-separator.md) - Done
 [061. Remove User-Facing Short-Pause and Drift Policy Options](061-remove-user-facing-short-pause-and-drift-policy-options.md) - Done

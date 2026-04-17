@@ -11,6 +11,46 @@ This page describes current user-facing behavior only. Beat folding is part of
 the fixed solver, not a user policy surface, and checkpoints separated by one
 full `cvc_reference` remain synchronization-equivalent beat positions.
 
+## Flowchart
+
+This flowchart summarizes the live phonetizer workflow at user-facing stage
+level. It is generated from repository-owned workflow data and checked against
+the current implementation.
+
+<!-- GENERATED FLOWCHART: phonetizer-algorithm -->
+
+```mermaid
+flowchart TD
+    A["_tilde.txt input"] --> B["Build paired row streams\nderive original, keep accentuated"]
+    B --> C{"Phase 1 scan current symbol"}
+    C -->|"segment glyph"| D["Seed a segment row\nappend to current syllable"]
+    C -->|"accent mark ~"| E["Mark previous segment or row\nas accent-bearing"]
+    C -->|"separator or linker"| F["Finalize current syllable\nset boundary I, E, L, X, or F"]
+    C -->|"newline or pause suite"| G["Finalize syllable, classify pause\nand append a short or long pause row"]
+    C -->|"armored pause span"| H["Classify armored suite\nand append the owned pause row"]
+    D --> I["Continue scanning until end of stream"]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J["Resolve ENA transition rows\nfrom neighboring vowels"]
+    J --> K{"Phase 2 current unit"}
+    K -->|"pause"| L["Choose the closest legal pause duration\nand update drift"]
+    K -->|"syllable"| M["Assign onset, coda, and nucleus anchors\nthen compute post-assignment drift"]
+    M --> N{"Long-vowel correction or accentuation needed?"}
+    N -->|"yes"| O["Use legal long-vowel or accent routing\nthen recompute drift"]
+    N -->|"no"| P["Keep anchored syllable timing"]
+    O --> Q{"Completed boundary is F?"}
+    P --> Q
+    Q -->|"yes"| R["Fold drift to the nearest beat-equivalent branch\nand optionally insert one mini pause"]
+    Q -->|"no"| S["Carry raw drift into the next linked syllable"]
+    L --> T["Phase 3 assign row-level intonation"]
+    R --> T
+    S --> T
+    T --> U["Emit finalized _ophone.txt and _phone.txt\nplus per-stream drift reports"]
+```
+<!-- END GENERATED FLOWCHART: phonetizer-algorithm -->
+
 ## Scope
 
 The phonetizer produces two phone-row streams from one `_tilde` input:
@@ -121,6 +161,44 @@ checkpoint rows. They must land on the integer beat lattice implied by
 
 ## Phase 1: Row Building
 
+The visual summary below follows the live row-building loop: what each input
+symbol class does to the current syllable buffer, when a syllable is closed,
+and when a pause row is emitted.
+
+<!-- GENERATED FLOWCHART: phonetizer-phase1-row-building -->
+
+```mermaid
+flowchart TD
+    A["Start Phase 1 with normalized _tilde input"] --> B["Read current symbol"]
+    B --> C{"What kind of symbol is it?"}
+    C -->|"segment glyph"| D["Create a seed row\nappend it to the current syllable buffer"]
+    C -->|"accent mark ~"| E["Mark the previous buffered segment\nor previous completed row as accented"]
+    C -->|"syllable separator . or ·"| F["Finalize the buffered syllable\nwrite boundary I"]
+    C -->|"enclitic dash -"| G["Finalize the buffered syllable\nwrite boundary E"]
+    C -->|"internal merge &"| H["Finalize the buffered syllable\nwrite boundary L"]
+    C -->|"explicit merge +"| I["Finalize the buffered syllable\nwrite boundary X"]
+    C -->|"space"| J["Finalize the buffered syllable\nwrite boundary F"]
+    C -->|"newline"| K["Finalize the buffered syllable as F\nand append one long EOL pause row"]
+    C -->|"armored punctuation span"| L["Classify the armored suite\nand append its pause row"]
+    C -->|"plain punctuation suite"| M["Consume the full suite\nclassify it as Q, E, S, C, or I\nand append a short or long pause row"]
+    D --> N["Advance to the next symbol"]
+    E --> N
+    F --> N
+    G --> N
+    H --> N
+    I --> N
+    J --> N
+    K --> N
+    L --> N
+    M --> N
+    N --> O{"End of input reached?"}
+    O -->|"no"| B
+    O -->|"yes"| P["Finalize any remaining syllable as F"]
+    P --> Q["Resolve ENA transition rows\nfrom neighboring vowels"]
+    Q --> R["Phase 1 output: structure-only rows\nwith positions, boundaries, placeholder duration, and neutral intonation"]
+```
+<!-- END GENERATED FLOWCHART: phonetizer-phase1-row-building -->
+
 The row builder is structure-first.
 
 It does not assign timings yet. It only materializes rows with:
@@ -145,6 +223,43 @@ The builder also normalizes a missing terminal line break into one final
 `<EOL>` long-pause row.
 
 ## Phase 2: Duration Solver
+
+The visual summary below follows the live realization loop: how pause units and
+syllable units branch, where long-vowel correction and accentuation can occur,
+and when drift is folded or carried forward.
+
+<!-- GENERATED FLOWCHART: phonetizer-phase2-duration-solver -->
+
+```mermaid
+flowchart TD
+    A["Partition Phase 1 rows into syllable and pause units"] --> B["Walk units from left to right\ncarrying drift_cursor"]
+    B --> C{"Current unit kind"}
+    C -->|"pause"| D["Choose the closest legal pause duration\ninside the active band and update drift"]
+    C -->|"syllable"| E["Analyze the syllable\nidentify onset, nucleus, coda, and accent shape"]
+    E --> F["Assign anchor durations\nonset first, then coda, then nucleus"]
+    F --> G["If needed, pre-assign the next same-consonant onset\nthrough the geminate policy"]
+    G --> H["Compute the non-accentuated target\nand post-assignment drift"]
+    H --> I{"Long nucleus and unresolved drift beyond tolerance?"}
+    I -->|"yes"| J["Apply ordinary long-vowel correction\ninside the legal long-vowel window"]
+    I -->|"no"| K["Keep the anchored syllable timing"]
+    J --> L{"Accentuated stream and accent shape present?"}
+    K --> L
+    L -->|"yes"| M["Apply accent increment routing\nand recompute drift against the half-foot target"]
+    L -->|"no"| N["Leave the syllable non-accentuated"]
+    M --> O{"Completed boundary folds here?"}
+    N --> O
+    O -->|"F boundary"| P["Fold drift to the nearest beat-equivalent branch"]
+    O -->|"I, E, L, or X"| Q["Carry raw drift forward\ninside the linked prosodic unit"]
+    P --> R{"Mini pause exactly legal here?"}
+    Q --> S["Write row drift tokens\nand continue to the next unit"]
+    R -->|"yes"| T["Insert one mini pause\nand update drift again"]
+    R -->|"no"| S
+    T --> S
+    D --> U["After all units, write realized durations and drift tokens\nthen validate chrono checkpoints"]
+    S --> U
+    U --> V["Phase 2 output: finalized timing plus drift summary"]
+```
+<!-- END GENERATED FLOWCHART: phonetizer-phase2-duration-solver -->
 
 ### Overview
 

@@ -7,6 +7,23 @@ This document explains how diphthongs are handled by the Akkapros pipeline: how 
 - Generator: `src/akkapros/_gencode/lib_diphthongs.py`
 - Generated table: `src/akkapros/lib/diphthongs.py` (via `generate_diphthongs_file()`)
 
+## Flowchart
+
+This flowchart summarizes the active split, restore, and rendering workflow for
+diphthong handling. It is generated from repository-owned workflow data and
+checked against the current implementation.
+
+<!-- GENERATED FLOWCHART: diphthong-processing -->
+
+```mermaid
+flowchart TD
+    A["Adjacent vowels in source text"] --> B["Syllabifier splits the sequence\ninsert syllable separator and diphthong marker"]
+    B --> C["Prosody works on separated syllables"]
+    C --> D["Generated replacement table restores\ndiphthong memory in _tilde.txt"]
+    D --> E["Printer consumes internal markers\nduring surface rendering"]
+```
+<!-- END GENERATED FLOWCHART: diphthong-processing -->
+
 ---
 
 ## Why Split Diphthongs?
