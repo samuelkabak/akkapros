@@ -52,7 +52,7 @@ ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 | `accent` | 1 char | `A`, `F`, `P` | Accentuated, flat, or pause |
 | `realization` | 2 chars | Canonical realization code | Stable realization lookup token |
 | `duration` | 4 chars | Zero-padded milliseconds | Realized row duration |
-| `drift` | 4 chars | Signed beat-offset token such as `+000`, `-023` | Post-unit drift after the most recently completed syllable or pause |
+| `drift` | 4 chars | Signed beat-offset token such as `+000`, `-023` | Unit drift after the most recently completed syllable or pause |
 | `intonation` | 3 chars | Canonical token such as `M0C`, `H2C`, `L2C`, `R1L` | Row-level pitch-shape token |
 | `text` | variable | Exact source glyph, normalized pause text, `<EOL>`, or one literal space | Source-facing tail field |
 

@@ -1918,10 +1918,11 @@ def realize_phone_rows(
     drift_history: list[float] = []
     drift_extension_count = 0
     max_drift_extension = 0.0
-    ordinary_vowel_correction_count = 0
-    ordinary_vowel_correction_shorten_count = 0
-    ordinary_vowel_correction_lengthen_count = 0
-    ordinary_vowel_correction_denominator = 0
+    adjusted_non_accented_long_vowel_count = 0
+    shortened_non_accented_long_vowel_count = 0
+    lengthened_non_accented_long_vowel_count = 0
+    non_accented_long_vowel_count = 0
+    left_as_is_non_accented_long_vowel_count = 0
     mini_pause_insert_count = 0
     mini_pause_eligible_count = 0
     pause_residual_post_unit_drift_count = 0
@@ -1988,7 +1989,13 @@ def realize_phone_rows(
             drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
 
         nucleus_row = rows[analysis['nucleus_index']]
-        if _supports_post_accent_long_vowel_cleanup(rows, analysis):
+        supports_post_accent_cleanup = _supports_post_accent_long_vowel_cleanup(rows, analysis)
+        counts_as_non_accented_long_vowel = nucleus_row['length'] == 'L' and not supports_post_accent_cleanup
+        if counts_as_non_accented_long_vowel:
+            non_accented_long_vowel_count += 1
+
+        ordinary_long_vowel_adjusted = False
+        if supports_post_accent_cleanup:
             minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=False)
             drift_after_assignment, _correction_kind = _apply_vowel_correction(
                 rows,
@@ -1999,7 +2006,6 @@ def realize_phone_rows(
                 maximum,
             )
         elif abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
-            ordinary_vowel_correction_denominator += 1
             minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=True)
             drift_after_assignment, correction_kind = _apply_vowel_correction(
                 rows,
@@ -2010,11 +2016,15 @@ def realize_phone_rows(
                 maximum,
             )
             if correction_kind is not None:
-                ordinary_vowel_correction_count += 1
+                ordinary_long_vowel_adjusted = True
+                adjusted_non_accented_long_vowel_count += 1
                 if correction_kind == 'shorten':
-                    ordinary_vowel_correction_shorten_count += 1
+                    shortened_non_accented_long_vowel_count += 1
                 elif correction_kind == 'lengthen':
-                    ordinary_vowel_correction_lengthen_count += 1
+                    lengthened_non_accented_long_vowel_count += 1
+
+        if counts_as_non_accented_long_vowel and nucleus_row['length'] == 'L':
+            left_as_is_non_accented_long_vowel_count += int(not ordinary_long_vowel_adjusted)
 
         emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
         drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
@@ -2073,40 +2083,34 @@ def realize_phone_rows(
         'one_mora_ref': one_mora_ref,
         'two_mora_ref': two_mora_ref,
         'three_mora_ref': three_mora_ref,
-        'syllable_unit_count': syllable_unit_count,
-        'pause_unit_count': pause_unit_count,
-        'mini_pause_row_count': mini_pause_row_count,
-        'completed_unit_count': completed_unit_count,
-        'post_unit_drift': {
+        'syllable_count': syllable_unit_count,
+        'pause_count': pause_unit_count,
+        'mini_pause_count': mini_pause_row_count,
+        'total_unit_count': completed_unit_count,
+        'unit_drift': {
             'max': round(max_abs, 4),
             'mean': round(mean, 4),
             'stddev': round(stddev, 4),
             'current': round(drift_cursor, 4),
             'label': _drift_label(drift_cursor),
         },
-        'post_unit_drift_extension_count': drift_extension_count,
-        'post_unit_drift_extension_denominator': syllable_unit_count,
-        'post_unit_drift_extension_rate': _diagnostic_rate(drift_extension_count, syllable_unit_count),
-        'max_post_unit_drift_extension': round(max_drift_extension, 4),
-        'ordinary_vowel_correction_count': ordinary_vowel_correction_count,
-        'ordinary_vowel_correction_denominator': ordinary_vowel_correction_denominator,
-        'ordinary_vowel_correction_rate': _diagnostic_rate(
-            ordinary_vowel_correction_count,
-            ordinary_vowel_correction_denominator,
+        'unit_drift_extension_count': drift_extension_count,
+        'unit_drift_extension_rate': _diagnostic_rate(drift_extension_count, syllable_unit_count),
+        'max_unit_drift_extension': round(max_drift_extension, 4),
+        'non_accented_long_vowel_count': non_accented_long_vowel_count,
+        'left_as_is_non_accented_long_vowel_count': left_as_is_non_accented_long_vowel_count,
+        'drift_tolerance_effect': _diagnostic_rate(
+            left_as_is_non_accented_long_vowel_count,
+            non_accented_long_vowel_count,
         ),
-        'ordinary_vowel_correction_shorten_count': ordinary_vowel_correction_shorten_count,
-        'ordinary_vowel_correction_lengthen_count': ordinary_vowel_correction_lengthen_count,
-        'mini_pause_insert_count': mini_pause_insert_count,
-        'mini_pause_eligible_count': mini_pause_eligible_count,
-        'mini_pause_insert_denominator': mini_pause_eligible_count,
-        'mini_pause_insert_rate': _diagnostic_rate(mini_pause_insert_count, mini_pause_eligible_count),
-        'mini_pause_success_rate_over_eligible': _diagnostic_rate(
-            mini_pause_insert_count,
-            mini_pause_eligible_count,
-        ),
-        'pause_residual_post_unit_drift_count': pause_residual_post_unit_drift_count,
-        'pause_residual_post_unit_drift_denominator': pause_unit_count,
-        'pause_residual_post_unit_drift_rate': _diagnostic_rate(
+        'adjusted_non_accented_long_vowel_count': adjusted_non_accented_long_vowel_count,
+        'shortened_non_accented_long_vowel_count': shortened_non_accented_long_vowel_count,
+        'lengthened_non_accented_long_vowel_count': lengthened_non_accented_long_vowel_count,
+        'inserted_mini_pause_count': mini_pause_insert_count,
+        'eligible_mini_pause_count': mini_pause_eligible_count,
+        'mini_pause_insertion_rate': _diagnostic_rate(mini_pause_insert_count, mini_pause_eligible_count),
+        'pause_with_residual_drift_count': pause_residual_post_unit_drift_count,
+        'pause_with_residual_drift_rate': _diagnostic_rate(
             pause_residual_post_unit_drift_count,
             pause_unit_count,
         ),
@@ -2345,8 +2349,8 @@ def _test_finalized_stream_generation() -> bool:
         and any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _accentuated_rows)
         and all(row['intonation'] for row in _original_rows)
         and all(row['intonation'] for row in _accentuated_rows)
-        and 'stddev' in original_report['post_unit_drift']
-        and 'stddev' in accentuated_report['post_unit_drift']
+        and 'stddev' in original_report['unit_drift']
+        and 'stddev' in accentuated_report['unit_drift']
     )
 
 

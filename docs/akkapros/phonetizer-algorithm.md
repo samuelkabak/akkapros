@@ -79,7 +79,7 @@ Important fields:
 - `position` is onset `O`, coda `C`, nucleus `N`, or silence `S`
 - `boundary` records the closing structure carried by the row
 - `duration` is the Phase 2 millisecond result
-- `drift` is the post-unit drift token written after the most recently completed syllable or pause
+- `drift` is the unit-drift token written after the most recently completed syllable or pause
 - `intonation` is the Phase 3 row token
 - `text` preserves the source glyph, punctuation suite, `<EOL>`, or the
   inserted mini-pause marker
@@ -553,31 +553,30 @@ contour.
 
 The original stream remains neutral in the current scope.
 
-## Post-Unit Drift Reporting
+## Unit Drift Reporting
 
-Finalized front matter carries the phonetizer post-unit drift summary for each emitted
+Finalized front matter carries the phonetizer unit-drift summary for each emitted
 stream:
 
-- `metadata.data.phonetize.post_unit_drift.max`
-- `metadata.data.phonetize.post_unit_drift.mean`
-- `metadata.data.phonetize.post_unit_drift.stddev`
-- `metadata.data.phonetize.post_unit_drift.current`
-- `metadata.data.phonetize.post_unit_drift.label`
-- `metadata.data.phonetize.post_unit_drift_extension_count`
-- `metadata.data.phonetize.post_unit_drift_extension_denominator`
-- `metadata.data.phonetize.post_unit_drift_extension_rate`
-- `metadata.data.phonetize.max_post_unit_drift_extension`
+- `metadata.data.phonetize.unit_drift.max`
+- `metadata.data.phonetize.unit_drift.mean`
+- `metadata.data.phonetize.unit_drift.stddev`
+- `metadata.data.phonetize.unit_drift.current`
+- `metadata.data.phonetize.unit_drift.label`
+- `metadata.data.phonetize.unit_drift_extension_count`
+- `metadata.data.phonetize.unit_drift_extension_rate`
+- `metadata.data.phonetize.max_unit_drift_extension`
 
-The same front matter now also carries denominator-aware recovery diagnostics:
+The same front matter now also carries human-readable recovery diagnostics:
 
-- `syllable_unit_count`, `pause_unit_count`, `mini_pause_row_count`, and `completed_unit_count`
-- `ordinary_vowel_correction_count`, denominator, and rate
-- `mini_pause_insert_count`, denominator, and rate
-- `pause_residual_post_unit_drift_count`, denominator, and rate
+- `syllable_count`, `pause_count`, `mini_pause_count`, and `total_unit_count`
+- `non_accented_long_vowel_count`, `left_as_is_non_accented_long_vowel_count`, and `drift_tolerance_effect`
+- `inserted_mini_pause_count`, `eligible_mini_pause_count`, and `mini_pause_insertion_rate`
+- `pause_with_residual_drift_count` and `pause_with_residual_drift_rate`
 
-Denominator meanings are fixed by the runtime control flow rather than by row totals:
+Population meanings are fixed by the runtime control flow rather than by row totals:
 
-- post-unit drift extension is measured over realized syllable units
+- unit-drift extension is measured over realized syllable units
 - ordinary vowel correction is measured over long-vowel syllables where ordinary correction was considered
 - mini-pause recovery is measured over structurally eligible `F`-boundary syllables
 - pause residual carry is measured over non-mini pause units
@@ -591,7 +590,7 @@ That means the phonetizer owns the duration-bearing representation used for:
 
 - interval metrics
 - pause totals
-- post-unit drift reporting
+- unit-drift reporting
 - downstream printer and MBROLA export
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`

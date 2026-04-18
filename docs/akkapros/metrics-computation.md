@@ -177,23 +177,28 @@ Prominence statistics are derived from phone structure:
 - `function_word_count` is computed from the reconstructed lexical stream
 - `explicit_word_link_count` is computed from `boundary=X` rows
 
-## Post-Unit Drift Reporting
+## Unit Drift Reporting
 
-Metricalc consumes the phonetizer post-unit drift summary directly from front matter:
+Metricalc consumes the phonetizer unit-drift summary directly from front matter:
 
-- `metadata.data.phonetize.post_unit_drift.max`
-- `metadata.data.phonetize.post_unit_drift.mean`
-- `metadata.data.phonetize.post_unit_drift.stddev`
+- `metadata.data.phonetize.unit_drift.max`
+- `metadata.data.phonetize.unit_drift.mean`
+- `metadata.data.phonetize.unit_drift.stddev`
 
 Those values are reported for both original and accentuated streams in table
 and JSON outputs. They summarize completed syllable/pause drift history, not a
 segment-by-segment drift trace.
 
-When the input phone frontmatter contains the CR-073 diagnostics, metricalc
+When the input phone frontmatter contains the current phonetizer diagnostics, metricalc
 also carries them through as phonetizer diagnostics in the derived report. The
-rendered table keeps the same count/denominator/rate structure so corpus-scale
+rendered table keeps the same count/population/rate structure so corpus-scale
 comparisons can be read as frequencies over explicit populations instead of raw
-row totals.
+row totals. Fresh artifacts use `syllable_count`, `pause_count`,
+`mini_pause_count`, `total_unit_count`, `unit_drift_extension_*`,
+`non_accented_long_vowel_count`,
+`left_as_is_non_accented_long_vowel_count`, `drift_tolerance_effect`,
+`inserted_mini_pause_count`, `eligible_mini_pause_count`,
+`mini_pause_insertion_rate`, and `pause_with_residual_drift_*`.
 
 ## Reading the Outputs
 

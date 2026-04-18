@@ -124,8 +124,8 @@ Long pause band:
 
 For this sample under the current approved defaults, the phonetizer reports:
 
-- original stream: `Post-unit drift max = 150.0 ms`, `Post-unit drift mean = 32.4167 ms`, `Post-unit drift stddev = 49.3203 ms`
-- accentuated stream: `Post-unit drift max = 189.0 ms`, `Post-unit drift mean = 28.1739 ms`, `Post-unit drift stddev = 63.0787 ms`
+- original stream: `Unit drift max = 150.0 ms`, `Unit drift mean = 32.4167 ms`, `Unit drift stddev = 49.3203 ms`
+- accentuated stream: `Unit drift max = 189.0 ms`, `Unit drift mean = 28.1739 ms`, `Unit drift stddev = 63.0787 ms`
 
 Under the active contract, metricalc surfaces these drift values from the
 phone/ophone metadata rather than recomputing them from interval arithmetic.
@@ -186,7 +186,7 @@ Original stream:
 - `VarcoV = 26.75735208458803`
 - `rPVI-C = 59.0`
 - `nPVI-V = 21.698221153635842`
-- `Post-unit drift max = 150.0 ms`, `Post-unit drift mean = 32.4167 ms`, `Post-unit drift stddev = 49.3203 ms`
+- `Unit drift max = 150.0 ms`, `Unit drift mean = 32.4167 ms`, `Unit drift stddev = 49.3203 ms`
 
 Accentuated stream:
 
@@ -202,7 +202,7 @@ Accentuated stream:
 - `VarcoV = 37.651607560616974`
 - `rPVI-C = 75.78947368421052`
 - `nPVI-V = 30.249305872660635`
-- `Post-unit drift max = 189.0 ms`, `Post-unit drift mean = 28.1739 ms`, `Post-unit drift stddev = 63.0787 ms`
+- `Unit drift max = 189.0 ms`, `Unit drift mean = 28.1739 ms`, `Unit drift stddev = 63.0787 ms`
 
 ## Raw Program Response
 
@@ -220,9 +220,9 @@ Acoustic metrics (original):
   VarcoV: 26.76
   rPVI-C: 59.00
   nPVI-V: 21.70
-  Post-unit drift max: 150.00 ms
-  Post-unit drift mean: 32.42 ms
-  Post-unit drift stddev: 49.32 ms
+  Unit drift max: 150.00 ms
+  Unit drift mean: 32.42 ms
+  Unit drift stddev: 49.32 ms
 
 Acoustic metrics (accentuated):
   %C: 33.01%
@@ -235,9 +235,9 @@ Acoustic metrics (accentuated):
   VarcoV: 37.65
   rPVI-C: 75.79
   nPVI-V: 30.25
-  Post-unit drift max: 189.00 ms
-  Post-unit drift mean: 28.17 ms
-  Post-unit drift stddev: 63.08 ms
+  Unit drift max: 189.00 ms
+  Unit drift mean: 28.17 ms
+  Unit drift stddev: 63.08 ms
 ```
 
 ## Equality Check
@@ -259,9 +259,9 @@ Original stream:
 | VarcoV | 26.75735208458803 | 26.75735208458803 |
 | rPVI-C | 59.0 | 59.0 |
 | nPVI-V | 21.698221153635842 | 21.698221153635842 |
-| Post-unit drift max | 150.0 | 150.0 |
-| Post-unit drift mean | 32.4167 | 32.4167 |
-| Post-unit drift stddev | 49.3203 | 49.3203 |
+| Unit drift max | 150.0 | 150.0 |
+| Unit drift mean | 32.4167 | 32.4167 |
+| Unit drift stddev | 49.3203 | 49.3203 |
 
 Accentuated stream:
 
@@ -277,6 +277,6 @@ Accentuated stream:
 | VarcoV | 37.651607560616974 | 37.651607560616974 |
 | rPVI-C | 75.78947368421052 | 75.78947368421052 |
 | nPVI-V | 30.249305872660635 | 30.249305872660635 |
-| Post-unit drift max | 189.0 | 189.0 |
-| Post-unit drift mean | 28.1739 | 28.1739 |
-| Post-unit drift stddev | 63.0787 | 63.0787 |
+| Unit drift max | 189.0 | 189.0 |
+| Unit drift mean | 28.1739 | 28.1739 |
+| Unit drift stddev | 63.0787 | 63.0787 |

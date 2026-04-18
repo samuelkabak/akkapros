@@ -1104,9 +1104,9 @@ def compute_interval_metrics(rows: List[Dict[str, str]]) -> Dict[str, Union[floa
     }
 
 
-def _extract_post_unit_drift_summary(input_frontmatter: Dict | None) -> Dict[str, float]:
+def _extract_unit_drift_summary(input_frontmatter: Dict | None) -> Dict[str, float]:
     phonetize_data = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {})
-    drift = phonetize_data.get('post_unit_drift', phonetize_data.get('drift', {}))
+    drift = phonetize_data.get('unit_drift', phonetize_data.get('post_unit_drift', phonetize_data.get('drift', {})))
     return {
         'max': float(drift.get('max', 0.0) or 0.0),
         'mean': float(drift.get('mean', 0.0) or 0.0),
@@ -1116,34 +1116,35 @@ def _extract_post_unit_drift_summary(input_frontmatter: Dict | None) -> Dict[str
 
 def _extract_phonetizer_diagnostics(input_frontmatter: Dict | None) -> Dict[str, float | int]:
     phonetize_data = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {})
-    field_types: dict[str, type] = {
-        'syllable_unit_count': int,
-        'pause_unit_count': int,
-        'mini_pause_row_count': int,
-        'completed_unit_count': int,
-        'post_unit_drift_extension_count': int,
-        'post_unit_drift_extension_denominator': int,
-        'post_unit_drift_extension_rate': float,
-        'max_post_unit_drift_extension': float,
-        'ordinary_vowel_correction_count': int,
-        'ordinary_vowel_correction_denominator': int,
-        'ordinary_vowel_correction_rate': float,
-        'ordinary_vowel_correction_shorten_count': int,
-        'ordinary_vowel_correction_lengthen_count': int,
-        'mini_pause_insert_count': int,
-        'mini_pause_eligible_count': int,
-        'mini_pause_insert_denominator': int,
-        'mini_pause_insert_rate': float,
-        'mini_pause_success_rate_over_eligible': float,
-        'pause_residual_post_unit_drift_count': int,
-        'pause_residual_post_unit_drift_denominator': int,
-        'pause_residual_post_unit_drift_rate': float,
-    }
+    field_specs: tuple[tuple[str, tuple[str, ...], type], ...] = (
+        ('syllable_count', ('syllable_count', 'syllable_unit_count'), int),
+        ('pause_count', ('pause_count', 'pause_unit_count'), int),
+        ('mini_pause_count', ('mini_pause_count', 'mini_pause_row_count'), int),
+        ('total_unit_count', ('total_unit_count', 'completed_unit_count'), int),
+        ('unit_drift_extension_count', ('unit_drift_extension_count', 'post_unit_drift_extension_count'), int),
+        ('unit_drift_extension_rate', ('unit_drift_extension_rate', 'post_unit_drift_extension_rate'), float),
+        ('max_unit_drift_extension', ('max_unit_drift_extension', 'max_post_unit_drift_extension'), float),
+        ('non_accented_long_vowel_count', ('non_accented_long_vowel_count',), int),
+        ('left_as_is_non_accented_long_vowel_count', ('left_as_is_non_accented_long_vowel_count',), int),
+        ('drift_tolerance_effect', ('drift_tolerance_effect',), float),
+        ('adjusted_non_accented_long_vowel_count', ('adjusted_non_accented_long_vowel_count',), int),
+        ('shortened_non_accented_long_vowel_count', ('shortened_non_accented_long_vowel_count',), int),
+        ('lengthened_non_accented_long_vowel_count', ('lengthened_non_accented_long_vowel_count',), int),
+        ('inserted_mini_pause_count', ('inserted_mini_pause_count', 'mini_pause_insert_count'), int),
+        ('eligible_mini_pause_count', ('eligible_mini_pause_count', 'mini_pause_eligible_count', 'mini_pause_insert_denominator'), int),
+        ('mini_pause_insertion_rate', ('mini_pause_insertion_rate', 'mini_pause_insert_rate', 'mini_pause_success_rate_over_eligible'), float),
+        ('pause_with_residual_drift_count', ('pause_with_residual_drift_count', 'pause_residual_post_unit_drift_count'), int),
+        ('pause_with_residual_drift_rate', ('pause_with_residual_drift_rate', 'pause_residual_post_unit_drift_rate'), float),
+    )
     diagnostics: Dict[str, float | int] = {}
-    for field_name, field_type in field_types.items():
-        if field_name not in phonetize_data:
+    for field_name, aliases, field_type in field_specs:
+        raw_value = None
+        for alias in aliases:
+            if alias in phonetize_data:
+                raw_value = phonetize_data[alias]
+                break
+        if raw_value is None:
             continue
-        raw_value = phonetize_data[field_name]
         diagnostics[field_name] = field_type(raw_value)
     return diagnostics
 
@@ -1224,7 +1225,7 @@ def process_phone_pair(
             'stats': original_stats,
             'speech': speech_original,
             'acoustic': compute_interval_metrics(ophone_rows),
-            'post_unit_drift': _extract_post_unit_drift_summary(ophone_frontmatter),
+            'unit_drift': _extract_unit_drift_summary(ophone_frontmatter),
             'phonetizer_diagnostics': _extract_phonetizer_diagnostics(ophone_frontmatter),
             'prominence_statistics': prominence_statistics,
         },
@@ -1232,7 +1233,7 @@ def process_phone_pair(
             'stats': accentuated_stats,
             'speech': speech_accentuated,
             'acoustic': compute_interval_metrics(phone_rows),
-            'post_unit_drift': _extract_post_unit_drift_summary(phone_frontmatter),
+            'unit_drift': _extract_unit_drift_summary(phone_frontmatter),
             'phonetizer_diagnostics': _extract_phonetizer_diagnostics(phone_frontmatter),
         },
         'accentuation_stats': accentuation_stats,
@@ -1557,11 +1558,11 @@ def process_filetext(
             'stats': original_stats,
             'speech': speech_original,
             'acoustic': compute_interval_metrics(ophone_rows),
-            'post_unit_drift': ophone_report['post_unit_drift'],
+            'unit_drift': ophone_report['unit_drift'],
             'phonetizer_diagnostics': {
                 key: value
                 for key, value in ophone_report.items()
-                if key not in {'one_mora_ref', 'two_mora_ref', 'three_mora_ref', 'post_unit_drift'}
+                if key not in {'one_mora_ref', 'two_mora_ref', 'three_mora_ref', 'unit_drift'}
             },
             'prominence_statistics': resolved_prominence_statistics,
         },
@@ -1569,11 +1570,11 @@ def process_filetext(
             'stats': accentuated_stats,
             'acoustic': compute_interval_metrics(phone_rows),
             'speech': speech_accentuated,
-            'post_unit_drift': phone_report['post_unit_drift'],
+            'unit_drift': phone_report['unit_drift'],
             'phonetizer_diagnostics': {
                 key: value
                 for key, value in phone_report.items()
-                if key not in {'one_mora_ref', 'two_mora_ref', 'three_mora_ref', 'post_unit_drift'}
+                if key not in {'one_mora_ref', 'two_mora_ref', 'three_mora_ref', 'unit_drift'}
             },
         },
         'accentuation_stats': accentuation_stats
@@ -1647,31 +1648,35 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  VarcoV: {orig['acoustic']['varco_v']:.2f}")
     lines.append(f"  rPVI-C: {orig['acoustic']['rpvi_c']:.2f}")
     lines.append(f"  nPVI-V: {orig['acoustic']['npvi_v']:.2f}")
-    lines.append(f"  Post-unit drift max: {orig['post_unit_drift']['max']:.2f} ms")
-    lines.append(f"  Post-unit drift mean: {orig['post_unit_drift']['mean']:.2f} ms")
-    lines.append(f"  Post-unit drift stddev: {orig['post_unit_drift']['stddev']:.2f} ms")
+    lines.append(f"  Unit drift max: {orig['unit_drift']['max']:.2f} ms")
+    lines.append(f"  Unit drift mean: {orig['unit_drift']['mean']:.2f} ms")
+    lines.append(f"  Unit drift stddev: {orig['unit_drift']['stddev']:.2f} ms")
     diagnostics = orig.get('phonetizer_diagnostics') or {}
     if diagnostics:
         lines.append(f"\nPhonetizer diagnostics:")
         lines.append(
-            f"  Completed units: {diagnostics['completed_unit_count']} = "
-            f"{diagnostics['syllable_unit_count']} syllables + {diagnostics['pause_unit_count']} pauses + {diagnostics['mini_pause_row_count']} mini pauses"
+            f"  Total units: {diagnostics['total_unit_count']} = "
+            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['mini_pause_count']} mini pauses"
         )
         lines.append(
-            f"  Post-unit drift extension: {diagnostics['post_unit_drift_extension_count']} / "
-            f"{diagnostics['post_unit_drift_extension_denominator']} = {float(diagnostics['post_unit_drift_extension_rate']) * 100:.2f}%"
+            f"  Unit drift extension: {diagnostics['unit_drift_extension_count']} / "
+            f"{diagnostics['syllable_count']} = {float(diagnostics['unit_drift_extension_rate']) * 100:.2f}%"
+        )
+        if 'non_accented_long_vowel_count' in diagnostics:
+            lines.append(f"  Non-accented long vowels: {diagnostics['non_accented_long_vowel_count']}")
+            lines.append(
+                f"  Left-as-is non-accented long vowels: {diagnostics['left_as_is_non_accented_long_vowel_count']}"
+            )
+            lines.append(
+                f"  Drift tolerance effect: {float(diagnostics['drift_tolerance_effect']) * 100:.2f}%"
+            )
+        lines.append(
+            f"  Inserted mini pauses: {diagnostics['inserted_mini_pause_count']} / "
+            f"{diagnostics['eligible_mini_pause_count']} = {float(diagnostics['mini_pause_insertion_rate']) * 100:.2f}%"
         )
         lines.append(
-            f"  Ordinary vowel correction: {diagnostics['ordinary_vowel_correction_count']} / "
-            f"{diagnostics['ordinary_vowel_correction_denominator']} = {float(diagnostics['ordinary_vowel_correction_rate']) * 100:.2f}%"
-        )
-        lines.append(
-            f"  Mini-pause recovery: {diagnostics['mini_pause_insert_count']} / "
-            f"{diagnostics['mini_pause_insert_denominator']} = {float(diagnostics['mini_pause_insert_rate']) * 100:.2f}%"
-        )
-        lines.append(
-            f"  Pause residual post-unit drift: {diagnostics['pause_residual_post_unit_drift_count']} / "
-            f"{diagnostics['pause_residual_post_unit_drift_denominator']} = {float(diagnostics['pause_residual_post_unit_drift_rate']) * 100:.2f}%"
+            f"  Pauses with residual drift: {diagnostics['pause_with_residual_drift_count']} / "
+            f"{diagnostics['pause_count']} = {float(diagnostics['pause_with_residual_drift_rate']) * 100:.2f}%"
         )
     
     # --- ACCENTUATED TEXT ---
@@ -1725,31 +1730,35 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  VarcoV: {rep['acoustic']['varco_v']:.2f}")
     lines.append(f"  rPVI-C: {rep['acoustic']['rpvi_c']:.2f}")
     lines.append(f"  nPVI-V: {rep['acoustic']['npvi_v']:.2f}")
-    lines.append(f"  Post-unit drift max: {rep['post_unit_drift']['max']:.2f} ms")
-    lines.append(f"  Post-unit drift mean: {rep['post_unit_drift']['mean']:.2f} ms")
-    lines.append(f"  Post-unit drift stddev: {rep['post_unit_drift']['stddev']:.2f} ms")
+    lines.append(f"  Unit drift max: {rep['unit_drift']['max']:.2f} ms")
+    lines.append(f"  Unit drift mean: {rep['unit_drift']['mean']:.2f} ms")
+    lines.append(f"  Unit drift stddev: {rep['unit_drift']['stddev']:.2f} ms")
     diagnostics = rep.get('phonetizer_diagnostics') or {}
     if diagnostics:
         lines.append(f"\nPhonetizer diagnostics:")
         lines.append(
-            f"  Completed units: {diagnostics['completed_unit_count']} = "
-            f"{diagnostics['syllable_unit_count']} syllables + {diagnostics['pause_unit_count']} pauses + {diagnostics['mini_pause_row_count']} mini pauses"
+            f"  Total units: {diagnostics['total_unit_count']} = "
+            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['mini_pause_count']} mini pauses"
         )
         lines.append(
-            f"  Post-unit drift extension: {diagnostics['post_unit_drift_extension_count']} / "
-            f"{diagnostics['post_unit_drift_extension_denominator']} = {float(diagnostics['post_unit_drift_extension_rate']) * 100:.2f}%"
+            f"  Unit drift extension: {diagnostics['unit_drift_extension_count']} / "
+            f"{diagnostics['syllable_count']} = {float(diagnostics['unit_drift_extension_rate']) * 100:.2f}%"
+        )
+        if 'non_accented_long_vowel_count' in diagnostics:
+            lines.append(f"  Non-accented long vowels: {diagnostics['non_accented_long_vowel_count']}")
+            lines.append(
+                f"  Left-as-is non-accented long vowels: {diagnostics['left_as_is_non_accented_long_vowel_count']}"
+            )
+            lines.append(
+                f"  Drift tolerance effect: {float(diagnostics['drift_tolerance_effect']) * 100:.2f}%"
+            )
+        lines.append(
+            f"  Inserted mini pauses: {diagnostics['inserted_mini_pause_count']} / "
+            f"{diagnostics['eligible_mini_pause_count']} = {float(diagnostics['mini_pause_insertion_rate']) * 100:.2f}%"
         )
         lines.append(
-            f"  Ordinary vowel correction: {diagnostics['ordinary_vowel_correction_count']} / "
-            f"{diagnostics['ordinary_vowel_correction_denominator']} = {float(diagnostics['ordinary_vowel_correction_rate']) * 100:.2f}%"
-        )
-        lines.append(
-            f"  Mini-pause recovery: {diagnostics['mini_pause_insert_count']} / "
-            f"{diagnostics['mini_pause_insert_denominator']} = {float(diagnostics['mini_pause_insert_rate']) * 100:.2f}%"
-        )
-        lines.append(
-            f"  Pause residual post-unit drift: {diagnostics['pause_residual_post_unit_drift_count']} / "
-            f"{diagnostics['pause_residual_post_unit_drift_denominator']} = {float(diagnostics['pause_residual_post_unit_drift_rate']) * 100:.2f}%"
+            f"  Pauses with residual drift: {diagnostics['pause_with_residual_drift_count']} / "
+            f"{diagnostics['pause_count']} = {float(diagnostics['pause_with_residual_drift_rate']) * 100:.2f}%"
         )
     
     # --- ACCENTUATION STATISTICS ---
@@ -2178,7 +2187,7 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "rPVI-C:" not in table or "nPVI-V:" not in table:
         return False
-    if "Post-unit drift max:" not in table or "Post-unit drift stddev:" not in table:
+    if "Unit drift max:" not in table or "Unit drift stddev:" not in table:
         return False
     if "VarcoC: " not in table or "%" in "\n".join(
         line for line in table.splitlines() if "VarcoC:" in line
@@ -2421,7 +2430,7 @@ def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
             'pipeline': 'pipeline',
             'step': 'phonetize',
             'file': {'id': 'ophone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
-            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'post_unit_drift': ophone_report['post_unit_drift']}}},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'unit_drift': ophone_report['unit_drift']}}},
         },
         serialize_phone_rows(ophone_rows),
     )
@@ -2431,7 +2440,7 @@ def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
             'pipeline': 'pipeline',
             'step': 'phonetize',
             'file': {'id': 'phone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
-            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'post_unit_drift': phone_report['post_unit_drift']}}},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'unit_drift': phone_report['unit_drift']}}},
         },
         serialize_phone_rows(phone_rows),
     )

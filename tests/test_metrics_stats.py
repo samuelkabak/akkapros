@@ -178,21 +178,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.987730335073394,
-            "percent_v": 34.156248605719895,
+            "percent_c": 30.798102079730388,
+            "percent_v": 34.456387743337324,
             "mean_c_ms": 114.11896155110088,
-            "mean_v_ms": 128.06022080963533,
-            "delta_c_ms": 52.489314550090896,
-            "delta_v_ms": 33.1695925047349,
-            "varco_c": 45.99526129282811,
-            "varco_v": 25.90155810682407,
-            "rpvi_c": 63.35963182117028,
-            "npvi_v": 20.909239469187497,
+            "mean_v_ms": 129.98093007694882,
+            "delta_c_ms": 52.472050792150725,
+            "delta_v_ms": 37.101814438989834,
+            "varco_c": 45.98013343177371,
+            "varco_v": 28.544044435614925,
+            "rpvi_c": 63.31886916502301,
+            "npvi_v": 22.475167659276494,
         },
-        "post_unit_drift": {
+        "unit_drift": {
             "max": 190.0,
-            "mean": 21.1605,
-            "stddev": 52.0115,
+            "mean": 26.8879,
+            "stddev": 51.3759,
         },
         "prominence_statistics": {
             "function_word_count": 189,
@@ -222,21 +222,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.786673380328967,
-            "percent_v": 35.428835179590465,
-            "mean_c_ms": 124.34996717005909,
-            "mean_v_ms": 141.24121779859485,
-            "delta_c_ms": 69.52940240467615,
-            "delta_v_ms": 55.16203535511515,
-            "varco_c": 55.914290921837406,
-            "varco_v": 39.055196645057485,
-            "rpvi_c": 81.3983579638752,
-            "npvi_v": 32.28125023403665,
+            "percent_c": 31.9578814627995,
+            "percent_v": 35.45010508617066,
+            "mean_c_ms": 124.96351084812623,
+            "mean_v_ms": 141.0769488123118,
+            "delta_c_ms": 69.84585486424615,
+            "delta_v_ms": 53.72785063959232,
+            "varco_c": 55.892999796663,
+            "varco_v": 38.0840747492148,
+            "rpvi_c": 81.90200591910556,
+            "npvi_v": 32.085818092147925,
         },
-        "post_unit_drift": {
-            "max": 221.0,
-            "mean": 11.5568,
-            "stddev": 58.6987,
+        "unit_drift": {
+            "max": 251.0,
+            "mean": 14.7253,
+            "stddev": 55.473,
         },
     },
     "accentuation_stats": {
@@ -317,10 +317,10 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
-                    "post_unit_drift": {
-                        "max": ophone_report["post_unit_drift"]["max"],
-                        "mean": ophone_report["post_unit_drift"]["mean"],
-                        "stddev": ophone_report["post_unit_drift"]["stddev"],
+                    "unit_drift": {
+                        "max": ophone_report["unit_drift"]["max"],
+                        "mean": ophone_report["unit_drift"]["mean"],
+                        "stddev": ophone_report["unit_drift"]["stddev"],
                     },
                 }
             }
@@ -330,10 +330,10 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
-                    "post_unit_drift": {
-                        "max": phone_report["post_unit_drift"]["max"],
-                        "mean": phone_report["post_unit_drift"]["mean"],
-                        "stddev": phone_report["post_unit_drift"]["stddev"],
+                    "unit_drift": {
+                        "max": phone_report["unit_drift"]["max"],
+                        "mean": phone_report["unit_drift"]["mean"],
+                        "stddev": phone_report["unit_drift"]["stddev"],
                     },
                 }
             }
@@ -781,8 +781,8 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
     for key, expected in VARCO_VERIFICATION_ACCENTUATED.items():
         assert math.isclose(result["accentuated"]["acoustic"][key], expected, rel_tol=0.0, abs_tol=1e-9), key
 
-    assert result["original"]["post_unit_drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
-    assert result["accentuated"]["post_unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
+    assert result["original"]["unit_drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
+    assert result["accentuated"]["unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
 
 
 def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
@@ -821,18 +821,18 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 30.99%" in table
-    assert "%V: 34.16%" in table
+    assert "%C: 30.80%" in table
+    assert "%V: 34.46%" in table
     assert "meanC: 114.12 ms" in table
-    assert "meanV: 128.06 ms" in table
-    assert "ΔC: 52.49 ms" in table
-    assert "ΔV: 33.17 ms" in table
-    assert "VarcoC: 46.00" in table
-    assert "VarcoV: 25.90" in table
-    assert "rPVI-C: 63.36" in table
-    assert "nPVI-V: 20.91" in table
-    assert "Post-unit drift max: 190.00 ms" in table
-    assert "Post-unit drift mean: 21.16 ms" in table
-    assert "Post-unit drift stddev: 52.01 ms" in table
+    assert "meanV: 129.98 ms" in table
+    assert "ΔC: 52.47 ms" in table
+    assert "ΔV: 37.10 ms" in table
+    assert "VarcoC: 45.98" in table
+    assert "VarcoV: 28.54" in table
+    assert "rPVI-C: 63.32" in table
+    assert "nPVI-V: 22.48" in table
+    assert "Unit drift max: 190.00 ms" in table
+    assert "Unit drift mean: 26.89 ms" in table
+    assert "Unit drift stddev: 51.38 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

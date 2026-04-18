@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[075. Humanize Phonetizer Diagnostic Names and Replace Ordinary Vowel Correction Rate with Drift Tolerance Effect](075-humanize-phonetizer-diagnostic-names-and-replace-ordinary-vowel-correction-rate-with-drift-tolerance-effect.md) - Done
 [074. Apply Accentuation Before Ordinary Long-Vowel Drift Recovery](074-apply-accentuation-before-ordinary-long-vowel-drift-recovery.md) - Done
 [073. Add Probability-Oriented Phonetizer Diagnostic Statistics](073-add-probability-oriented-phonetizer-diagnostic-statistics.md) - Done
 [072. Rename Drift Reporting to Post-Unit Drift](072-rename-drift-reporting-to-post-unit-drift.md) - Done

@@ -320,12 +320,12 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
     assert [row['drift'] for row in rows[:2]] == ['+000', '+000']
     assert rows[2]['drift'].startswith(('-', '+'))
     assert rows[-1]['length'] == 'L'
-    assert rows[-1]['drift'] == _format_row_drift_token(report['post_unit_drift']['current'])
+    assert rows[-1]['drift'] == _format_row_drift_token(report['unit_drift']['current'])
     assert int(rows[-1]['duration']) >= 1200
     assert report['one_mora_ref'] == 150.0
     assert report['two_mora_ref'] == 300.0
     assert report['three_mora_ref'] == 450.0
-    assert report['post_unit_drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
+    assert report['unit_drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
 
 
 def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
@@ -358,7 +358,7 @@ def test_phase2_supports_all_active_accent_classes() -> None:
         rows = build_phone_rows(sample)
         report = realize_phone_rows(rows, extensible, allow_accentuation=True)
         assert all(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in rows)
-        assert report['post_unit_drift']['max'] >= 0
+        assert report['unit_drift']['max'] >= 0
 
 
 def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
@@ -373,9 +373,9 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in original_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in accentuated_rows)
-    assert original_report['post_unit_drift']['stddev'] >= 0
-    assert accentuated_report['post_unit_drift']['stddev'] >= 0
-    assert 'label' in original_report['post_unit_drift'] and 'label' in accentuated_report['post_unit_drift']
+    assert original_report['unit_drift']['stddev'] >= 0
+    assert accentuated_report['unit_drift']['stddev'] >= 0
+    assert 'label' in original_report['unit_drift'] and 'label' in accentuated_report['unit_drift']
 
 
 def test_phase2_non_final_rows_keep_last_completed_unit_drift() -> None:
@@ -487,8 +487,8 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
     assert pause_rows[0]['length'] == 'S'
     assert pause_rows[0]['duration'] == '0600'
     assert pause_rows[1]['length'] == 'L'
-    assert report['post_unit_drift']['current'] == 0
-    assert report['post_unit_drift']['label'] == 'On the beat'
+    assert report['unit_drift']['current'] == 0
+    assert report['unit_drift']['label'] == 'On the beat'
 
 
 def test_phase2_short_vowels_stay_hard_during_ordinary_drift_recovery() -> None:
@@ -623,8 +623,8 @@ def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
     assert len(pause_rows) == 1
     assert pause_rows[0]['length'] == 'L'
     assert 1200 <= int(pause_rows[0]['duration']) <= 1780
-    assert report['post_unit_drift']['current'] == 0
-    assert report['post_unit_drift']['label'] == 'On the beat'
+    assert report['unit_drift']['current'] == 0
+    assert report['unit_drift']['label'] == 'On the beat'
 
 
 def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
@@ -642,10 +642,10 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
         allow_accentuation=True,
     )
 
-    assert set(report['post_unit_drift']) == {'max', 'mean', 'stddev', 'current', 'label'}
-    assert report['post_unit_drift']['max'] > 0
-    assert report['post_unit_drift_extension_count'] > 0
-    assert report['max_post_unit_drift_extension'] > 0
+    assert set(report['unit_drift']) == {'max', 'mean', 'stddev', 'current', 'label'}
+    assert report['unit_drift']['max'] > 0
+    assert report['unit_drift_extension_count'] > 0
+    assert report['max_unit_drift_extension'] > 0
 
 
 def test_phase2_reports_probability_oriented_extension_rates() -> None:
@@ -663,15 +663,14 @@ def test_phase2_reports_probability_oriented_extension_rates() -> None:
         allow_accentuation=True,
     )
 
-    assert report['syllable_unit_count'] == 1
-    assert report['pause_unit_count'] == 1
-    assert report['mini_pause_row_count'] == 0
-    assert report['completed_unit_count'] == 2
-    assert report['post_unit_drift_extension_denominator'] == 1
-    assert report['post_unit_drift_extension_rate'] == pytest.approx(1.0)
+    assert report['syllable_count'] == 1
+    assert report['pause_count'] == 1
+    assert report['mini_pause_count'] == 0
+    assert report['total_unit_count'] == 2
+    assert report['unit_drift_extension_rate'] == pytest.approx(1.0)
 
 
-def test_phase2_reports_ordinary_vowel_correction_counts_and_rates() -> None:
+def test_phase2_reports_drift_tolerance_effect_over_non_accented_long_vowels() -> None:
     rows = build_phone_rows('qā')
 
     report = realize_phone_rows(
@@ -689,11 +688,12 @@ def test_phase2_reports_ordinary_vowel_correction_counts_and_rates() -> None:
         allow_accentuation=False,
     )
 
-    assert report['ordinary_vowel_correction_denominator'] == 1
-    assert report['ordinary_vowel_correction_count'] == 1
-    assert report['ordinary_vowel_correction_rate'] == pytest.approx(1.0)
-    assert report['ordinary_vowel_correction_shorten_count'] == 0
-    assert report['ordinary_vowel_correction_lengthen_count'] == 1
+    assert report['non_accented_long_vowel_count'] == 1
+    assert report['left_as_is_non_accented_long_vowel_count'] == 0
+    assert report['drift_tolerance_effect'] == pytest.approx(0.0)
+    assert report['adjusted_non_accented_long_vowel_count'] == 1
+    assert report['shortened_non_accented_long_vowel_count'] == 0
+    assert report['lengthened_non_accented_long_vowel_count'] == 1
 
 
 def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> None:
@@ -720,15 +720,13 @@ def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> 
         allow_accentuation=False,
     )
 
-    assert report['syllable_unit_count'] == 2
-    assert report['pause_unit_count'] == 1
-    assert report['mini_pause_row_count'] == 1
-    assert report['completed_unit_count'] == 4
-    assert report['mini_pause_eligible_count'] == 1
-    assert report['mini_pause_insert_count'] == 1
-    assert report['mini_pause_insert_denominator'] == 1
-    assert report['mini_pause_insert_rate'] == pytest.approx(1.0)
-    assert report['mini_pause_success_rate_over_eligible'] == pytest.approx(1.0)
+    assert report['syllable_count'] == 2
+    assert report['pause_count'] == 1
+    assert report['mini_pause_count'] == 1
+    assert report['total_unit_count'] == 4
+    assert report['eligible_mini_pause_count'] == 1
+    assert report['inserted_mini_pause_count'] == 1
+    assert report['mini_pause_insertion_rate'] == pytest.approx(1.0)
 
 
 def test_phase2_reports_pause_residual_frequency_over_non_mini_pauses() -> None:
@@ -755,10 +753,9 @@ def test_phase2_reports_pause_residual_frequency_over_non_mini_pauses() -> None:
         allow_accentuation=False,
     )
 
-    assert report['pause_unit_count'] == 2
-    assert report['pause_residual_post_unit_drift_denominator'] == 2
-    assert report['pause_residual_post_unit_drift_count'] == 1
-    assert report['pause_residual_post_unit_drift_rate'] == pytest.approx(0.5)
+    assert report['pause_count'] == 2
+    assert report['pause_with_residual_drift_count'] == 1
+    assert report['pause_with_residual_drift_rate'] == pytest.approx(0.5)
 
 
 def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
@@ -770,8 +767,8 @@ def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
         allow_accentuation=True,
     )
 
-    assert report['post_unit_drift']['current'] == 0
-    assert report['post_unit_drift']['label'] == 'On the beat'
+    assert report['unit_drift']['current'] == 0
+    assert report['unit_drift']['label'] == 'On the beat'
 
 
 def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
@@ -1274,7 +1271,7 @@ def test_path_6_1b_accented_long_vowel_cleanup_uses_elongation_max_without_toler
     )
 
     assert rows[1]['duration'] == '0240'
-    assert report['ordinary_vowel_correction_denominator'] == 0
+    assert report['non_accented_long_vowel_count'] == 0
 
 
 def test_path_6_2_full_saturation_keeps_residual_drift() -> None:

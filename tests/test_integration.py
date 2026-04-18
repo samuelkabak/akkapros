@@ -73,7 +73,7 @@ GOLD_REGULAR_METRICS = {
             "rpvi_c": 68.52173913043478,
             "npvi_v": 19.56809762705244,
         },
-        "post_unit_drift": {
+        "unit_drift": {
             "max": 115.0,
             "mean": 23.3333,
             "stddev": 37.6278,
@@ -125,7 +125,7 @@ GOLD_REGULAR_METRICS = {
             "rpvi_c": 84.17391304347827,
             "npvi_v": 33.50426605831368,
         },
-        "post_unit_drift": {
+        "unit_drift": {
             "max": 116.0,
             "mean": 1.7407,
             "stddev": 39.9153,
@@ -233,7 +233,7 @@ GOLD_MONO_METRICS = {
             "rpvi_c": 105.04347826086956,
             "npvi_v": 37.86790242195005,
         },
-        "post_unit_drift": {
+        "unit_drift": {
             "max": 116.0,
             "mean": 1.7407,
             "stddev": 39.9153,
@@ -413,21 +413,21 @@ def _assert_phone_artifact(path: Path) -> None:
     assert any(row['duration'] != '0000' for row in all_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in all_rows)
     assert all(len(row['intonation']) == 3 for row in all_rows)
-    assert frontmatter['metadata']['data']['phonetize']['post_unit_drift']['max'] >= 0
-    assert 'mean' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
-    assert 'stddev' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
-    assert 'syllable_unit_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'pause_unit_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'mini_pause_row_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'completed_unit_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'post_unit_drift_extension_denominator' in frontmatter['metadata']['data']['phonetize']
-    assert 'post_unit_drift_extension_rate' in frontmatter['metadata']['data']['phonetize']
-    assert 'ordinary_vowel_correction_denominator' in frontmatter['metadata']['data']['phonetize']
-    assert 'ordinary_vowel_correction_rate' in frontmatter['metadata']['data']['phonetize']
-    assert 'mini_pause_insert_denominator' in frontmatter['metadata']['data']['phonetize']
-    assert 'mini_pause_insert_rate' in frontmatter['metadata']['data']['phonetize']
-    assert 'pause_residual_post_unit_drift_denominator' in frontmatter['metadata']['data']['phonetize']
-    assert 'pause_residual_post_unit_drift_rate' in frontmatter['metadata']['data']['phonetize']
+    assert frontmatter['metadata']['data']['phonetize']['unit_drift']['max'] >= 0
+    assert 'mean' in frontmatter['metadata']['data']['phonetize']['unit_drift']
+    assert 'stddev' in frontmatter['metadata']['data']['phonetize']['unit_drift']
+    assert 'syllable_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'mini_pause_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'total_unit_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'unit_drift_extension_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'non_accented_long_vowel_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'left_as_is_non_accented_long_vowel_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'drift_tolerance_effect' in frontmatter['metadata']['data']['phonetize']
+    assert 'eligible_mini_pause_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'mini_pause_insertion_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_with_residual_drift_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_with_residual_drift_rate' in frontmatter['metadata']['data']['phonetize']
 
 
 def _assert_pho_artifact(path: Path) -> None:
@@ -812,7 +812,7 @@ def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_populatio
     outdir.mkdir(parents=True, exist_ok=True)
 
     tilde_file = outdir / 'diag_tilde.txt'
-    tilde_file.write_text('bā~\n', encoding='utf-8')
+    tilde_file.write_text('qā\n', encoding='utf-8')
 
     low_config = apply_overrides(
         _load_regression_config(),
@@ -820,6 +820,7 @@ def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_populatio
             ('common', 'run.prefix'): 'low',
             ('common', 'run.outdir'): str(outdir),
             ('phonetize', 'process.timing_model.drift_tolerance'): 0,
+            ('phonetize', 'process.timing_model.durations.cvc_reference'): 340,
         },
     )
     high_config = apply_overrides(
@@ -828,6 +829,7 @@ def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_populatio
             ('common', 'run.prefix'): 'high',
             ('common', 'run.outdir'): str(outdir),
             ('phonetize', 'process.timing_model.drift_tolerance'): 500,
+            ('phonetize', 'process.timing_model.durations.cvc_reference'): 340,
         },
     )
     low_config_path = outdir / 'low.yaml'
@@ -846,9 +848,9 @@ def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_populatio
     low_data = low_frontmatter['metadata']['data']['phonetize']
     high_data = high_frontmatter['metadata']['data']['phonetize']
 
-    assert low_data['syllable_unit_count'] == high_data['syllable_unit_count'] == 1
-    assert low_data['post_unit_drift_extension_denominator'] == high_data['post_unit_drift_extension_denominator'] == 1
-    assert low_data['post_unit_drift_extension_rate'] > high_data['post_unit_drift_extension_rate']
+    assert low_data['syllable_count'] == high_data['syllable_count'] == 1
+    assert low_data['non_accented_long_vowel_count'] == high_data['non_accented_long_vowel_count'] == 1
+    assert low_data['drift_tolerance_effect'] < high_data['drift_tolerance_effect']
 
 
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:
@@ -1095,13 +1097,13 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
             "VarcoC: 54.54",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Post-unit drift max: 115.00 ms",
-            "Post-unit drift max: 116.00 ms",
+        "Unit drift max: 115.00 ms",
+            "Unit drift max: 116.00 ms",
         "Phonetizer diagnostics:",
-        "Post-unit drift extension:",
-        "Ordinary vowel correction:",
-        "Mini-pause recovery:",
-        "Pause residual post-unit drift:",
+        "Unit drift extension:",
+        "Drift tolerance effect:",
+        "Inserted mini pauses:",
+        "Pauses with residual drift:",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2
