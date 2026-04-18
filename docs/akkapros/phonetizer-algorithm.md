@@ -142,7 +142,7 @@ non-accentuated target.
 Current legality limits also distinguish validation bounds from runtime caps:
 
 - adjacent accent spill into a short vowel is legal only up to `long_min - 1`
-- under the live defaults, `long_min = 123`, so the maximum adjacent short-vowel outcome is `122 ms`
+- under the live defaults, `long_min = 153`, so the maximum adjacent short-vowel outcome is `152 ms`
 - runtime consonant saturation uses class-local `perception_limits.gemination_max`
 - `segmental_ceiling` remains a validation ceiling rather than the runtime consonant cap
 - `segmental_floor` remains a validation-only lower bound and is not used as a runtime timing control
@@ -302,10 +302,10 @@ For each syllable unit, the solver does the following.
 drift_after_assignment = drift_cursor + (realized_total - shape_ref)
 ```
 
-7. Do not fold drift inside a merged prosodic unit. Internal syllables carry
+1. Do not fold drift inside a merged prosodic unit. Internal syllables carry
   raw drift forward until the unit-closing `F` syllable is complete.
 
-8. After the closing `F` syllable of the prosodic unit has been fully realized,
+1. After the closing `F` syllable of the prosodic unit has been fully realized,
   fold the completed-unit drift to the nearest equivalent beat branch:
 
 ```text
@@ -317,18 +317,18 @@ if drift_after_assignment < -round_half_up(0.5 * cvc_reference):
 
 This keeps the completed-unit drift inside the canonical interval centered on
 the nearest beat. Folding is always modulo the current `cvc_reference`.
-For example, with `cvc_reference = 306`, `+250` folds to `-56` because reaching
-`+306` is nearer than returning to `0`, while `-250` folds to `+56` because
-reaching `-306` is nearer than returning to `0`. Likewise, `-303` folds to
-`+3` when `cvc_reference = 306` because `-303 + 306 = 3`.
+For example, with `cvc_reference = 300`, `+250` folds to `-50` because reaching
+`+300` is nearer than returning to `0`, while `-250` folds to `+50` because
+reaching `-300` is nearer than returning to `0`. Likewise, `-297` folds to
+`+3` when `cvc_reference = 300` because `-297 + 300 = 3`.
 
 The crucial restriction is timing: this fold is prosodic-unit-final, not
 syllable-local. If a syllable closes with `L`, `X`, `E`, or `I`, its raw drift
 is carried into the next syllable because the merged unit is not complete yet.
 
-9. If unresolved absolute drift still exceeds `drift_tolerance`, apply ordinary
+1. If unresolved absolute drift still exceeds `drift_tolerance`, apply ordinary
   vowel correction only if the nucleus is long.
-10. If the stream is accentuated and this syllable carries accentuation,
+1. If the stream is accentuated and this syllable carries accentuation,
   distribute an accent increment computed as:
 
 ```text
@@ -336,7 +336,8 @@ AA = round_half_up(0.5 * cvc_reference) - drift_portion
 ```
 
 where `drift_portion` is the signed drift value at accent-distribution entry.
-11. If the current boundary is eligible and the stream is synchronized at the
+
+1. If the current boundary is eligible and the stream is synchronized at the
   completed `F` boundary, optionally insert one mini pause using the
   equivalent-beat rule.
 
@@ -464,11 +465,11 @@ The default mini band is:
 With the default timing model, `qat` is realized as one closed syllable plus
 the normalized terminal `<EOL>` row.
 
-The consonantal anchors contribute `108 + 103 = 211 ms`, the short vowel stays
-fixed at `85 ms`, and the closed syllable therefore realizes as `296 ms`.
+The consonantal anchors contribute `89 + 87 = 176 ms`, the short vowel stays
+fixed at `110 ms`, and the closed syllable therefore realizes as `286 ms`.
 
-Its nominal `CVC` target is one `cvc_reference`, or `306 ms`, so the stream
-leaves the syllable with `-10 ms` of drift before the terminal long pause is
+Its nominal `CVC` target is one `cvc_reference`, or `300 ms`, so the stream
+leaves the syllable with `-14 ms` of drift before the terminal long pause is
 processed.
 
 ### Short vowels no longer absorb local mismatch
@@ -478,10 +479,10 @@ Consider a diagnostic setup with:
 - `cvc_reference = 350`
 - ordinary `qat`
 
-The segment anchors still sum to `296 ms`, so the syllable is `54 ms` ahead of
+The segment anchors still sum to `286 ms`, so the syllable is `64 ms` ahead of
 the beat.
 
-Under the live solver, the short vowel remains `85 ms`. That mismatch is not
+Under the live solver, the short vowel remains `110 ms`. That mismatch is not
 hidden inside the vowel. It must be discharged later.
 
 ### Long vowels still can
@@ -510,7 +511,7 @@ That mini pause is visible in the phone-row stream but not in reconstructed
 upstream `_tilde` text.
 
 Under the current row contract, an inserted mini pause is emitted as a
-dedicated silence row such as `MEN|S|M|S|S|N|P|MP|0054|+000|M0C| `.
+dedicated silence row such as `MEN|S|M|S|S|N|P|MP|0064|+000|M0C|<space>`.
 The last field is one literal space character, not a named sentinel token.
 
 ## Phase 3: Intonation

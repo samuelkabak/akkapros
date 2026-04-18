@@ -47,33 +47,40 @@ Read this as:
 ## Field Meanings
 
 `label`
+
 - Canonical source-side symbol label such as `SUD`, `AYA`, `ARU`, `SES`, `ZEN`, `MEN`.
 
 `category`
+
 - `C` consonant row
 - `V` vowel row
 - `S` silence or pause row
 
 `type`
+
 - Consonant and vowel subclass code used by runtime logic.
 - Typical values include closure/fricative/sonorant classes and the special hiatus/transition rows.
 - For pause rows, `Q`, `E`, `S`, `C`, and `I` are punctuation-owned pause subtypes, while `M` marks an inserted mini pause.
 
 `length`
+
 - `S` short
 - `L` long
 
 For pause rows this is the pause class:
+
 - `S` short pause
 - `L` long pause
 
 `position`
+
 - `O` onset
 - `N` nucleus
 - `C` coda
 - `S` silence row
 
 `boundary`
+
 - `N` no boundary closes here
 - `I` internal syllable break
 - `E` enclitic dash boundary
@@ -82,25 +89,29 @@ For pause rows this is the pause class:
 - `F` prosodic-unit end
 
 `accent`
+
 - `A` accentuated row
 - `F` non-accentuated phoneme row
 - `P` pause row accent placeholder
 
 `realization`
+
 - Two-letter realization code such as `SU`, `AA`, `AO`, `MP`, `SP`, `ZP`.
 - `MP` is the mini-pause marker used for algorithmically inserted prosodic-space rows.
 - `SP` is the short-pause IPA-like marker `|`.
 - `ZP` is the long-pause IPA-like marker `‖`.
 
 `duration`
+
 - Four-digit millisecond duration.
 - During Phase 1 this is `0000`.
 - Finalized phonetizer outputs carry non-zero values.
 - Adjacent accent spill does not let a short-vowel row enter the long-vowel
-  field. Under the live defaults, `long_min = 123`, so a short-vowel row may
-  reach `0122` but not `0123`.
+  field. Under the live defaults, `long_min = 153`, so a short-vowel row may
+  reach `0152` but not `0153`.
 
 `drift`
+
 - Four-character post-unit drift token.
 - `+000` means on the beat.
 - `-xyz` means the stream stands `xyz` ms ahead of the beat after the most recently completed unit.
@@ -125,11 +136,13 @@ Debug note:
   instead of writing a silently inconsistent timeline.
 
 `intonation`
+
 - Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
 - Pass 3 writes finalized intonation tokens after duration realization.
 - Neutral rows use `M0C`.
 
 `text`
+
 - The source-facing glyph or pause text.
 - Inserted mini pauses use one literal ASCII space character in this field.
 - For line breaks the phonetizer writes `<EOL>`.
@@ -139,7 +152,7 @@ Debug note:
 Pause rows now carry a meaningful subtype rather than one generic silence type.
 
 | Type | Meaning |
-|------|---------|
+| --- | --- |
 | `Q` | question-final pause |
 | `E` | exclamatory pause |
 | `S` | statement-final or ordinary line-final pause |
@@ -183,7 +196,7 @@ SES|S|C|S|S|N|P|SP|0600|+023|H1C|:
 Inserted mini pause row:
 
 ```text
-MEN|S|M|S|S|N|P|MP|0054|+000|M0C| 
+MEN|S|M|S|S|N|P|MP|0064|+000|M0C| 
 ```
 
 Long pause row:
@@ -214,10 +227,12 @@ statement, or question punctuation.
 ## `_phone.txt` versus `_ophone.txt`
 
 `_phone.txt`
+
 - accentuated stream
 - keeps accent-bearing rows marked with `accent = A`
 
 `_ophone.txt`
+
 - original/deaccented stream
 - derived from `_tilde` by removing `~` and converting internal merge `&` to ordinary space before row construction
 
@@ -243,10 +258,12 @@ The phone-row files and the `.pho` files intentionally do not use the same
 surface symbols.
 
 `_phone.txt` and `_ophone.txt`
+
 - keep the internal realization codes such as `ET`, `HE`, `AI`, `AL`, `AO`, `MP`, `SP`, and `ZP`
 - remain the canonical downstream row contract for metrics and printer
 
 `_mbrola.pho` and `_ombrola.pho`
+
 - derive MBROLA/X-SAMPA-like export symbols from that same realization inventory
 - emit symbols such as `X`, `x`, `H`, `?`, `a.`, and `_`
 - derive one or more pitch targets from the row's `intonation` token plus `f0`

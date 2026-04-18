@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[068. Ratio Based Parameters](068-ratio-based-parameters.md) - Draft
 [067. Narrow Short-Vowel Spill and Adopt Class-Local Gemination Max Caps](067-cap-adjacent-short-vowel-accent-spill-below-long-min.md) - Done
 [066. Promote Mini Pauses to a Distinct Phone-Row Contract](066-promote-mini-pauses-to-a-distinct-phone-row-contract.md) - 'Done'
 [065. Add Code-Derived Mermaid Flowcharts to User-Facing Docs](065-add-code-derived-mermaid-flowcharts-to-user-facing-docs.md) - Done

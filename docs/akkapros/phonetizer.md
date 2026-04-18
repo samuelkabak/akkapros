@@ -23,6 +23,7 @@ metricalc consumes those artifacts directly.
 
 The current implementation now follows a three-pass contract for both
 `<prefix>_ophone.txt` and `<prefix>_phone.txt`:
+
 - flat-line serialization, one row per line
 - exact field order: `label|category|type|length|position|boundary|accent|realization|duration|drift|intonation|text`
 - canonical segment and pause inventories
@@ -35,10 +36,10 @@ The current implementation now follows a three-pass contract for both
 In researcher-facing terms:
 
 - Pass 1 decides structure: which rows exist, where boundaries fall, and what
-	kind of pause has been encountered.
+  kind of pause has been encountered.
 - Pass 2 decides timing: how many milliseconds each row receives.
 - Pass 3 decides intonation: which rows stay neutral and which rows receive
-	stress or clause-final contour.
+  stress or clause-final contour.
 
 Before runtime realization begins, the CLI now also runs shared semantic config
 verification. Blocking failures stop the command before `_ophone.txt`,
@@ -50,9 +51,11 @@ The contract is intentionally structured for downstream traversal. Neighborhood 
 ## Input and Output
 
 Input:
+
 - One `*_tilde.txt` file
 
 Output:
+
 - `<prefix>_ophone.txt`
 - `<prefix>_phone.txt`
 - `<prefix>_ombrola.pho`
@@ -72,8 +75,8 @@ Examples:
 
 ```text
 SUD|C|F|S|O|N|F|SU|0137|+000|M0C|ṣ
-AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a
-MEN|S|M|S|S|N|P|MP|0054|+000|M0C| 
+AYA|V|L|S|N|F|F|AA|0110|+023|M0C|a
+MEN|S|M|S|S|N|P|MP|0064|+000|M0C| 
 ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
@@ -87,11 +90,12 @@ The new `drift` field is a row-level trace token written after Phase 2 timing re
 - non-final rows repeat the latest completed-unit value until the next syllable-final row or pause row updates it
 
 Phase 2 diagnostics to look for:
+
 - row durations are finalized non-zero millisecond values rather than `0000`
 - row-level drift changes only on syllable-final rows and pause rows
 - front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
 - short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
-- inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...| `, where the final field is one literal space character
+- inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...|<space>`, where the final field is one literal space character
 - internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
@@ -149,7 +153,7 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 ## Options
 
 | Option | Description |
-|--------|-------------|
+| --- | --- |
 | `-p, --prefix <name>` | Output prefix |
 | `--outdir <dir>` | Output directory |
 | `--geminate-policy {corrective,cumulative}` | Override `phonetize.process.timing_model.geminate_policy` |
@@ -176,6 +180,7 @@ python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.duration
 The phonetizer is the canonical owner of the top-level `phonetize` config section.
 
 Representative grouped-config keys:
+
 - `phonetize.process.intonation.f0`
 - `phonetize.process.intonation.stress`
 - `phonetize.process.intonation.question`
@@ -224,7 +229,7 @@ That preflight:
 - checks class-local consonant `gemination_max` values against the global `segmental_ceiling`
 - reports full dotted paths, relations, and reasons for blocking failures
 - reports warning paths, thresholds or formulas, and configuration-wide hint
-	summaries for warning-only conditions
+  summaries for warning-only conditions
 
 Representative warning-only output:
 
@@ -241,6 +246,7 @@ FAIL phonetize.process.timing_model.speech.pause_ratio | relation: 0 < pause_rat
 `confwriter --list phonetize` is the supported way to inspect the live schema.
 
 See also:
+
 - `docs/akkapros/phonetizer-data-model.md` for the centralized row contract and canonical inventories
 - `docs/akkapros/phonetizer-algorithm.md` for the row and boundary model
 - `docs/akkapros/fullprosmaker.md` for the pipeline surface that writes `_ophone.txt`, `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho`

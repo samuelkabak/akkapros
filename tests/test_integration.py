@@ -61,21 +61,21 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 28.177196804647785,
-            "percent_v": 25.562817719680464,
-            "mean_c_ms": 113.16666666666667,
-            "mean_v_ms": 107.1304347826087,
-            "delta_c_ms": 65.08754787890607,
-            "delta_v_ms": 42.03963383349625,
-            "varco_c": 57.51476984881243,
-            "varco_v": 39.2415413218512,
-            "rpvi_c": 76.82608695652173,
-            "npvi_v": 27.64108387193927,
+            "percent_c": 27.629629629629633,
+            "percent_v": 31.11111111111111,
+            "mean_c_ms": 108.79166666666667,
+            "mean_v_ms": 127.82608695652173,
+            "delta_c_ms": 53.581697097879314,
+            "delta_v_ms": 36.12255970263873,
+            "varco_c": 49.251655700846555,
+            "varco_v": 28.259145345601734,
+            "rpvi_c": 68.52173913043478,
+            "npvi_v": 19.56809762705244,
         },
         "drift": {
-            "max": 149.0,
-            "mean": -21.2414,
-            "stddev": 53.7534,
+            "max": 115.0,
+            "mean": 23.3333,
+            "stddev": 37.6278,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -113,21 +113,21 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.469050365244136,
-            "percent_v": 26.489811610918878,
-            "mean_c_ms": 132.08333333333334,
-            "mean_v_ms": 119.82608695652173,
-            "delta_c_ms": 77.506406545237,
-            "delta_v_ms": 63.65303515691998,
-            "varco_c": 58.6799292456053,
-            "varco_v": 53.12118318610884,
-            "rpvi_c": 95.69565217391305,
-            "npvi_v": 39.30693931399906,
+            "percent_c": 29.127450980392155,
+            "percent_v": 32.57843137254902,
+            "mean_c_ms": 123.79166666666667,
+            "mean_v_ms": 144.47826086956522,
+            "delta_c_ms": 65.62518518492391,
+            "delta_v_ms": 64.39340336537141,
+            "varco_c": 53.012603313301035,
+            "varco_v": 44.56961412589656,
+            "rpvi_c": 83.65217391304348,
+            "npvi_v": 33.30008180956772,
         },
         "drift": {
-            "max": 137.0,
-            "mean": -29.7143,
-            "stddev": 43.8364,
+            "max": 135.0,
+            "mean": 22.9259,
+            "stddev": 39.2786,
         },
     },
     "accentuation_stats": {
@@ -173,16 +173,16 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 28.177196804647785,
-            "percent_v": 25.562817719680464,
-            "mean_c_ms": 113.16666666666667,
-            "mean_v_ms": 107.1304347826087,
-            "delta_c_ms": 65.08754787890607,
-            "delta_v_ms": 42.03963383349625,
-            "varco_c": 57.51476984881243,
-            "varco_v": 39.2415413218512,
-            "rpvi_c": 76.82608695652173,
-            "npvi_v": 27.64108387193927,
+            "percent_c": 27.629629629629633,
+            "percent_v": 31.11111111111111,
+            "mean_c_ms": 108.79166666666667,
+            "mean_v_ms": 127.82608695652173,
+            "delta_c_ms": 53.581697097879314,
+            "delta_v_ms": 36.12255970263873,
+            "varco_c": 49.251655700846555,
+            "varco_v": 28.259145345601734,
+            "rpvi_c": 68.52173913043478,
+            "npvi_v": 19.56809762705244,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -221,21 +221,21 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.80205415499533,
-            "percent_v": 26.423902894491132,
-            "mean_c_ms": 141.91666666666666,
-            "mean_v_ms": 123.04347826086956,
-            "delta_c_ms": 93.38759583347007,
-            "delta_v_ms": 62.73995901709627,
-            "varco_c": 65.80453024084797,
-            "varco_v": 50.990072699406866,
-            "rpvi_c": 115.95652173913044,
-            "npvi_v": 45.80671972682295,
+            "percent_c": 30.514285714285716,
+            "percent_v": 32.047619047619044,
+            "mean_c_ms": 133.5,
+            "mean_v_ms": 146.30434782608697,
+            "delta_c_ms": 82.83718971573094,
+            "delta_v_ms": 63.71706124845909,
+            "varco_c": 62.05032937507936,
+            "varco_v": 43.55103740607902,
+            "rpvi_c": 103.91304347826087,
+            "npvi_v": 36.44066882112247,
         },
         "drift": {
-            "max": 137.0,
-            "mean": -29.4286,
-            "stddev": 43.801,
+            "max": 76.0,
+            "mean": 21.0741,
+            "stddev": 33.2866,
         },
     },
     "accentuation_stats": {
@@ -704,7 +704,7 @@ def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_
 
     vowel_row = next(row for row in phone_rows if row['category'] == 'V')
     assert vowel_row['text'] == 'a'
-    assert vowel_row['duration'] == '0085'
+    assert vowel_row['duration'] == '0110'
 
 
 def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(tmp_path: Path) -> None:
@@ -746,7 +746,7 @@ def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(
     assert mini_rows[0]['label'] == MINI_PAUSE_LABEL
     assert mini_rows[0]['type'] == MINI_PAUSE_TYPE
     assert mini_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_rows[0]['duration'] == '0054'
+    assert mini_rows[0]['duration'] == '0064'
     assert reconstruct_tilde_from_phone_rows(phone_rows) == 'qat pa\n'
     assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
 
@@ -987,16 +987,16 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
-        "%C: 28.18%",
-        "%V: 25.56%",
-            "%C: 30.47%",
-            "%V: 26.49%",
-        "VarcoC: 57.51",
-            "VarcoC: 58.68",
+        "%C: 27.63%",
+        "%V: 31.11%",
+            "%C: 29.13%",
+            "%V: 32.58%",
+        "VarcoC: 49.25",
+            "VarcoC: 53.01",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Drift max: 149.00 ms",
-            "Drift max: 137.00 ms",
+        "Drift max: 115.00 ms",
+            "Drift max: 135.00 ms",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2
@@ -1084,12 +1084,12 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "Total syllables: 23 syllables",
         "Total words: 8 words",
         "Total words: 7 words",
-        "%C: 28.18%",
-        "%V: 25.56%",
-            "%C: 31.80%",
-            "%V: 26.42%",
-        "VarcoC: 57.51",
-            "VarcoC: 65.80",
+        "%C: 27.63%",
+        "%V: 31.11%",
+            "%C: 30.51%",
+            "%V: 32.05%",
+        "VarcoC: 49.25",
+            "VarcoC: 62.05",
         "Accentuated syllables: 7 syllables",
         "Accentuation rate: 30.43%",
     ]:

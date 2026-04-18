@@ -20,38 +20,38 @@ ušašqi qingu : ina birīšunu šâšu ušrabbīš
 
 VARCO_VERIFICATION_SAMPLE = "šazu šuḫgurim ina rebî : šākin tašmê ana ilī abbīšu\n"
 VARCO_VERIFICATION_ORIGINAL = {
-    "percent_c": 33.27649900539926,
-    "percent_v": 30.988917306052855,
-    "mean_c_ms": 117.1,
-    "mean_v_ms": 109.05,
-    "delta_c_ms": 61.97410749659893,
-    "delta_v_ms": 41.929077022992054,
-    "varco_c": 52.924088383090464,
-    "varco_v": 38.449405798250396,
-    "rpvi_c": 63.578947368421055,
-    "npvi_v": 30.993306421386873,
+    "percent_c": 31.944444444444443,
+    "percent_v": 35.52777777777778,
+    "mean_c_ms": 109.52380952380952,
+    "mean_v_ms": 127.9,
+    "delta_c_ms": 50.67320043800653,
+    "delta_v_ms": 34.222653316188094,
+    "varco_c": 46.26683518252771,
+    "varco_v": 26.75735208458803,
+    "rpvi_c": 59.0,
+    "npvi_v": 21.698221153635842,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
-    "percent_c": 34.54901960784314,
-    "percent_v": 31.333333333333336,
-    "mean_c_ms": 132.15,
-    "mean_v_ms": 119.85,
-    "delta_c_ms": 79.24914826040718,
-    "delta_v_ms": 61.42171847156346,
-    "varco_c": 59.96908684101944,
-    "varco_v": 51.24882642600206,
-    "rpvi_c": 92.21052631578948,
-    "npvi_v": 41.03169107000619,
+    "percent_c": 33.013333333333335,
+    "percent_v": 36.733333333333334,
+    "mean_c_ms": 123.8,
+    "mean_v_ms": 137.75,
+    "delta_c_ms": 64.1237865382262,
+    "delta_v_ms": 51.86508941474988,
+    "varco_c": 51.796273455756214,
+    "varco_v": 37.651607560616974,
+    "rpvi_c": 75.78947368421052,
+    "npvi_v": 30.249305872660635,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
-    "max": 149.0,
-    "mean": -16.375,
-    "stddev": 69.3961,
+    "max": 150.0,
+    "mean": 32.4167,
+    "stddev": 49.3203,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
-    "max": 138.0,
-    "mean": -22.2917,
-    "stddev": 66.129,
+    "max": 189.0,
+    "mean": 28.1739,
+    "stddev": 63.0787,
 }
 LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
 LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")

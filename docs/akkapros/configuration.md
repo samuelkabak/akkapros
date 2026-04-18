@@ -80,8 +80,8 @@ Important current phonetize timing keys include:
 - `phonetize.process.timing_model.durations.consonants.<class>.perception_limits.gemination_max`: class-local runtime consonant saturation ceiling for `closure`, `fricative`, and `sonorant`
 - `phonetize.process.timing_model.durations.vowels.perception_limits.long_min`: long-vowel category boundary; adjacent short-vowel accent spill remains strictly below this value
 
-Under the live defaults, `long_min = 123`, so an adjacent short-vowel spill may
-reach `122 ms` but not `123 ms`.
+Under the live defaults, `long_min = 153`, so an adjacent short-vowel spill may
+reach `152 ms` but not `153 ms`.
 
 Before standalone phonetizer runtime continues into Phase 2 realization, it
 now runs the shared phonetize semantic verification layer against the effective

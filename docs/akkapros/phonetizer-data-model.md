@@ -34,8 +34,8 @@ Example rows:
 
 ```text
 SUD|C|F|S|O|N|F|SU|0137|+000|M0C|ṣ
-AYA|V|L|S|N|F|F|AA|0085|+023|M0C|a
-MEN|S|M|S|S|N|P|MP|0054|+000|M0C| 
+AYA|V|L|S|N|F|F|AA|0110|+023|M0C|a
+MEN|S|M|S|S|N|P|MP|0064|+000|M0C| 
 ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
@@ -244,7 +244,7 @@ realization code, IPA, MBROLA/X-SAMPA export, category, type, and emphaticity.
 | `IO` | `ɨ` | `i.` | `V` | `H` | `P` |
 | `UO` | `ʊ` | `u.` | `V` | `H` | `P` |
 | `MP` | `.` | `_` | `S` | `S` | `P` |
-| `SP` | `|` | `_` | `S` | `S` | `P` |
+| `SP` | `\|` | `_` | `S` | `S` | `P` |
 | `ZP` | `‖` | `_` | `S` | `S` | `P` |
 
 Realization-side constraints:

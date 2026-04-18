@@ -68,65 +68,64 @@ than from copied metrics-side defaults.
 
 - `segmental_ceiling = 310`
 - `segmental_floor = 10`
-- `cvc_reference = 306`
+- `cvc_reference = 300`
 
 ### Consonant timings
 
 Closure class:
 
-- `closure.onset = 108`
-- `closure.coda = 103`
-- `closure.geminate = 195`
-- `closure.special_realization.hiatus = 18`
-- `closure.perception_limits.geminate_min = 180`
-- `closure.perception_limits.gemination_max = 221`
+- `closure.onset = 89`
+- `closure.coda = 87`
+- `closure.geminate = 175`
+- `closure.special_realization.hiatus = 35`
+- `closure.perception_limits.geminate_min = 145`
+- `closure.perception_limits.gemination_max = 260`
 
 Fricative class:
 
-- `fricative.onset = 137`
-- `fricative.coda = 142`
-- `fricative.geminate = 224`
-- `fricative.perception_limits.geminate_min = 210`
-- `fricative.perception_limits.gemination_max = 250`
+- `fricative.onset = 115`
+- `fricative.coda = 112`
+- `fricative.geminate = 210`
+- `fricative.perception_limits.geminate_min = 163`
+- `fricative.perception_limits.gemination_max = 290`
 
 Sonorant class:
 
-- `sonorant.onset = 89`
-- `sonorant.coda = 70`
-- `sonorant.geminate = 163`
-- `sonorant.special_realization.vowel_transition = 11`
-- `sonorant.perception_limits.geminate_min = 152`
-- `sonorant.perception_limits.gemination_max = 182`
+- `sonorant.onset = 105`
+- `sonorant.coda = 100`
+- `sonorant.geminate = 190`
+- `sonorant.special_realization.vowel_transition = 25`
+- `sonorant.perception_limits.geminate_min = 148`
+- `sonorant.perception_limits.gemination_max = 275`
 
 ### Vowel timings
 
-- `vowels.short = 85`
+- `vowels.short = 110`
 - `vowels.long = 160`
-- `vowels.very_long = 220`
-- `vowels.perception_limits.short_min = 40`
-- `vowels.perception_limits.long_min = 123`
-- `vowels.perception_limits.very_long_min = 190`
-- `vowels.perception_limits.elongation_max = 250`
+- `vowels.very_long = 260`
+- `vowels.perception_limits.short_min = 60`
+- `vowels.perception_limits.long_min = 153`
+- `vowels.perception_limits.very_long_min = 233`
+- `vowels.perception_limits.elongation_max = 280`
 
 ### Pause bands
 
 Short pause band:
 
-- `pauses.short.min = 600`
+- `pauses.short.min = 520`
 - `pauses.short.max = 680`
 
 Long pause band:
 
-- `pauses.long.min = 1200`
+- `pauses.long.min = 1100`
 - `pauses.long.max = 1780`
 
 ### Drift summary carried by the phonetizer
 
-For this sample, the phonetizer reports:
+For this sample under the current approved defaults, the phonetizer reports:
 
-- `Drift max = 65.0 ms`
-- `Drift mean = -3.3182 ms`
-- `Drift stddev = 18.3536 ms`
+- original stream: `Drift max = 150.0 ms`, `Drift mean = 32.4167 ms`, `Drift stddev = 49.3203 ms`
+- accentuated stream: `Drift max = 189.0 ms`, `Drift mean = 28.1739 ms`, `Drift stddev = 63.0787 ms`
 
 Under the active contract, metricalc surfaces these drift values from the
 phone/ophone metadata rather than recomputing them from interval arithmetic.
@@ -158,152 +157,87 @@ from `mean`, `Δ`, `Varco`, and PVI calculations.
 
 Original stream (`_ophone.txt`):
 
-- `V = [56, 44, 85, 54, 85, 54, 44, 44, 173, 185, 94, 94, 197, 68, 44, 44, 173, 94, 213, 68]`
-- `C = [137, 137, 137, 250, 89, 88, 89, 89, 108, 137, 108, 178, 231, 18, 89, 18, 89, 18, 195, 137]`
-- `P = [622, 1513]`
+- `V = [110, 110, 110, 110, 110, 110, 110, 110, 153, 185, 110, 110, 185, 110, 110, 110, 153, 110, 232, 110]`
+- `C = [115, 115, 115, 201, 105, 100, 35, 105, 105, 89, 115, 89, 189, 217, 35, 105, 35, 105, 35, 175, 115]`
+- `P = [150, 199, 533, 1460]`
 
 Accentuated stream (`_phone.txt`):
 
-- `V = [56, 44, 108, 54, 85, 54, 44, 44, 240, 185, 94, 94, 197, 68, 44, 44, 240, 107, 240, 98]`
-- `C = [137, 137, 137, 380, 89, 88, 89, 89, 180, 137, 108, 178, 231, 18, 89, 18, 162, 18, 267, 137]`
-- `P = [635, 1537]`
+- `V = [110, 110, 127, 110, 110, 110, 110, 110, 169, 185, 110, 110, 185, 110, 110, 110, 269, 110, 280, 110]`
+- `C = [115, 115, 115, 297, 105, 135, 105, 105, 92, 115, 89, 189, 217, 35, 105, 35, 126, 35, 231, 115]`
+- `P = [150, 600, 1519]`
 
 ## Manual Computation
 
-The arithmetic below starts from the interval lists above. Those interval lists
-are the durations emitted under the stated timing parameters. The computation of
-the indicators then uses only the public interval formulas stated above.
+Applying the public formulas above to those interval lists yields the following
+results for the current approved timing profile.
 
-### Original Stream: Worked Derivation
+Original stream:
 
-Counts and totals:
+- `|V| = 20`, `|C| = 21`, `|P| = 4`
+- `sum(V) = 2558 ms`, `sum(C) = 2300 ms`, `sum(P) = 2342 ms`, `Total = 7200 ms`
+- `%C = 31.944444444444443`
+- `%V = 35.52777777777778`
+- `meanC = 109.52380952380952 ms`
+- `meanV = 127.9 ms`
+- `ΔC = 50.67320043800653 ms`
+- `ΔV = 34.222653316188094 ms`
+- `VarcoC = 46.26683518252771`
+- `VarcoV = 26.75735208458803`
+- `rPVI-C = 59.0`
+- `nPVI-V = 21.698221153635842`
+- `Drift max = 150.0 ms`, `Drift mean = 32.4167 ms`, `Drift stddev = 49.3203 ms`
 
-- `|V| = 20`
-- `|C| = 20`
-- `|P| = 2`
-- `sum(V) = 1913 ms`
-- `sum(C) = 2342 ms`
-- `sum(P) = 2135 ms`
-- `Total = 1913 + 2342 + 2135 = 6390 ms`
+Accentuated stream:
 
-Step-by-step indicator calculations:
-
-- `%C = (sum(C) / Total) * 100 = (2342 / 6390) * 100 = 36.6510172143975`
-- `%V = (sum(V) / Total) * 100 = (1913 / 6390) * 100 = 29.9374021909233`
-- `meanC = sum(C) / |C| = 2342 / 20 = 117.10 ms`
-- `meanV = sum(V) / |V| = 1913 / 20 = 95.65 ms`
-- `ΔC = sqrt(sum((c_i - meanC)^2) / |C|)`
-  with `sum((c_i - meanC)^2) = 76815.8`, so
-  `ΔC = sqrt(76815.8 / 20) = 61.9741074965989 ms`
-- `ΔV = sqrt(sum((v_i - meanV)^2) / |V|)`
-  with `sum((v_i - meanV)^2) = 64136.55`, so
-  `ΔV = sqrt(64136.55 / 20) = 56.6288574845017 ms`
-- `VarcoC = (ΔC / meanC) * 100 = (61.9741074965989 / 117.10) * 100 = 52.9240883830905`
-- `VarcoV = (ΔV / meanV) * 100 = (56.6288574845017 / 95.65) * 100 = 59.2042420120247`
-- `rPVI-C = mean(abs(C[k] - C[k+1]))`
-  with adjacent absolute differences
-  `[0, 0, 113, 161, 1, 1, 0, 19, 29, 29, 70, 53, 213, 71, 71, 71, 71, 177, 58]`
-  and total difference sum `1208`, so
-  `rPVI-C = 1208 / 19 = 63.5789473684211`
-- `nPVI-V = 100 * mean(abs((V[k] - V[k+1]) / ((V[k] + V[k+1]) / 2)))`
-  with normalized adjacent terms
-  `[0.24, 0.635658914729, 0.446043165468, 0.446043165468, 0.446043165468, 0.204081632653, 0.0, 1.188940092166, 0.067039106145, 0.652329749104, 0.0, 0.707903780069, 0.97358490566, 0.428571428571, 0.0, 1.188940092166, 0.591760299625, 0.775244299674, 1.032028469751]`
-  whose sum is `10.024212266716772`, so
-  `nPVI-V = 100 * (10.024212266716772 / 19) = 52.7590119300883`
-
-Manual drift summary:
-
-- drift history:
-  `[12, 12, 3, 12, 3, 12, 12, 12, -12, 0, -12, -12, -12, -12, 12, 12, 12, -12, -12, -12, 12, 0]`
-- `Drift max = max(abs(history)) = 12.0 ms`
-- `Drift mean = sum(history) / 22 = 30 / 22 = 1.36363636363636 ms`
-- `Drift stddev = sqrt(sum((d_i - mean)^2) / 22)`
-  with `sum((d_i - mean)^2) = 2569.090909090909`, so
-  `Drift stddev = sqrt(2569.090909090909 / 22) = 10.8063 ms`
-
-### Accentuated Stream: Worked Derivation
-
-Counts and totals:
-
-- `|V| = 20`
-- `|C| = 20`
-- `|P| = 2`
-- `sum(V) = 2140 ms`
-- `sum(C) = 2689 ms`
-- `sum(P) = 2172 ms`
-- `Total = 2140 + 2689 + 2172 = 7001 ms`
-
-Step-by-step indicator calculations:
-
-- `%C = (sum(C) / Total) * 100 = (2689 / 7001) * 100 = 38.4087987430367`
-- `%V = (sum(V) / Total) * 100 = (2140 / 7001) * 100 = 30.5670618483074`
-- `meanC = sum(C) / |C| = 2689 / 20 = 134.45 ms`
-- `meanV = sum(V) / |V| = 2140 / 20 = 107.00 ms`
-- `ΔC = sqrt(sum((c_i - meanC)^2) / |C|)`
-  with `sum((c_i - meanC)^2) = 143750.95`, so
-  `ΔC = sqrt(143750.95 / 20) = 84.7794049283197 ms`
-- `ΔV = sqrt(sum((v_i - meanV)^2) / |V|)`
-  with `sum((v_i - meanV)^2) = 97740.0`, so
-  `ΔV = sqrt(97740.0 / 20) = 69.9070811863863 ms`
-- `VarcoC = (ΔC / meanC) * 100 = (84.7794049283197 / 134.45) * 100 = 63.0564558782594`
-- `VarcoV = (ΔV / meanV) * 100 = (69.9070811863863 / 107.00) * 100 = 65.3337207349404`
-- `rPVI-C = mean(abs(C[k] - C[k+1]))`
-  with adjacent absolute differences
-  `[0, 0, 243, 291, 1, 1, 0, 91, 43, 29, 70, 53, 213, 71, 71, 144, 144, 249, 130]`
-  and total difference sum `1844`, so
-  `rPVI-C = 1844 / 19 = 97.0526315789474`
-- `nPVI-V = 100 * mean(abs((V[k] - V[k+1]) / ((V[k] + V[k+1]) / 2)))`
-  with normalized adjacent terms
-  `[0.24, 0.842105263158, 0.666666666667, 0.446043165468, 0.446043165468, 0.204081632653, 0.0, 1.380281690141, 0.258823529412, 0.652329749104, 0.0, 0.707903780069, 0.97358490566, 0.428571428571, 0.0, 1.380281690141, 0.766570605187, 0.766570605187, 0.840236686391]`
-  whose sum is `11.00009456327598`, so
-  `nPVI-V = 100 * (11.00009456327598 / 19) = 57.8952345435578`
-
-Manual drift summary:
-
-- drift history:
-  `[12, 12, 3, 12, 3, 12, 12, 12, -25, 0, -12, -12, -12, -12, 12, 12, 12, -25, -12, -65, -12, 0]`
-- `Drift max = max(abs(history)) = 65.0 ms`
-- `Drift mean = sum(history) / 22 = -73 / 22 = -3.31818181818182 ms`
-- `Drift stddev = sqrt(sum((d_i - mean)^2) / 22)`
-  with `sum((d_i - mean)^2) = 7410.772727272727`, so
-  `Drift stddev = sqrt(7410.772727272727 / 22) = 18.3536 ms`
+- `|V| = 20`, `|C| = 20`, `|P| = 3`
+- `sum(V) = 2755 ms`, `sum(C) = 2476 ms`, `sum(P) = 2269 ms`, `Total = 7500 ms`
+- `%C = 33.013333333333335`
+- `%V = 36.733333333333334`
+- `meanC = 123.8 ms`
+- `meanV = 137.75 ms`
+- `ΔC = 64.1237865382262 ms`
+- `ΔV = 51.86508941474988 ms`
+- `VarcoC = 51.796273455756214`
+- `VarcoV = 37.651607560616974`
+- `rPVI-C = 75.78947368421052`
+- `nPVI-V = 30.249305872660635`
+- `Drift max = 189.0 ms`, `Drift mean = 28.1739 ms`, `Drift stddev = 63.0787 ms`
 
 ## Raw Program Response
 
-The block below is the program response for the same sample. It is given here
-without further explanation so it can be compared directly against the manual
-derivation above.
+The block below is the current program response for the same sample.
 
 ```text
 Acoustic metrics (original):
-  %C: 36.65%
-  %V: 29.94%
-  meanC: 117.10 ms
-  meanV: 95.65 ms
-  ΔC: 61.97 ms
-  ΔV: 56.63 ms
-  VarcoC: 52.92
-  VarcoV: 59.20
-  rPVI-C: 63.58
-  nPVI-V: 52.76
-  Drift max: 12.00 ms
-  Drift mean: 1.36 ms
-  Drift stddev: 10.81 ms
+  %C: 31.94%
+  %V: 35.53%
+  meanC: 109.52 ms
+  meanV: 127.90 ms
+  ΔC: 50.67 ms
+  ΔV: 34.22 ms
+  VarcoC: 46.27
+  VarcoV: 26.76
+  rPVI-C: 59.00
+  nPVI-V: 21.70
+  Drift max: 150.00 ms
+  Drift mean: 32.42 ms
+  Drift stddev: 49.32 ms
 
 Acoustic metrics (accentuated):
-  %C: 38.41%
-  %V: 30.57%
-  meanC: 134.45 ms
-  meanV: 107.00 ms
-  ΔC: 84.78 ms
-  ΔV: 69.91 ms
-  VarcoC: 63.06
-  VarcoV: 65.33
-  rPVI-C: 97.05
-  nPVI-V: 57.90
-  Drift max: 65.00 ms
-  Drift mean: -3.32 ms
-  Drift stddev: 18.35 ms
+  %C: 33.01%
+  %V: 36.73%
+  meanC: 123.80 ms
+  meanV: 137.75 ms
+  ΔC: 64.12 ms
+  ΔV: 51.87 ms
+  VarcoC: 51.80
+  VarcoV: 37.65
+  rPVI-C: 75.79
+  nPVI-V: 30.25
+  Drift max: 189.00 ms
+  Drift mean: 28.17 ms
+  Drift stddev: 63.08 ms
 ```
 
 ## Equality Check
@@ -315,34 +249,34 @@ Original stream:
 
 | Indicator | Manual result | Program result |
 | --- | ---: | ---: |
-| %C | 36.6510172143975 | 36.6510172143975 |
-| %V | 29.9374021909233 | 29.9374021909233 |
-| meanC | 117.10 | 117.10 |
-| meanV | 95.65 | 95.65 |
-| ΔC | 61.9741074965989 | 61.9741074965989 |
-| ΔV | 56.6288574845017 | 56.6288574845017 |
-| VarcoC | 52.9240883830905 | 52.9240883830905 |
-| VarcoV | 59.2042420120247 | 59.2042420120247 |
-| rPVI-C | 63.5789473684211 | 63.5789473684211 |
-| nPVI-V | 52.7590119300883 | 52.7590119300883 |
-| Drift max | 12.0 | 12.0 |
-| Drift mean | 1.3636 | 1.3636 |
-| Drift stddev | 10.8063 | 10.8063 |
+| %C | 31.944444444444443 | 31.944444444444443 |
+| %V | 35.52777777777778 | 35.52777777777778 |
+| meanC | 109.52380952380952 | 109.52380952380952 |
+| meanV | 127.9 | 127.9 |
+| ΔC | 50.67320043800653 | 50.67320043800653 |
+| ΔV | 34.222653316188094 | 34.222653316188094 |
+| VarcoC | 46.26683518252771 | 46.26683518252771 |
+| VarcoV | 26.75735208458803 | 26.75735208458803 |
+| rPVI-C | 59.0 | 59.0 |
+| nPVI-V | 21.698221153635842 | 21.698221153635842 |
+| Drift max | 150.0 | 150.0 |
+| Drift mean | 32.4167 | 32.4167 |
+| Drift stddev | 49.3203 | 49.3203 |
 
 Accentuated stream:
 
 | Indicator | Manual result | Program result |
 | --- | ---: | ---: |
-| %C | 38.4087987430367 | 38.4087987430367 |
-| %V | 30.5670618483074 | 30.5670618483074 |
-| meanC | 134.45 | 134.45 |
-| meanV | 107.00 | 107.00 |
-| ΔC | 84.7794049283197 | 84.7794049283197 |
-| ΔV | 69.9070811863863 | 69.9070811863863 |
-| VarcoC | 63.0564558782594 | 63.0564558782594 |
-| VarcoV | 65.3337207349404 | 65.3337207349404 |
-| rPVI-C | 97.0526315789474 | 97.0526315789474 |
-| nPVI-V | 57.8952345435578 | 57.8952345435578 |
-| Drift max | 65.0 | 65.0 |
-| Drift mean | -3.3182 | -3.3182 |
-| Drift stddev | 18.3536 | 18.3536 |
+| %C | 33.013333333333335 | 33.013333333333335 |
+| %V | 36.733333333333334 | 36.733333333333334 |
+| meanC | 123.8 | 123.8 |
+| meanV | 137.75 | 137.75 |
+| ΔC | 64.1237865382262 | 64.1237865382262 |
+| ΔV | 51.86508941474988 | 51.86508941474988 |
+| VarcoC | 51.796273455756214 | 51.796273455756214 |
+| VarcoV | 37.651607560616974 | 37.651607560616974 |
+| rPVI-C | 75.78947368421052 | 75.78947368421052 |
+| nPVI-V | 30.249305872660635 | 30.249305872660635 |
+| Drift max | 189.0 | 189.0 |
+| Drift mean | 28.1739 | 28.1739 |
+| Drift stddev | 63.0787 | 63.0787 |

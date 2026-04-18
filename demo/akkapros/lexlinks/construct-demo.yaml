@@ -55,51 +55,51 @@ phonetize:
       durations:
         segmental_ceiling: 310
         segmental_floor: 10
-        cvc_reference: 306
+        cvc_reference: 300
         consonants:
           closure:
-            onset: 108
-            coda: 103
-            geminate: 195
-            special_realization:
-              hiatus: 18
-            perception_limits:
-              geminate_min: 180
-              gemination_max: 221
-          fricative:
-            onset: 137
-            coda: 142
-            geminate: 224
-            perception_limits:
-              geminate_min: 210
-              gemination_max: 250
-          sonorant:
             onset: 89
-            coda: 70
-            geminate: 163
+            coda: 87
+            geminate: 175
             special_realization:
-              vowel_transition: 11
+              hiatus: 35
             perception_limits:
-              geminate_min: 152
-              gemination_max: 182
+              geminate_min: 145
+              gemination_max: 260
+          fricative:
+            onset: 115
+            coda: 112
+            geminate: 210
+            perception_limits:
+              geminate_min: 163
+              gemination_max: 290
+          sonorant:
+            onset: 105
+            coda: 100
+            geminate: 190
+            special_realization:
+              vowel_transition: 25
+            perception_limits:
+              geminate_min: 148
+              gemination_max: 275
         vowels:
-          short: 85
+          short: 110
           long: 160
-          very_long: 220
+          very_long: 260
           perception_limits:
-            short_min: 40
-            long_min: 123
-            very_long_min: 190
-            elongation_max: 250
+            short_min: 60
+            long_min: 153
+            very_long_min: 233
+            elongation_max: 280
         pauses:
           mini:
             min: 100
             max: 200
           short:
-            min: 600
+            min: 520
             max: 680
           long:
-            min: 1200
+            min: 1100
             max: 1780
 
 metrics:

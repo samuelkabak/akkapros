@@ -133,98 +133,98 @@ phonetize:
         # keeps the control value conservative and compatible with pause-band alignment
         # whenever at least one integer multiple N * cvc_reference falls inside a
         # configured pause band.
-        cvc_reference: 306
+        cvc_reference: 300
         consonants:
           # Stop-like closure class. Includes lexical ʾ.
           closure:
             # Default onset closure duration. Direct comparative stop-closure anchor.
-            onset: 108
+            onset: 89
             # Default post-vocalic closure duration. Direct comparative coda/post-
             # vocalic stop anchor.
-            coda: 103
+            coda: 87
             # Default geminate closure target. Summary point for the attested stop-
             # geminate band.
-            geminate: 195
+            geminate: 175
             special_realization:
               # Hiatus or zero-onset marker between adjacent vowels. Unstressed light
               # glottal-stop realization; stressed cases defer to full geminated closure
               # timing.
-              hiatus: 18
+              hiatus: 35
             perception_limits:
               # Earliest closure duration treated as geminate-like. Perceptual threshold
               # from the stop singleton/geminate contrast, not the lowest measured
               # token.
-              geminate_min: 180
+              geminate_min: 145
               # Latest closure duration treated as the legal runtime geminate-like
               # maximum. Runtime same-consonant saturation and accent-extension ceilings
               # use this class-local bound.
-              gemination_max: 221
+              gemination_max: 260
           # Fricative class. Heavier than closures by manner, but less directly grounded
           # than the stop row.
           fricative:
             # Default onset fricative duration. Derived from closure onset plus
             # fricative manner delta.
-            onset: 137
+            onset: 115
             # Default post-vocalic fricative duration. Current heavy post-vocalic anchor
             # used by the simplified row.
-            coda: 142
+            coda: 112
             # Default geminate fricative target. Exploratory value based on the current
             # onset + post-vocalic row.
-            geminate: 224
+            geminate: 210
             perception_limits:
               # Earliest fricative duration treated as held or geminate-like. Class-
               # specific perceptual floor from weak fricative gemination evidence.
-              geminate_min: 210
+              geminate_min: 163
               # Latest fricative duration treated as the legal runtime geminate-like
               # maximum. Runtime same-consonant saturation and accent-extension ceilings
               # use this class-local bound.
-              gemination_max: 250
+              gemination_max: 290
           # Sonorant, nasal, and glide class.
           sonorant:
             # Default onset sonorant duration. Set from the clearer singleton liquid
             # onset anchor.
-            onset: 89
+            onset: 105
             # Default post-vocalic sonorant duration. Structural minimum retained on the
             # coda side of the row.
-            coda: 70
+            coda: 100
             # Default geminate sonorant target. Set from the direct glide geminate
             # region.
-            geminate: 163
+            geminate: 190
             special_realization:
               # Diphthong-internal or glide-like VV transition marker. Unstressed light
               # glide realization; stressed cases defer to full geminated glide timing.
-              vowel_transition: 11
+              vowel_transition: 25
             perception_limits:
               # Earliest sonorant duration treated as geminate-like. Lower perceptual
               # boundary from moraic nasal/liquid comparison.
-              geminate_min: 152
+              geminate_min: 148
               # Latest sonorant duration treated as the legal runtime geminate-like
               # maximum. Runtime same-consonant saturation and accent-extension ceilings
               # use this class-local bound.
-              gemination_max: 182
+              gemination_max: 275
         vowels:
           # Default short-vowel duration. Production anchor from the retained short-
           # vowel baseline.
-          short: 85
+          short: 110
           # Default long-vowel duration. Production anchor from the retained long-vowel
           # baseline.
           long: 160
           # Default very-long vowel duration. Contextual extension anchor, not ordinary
           # lexical default.
-          very_long: 220
+          very_long: 260
           perception_limits:
             # Minimum duration still treated as a realized short-vowel nucleus.
-            short_min: 40
+            short_min: 60
             # Earliest duration treated as long. Midpoint-style boundary derived from
             # short and long anchors.
-            long_min: 123
+            long_min: 153
             # Earliest duration treated as very long. Midpoint-style boundary derived
             # from long and very-long anchors. Ordinary non-accentual long-vowel
             # recovery must stop at very_long_min - 1.
-            very_long_min: 190
+            very_long_min: 233
             # Upper contextual bound for vowel extension. Ordinary non-accentual
             # long-vowel recovery still stops at very_long_min - 1.
-            elongation_max: 250
+            elongation_max: 280
         pauses:
           # Default mini-pause band. Non-punctuation recovery gap used only when one
           # legal mini duration lands the stream on an equivalent beat checkpoint:
@@ -241,7 +241,7 @@ phonetize:
           # the empirical range.
           short:
             # Minimum short-pause duration.
-            min: 600
+            min: 520
             # Maximum short-pause duration.
             max: 680
           # Default long-pause band. Clause-boundary range from comparative pause data.
@@ -250,7 +250,7 @@ phonetize:
           # center; if two are equally near, choose the smaller one.
           long:
             # Minimum long-pause duration.
-            min: 1200
+            min: 1100
             # Maximum long-pause duration.
             max: 1780
 

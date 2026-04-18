@@ -283,15 +283,15 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
 
     report = realize_phone_rows(rows, allow_accentuation=False)
 
-    assert [row['duration'] for row in rows[:-1]] == ['0108', '0085', '0103']
+    assert [row['duration'] for row in rows[:-1]] == ['0089', '0110', '0087']
     assert [row['drift'] for row in rows[:2]] == ['+000', '+000']
     assert rows[2]['drift'].startswith(('-', '+'))
     assert rows[-1]['length'] == 'L'
     assert rows[-1]['drift'] == _format_row_drift_token(report['drift']['current'])
     assert int(rows[-1]['duration']) >= 1200
-    assert report['one_mora_ref'] == 153.0
-    assert report['two_mora_ref'] == 306.0
-    assert report['three_mora_ref'] == 459.0
+    assert report['one_mora_ref'] == 150.0
+    assert report['two_mora_ref'] == 300.0
+    assert report['three_mora_ref'] == 450.0
     assert report['drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
 
 
@@ -309,10 +309,10 @@ def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
     realize_phone_rows(corrective_rows, allow_accentuation=False)
     realize_phone_rows(cumulative_rows, cumulative_config, allow_accentuation=False)
 
-    assert corrective_rows[1]['duration'] == '0103'
-    assert corrective_rows[2]['duration'] == '0092'
-    assert cumulative_rows[1]['duration'] == '0103'
-    assert cumulative_rows[2]['duration'] == '0108'
+    assert corrective_rows[1]['duration'] == '0087'
+    assert corrective_rows[2]['duration'] == '0088'
+    assert cumulative_rows[1]['duration'] == '0087'
+    assert cumulative_rows[2]['duration'] == '0089'
     assert corrective_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
     assert cumulative_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
 
@@ -396,7 +396,7 @@ def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
 
     lines = serialize_mbrola_rows(rows, accentuated=False).strip().splitlines()
 
-    assert any(line.startswith('t 195 120') for line in lines)
+    assert any(line.startswith('t 175 120') for line in lines)
 
 
 def test_mbrola_rows_emit_xsampa_pause_and_colored_vowels() -> None:
@@ -476,7 +476,7 @@ def test_phase2_short_vowels_stay_hard_during_ordinary_drift_recovery() -> None:
         allow_accentuation=False,
     )
 
-    assert rows[1]['duration'] == '0085'
+    assert rows[1]['duration'] == '0110'
 
 
 def test_phase2_long_vowels_remain_available_for_ordinary_drift_recovery() -> None:
@@ -529,7 +529,7 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
     assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
     assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
     assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_pause_rows[0]['duration'] == '0054'
+    assert mini_pause_rows[0]['duration'] == '0064'
     assert mini_pause_rows[0]['drift'] == '+000'
     assert reconstruct_tilde_from_phone_rows(rows) == 'qat pa\n'
 
@@ -637,12 +637,12 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert defaults['process']['timing_model']['drift_tolerance'] == 0
     durations = defaults['process']['timing_model']['durations']
     assert durations['segmental_floor'] == 10
-    assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 221
-    assert durations['consonants']['fricative']['geminate'] == 224
-    assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 210
-    assert durations['consonants']['fricative']['perception_limits']['gemination_max'] == 250
-    assert durations['consonants']['sonorant']['perception_limits']['gemination_max'] == 182
-    assert durations['vowels']['perception_limits']['elongation_max'] == 250
+    assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 260
+    assert durations['consonants']['fricative']['geminate'] == 210
+    assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 163
+    assert durations['consonants']['fricative']['perception_limits']['gemination_max'] == 290
+    assert durations['consonants']['sonorant']['perception_limits']['gemination_max'] == 275
+    assert durations['vowels']['perception_limits']['elongation_max'] == 280
 
 
 def test_shared_verification_warns_on_high_pause_ratio() -> None:
@@ -674,7 +674,7 @@ def test_shared_verification_rejects_gemination_max_above_segmental_ceiling() ->
                         'consonants': {
                             'closure': {
                                 'perception_limits': {
-                                    'gemination_max': 221,
+                                    'gemination_max': 220,
                                 }
                             }
                         },
@@ -760,7 +760,7 @@ def test_path_1_6_fold_is_deferred_until_prosodic_unit_final_boundary() -> None:
                 'timing_model': {
                     'durations': {
                         'cvc_reference': 600,
-                        'vowels': {'perception_limits': {'very_long_min': 190, 'max': 240}},
+                        'vowels': {'perception_limits': {'very_long_min': 190, 'elongation_max': 240}},
                     }
                 }
             }
@@ -772,10 +772,10 @@ def test_path_1_6_fold_is_deferred_until_prosodic_unit_final_boundary() -> None:
     assert len(vowel_rows) >= 2
     assert vowel_rows[0]['boundary'] == 'L'
     assert vowel_rows[0]['duration'] == '0189'
-    assert vowel_rows[0]['drift'] == '-303'
+    assert vowel_rows[0]['drift'] == '-322'
     assert vowel_rows[1]['boundary'] == 'F'
     assert vowel_rows[1]['duration'] == '0189'
-    assert vowel_rows[1]['drift'] == '-006'
+    assert vowel_rows[1]['drift'] == '-044'
 
 
 def test_path_2_tolerance_gate_skips_long_vowel_correction() -> None:
@@ -827,7 +827,7 @@ def test_path_3_3_short_vowel_stays_fixed() -> None:
     """Path 3.3"""
     rows = build_phone_rows('qat')
     realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 400}}}}, allow_accentuation=False)
-    assert rows[1]['duration'] == '0085'
+    assert rows[1]['duration'] == '0110'
 
 
 def test_path_3_3b_accentuation_inactive_does_not_apply_increment() -> None:
@@ -864,7 +864,7 @@ def test_path_3_4_non_accentual_long_vowel_stops_before_very_long_band_and_keeps
     )
 
     assert rows[1]['duration'] == '0189'
-    assert rows[1]['drift'] == '-203'
+    assert rows[1]['drift'] == '-222'
 
 
 def test_path_3_5_unit_final_fold_happens_after_syllable_completion_for_current_reference() -> None:
@@ -886,9 +886,9 @@ def test_path_3_5_unit_final_fold_happens_after_syllable_completion_for_current_
     )
 
     assert rows[1]['duration'] == '0189'
-    # With cvc_reference = 600, raw -303 folds to +297 because the equivalence
+    # With cvc_reference = 600, the current residual folds to +278 because the equivalence
     # class is modulo the current reference, not modulo the default 306 value.
-    assert rows[1]['drift'] == '+297'
+    assert rows[1]['drift'] == '+278'
 
 
 def test_path_4_1_accent_route_c_colon_v() -> None:
@@ -934,14 +934,14 @@ def test_path_5_2_policy_85_15_split() -> None:
     """Path 5.2"""
     rows = build_phone_rows('bā~')
     realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '85_15'}}}, allow_accentuation=True)
-    assert int(rows[0]['duration']) > 108
+    assert int(rows[0]['duration']) > 89
 
 
 def test_path_5_3_policy_70_30_split() -> None:
     """Path 5.3"""
     rows = build_phone_rows('bā~')
     realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '70_30'}}}, allow_accentuation=True)
-    assert int(rows[0]['duration']) > 108
+    assert int(rows[0]['duration']) > 89
 
 
 def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None:
@@ -949,7 +949,7 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
     rows = build_phone_rows('bā~')
     analysis = _first_syllable_analysis('bā~')
     durations = {
-        analysis['onset_indices'][0]: 108.0,
+        analysis['onset_indices'][0]: 89.0,
         analysis['nucleus_index']: 160.0,
     }
     config = {
@@ -960,11 +960,11 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
             'durations': {
                 'segmental_ceiling': 310,
                 'segmental_floor': 10,
-                'cvc_reference': 306,
+                'cvc_reference': 300,
                 'consonants': {
-                    'closure': {'perception_limits': {'geminate_min': 180, 'gemination_max': 221}},
-                    'fricative': {'perception_limits': {'geminate_min': 210, 'gemination_max': 250}},
-                    'sonorant': {'perception_limits': {'geminate_min': 152, 'gemination_max': 182}},
+                    'closure': {'perception_limits': {'geminate_min': 130, 'gemination_max': 220}},
+                    'fricative': {'perception_limits': {'geminate_min': 150, 'gemination_max': 250}},
+                    'sonorant': {'perception_limits': {'geminate_min': 135, 'gemination_max': 250}},
                 },
                 'vowels': {
                     'short': 85,
@@ -988,7 +988,7 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
         None,
     )
 
-    assert applied == 113.0
+    assert applied == 110.0
 
 
 def test_path_5_5_consonant_class_mapping_covers_accent_legality_inventory() -> None:
@@ -1022,7 +1022,7 @@ def test_path_6_1_primary_saturation_spills_to_adjacent() -> None:
         },
         allow_accentuation=True,
     )
-    assert int(rows[0]['duration']) > 108
+    assert int(rows[0]['duration']) > 89
 
 
 def test_path_6_2_full_saturation_keeps_residual_drift() -> None:
@@ -1075,7 +1075,7 @@ def test_path_7_3_adjacent_short_vowel_spill_stops_below_long_min() -> None:
 
     vowel_row = next(row for row in rows if row['text'] == 'i' and row['category'] == 'V')
     assert vowel_row['length'] == 'S'
-    assert vowel_row['duration'] == '0122'
+    assert vowel_row['duration'] == '0152'
 
 
 def test_path_7_2_adjacent_consonant_stays_singleton() -> None:
@@ -1140,7 +1140,7 @@ def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
     assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
     assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
     assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_pause_rows[0]['duration'] == '0228'
+    assert mini_pause_rows[0]['duration'] == '0225'
     assert mini_pause_rows[0]['drift'] == '+000'
 
 
@@ -1178,7 +1178,7 @@ def test_path_9_2_long_pause_uses_nearest_discharge_in_band() -> None:
     rows = build_phone_rows('qat\n')
     realize_phone_rows(rows, allow_accentuation=False)
     long_pause = next(row for row in rows if row['category'] == 'S' and row['length'] == 'L')
-    assert long_pause['duration'] == '1540'
+    assert long_pause['duration'] == '1514'
 
 
 def test_path_9_3_pause_clamps_and_carries_residual() -> None:
@@ -1240,7 +1240,7 @@ def test_phase2_first_construct_demo_line_preserves_half_foot_checkpoint_invaria
             continue
         drift = int(row['drift'])
         numerator = 2 * (total - drift)
-        if numerator % 306 != 0:
+        if numerator % 300 != 0:
             failures.append((index, row['label'], row['duration'], row['drift'], total, numerator))
 
     assert not failures
