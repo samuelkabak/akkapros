@@ -549,7 +549,23 @@ stream:
 - `metadata.data.phonetize.post_unit_drift.current`
 - `metadata.data.phonetize.post_unit_drift.label`
 - `metadata.data.phonetize.post_unit_drift_extension_count`
+- `metadata.data.phonetize.post_unit_drift_extension_denominator`
+- `metadata.data.phonetize.post_unit_drift_extension_rate`
 - `metadata.data.phonetize.max_post_unit_drift_extension`
+
+The same front matter now also carries denominator-aware recovery diagnostics:
+
+- `syllable_unit_count`, `pause_unit_count`, `mini_pause_row_count`, and `completed_unit_count`
+- `ordinary_vowel_correction_count`, denominator, and rate
+- `mini_pause_insert_count`, denominator, and rate
+- `pause_residual_post_unit_drift_count`, denominator, and rate
+
+Denominator meanings are fixed by the runtime control flow rather than by row totals:
+
+- post-unit drift extension is measured over realized syllable units
+- ordinary vowel correction is measured over long-vowel syllables where ordinary correction was considered
+- mini-pause recovery is measured over structurally eligible `F`-boundary syllables
+- pause residual carry is measured over non-mini pause units
 
 ## Metrics Handoff
 

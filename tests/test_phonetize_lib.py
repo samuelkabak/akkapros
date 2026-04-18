@@ -648,6 +648,119 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
     assert report['max_post_unit_drift_extension'] > 0
 
 
+def test_phase2_reports_probability_oriented_extension_rates() -> None:
+    rows = build_phone_rows('bā~')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                },
+            }
+        },
+        allow_accentuation=True,
+    )
+
+    assert report['syllable_unit_count'] == 1
+    assert report['pause_unit_count'] == 1
+    assert report['mini_pause_row_count'] == 0
+    assert report['completed_unit_count'] == 2
+    assert report['post_unit_drift_extension_denominator'] == 1
+    assert report['post_unit_drift_extension_rate'] == pytest.approx(1.0)
+
+
+def test_phase2_reports_ordinary_vowel_correction_counts_and_rates() -> None:
+    rows = build_phone_rows('qā')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 400,
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert report['ordinary_vowel_correction_denominator'] == 1
+    assert report['ordinary_vowel_correction_count'] == 1
+    assert report['ordinary_vowel_correction_rate'] == pytest.approx(1.0)
+    assert report['ordinary_vowel_correction_shorten_count'] == 0
+    assert report['ordinary_vowel_correction_lengthen_count'] == 1
+
+
+def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> None:
+    rows = build_phone_rows('qat pa')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 350,
+                        'pauses': {
+                            'mini': {
+                                'min': 50,
+                                'max': 80,
+                            },
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert report['syllable_unit_count'] == 2
+    assert report['pause_unit_count'] == 1
+    assert report['mini_pause_row_count'] == 1
+    assert report['completed_unit_count'] == 4
+    assert report['mini_pause_eligible_count'] == 1
+    assert report['mini_pause_insert_count'] == 1
+    assert report['mini_pause_insert_denominator'] == 1
+    assert report['mini_pause_insert_rate'] == pytest.approx(1.0)
+    assert report['mini_pause_success_rate_over_eligible'] == pytest.approx(1.0)
+
+
+def test_phase2_reports_pause_residual_frequency_over_non_mini_pauses() -> None:
+    rows = build_phone_rows('qat,')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 200,
+                        'pauses': {
+                            'short': {
+                                'min': 600,
+                                'max': 600,
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        allow_accentuation=False,
+    )
+
+    assert report['pause_unit_count'] == 2
+    assert report['pause_residual_post_unit_drift_denominator'] == 2
+    assert report['pause_residual_post_unit_drift_count'] == 1
+    assert report['pause_residual_post_unit_drift_rate'] == pytest.approx(0.5)
+
+
 def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
     rows = build_phone_rows('bā~')
 

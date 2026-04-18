@@ -416,6 +416,18 @@ def _assert_phone_artifact(path: Path) -> None:
     assert frontmatter['metadata']['data']['phonetize']['post_unit_drift']['max'] >= 0
     assert 'mean' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
+    assert 'syllable_unit_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_unit_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'mini_pause_row_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'completed_unit_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'post_unit_drift_extension_denominator' in frontmatter['metadata']['data']['phonetize']
+    assert 'post_unit_drift_extension_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'ordinary_vowel_correction_denominator' in frontmatter['metadata']['data']['phonetize']
+    assert 'ordinary_vowel_correction_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'mini_pause_insert_denominator' in frontmatter['metadata']['data']['phonetize']
+    assert 'mini_pause_insert_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_residual_post_unit_drift_denominator' in frontmatter['metadata']['data']['phonetize']
+    assert 'pause_residual_post_unit_drift_rate' in frontmatter['metadata']['data']['phonetize']
 
 
 def _assert_pho_artifact(path: Path) -> None:
@@ -795,6 +807,50 @@ def test_phonetizer_cli_coalesces_consecutive_newlines_but_preserves_eol_text(tm
     assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
 
 
+def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_population_denominators(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_probability_diagnostics'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'diag_tilde.txt'
+    tilde_file.write_text('bā~\n', encoding='utf-8')
+
+    low_config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'low',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.timing_model.drift_tolerance'): 0,
+        },
+    )
+    high_config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'high',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.timing_model.drift_tolerance'): 500,
+        },
+    )
+    low_config_path = outdir / 'low.yaml'
+    high_config_path = outdir / 'high.yaml'
+    low_config_path.write_text(dump_config_text(low_config), encoding='utf-8')
+    high_config_path.write_text(dump_config_text(high_config), encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '--conf', str(low_config_path))
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '--conf', str(high_config_path))
+
+    low_frontmatter, _ = split_frontmatter(_read_text(outdir / 'low_phone.txt'))
+    high_frontmatter, _ = split_frontmatter(_read_text(outdir / 'high_phone.txt'))
+    assert low_frontmatter is not None
+    assert high_frontmatter is not None
+
+    low_data = low_frontmatter['metadata']['data']['phonetize']
+    high_data = high_frontmatter['metadata']['data']['phonetize']
+
+    assert low_data['syllable_unit_count'] == high_data['syllable_unit_count'] == 1
+    assert low_data['post_unit_drift_extension_denominator'] == high_data['post_unit_drift_extension_denominator'] == 1
+    assert low_data['post_unit_drift_extension_rate'] > high_data['post_unit_drift_extension_rate']
+
+
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:
     outdir = tmp_path / 'printer_het_mapping'
     outdir.mkdir(parents=True, exist_ok=True)
@@ -1041,6 +1097,11 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Accentuated syllables: 5 syllables",
         "Post-unit drift max: 115.00 ms",
             "Post-unit drift max: 134.00 ms",
+        "Phonetizer diagnostics:",
+        "Post-unit drift extension:",
+        "Ordinary vowel correction:",
+        "Mini-pause recovery:",
+        "Pause residual post-unit drift:",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2

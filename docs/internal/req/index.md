@@ -3,7 +3,7 @@
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
 - [040. Requirement: Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](040-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Draft
-- [039. Requirement: Probability-Oriented Phonetizer Diagnostic Reporting](039-probability-oriented-phonetizer-diagnostic-reporting.md) - Draft
+- [039. Requirement: Probability-Oriented Phonetizer Diagnostic Reporting](039-probability-oriented-phonetizer-diagnostic-reporting.md) - Implemented
 - [038. Requirement: Post-Unit Drift Reporting Label Clarity](038-post-unit-drift-reporting-label-clarity.md) - Implemented
 - [037. Requirement: Governance Housekeeping and Tooling Alignment](037-governance-housekeeping-and-tooling-alignment.md) - Implemented
 - [036. Requirement: Consecutive EOL Coalescing and Faithful Reconstruction](036-consecutive-eol-coalescing-and-faithful-reconstruction.md) - Implemented

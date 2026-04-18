@@ -255,11 +255,38 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 - `metadata.data.phonetize.source_variant`
 - `metadata.data.phonetize.phone_row_count`
 - `metadata.data.phonetize.silence_row_count`
+- `metadata.data.phonetize.syllable_unit_count`
+- `metadata.data.phonetize.pause_unit_count`
+- `metadata.data.phonetize.mini_pause_row_count`
+- `metadata.data.phonetize.completed_unit_count`
 - `metadata.data.phonetize.post_unit_drift.max`
 - `metadata.data.phonetize.post_unit_drift.mean`
 - `metadata.data.phonetize.post_unit_drift.stddev`
+- `metadata.data.phonetize.post_unit_drift_extension_count`
+- `metadata.data.phonetize.post_unit_drift_extension_denominator`
+- `metadata.data.phonetize.post_unit_drift_extension_rate`
+- `metadata.data.phonetize.ordinary_vowel_correction_count`
+- `metadata.data.phonetize.ordinary_vowel_correction_denominator`
+- `metadata.data.phonetize.ordinary_vowel_correction_rate`
+- `metadata.data.phonetize.mini_pause_insert_count`
+- `metadata.data.phonetize.mini_pause_insert_denominator`
+- `metadata.data.phonetize.mini_pause_insert_rate`
+- `metadata.data.phonetize.pause_residual_post_unit_drift_count`
+- `metadata.data.phonetize.pause_residual_post_unit_drift_denominator`
+- `metadata.data.phonetize.pause_residual_post_unit_drift_rate`
 
 `metricalc.py` reads post-unit drift summary from this frontmatter instead of recomputing it, while the row-level `drift` column remains available for local inspection of where the solver stood after each completed syllable or pause. The row column is still named `drift`, but it carries the latest completed-unit post-unit drift token rather than a segment-by-segment trace.
+
+The probability-oriented diagnostics are denominator-aware on purpose:
+
+- `syllable_unit_count` counts realized syllable units
+- `pause_unit_count` counts non-mini realized pause units
+- `mini_pause_row_count` counts inserted mini-pause rows
+- `completed_unit_count` is the sum of syllables, non-mini pauses, and inserted mini pauses
+- `post_unit_drift_extension_denominator` defaults to realized syllable units because extension events are evaluated in the completed-syllable branch
+- `ordinary_vowel_correction_denominator` counts long-vowel syllables where ordinary correction was actually considered
+- `mini_pause_insert_denominator` counts structurally eligible `F`-boundary syllables where mini-pause insertion could be considered
+- `pause_residual_post_unit_drift_denominator` counts non-mini pause units
 
 ## How `.pho` Export Relates to Phone Rows
 

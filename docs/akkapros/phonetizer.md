@@ -100,6 +100,7 @@ Phase 2 diagnostics to look for:
 - row-level drift changes only on syllable-final rows and pause rows
 - front matter reports `metadata.data.phonetize.post_unit_drift.max`, `mean`, `stddev`, `current`, and the current post-unit drift label
 - these front matter statistics summarize completed-unit drift history, not a segment-by-segment timing trace
+- front matter also reports denominator-aware recovery diagnostics so post-unit drift extension, ordinary vowel correction, mini-pause insertion, and pause residual carry can be interpreted as rates over explicit populations rather than over row counts
 - short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
 - inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...|<space>`, where the final field is one literal space character
 - internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized

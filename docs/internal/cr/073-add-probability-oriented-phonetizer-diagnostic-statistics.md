@@ -1,6 +1,6 @@
 ---
 cr_id: CR-073
-status: Draft
+status: Done
 priority: Medium
 impact: Additive
 created: 2026-04-18
@@ -308,18 +308,18 @@ Naming note:
 
 ## Acceptance Criteria
 
-- [ ] Phonetizer front matter emits explicit denominator counts for the main
+- [x] Phonetizer front matter emits explicit denominator counts for the main
       chrono-event populations rather than relying on row counts as implicit
       denominators.
-- [ ] Post-unit drift extension reporting includes count, denominator, and rate.
-- [ ] Ordinary vowel chrono-correction reporting includes count, denominator,
+- [x] Post-unit drift extension reporting includes count, denominator, and rate.
+- [x] Ordinary vowel chrono-correction reporting includes count, denominator,
       and rate.
-- [ ] Mini-pause recovery reporting includes count, denominator, and rate.
-- [ ] Pause residual-carry reporting includes count, denominator, and rate.
-- [ ] The meaning of each denominator is documented clearly.
-- [ ] The added diagnostics do not change any existing timing behavior.
-- [ ] User-facing docs explain the new fields in probability-oriented terms.
-- [ ] Tests pin at least one case where changing `drift_tolerance` changes the
+- [x] Mini-pause recovery reporting includes count, denominator, and rate.
+- [x] Pause residual-carry reporting includes count, denominator, and rate.
+- [x] The meaning of each denominator is documented clearly.
+- [x] The added diagnostics do not change any existing timing behavior.
+- [x] User-facing docs explain the new fields in probability-oriented terms.
+- [x] Tests pin at least one case where changing `drift_tolerance` changes the
       derived rates without changing the denominator semantics.
 
 ---
@@ -381,27 +381,27 @@ restore the previous minimal front matter without touching timing behavior.
 
 ### Implementation
 
-- [ ] Add core unit-population counts to phonetizer report output
-- [ ] Add count/denominator/rate diagnostics for drift extension
-- [ ] Add count/denominator/rate diagnostics for vowel correction
-- [ ] Add count/denominator/rate diagnostics for mini-pause recovery
-- [ ] Add count/denominator/rate diagnostics for pause residual carry
+- [x] Add core unit-population counts to phonetizer report output
+- [x] Add count/denominator/rate diagnostics for drift extension
+- [x] Add count/denominator/rate diagnostics for vowel correction
+- [x] Add count/denominator/rate diagnostics for mini-pause recovery
+- [x] Add count/denominator/rate diagnostics for pause residual carry
 
 ### Tests
 
-- [ ] Unit tests for event counting and denominator semantics
-- [ ] Integration tests for emitted front matter and unchanged timing behavior
+- [x] Unit tests for event counting and denominator semantics
+- [x] Integration tests for emitted front matter and unchanged timing behavior
 
 ### Documentation
 
-- [ ] Document each new diagnostic field and denominator
-- [ ] Explain why probability-oriented interpretation is preferred to raw counts
+- [x] Document each new diagnostic field and denominator
+- [x] Explain why probability-oriented interpretation is preferred to raw counts
 
 ### Review
 
-- [ ] Verify no denominator mismatches remain between event counts and reported
+- [x] Verify no denominator mismatches remain between event counts and reported
       populations
-- [ ] Verify the added statistics remain understandable on corpus-sized outputs
+- [x] Verify the added statistics remain understandable on corpus-sized outputs
 
 ---
 

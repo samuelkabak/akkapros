@@ -1665,6 +1665,12 @@ def _pause_duration_and_drift(row: dict[str, str], config: dict[str, Any], drift
     return emitted, new_drift
 
 
+def _diagnostic_rate(count: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return round(count / denominator, 4)
+
+
 def _apply_vowel_correction(
     rows: list[dict[str, str]],
     analysis: dict[str, Any],
@@ -1672,7 +1678,7 @@ def _apply_vowel_correction(
     drift_after_assignment: float,
     tolerance: float,
     config: dict[str, Any],
-) -> float:
+) -> tuple[float, str | None]:
     vowel_index = analysis['nucleus_index']
     minimum, maximum = _vowel_bounds(rows[vowel_index], config, ordinary_recovery=True)
     current = durations[vowel_index]
@@ -1681,12 +1687,14 @@ def _apply_vowel_correction(
         if reducible > 0:
             durations[vowel_index] = current - reducible
             drift_after_assignment -= reducible
+            return drift_after_assignment, 'shorten'
     elif drift_after_assignment < -tolerance:
         extendable = min(maximum - current, abs(drift_after_assignment) - tolerance)
         if extendable > 0:
             durations[vowel_index] = current + extendable
             drift_after_assignment += extendable
-    return drift_after_assignment
+            return drift_after_assignment, 'lengthen'
+    return drift_after_assignment, None
 
 
 def _apply_accent_increment(
@@ -1847,6 +1855,17 @@ def _validate_chrono_checkpoints(rows: list[dict[str, str]], cvc_reference: int)
             )
 
 
+def _mini_pause_structurally_eligible(
+    rows: list[dict[str, str]],
+    units: list[dict[str, Any]],
+    unit_index: int,
+    analysis: dict[str, Any],
+) -> bool:
+    if unit_index + 1 >= len(units) or units[unit_index + 1]['kind'] != 'syllable':
+        return False
+    return rows[analysis['indices'][-1]]['boundary'] == 'F'
+
+
 def _maybe_insert_mini_pause(
     rows: list[dict[str, str]],
     units: list[dict[str, Any]],
@@ -1855,9 +1874,7 @@ def _maybe_insert_mini_pause(
     config: dict[str, Any],
     drift_cursor: float,
 ) -> tuple[dict[str, str], float, float] | None:
-    if unit_index + 1 >= len(units) or units[unit_index + 1]['kind'] != 'syllable':
-        return None
-    if rows[analysis['indices'][-1]]['boundary'] != 'F':
+    if not _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
         return None
 
     mini_cfg = config['timing_model']['durations']['pauses']['mini']
@@ -1895,10 +1912,19 @@ def realize_phone_rows(
     drift_history: list[float] = []
     drift_extension_count = 0
     max_drift_extension = 0.0
+    ordinary_vowel_correction_count = 0
+    ordinary_vowel_correction_shorten_count = 0
+    ordinary_vowel_correction_lengthen_count = 0
+    ordinary_vowel_correction_denominator = 0
+    mini_pause_insert_count = 0
+    mini_pause_eligible_count = 0
+    pause_residual_post_unit_drift_count = 0
     tolerance = float(config['process']['drift_tolerance'])
     inserted_after: dict[int, list[tuple[dict[str, str], float, str]]] = {}
     row_drift_tokens: dict[int, str] = {}
     last_completed_drift_token = PHONE_ROW_DRIFT_NEUTRAL
+    syllable_unit_count = sum(1 for unit in units if unit['kind'] == 'syllable')
+    pause_unit_count = sum(1 for unit in units if unit['kind'] == 'pause')
 
     analyses: dict[int, dict[str, Any]] = {}
     for unit_index, unit in enumerate(units):
@@ -1911,6 +1937,8 @@ def realize_phone_rows(
             pause_duration, drift_cursor = _pause_duration_and_drift(rows[unit['index']], config, drift_cursor)
             durations[unit['index']] = pause_duration
             drift_cursor = entry_drift + (float(_rounded_duration_value(pause_duration)) - (_preferred_pause_target(rows[unit['index']], config) if not _is_mini_pause_row(rows[unit['index']]) else 0.0))
+            if not _is_mini_pause_row(rows[unit['index']]) and abs(drift_cursor) >= 0.5:
+                pause_residual_post_unit_drift_count += 1
             drift_history.append(drift_cursor)
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
             row_drift_tokens[unit['index']] = last_completed_drift_token
@@ -1941,7 +1969,8 @@ def realize_phone_rows(
 
         nucleus_row = rows[analysis['nucleus_index']]
         if abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
-            drift_after_assignment = _apply_vowel_correction(
+            ordinary_vowel_correction_denominator += 1
+            drift_after_assignment, correction_kind = _apply_vowel_correction(
                 rows,
                 analysis,
                 durations,
@@ -1949,6 +1978,12 @@ def realize_phone_rows(
                 tolerance,
                 config,
             )
+            if correction_kind is not None:
+                ordinary_vowel_correction_count += 1
+                if correction_kind == 'shorten':
+                    ordinary_vowel_correction_shorten_count += 1
+                elif correction_kind == 'lengthen':
+                    ordinary_vowel_correction_lengthen_count += 1
 
         drift_portion = drift_after_assignment
         accent_target = 0.0
@@ -1979,9 +2014,12 @@ def realize_phone_rows(
         last_completed_drift_token = _format_row_drift_token(drift_cursor)
         row_drift_tokens[analysis['indices'][-1]] = last_completed_drift_token
 
+        if _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
+            mini_pause_eligible_count += 1
         mini_pause = _maybe_insert_mini_pause(rows, units, unit_index, analysis, config, drift_cursor)
         if mini_pause is not None:
             mini_row, mini_duration, drift_cursor = mini_pause
+            mini_pause_insert_count += 1
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
             inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration, last_completed_drift_token))
             drift_history.append(drift_cursor)
@@ -2012,10 +2050,16 @@ def realize_phone_rows(
         max_abs = 0.0
 
     one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
+    mini_pause_row_count = mini_pause_insert_count
+    completed_unit_count = syllable_unit_count + pause_unit_count + mini_pause_row_count
     return {
         'one_mora_ref': one_mora_ref,
         'two_mora_ref': two_mora_ref,
         'three_mora_ref': three_mora_ref,
+        'syllable_unit_count': syllable_unit_count,
+        'pause_unit_count': pause_unit_count,
+        'mini_pause_row_count': mini_pause_row_count,
+        'completed_unit_count': completed_unit_count,
         'post_unit_drift': {
             'max': round(max_abs, 4),
             'mean': round(mean, 4),
@@ -2024,7 +2068,31 @@ def realize_phone_rows(
             'label': _drift_label(drift_cursor),
         },
         'post_unit_drift_extension_count': drift_extension_count,
+        'post_unit_drift_extension_denominator': syllable_unit_count,
+        'post_unit_drift_extension_rate': _diagnostic_rate(drift_extension_count, syllable_unit_count),
         'max_post_unit_drift_extension': round(max_drift_extension, 4),
+        'ordinary_vowel_correction_count': ordinary_vowel_correction_count,
+        'ordinary_vowel_correction_denominator': ordinary_vowel_correction_denominator,
+        'ordinary_vowel_correction_rate': _diagnostic_rate(
+            ordinary_vowel_correction_count,
+            ordinary_vowel_correction_denominator,
+        ),
+        'ordinary_vowel_correction_shorten_count': ordinary_vowel_correction_shorten_count,
+        'ordinary_vowel_correction_lengthen_count': ordinary_vowel_correction_lengthen_count,
+        'mini_pause_insert_count': mini_pause_insert_count,
+        'mini_pause_eligible_count': mini_pause_eligible_count,
+        'mini_pause_insert_denominator': mini_pause_eligible_count,
+        'mini_pause_insert_rate': _diagnostic_rate(mini_pause_insert_count, mini_pause_eligible_count),
+        'mini_pause_success_rate_over_eligible': _diagnostic_rate(
+            mini_pause_insert_count,
+            mini_pause_eligible_count,
+        ),
+        'pause_residual_post_unit_drift_count': pause_residual_post_unit_drift_count,
+        'pause_residual_post_unit_drift_denominator': pause_unit_count,
+        'pause_residual_post_unit_drift_rate': _diagnostic_rate(
+            pause_residual_post_unit_drift_count,
+            pause_unit_count,
+        ),
     }
 
 

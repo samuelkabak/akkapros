@@ -189,6 +189,12 @@ Those values are reported for both original and accentuated streams in table
 and JSON outputs. They summarize completed syllable/pause drift history, not a
 segment-by-segment drift trace.
 
+When the input phone frontmatter contains the CR-073 diagnostics, metricalc
+also carries them through as phonetizer diagnostics in the derived report. The
+rendered table keeps the same count/denominator/rate structure so corpus-scale
+comparisons can be read as frequencies over explicit populations instead of raw
+row totals.
+
 ## Reading the Outputs
 
 `<prefix>_metrics.txt`
