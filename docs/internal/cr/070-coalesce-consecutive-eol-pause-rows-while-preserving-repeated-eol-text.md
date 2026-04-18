@@ -1,6 +1,6 @@
 ---
 cr_id: CR-070
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-18
@@ -10,7 +10,7 @@ implements: 'ADR-040, REQ-036'
 
 # Change Request: Coalesce Consecutive EOL Pause Rows While Preserving Repeated EOL Text
 
-# Summary
+## Summary
 
 Reduce multiple consecutive newline-owned phonetizer pause rows to one logical
 newline pause row, while preserving the exact newline multiplicity in the row's
@@ -26,7 +26,7 @@ reconstruct the consumed `_tilde` input faithfully.
 
 ---
 
-# Motivation
+## Motivation
 
 The current phonetizer preserves explicit newlines too literally at the row
 level.
@@ -49,7 +49,7 @@ fact that three explicit line breaks were present in the first input.
 
 ---
 
-# Scope
+## Scope
 
 ## Included
 
@@ -84,7 +84,7 @@ fact that three explicit line breaks were present in the first input.
 
 ---
 
-# Current Behavior
+## Current Behavior
 
 Current repository behavior emits one long pause row per explicit newline.
 
@@ -112,7 +112,7 @@ but it is narrower than the requested behavior.
 
 ---
 
-# Proposed Change
+## Proposed Change
 
 Adopt the following contract.
 
@@ -180,11 +180,12 @@ Illustrative result shape:
 
 ---
 
-# Technical Design
+## Technical Design
 
 Architecture notes:
 
 Components:
+
 - `src/akkapros/lib/phonetize.py`
 - `tests/test_phonetize_lib.py`
 - `tests/test_integration.py`
@@ -210,7 +211,7 @@ Contract note:
 
 ---
 
-# Files Likely Affected
+## Files Likely Affected
 
 `src/akkapros/lib/phonetize.py`
 `tests/test_phonetize_lib.py`
@@ -221,27 +222,27 @@ Contract note:
 
 ---
 
-# Acceptance Criteria
+## Acceptance Criteria
 
-- [ ] A maximal run of one or more adjacent `\n` characters produces exactly
+- [x] A maximal run of one or more adjacent `\n` characters produces exactly
       one newline-owned long pause row in Phase 1 phone-row construction.
-- [ ] The emitted row `text` field contains one `<EOL>` token per consumed
+- [x] The emitted row `text` field contains one `<EOL>` token per consumed
       newline, concatenated in order.
-- [ ] `ba\nma` and `ba\n\n\nma` produce the same count and placement of
+- [x] `ba\nma` and `ba\n\n\nma` produce the same count and placement of
       newline-owned pause rows.
-- [ ] Reconstruction from phone rows back to `_tilde` preserves repeated
+- [x] Reconstruction from phone rows back to `_tilde` preserves repeated
       newlines from repeated `<EOL>` tokens in a single row `text` field.
-- [ ] A punctuation suite followed by repeated newlines still yields a separate
+- [x] A punctuation suite followed by repeated newlines still yields a separate
       punctuation-owned pause row plus one newline-owned pause row.
-- [ ] Existing behavior for one isolated newline remains otherwise unchanged.
-- [ ] Unit tests pin the one-newline and many-newline cases directly.
-- [ ] Integration coverage pins at least one phone-artifact case where repeated
+- [x] Existing behavior for one isolated newline remains otherwise unchanged.
+- [x] Unit tests pin the one-newline and many-newline cases directly.
+- [x] Integration coverage pins at least one phone-artifact case where repeated
       newlines are coalesced into one row with repeated `<EOL>` text.
-- [ ] User-facing phonetizer docs describe the repeated-`<EOL>` text contract.
+- [x] User-facing phonetizer docs describe the repeated-`<EOL>` text contract.
 
 ---
 
-# Risks / Edge Cases
+## Risks / Edge Cases
 
 - Any current consumer that assumes newline-owned rows always have
   `text == '<EOL>'` will need to be updated to accept repeated `<EOL>` tokens.
@@ -255,7 +256,7 @@ Contract note:
 
 ---
 
-# Testing Strategy
+## Testing Strategy
 
 Unit tests:
 
@@ -280,7 +281,7 @@ Manual tests:
 
 ---
 
-# Rollback Plan
+## Rollback Plan
 
 Restore the current one-row-per-newline behavior if downstream readers or
 reconstruction tooling prove too coupled to exact single `<EOL>` row text.
@@ -289,7 +290,22 @@ newline and remove repeated `<EOL>` text from the row contract.
 
 ---
 
-# Related Issues
+## Implementation Blockers
+
+### 2026-04-18 - Earlier CR Not Done
+
+- Type: missing dependency
+- Observed: [CR-020](020-metrics-word-stats-lex-input.md) is listed in [docs/internal/cr/index.md](../cr/index.md) as `Rejected`, not `Done`.
+- Why blocked: The prior repository CR workflow text treated any earlier CR not marked `Done` as blocking, which incorrectly included earlier `Rejected` CRs.
+- Needed to unblock: Clarify the sequencing workflow so terminal earlier CR states `Done` and `Rejected` are both non-blocking.
+- Owner: Internal Spec Writer
+- Related refs: [docs/internal/cr/index.md](../cr/index.md), [CR-020](020-metrics-word-stats-lex-input.md)
+- Resolved on: 2026-04-18
+- Resolution: Updated [docs/internal/README.md](../README.md) so earlier CRs in terminal states `Done` and `Rejected` do not block later CR implementation.
+
+---
+
+## Related Issues
 
 - [CR-047](047-close-phonetizer-pause-and-reconstruction-gaps.md)
 - [CR-050](050-add-intonation-token-framework-and-silence-typing-to-phonetizer.md)
@@ -298,41 +314,37 @@ newline and remove repeated `<EOL>` text from the row contract.
 
 ---
 
-# Tasks
+## Tasks
 
 ## Implementation
 
-- [ ] Coalesce consecutive newline runs into one newline-owned pause row
-- [ ] Preserve newline multiplicity in the row `text` field via repeated
+- [x] Coalesce consecutive newline runs into one newline-owned pause row
+- [x] Preserve newline multiplicity in the row `text` field via repeated
       `<EOL>` tokens
-- [ ] Update reconstruction logic for repeated `<EOL>` token expansion
+- [x] Update reconstruction logic for repeated `<EOL>` token expansion
 
 ## Tests
 
-- [ ] Unit tests for one-newline and many-newline row construction
-- [ ] Unit tests for punctuation-row plus newline-row separation
-- [ ] Integration tests for serialized phone artifacts and round-trip fidelity
+- [x] Unit tests for one-newline and many-newline row construction
+- [x] Unit tests for punctuation-row plus newline-row separation
+- [x] Integration tests for serialized phone artifacts and round-trip fidelity
 
 ## Documentation
 
-- [ ] Update phonetizer phone-row docs for repeated `<EOL>` row text
-- [ ] Update any reconstruction or artifact-reading docs affected by the new
+- [x] Update phonetizer phone-row docs for repeated `<EOL>` row text
+- [x] Update any reconstruction or artifact-reading docs affected by the new
       newline text contract
 
 ## Review
 
-- [ ] Verify acceptance criteria against direct row probes and serialized phone
+- [x] Verify acceptance criteria against direct row probes and serialized phone
       artifacts
-- [ ] Verify no punctuation-suite grouping regression is introduced by newline
+- [x] Verify no punctuation-suite grouping regression is introduced by newline
       coalescing
 
 ---
 
-# Implementation Blockers
-
----
-
-# Notes
+## Notes
 
 - This CR intentionally keeps newline ownership separate from punctuation-suite
   ownership.

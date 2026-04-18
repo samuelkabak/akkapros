@@ -80,6 +80,11 @@ MEN|S|M|S|S|N|P|MP|0064|+000|M0C|
 ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
+When the input contains a run of adjacent newlines, Pass 1 coalesces that run
+into one newline-owned long-pause row and preserves multiplicity in the final
+field. For example, three adjacent line breaks are serialized as
+`<EOL><EOL><EOL>` in one `ZEN|S|S|L|...` row.
+
 The `boundary` field preserves whether the row closes an ordinary internal syllable (`I`), an enclitic dash (`E`), an internal merge (`L`), an explicit merge (`X`), or a prosodic unit (`F`).
 
 The new `drift` field is a row-level trace token written after Phase 2 timing realization:
@@ -111,6 +116,11 @@ Before phone output is written, the phonetizer normalizes a missing terminal
 line break into one final `<EOL>` long-pause row. That means downstream stages
 inherit one ordinary long-pause line break instead of inventing a separate EOF
 rule.
+
+Repeated adjacent newlines remain distinct from punctuation suites. A sequence
+such as `?!\n\n` yields one punctuation-owned pause row for `?!` and one
+newline-owned row whose `text` field is `<EOL><EOL>`. Reconstruction expands
+that repeated token sequence back into the original literal newline count.
 
 When one punctuation suite reaches the phonetizer as one consumed chunk, pause
 classification uses typed precedence rather than a simple short-versus-long

@@ -145,7 +145,8 @@ Debug note:
 
 - The source-facing glyph or pause text.
 - Inserted mini pauses use one literal ASCII space character in this field.
-- For line breaks the phonetizer writes `<EOL>`.
+- For line breaks the phonetizer writes `<EOL>` once per consumed newline.
+- A coalesced newline run therefore appears as repeated tokens in one row, for example `<EOL><EOL><EOL>`.
 
 ## Pause Type Letters
 
@@ -211,9 +212,17 @@ Line break row:
 ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL>
 ```
 
+Coalesced repeated line breaks:
+
+```text
+ZEN|S|S|L|S|N|P|ZP|1525|+000|L2C|<EOL><EOL><EOL>
+```
+
 Important rules:
 
 - If the consumed upstream text has no final line break, the phonetizer inserts one final `<EOL>` row before writing `_phone.txt` and `_ophone.txt`.
+- A maximal run of adjacent newline characters becomes one newline-owned long-pause row, not one row per newline.
+- Reconstruction expands repeated `<EOL>` tokens in one newline-owned row back into the same number of literal newlines.
 - Punctuation-owned pause rows use subtype `Q`, `S`, `E`, `C`, or `I`; inserted mini pauses use subtype `M`.
 - Inserted mini pauses use `MEN` plus realization code `MP`; they are not punctuation-owned `SES ... SP` rows.
 - The mini-pause `text` field is one literal space character, not a sentinel token.

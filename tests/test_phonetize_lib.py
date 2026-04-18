@@ -187,6 +187,38 @@ def test_pause_rows_and_transition_rows_use_canonical_codes() -> None:
     assert rows[4]['text'] == '<EOL>'
 
 
+def test_consecutive_newlines_coalesce_without_changing_newline_row_placement() -> None:
+    single_rows = build_phone_rows('ba\nma')
+    repeated_rows = build_phone_rows('ba\n\n\nma')
+
+    single_newline_rows = [row for row in single_rows if row['category'] == 'S' and '<EOL>' in row['text']]
+    repeated_newline_rows = [row for row in repeated_rows if row['category'] == 'S' and '<EOL>' in row['text']]
+    single_newline_positions = [index for index, row in enumerate(single_rows) if row['category'] == 'S' and '<EOL>' in row['text']]
+    repeated_newline_positions = [index for index, row in enumerate(repeated_rows) if row['category'] == 'S' and '<EOL>' in row['text']]
+
+    assert len(single_newline_rows) == len(repeated_newline_rows) == 2
+    assert single_newline_positions == repeated_newline_positions
+    assert [row['text'] for row in single_newline_rows] == ['<EOL>', '<EOL>']
+    assert [row['text'] for row in repeated_newline_rows] == ['<EOL><EOL><EOL>', '<EOL>']
+
+
+def test_repeated_eol_text_reconstructs_repeated_newlines() -> None:
+    rows = build_phone_rows('ba\n\n\nma')
+
+    assert reconstruct_tilde_from_phone_rows(rows) == 'ba\n\n\nma\n'
+
+
+def test_punctuation_and_repeated_newlines_stay_separate_pause_rows() -> None:
+    rows = build_phone_rows('ba?!\n\nma')
+
+    pause_rows = [row for row in rows if row['category'] == 'S']
+
+    assert len(pause_rows) == 3
+    assert pause_rows[0]['text'] == '?!'
+    assert pause_rows[1]['text'] == '<EOL><EOL>'
+    assert pause_rows[2]['text'] == '<EOL>'
+
+
 def test_original_stream_derivation_matches_cr039_examples() -> None:
     assert derive_original_tilde_text('u+ana&šar~.ri') == 'u+ana šar.ri'
     assert derive_original_tilde_text('gi.mir&dad~.mē') == 'gi.mir dad.mē'

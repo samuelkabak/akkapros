@@ -766,6 +766,35 @@ def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(
     assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
 
 
+def test_phonetizer_cli_coalesces_consecutive_newlines_but_preserves_eol_text(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_eol_coalesce'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'eol_tilde.txt'
+    tilde_file.write_text('ba\n\n\nma', encoding='utf-8')
+
+    _run_cli(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '-p',
+        'eol',
+        '--outdir',
+        str(outdir),
+    )
+
+    phone_text = _read_text(outdir / 'eol_phone.txt')
+    frontmatter, phone_body = split_frontmatter(phone_text)
+    assert frontmatter is not None
+
+    phone_rows = [parse_phone_row(line) for line in phone_body.strip().splitlines()]
+    newline_rows = [row for row in phone_rows if row['category'] == 'S' and '<EOL>' in row['text']]
+
+    assert len(newline_rows) == 2
+    assert [row['text'] for row in newline_rows] == ['<EOL><EOL><EOL>', '<EOL>']
+    assert reconstruct_tilde_from_phone_rows(phone_rows) == 'ba\n\n\nma\n'
+    assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
+
+
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:
     outdir = tmp_path / 'printer_het_mapping'
     outdir.mkdir(parents=True, exist_ok=True)

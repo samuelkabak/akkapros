@@ -2046,6 +2046,13 @@ def build_phone_rows(
         _finalize_syllable(rows, syllable, boundary_code)
         syllable = []
 
+    def _consume_eol_run(start_index: int) -> tuple[str, int]:
+        end_index = start_index
+        while end_index < len(tilde_text) and tilde_text[end_index] == '\n':
+            end_index += 1
+        newline_count = end_index - start_index
+        return EOL_TEXT * newline_count, end_index
+
     index = 0
     while index < len(tilde_text):
         symbol = tilde_text[index]
@@ -2078,8 +2085,8 @@ def build_phone_rows(
             continue
         if symbol == '\n':
             _finish('F')
-            rows.append(_new_pause_row(EOL_TEXT, pause_type='S', length_code='L'))
-            index += 1
+            eol_text, index = _consume_eol_run(index)
+            rows.append(_new_pause_row(eol_text, pause_type='S', length_code='L'))
             continue
         if symbol == OPEN_ESCAPE:
             close_index = tilde_text.find(CLOSE_ESCAPE, index + 1)
@@ -2155,8 +2162,8 @@ def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:
         if row['category'] != 'S' and previous_boundary == 'F':
             pieces.append(' ')
         if row['category'] == 'S':
-            if row['text'] == EOL_TEXT:
-                pieces.append('\n')
+            if row['text'] and set(row['text'].replace(EOL_TEXT, '')) == set() and EOL_TEXT in row['text']:
+                pieces.append('\n' * row['text'].count(EOL_TEXT))
                 previous_boundary = ''
             elif not _is_mini_pause_row(row):
                 pieces.append(row['text'])

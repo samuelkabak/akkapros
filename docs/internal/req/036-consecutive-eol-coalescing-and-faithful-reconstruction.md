@@ -1,6 +1,6 @@
 ---
 req_id: REQ-036
-status: Draft
+status: Implemented
 priority: Medium
 impact: Mutative
 created: 2026-04-18
@@ -11,7 +11,7 @@ implemented_by: 'CR-070'
 
 # Requirement: Consecutive EOL Coalescing and Faithful Reconstruction
 
-# Summary
+## Summary
 
 The system shall coalesce consecutive explicit newline events into one emitted
 newline-owned pause row while preserving exact newline multiplicity in the
@@ -22,7 +22,7 @@ phonetizer without losing reconstruction fidelity.
 
 ---
 
-# Motivation
+## Motivation
 
 Multiple literal newlines currently overproduce separate newline-owned pause rows
 even when the desired pause structure treats them as one event. The repository
@@ -31,7 +31,7 @@ ownership but preserves exact newline multiplicity for faithful reconstruction.
 
 ---
 
-# Acceptance Criteria
+## Acceptance Criteria
 
 - [ ] Given a maximal run of one or more adjacent newline characters, when Phase
       1 phone rows are built, then exactly one newline-owned long pause row is
@@ -48,14 +48,16 @@ ownership but preserves exact newline multiplicity for faithful reconstruction.
 
 ---
 
-# User Story (optional)
+## User Story (optional)
+
 > As a phonetizer user, I want repeated newlines to behave like one structural
 > newline pause while preserving exact source multiplicity so that reconstruction
 > remains faithful.
 
 ---
 
-# Interface Notes
+## Interface Notes
+
 - Input: `_tilde` text with literal newline runs
 - Output: phone rows with one newline-owned row per consecutive run and repeated
   `<EOL>` text tokens
@@ -63,22 +65,27 @@ ownership but preserves exact newline multiplicity for faithful reconstruction.
 
 ---
 
-# Open Questions
+## Open Questions
+
 - [ ] None at draft time.
 
 ---
 
-# Implementation Notes (optional)
+## Implementation Notes (optional)
+
 - Migration: update phone-row reconstruction and any docs/examples that assume
   one `<EOL>` token per newline-owned row.
 
-# Related
+## Related
+
 - Related ADRs: [ADR-040](../adr/040-two-phase-phonetizer-architecture-and-dual-phone-outputs.md)
 - Implementation CRs: [CR-070](../cr/070-coalesce-consecutive-eol-pause-rows-while-preserving-repeated-eol-text.md)
 
-# Non-Goals
+## Non-Goals
+
 - Paragraph-specific pause semantics beyond newline-run coalescing
 - Merging punctuation-owned and newline-owned pause rows into one event
 
-# Security / Safety Considerations
+## Security / Safety Considerations
+
 - The reconstruction contract must remain lossless for newline multiplicity.
