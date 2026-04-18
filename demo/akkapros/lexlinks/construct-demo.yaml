@@ -48,7 +48,7 @@ phonetize:
     timing_model:
       geminate_policy: "corrective"
       accentuation_distribution_policy: "80_20"
-      drift_tolerance: 0
+      drift_tolerance: 30
       speech:
         wpm: 193
         pause_ratio: 35
