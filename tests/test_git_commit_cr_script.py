@@ -129,6 +129,46 @@ def test_main_yes_flag_skips_interactive_confirmation(
     ]
 
 
+def test_main_accepts_post_999_cr_identifier(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    module = _load_module()
+    cr_dir = tmp_path / "docs" / "internal" / "cr"
+    cr_dir.mkdir(parents=True)
+    (cr_dir / "A00-governance-follow-up.md").write_text(
+        "# Change Request: Governance Follow Up\n",
+        encoding="utf-8",
+    )
+
+    calls: list[tuple[list[str], str]] = []
+
+    class Completed:
+        returncode = 0
+
+    def fake_run(cmd: list[str], cwd: str):
+        calls.append((cmd, cwd))
+        return Completed()
+
+    monkeypatch.setattr(module, "CR_DIR", cr_dir)
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+    monkeypatch.setattr("builtins.input", lambda prompt: "Y")
+
+    result = module.main(["A00"])
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "Ensure all and only files related to CR-A00 are staged" in captured.out
+    assert 'git commit -m "Implement CR-A00: Governance Follow Up"' in captured.out
+    assert calls == [
+        (
+            ["git", "commit", "-m", "Implement CR-A00: Governance Follow Up"],
+            str(module.ROOT),
+        )
+    ]
+
+
 @pytest.mark.parametrize("response", ["", "n", "N", "abc"])
 def test_main_exits_without_commit_on_default_or_no(
     response: str,
@@ -162,11 +202,11 @@ def test_main_exits_without_commit_on_default_or_no(
     assert calls == []
 
 
-def test_main_rejects_non_three_digit_number(capsys: pytest.CaptureFixture[str]) -> None:
+def test_main_rejects_non_canonical_identifier(capsys: pytest.CaptureFixture[str]) -> None:
     module = _load_module()
 
     result = module.main(["24"])
 
     captured = capsys.readouterr()
     assert result == 2
-    assert "CR number must be exactly three digits" in captured.err
+    assert "CR identifier must use the canonical governance format" in captured.err

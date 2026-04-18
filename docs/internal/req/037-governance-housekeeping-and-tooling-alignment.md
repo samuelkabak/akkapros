@@ -1,6 +1,6 @@
 ---
 req_id: REQ-037
-status: Draft
+status: Implemented
 priority: Medium
 impact: Mutative
 created: 2026-04-18
@@ -11,7 +11,7 @@ implemented_by: 'CR-071'
 
 # Requirement: Governance Housekeeping and Tooling Alignment
 
-# Summary
+## Summary
 
 The internal governance folder and its housekeeping tools shall implement the
 same documented contract for structure, numbering, indexing, and CR commit
@@ -22,14 +22,14 @@ participants rather than best-effort utilities.
 
 ---
 
-# Motivation
+## Motivation
 
 If the README, indexer, and CR commit helper disagree about valid identifiers or
 record discovery, the governance folder cannot be trusted as a source of truth.
 
 ---
 
-# Acceptance Criteria
+## Acceptance Criteria
 
 - [ ] Given the documented governance numbering policy includes identifiers
       beyond `999`, when governance tooling processes records, then valid files
@@ -45,13 +45,15 @@ record discovery, the governance folder cannot be trusted as a source of truth.
 
 ---
 
-# User Story (optional)
+## User Story (optional)
+
 > As a maintainer, I want governance tooling to match the documented rules so
 > that internal records stay trustworthy and auditable.
 
 ---
 
-# Interface Notes
+## Interface Notes
+
 - Input: governance files under `docs/internal/` and CR identifiers supplied to
   helper scripts
 - Output: complete indexes and canonical commit messages
@@ -60,23 +62,28 @@ record discovery, the governance folder cannot be trusted as a source of truth.
 
 ---
 
-# Open Questions
+## Open Questions
+
 - [ ] None at draft time.
 
 ---
 
-# Implementation Notes (optional)
+## Implementation Notes (optional)
+
 - Migration: update existing script tests that currently pin narrower identifier
   rules.
 
-# Related
+## Related
+
 - Related ADRs: [ADR-048](../adr/048-governance-housekeeping-tooling-must-match-documented-contract.md)
 - Implementation CRs: [CR-071](../cr/071-governance-housekeeping-and-structuring.md)
 
-# Non-Goals
+## Non-Goals
+
 - Reorganizing the internal governance folder into a different set of top-level
   document types
 
-# Security / Safety Considerations
+## Security / Safety Considerations
+
 - Silent omission of governance files is a process-integrity risk and must be
   treated as a tooling failure mode.

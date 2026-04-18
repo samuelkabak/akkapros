@@ -41,17 +41,28 @@ Naming & numbering
 
 - ADRs, CRs, REQs, and reviews use short kebab-case filenames prefixed with a stable ordered identifier such as `NNN-short-kebab-title.md`.
 - Identifier progression is base-36 by leading character group for stable ordering: `000` through `999`, then `A00`, `A01` ... `A99`, then `B00` ... `B99`, then `C00` ... `C99`, then `D00`, and so on. In other words, the first character advances through `0..9` and then `A..Z`; examples: after `999` comes `A00`, and after `C99` comes `D00`.
+- ADR, CR, and REQ record filenames therefore use canonical forms such as `071-title.md`, `999-title.md`, and `A00-title.md`.
 - Numbering within each document type (`adr/`, `cr/`, `req/`, `review/`) must be contiguous once identifiers are assigned. Do not leave permanent gaps such as `040` followed by `042` with no `041` record, or `A03` followed by `A05` with no `A04` record.
 - If a number has already been referenced or effectively reserved, close the gap by adding a narrow placeholder or follow-up record rather than silently skipping it. Renumbering later documents is allowed only before references have spread and only when the renumber is low-risk.
 - Refer to ADRs/CRs by their canonical identifier (e.g., `ADR-023`, `CR-004`, `CR-A00`) in code, tests, and commit messages.
-- When committing an implementation for a CR, the commit subject must use this pattern: `Implement CR-{CR number NNN}: {CR title copy/paste}`.
+- When committing an implementation for a CR, the commit subject must use this pattern: `Implement CR-{canonical CR identifier}: {CR title copy/paste}`.
+- Review files also participate in the same identifier ordering contract. The generated review index accepts `review-001.md`, `001-review.md`, titled forms such as `002-frontmatter-data-review.md`, and higher-order variants such as `review-A00.md` or `A00-governance-review.md`.
 
 Index generation
 
 - Index pages (`docs/internal/*/index.md`) are generated/updated by the repository script: `python scripts/update-indexes.py`.
 - Run the indexer after adding, renaming, or removing ADR/CR/Req files to keep indexes consistent. Review generated `index.md` pages before committing.
+- The indexer treats malformed governance record filenames as an explicit tooling problem. It emits warnings to stderr and exits non-zero instead of silently omitting unsupported files.
 
-Reviews: After adding or renaming review files, run `python scripts/update-indexes.py` to regenerate `docs/internal/review/index.md`. The indexer accepts both `review-001.md` and `001-review.md` naming patterns and will skip template files prefixed with `000-`.
+Reviews: After adding or renaming review files, run `python scripts/update-indexes.py` to regenerate `docs/internal/review/index.md`. The indexer accepts `review-001.md`, `001-review.md`, and slugged forms such as `002-frontmatter-data-review.md`, and will skip template files prefixed with `000-`.
+
+Housekeeping flow:
+
+1. Add, rename, or remove the governance record using the canonical identifier format for its document type.
+2. Run `python scripts/update-indexes.py`.
+3. Resolve any warnings about malformed or unsupported governance filenames before proceeding.
+4. Run `pytest tests/test_update_indexes_script.py tests/test_git_commit_cr_script.py -q` when changing governance tooling or its contract.
+5. Review the generated `docs/internal/*/index.md` files before committing.
 
 Templates
 

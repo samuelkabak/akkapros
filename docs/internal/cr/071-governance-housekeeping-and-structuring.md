@@ -1,6 +1,6 @@
 ---
 cr_id: CR-071
-status: Draft
+status: Done
 priority: Medium
 impact: Mutative
 created: 2026-04-18
@@ -175,6 +175,7 @@ Adopt the following governance-housekeeping contract.
 Architecture notes:
 
 Components:
+
 - `docs/internal/README.md`
 - `docs/internal/adr/index.md`
 - `docs/internal/cr/index.md`
@@ -220,20 +221,20 @@ Design constraint:
 
 ## Acceptance Criteria
 
-- [ ] The governance README and the housekeeping scripts describe and implement
+- [x] The governance README and the housekeeping scripts describe and implement
       the same identifier policy.
-- [ ] `scripts/update-indexes.py` indexes valid ADR/CR/REQ files beyond `999`
+- [x] `scripts/update-indexes.py` indexes valid ADR/CR/REQ files beyond `999`
       according to the documented canonical numbering scheme.
-- [ ] Review indexing has an explicit and enforced contract for higher-order
+- [x] Review indexing has an explicit and enforced contract for higher-order
       identifiers instead of an implicit silent omission path.
-- [ ] `scripts/update-indexes.py` surfaces malformed or unsupported governance
+- [x] `scripts/update-indexes.py` surfaces malformed or unsupported governance
       filenames explicitly.
-- [ ] `scripts/git-commit-cr.py` accepts canonical CR identifiers supported by
+- [x] `scripts/git-commit-cr.py` accepts canonical CR identifiers supported by
       the governance policy and builds commit messages in canonical form.
-- [ ] Legacy three-digit identifiers continue to work.
-- [ ] Automated tests cover identifier parsing, ordering, discovery, and commit
+- [x] Legacy three-digit identifiers continue to work.
+- [x] Automated tests cover identifier parsing, ordering, discovery, and commit
       message generation for governance tooling.
-- [ ] Governance housekeeping steps are documented clearly enough that a
+- [x] Governance housekeeping steps are documented clearly enough that a
       maintainer can refresh indexes and verify the contract after record
       changes.
 
@@ -300,27 +301,27 @@ identifiers but the housekeeping scripts silently reject them.
 
 ### Implementation
 
-- [ ] Align governance identifier parsing across README, indexer, and commit
+- [x] Align governance identifier parsing across README, indexer, and commit
       helper
-- [ ] Extend or explicitly constrain review-ID handling
-- [ ] Add explicit malformed-file reporting to governance housekeeping scripts
+- [x] Extend or explicitly constrain review-ID handling
+- [x] Add explicit malformed-file reporting to governance housekeeping scripts
 
 ### Tests
 
-- [ ] Add script tests for post-`999` identifier discovery and ordering
-- [ ] Add commit-helper tests for canonical non-numeric CR identifiers
-- [ ] Retain coverage for legacy numeric identifiers
+- [x] Add script tests for post-`999` identifier discovery and ordering
+- [x] Add commit-helper tests for canonical non-numeric CR identifiers
+- [x] Retain coverage for legacy numeric identifiers
 
 ### Documentation
 
-- [ ] Update governance README housekeeping guidance if script behavior changes
-- [ ] Document the authoritative housekeeping flow for governance records
+- [x] Update governance README housekeeping guidance if script behavior changes
+- [x] Document the authoritative housekeeping flow for governance records
 
 ### Review
 
-- [ ] Verify that generated indexes include every valid governance record under
+- [x] Verify that generated indexes include every valid governance record under
       the active naming policy
-- [ ] Verify that the commit helper emits canonical commit messages for valid CR
+- [x] Verify that the commit helper emits canonical commit messages for valid CR
       identifiers
 
 ---

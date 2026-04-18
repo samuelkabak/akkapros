@@ -1,6 +1,6 @@
 ---
 adr_id: ADR-048
-status: Proposed
+status: Accepted
 created: 2026-04-18
 updated: 2026-04-18
 superseded_by: null
@@ -100,4 +100,4 @@ encountered. Silent omission is not acceptable for governance artifacts.
 
 ## Reviewed By
 
-- Internal governance review pending implementation.
+- Accepted during CR-071 implementation and verification.

@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
 """Update docs/internal indexes from source files.
 
-Behavior:
-- ADR index: list markdown ADR files in `docs/internal/adr/*.md` (excluding `index.md` and templates),
-  extract title and Status header, sort by number descending and write lines like:
-  - [015. Title](015-slug.md) - Accepted
-
-- CR index: list markdown files in `docs/internal/cr/*.md` (excluding `index.md` and templates),
-  extract CR number, title and Status, sort by number descending and write lines like:
-  [001. Title](001-slug.md) - Draft
-
-The script preserves the header portion of existing index files.
+The script preserves the header portion of existing index files and supports
+the canonical governance identifier family documented in docs/internal/README.md:
+000-999, then A00-A99, B00-B99, and so on.
 """
 
+from dataclasses import dataclass
 from pathlib import Path
 import re
 import sys
@@ -24,6 +18,109 @@ ADR_DIR = DOCS / "internal" / "adr"
 CR_DIR = DOCS / "internal" / "cr"
 REQ_DIR = DOCS / "internal" / "req"
 REVIEW_DIR = DOCS / "internal" / "review"
+
+GOVERNANCE_ID_RE = re.compile(r"^(?:\d{3}|[A-Z]\d{2})$")
+STANDARD_RECORD_RE = re.compile(r"^(?P<identifier>(?:\d{3}|[A-Z]\d{2}))-(?P<slug>.+)\.md$")
+TITLE_PREFIX_RE = re.compile(r"^(?:\d{1,3}|[A-Z]\d{2})\.\s*")
+ALLOWED_SUPPORT_FILES = {
+    "adr": {"index.md", "README.md", "000-adr-template.md"},
+    "cr": {"index.md", "README.md", "000-cr-template.md"},
+    "req": {"index.md", "README.md", "000-req-template.md"},
+    "review": {"index.md", "README.md", "000-review-template.md"},
+}
+
+
+@dataclass(frozen=True)
+class GovernanceRecord:
+    identifier: str
+    path: Path
+    slug: str | None
+    sort_value: int
+
+
+def normalize_governance_id(identifier: str) -> str:
+    normalized = identifier.strip().upper()
+    if not GOVERNANCE_ID_RE.fullmatch(normalized):
+        raise ValueError(f"Invalid governance identifier: {identifier!r}")
+    return normalized
+
+
+def governance_id_sort_value(identifier: str) -> int:
+    normalized = normalize_governance_id(identifier)
+    if normalized.isdigit():
+        return int(normalized)
+    return 1000 + (ord(normalized[0]) - ord("A")) * 100 + int(normalized[1:])
+
+
+def strip_title_prefix(title: str) -> str:
+    return TITLE_PREFIX_RE.sub("", title).strip()
+
+
+def discover_standard_records(directory: Path, kind: str) -> tuple[list[GovernanceRecord], list[str]]:
+    records: list[GovernanceRecord] = []
+    warnings: list[str] = []
+    allowed_names = ALLOWED_SUPPORT_FILES[kind]
+
+    for path in sorted(directory.glob("*.md")):
+        if path.name in allowed_names:
+            continue
+        match = STANDARD_RECORD_RE.fullmatch(path.name)
+        if not match:
+            warnings.append(f"Unsupported {kind.upper()} governance file name: {path.name}")
+            continue
+        identifier = match.group("identifier")
+        records.append(
+            GovernanceRecord(
+                identifier=identifier,
+                path=path,
+                slug=match.group("slug"),
+                sort_value=governance_id_sort_value(identifier),
+            )
+        )
+
+    return records, warnings
+
+
+def discover_review_records(directory: Path) -> tuple[list[GovernanceRecord], list[str]]:
+    records: list[GovernanceRecord] = []
+    warnings: list[str] = []
+    allowed_names = ALLOWED_SUPPORT_FILES["review"]
+
+    for path in sorted(directory.glob("*.md")):
+        if path.name in allowed_names:
+            continue
+        parsed = parse_review_record_name(path.name)
+        if parsed is None:
+            warnings.append(f"Unsupported REVIEW governance file name: {path.name}")
+            continue
+        identifier, slug = parsed
+        records.append(
+            GovernanceRecord(
+                identifier=identifier,
+                path=path,
+                slug=slug,
+                sort_value=governance_id_sort_value(identifier),
+            )
+        )
+
+    return records, warnings
+
+
+def parse_review_record_name(filename: str) -> tuple[str, str | None] | None:
+    stem = filename[:-3] if filename.endswith(".md") else filename
+    prefix_match = re.fullmatch(r"review-(?P<identifier>(?:\d{3}|[A-Z]\d{2}))(?:-(?P<slug>.+))?", stem)
+    if prefix_match:
+        return prefix_match.group("identifier"), prefix_match.group("slug")
+
+    suffix_match = re.fullmatch(r"(?P<identifier>(?:\d{3}|[A-Z]\d{2}))-review(?:-(?P<slug>.+))?", stem)
+    if suffix_match:
+        return suffix_match.group("identifier"), suffix_match.group("slug")
+
+    titled_suffix_match = re.fullmatch(r"(?P<identifier>(?:\d{3}|[A-Z]\d{2}))-(?P<slug>.+)-review", stem)
+    if titled_suffix_match:
+        return titled_suffix_match.group("identifier"), titled_suffix_match.group("slug")
+
+    return None
 
 
 def read_header(index_path, entry_starts):
@@ -69,53 +166,45 @@ def extract_status_and_title(md_path):
     return status, title
 
 
-def build_adr_index():
-    index_path = ADR_DIR / "index.md"
+def build_adr_index(adr_dir: Path | None = None, index_path: Path | None = None) -> list[str]:
+    adr_dir = ADR_DIR if adr_dir is None else adr_dir
+    index_path = adr_dir / "index.md" if index_path is None else index_path
     header = read_header(index_path, entry_starts=("- ",))
     if not header.strip():
         header = "# ADR Index\n\nThis index lists architectural decision records (ADRs). It is maintained by `scripts/update-indexes.py`.\n\n| ID | Title | Status |\n|----|-------|--------|\n\n"
 
     entries = []
-    for p in ADR_DIR.glob("*.md"):
-        if p.name in ("index.md", "000-adr-template.md"):
-            continue
-        m = re.match(r"^(\d{3})-(.+)\.md$", p.name)
-        if not m:
-            continue
-        num = int(m.group(1))
+    records, warnings = discover_standard_records(adr_dir, "adr")
+    for record in records:
+        p = record.path
         status, title = extract_status_and_title(p)
         if title:
-            # remove leading numeric prefix in title if present
-            title = re.sub(r"^\d+\.\s*", "", title)
+            title = strip_title_prefix(title)
         else:
-            title = m.group(2).replace("-", " ")
-        display = f"{num:03d}. {title}"
+            title = (record.slug or p.stem).replace("-", " ")
+        display = f"{record.identifier}. {title}"
         entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
-        entries.append((num, entry))
+        entries.append((record.sort_value, entry))
 
-    # Latest ADRs first (descending number)
     entries.sort(key=lambda x: x[0], reverse=True)
     body = "\n".join(e for _, e in entries) + "\n"
     index_path.write_text(header + body, encoding="utf-8")
     print(f"Updated {index_path}")
+    return warnings
 
 
-def build_cr_index():
-    index_path = CR_DIR / "index.md"
+def build_cr_index(cr_dir: Path | None = None, index_path: Path | None = None) -> list[str]:
+    cr_dir = CR_DIR if cr_dir is None else cr_dir
+    index_path = cr_dir / "index.md" if index_path is None else index_path
     header = read_header(index_path, entry_starts=("[", "- "))
     if not header.strip():
         header = "# CR Index\n\nThis index lists Change Requests. It is maintained by `scripts/update-indexes.py`.\n\n"
 
     entries = []
-    for p in sorted(CR_DIR.glob("*.md")):
-        if p.name in ("index.md", "000-cr-template.md"):
-            continue
-        mname = re.match(r"^(\d{3})-(.+)\.md$", p.name)
-        if not mname:
-            continue
-
-        num = int(mname.group(1))
-        slug_title = mname.group(2).replace("-", " ")
+    records, warnings = discover_standard_records(cr_dir, "cr")
+    for record in records:
+        p = record.path
+        slug_title = (record.slug or p.stem).replace("-", " ")
         status = None
         title = None
         text = p.read_text(encoding="utf-8")
@@ -128,15 +217,72 @@ def build_cr_index():
                 title = m3.group(1).strip()
         if title is None:
             title = slug_title
-        display = f"{num:03d}. {title}"
+        display = f"{record.identifier}. {title}"
         entry = f"[{display}]({p.name}) - {status or 'Unknown'}"
-        entries.append((num, entry))
+        entries.append((record.sort_value, entry))
 
-    # CRs: list latest first (descending numeric order)
     entries.sort(key=lambda x: x[0], reverse=True)
     body = "\n".join(e for _, e in entries) + "\n"
     index_path.write_text(header + body, encoding="utf-8")
     print(f"Updated {index_path}")
+    return warnings
+
+
+def build_review_index(review_dir: Path | None = None, index_path: Path | None = None) -> list[str]:
+    review_dir = REVIEW_DIR if review_dir is None else review_dir
+    index_path = review_dir / "index.md" if index_path is None else index_path
+    header = read_header(index_path, entry_starts=("- ",))
+    if not header.strip():
+        header = "# Review Index\n\nThis index lists review documents. It is maintained by `scripts/update-indexes.py`.\n\n"
+
+    entries = []
+    records, warnings = discover_review_records(review_dir)
+    for record in records:
+        status, title = extract_status_and_title(record.path)
+        if title:
+            title = strip_title_prefix(title)
+        else:
+            title = (record.slug or record.path.stem).replace("-", " ")
+        display = f"review-{record.identifier}. {title}"
+        entry = f"- [{display}]({record.path.name})"
+        entries.append((record.sort_value, entry))
+
+    entries.sort(key=lambda x: x[0], reverse=True)
+    body = "\n".join(e for _, e in entries) + "\n" if entries else ""
+    index_path.write_text(header + body, encoding="utf-8")
+    print(f"Updated {index_path}")
+    return warnings
+
+
+def build_req_index(req_dir: Path | None = None, index_path: Path | None = None) -> list[str]:
+    req_dir = REQ_DIR if req_dir is None else req_dir
+    index_path = req_dir / "index.md" if index_path is None else index_path
+    header = read_header(index_path, entry_starts=("- ",))
+    if not header.strip():
+        header = "# Req Index\n\nThis index lists requirement documents. It is maintained by `scripts/update-indexes.py`.\n\n"
+
+    entries = []
+    records, warnings = discover_standard_records(req_dir, "req")
+    for record in records:
+        status, title = extract_status_and_title(record.path)
+        if title:
+            title = strip_title_prefix(title)
+        else:
+            title = (record.slug or record.path.stem).replace("-", " ")
+        display = f"{record.identifier}. {title}"
+        entry = f"- [{display}]({record.path.name}) - {status or 'Unknown'}"
+        entries.append((record.sort_value, entry))
+
+    entries.sort(key=lambda x: x[0], reverse=True)
+    body = "\n".join(e for _, e in entries) + "\n"
+    index_path.write_text(header + body, encoding="utf-8")
+    print(f"Updated {index_path}")
+    return warnings
+
+
+def emit_warnings(warnings: list[str]) -> None:
+    for warning in warnings:
+        print(f"WARNING: {warning}", file=sys.stderr)
 
 
 def main():
@@ -146,85 +292,17 @@ def main():
         for m in missing:
             print("  Missing:", m)
         sys.exit(1)
-    build_adr_index()
-    build_cr_index()
-    build_review_index()
-    build_req_index()
-
-
-def build_review_index():
-    index_path = REVIEW_DIR / "index.md"
-    header = read_header(index_path, entry_starts=("- ",))
-    if not header.strip():
-        header = "# Review Index\n\nThis index lists review documents. It is maintained by `scripts/update-indexes.py`.\n\n"
-
-    entries = []
-    for p in REVIEW_DIR.glob("*.md"):
-        if p.name == "index.md":
-            continue
-        # skip template or example review files (000-...)
-        if p.name.startswith("000-"):
-            continue
-        # Accept either 'review-001.md' or '001-review.md' naming conventions
-        m = re.match(r"^review-(\d{1,3})(?:-(.+))?\.md$", p.name)
-        if not m:
-            m2 = re.match(r"^(\d{1,3})-review(?:-(.+))?\.md$", p.name)
-            if not m2:
-                continue
-            num = int(m2.group(1))
-            remainder = m2.group(2)
-        else:
-            num = int(m.group(1))
-            remainder = m.group(2)
-        status, title = extract_status_and_title(p)
-        if title:
-            title = re.sub(r"^\d+\.\s*", "", title)
-        else:
-            title = (remainder or p.stem).replace("-", " ")
-        display = f"review-{num:03d}. {title}"
-        entry = f"- [{display}]({p.name})"
-        entries.append((num, entry))
-
-    # Reviews: list latest first (descending numeric order)
-    entries.sort(key=lambda x: x[0], reverse=True)
-    body = "\n".join(e for _, e in entries) + "\n" if entries else ""
-    index_path.write_text(header + body, encoding="utf-8")
-    print(f"Updated {index_path}")
-
-
-def build_req_index():
-    index_path = REQ_DIR / "index.md"
-    header = read_header(index_path, entry_starts=("- ",))
-    if not header.strip():
-        header = "# Req Index\n\nThis index lists requirement documents. It is maintained by `scripts/update-indexes.py`.\n\n"
-
-    entries = []
-    for p in REQ_DIR.glob("*.md"):
-        if p.name in ("index.md", "000-req-template.md"):
-            continue
-        m = re.match(r"^(\d{3})-(.+)\.md$", p.name)
-        if not m:
-            continue
-        num = int(m.group(1))
-        status = None
-        title = None
-        # extract Status and title
-        status, title = extract_status_and_title(p)
-        if title:
-            title = re.sub(r"^\d+\.\s*", "", title)
-        else:
-            title = m.group(2).replace("-", " ")
-        display = f"{num:03d}. {title}"
-        entry = f"- [{display}]({p.name}) - {status or 'Unknown'}"
-        entries.append((num, entry))
-
-    # Specs: list latest first (descending numeric order)
-    entries.sort(key=lambda x: x[0], reverse=True)
-    body = "\n".join(e for _, e in entries) + "\n"
-    index_path.write_text(header + body, encoding="utf-8")
-    print(f"Updated {index_path}")
+    warnings = []
+    warnings.extend(build_adr_index())
+    warnings.extend(build_cr_index())
+    warnings.extend(build_review_index())
+    warnings.extend(build_req_index())
+    if warnings:
+        emit_warnings(warnings)
+        return 1
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())
 
