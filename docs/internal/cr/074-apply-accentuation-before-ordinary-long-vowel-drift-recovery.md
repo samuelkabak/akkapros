@@ -1,6 +1,6 @@
 ---
 cr_id: CR-074
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-18
@@ -302,29 +302,29 @@ Supersession note:
 
 ## Acceptance Criteria
 
-- [ ] For accent-bearing syllables, the Phase 2 order is baseline assignment,
+- [x] For accent-bearing syllables, the Phase 2 order is baseline assignment,
       accentuation, then ordinary long-vowel drift recovery.
-- [ ] For non-accent-bearing long vowels, ordinary cleanup remains tolerance-
+- [x] For non-accent-bearing long vowels, ordinary cleanup remains tolerance-
   gated and uses the legal range from `long_min` to `very_long_min - 1`.
-- [ ] For accent-bearing `CVV:` and `CVV:C` syllables, post-accent long-vowel
+- [x] For accent-bearing `CVV:` and `CVV:C` syllables, post-accent long-vowel
   cleanup may use the legal range up to `elongation_max`.
-- [ ] For accent-bearing `C:V` and `CVC:` syllables, the long-vowel cleanup path
+- [x] For accent-bearing `C:V` and `CVC:` syllables, the long-vowel cleanup path
   is not applied.
-- [ ] Once long-vowel cleanup is activated on a non-accent-bearing long vowel,
+- [x] Once long-vowel cleanup is activated on a non-accent-bearing long vowel,
   it targets zero residual drift within the legal range rather than merely
   reducing mismatch to the tolerance boundary.
-- [ ] Accent-bearing `CVV:` and `CVV:C` cleanup is not gated by the ordinary
+- [x] Accent-bearing `CVV:` and `CVV:C` cleanup is not gated by the ordinary
   `drift_tolerance` activation rule.
-- [ ] Public algorithm documentation no longer states that ordinary long-vowel
+- [x] Public algorithm documentation no longer states that ordinary long-vowel
       correction precedes accentuation.
-- [ ] Public algorithm/config documentation explains the difference between
+- [x] Public algorithm/config documentation explains the difference between
   ordinary and accent-bearing long-vowel recovery bounds.
-- [ ] Tests are updated to pin the new step order explicitly.
-- [ ] Integration/regression expectations affected by emitted timing changes are
+- [x] Tests are updated to pin the new step order explicitly.
+- [x] Integration/regression expectations affected by emitted timing changes are
       updated.
-- [ ] Existing phonetizer statistics/reporting fields remain present and keep
+- [x] Existing phonetizer statistics/reporting fields remain present and keep
       the same meanings, even if their values change.
-- [ ] No unrelated retuning of timing defaults or policy families is included.
+- [x] No unrelated retuning of timing defaults or policy families is included.
 
 ---
 
@@ -391,25 +391,25 @@ regressions, but keep any unrelated reporting/doc changes out of the rollback.
 
 ### Implementation
 
-- [ ] Reorder accent-bearing syllable processing so accentuation runs before
+- [x] Reorder accent-bearing syllable processing so accentuation runs before
       ordinary long-vowel recovery
-- [ ] Apply accent-sensitive long-vowel legality bounds for `CVV:` / `CVV:C`
-- [ ] Keep non-accent-bearing long-vowel cleanup tolerance-gated but zero-targeted
-- [ ] Preserve existing reporting schema and statistic meanings
+- [x] Apply accent-sensitive long-vowel legality bounds for `CVV:` / `CVV:C`
+- [x] Keep non-accent-bearing long-vowel cleanup tolerance-gated but zero-targeted
+- [x] Preserve existing reporting schema and statistic meanings
 
 ### Tests
 
-- [ ] Add/update unit tests for the revised order
-- [ ] Refresh affected integration/regression expectations
+- [x] Add/update unit tests for the revised order
+- [x] Refresh affected integration/regression expectations
 
 ### Documentation
 
-- [ ] Update algorithm and phonetizer docs to reflect the new order
+- [x] Update algorithm and phonetizer docs to reflect the new order
 
 ### Review
 
-- [ ] Verify the change is limited to solver order and dependent gold refreshes
-- [ ] Verify reporting structure remains stable
+- [x] Verify the change is limited to solver order and dependent gold refreshes
+- [x] Verify reporting structure remains stable
 
 ---
 
@@ -422,3 +422,8 @@ regressions, but keep any unrelated reporting/doc changes out of the rollback.
 - This CR changes solver behavior but not reporting schema.
 - The numeric values of existing statistics may change as a downstream
   consequence of the new behavior; the field set and meanings must not.
+- Implemented in `phonetize.py` by moving accent-bearing `CVV:` / `CVV:C`
+  cleanup after accentuation, keeping non-accented cleanup tolerance-gated but
+  zero-targeted, and leaving `C:V` / `CVC:` outside the long-vowel cleanup path.
+- Verification completed with focused pytest slices covering phonetizer units,
+  integration/doc-flowcharts, metrics references, and phonetizer self-tests.

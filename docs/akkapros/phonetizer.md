@@ -226,6 +226,7 @@ Current legality notes:
 
 - adjacent accent spill into a short vowel is strictly sub-long and stops at `long_min - 1`
 - runtime consonant saturation uses class-local `perception_limits.gemination_max`
+- ordinary non-accented long-vowel cleanup is tolerance-gated and stops at `very_long_min - 1`, while accent-bearing `CVV:` and `CVV:C` syllables apply accentuation first and may then clean up inside the broader `elongation_max` range
 - `segmental_ceiling` and `segmental_floor` remain validation-facing config bounds rather than direct runtime timing knobs
 
 ## Preflight Verification

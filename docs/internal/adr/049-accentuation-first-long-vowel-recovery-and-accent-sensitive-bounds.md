@@ -1,6 +1,6 @@
 ---
 adr_id: ADR-049
-status: Proposed
+status: Accepted
 created: 2026-04-18
 updated: 2026-04-18
 superseded_by: null
@@ -117,4 +117,5 @@ this long-vowel cleanup rule.
 
 ## Reviewed By
 
-- Internal phonetizer specification review pending implementation.
+- Accepted through CR-074 implementation and focused verification of the
+  phonetizer, integration, metrics, and doc-flowchart slices.

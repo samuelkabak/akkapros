@@ -33,16 +33,16 @@ VARCO_VERIFICATION_ORIGINAL = {
     "npvi_v": 21.698221153635842,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
-    "percent_c": 31.94871794871795,
-    "percent_v": 36.87179487179487,
-    "mean_c_ms": 118.66666666666667,
-    "mean_v_ms": 143.8,
-    "delta_c_ms": 65.65953550836774,
-    "delta_v_ms": 59.72403201392217,
-    "varco_c": 55.3310692486245,
-    "varco_v": 41.532706546538364,
-    "rpvi_c": 74.0,
-    "npvi_v": 35.193777645070426,
+    "percent_c": 32.17948717948718,
+    "percent_v": 35.84615384615385,
+    "mean_c_ms": 119.52380952380952,
+    "mean_v_ms": 139.8,
+    "delta_c_ms": 66.65591750076268,
+    "delta_v_ms": 52.44292135264777,
+    "varco_c": 55.76789910422376,
+    "varco_v": 37.512819279433316,
+    "rpvi_c": 75.8,
+    "npvi_v": 32.02972058173253,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "max": 150.0,
@@ -51,8 +51,8 @@ VARCO_VERIFICATION_ORIGINAL_DRIFT = {
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
     "max": 150.0,
-    "mean": 24.9167,
-    "stddev": 59.1607,
+    "mean": 21.4583,
+    "stddev": 58.8395,
 }
 LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
 LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")

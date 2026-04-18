@@ -326,8 +326,6 @@ The crucial restriction is timing: this fold is prosodic-unit-final, not
 syllable-local. If a syllable closes with `L`, `X`, `E`, or `I`, its raw drift
 is carried into the next syllable because the merged unit is not complete yet.
 
-1. If unresolved absolute drift still exceeds `drift_tolerance`, apply ordinary
-  vowel correction only if the nucleus is long.
 1. If the stream is accentuated and this syllable carries accentuation,
   distribute an accent increment computed as:
 
@@ -340,6 +338,17 @@ longer reduces `AA` before distribution. If legality caps prevent the full
 target from being realized locally, the solver preserves the configured
 primary/adjacent ratio, realizes the largest legal proportional increment, and
 keeps the remaining shortfall in drift.
+
+1. If the nucleus is long, apply long-vowel cleanup under one of two regimes:
+
+- non-accent-bearing `CVV` and `CVVC`: cleanup stays tolerance-gated and runs
+  only when unresolved absolute drift exceeds `drift_tolerance`
+- accent-bearing `CVV:` and `CVV:C`: accentuation runs first, then post-accent
+  cleanup may run without the ordinary tolerance gate because the vowel is
+  already in elongated space
+
+In both cases, once cleanup is active it aims at zero residual drift within the
+legal range rather than merely trimming mismatch down to the tolerance boundary.
 
 1. If the current boundary is eligible and the stream is synchronized at the
   completed `F` boundary, optionally insert one mini pause using the
@@ -375,8 +384,14 @@ not push that vowel into the very-long category. If more correction would still
 be needed after reaching `very_long_min - 1`, the unresolved mismatch remains in
 drift.
 
-Accentuation legality is broader. Accentuated long-vowel targets still use the
-configured contextual maximum when the accent distribution step has legal room.
+Accent-bearing long-vowel cleanup is broader, but only after accentuation has
+already been applied. In `CVV:` and `CVV:C`, the post-accent cleanup range is:
+
+- `long_min .. elongation_max`
+
+That wider window is not available to ordinary non-accented cleanup. `C:V` and
+`CVC:` do not enter the long-vowel cleanup path at all because those accent
+models contain no long vowel.
 
 ### Accentuation Routing
 

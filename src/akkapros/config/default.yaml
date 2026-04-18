@@ -221,10 +221,13 @@ phonetize:
             long_min: 153
             # Earliest duration treated as very long. Midpoint-style boundary derived
             # from long and very-long anchors. Ordinary non-accentual long-vowel
-            # recovery must stop at very_long_min - 1.
+            # recovery must stop at very_long_min - 1, while accent-bearing CVV:
+            # and CVV:C cleanup may continue above this threshold.
             very_long_min: 233
             # Upper contextual bound for vowel extension. Ordinary non-accentual
-            # long-vowel recovery still stops at very_long_min - 1.
+            # long-vowel recovery still stops at very_long_min - 1, but post-
+            # accent cleanup on accent-bearing CVV: and CVV:C syllables may use
+            # this wider legality ceiling.
             elongation_max: 280 
         pauses:
           # Default mini-pause band. Non-punctuation recovery gap used only when one

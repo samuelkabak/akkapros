@@ -2,7 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
-- [049. Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](049-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Proposed
+- [049. Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](049-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Accepted
 - [048. Governance Housekeeping Tooling Must Match Documented Contract](048-governance-housekeeping-tooling-must-match-documented-contract.md) - Accepted
 - [047. Controlled Test Parameterization and Default-Independent Regression Coverage](047-controlled-test-parameterization-and-default-independent-regression-coverage.md) - Accepted
 - [046. Phonetizer Timeline Drift Assignment with Hard Short Vowels](046-phonetizer-mini-band-and-row-derived-pause-reporting.md) - Accepted

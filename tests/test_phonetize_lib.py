@@ -950,6 +950,27 @@ def test_path_3_1_long_vowel_correction_with_legal_room() -> None:
     assert int(rows[1]['duration']) > 160
 
 
+def test_path_3_1b_non_accentual_long_vowel_cleanup_targets_zero_when_legal_room_exists() -> None:
+    """Path 3.1b"""
+    rows = build_phone_rows('qā')
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'cvc_reference': 310,
+                    }
+                }
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0221'
+    assert rows[1]['drift'] == '+000'
+
+
 def test_path_3_2_long_vowel_correction_without_legal_room() -> None:
     """Path 3.2"""
     rows = build_phone_rows('qā')
@@ -1202,7 +1223,7 @@ def test_path_5_5_consonant_class_mapping_covers_accent_legality_inventory() -> 
     assert _consonant_timing_key(transition_row) == 'sonorant'
 
 
-def test_path_6_1_prior_long_vowel_correction_can_exhaust_accent_room() -> None:
+def test_path_6_1_accentuation_precedes_long_vowel_cleanup_on_cvv() -> None:
     """Path 6.1"""
     rows = build_phone_rows('bā~')
     realize_phone_rows(
@@ -1218,8 +1239,42 @@ def test_path_6_1_prior_long_vowel_correction_can_exhaust_accent_room() -> None:
         },
         allow_accentuation=True,
     )
-    assert rows[0]['duration'] == '0089'
+    assert int(rows[0]['duration']) > 89
     assert rows[1]['duration'] == '0170'
+
+
+def test_path_6_1b_accented_long_vowel_cleanup_uses_elongation_max_without_tolerance_gate() -> None:
+    """Path 6.1b"""
+    rows = build_phone_rows('bā~')
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 500,
+                    'durations': {
+                        'consonants': {
+                            'closure': {
+                                'perception_limits': {
+                                    'geminate_min': 95,
+                                }
+                            }
+                        },
+                        'vowels': {
+                            'perception_limits': {
+                                'very_long_min': 200,
+                                'elongation_max': 240,
+                            }
+                        },
+                    }
+                }
+            }
+        },
+        allow_accentuation=True,
+    )
+
+    assert rows[1]['duration'] == '0240'
+    assert report['ordinary_vowel_correction_denominator'] == 0
 
 
 def test_path_6_2_full_saturation_keeps_residual_drift() -> None:

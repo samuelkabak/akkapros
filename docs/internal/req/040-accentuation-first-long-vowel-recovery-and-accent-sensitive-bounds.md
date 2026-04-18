@@ -1,6 +1,6 @@
 ---
 req_id: REQ-040
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-18
@@ -35,30 +35,30 @@ ordinary non-accented long vowels and accent-bearing long vowels.
 
 # Acceptance Criteria
 
-- [ ] Given a syllable is accent-bearing, when Phase 2 realizes it, then the
+- [x] Given a syllable is accent-bearing, when Phase 2 realizes it, then the
       order is baseline assignment, accentuation, then any long-vowel cleanup.
-- [ ] Given a syllable is not accent-bearing, when long-vowel cleanup is
+- [x] Given a syllable is not accent-bearing, when long-vowel cleanup is
       considered, then the long-vowel recovery range is from
       `vowels.perception_limits.long_min` up to
       `vowels.perception_limits.very_long_min - 1`.
-- [ ] Given a syllable is accent-bearing with a long vowel model `CVV:` or
+- [x] Given a syllable is accent-bearing with a long vowel model `CVV:` or
       `CVV:C`, when post-accent long-vowel cleanup is considered, then the legal
       recovery range extends up to `vowels.perception_limits.elongation_max`.
-- [ ] Given a syllable is accent-bearing with model `C:V` or `CVC:`, when
+- [x] Given a syllable is accent-bearing with model `C:V` or `CVC:`, when
       long-vowel cleanup rules are evaluated, then the long-vowel cleanup path
       is not applicable because those models have no long vowel.
-- [ ] Given a non-accent-bearing long vowel, when absolute drift does not exceed
+- [x] Given a non-accent-bearing long vowel, when absolute drift does not exceed
       `drift_tolerance`, then ordinary long-vowel cleanup does not modify the
       vowel.
-- [ ] Given a non-accent-bearing long vowel and absolute drift exceeds
+- [x] Given a non-accent-bearing long vowel and absolute drift exceeds
       `drift_tolerance`, when ordinary long-vowel cleanup runs, then it attempts
       to reduce drift toward zero within the legal ordinary long-vowel range
       rather than merely trimming mismatch down to the tolerance limit.
-- [ ] Given an accent-bearing long vowel in `CVV:` or `CVV:C`, when post-accent
+- [x] Given an accent-bearing long vowel in `CVV:` or `CVV:C`, when post-accent
       cleanup runs, then activation is not gated by the ordinary
       `drift_tolerance` threshold and the solver may use the broader elongated
       range to reduce drift.
-- [ ] Given pause rows are realized, when pause discharge runs, then pauses
+- [x] Given pause rows are realized, when pause discharge runs, then pauses
       continue to target zero-drift discharge according to their existing pause
       logic; this requirement does not weaken pause recovery.
 
@@ -82,13 +82,15 @@ ordinary non-accented long vowels and accent-bearing long vowels.
 ---
 
 # Open Questions
-- [ ] None at draft time.
+- [x] None at draft time.
 
 ---
 
 # Implementation Notes (optional)
 - Migration: expect gold phone/ophone and downstream metrics outputs to refresh
   because timing values may change for accent-bearing long-vowel cases.
+- Implemented by CR-074 with updated unit, integration, metrics-reference, and
+      flowchart-sync coverage.
 
 # Related
 - Related ADRs: [ADR-049](../adr/049-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md), [ADR-046](../adr/046-phonetizer-mini-band-and-row-derived-pause-reporting.md), [ADR-041](../adr/041-stability-first-phonetizer-timing-control-and-validation-boundary.md), [ADR-040](../adr/040-two-phase-phonetizer-architecture-and-dual-phone-outputs.md)

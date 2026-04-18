@@ -1671,25 +1671,31 @@ def _diagnostic_rate(count: int, denominator: int) -> float:
     return round(count / denominator, 4)
 
 
+def _supports_post_accent_long_vowel_cleanup(
+    rows: list[dict[str, str]],
+    analysis: dict[str, Any],
+) -> bool:
+    return rows[analysis['nucleus_index']]['length'] == 'L' and analysis['accent_shape'] in {'CVV:', 'CVV:C'}
+
+
 def _apply_vowel_correction(
     rows: list[dict[str, str]],
     analysis: dict[str, Any],
     durations: dict[int, float],
     drift_after_assignment: float,
-    tolerance: float,
-    config: dict[str, Any],
+    minimum: float,
+    maximum: float,
 ) -> tuple[float, str | None]:
     vowel_index = analysis['nucleus_index']
-    minimum, maximum = _vowel_bounds(rows[vowel_index], config, ordinary_recovery=True)
     current = durations[vowel_index]
-    if drift_after_assignment > tolerance:
-        reducible = min(current - minimum, drift_after_assignment - tolerance)
+    if drift_after_assignment > 0:
+        reducible = min(current - minimum, drift_after_assignment)
         if reducible > 0:
             durations[vowel_index] = current - reducible
             drift_after_assignment -= reducible
             return drift_after_assignment, 'shorten'
-    elif drift_after_assignment < -tolerance:
-        extendable = min(maximum - current, abs(drift_after_assignment) - tolerance)
+    elif drift_after_assignment < 0:
+        extendable = min(maximum - current, abs(drift_after_assignment))
         if extendable > 0:
             durations[vowel_index] = current + extendable
             drift_after_assignment += extendable
@@ -1967,25 +1973,6 @@ def realize_phone_rows(
         drift_after_assignment = drift_cursor + (realized_total - shape_ref)
         cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
 
-        nucleus_row = rows[analysis['nucleus_index']]
-        if abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
-            ordinary_vowel_correction_denominator += 1
-            drift_after_assignment, correction_kind = _apply_vowel_correction(
-                rows,
-                analysis,
-                durations,
-                drift_after_assignment,
-                tolerance,
-                config,
-            )
-            if correction_kind is not None:
-                ordinary_vowel_correction_count += 1
-                if correction_kind == 'shorten':
-                    ordinary_vowel_correction_shorten_count += 1
-                elif correction_kind == 'lengthen':
-                    ordinary_vowel_correction_lengthen_count += 1
-
-        drift_portion = drift_after_assignment
         accent_target = 0.0
         if allow_accentuation and analysis['accent_shape'] is not None:
             accent_increment_applied = _apply_accent_increment(
@@ -1993,11 +1980,41 @@ def realize_phone_rows(
                 analysis,
                 durations,
                 config,
-                drift_portion,
+                drift_after_assignment,
                 next_same_onset,
             )
             accent_target = float(_round_half_up(0.5 * cvc_reference))
-            drift_after_assignment = drift_portion + (accent_increment_applied - accent_target)
+            emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
+            drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
+
+        nucleus_row = rows[analysis['nucleus_index']]
+        if _supports_post_accent_long_vowel_cleanup(rows, analysis):
+            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=False)
+            drift_after_assignment, _correction_kind = _apply_vowel_correction(
+                rows,
+                analysis,
+                durations,
+                drift_after_assignment,
+                minimum,
+                maximum,
+            )
+        elif abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
+            ordinary_vowel_correction_denominator += 1
+            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=True)
+            drift_after_assignment, correction_kind = _apply_vowel_correction(
+                rows,
+                analysis,
+                durations,
+                drift_after_assignment,
+                minimum,
+                maximum,
+            )
+            if correction_kind is not None:
+                ordinary_vowel_correction_count += 1
+                if correction_kind == 'shorten':
+                    ordinary_vowel_correction_shorten_count += 1
+                elif correction_kind == 'lengthen':
+                    ordinary_vowel_correction_lengthen_count += 1
 
         emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
         drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
