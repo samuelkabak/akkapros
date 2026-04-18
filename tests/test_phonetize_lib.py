@@ -320,12 +320,12 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
     assert [row['drift'] for row in rows[:2]] == ['+000', '+000']
     assert rows[2]['drift'].startswith(('-', '+'))
     assert rows[-1]['length'] == 'L'
-    assert rows[-1]['drift'] == _format_row_drift_token(report['drift']['current'])
+    assert rows[-1]['drift'] == _format_row_drift_token(report['post_unit_drift']['current'])
     assert int(rows[-1]['duration']) >= 1200
     assert report['one_mora_ref'] == 150.0
     assert report['two_mora_ref'] == 300.0
     assert report['three_mora_ref'] == 450.0
-    assert report['drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
+    assert report['post_unit_drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
 
 
 def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
@@ -358,7 +358,7 @@ def test_phase2_supports_all_active_accent_classes() -> None:
         rows = build_phone_rows(sample)
         report = realize_phone_rows(rows, extensible, allow_accentuation=True)
         assert all(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in rows)
-        assert report['drift']['max'] >= 0
+        assert report['post_unit_drift']['max'] >= 0
 
 
 def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
@@ -373,9 +373,9 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert any(row['category'] == 'S' and row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in accentuated_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in original_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in accentuated_rows)
-    assert original_report['drift']['stddev'] >= 0
-    assert accentuated_report['drift']['stddev'] >= 0
-    assert 'label' in original_report['drift'] and 'label' in accentuated_report['drift']
+    assert original_report['post_unit_drift']['stddev'] >= 0
+    assert accentuated_report['post_unit_drift']['stddev'] >= 0
+    assert 'label' in original_report['post_unit_drift'] and 'label' in accentuated_report['post_unit_drift']
 
 
 def test_phase2_non_final_rows_keep_last_completed_unit_drift() -> None:
@@ -487,8 +487,8 @@ def test_phase2_short_pause_can_leave_residual_drift_when_band_blocks_full_disch
     assert pause_rows[0]['length'] == 'S'
     assert pause_rows[0]['duration'] == '0600'
     assert pause_rows[1]['length'] == 'L'
-    assert report['drift']['current'] == 0
-    assert report['drift']['label'] == 'On the beat'
+    assert report['post_unit_drift']['current'] == 0
+    assert report['post_unit_drift']['label'] == 'On the beat'
 
 
 def test_phase2_short_vowels_stay_hard_during_ordinary_drift_recovery() -> None:
@@ -623,8 +623,8 @@ def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
     assert len(pause_rows) == 1
     assert pause_rows[0]['length'] == 'L'
     assert 1200 <= int(pause_rows[0]['duration']) <= 1780
-    assert report['drift']['current'] == 0
-    assert report['drift']['label'] == 'On the beat'
+    assert report['post_unit_drift']['current'] == 0
+    assert report['post_unit_drift']['label'] == 'On the beat'
 
 
 def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
@@ -642,10 +642,10 @@ def test_phase2_extensible_reports_drift_summary_and_extensions() -> None:
         allow_accentuation=True,
     )
 
-    assert set(report['drift']) == {'max', 'mean', 'stddev', 'current', 'label'}
-    assert report['drift']['max'] > 0
-    assert report['drift_extension_count'] > 0
-    assert report['max_drift_extension'] > 0
+    assert set(report['post_unit_drift']) == {'max', 'mean', 'stddev', 'current', 'label'}
+    assert report['post_unit_drift']['max'] > 0
+    assert report['post_unit_drift_extension_count'] > 0
+    assert report['max_post_unit_drift_extension'] > 0
 
 
 def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
@@ -657,8 +657,8 @@ def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
         allow_accentuation=True,
     )
 
-    assert report['drift']['current'] == 0
-    assert report['drift']['label'] == 'On the beat'
+    assert report['post_unit_drift']['current'] == 0
+    assert report['post_unit_drift']['label'] == 'On the beat'
 
 
 def test_shared_verification_uses_extensible_canonical_drift_default() -> None:

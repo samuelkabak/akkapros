@@ -225,7 +225,7 @@ phonetize:
             very_long_min: 233
             # Upper contextual bound for vowel extension. Ordinary non-accentual
             # long-vowel recovery still stops at very_long_min - 1.
-            elongation_max: 280
+            elongation_max: 280 
         pauses:
           # Default mini-pause band. Non-punctuation recovery gap used only when one
           # legal mini duration lands the stream on an equivalent beat checkpoint:

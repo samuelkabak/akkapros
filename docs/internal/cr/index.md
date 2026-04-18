@@ -4,7 +4,7 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 
 [074. Apply Accentuation Before Ordinary Long-Vowel Drift Recovery](074-apply-accentuation-before-ordinary-long-vowel-drift-recovery.md) - Draft
 [073. Add Probability-Oriented Phonetizer Diagnostic Statistics](073-add-probability-oriented-phonetizer-diagnostic-statistics.md) - Draft
-[072. Rename Drift Reporting to Post-Unit Drift](072-rename-drift-reporting-to-post-unit-drift.md) - Draft
+[072. Rename Drift Reporting to Post-Unit Drift](072-rename-drift-reporting-to-post-unit-drift.md) - Done
 [071. Governance Housekeeping and Structuring](071-governance-housekeeping-and-structuring.md) - Done
 [070. Coalesce Consecutive EOL Pause Rows While Preserving Repeated EOL Text](070-coalesce-consecutive-eol-pause-rows-while-preserving-repeated-eol-text.md) - Done
 [069. Replace Drift-Aware Accentuation With Ratio-Preserving Shortfall Carry](069-replace-drift-aware-accentuation-with-ratio-preserving-shortfall-carry.md) - Done

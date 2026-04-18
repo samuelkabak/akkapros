@@ -177,16 +177,17 @@ Prominence statistics are derived from phone structure:
 - `function_word_count` is computed from the reconstructed lexical stream
 - `explicit_word_link_count` is computed from `boundary=X` rows
 
-## Drift Reporting
+## Post-Unit Drift Reporting
 
-Metricalc consumes the phonetizer drift summary directly from front matter:
+Metricalc consumes the phonetizer post-unit drift summary directly from front matter:
 
-- `metadata.data.phonetize.drift.max`
-- `metadata.data.phonetize.drift.mean`
-- `metadata.data.phonetize.drift.stddev`
+- `metadata.data.phonetize.post_unit_drift.max`
+- `metadata.data.phonetize.post_unit_drift.mean`
+- `metadata.data.phonetize.post_unit_drift.stddev`
 
 Those values are reported for both original and accentuated streams in table
-and JSON outputs.
+and JSON outputs. They summarize completed syllable/pause drift history, not a
+segment-by-segment drift trace.
 
 ## Reading the Outputs
 

@@ -2016,15 +2016,15 @@ def realize_phone_rows(
         'one_mora_ref': one_mora_ref,
         'two_mora_ref': two_mora_ref,
         'three_mora_ref': three_mora_ref,
-        'drift': {
+        'post_unit_drift': {
             'max': round(max_abs, 4),
             'mean': round(mean, 4),
             'stddev': round(stddev, 4),
             'current': round(drift_cursor, 4),
             'label': _drift_label(drift_cursor),
         },
-        'drift_extension_count': drift_extension_count,
-        'max_drift_extension': round(max_drift_extension, 4),
+        'post_unit_drift_extension_count': drift_extension_count,
+        'max_post_unit_drift_extension': round(max_drift_extension, 4),
     }
 
 
@@ -2260,8 +2260,8 @@ def _test_finalized_stream_generation() -> bool:
         and any(row['duration'] != PHONE_ROW_DURATION_PLACEHOLDER for row in _accentuated_rows)
         and all(row['intonation'] for row in _original_rows)
         and all(row['intonation'] for row in _accentuated_rows)
-        and 'stddev' in original_report['drift']
-        and 'stddev' in accentuated_report['drift']
+        and 'stddev' in original_report['post_unit_drift']
+        and 'stddev' in accentuated_report['post_unit_drift']
     )
 
 

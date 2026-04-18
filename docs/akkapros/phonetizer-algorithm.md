@@ -538,18 +538,18 @@ contour.
 
 The original stream remains neutral in the current scope.
 
-## Drift Reporting
+## Post-Unit Drift Reporting
 
-Finalized front matter carries the phonetizer drift summary for each emitted
+Finalized front matter carries the phonetizer post-unit drift summary for each emitted
 stream:
 
-- `metadata.data.phonetize.drift.max`
-- `metadata.data.phonetize.drift.mean`
-- `metadata.data.phonetize.drift.stddev`
-- `metadata.data.phonetize.drift.current`
-- `metadata.data.phonetize.drift.label`
-- `metadata.data.phonetize.drift_extension_count`
-- `metadata.data.phonetize.max_drift_extension`
+- `metadata.data.phonetize.post_unit_drift.max`
+- `metadata.data.phonetize.post_unit_drift.mean`
+- `metadata.data.phonetize.post_unit_drift.stddev`
+- `metadata.data.phonetize.post_unit_drift.current`
+- `metadata.data.phonetize.post_unit_drift.label`
+- `metadata.data.phonetize.post_unit_drift_extension_count`
+- `metadata.data.phonetize.max_post_unit_drift_extension`
 
 ## Metrics Handoff
 
@@ -560,7 +560,7 @@ That means the phonetizer owns the duration-bearing representation used for:
 
 - interval metrics
 - pause totals
-- drift reporting
+- post-unit drift reporting
 - downstream printer and MBROLA export
 
 See also: `docs/akkapros/phonetizer-phone-file-guide.md`

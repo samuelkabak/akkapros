@@ -105,8 +105,8 @@ For both original and accentuated streams, metricalc reports:
 Pause intervals remain in the denominator for `%C` and `%V`, but are excluded
 from `mean`, `Δ`, `Varco`, and PVI calculations.
 
-The stage also reports the phonetizer drift summary consumed from
-`metadata.data.phonetize.drift` in both streams.
+The stage also reports the phonetizer post-unit drift summary consumed from
+`metadata.data.phonetize.post_unit_drift` in both streams.
 
 Interpretation guide:
 

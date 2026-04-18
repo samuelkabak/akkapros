@@ -189,7 +189,7 @@ LEXLINKS_REFERENCE_METRICS = {
             "rpvi_c": 63.35963182117028,
             "npvi_v": 20.909239469187497,
         },
-        "drift": {
+        "post_unit_drift": {
             "max": 190.0,
             "mean": 21.1605,
             "stddev": 52.0115,
@@ -233,7 +233,7 @@ LEXLINKS_REFERENCE_METRICS = {
             "rpvi_c": 81.3983579638752,
             "npvi_v": 32.28125023403665,
         },
-        "drift": {
+        "post_unit_drift": {
             "max": 221.0,
             "mean": 11.5568,
             "stddev": 58.6987,
@@ -317,10 +317,10 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
-                    "drift": {
-                        "max": ophone_report["drift"]["max"],
-                        "mean": ophone_report["drift"]["mean"],
-                        "stddev": ophone_report["drift"]["stddev"],
+                    "post_unit_drift": {
+                        "max": ophone_report["post_unit_drift"]["max"],
+                        "mean": ophone_report["post_unit_drift"]["mean"],
+                        "stddev": ophone_report["post_unit_drift"]["stddev"],
                     },
                 }
             }
@@ -330,10 +330,10 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
-                    "drift": {
-                        "max": phone_report["drift"]["max"],
-                        "mean": phone_report["drift"]["mean"],
-                        "stddev": phone_report["drift"]["stddev"],
+                    "post_unit_drift": {
+                        "max": phone_report["post_unit_drift"]["max"],
+                        "mean": phone_report["post_unit_drift"]["mean"],
+                        "stddev": phone_report["post_unit_drift"]["stddev"],
                     },
                 }
             }
@@ -781,8 +781,8 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
     for key, expected in VARCO_VERIFICATION_ACCENTUATED.items():
         assert math.isclose(result["accentuated"]["acoustic"][key], expected, rel_tol=0.0, abs_tol=1e-9), key
 
-    assert result["original"]["drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
-    assert result["accentuated"]["drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
+    assert result["original"]["post_unit_drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
+    assert result["accentuated"]["post_unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
 
 
 def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
@@ -831,8 +831,8 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "VarcoV: 25.90" in table
     assert "rPVI-C: 63.36" in table
     assert "nPVI-V: 20.91" in table
-    assert "Drift max: 190.00 ms" in table
-    assert "Drift mean: 21.16 ms" in table
-    assert "Drift stddev: 52.01 ms" in table
+    assert "Post-unit drift max: 190.00 ms" in table
+    assert "Post-unit drift mean: 21.16 ms" in table
+    assert "Post-unit drift stddev: 52.01 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

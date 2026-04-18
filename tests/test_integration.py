@@ -73,7 +73,7 @@ GOLD_REGULAR_METRICS = {
             "rpvi_c": 68.52173913043478,
             "npvi_v": 19.56809762705244,
         },
-        "drift": {
+        "post_unit_drift": {
             "max": 115.0,
             "mean": 23.3333,
             "stddev": 37.6278,
@@ -125,7 +125,7 @@ GOLD_REGULAR_METRICS = {
             "rpvi_c": 84.78260869565217,
             "npvi_v": 33.87121263935948,
         },
-        "drift": {
+        "post_unit_drift": {
             "max": 134.0,
             "mean": -1.1481,
             "stddev": 43.5624,
@@ -233,7 +233,7 @@ GOLD_MONO_METRICS = {
             "rpvi_c": 105.65217391304348,
             "npvi_v": 38.234849002995844,
         },
-        "drift": {
+        "post_unit_drift": {
             "max": 134.0,
             "mean": -1.1481,
             "stddev": 43.5624,
@@ -413,9 +413,9 @@ def _assert_phone_artifact(path: Path) -> None:
     assert any(row['duration'] != '0000' for row in all_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in all_rows)
     assert all(len(row['intonation']) == 3 for row in all_rows)
-    assert frontmatter['metadata']['data']['phonetize']['drift']['max'] >= 0
-    assert 'mean' in frontmatter['metadata']['data']['phonetize']['drift']
-    assert 'stddev' in frontmatter['metadata']['data']['phonetize']['drift']
+    assert frontmatter['metadata']['data']['phonetize']['post_unit_drift']['max'] >= 0
+    assert 'mean' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
+    assert 'stddev' in frontmatter['metadata']['data']['phonetize']['post_unit_drift']
 
 
 def _assert_pho_artifact(path: Path) -> None:
@@ -1039,8 +1039,8 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
             "VarcoC: 55.46",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Drift max: 115.00 ms",
-            "Drift max: 134.00 ms",
+        "Post-unit drift max: 115.00 ms",
+            "Post-unit drift max: 134.00 ms",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2

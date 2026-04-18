@@ -255,11 +255,11 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 - `metadata.data.phonetize.source_variant`
 - `metadata.data.phonetize.phone_row_count`
 - `metadata.data.phonetize.silence_row_count`
-- `metadata.data.phonetize.drift.max`
-- `metadata.data.phonetize.drift.mean`
-- `metadata.data.phonetize.drift.stddev`
+- `metadata.data.phonetize.post_unit_drift.max`
+- `metadata.data.phonetize.post_unit_drift.mean`
+- `metadata.data.phonetize.post_unit_drift.stddev`
 
-`metricalc.py` reads drift summary from this frontmatter instead of recomputing it, while the row-level `drift` column remains available for local inspection of where the solver stood after each completed syllable or pause.
+`metricalc.py` reads post-unit drift summary from this frontmatter instead of recomputing it, while the row-level `drift` column remains available for local inspection of where the solver stood after each completed syllable or pause. The row column is still named `drift`, but it carries the latest completed-unit post-unit drift token rather than a segment-by-segment trace.
 
 ## How `.pho` Export Relates to Phone Rows
 

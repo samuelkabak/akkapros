@@ -1104,8 +1104,9 @@ def compute_interval_metrics(rows: List[Dict[str, str]]) -> Dict[str, Union[floa
     }
 
 
-def _extract_drift_summary(input_frontmatter: Dict | None) -> Dict[str, float]:
-    drift = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {}).get('drift', {})
+def _extract_post_unit_drift_summary(input_frontmatter: Dict | None) -> Dict[str, float]:
+    phonetize_data = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {})
+    drift = phonetize_data.get('post_unit_drift', phonetize_data.get('drift', {}))
     return {
         'max': float(drift.get('max', 0.0) or 0.0),
         'mean': float(drift.get('mean', 0.0) or 0.0),
@@ -1189,14 +1190,14 @@ def process_phone_pair(
             'stats': original_stats,
             'speech': speech_original,
             'acoustic': compute_interval_metrics(ophone_rows),
-            'drift': _extract_drift_summary(ophone_frontmatter),
+            'post_unit_drift': _extract_post_unit_drift_summary(ophone_frontmatter),
             'prominence_statistics': prominence_statistics,
         },
         'accentuated': {
             'stats': accentuated_stats,
             'speech': speech_accentuated,
             'acoustic': compute_interval_metrics(phone_rows),
-            'drift': _extract_drift_summary(phone_frontmatter),
+            'post_unit_drift': _extract_post_unit_drift_summary(phone_frontmatter),
         },
         'accentuation_stats': accentuation_stats,
     }
@@ -1520,14 +1521,14 @@ def process_filetext(
             'stats': original_stats,
             'speech': speech_original,
             'acoustic': compute_interval_metrics(ophone_rows),
-            'drift': ophone_report['drift'],
+            'post_unit_drift': ophone_report['post_unit_drift'],
             'prominence_statistics': resolved_prominence_statistics,
         },
         'accentuated': {
             'stats': accentuated_stats,
             'acoustic': compute_interval_metrics(phone_rows),
             'speech': speech_accentuated,
-            'drift': phone_report['drift'],
+            'post_unit_drift': phone_report['post_unit_drift'],
         },
         'accentuation_stats': accentuation_stats
     }
@@ -1600,9 +1601,9 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  VarcoV: {orig['acoustic']['varco_v']:.2f}")
     lines.append(f"  rPVI-C: {orig['acoustic']['rpvi_c']:.2f}")
     lines.append(f"  nPVI-V: {orig['acoustic']['npvi_v']:.2f}")
-    lines.append(f"  Drift max: {orig['drift']['max']:.2f} ms")
-    lines.append(f"  Drift mean: {orig['drift']['mean']:.2f} ms")
-    lines.append(f"  Drift stddev: {orig['drift']['stddev']:.2f} ms")
+    lines.append(f"  Post-unit drift max: {orig['post_unit_drift']['max']:.2f} ms")
+    lines.append(f"  Post-unit drift mean: {orig['post_unit_drift']['mean']:.2f} ms")
+    lines.append(f"  Post-unit drift stddev: {orig['post_unit_drift']['stddev']:.2f} ms")
     
     # --- ACCENTUATED TEXT ---
     lines.append("\n--- ACCENTUATED TEXT ---")
@@ -1655,9 +1656,9 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     lines.append(f"  VarcoV: {rep['acoustic']['varco_v']:.2f}")
     lines.append(f"  rPVI-C: {rep['acoustic']['rpvi_c']:.2f}")
     lines.append(f"  nPVI-V: {rep['acoustic']['npvi_v']:.2f}")
-    lines.append(f"  Drift max: {rep['drift']['max']:.2f} ms")
-    lines.append(f"  Drift mean: {rep['drift']['mean']:.2f} ms")
-    lines.append(f"  Drift stddev: {rep['drift']['stddev']:.2f} ms")
+    lines.append(f"  Post-unit drift max: {rep['post_unit_drift']['max']:.2f} ms")
+    lines.append(f"  Post-unit drift mean: {rep['post_unit_drift']['mean']:.2f} ms")
+    lines.append(f"  Post-unit drift stddev: {rep['post_unit_drift']['stddev']:.2f} ms")
     
     # --- ACCENTUATION STATISTICS ---
     lines.append("\n--- ACCENTUATION STATISTICS ---")
@@ -2085,7 +2086,7 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "rPVI-C:" not in table or "nPVI-V:" not in table:
         return False
-    if "Drift max:" not in table or "Drift stddev:" not in table:
+    if "Post-unit drift max:" not in table or "Post-unit drift stddev:" not in table:
         return False
     if "VarcoC: " not in table or "%" in "\n".join(
         line for line in table.splitlines() if "VarcoC:" in line
@@ -2328,7 +2329,7 @@ def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
             'pipeline': 'pipeline',
             'step': 'phonetize',
             'file': {'id': 'ophone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
-            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'drift': ophone_report['drift']}}},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'post_unit_drift': ophone_report['post_unit_drift']}}},
         },
         serialize_phone_rows(ophone_rows),
     )
@@ -2338,7 +2339,7 @@ def _write_phone_pair_fixture(document_text: str) -> Tuple[str, str]:
             'pipeline': 'pipeline',
             'step': 'phonetize',
             'file': {'id': 'phone-id', 'title': 'Metrics Test', 'format': 'phone', 'version': '1.0.0', 'date': '2026-04-10'},
-            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'drift': phone_report['drift']}}},
+            'metadata': {'input_file_id': 'tilde-id', 'options': {}, 'data': {'phonetize': {'post_unit_drift': phone_report['post_unit_drift']}}},
         },
         serialize_phone_rows(phone_rows),
     )

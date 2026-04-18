@@ -31,7 +31,7 @@ The current implementation now follows a three-pass contract for both
 - Pass 2 realizes non-zero durations over the prebuilt row streams
 - Pass 3 assigns row-carried intonation tokens over the duration-bearing rows
 - deterministic original-stream derivation from `_tilde` by removing `~` and replacing `&` with space while preserving `+`
-- drift reporting in front matter under `metadata.data.phonetize.drift`
+- post-unit drift reporting in front matter under `metadata.data.phonetize.post_unit_drift`
 
 In researcher-facing terms:
 
@@ -98,7 +98,8 @@ Phase 2 diagnostics to look for:
 
 - row durations are finalized non-zero millisecond values rather than `0000`
 - row-level drift changes only on syllable-final rows and pause rows
-- front matter reports `metadata.data.phonetize.drift.max`, `mean`, `stddev`, `current`, and the current drift label
+- front matter reports `metadata.data.phonetize.post_unit_drift.max`, `mean`, `stddev`, `current`, and the current post-unit drift label
+- these front matter statistics summarize completed-unit drift history, not a segment-by-segment timing trace
 - short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
 - inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...|<space>`, where the final field is one literal space character
 - internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized

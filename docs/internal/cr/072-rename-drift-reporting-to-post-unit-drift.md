@@ -1,6 +1,6 @@
 ---
 cr_id: CR-072
-status: Draft
+status: Done
 priority: Medium
 impact: Mutative
 created: 2026-04-18
@@ -194,6 +194,9 @@ Compatibility note:
   make the migration path explicit in docs/tests. If temporary backward-compat
   aliases are introduced during implementation, they must be documented as a
   transition aid rather than a new long-term dual contract.
+- Implementation note: emitted metadata now uses only the `post_unit_drift`
+  names. `metricalc` retains a legacy read fallback for older phone artifacts
+  that still carry `metadata.data.phonetize.drift`.
 
 ---
 
@@ -216,18 +219,18 @@ Compatibility note:
 
 ## Acceptance Criteria
 
-- [ ] Front matter no longer uses ambiguous top-level reporting key
+- [x] Front matter no longer uses ambiguous top-level reporting key
       `metadata.data.phonetize.drift`; it uses
       `metadata.data.phonetize.post_unit_drift` instead.
-- [ ] Front matter no longer uses ambiguous keys `drift_extension_count` and
+- [x] Front matter no longer uses ambiguous keys `drift_extension_count` and
       `max_drift_extension`; they are renamed to explicit post-unit-drift forms.
-- [ ] User-facing headings and table labels that present these statistics use
+- [x] User-facing headings and table labels that present these statistics use
       `Post-unit drift` terminology.
-- [ ] The rename does not change any reported numeric values for the same input.
-- [ ] Docs explicitly state that the statistics and extension counters refer to
+- [x] The rename does not change any reported numeric values for the same input.
+- [x] Docs explicitly state that the statistics and extension counters refer to
       post-unit drift rather than segmental drift.
-- [ ] Tests are updated to pin the renamed labels/keys and unchanged values.
-- [ ] Any remaining use of bare `drift` in public docs is either row-column
+- [x] Tests are updated to pin the renamed labels/keys and unchanged values.
+- [x] Any remaining use of bare `drift` in public docs is either row-column
       specific or clearly defined as post-unit drift.
 
 ---
@@ -281,25 +284,25 @@ change solver behavior. A rollback would restore the old labels only.
 
 ### Implementation
 
-- [ ] Rename front matter drift group to `post_unit_drift`
-- [ ] Rename extension counters to explicit post-unit-drift names
-- [ ] Update human-readable report labels/headings
+- [x] Rename front matter drift group to `post_unit_drift`
+- [x] Rename extension counters to explicit post-unit-drift names
+- [x] Update human-readable report labels/headings
 
 ### Tests
 
-- [ ] Update fixtures and assertions for renamed keys
-- [ ] Verify identical numeric values before/after the rename
+- [x] Update fixtures and assertions for renamed keys
+- [x] Verify identical numeric values before/after the rename
 
 ### Documentation
 
-- [ ] Update phonetizer and metrics docs to use `Post-unit drift` terminology
-- [ ] Add one explicit sentence distinguishing post-unit drift from segmental
+- [x] Update phonetizer and metrics docs to use `Post-unit drift` terminology
+- [x] Add one explicit sentence distinguishing post-unit drift from segmental
       drift
 
 ### Review
 
-- [ ] Verify no behavior change accompanied the rename
-- [ ] Verify no ambiguous residual titles remain in user-facing artifacts
+- [x] Verify no behavior change accompanied the rename
+- [x] Verify no ambiguous residual titles remain in user-facing artifacts
 
 ---
 
