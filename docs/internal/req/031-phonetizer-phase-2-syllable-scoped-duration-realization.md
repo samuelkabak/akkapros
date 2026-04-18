@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-08
-updated: 2026-04-17
+updated: 2026-04-18
 related_adrs: 'ADR-041, ADR-040, ADR-039'
-implemented_by: 'CR-040, CR-067'
+implemented_by: 'CR-040, CR-067, CR-068, CR-069'
 ---
 
 # Requirement: Phonetizer Phase 2 Syllable-Scoped Duration Realization
@@ -149,25 +149,20 @@ phonetizer used, without recomputing that history independently.
   checked, then its maximum legal emitted duration is
   `phonetize.timing_model.durations.vowels.perception_limits.long_min - 1`
   and it is never equal to or greater than `long_min`.
-- [ ] Given `phonetize.process.accentuation_distribution_policy` is `85_15`,
-  when accentuation is realized, then the solver begins from an intended
-  eighty-five/fifteen split between the accentuated segment and the
-  adjacent segment, and then clamps or redistributes only as required by
-  the legal maxima of those segment classes.
-- [ ] Given `phonetize.process.accentuation_distribution_policy` is `70_30`,
-  when accentuation is realized, then the solver begins from an intended
-  seventy/thirty split between the accentuated segment and the adjacent
-  segment, and then clamps or redistributes only as required by the legal
-  maxima of those segment classes.
+- [ ] Given `phonetize.process.accentuation_distribution_policy` is one of
+  `95_05`, `90_10`, `85_15`, `80_20`, `75_25`, or `70_30`, when accentuation
+  is realized, then the solver begins from the configured primary/adjacent
+  ratio and scales the realizable total increment down only as required to keep
+  that ratio inside the legal maxima of both segment classes.
 - [ ] Given accentuation is realized on a long vowel or consonant, when the
   increment is applied, then the accentuated segment is not extended beyond
   the configured legal maximum for its segment class, including long-vowel
   maxima and gemination maxima.
 - [ ] Given accentuation distribution and ordinary legality checks are applied,
   when a non-zero `drift_cursor` enters the accentuated syllable, then the
-  solver uses the accentuation increment as additional recovery space and
-  attempts to bring the signed `drift_cursor` to `0`, or otherwise as close
-  to `0` as the legal segment limits allow.
+  solver still targets the full `0.5 * cvc_reference` accent increment instead
+  of shrinking that target by entry drift, and any unrealized remainder is
+  carried into the updated signed `drift_cursor`.
 - [ ] Given the syllable is still mismatched after ordinary drift correction,
       when vowel recovery is attempted, then only the nucleus duration may be
       adjusted and only within the legal min/max range of the vowel's current

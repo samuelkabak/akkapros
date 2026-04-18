@@ -4,9 +4,10 @@ from pathlib import Path
 
 from akkapros.lib.frontmatter import compose_text_document, split_frontmatter
 from akkapros.lib import metrics
+from akkapros.lib.config import load_config_file
 from akkapros.lib import print as printlib
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR
-from akkapros.lib.phonetize import build_default_phonetize_config, build_phone_rows, parse_phone_row, realize_phone_streams, serialize_phone_rows
+from akkapros.lib.phonetize import build_phone_rows, parse_phone_row, realize_phone_streams, serialize_phone_rows
 from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
 from akkapros.lib.syllabify import syllabify_text
 from akkapros.lib.utils import format_path_for_logging
@@ -32,16 +33,16 @@ VARCO_VERIFICATION_ORIGINAL = {
     "npvi_v": 21.698221153635842,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
-    "percent_c": 33.013333333333335,
-    "percent_v": 36.733333333333334,
-    "mean_c_ms": 123.8,
-    "mean_v_ms": 137.75,
-    "delta_c_ms": 64.1237865382262,
-    "delta_v_ms": 51.86508941474988,
-    "varco_c": 51.796273455756214,
-    "varco_v": 37.651607560616974,
-    "rpvi_c": 75.78947368421052,
-    "npvi_v": 30.249305872660635,
+    "percent_c": 31.94871794871795,
+    "percent_v": 36.87179487179487,
+    "mean_c_ms": 118.66666666666667,
+    "mean_v_ms": 143.8,
+    "delta_c_ms": 65.65953550836774,
+    "delta_v_ms": 59.72403201392217,
+    "varco_c": 55.3310692486245,
+    "varco_v": 41.532706546538364,
+    "rpvi_c": 74.0,
+    "npvi_v": 35.193777645070426,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "max": 150.0,
@@ -49,16 +50,22 @@ VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "stddev": 49.3203,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
-    "max": 189.0,
-    "mean": 28.1739,
-    "stddev": 63.0787,
+    "max": 150.0,
+    "mean": 24.9167,
+    "stddev": 59.1607,
 }
 LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
 LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+REGRESSION_CONFIG = REPO_ROOT / "tests" / "integration_refs" / "regression_defaults.yaml"
 LEXLINKS_REFERENCE_WORD_COUNTS = {
     "original": 1169,
     "accentuated": 963,
 }
+
+
+def _load_regression_phonetize_config() -> dict:
+    return load_config_file(REGRESSION_CONFIG)["phonetize"]
 LEXLINKS_REFERENCE_PROMINENCE = {
     "function_word_count": 189,
     "explicit_word_link_count": 63,
@@ -171,21 +178,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.793444599516068,
-            "percent_v": 30.34329553806641,
-            "mean_c_ms": 112.60675983100423,
-            "mean_v_ms": 110.63466042154566,
-            "delta_c_ms": 59.83111911232471,
-            "delta_v_ms": 43.67900892958426,
-            "varco_c": 53.13279522660708,
-            "varco_v": 39.480402220385855,
-            "rpvi_c": 72.50585175552666,
-            "npvi_v": 32.238025778638516,
+            "percent_c": 30.798102079730388,
+            "percent_v": 34.52432264644583,
+            "mean_c_ms": 114.0440065681445,
+            "mean_v_ms": 130.2372030779525,
+            "delta_c_ms": 52.43263910066622,
+            "delta_v_ms": 37.39708895937723,
+            "varco_c": 45.975795378020365,
+            "varco_v": 28.714597730568187,
+            "rpvi_c": 63.30617608409987,
+            "npvi_v": 22.67966642534912,
         },
         "drift": {
-            "max": 315.0,
-            "mean": -32.0933,
-            "stddev": 65.2012,
+            "max": 190.0,
+            "mean": 27.7274,
+            "stddev": 51.6121,
         },
         "prominence_statistics": {
             "function_word_count": 189,
@@ -215,21 +222,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 33.14144039904045,
-            "percent_v": 31.13352600456254,
-            "mean_c_ms": 124.91492829204694,
-            "mean_v_ms": 120.44831047172967,
-            "delta_c_ms": 74.31371974760972,
-            "delta_v_ms": 56.822572145599395,
-            "varco_c": 59.49146412177952,
-            "varco_v": 47.175898045440974,
-            "rpvi_c": 90.61102054124552,
-            "npvi_v": 41.781706015357734,
+            "percent_c": 32.08956858779912,
+            "percent_v": 35.6541118975396,
+            "mean_c_ms": 125.31720960842382,
+            "mean_v_ms": 141.56674473067915,
+            "delta_c_ms": 70.28693649534821,
+            "delta_v_ms": 54.13187846161707,
+            "varco_c": 56.087217960703406,
+            "varco_v": 38.2377079903894,
+            "rpvi_c": 82.06451612903226,
+            "npvi_v": 32.256226893477915,
         },
         "drift": {
-            "max": 412.0,
-            "mean": -36.9931,
-            "stddev": 74.6999,
+            "max": 249.0,
+            "mean": 20.3934,
+            "stddev": 50.5186,
         },
     },
     "accentuation_stats": {
@@ -283,7 +290,7 @@ def _sample_prominence_counts(function_word_count: int = 2, explicit_word_link_c
 def _write_phone_pair(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
     (ophone_rows, _ophone_report), (phone_rows, _phone_report) = realize_phone_streams(
         tilde_text,
-        build_default_phonetize_config(),
+        _load_regression_phonetize_config(),
         None,
     )
     ophone_file = tmp_path / f"{prefix}_ophone.txt"
@@ -303,7 +310,7 @@ def _build_varco_verification_tilde() -> str:
 def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
     (ophone_rows, ophone_report), (phone_rows, phone_report) = realize_phone_streams(
         tilde_text,
-        build_default_phonetize_config(),
+        _load_regression_phonetize_config(),
         None,
     )
     ophone_frontmatter = {
@@ -411,7 +418,7 @@ def test_small_corpus_metrics_match_fixed_reference_values() -> None:
 def test_compute_speech_metrics_from_rows_matches_manual_formula() -> None:
     (_ophone_rows, _ophone_report), (rows, _phone_report) = realize_phone_streams(
         _build_sample_tilde(),
-        build_default_phonetize_config(),
+        _load_regression_phonetize_config(),
         None,
     )
     stats = metrics.analyze_text(_build_sample_tilde(), is_accentuated=True)
@@ -814,18 +821,18 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 31.79%" in table
-    assert "%V: 30.34%" in table
-    assert "meanC: 112.61 ms" in table
-    assert "meanV: 110.63 ms" in table
-    assert "ΔC: 59.83 ms" in table
-    assert "ΔV: 43.68 ms" in table
-    assert "VarcoC: 53.13" in table
-    assert "VarcoV: 39.48" in table
-    assert "rPVI-C: 72.51" in table
-    assert "nPVI-V: 32.24" in table
-    assert "Drift max: 315.00 ms" in table
-    assert "Drift mean: -32.09 ms" in table
-    assert "Drift stddev: 65.20 ms" in table
+    assert "%C: 30.80%" in table
+    assert "%V: 34.52%" in table
+    assert "meanC: 114.04 ms" in table
+    assert "meanV: 130.24 ms" in table
+    assert "ΔC: 52.43 ms" in table
+    assert "ΔV: 37.40 ms" in table
+    assert "VarcoC: 45.98" in table
+    assert "VarcoV: 28.71" in table
+    assert "rPVI-C: 63.31" in table
+    assert "nPVI-V: 22.68" in table
+    assert "Drift max: 190.00 ms" in table
+    assert "Drift mean: 27.73 ms" in table
+    assert "Drift stddev: 51.61 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

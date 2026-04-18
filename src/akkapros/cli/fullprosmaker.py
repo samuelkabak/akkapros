@@ -535,7 +535,7 @@ Version: {__version__}
     # Phonetizer options
     parser.add_argument('--phonetize-geminate-policy', dest='phonetize_geminate_policy', choices=['corrective', 'cumulative'], default=None,
                         help=help_for('fullprosmaker.phonetize_geminate_policy'))
-    parser.add_argument('--phonetize-accentuation-distribution-policy', dest='phonetize_accentuation_distribution_policy', choices=['100_0', '85_15', '70_30'], default=None,
+    parser.add_argument('--phonetize-accentuation-distribution-policy', dest='phonetize_accentuation_distribution_policy', choices=['100_0', '95_05', '90_10', '85_15', '80_20', '75_25', '70_30'], default=None,
                         help=help_for('fullprosmaker.phonetize_accentuation_distribution_policy'))
     parser.add_argument('--phonetize-drift-tolerance', dest='phonetize_drift_tolerance', type=int, default=None,
                         help=help_for('fullprosmaker.phonetize_drift_tolerance'))

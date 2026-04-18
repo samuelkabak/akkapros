@@ -89,7 +89,7 @@ def run_tests() -> bool:
 
     defaults = _Args(
         geminate_policy='corrective',
-        accentuation_distribution_policy='85_15',
+        accentuation_distribution_policy='80_20',
         drift_tolerance=0,
     )
     config = build_runtime_default_config()[PHONETIZE_SECTION]
@@ -134,7 +134,7 @@ def main() -> None:
     parser.add_argument('-p', '--prefix', help=help_for('phonetizer.prefix'))
     parser.add_argument('--outdir', default='.', help=help_for('phonetizer.outdir'))
     parser.add_argument('--geminate-policy', dest='geminate_policy', choices=['corrective', 'cumulative'], default=None, help=help_for('phonetizer.geminate_policy'))
-    parser.add_argument('--accentuation-distribution-policy', dest='accentuation_distribution_policy', choices=['100_0', '85_15', '70_30'], default=None, help=help_for('phonetizer.accentuation_distribution_policy'))
+    parser.add_argument('--accentuation-distribution-policy', dest='accentuation_distribution_policy', choices=['100_0', '95_05', '90_10', '85_15', '80_20', '75_25', '70_30'], default=None, help=help_for('phonetizer.accentuation_distribution_policy'))
     parser.add_argument('--drift-tolerance', dest='drift_tolerance', type=int, default=None, help=help_for('phonetizer.drift_tolerance'))
     parser.add_argument('--test', action='store_true', help=help_for('phonetizer.test'))
 

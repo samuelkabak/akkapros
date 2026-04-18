@@ -4,6 +4,7 @@ import pytest
 
 from akkapros.lib import constants as lib_constants
 from akkapros.lib.phonetize import (
+    ACCENTUATION_DISTRIBUTION_CHOICES,
     CONSONANT_CLOSURE,
     CONSONANT_FRICATIVE,
     CONSONANT_HIATUS,
@@ -631,7 +632,8 @@ def test_phase2_default_policy_keeps_runtime_extensible_behavior() -> None:
 def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     defaults = build_default_phonetize_verification_config()
 
-    assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '85_15'
+    assert ACCENTUATION_DISTRIBUTION_CHOICES == ('100_0', '95_05', '90_10', '85_15', '80_20', '75_25', '70_30')
+    assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '80_20'
     assert 'drift_policy' not in defaults['process']['timing_model']
     assert 'short_pause_policy' not in defaults['process']['timing_model']
     assert defaults['process']['timing_model']['drift_tolerance'] == 0
@@ -930,10 +932,10 @@ def test_path_5_1_policy_100_0_primary_first() -> None:
     assert int(rows[1]['duration']) >= 160
 
 
-def test_path_5_2_policy_85_15_split() -> None:
+def test_path_5_2_policy_80_20_split() -> None:
     """Path 5.2"""
     rows = build_phone_rows('bā~')
-    realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '85_15'}}}, allow_accentuation=True)
+    realize_phone_rows(rows, {'process': {'timing_model': {'accentuation_distribution_policy': '80_20'}}}, allow_accentuation=True)
     assert int(rows[0]['duration']) > 89
 
 
@@ -944,7 +946,7 @@ def test_path_5_3_policy_70_30_split() -> None:
     assert int(rows[0]['duration']) > 89
 
 
-def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None:
+def test_path_5_4_accent_increment_uses_full_half_foot_even_with_entry_drift() -> None:
     """Path 5.4"""
     rows = build_phone_rows('bā~')
     analysis = _first_syllable_analysis('bā~')
@@ -967,12 +969,12 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
                     'sonorant': {'perception_limits': {'geminate_min': 135, 'gemination_max': 250}},
                 },
                 'vowels': {
-                    'short': 85,
+                    'short': 110,
                     'long': 160,
                     'perception_limits': {
-                        'long_min': 123,
-                        'very_long_min': 190,
-                        'elongation_max': 250,
+                        'long_min': 153,
+                        'very_long_min': 233,
+                        'elongation_max': 400,
                     },
                 },
             },
@@ -988,7 +990,56 @@ def test_path_5_4_accent_increment_quantity_uses_drift_portion_formula() -> None
         None,
     )
 
-    assert applied == 110.0
+    assert applied == 150.0
+
+
+def test_path_5_4b_preserved_ratio_caps_total_increment_under_legality_limits() -> None:
+    """Path 5.4b"""
+    rows = build_phone_rows('bā~')
+    analysis = _first_syllable_analysis('bā~')
+    durations = {
+        analysis['onset_indices'][0]: 89.0,
+        analysis['nucleus_index']: 160.0,
+    }
+    config = {
+        'process': {
+            'accentuation_distribution_policy': '80_20',
+        },
+        'timing_model': {
+            'durations': {
+                'segmental_ceiling': 310,
+                'segmental_floor': 10,
+                'cvc_reference': 300,
+                'consonants': {
+                    'closure': {'perception_limits': {'geminate_min': 120, 'gemination_max': 260}},
+                    'fricative': {'perception_limits': {'geminate_min': 163, 'gemination_max': 290}},
+                    'sonorant': {'perception_limits': {'geminate_min': 148, 'gemination_max': 275}},
+                },
+                'vowels': {
+                    'short': 110,
+                    'long': 160,
+                    'perception_limits': {
+                        'long_min': 153,
+                        'very_long_min': 233,
+                        'elongation_max': 220,
+                    },
+                },
+            },
+        },
+    }
+
+    applied = _apply_accent_increment(
+        rows,
+        analysis,
+        durations,
+        config,
+        40.0,
+        None,
+    )
+
+    assert applied == 75.0
+    assert durations[analysis['nucleus_index']] == 220.0
+    assert durations[analysis['onset_indices'][0]] == 104.0
 
 
 def test_path_5_5_consonant_class_mapping_covers_accent_legality_inventory() -> None:
@@ -1006,7 +1057,7 @@ def test_path_5_5_consonant_class_mapping_covers_accent_legality_inventory() -> 
     assert _consonant_timing_key(transition_row) == 'sonorant'
 
 
-def test_path_6_1_primary_saturation_spills_to_adjacent() -> None:
+def test_path_6_1_prior_long_vowel_correction_can_exhaust_accent_room() -> None:
     """Path 6.1"""
     rows = build_phone_rows('bā~')
     realize_phone_rows(
@@ -1022,7 +1073,8 @@ def test_path_6_1_primary_saturation_spills_to_adjacent() -> None:
         },
         allow_accentuation=True,
     )
-    assert int(rows[0]['duration']) > 89
+    assert rows[0]['duration'] == '0089'
+    assert rows[1]['duration'] == '0170'
 
 
 def test_path_6_2_full_saturation_keeps_residual_drift() -> None:
@@ -1050,7 +1102,7 @@ def test_path_6_2_full_saturation_keeps_residual_drift() -> None:
     )
     # Accent increment is fully constrained here; any remaining mismatch can be
     # discharged by later pauses in the stream.
-    assert rows[0]['duration'] == '0108'
+    assert rows[0]['duration'] == '0089'
     assert rows[1]['duration'] == '0160'
 
 
@@ -1075,7 +1127,7 @@ def test_path_7_3_adjacent_short_vowel_spill_stops_below_long_min() -> None:
 
     vowel_row = next(row for row in rows if row['text'] == 'i' and row['category'] == 'V')
     assert vowel_row['length'] == 'S'
-    assert vowel_row['duration'] == '0152'
+    assert vowel_row['duration'] == '0131'
 
 
 def test_path_7_2_adjacent_consonant_stays_singleton() -> None:

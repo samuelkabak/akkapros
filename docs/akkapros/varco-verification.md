@@ -52,7 +52,7 @@ current package defaults outside this worked verification example.
 ### Policy settings
 
 - `geminate_policy = corrective`
-- `accentuation_distribution_policy = 85_15`
+- `accentuation_distribution_policy = 80_20`
 - `drift_tolerance = 12`
 
 Note: `short_pause_policy` and `drift_policy` are no longer part of the public

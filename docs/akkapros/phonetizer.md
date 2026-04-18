@@ -157,7 +157,7 @@ python -m akkapros.cli.phonetizer <input_tilde.txt> -p <prefix> [options]
 | `-p, --prefix <name>` | Output prefix |
 | `--outdir <dir>` | Output directory |
 | `--geminate-policy {corrective,cumulative}` | Override `phonetize.process.timing_model.geminate_policy` |
-| `--accentuation-distribution-policy {100_0,85_15,70_30}` | Override `phonetize.process.timing_model.accentuation_distribution_policy` |
+| `--accentuation-distribution-policy {100_0,95_05,90_10,85_15,80_20,75_25,70_30}` | Override `phonetize.process.timing_model.accentuation_distribution_policy` |
 | `--drift-tolerance <int>` | Override `phonetize.process.timing_model.drift_tolerance` |
 | `-t, --option KEY=VALUE` | Override one config-backed runtime path; phonetize-owned runtime paths use `phonetize.process.intonation.*` and `phonetize.process.timing_model.*` |
 | `--conf <file>` | Load shared grouped config |

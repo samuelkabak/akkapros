@@ -102,7 +102,7 @@ Prosody:
 
 Phonetizer timing/config passthrough:
 
-- `--phonetize-accentuation-distribution-policy {100_0,85_15,70_30}`
+- `--phonetize-accentuation-distribution-policy {100_0,95_05,90_10,85_15,80_20,75_25,70_30}`
 - `--phonetize-drift-tolerance <int>`
 - `-t, --option KEY=VALUE`
 

@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-03
-updated: 2026-04-17
+updated: 2026-04-18
 related_adrs: 'ADR-001, ADR-003, ADR-004, ADR-021, ADR-036'
-implemented_by: 'CR-030, CR-034, CR-067'
+implemented_by: 'CR-030, CR-034, CR-067, CR-068, CR-069'
 ---
 
 # Requirement: Package-Wide YAML Config and Confwriter CLI

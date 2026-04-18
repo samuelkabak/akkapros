@@ -70,16 +70,18 @@ behavior drift, and provide reproducible checks for future maintenance.
 - [x] Given accentuation is active and shape is `CVV:C`, when routing is
       applied, then primary and adjacent target segments match CR-063 mapping.
 - [x] Given accentuation is active, when increment quantity is computed, then
-      `AA = round_half_up(0.5*cvc_reference) - drift_portion` is used.
+      `AA = round_half_up(0.5*cvc_reference)` is used and entry drift does not
+      reduce that target before distribution.
 - [x] Given policy `100_0`, when accent increment is distributed, then all legal
       consumable increment is attempted on the primary segment first.
-- [x] Given policy `85_15`, when accent increment is distributed, then initial
-      share targets are 85% primary and 15% adjacent before legality spillover.
-- [x] Given policy `70_30`, when accent increment is distributed, then initial
-      share targets are 70% primary and 30% adjacent before legality spillover.
-- [x] Given the primary target cannot absorb its planned share due to legality,
-      when distribution runs, then residual increment is transferred to adjacent
-      target if legal capacity exists.
+- [x] Given a non-zero adjacent-share policy such as `80_20`, when accent
+      increment is distributed, then the solver begins from that configured
+      ratio and scales the total realizable increment down as needed to preserve
+      the ratio inside legality bounds.
+- [x] Given the primary or adjacent target cannot absorb the full configured
+      share due to legality, when distribution runs, then the solver does not
+      greedily transfer leftover increment in a way that breaks the configured
+      ratio.
 - [x] Given both primary and adjacent targets saturate legally before full
       increment is consumed, when distribution completes, then residual remains
       in drift and no illegal duration is emitted.

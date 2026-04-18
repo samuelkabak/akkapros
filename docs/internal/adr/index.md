@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [047. Controlled Test Parameterization and Default-Independent Regression Coverage](047-controlled-test-parameterization-and-default-independent-regression-coverage.md) - Accepted
 - [046. Phonetizer Timeline Drift Assignment with Hard Short Vowels](046-phonetizer-mini-band-and-row-derived-pause-reporting.md) - Accepted
 - [045. Three-Pass Phonetizer Intonation and Row-Derived MBROLA](045-three-pass-phonetizer-intonation-and-row-derived-mbrola.md) - Accepted
 - [044. Phone-Interval Metrics from Phonetizer Streams](044-phone-interval-metrics-from-phonetizer-streams.md) - Accepted

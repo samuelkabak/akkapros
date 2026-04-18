@@ -4,9 +4,9 @@ status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-07
-updated: 2026-04-17
+updated: 2026-04-18
 related_adrs: 'ADR-041'
-implemented_by: 'CR-042, CR-067'
+implemented_by: 'CR-042, CR-067, CR-068, CR-069'
 ---
 
 # Requirement: Phonetize Config Semantic Invariants for Shared Verification
@@ -61,7 +61,7 @@ unaccepted absolute hard limits.
       `cumulative | corrective`.
 - [ ] Given phonetize process-policy values are verified, when enum membership
       is checked, then `phonetize.process.accentuation_distribution_policy` is
-      restricted to `100_0 | 85_15 | 70_30`.
+  restricted to `100_0 | 95_05 | 90_10 | 85_15 | 80_20 | 75_25 | 70_30`.
 - [ ] Given phonetize timing config is verified, when the integer timing
       representation is checked, then `phonetize.process.drift_tolerance` and
       every numeric value under `phonetize.timing_model.durations` are positive
@@ -208,7 +208,7 @@ unaccepted absolute hard limits.
     `phonetize.timing_model`
 - Active accepted process surface:
   - `phonetize.process.geminate_policy: cumulative | corrective`
-  - `phonetize.process.accentuation_distribution_policy: 100_0 | 85_15 | 70_30`
+  - `phonetize.process.accentuation_distribution_policy: 100_0 | 95_05 | 90_10 | 85_15 | 80_20 | 75_25 | 70_30`
   - `phonetize.process.drift_tolerance` as an integer-millisecond value
 - Active numeric representation:
   - every numeric value under `phonetize.timing_model.durations` is an

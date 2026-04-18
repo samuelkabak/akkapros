@@ -7,6 +7,7 @@ Principles / Workflow
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
 - CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). CR status workflow is `Draft -> Approved -> Done` for accepted work, or `Draft -> Rejected` for declined work. Use `Blocked` as a temporary status when a CR cannot be implemented or verified safely as written.
 - CR sequencing rule: implement CRs in identifier order. A later CR must not be implemented while an earlier CR remains not `Done`. For example, if `CR-146` is not `Done`, do not implement `CR-147` yet.
+- Controlled-test rule: unit tests, integration tests, and regression tests must not rely implicitly on mutable built-in default parameters for the behavior they are asserting. They must set the parameters needed for the targeted path explicitly through fixtures, test-local config, function arguments, or CLI overrides so the execution path is 100% controlled and not ambiguous. Tests whose explicit purpose is to verify defaults themselves are allowed, but they must be narrow and clearly identified as default-contract tests.
 - Req: short, testable requirement documents describing what to implement. It is acceptable for `req/` to be empty until requirements are added.
 - Internal software-management artifacts in `docs/internal/` are developer-facing only. User-facing package documentation such as `docs/akkapros/` pages and onboarding docs must not cite ADRs, CRs, REQs, review files, or `docs/internal/` paths. Public docs should describe package behavior directly rather than exposing internal governance records.
 - Change-management rule: do not rewrite older accepted ADRs, REQs, or CRs as though a later decision had always been true. This applies to any future change that alters, narrows, removes, replaces, or reinterprets an earlier documented decision or contract. Preserve historical records and record the newer decision additively in new documents or explicit supersession notes, using short forward references when readers need help understanding the relationship between past and current state.
@@ -70,6 +71,7 @@ Quick contributor checklist
 - Create or update a CR when implementing an ADR or coordinating a breaking change.
 - Add requirement documents when formalizing requirements (optional for now).
 - For any later change that impacts the meaning or scope of older internal records, add a new decision record and cross-link the older documents rather than editing the past out of them.
+- When writing or updating tests, declare the parameters needed for the path under test explicitly; do not let regression or behavioral coverage inherit mutable runtime defaults unless the test is specifically about those defaults.
 - Run `python scripts/update-indexes.py` and verify the generated indexes.
 - Run the test suite for behavioral changes.
 

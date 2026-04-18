@@ -47,7 +47,7 @@ phonetize:
       continuation: "H1"
     timing_model:
       geminate_policy: "corrective"
-      accentuation_distribution_policy: "85_15"
+      accentuation_distribution_policy: "80_20"
       drift_tolerance: 0
       speech:
         wpm: 193

@@ -1,10 +1,10 @@
 ---
 cr_id: CR-068
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-17
-updated: 2026-04-17
+updated: 2026-04-18
 implements: REQ-022, REQ-027, REQ-031
 ---
 
@@ -238,17 +238,17 @@ docs/internal/req/031-phonetizer-phase-2-syllable-scoped-duration-realization.md
 
 ## Acceptance Criteria
 
-- [ ] `phonetize.timing_model.durations.cvc_reference` defaults to `300`
-- [ ] The default closure row becomes `onset = 89 / coda = 87 / geminate = 175` with `hiatus = 35`, `geminate_min = 145`, and `gemination_max = 260`
-- [ ] The default fricative row becomes `onset = 115 / coda = 112 / geminate = 210` with `geminate_min = 163` and `gemination_max = 290`
-- [ ] The default sonorant row becomes `onset = 105 / coda = 100 / geminate = 190` with `vowel_transition = 25`, `geminate_min = 148`, and `gemination_max = 275`
-- [ ] `src/akkapros/config/default.yaml` documents the new default table
-- [ ] `confwriter` emits and reports these same defaults for the affected keys
-- [ ] The tracked demo YAML files at `demo/akkapros/lexlinks/construct-demo.yaml` and `demo/akkapros/prosmaker/corpus-demo.yaml` expose the same new defaults
-- [ ] No tracked project YAML file retains the superseded default values for these keys after the change
-- [ ] Runtime default resolution used by phonetizer tests reflects the new values without changing the approved key names
-- [ ] Config-facing docs that enumerate these values are updated in the same implementation slice
-- [ ] Verification coverage is updated so the new default values are pinned in config and phonetizer tests
+- [x] `phonetize.timing_model.durations.cvc_reference` defaults to `300`
+- [x] The default closure row becomes `onset = 89 / coda = 87 / geminate = 175` with `hiatus = 35`, `geminate_min = 145`, and `gemination_max = 260`
+- [x] The default fricative row becomes `onset = 115 / coda = 112 / geminate = 210` with `geminate_min = 163` and `gemination_max = 290`
+- [x] The default sonorant row becomes `onset = 105 / coda = 100 / geminate = 190` with `vowel_transition = 25`, `geminate_min = 148`, and `gemination_max = 275`
+- [x] `src/akkapros/config/default.yaml` documents the new default table
+- [x] `confwriter` emits and reports these same defaults for the affected keys
+- [x] The tracked demo YAML files at `demo/akkapros/lexlinks/construct-demo.yaml` and `demo/akkapros/prosmaker/corpus-demo.yaml` expose the same new defaults
+- [x] No tracked project YAML file retains the superseded default values for these keys after the change
+- [x] Runtime default resolution used by phonetizer tests reflects the new values without changing the approved key names
+- [x] Config-facing docs that enumerate these values are updated in the same implementation slice
+- [x] Verification coverage is updated so the new default values are pinned in config and phonetizer tests
 
 ---
 
@@ -350,4 +350,5 @@ None currently.
 ## Notes
 
 - This CR is intentionally limited to the requested default-value retune.
-- Implementation is deferred; this document only defines the change contract.
+- Implementation was verified as present in the repository on 2026-04-18 and
+  the CR status was updated to `Done`.

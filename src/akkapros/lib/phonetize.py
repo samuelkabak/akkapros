@@ -21,6 +21,16 @@ from akkapros.lib.utils import compile_contextual_regex
 PHONETIZE_SECTION = 'phonetize'
 PHONETIZE_SECTION_HELP = 'Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.'
 REMOVED_TIMING_MODEL_KEYS = frozenset({'short_pause_policy', 'drift_policy'})
+ACCENTUATION_DISTRIBUTION_SHARES = {
+    '100_0': (1.0, 0.0),
+    '95_05': (0.95, 0.05),
+    '90_10': (0.90, 0.10),
+    '85_15': (0.85, 0.15),
+    '80_20': (0.80, 0.20),
+    '75_25': (0.75, 0.25),
+    '70_30': (0.70, 0.30),
+}
+ACCENTUATION_DISTRIBUTION_CHOICES = tuple(ACCENTUATION_DISTRIBUTION_SHARES)
 
 
 @dataclass(frozen=True)
@@ -83,10 +93,10 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 choices=('cumulative', 'corrective'),
             ),
             'accentuation_distribution_policy': _field(
-                '85_15',
+                '80_20',
                 'string',
-                'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nDistribution stops when legality ranges would be challenged; if full assignment is impossible, Phase 2 must fail fatally.\nAllowed values: 100_0, 85_15, 70_30',
-                choices=('100_0', '85_15', '70_30'),
+                'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nWhen legality caps block the full target, the solver preserves the configured ratio, realizes the largest legal proportional increment, and carries the remaining shortfall into drift.\nAllowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30',
+                choices=ACCENTUATION_DISTRIBUTION_CHOICES,
             ),
             'drift_tolerance': _field(
                 0,
@@ -1081,7 +1091,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
 
     enum_policies = {
         'phonetize.process.timing_model.geminate_policy': ('cumulative', 'corrective'),
-        'phonetize.process.timing_model.accentuation_distribution_policy': ('100_0', '85_15', '70_30'),
+        'phonetize.process.timing_model.accentuation_distribution_policy': ACCENTUATION_DISTRIBUTION_CHOICES,
     }
     for path, choices in enum_policies.items():
         value = get_relative_value(raw_config, tuple(path.split('.')[1:]))
@@ -1697,13 +1707,8 @@ def _apply_accent_increment(
     adjacent_index = _adjacent_accent_index(analysis)
     one_mora_ref, _two_mora_ref, _three_mora_ref = _timing_refs(config)
     policy = config['process']['accentuation_distribution_policy']
-    share_map = {
-        '100_0': (1.0, 0.0),
-        '85_15': (0.85, 0.15),
-        '70_30': (0.70, 0.30),
-    }
-    primary_share, adjacent_share = share_map[policy]
-    total_increment = max(0.0, float(_round_half_up(one_mora_ref)) - drift_portion)
+    primary_share, adjacent_share = ACCENTUATION_DISTRIBUTION_SHARES[policy]
+    total_increment = float(_round_half_up(one_mora_ref))
 
     consonants_cfg = config['timing_model']['durations']['consonants']
 
@@ -1726,26 +1731,28 @@ def _apply_accent_increment(
         return _consonant_maximum(row, config)
 
     primary_slack = max(0.0, _segment_limit(primary_index, adjacent=False) - durations[primary_index])
-    primary_gain = min(total_increment * primary_share, primary_slack)
-    durations[primary_index] += primary_gain
-    remaining = total_increment - primary_gain
-
+    adjacent_slack = 0.0
     if adjacent_index is not None:
         adjacent_slack = max(0.0, _segment_limit(adjacent_index, adjacent=True) - durations[adjacent_index])
-        adjacent_gain = min(total_increment * adjacent_share, adjacent_slack, remaining)
+
+    if adjacent_share > 0.0:
+        if adjacent_index is None:
+            realizable_increment = 0.0
+        else:
+            realizable_increment = min(
+                total_increment,
+                primary_slack / primary_share,
+                adjacent_slack / adjacent_share,
+            )
+    else:
+        realizable_increment = min(total_increment, primary_slack)
+
+    primary_gain = min(primary_slack, realizable_increment * primary_share)
+    durations[primary_index] += primary_gain
+
+    if adjacent_index is not None:
+        adjacent_gain = min(adjacent_slack, realizable_increment * adjacent_share)
         durations[adjacent_index] += adjacent_gain
-        remaining -= adjacent_gain
-        if remaining > 0 and primary_slack > primary_gain:
-            extra_primary = min(remaining, primary_slack - primary_gain)
-            durations[primary_index] += extra_primary
-            remaining -= extra_primary
-        if remaining > 0 and adjacent_slack > adjacent_gain:
-            extra_adjacent = min(remaining, adjacent_slack - adjacent_gain)
-            durations[adjacent_index] += extra_adjacent
-            remaining -= extra_adjacent
-    elif remaining > 0 and primary_slack > primary_gain:
-        extra_primary = min(remaining, primary_slack - primary_gain)
-        durations[primary_index] += extra_primary
 
     if analysis['accent_shape'] in {'CVC:', 'CVV:C'} and analysis['coda_indices'] and next_same_onset is not None:
         coda_index = analysis['coda_indices'][0]

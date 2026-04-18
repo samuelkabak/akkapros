@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text
+from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text, load_config_file
 from akkapros.lib.frontmatter import split_frontmatter
 from akkapros.lib.phonetize import (
     MINI_PAUSE_LABEL,
@@ -23,6 +23,7 @@ INTREF_DIR = REPO_ROOT / "tests" / "integration_refs"
 STAGE_REF_DIR = INTREF_DIR / "stage_pipeline"
 FULL_REF_DIR = INTREF_DIR / "fullprosmaker"
 PHONEPREP_REF_DIR = INTREF_DIR / "phoneprep"
+REGRESSION_CONFIG = INTREF_DIR / "regression_defaults.yaml"
 INPUT_ATF = INTREF_DIR / "L_I.2_Poem_of_Creation_SB_II.atf"
 INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
 
@@ -113,21 +114,21 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 29.127450980392155,
-            "percent_v": 32.57843137254902,
-            "mean_c_ms": 123.79166666666667,
-            "mean_v_ms": 144.47826086956522,
-            "delta_c_ms": 65.62518518492391,
-            "delta_v_ms": 64.39340336537141,
-            "varco_c": 53.012603313301035,
-            "varco_v": 44.56961412589656,
-            "rpvi_c": 83.65217391304348,
-            "npvi_v": 33.30008180956772,
+            "percent_c": 27.666666666666668,
+            "percent_v": 32.68627450980392,
+            "mean_c_ms": 117.58333333333333,
+            "mean_v_ms": 144.95652173913044,
+            "delta_c_ms": 65.20603031076872,
+            "delta_v_ms": 64.69492168825562,
+            "varco_c": 55.45516397797482,
+            "varco_v": 44.630569850926186,
+            "rpvi_c": 84.78260869565217,
+            "npvi_v": 33.87121263935948,
         },
         "drift": {
-            "max": 135.0,
-            "mean": 22.9259,
-            "stddev": 39.2786,
+            "max": 134.0,
+            "mean": -1.1481,
+            "stddev": 43.5624,
         },
     },
     "accentuation_stats": {
@@ -221,21 +222,21 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.514285714285716,
-            "percent_v": 32.047619047619044,
-            "mean_c_ms": 133.5,
-            "mean_v_ms": 146.30434782608697,
-            "delta_c_ms": 82.83718971573094,
-            "delta_v_ms": 63.71706124845909,
-            "varco_c": 62.05032937507936,
-            "varco_v": 43.55103740607902,
-            "rpvi_c": 103.91304347826087,
-            "npvi_v": 36.44066882112247,
+            "percent_c": 29.16190476190476,
+            "percent_v": 32.32380952380952,
+            "mean_c_ms": 127.58333333333333,
+            "mean_v_ms": 147.56521739130434,
+            "delta_c_ms": 83.30762103326575,
+            "delta_v_ms": 63.831862077312834,
+            "varco_c": 65.29663307636767,
+            "varco_v": 43.25671266288141,
+            "rpvi_c": 105.65217391304348,
+            "npvi_v": 38.234849002995844,
         },
         "drift": {
-            "max": 76.0,
-            "mean": 21.0741,
-            "stddev": 33.2866,
+            "max": 134.0,
+            "mean": -1.1481,
+            "stddev": 43.5624,
         },
     },
     "accentuation_stats": {
@@ -293,6 +294,16 @@ def _run_cli_expect_failure(*module_and_args: str) -> subprocess.CompletedProces
 
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _load_regression_config() -> dict:
+    return load_config_file(REGRESSION_CONFIG)
+
+
+def _write_regression_config(config_path: Path, overrides: dict[tuple[str, str], object]) -> Path:
+    config = apply_overrides(_load_regression_config(), overrides)
+    config_path.write_text(dump_config_text(config), encoding="utf-8")
+    return config_path
 
 
 def _strip_yaml_frontmatter(text: str) -> str:
@@ -474,8 +485,16 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     outdir = tmp_path / "stage_pipeline"
     outdir.mkdir(parents=True, exist_ok=True)
     prefix = "e2e"
+    config_path = _write_regression_config(
+        outdir / "regression.yaml",
+        {
+            ("common", "run.prefix"): prefix,
+            ("common", "run.outdir"): str(outdir),
+            ("prosody", "process.style"): "lob",
+        },
+    )
 
-    _run_cli("akkapros.cli.atfparser", str(INPUT_ATF), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.atfparser", str(INPUT_ATF), "--conf", str(config_path))
     proc_file = outdir / f"{prefix}_proc.txt"
     orig_file = outdir / f"{prefix}_orig.txt"
     trans_file = outdir / f"{prefix}_trans.txt"
@@ -486,17 +505,17 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _assert_has_yaml_frontmatter(orig_file)
     _assert_has_yaml_frontmatter(trans_file)
 
-    _run_cli("akkapros.cli.syllabifier", str(proc_file), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.syllabifier", str(proc_file), "--conf", str(config_path))
     syl_file = outdir / f"{prefix}_syl.txt"
     _assert_non_empty_text_file(syl_file)
     _assert_has_yaml_frontmatter(syl_file)
 
-    _run_cli("akkapros.cli.prosmaker", str(syl_file), "-p", prefix, "--outdir", str(outdir), "--style", "lob")
+    _run_cli("akkapros.cli.prosmaker", str(syl_file), "--conf", str(config_path))
     tilde_file = outdir / f"{prefix}_tilde.txt"
     _assert_non_empty_text_file(tilde_file)
     _assert_has_yaml_frontmatter(tilde_file)
 
-    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "--conf", str(config_path))
     ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
     ombrola_file = outdir / f"{prefix}_ombrola.pho"
@@ -509,10 +528,8 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _run_cli(
         "akkapros.cli.metricalc",
         str(phone_file),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
+        "--conf",
+        str(config_path),
         "--table",
         "--json",
     )
@@ -530,10 +547,8 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     _run_cli(
         "akkapros.cli.printer",
         str(phone_file),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
+        "--conf",
+        str(config_path),
         "--acute",
         "--bold",
         "--ipa",
@@ -682,7 +697,7 @@ def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_
     tilde_file.write_text('qat\n', encoding='utf-8')
 
     config = apply_overrides(
-        build_default_config(),
+        _load_regression_config(),
         {('phonetize', 'process.timing_model.durations.cvc_reference'): 350},
     )
     config_path = outdir / 'anchor.yaml'
@@ -715,7 +730,7 @@ def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(
     tilde_file.write_text('qat pa\n', encoding='utf-8')
 
     config = apply_overrides(
-        build_default_config(),
+        _load_regression_config(),
         {
             ('phonetize', 'process.timing_model.durations.cvc_reference'): 350,
             ('phonetize', 'process.timing_model.durations.pauses.mini.min'): 50,
@@ -824,8 +839,17 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     outdir = tmp_path / "stage_pipeline_mono"
     outdir.mkdir(parents=True, exist_ok=True)
     prefix = "e2e_mono"
+    config_path = _write_regression_config(
+        outdir / "regression_mono.yaml",
+        {
+            ("common", "run.prefix"): prefix,
+            ("common", "run.outdir"): str(outdir),
+            ("prosody", "process.style"): "lob",
+            ("prosody", "process.mora_mode"): "mono",
+        },
+    )
 
-    _run_cli("akkapros.cli.atfparser", str(INPUT_ATF), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.atfparser", str(INPUT_ATF), "--conf", str(config_path))
     proc_file = outdir / f"{prefix}_proc.txt"
     orig_file = outdir / f"{prefix}_orig.txt"
     trans_file = outdir / f"{prefix}_trans.txt"
@@ -836,23 +860,12 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     _assert_has_yaml_frontmatter(orig_file)
     _assert_has_yaml_frontmatter(trans_file)
 
-    _run_cli("akkapros.cli.syllabifier", str(proc_file), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.syllabifier", str(proc_file), "--conf", str(config_path))
     syl_file = outdir / f"{prefix}_syl.txt"
     _assert_non_empty_text_file(syl_file)
     _assert_has_yaml_frontmatter(syl_file)
 
-    _run_cli(
-        "akkapros.cli.prosmaker",
-        str(syl_file),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
-        "--style",
-        "lob",
-        "--mora-mode",
-        "mono",
-    )
+    _run_cli("akkapros.cli.prosmaker", str(syl_file), "--conf", str(config_path))
     tilde_file = outdir / f"{prefix}_tilde.txt"
     _assert_non_empty_text_file(tilde_file)
     _assert_has_yaml_frontmatter(tilde_file)
@@ -861,7 +874,7 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     assert tilde_frontmatter["metadata"]["options"]["mora_mode"] == "mono"
     assert GOLD_MONO_TILDE_SAMPLE_LINE in tilde_body
 
-    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "-p", prefix, "--outdir", str(outdir))
+    _run_cli("akkapros.cli.phonetizer", str(tilde_file), "--conf", str(config_path))
     ophone_file = outdir / f"{prefix}_ophone.txt"
     phone_file = outdir / f"{prefix}_phone.txt"
     ombrola_file = outdir / f"{prefix}_ombrola.pho"
@@ -874,10 +887,8 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     _run_cli(
         "akkapros.cli.metricalc",
         str(phone_file),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
+        "--conf",
+        str(config_path),
         "--ophone",
         str(ophone_file),
         "--table",
@@ -896,10 +907,8 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
     _run_cli(
         "akkapros.cli.printer",
         str(phone_file),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
+        "--conf",
+        str(config_path),
         "--acute",
         "--bold",
         "--ipa",
@@ -937,14 +946,20 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     outdir = tmp_path / "full_pipeline"
     outdir.mkdir(parents=True, exist_ok=True)
     prefix = "test"
+    config_path = _write_regression_config(
+        outdir / "fullprosmaker_regression.yaml",
+        {
+            ("common", "run.prefix"): prefix,
+            ("common", "run.outdir"): str(outdir),
+            ("prosody", "process.style"): "lob",
+        },
+    )
 
     _run_cli(
         "akkapros.cli.fullprosmaker",
         str(INPUT_PROC),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
+        "--conf",
+        str(config_path),
         "--metrics-table",
         "--metrics-json",
         "--print-acute",
@@ -989,14 +1004,14 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Prominence candidates: 7 words",
         "%C: 27.63%",
         "%V: 31.11%",
-            "%C: 29.13%",
-            "%V: 32.58%",
+            "%C: 27.67%",
+            "%V: 32.69%",
         "VarcoC: 49.25",
-            "VarcoC: 53.01",
+            "VarcoC: 55.46",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
         "Drift max: 115.00 ms",
-            "Drift max: 135.00 ms",
+            "Drift max: 134.00 ms",
     ]:
         assert expected_line in metrics_text
     assert metrics_text.count("Speech metrics:") == 2
@@ -1028,16 +1043,21 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     outdir = tmp_path / "full_pipeline_mono"
     outdir.mkdir(parents=True, exist_ok=True)
     prefix = "test_mono"
+    config_path = _write_regression_config(
+        outdir / "fullprosmaker_regression_mono.yaml",
+        {
+            ("common", "run.prefix"): prefix,
+            ("common", "run.outdir"): str(outdir),
+            ("prosody", "process.style"): "lob",
+            ("prosody", "process.mora_mode"): "mono",
+        },
+    )
 
     _run_cli(
         "akkapros.cli.fullprosmaker",
         str(INPUT_PROC),
-        "-p",
-        prefix,
-        "--outdir",
-        str(outdir),
-        "--mora-mode",
-        "mono",
+        "--conf",
+        str(config_path),
         "--metrics-table",
         "--metrics-json",
         "--print-acute",
@@ -1086,10 +1106,10 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "%C: 27.63%",
         "%V: 31.11%",
-            "%C: 30.51%",
-            "%V: 32.05%",
+            "%C: 29.16%",
+            "%V: 32.32%",
         "VarcoC: 49.25",
-            "VarcoC: 62.05",
+            "VarcoC: 65.30",
         "Accentuated syllables: 7 syllables",
         "Accentuation rate: 30.43%",
     ]:

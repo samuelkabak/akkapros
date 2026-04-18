@@ -332,10 +332,14 @@ is carried into the next syllable because the merged unit is not complete yet.
   distribute an accent increment computed as:
 
 ```text
-AA = round_half_up(0.5 * cvc_reference) - drift_portion
+AA = round_half_up(0.5 * cvc_reference)
 ```
 
-where `drift_portion` is the signed drift value at accent-distribution entry.
+The signed drift value at accent-distribution entry is still tracked, but it no
+longer reduces `AA` before distribution. If legality caps prevent the full
+target from being realized locally, the solver preserves the configured
+primary/adjacent ratio, realizes the largest legal proportional increment, and
+keeps the remaining shortfall in drift.
 
 1. If the current boundary is eligible and the stream is synchronized at the
   completed `F` boundary, optionally insert one mini pause using the
@@ -376,22 +380,25 @@ configured contextual maximum when the accent distribution step has legal room.
 
 ### Accentuation Routing
 
-Accentuation still uses the half-foot reference, but runtime distribution is
-drift-aware.
+Accentuation still uses the half-foot reference, but the target quantity is now
+independent of entry drift.
 
 Increment quantity:
 
-- `AA = round_half_up(0.5 * cvc_reference) - drift_portion`
+- `AA = round_half_up(0.5 * cvc_reference)`
 - `round_half_up` means halves round up (`2.5 -> 3`)
 
 What did not change:
 
-- the distribution-policy family (`100_0`, `85_15`, `70_30`)
+- the existence of a primary/adjacent distribution-policy family
 - the same-consonant handling logic around coda/onset pairs
 
 What did change:
 
 - short vowels are not accentuation targets
+- the allowed policy family is now `100_0`, `95_05`, `90_10`, `85_15`, `80_20`, `75_25`, and `70_30`
+- the default policy is `80_20`
+- when legality caps block the full target, the solver scales the total local increment down to the largest value that preserves the configured ratio instead of greedily spending leftover slack on one segment
 
 So the extra mora is realized through accentable consonants or long-vowel space
 only.
