@@ -16,6 +16,8 @@ Short description of the requested change.
 
 Explain the problem and the goal in 2–5 sentences.
 
+Write this section so the CR can be used as the primary execution prompt. An implementing agent should usually be able to start from an instruction like `implement CR-XXX` by reading this CR first, not by reconstructing the request from scattered surrounding documents.
+
 Example:
 Add rate limiting to the login endpoint to prevent brute force attacks.
 
@@ -66,6 +68,8 @@ No throttling or IP protection exists
 
 Describe the desired behavior.
 
+This section should be implementation-ready. Prefer enough detail that the CR itself is actionable without bulk reading of ADRs, REQs, or older CRs. If extra governance context is truly required, reference only the specific records that are necessary.
+
 Example:
 
 - Limit login attempts per IP
@@ -77,6 +81,8 @@ Example:
 # Technical Design
 
 Explain how it should be implemented.
+
+Include the minimum concrete detail needed for execution. Do not assume the implementing agent will infer missing contract details from broad governance history.
 
 Architecture notes:
 
@@ -111,6 +117,8 @@ src/middleware/rateLimiter.ts
 config/security.ts  
 tests/auth/login.test.ts  
 
+List the likely implementation and verification surfaces so the CR remains self-contained as an execution prompt.
+
 ---
 
 # Acceptance Criteria
@@ -120,6 +128,8 @@ tests/auth/login.test.ts
 - [ ] Counter resets after timeout
 - [ ] Tests added
 - [ ] Documentation updated
+
+Acceptance criteria should be specific enough that verification does not require reconstructing hidden assumptions from other records.
 
 ---
 
@@ -147,6 +157,8 @@ Integration tests:
 Manual tests:
 
 - simulate attack
+
+Describe the verification path directly in the CR so the implementer does not need to search broadly for how to prove completion.
 
 ---
 
@@ -236,3 +248,5 @@ Possible contents:
 - research
 - alternative approaches
 - links to references
+
+Use optional notes for supporting context, not for required contract details that should have been placed in the main body of the CR.

@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [050. Bounded Governance Context, CR Self-Containment, and Dependency-Based CR Sequencing](050-bounded-governance-context-and-dependency-based-cr-sequencing.md) - Accepted
 - [049. Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](049-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Accepted
 - [048. Governance Housekeeping Tooling Must Match Documented Contract](048-governance-housekeeping-tooling-must-match-documented-contract.md) - Accepted
 - [047. Controlled Test Parameterization and Default-Independent Regression Coverage](047-controlled-test-parameterization-and-default-independent-regression-coverage.md) - Accepted
