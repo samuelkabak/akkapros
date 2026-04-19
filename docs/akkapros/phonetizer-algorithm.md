@@ -636,7 +636,10 @@ The accentuated stream assigns row-level contour from:
 Internal pauses, including inserted mini pauses, do not impose a clause-final
 contour.
 
-The original stream remains neutral in the current scope.
+The original stream now shares pause-governed contour assignment for question,
+statement, exclamation, and continuation pauses. It remains original only in
+the narrower sense that ordinary stress intonation is still exclusive to the
+accentuated stream.
 
 ## Unit Drift Reporting
 

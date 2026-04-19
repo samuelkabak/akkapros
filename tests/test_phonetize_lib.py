@@ -395,8 +395,11 @@ def test_pass3_assigns_row_level_intonation_tokens() -> None:
     realize_row_intonation(original_rows, accentuated=False)
     realize_row_intonation(accentuated_rows, accentuated=True)
 
-    assert all(row['intonation'] == 'M0C' for row in original_rows[:-1])
-    assert original_rows[-1]['intonation'] == 'M0C'
+    assert [row['intonation'] for row in original_rows[:2]] == ['M0C', 'M0C']
+    assert [row['intonation'] for row in original_rows[2:4]] == ['H3C', 'H3C']
+    assert original_rows[-2]['type'] == 'Q'
+    assert original_rows[-2]['intonation'] == 'H3C'
+    assert original_rows[-1]['type'] == 'S'
     assert [row['intonation'] for row in accentuated_rows[:2]] == ['M0C', 'M0C']
     assert [row['intonation'] for row in accentuated_rows[2:4]] == ['H3C', 'H3C']
     assert accentuated_rows[-2]['type'] == 'Q'
@@ -405,7 +408,7 @@ def test_pass3_assigns_row_level_intonation_tokens() -> None:
 
 
 def test_mbrola_rows_use_row_level_intonation_tokens() -> None:
-    original_rows, accentuated_rows = build_phone_streams('at~·ta')
+    original_rows, accentuated_rows = build_phone_streams('at~·ta?')
     realize_phone_rows(original_rows, allow_accentuation=False)
     realize_phone_rows(accentuated_rows, allow_accentuation=True)
     realize_row_intonation(original_rows, accentuated=False)
@@ -418,12 +421,14 @@ def test_mbrola_rows_use_row_level_intonation_tokens() -> None:
     assert all(not line.startswith(('AA ', 'TA ', 'SP ', 'ZP ')) for line in original_lines)
     assert any(line.startswith('a ') for line in original_lines)
     assert any(line.startswith('t ') for line in original_lines)
-    assert all(line.endswith(' 120') for line in original_lines)
+    assert [row['intonation'] for row in original_rows[:2]] == ['M0C', 'M0C']
+    assert [row['intonation'] for row in accentuated_rows[:2]] == ['H2C', 'H2C']
+    assert any(any(target != 120 for target in map(int, line.split()[2:])) for line in original_lines)
     assert any(line.endswith(' 135') for line in accentuated_lines)
 
 
 def test_mbrola_rows_merge_adjacent_identical_symbol_and_frequency() -> None:
-    rows = build_phone_rows('at·ta')
+    rows = build_phone_rows('at·ta·ka')
     realize_phone_rows(rows, allow_accentuation=False)
     realize_row_intonation(rows, accentuated=False)
 

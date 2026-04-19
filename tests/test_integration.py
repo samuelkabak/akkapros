@@ -706,6 +706,31 @@ def test_phonetizer_pho_outputs_xsampa_while_phone_rows_keep_realization_codes(t
     assert 'a.' in original_symbols
 
 
+def test_phonetizer_cli_applies_pause_intonation_to_ophone_and_ombrola(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_original_pause_intonation'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'pause_tilde.txt'
+    tilde_file.write_text('at·ta~?\n', encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '-p', 'pause', '--outdir', str(outdir))
+
+    ophone_body = _strip_yaml_frontmatter(_read_text(outdir / 'pause_ophone.txt'))
+    phone_body = _strip_yaml_frontmatter(_read_text(outdir / 'pause_phone.txt'))
+    ophone_rows = [parse_phone_row(line) for line in ophone_body.strip().splitlines()]
+    phone_rows = [parse_phone_row(line) for line in phone_body.strip().splitlines()]
+    ombrola_rows = _parse_pho_artifact(outdir / 'pause_ombrola.pho')
+
+    assert [row['intonation'] for row in ophone_rows[:2]] == ['M0C', 'M0C']
+    assert [row['intonation'] for row in ophone_rows[2:4]] == ['H3C', 'H3C']
+    assert ophone_rows[-2]['type'] == 'Q'
+    assert ophone_rows[-2]['intonation'] == 'H3C'
+
+    assert phone_rows[-2]['type'] == 'Q'
+    assert phone_rows[-2]['intonation'] == 'H3C'
+    assert any(any(target != 120 for target in targets) for _symbol, _duration, targets in ombrola_rows)
+
+
 def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_path: Path) -> None:
     outdir = tmp_path / 'phonetizer_short_vowel_anchor'
     outdir.mkdir(parents=True, exist_ok=True)

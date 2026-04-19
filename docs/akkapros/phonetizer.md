@@ -41,6 +41,12 @@ In researcher-facing terms:
 - Pass 3 decides intonation: which rows stay neutral and which rows receive
   stress or clause-final contour.
 
+The finalized-stream split is now:
+
+- `_phone.txt` receives both ordinary stress intonation and pause-governed contour
+- `_ophone.txt` receives pause-governed contour but not ordinary stress intonation
+- `_mbrola.pho` and `_ombrola.pho` inherit pitch targets from those finalized row tokens
+
 Before runtime realization begins, the CLI now also runs shared semantic config
 verification. Blocking failures stop the command before `_ophone.txt`,
 `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho` are written. Warning-only

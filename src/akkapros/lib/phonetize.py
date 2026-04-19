@@ -1489,9 +1489,6 @@ def realize_row_intonation(
     for row in rows:
         row['intonation'] = PHONE_ROW_INTONATION_NEUTRAL
 
-    if not accentuated:
-        return
-
     syllable_tokens: dict[int, str] = {}
     for unit_index, unit in enumerate(units):
         if unit['kind'] != 'syllable':

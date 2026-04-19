@@ -239,11 +239,15 @@ statement, or question punctuation.
 
 - accentuated stream
 - keeps accent-bearing rows marked with `accent = A`
+- receives ordinary stress intonation when no pause-final override applies
 
 `_ophone.txt`
 
 - original/deaccented stream
 - derived from `_tilde` by removing `~` and converting internal merge `&` to ordinary space before row construction
+- still passes through finalized timing and intonation
+- receives pause-governed contour from punctuation and pause type
+- does not receive ordinary stress intonation from accent-bearing syllables
 
 Both files still preserve the same structural boundary inventory and pause rows.
 
@@ -303,6 +307,10 @@ surface symbols.
 - emit symbols such as `X`, `x`, `H`, `?`, `a.`, and `_`
 - derive one or more pitch targets from the row's `intonation` token plus `f0`
 - keep vowel length in duration, not by duplicating the symbol string
+
+`_ombrola.pho` therefore inherits finalized original-stream durations and the
+original stream's pause-governed contour, while `_mbrola.pho` inherits the
+accentuated stream's ordinary stress and pause-governed contour.
 
 This means `.pho` is a backend rendering of the realization inventory, not a
 replacement for the realization codes stored in phone rows.
