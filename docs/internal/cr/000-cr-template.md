@@ -160,6 +160,8 @@ Manual tests:
 
 Describe the verification path directly in the CR so the implementer does not need to search broadly for how to prove completion.
 
+If the CR requires tests or test updates, specify the test-owned inputs and configs explicitly. Tests must be self-sufficient: any fixture, input file, or config needed for verification must be hardcoded in the test or stored under `tests/`. Do not rely on files from `demo/`, `outputs/`, `tmp/`, or other uncontrolled folders.
+
 ---
 
 # Rollback Plan
@@ -192,6 +194,7 @@ other CRs
 
 - [ ] Unit tests
 - [ ] Integration tests
+- [ ] Test fixtures and configs are self-sufficient and reserved to `tests/`
 
 ## Documentation
 
