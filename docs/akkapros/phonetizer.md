@@ -107,6 +107,10 @@ Phase 2 diagnostics to look for:
 
 Worked baseline, pause, and same-consonant examples are documented in `docs/akkapros/phonetizer-algorithm.md` so the emitted files can be checked against the accepted Phase 2 contract.
 
+That algorithm page also contains a dedicated section on hiatus and
+vowel-transition processing, including how the special singleton anchors,
+`C:V` accentuation, and class-specific runtime ceilings interact.
+
 For the canonical row tables, field inventory, and parsing constraints, see
 `docs/akkapros/phonetizer-data-model.md`.
 

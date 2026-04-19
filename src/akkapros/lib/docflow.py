@@ -126,6 +126,71 @@ def _validate_phonetizer_phase2_target() -> None:
     )
 
 
+def _validate_phonetizer_hiatus_transition_target() -> None:
+    classify_source = _source_text(phonetize._classify_symbol)
+    _require_fragments_in_order(
+        classify_source,
+        (
+            "if symbol in CONSONANT_HIATUS:",
+            "return 'C', 'H', 'S'",
+            "if symbol in CONSONANT_VOWEL_TRANSITION:",
+            "return 'C', 'T', 'S'",
+        ),
+        "phonetizer hiatus/transition flowchart",
+    )
+
+    transition_source = _source_text(phonetize._resolve_transition_rows)
+    for fragment in (
+        "if row['label'] != 'ENA':",
+        "_choose_vowel_transition_realization(previous_vowel['realization'], next_vowel['realization'])",
+    ):
+        if fragment not in transition_source:
+            raise FlowchartSyncError(
+                f"Flowchart source for phonetizer hiatus/transition flowchart is missing required fragment {fragment!r}"
+            )
+
+    timing_source = _source_text(phonetize._consonant_timing_key)
+    for fragment in (
+        "if row['type'] in {'C', 'H'}:",
+        "return 'closure'",
+        "if row['type'] in {'S', 'T'}:",
+        "return 'sonorant'",
+    ):
+        if fragment not in timing_source:
+            raise FlowchartSyncError(
+                f"Flowchart source for phonetizer hiatus/transition flowchart is missing required fragment {fragment!r}"
+            )
+
+    anchor_source = _source_text(phonetize._consonant_anchor)
+    for fragment in (
+        "if row['type'] == 'H':",
+        "special_realization']['hiatus']",
+        "if row['type'] == 'T':",
+        "special_realization']['vowel_transition']",
+    ):
+        if fragment not in anchor_source:
+            raise FlowchartSyncError(
+                f"Flowchart source for phonetizer hiatus/transition flowchart is missing required fragment {fragment!r}"
+            )
+
+    analyze_source = _source_text(phonetize._analyze_syllable)
+    if "accent_shape = 'C:V'" not in analyze_source:
+        raise FlowchartSyncError(
+            "Flowchart source for phonetizer hiatus/transition flowchart is missing C:V accent-shape handling"
+        )
+
+    accent_source = _source_text(phonetize._apply_accent_increment)
+    for fragment in (
+        "geminate_min = float(consonants_cfg[timing_key]['perception_limits']['geminate_min'])",
+        "return min(_consonant_maximum(row, config), geminate_min - 1.0)",
+        "return _consonant_maximum(row, config)",
+    ):
+        if fragment not in accent_source:
+            raise FlowchartSyncError(
+                f"Flowchart source for phonetizer hiatus/transition flowchart is missing required fragment {fragment!r}"
+            )
+
+
 def _validate_fullprosmaker_target() -> None:
     pipeline_source = _source_text(fullprosmaker.run_pipeline)
     _require_fragments_in_order(
@@ -301,6 +366,30 @@ FLOWCHART_TARGETS: tuple[FlowchartTarget, ...] = (
             "    D --> U[\"After all units, write realized durations and drift tokens\\nthen validate chrono checkpoints\"]",
             "    S --> U",
             "    U --> V[\"Phase 2 output: finalized timing plus drift summary\"]",
+        ),
+    ),
+    FlowchartTarget(
+        key="phonetizer-hiatus-and-vowel-transition-processing",
+        doc_path="docs/akkapros/phonetizer-algorithm.md",
+        validator=_validate_phonetizer_hiatus_transition_target,
+        mermaid_lines=(
+            "flowchart TD",
+            "    A[\"Phase 1 reads a special marker\nhiatus ˙ or transition ¨\"] --> B{\"Which marker enters the row model?\"}",
+            "    B -->|\"hiatus ˙\"| C[\"Type the row as H\nuse the closure timing class\"]",
+            "    B -->|\"transition ¨\"| D[\"Type the row as T\nuse the sonorant timing class\"]",
+            "    C --> E[\"Unstressed singleton timing uses\nspecial_realization.hiatus\"]",
+            "    D --> F[\"Unstressed singleton timing uses\nspecial_realization.vowel_transition\"]",
+            "    D --> G[\"Resolve the emitted glide from neighboring vowels\nrealization becomes WA or YI\"]",
+            "    C --> H{\"Accentuated onset C:V?\"}",
+            "    D --> H",
+            "    G --> H",
+            "    H -->|\"no\"| I[\"Keep the singleton special anchor\nand its class-specific realization\"]",
+            "    H -->|\"yes\"| J[\"Accent increment can land on the special row\nbut the anchor stays special\"]",
+            "    J --> K{\"Which timing ceiling applies?\"}",
+            "    K -->|\"H row\"| L[\"Use closure gemination_max\nas the runtime upper ceiling\"]",
+            "    K -->|\"T row\"| M[\"Use sonorant gemination_max\nas the runtime upper ceiling\"]",
+            "    L --> N[\"Current limit: no promotion to the ordinary onset lower bound\nand no forced move to the ordinary geminate target\"]",
+            "    M --> N",
         ),
     ),
     FlowchartTarget(

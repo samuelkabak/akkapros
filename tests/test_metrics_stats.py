@@ -54,10 +54,9 @@ VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
     "mean": 18.3333,
     "stddev": 60.3805,
 }
-LEXLINKS_CONSTRUCT_OPHONE = Path("demo/akkapros/lexlinks/results/erra_construct_ophone.txt")
-LEXLINKS_CONSTRUCT_PHONE = Path("demo/akkapros/lexlinks/results/erra_construct_phone.txt")
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGRESSION_CONFIG = REPO_ROOT / "tests" / "integration_refs" / "regression_defaults.yaml"
+LEXLINKS_CONSTRUCT_PROC = REPO_ROOT / "data" / "lexlinks" / "construct_prep" / "erra_construct_proc.txt"
 LEXLINKS_REFERENCE_WORD_COUNTS = {
     "original": 1169,
     "accentuated": 963,
@@ -178,21 +177,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.11266406844958,
-            "percent_v": 33.31084531648972,
-            "mean_c_ms": 113.85704918032786,
-            "mean_v_ms": 124.38909334225494,
-            "delta_c_ms": 52.34168220654258,
-            "delta_v_ms": 25.78219295464743,
-            "varco_c": 45.97140237109371,
-            "varco_v": 20.727052719733287,
-            "rpvi_c": 63.23515906854706,
-            "npvi_v": 17.604731299643575,
+            "percent_c": 30.806298514082947,
+            "percent_v": 34.39920159680639,
+            "mean_c_ms": 114.11896155110088,
+            "mean_v_ms": 129.73067915690868,
+            "delta_c_ms": 52.472050792150725,
+            "delta_v_ms": 36.85486529971392,
+            "varco_c": 45.98013343177371,
+            "varco_v": 28.40875075905378,
+            "rpvi_c": 63.31886916502301,
+            "npvi_v": 22.441197681974927,
         },
         "unit_drift": {
-            "max": 198.0,
-            "mean": 6.6267,
-            "stddev": 61.2945,
+            "max": 0.0,
+            "mean": 0.0,
+            "stddev": 0.0,
         },
         "prominence_statistics": {
             "function_word_count": 189,
@@ -222,21 +221,21 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 32.079240506329114,
-            "percent_v": 34.65763713080169,
-            "mean_c_ms": 124.75845093534625,
-            "mean_v_ms": 137.40147206423552,
-            "delta_c_ms": 69.84662793693731,
-            "delta_v_ms": 50.3097539192833,
-            "varco_c": 55.98548828819142,
-            "varco_v": 36.61514914175255,
-            "rpvi_c": 81.92252133946158,
-            "npvi_v": 29.419508670223525,
+            "percent_c": 31.965943491422806,
+            "percent_v": 35.416078035654216,
+            "mean_c_ms": 124.96351084812623,
+            "mean_v_ms": 140.90598862495818,
+            "delta_c_ms": 69.84585486424615,
+            "delta_v_ms": 53.67155540027244,
+            "varco_c": 55.892999796663,
+            "varco_v": 38.090329533918606,
+            "rpvi_c": 81.90200591910556,
+            "npvi_v": 32.06313006133178,
         },
         "unit_drift": {
-            "max": 210.0,
-            "mean": 0.0292,
-            "stddev": 62.851,
+            "max": 0.0,
+            "mean": 0.0,
+            "stddev": 0.0,
         },
     },
     "accentuation_stats": {
@@ -305,6 +304,19 @@ def _build_varco_verification_tilde() -> str:
     engine = ProsodyEngine(style=AccentStyle.LOB)
     accentuated = [engine.accentuation_line(parse_syl_line(line)) for line in syllabified.splitlines() if line.strip()]
     return "\n".join(postprocess_restore_diphthongs(accentuated)) + "\n"
+
+
+def _build_lexlinks_construct_tilde() -> str:
+    _frontmatter, body = split_frontmatter(LEXLINKS_CONSTRUCT_PROC.read_text(encoding="utf-8"))
+    syllabified = syllabify_text(body, preserve_lines=True)
+    engine = ProsodyEngine(style=AccentStyle.LOB)
+    accentuated_lines = []
+    for line in syllabified.splitlines():
+        if not line.strip():
+            accentuated_lines.append("")
+            continue
+        accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
+    return "\n".join(postprocess_restore_diphthongs(accentuated_lines)) + "\n"
 
 
 def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
@@ -785,16 +797,19 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
     assert result["accentuated"]["unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
 
 
-def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
-    assert LEXLINKS_CONSTRUCT_OPHONE.exists()
-    assert LEXLINKS_CONSTRUCT_PHONE.exists()
+def test_lexlinks_construct_word_counts_match_independent_reference(tmp_path: Path) -> None:
+    ophone_file, phone_file = _write_phone_pair(
+        tmp_path,
+        "lexlinks-construct",
+        _build_lexlinks_construct_tilde(),
+    )
 
-    assert _count_reference_words_from_phone_file(LEXLINKS_CONSTRUCT_OPHONE) == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
-    assert _count_reference_words_from_phone_file(LEXLINKS_CONSTRUCT_PHONE) == LEXLINKS_REFERENCE_WORD_COUNTS["accentuated"]
+    assert _count_reference_words_from_phone_file(ophone_file) == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
+    assert _count_reference_words_from_phone_file(phone_file) == LEXLINKS_REFERENCE_WORD_COUNTS["accentuated"]
 
     result = metrics.process_file(
-        str(LEXLINKS_CONSTRUCT_PHONE),
-        ophone_filename=str(LEXLINKS_CONSTRUCT_OPHONE),
+        str(phone_file),
+        ophone_filename=str(ophone_file),
     )
 
     assert result["original"]["stats"]["word_stats"]["total_words"] == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
@@ -821,18 +836,18 @@ def test_lexlinks_construct_word_counts_match_independent_reference() -> None:
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 31.11%" in table
-    assert "%V: 33.31%" in table
-    assert "meanC: 113.86 ms" in table
-    assert "meanV: 124.39 ms" in table
-    assert "ΔC: 52.34 ms" in table
-    assert "ΔV: 25.78 ms" in table
-    assert "VarcoC: 45.97" in table
-    assert "VarcoV: 20.73" in table
-    assert "rPVI-C: 63.24" in table
-    assert "nPVI-V: 17.60" in table
-    assert "Unit drift max: 198.00 ms" in table
-    assert "Unit drift mean: 6.63 ms" in table
-    assert "Unit drift stddev: 61.29 ms" in table
+    assert "%C: 30.81%" in table
+    assert "%V: 34.40%" in table
+    assert "meanC: 114.12 ms" in table
+    assert "meanV: 129.73 ms" in table
+    assert "ΔC: 52.47 ms" in table
+    assert "ΔV: 36.85 ms" in table
+    assert "VarcoC: 45.98" in table
+    assert "VarcoV: 28.41" in table
+    assert "rPVI-C: 63.32" in table
+    assert "nPVI-V: 22.44" in table
+    assert "Unit drift max: 0.00 ms" in table
+    assert "Unit drift mean: 0.00 ms" in table
+    assert "Unit drift stddev: 0.00 ms" in table
     assert "Accentuated syllables: 547" in table
     assert "Accentuation rate: 18.30%" in table

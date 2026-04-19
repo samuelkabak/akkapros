@@ -1506,22 +1506,25 @@ def test_path_11_round_half_up_behavior() -> None:
 def test_phase2_first_construct_demo_line_preserves_half_foot_checkpoint_invariant() -> None:
     from pathlib import Path
 
+    from akkapros.lib.frontmatter import split_frontmatter
     from akkapros.lib.phonetize import build_phone_streams, realize_phone_rows
+    from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
+    from akkapros.lib.syllabify import syllabify_text
 
-    lines = Path('demo/akkapros/lexlinks/results/erra_construct_tilde.txt').read_text(encoding='utf-8').splitlines()
-    content_lines = [
-        line
-        for line in lines
-        if line
-        and not line.startswith('---')
-        and not line.startswith('package:')
-        and not line.startswith('pipeline:')
-        and not line.startswith('step:')
-        and not line.startswith('file:')
-        and not line.startswith('metadata:')
-        and not line.startswith('  ')
-    ]
-    first_line = content_lines[0] + '\n'
+    repo_root = Path(__file__).resolve().parents[1]
+    proc_path = repo_root / 'data' / 'lexlinks' / 'construct_prep' / 'erra_construct_proc.txt'
+    _frontmatter, body = split_frontmatter(proc_path.read_text(encoding='utf-8'))
+    syllabified = syllabify_text(body, preserve_lines=True)
+    engine = ProsodyEngine(style=AccentStyle.LOB)
+    accentuated_lines = []
+    for line in syllabified.splitlines():
+        if not line.strip():
+            accentuated_lines.append('')
+            continue
+        accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
+    tilde_lines = postprocess_restore_diphthongs(accentuated_lines)
+    first_line = next(line for line in tilde_lines if line.strip()) + '\n'
+
     _original_rows, accentuated_rows = build_phone_streams(first_line)
     realize_phone_rows(accentuated_rows, allow_accentuation=True)
 

@@ -232,6 +232,86 @@ Punctuation suites are classified once by pause precedence:
 The builder also normalizes a missing terminal line break into one final
 `<EOL>` long-pause row.
 
+## Hiatus and Vowel Transition Processing
+
+Hiatus and vowel-transition markers are modeled as special consonant-like rows.
+They are part of the live row inventory, not post-processing annotations.
+
+- hiatus `˙` is typed as `H` and follows the closure timing class
+- vowel transition `¨` is typed as `T` and follows the sonorant timing class
+
+The unstressed singleton timing for these rows comes directly from the
+dedicated special-realization config values:
+
+- `consonants.closure.special_realization.hiatus`
+- `consonants.sonorant.special_realization.vowel_transition`
+
+That singleton anchor is separate from the ordinary class onset anchor. In
+other words, hiatus and vowel-transition rows inherit their timing class, but
+their unstressed starting point is still the special singleton value rather
+than the ordinary onset value of that class.
+
+The two row types also differ in emitted realization behavior.
+
+- hiatus keeps its own dedicated emitted path rather than disappearing into an abstract timing slot
+- vowel transition is resolved from neighboring vowels and surfaces as a glide-like realization such as `WA` or `YI`
+
+When one of these rows carries accentuation in onset position, the syllable is
+analyzed as `C:V`. In that shape, the special row is the primary accent
+segment and may receive accent increment. The runtime ceiling for that
+increment is still inherited from the corresponding timing class:
+
+- accentuated hiatus uses closure `perception_limits.gemination_max`
+- accentuated vowel transition uses sonorant `perception_limits.gemination_max`
+
+The current implementation stops there. It does not replace the special
+singleton anchor with the ordinary class onset, and it does not force the row
+across `geminate_min` or toward the ordinary class geminate target. The
+effective stressed range is therefore:
+
+- hiatus: `special_realization.hiatus` up to closure `gemination_max`
+- vowel transition: `special_realization.vowel_transition` up to sonorant `gemination_max`
+
+That range is narrower than the full ordinary onset-to-gemination band of the
+same timing class.
+
+The visual summary below shows the current accepted behavior for these special
+rows.
+
+<!-- GENERATED FLOWCHART: phonetizer-hiatus-and-vowel-transition-processing -->
+
+```mermaid
+flowchart TD
+    A["Phase 1 reads a special marker
+hiatus ˙ or transition ¨"] --> B{"Which marker enters the row model?"}
+    B -->|"hiatus ˙"| C["Type the row as H
+use the closure timing class"]
+    B -->|"transition ¨"| D["Type the row as T
+use the sonorant timing class"]
+    C --> E["Unstressed singleton timing uses
+special_realization.hiatus"]
+    D --> F["Unstressed singleton timing uses
+special_realization.vowel_transition"]
+    D --> G["Resolve the emitted glide from neighboring vowels
+realization becomes WA or YI"]
+    C --> H{"Accentuated onset C:V?"}
+    D --> H
+    G --> H
+    H -->|"no"| I["Keep the singleton special anchor
+and its class-specific realization"]
+    H -->|"yes"| J["Accent increment can land on the special row
+but the anchor stays special"]
+    J --> K{"Which timing ceiling applies?"}
+    K -->|"H row"| L["Use closure gemination_max
+as the runtime upper ceiling"]
+    K -->|"T row"| M["Use sonorant gemination_max
+as the runtime upper ceiling"]
+    L --> N["Current limit: no promotion to the ordinary onset lower bound
+and no forced move to the ordinary geminate target"]
+    M --> N
+```
+<!-- END GENERATED FLOWCHART: phonetizer-hiatus-and-vowel-transition-processing -->
+
 ## Phase 2: Duration Solver
 
 The visual summary below follows the live realization loop: how pause units and
@@ -424,6 +504,11 @@ Primary/adjacent routing by accent shape:
 - `CVV:` -> primary `VV`, adjacent preceding `C`
 - `CVC:` -> primary final `C`, adjacent preceding `V`
 - `CVV:C` -> primary `VV`, adjacent following `C`
+
+For hiatus and vowel-transition rows in onset position, that same routing is
+spelled as `C:V`. The special row is the primary accent segment, but it still
+starts from its special singleton anchor rather than from the ordinary onset
+anchor of the matching timing class.
 
 ### Pause Realization
 
