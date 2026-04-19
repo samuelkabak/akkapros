@@ -47,6 +47,14 @@ The finalized-stream split is now:
 - `_ophone.txt` receives pause-governed contour but not ordinary stress intonation
 - `_mbrola.pho` and `_ombrola.pho` inherit pitch targets from those finalized row tokens
 
+The timing split is now stream-aware as well:
+
+- `_phone.txt` keeps full-beat synchronization against `cvc_reference` when the input frontmatter carries `metadata.options.mora_mode: bi`
+- `_phone.txt` switches to half-beat synchronization against `0.5 * cvc_reference` when the input frontmatter carries `metadata.options.mora_mode: mono`
+- `_ophone.txt` always uses that same half-beat synchronization basis, even when the accentuated stream remains bimoraic
+
+That active synchronization basis controls pause targeting, drift folding, mini-pause discharge, and the ordinary long-vowel recovery path. The heavy-syllable reference itself still stays anchored in `cvc_reference`.
+
 Before runtime realization begins, the CLI now also runs shared semantic config
 verification. Blocking failures stop the command before `_ophone.txt`,
 `_phone.txt`, `_ombrola.pho`, and `_mbrola.pho` are written. Warning-only
@@ -108,6 +116,7 @@ Phase 2 diagnostics to look for:
 - these front matter statistics summarize completed-unit drift history, not a segment-by-segment timing trace
 - front matter also reports denominator-aware recovery diagnostics so unit-drift extension, drift-tolerance effect over non-accented long vowels, mini-pause insertion, and pause residual carry can be interpreted as rates over explicit populations rather than over row counts
 - short and long pauses both target the nearest legal in-band beat multiple; if exact discharge is impossible, residual drift is carried forward
+- the nearest legal beat multiple is chosen from the active synchronization basis, which may be `cvc_reference` or `0.5 * cvc_reference` depending on stream type and upstream `mora_mode`
 - inserted mini pauses use the dedicated row identity `MEN|S|M|S|S|N|P|MP|...|<space>`, where the final field is one literal space character
 - internal merged-unit closures with `L`, `X`, `E`, or `I` may still show raw unfolded drift until the unit-closing `F` row is realized
 

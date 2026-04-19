@@ -30,8 +30,12 @@ from akkapros.lib.phonetize import (
     _is_chrono_checkpoint_row,
     _normalize_drift_to_nearest_branch,
     _partition_phone_units,
+    _maybe_insert_mini_pause,
+    _merge_phonetize_config,
     _primary_accent_index,
     _round_half_up,
+    _resolve_synchronization_basis,
+    _runtime_view_phonetize_config,
     _validate_chrono_checkpoints,
     build_default_phonetize_verification_config,
     build_phone_streams,
@@ -376,6 +380,163 @@ def test_phase2_pause_discharge_and_stream_reports_are_emitted() -> None:
     assert original_report['unit_drift']['stddev'] >= 0
     assert accentuated_report['unit_drift']['stddev'] >= 0
     assert 'label' in original_report['unit_drift'] and 'label' in accentuated_report['unit_drift']
+
+
+def test_phase2_resolves_synchronization_basis_from_mora_mode_and_stream() -> None:
+    config = {
+        'timing_model': {
+            'durations': {
+                'cvc_reference': 305,
+            }
+        }
+    }
+    bi_frontmatter = {'metadata': {'options': {'mora_mode': 'bi'}}}
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    assert _resolve_synchronization_basis(
+        config,
+        allow_accentuation=True,
+        input_frontmatter=bi_frontmatter,
+    ) == 305.0
+    assert _resolve_synchronization_basis(
+        config,
+        allow_accentuation=True,
+        input_frontmatter=mono_frontmatter,
+    ) == 152.5
+    assert _resolve_synchronization_basis(
+        config,
+        allow_accentuation=False,
+        input_frontmatter=bi_frontmatter,
+    ) == 152.5
+
+
+def test_phase2_pause_target_uses_half_beat_for_mono_and_original_streams() -> None:
+    config = {
+        'process': {
+            'timing_model': {
+                'drift_tolerance': 0,
+                'durations': {
+                    'cvc_reference': 305,
+                    'pauses': {
+                        'short': {
+                            'min': 600,
+                            'max': 850,
+                        },
+                    },
+                },
+            },
+        },
+    }
+    bi_frontmatter = {'metadata': {'options': {'mora_mode': 'bi'}}}
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    bi_rows = build_phone_rows('qat,')
+    mono_rows = build_phone_rows('qat,')
+    original_rows = build_phone_rows('qat,')
+
+    realize_phone_rows(
+        bi_rows,
+        config,
+        allow_accentuation=True,
+        input_frontmatter=bi_frontmatter,
+    )
+    realize_phone_rows(
+        mono_rows,
+        config,
+        allow_accentuation=True,
+        input_frontmatter=mono_frontmatter,
+    )
+    realize_phone_rows(
+        original_rows,
+        config,
+        allow_accentuation=False,
+        input_frontmatter=bi_frontmatter,
+    )
+
+    bi_short_pause = next(row for row in bi_rows if row['category'] == 'S' and row['text'] == ',')
+    mono_short_pause = next(row for row in mono_rows if row['category'] == 'S' and row['text'] == ',')
+    original_short_pause = next(row for row in original_rows if row['category'] == 'S' and row['text'] == ',')
+
+    assert bi_short_pause['duration'] == '0629'
+    assert mono_short_pause['duration'] == '0782'
+    assert original_short_pause['duration'] == '0782'
+
+
+def test_phase2_mini_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone() -> None:
+    runtime_config = _runtime_view_phonetize_config(
+        _merge_phonetize_config(
+            {
+                'process': {
+                    'timing_model': {
+                        'durations': {
+                            'cvc_reference': 305,
+                            'pauses': {
+                                'mini': {
+                                    'min': 50,
+                                    'max': 80,
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+        )
+    )
+    rows = build_phone_rows('qat pa')
+    units = _partition_phone_units(rows)
+    analysis = _analyze_syllable(rows, units[0]['indices'])
+    bi_frontmatter = {'metadata': {'options': {'mora_mode': 'bi'}}}
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    bi_basis = _resolve_synchronization_basis(
+        runtime_config,
+        allow_accentuation=True,
+        input_frontmatter=bi_frontmatter,
+    )
+    mono_basis = _resolve_synchronization_basis(
+        runtime_config,
+        allow_accentuation=True,
+        input_frontmatter=mono_frontmatter,
+    )
+    original_basis = _resolve_synchronization_basis(
+        runtime_config,
+        allow_accentuation=False,
+        input_frontmatter=bi_frontmatter,
+    )
+
+    assert _maybe_insert_mini_pause(
+        rows,
+        units,
+        0,
+        analysis,
+        runtime_config,
+        100.0,
+        bi_basis,
+    ) is None
+
+    mono_pause = _maybe_insert_mini_pause(
+        rows,
+        units,
+        0,
+        analysis,
+        runtime_config,
+        100.0,
+        mono_basis,
+    )
+    original_pause = _maybe_insert_mini_pause(
+        rows,
+        units,
+        0,
+        analysis,
+        runtime_config,
+        100.0,
+        original_basis,
+    )
+
+    assert mono_pause is not None
+    assert mono_pause[1] == 52.0
+    assert original_pause is not None
+    assert original_pause[1] == 52.0
 
 
 def test_phase2_non_final_rows_keep_last_completed_unit_drift() -> None:
@@ -1078,7 +1239,7 @@ def test_path_3_4_non_accentual_long_vowel_stops_before_very_long_band_and_keeps
     )
 
     assert rows[1]['duration'] == '0189'
-    assert rows[1]['drift'] == '-222'
+    assert rows[1]['drift'] == '+028'
 
 
 def test_path_3_5_unit_final_fold_happens_after_syllable_completion_for_current_reference() -> None:
@@ -1100,9 +1261,9 @@ def test_path_3_5_unit_final_fold_happens_after_syllable_completion_for_current_
     )
 
     assert rows[1]['duration'] == '0189'
-    # With cvc_reference = 600, the current residual folds to +278 because the equivalence
-    # class is modulo the current reference, not modulo the default 306 value.
-    assert rows[1]['drift'] == '+278'
+    # In the original stream, CR-080 folds against the half-beat basis rather than the
+    # full cvc_reference, so the residual now lands near the half-beat checkpoint.
+    assert rows[1]['drift'] == '-022'
 
 
 def test_path_4_1_accent_route_c_colon_v() -> None:
@@ -1434,12 +1595,7 @@ def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
     )
 
     mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
-    assert len(mini_pause_rows) == 1
-    assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
-    assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
-    assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_pause_rows[0]['duration'] == '0225'
-    assert mini_pause_rows[0]['drift'] == '+000'
+    assert mini_pause_rows == []
 
 
 def test_path_8_4_negative_drift_outside_mini_band_does_not_clamp_partial_pause() -> None:

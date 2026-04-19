@@ -31,6 +31,7 @@ ACCENTUATION_DISTRIBUTION_SHARES = {
     '70_30': (0.70, 0.30),
 }
 ACCENTUATION_DISTRIBUTION_CHOICES = tuple(ACCENTUATION_DISTRIBUTION_SHARES)
+SYNC_PRECISION_DIGITS = 1
 
 
 @dataclass(frozen=True)
@@ -981,8 +982,18 @@ def realize_phone_streams(
     input_frontmatter: dict[str, Any] | None = None,
 ) -> tuple[tuple[list[dict[str, str]], dict[str, Any]], tuple[list[dict[str, str]], dict[str, Any]]]:
     original_rows, accentuated_rows = build_phone_streams(tilde_text, phonetize_config, input_frontmatter)
-    original_report = realize_phone_rows(original_rows, phonetize_config, allow_accentuation=False)
-    accentuated_report = realize_phone_rows(accentuated_rows, phonetize_config, allow_accentuation=True)
+    original_report = realize_phone_rows(
+        original_rows,
+        phonetize_config,
+        allow_accentuation=False,
+        input_frontmatter=input_frontmatter,
+    )
+    accentuated_report = realize_phone_rows(
+        accentuated_rows,
+        phonetize_config,
+        allow_accentuation=True,
+        input_frontmatter=input_frontmatter,
+    )
     realize_row_intonation(original_rows, phonetize_config, accentuated=False)
     realize_row_intonation(accentuated_rows, phonetize_config, accentuated=True)
     return (original_rows, original_report), (accentuated_rows, accentuated_report)
@@ -1048,6 +1059,44 @@ def _nearest_multiple_gap(minimum: float, maximum: float, cvc_reference: float) 
         _interval_distance(n * cvc_reference, minimum, maximum)
         for n in range(1, upper + 1)
     )
+
+
+def _round_sync_precision(value: float) -> float:
+    return round(float(value), SYNC_PRECISION_DIGITS)
+
+
+def _resolve_mora_mode(input_frontmatter: dict[str, Any] | None) -> str:
+    if not isinstance(input_frontmatter, dict):
+        return 'bi'
+    metadata = input_frontmatter.get('metadata')
+    if not isinstance(metadata, dict):
+        return 'bi'
+    options = metadata.get('options')
+    if not isinstance(options, dict):
+        return 'bi'
+    return 'mono' if options.get('mora_mode') == 'mono' else 'bi'
+
+
+def _resolve_synchronization_basis(
+    config: dict[str, Any],
+    *,
+    allow_accentuation: bool,
+    input_frontmatter: dict[str, Any] | None = None,
+) -> float:
+    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
+    if not allow_accentuation:
+        return _round_sync_precision(cvc_reference / 2.0)
+    if _resolve_mora_mode(input_frontmatter) == 'mono':
+        return _round_sync_precision(cvc_reference / 2.0)
+    return _round_sync_precision(cvc_reference)
+
+
+def _supported_synchronization_bases(cvc_reference: float) -> tuple[float, ...]:
+    half = _round_sync_precision(cvc_reference / 2.0)
+    full = _round_sync_precision(cvc_reference)
+    if half == full:
+        return (full,)
+    return (half, full)
 
 
 def _iter_numeric_leaves(prefix: tuple[str, ...], node: Any) -> list[tuple[str, int]]:
@@ -1276,15 +1325,17 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     long_min = float(pauses['long']['min'])
     long_max = float(pauses['long']['max'])
 
-    if not _pause_multiple_candidates(short_min, short_max, cvc_reference):
+    supported_sync_bases = _supported_synchronization_bases(cvc_reference)
+
+    if not any(_pause_multiple_candidates(short_min, short_max, basis) for basis in supported_sync_bases):
         add_warning(
             'phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.cvc_reference',
-            'exists N >= 1 with short.min <= N * cvc_reference <= short.max',
-            'No integer multiple of cvc_reference falls inside the configured short-pause band.',
+            'exists N >= 1 with short.min <= N * synchronization_basis <= short.max',
+            'No integer multiple of the active synchronization bases (0.5 * cvc_reference or cvc_reference) falls inside the configured short-pause band.',
             summary_hint=short_pause_hint,
         )
 
-    short_gap = _nearest_multiple_gap(short_min, short_max, cvc_reference)
+    short_gap = min(_nearest_multiple_gap(short_min, short_max, basis) for basis in supported_sync_bases)
     short_gap_limit = float(vowel_limits['long_min'] - vowel_limits['short_min'])
     if short_gap > short_gap_limit:
         add_failure(
@@ -1294,11 +1345,11 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             summary_hint=verification_hint,
         )
 
-    if not _pause_multiple_candidates(long_min, long_max, cvc_reference):
+    if not any(_pause_multiple_candidates(long_min, long_max, basis) for basis in supported_sync_bases):
         add_failure(
             'phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max, phonetize.process.timing_model.durations.cvc_reference',
-            'exists N >= 1 with long.min <= N * cvc_reference <= long.max',
-            'No integer multiple of cvc_reference falls inside the configured long-pause band.',
+            'exists N >= 1 with long.min <= N * synchronization_basis <= long.max',
+            'No integer multiple of the active synchronization bases (0.5 * cvc_reference or cvc_reference) falls inside the configured long-pause band.',
             summary_hint=verification_hint,
         )
 
@@ -1447,13 +1498,13 @@ def _round_half_up(value: float) -> int:
 
 def _normalize_drift_to_nearest_branch(
     drift_value: float,
-    cvc_reference: float,
+    synchronization_basis: float,
 ) -> float:
-    threshold = float(_round_half_up(0.5 * cvc_reference))
+    threshold = 0.5 * synchronization_basis
     while drift_value > threshold:
-        drift_value -= cvc_reference
+        drift_value -= synchronization_basis
     while drift_value < -threshold:
-        drift_value += cvc_reference
+        drift_value += synchronization_basis
     return drift_value
 
 
@@ -1625,36 +1676,48 @@ def _primary_accent_index(analysis: dict[str, Any]) -> int | None:
     return analysis['accent_index']
 
 
-def _pause_multiple_candidates(minimum: float, maximum: float, cvc_reference: float) -> list[float]:
-    upper = max(1, int(maximum // cvc_reference) + 2)
-    return [n * cvc_reference for n in range(1, upper) if minimum <= n * cvc_reference <= maximum]
+def _pause_multiple_candidates(minimum: float, maximum: float, synchronization_basis: float) -> list[float]:
+    upper = max(1, int(math.ceil(maximum / synchronization_basis)) + 2)
+    candidates: list[float] = []
+    for n in range(1, upper):
+        candidate = _round_sync_precision(n * synchronization_basis)
+        if minimum <= candidate <= maximum:
+            candidates.append(candidate)
+    return candidates
 
 
-def _preferred_pause_target(row: dict[str, str], config: dict[str, Any]) -> float:
+def _preferred_pause_target(row: dict[str, str], config: dict[str, Any], *, synchronization_basis: float) -> float:
     pauses_cfg = config['timing_model']['durations']['pauses']
-    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
     band = pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short']
     minimum = float(band['min'])
     maximum = float(band['max'])
-    candidates = _pause_multiple_candidates(minimum, maximum, cvc_reference)
+    candidates = _pause_multiple_candidates(minimum, maximum, synchronization_basis)
     midpoint = (minimum + maximum) / 2.0
     if candidates:
         return min(candidates, key=lambda value: (abs(value - midpoint), value))
-    nearest_multiple = max(cvc_reference, round(midpoint / cvc_reference) * cvc_reference)
+    nearest_multiple = max(
+        synchronization_basis,
+        _round_sync_precision(round(midpoint / synchronization_basis) * synchronization_basis),
+    )
     return min(max(nearest_multiple, minimum), maximum)
 
 
-def _pause_duration_and_drift(row: dict[str, str], config: dict[str, Any], drift_cursor: float) -> tuple[float, float]:
+def _pause_duration_and_drift(
+    row: dict[str, str],
+    config: dict[str, Any],
+    drift_cursor: float,
+    *,
+    synchronization_basis: float,
+) -> tuple[float, float]:
     pauses_cfg = config['timing_model']['durations']['pauses']
     band = pauses_cfg['mini'] if _is_mini_pause_row(row) else (pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short'])
     minimum = float(band['min'])
     maximum = float(band['max'])
     if _is_mini_pause_row(row):
-        cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
-        actual = -drift_cursor if drift_cursor < 0 else (cvc_reference - drift_cursor)
+        actual = -drift_cursor if drift_cursor < 0 else (synchronization_basis - drift_cursor)
         emitted = float(_rounded_duration_value(actual))
-        return emitted, _normalize_drift_to_nearest_branch(drift_cursor + emitted, cvc_reference)
-    preferred = _preferred_pause_target(row, config)
+        return emitted, _normalize_drift_to_nearest_branch(drift_cursor + emitted, synchronization_basis)
+    preferred = _preferred_pause_target(row, config, synchronization_basis=synchronization_basis)
     desired = preferred - drift_cursor
     actual = min(max(desired, minimum), maximum)
     emitted = float(_rounded_duration_value(actual))
@@ -1876,6 +1939,7 @@ def _maybe_insert_mini_pause(
     analysis: dict[str, Any],
     config: dict[str, Any],
     drift_cursor: float,
+    synchronization_basis: float,
 ) -> tuple[dict[str, str], float, float] | None:
     if not _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
         return None
@@ -1883,12 +1947,11 @@ def _maybe_insert_mini_pause(
     mini_cfg = config['timing_model']['durations']['pauses']['mini']
     mini_min = float(mini_cfg['min'])
     mini_max = float(mini_cfg['max'])
-    cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
 
     if drift_cursor < 0:
         target_duration = abs(drift_cursor)
     elif drift_cursor > 0:
-        target_duration = abs(drift_cursor - cvc_reference)
+        target_duration = abs(drift_cursor - synchronization_basis)
     else:
         return None
 
@@ -1896,7 +1959,12 @@ def _maybe_insert_mini_pause(
         return None
 
     mini_row = _new_mini_pause_row()
-    pause_duration, new_drift = _pause_duration_and_drift(mini_row, config, drift_cursor)
+    pause_duration, new_drift = _pause_duration_and_drift(
+        mini_row,
+        config,
+        drift_cursor,
+        synchronization_basis=synchronization_basis,
+    )
     if abs(new_drift) >= abs(drift_cursor) and abs(new_drift) >= 0.5:
         return None
     return mini_row, pause_duration, new_drift
@@ -1907,8 +1975,14 @@ def realize_phone_rows(
     phonetize_config: dict[str, Any] | None = None,
     *,
     allow_accentuation: bool,
+    input_frontmatter: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     config = _runtime_view_phonetize_config(_merge_phonetize_config(phonetize_config))
+    synchronization_basis = _resolve_synchronization_basis(
+        config,
+        allow_accentuation=allow_accentuation,
+        input_frontmatter=input_frontmatter,
+    )
     units = _partition_phone_units(rows)
     durations: dict[int, float] = {}
     drift_cursor = 0.0
@@ -1938,9 +2012,25 @@ def realize_phone_rows(
     for unit_index, unit in enumerate(units):
         if unit['kind'] == 'pause':
             entry_drift = drift_cursor
-            pause_duration, drift_cursor = _pause_duration_and_drift(rows[unit['index']], config, drift_cursor)
+            pause_duration, drift_cursor = _pause_duration_and_drift(
+                rows[unit['index']],
+                config,
+                drift_cursor,
+                synchronization_basis=synchronization_basis,
+            )
             durations[unit['index']] = pause_duration
-            drift_cursor = entry_drift + (float(_rounded_duration_value(pause_duration)) - (_preferred_pause_target(rows[unit['index']], config) if not _is_mini_pause_row(rows[unit['index']]) else 0.0))
+            drift_cursor = entry_drift + (
+                float(_rounded_duration_value(pause_duration))
+                - (
+                    _preferred_pause_target(
+                        rows[unit['index']],
+                        config,
+                        synchronization_basis=synchronization_basis,
+                    )
+                    if not _is_mini_pause_row(rows[unit['index']])
+                    else 0.0
+                )
+            )
             if not _is_mini_pause_row(rows[unit['index']]) and abs(drift_cursor) >= 0.5:
                 pause_residual_post_unit_drift_count += 1
             drift_history.append(drift_cursor)
@@ -2026,7 +2116,10 @@ def realize_phone_rows(
         emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
         drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
         if _should_fold_completed_syllable(rows, analysis):
-            drift_after_assignment = _normalize_drift_to_nearest_branch(drift_after_assignment, cvc_reference)
+            drift_after_assignment = _normalize_drift_to_nearest_branch(
+                drift_after_assignment,
+                synchronization_basis,
+            )
 
         if abs(drift_after_assignment) > tolerance:
             extension = abs(drift_after_assignment) - tolerance
@@ -2040,7 +2133,15 @@ def realize_phone_rows(
 
         if _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
             mini_pause_eligible_count += 1
-        mini_pause = _maybe_insert_mini_pause(rows, units, unit_index, analysis, config, drift_cursor)
+        mini_pause = _maybe_insert_mini_pause(
+            rows,
+            units,
+            unit_index,
+            analysis,
+            config,
+            drift_cursor,
+            synchronization_basis,
+        )
         if mini_pause is not None:
             mini_row, mini_duration, drift_cursor = mini_pause
             mini_pause_insert_count += 1

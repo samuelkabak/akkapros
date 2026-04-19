@@ -135,6 +135,11 @@ Debug note:
 - If that divisibility fails, the phonetizer raises a debug checkpoint error
   instead of writing a silently inconsistent timeline.
 
+The active synchronization basis used for pause targeting, drift folding, and
+mini-pause discharge may still be either `cvc_reference` or
+`0.5 * cvc_reference`, depending on stream type and the upstream
+`metadata.options.mora_mode` value.
+
 `intonation`
 
 - Canonical three-character row token such as `M0C`, `H2C`, `L2C`, `R1L`, `F1L`, `P2E`, or `V2E`.
@@ -240,6 +245,7 @@ statement, or question punctuation.
 - accentuated stream
 - keeps accent-bearing rows marked with `accent = A`
 - receives ordinary stress intonation when no pause-final override applies
+- uses `cvc_reference` as its synchronization basis in bimoraic mode and `0.5 * cvc_reference` in monomoraic mode
 
 `_ophone.txt`
 
@@ -248,6 +254,7 @@ statement, or question punctuation.
 - still passes through finalized timing and intonation
 - receives pause-governed contour from punctuation and pause type
 - does not receive ordinary stress intonation from accent-bearing syllables
+- now synchronizes on `0.5 * cvc_reference`, using the same half-beat timing basis as mono accentuated output
 
 Both files still preserve the same structural boundary inventory and pause rows.
 

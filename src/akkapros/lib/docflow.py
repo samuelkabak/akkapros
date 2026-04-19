@@ -61,8 +61,8 @@ def _validate_phonetizer_target() -> None:
         stream_source,
         (
             "build_phone_streams(",
-            "realize_phone_rows(original_rows",
-            "realize_phone_rows(accentuated_rows",
+            "original_report = realize_phone_rows(",
+            "accentuated_report = realize_phone_rows(",
             "realize_row_intonation(original_rows",
             "realize_row_intonation(accentuated_rows",
         ),

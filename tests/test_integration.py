@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text, load_config_file
-from akkapros.lib.frontmatter import split_frontmatter
+from akkapros.lib.frontmatter import compose_text_document, split_frontmatter
 from akkapros.lib.phonetize import (
     MINI_PAUSE_LABEL,
     MINI_PAUSE_REALIZATION,
@@ -62,8 +62,8 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 27.629629629629633,
-            "percent_v": 30.719576719576718,
+            "percent_c": 25.980099502487562,
+            "percent_v": 28.885572139303484,
             "mean_c_ms": 108.79166666666667,
             "mean_v_ms": 126.21739130434783,
             "delta_c_ms": 53.581697097879314,
@@ -74,9 +74,9 @@ GOLD_REGULAR_METRICS = {
             "npvi_v": 19.01349336499547,
         },
         "unit_drift": {
-            "max": 115.0,
-            "mean": 18.037,
-            "stddev": 35.9604,
+            "max": 68.0,
+            "mean": 3.7333,
+            "stddev": 31.478,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -174,8 +174,8 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 27.629629629629633,
-            "percent_v": 30.719576719576718,
+            "percent_c": 25.980099502487562,
+            "percent_v": 28.885572139303484,
             "mean_c_ms": 108.79166666666667,
             "mean_v_ms": 126.21739130434783,
             "delta_c_ms": 53.581697097879314,
@@ -186,9 +186,9 @@ GOLD_MONO_METRICS = {
             "npvi_v": 19.01349336499547,
         },
         "unit_drift": {
-            "max": 115.0,
-            "mean": 18.037,
-            "stddev": 35.9604,
+            "max": 68.0,
+            "mean": 3.7333,
+            "stddev": 31.478,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -227,8 +227,8 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 29.438095238095237,
-            "percent_v": 32.2,
+            "percent_c": 29.023474178403756,
+            "percent_v": 31.746478873239436,
             "mean_c_ms": 128.79166666666666,
             "mean_v_ms": 147.0,
             "delta_c_ms": 82.83617324105589,
@@ -240,8 +240,8 @@ GOLD_MONO_METRICS = {
         },
         "unit_drift": {
             "max": 116.0,
-            "mean": 1.7407,
-            "stddev": 39.9153,
+            "mean": -3.6786,
+            "stddev": 39.3338,
         },
     },
     "accentuation_stats": {
@@ -731,6 +731,65 @@ def test_phonetizer_cli_applies_pause_intonation_to_ophone_and_ombrola(tmp_path:
     assert any(any(target != 120 for target in targets) for _symbol, _duration, targets in ombrola_rows)
 
 
+def test_phonetizer_cli_uses_frontmatter_mora_mode_for_half_beat_alignment(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_half_beat_alignment'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('phonetize', 'process.timing_model.durations.cvc_reference'): 305,
+            ('phonetize', 'process.timing_model.durations.pauses.short.min'): 600,
+            ('phonetize', 'process.timing_model.durations.pauses.short.max'): 850,
+        },
+    )
+    config_path = outdir / 'half_beat.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    bi_tilde = outdir / 'bi_tilde.txt'
+    bi_tilde.write_text(
+        compose_text_document(
+            {
+                'pipeline': 'pipeline',
+                'file': {'id': 'bi-tilde', 'title': 'bi tilde', 'format': 'tilde', 'version': '1.0.0'},
+                'metadata': {'options': {'mora_mode': 'bi'}},
+            },
+            'qat,\n',
+        ),
+        encoding='utf-8',
+    )
+    mono_tilde = outdir / 'mono_tilde.txt'
+    mono_tilde.write_text(
+        compose_text_document(
+            {
+                'pipeline': 'pipeline',
+                'file': {'id': 'mono-tilde', 'title': 'mono tilde', 'format': 'tilde', 'version': '1.0.0'},
+                'metadata': {'options': {'mora_mode': 'mono'}},
+            },
+            'qat,\n',
+        ),
+        encoding='utf-8',
+    )
+
+    _run_cli('akkapros.cli.phonetizer', str(bi_tilde), '-p', 'bi', '--outdir', str(outdir), '--conf', str(config_path))
+    _run_cli('akkapros.cli.phonetizer', str(mono_tilde), '-p', 'mono', '--outdir', str(outdir), '--conf', str(config_path))
+
+    bi_phone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(outdir / 'bi_phone.txt')).strip().splitlines()]
+    bi_ophone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(outdir / 'bi_ophone.txt')).strip().splitlines()]
+    mono_phone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(outdir / 'mono_phone.txt')).strip().splitlines()]
+    mono_ophone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(outdir / 'mono_ophone.txt')).strip().splitlines()]
+
+    bi_phone_short_pause = next(row for row in bi_phone_rows if row['category'] == 'S' and row['text'] == ',')
+    bi_ophone_short_pause = next(row for row in bi_ophone_rows if row['category'] == 'S' and row['text'] == ',')
+    mono_phone_short_pause = next(row for row in mono_phone_rows if row['category'] == 'S' and row['text'] == ',')
+    mono_ophone_short_pause = next(row for row in mono_ophone_rows if row['category'] == 'S' and row['text'] == ',')
+
+    assert bi_phone_short_pause['duration'] == '0629'
+    assert bi_ophone_short_pause['duration'] == '0782'
+    assert mono_phone_short_pause['duration'] == '0782'
+    assert mono_ophone_short_pause['duration'] == '0782'
+
+
 def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_path: Path) -> None:
     outdir = tmp_path / 'phonetizer_short_vowel_anchor'
     outdir.mkdir(parents=True, exist_ok=True)
@@ -1119,15 +1178,15 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
-        "%C: 27.63%",
-        "%V: 30.72%",
+        "%C: 25.98%",
+        "%V: 28.89%",
             "%C: 27.95%",
             "%V: 32.56%",
         "VarcoC: 49.25",
             "VarcoC: 54.54",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Unit drift max: 115.00 ms",
+        "Unit drift max: 68.00 ms",
             "Unit drift max: 116.00 ms",
         "Phonetizer diagnostics:",
         "Unit drift extension:",
@@ -1226,10 +1285,10 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "Total syllables: 23 syllables",
         "Total words: 8 words",
         "Total words: 7 words",
-        "%C: 27.63%",
-        "%V: 30.72%",
-            "%C: 29.44%",
-            "%V: 32.20%",
+        "%C: 25.98%",
+        "%V: 28.89%",
+            "%C: 29.02%",
+            "%V: 31.75%",
         "VarcoC: 49.25",
             "VarcoC: 64.32",
         "Accentuated syllables: 7 syllables",

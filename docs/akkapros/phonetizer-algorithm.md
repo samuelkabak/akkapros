@@ -8,8 +8,10 @@ The practical question is simple: once prosody has already been fixed in
 assigned?
 
 This page describes current user-facing behavior only. Beat folding is part of
-the fixed solver, not a user policy surface, and checkpoints separated by one
-full `cvc_reference` remain synchronization-equivalent beat positions.
+the fixed solver, not a user policy surface. The active synchronization basis
+is stream-aware: the accentuated stream uses `cvc_reference` in bimoraic mode
+and `0.5 * cvc_reference` in monomoraic mode, while the original stream uses
+`0.5 * cvc_reference` throughout.
 
 ## Flowchart
 
@@ -107,7 +109,7 @@ That layer validates the current live timing model, including:
 - class-local consonant `gemination_max` ordering and `segmental_ceiling` checks
 - consonant and vowel ordering constraints
 - pause-band ordering
-- short- and long-pause compatibility against `cvc_reference`
+- short- and long-pause compatibility against the active synchronization bases derived from `cvc_reference`
 - the non-negative integer requirement for `drift_tolerance`
 
 The live default now sets `drift_tolerance = 19`.
@@ -125,9 +127,18 @@ This is a debug invariant for the beat model itself, not a soft warning.
 
 ## Timeline Model
 
-Phase 2 is a timeline solver organized around one beat reference:
+Phase 2 is a timeline solver organized around one heavy-syllable reference and
+one active synchronization basis.
+
+The heavy-syllable reference stays fixed:
 
 - `cvc_reference`
+
+The active synchronization basis is derived at runtime:
+
+- accentuated stream with `mora_mode = bi`: `cvc_reference`
+- accentuated stream with `mora_mode = mono`: `0.5 * cvc_reference`
+- original stream in `_ophone.txt`: `0.5 * cvc_reference`
 
 The nominal non-accentuated targets are:
 
@@ -152,10 +163,9 @@ The solver carries one signed running value, `drift_cursor`:
 - negative drift means the stream is ahead of the beat
 - positive drift means the stream is behind the beat
 
-Synchronization is modulo the beat reference. The checkpoints
-`-cvc_reference`, `0`, and `+cvc_reference` are equivalent from the solver's
-point of view because each one lands on a beat boundary separated by one full
-foot.
+Synchronization is modulo the active synchronization basis. The checkpoints
+`-basis`, `0`, and `+basis` are equivalent from the solver's point of view
+because each one lands on a beat boundary separated by one active beat.
 
 The serialized row-level `drift` field uses a fixed-width token:
 
@@ -166,8 +176,9 @@ The serialized row-level `drift` field uses a fixed-width token:
 Rows that do not close a syllable or pause repeat the most recent completed-unit token. The token becomes newly informative only on syllable-final rows and pause rows.
 
 Under `DEBUG_CHRONO`, those syllable-final and pause rows are also the enforced
-checkpoint rows. They must land on the integer beat lattice implied by
-`cvc_reference`; otherwise the solver raises a checkpoint mismatch error.
+checkpoint rows. The debug invariant is still expressed through
+`cvc_reference`, but the active synchronization lattice may now be the full
+beat or the half beat derived from that same heavy-syllable reference.
 
 ## Phase 1: Row Building
 
@@ -389,18 +400,18 @@ drift_after_assignment = drift_cursor + (realized_total - shape_ref)
   fold the completed-unit drift to the nearest equivalent beat branch:
 
 ```text
-if drift_after_assignment > round_half_up(0.5 * cvc_reference):
-  drift_after_assignment -= cvc_reference
-if drift_after_assignment < -round_half_up(0.5 * cvc_reference):
-  drift_after_assignment += cvc_reference
+if drift_after_assignment > 0.5 * synchronization_basis:
+  drift_after_assignment -= synchronization_basis
+if drift_after_assignment < -0.5 * synchronization_basis:
+  drift_after_assignment += synchronization_basis
 ```
 
 This keeps the completed-unit drift inside the canonical interval centered on
-the nearest beat. Folding is always modulo the current `cvc_reference`.
-For example, with `cvc_reference = 300`, `+250` folds to `-50` because reaching
-`+300` is nearer than returning to `0`, while `-250` folds to `+50` because
-reaching `-300` is nearer than returning to `0`. Likewise, `-297` folds to
-`+3` when `cvc_reference = 300` because `-297 + 300 = 3`.
+the nearest beat. Folding is always modulo the current synchronization basis.
+For example, with `synchronization_basis = 300`, `+250` folds to `-50` because
+reaching `+300` is nearer than returning to `0`, while `-250` folds to `+50`
+because reaching `-300` is nearer than returning to `0`. Likewise, `-297`
+folds to `+3` when `synchronization_basis = 300` because `-297 + 300 = 3`.
 
 The crucial restriction is timing: this fold is prosodic-unit-final, not
 syllable-local. If a syllable closes with `L`, `X`, `E`, or `I`, its raw drift
@@ -548,8 +559,9 @@ Mini pauses use the same beat-equivalence logic as drift folding.
 If the current drift is negative, the target checkpoint is `0`, so the legal
 mini-pause duration must be exactly `abs(drift)`.
 
-If the current drift is positive, the target checkpoint is `+cvc_reference`, so
-the legal mini-pause duration must be exactly `cvc_reference - drift`.
+If the current drift is positive, the target checkpoint is
+`+synchronization_basis`, so the legal mini-pause duration must be exactly
+`synchronization_basis - drift`.
 
 The mini pause is inserted only when that exact target duration lies inside:
 
@@ -609,10 +621,11 @@ syllable, and no punctuation-owned pause already exists there, the phonetizer
 may insert one `54 ms` mini pause before `pa`.
 
 Positive drift works the same way against the next equivalent checkpoint.
-With `cvc_reference = 300`, the syllable `ša` realizes `72 ms` behind the beat.
+With `synchronization_basis = 300`, the syllable `ša` realizes `72 ms` behind the beat.
 If the mini band includes `228 ms`, the phonetizer may insert one `228 ms`
 mini pause because `72 + 228 = 300`, and `+300` is synchronization-equivalent
-to `0` after beat folding.
+to `0` after beat folding. In mono timing or in `_ophone.txt`, the same rule is
+evaluated against the half beat instead.
 
 That mini pause is visible in the phone-row stream but not in reconstructed
 upstream `_tilde` text.

@@ -22,15 +22,15 @@ ušašqi qingu : ina birīšunu šâšu ušrabbīš
 VARCO_VERIFICATION_SAMPLE = "šazu šuḫgurim ina rebî : šākin tašmê ana ilī abbīšu\n"
 VARCO_VERIFICATION_ORIGINAL = {
     "percent_c": 31.944444444444443,
-    "percent_v": 35.625,
-    "mean_c_ms": 109.52380952380952,
-    "mean_v_ms": 128.25,
-    "delta_c_ms": 50.67320043800653,
-    "delta_v_ms": 35.40603762072226,
-    "varco_c": 46.26683518252771,
-    "varco_v": 27.607046877756147,
-    "rpvi_c": 59.0,
-    "npvi_v": 21.893349095420298,
+    "percent_v": 35.72222222222222,
+    "mean_c_ms": 115.0,
+    "mean_v_ms": 128.6,
+    "delta_c_ms": 49.15689168366934,
+    "delta_v_ms": 35.682488702443386,
+    "varco_c": 42.74512320319073,
+    "varco_v": 27.746880795057066,
+    "rpvi_c": 57.89473684210526,
+    "npvi_v": 21.886221401456858,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
     "percent_c": 32.17948717948718,
@@ -45,9 +45,9 @@ VARCO_VERIFICATION_ACCENTUATED = {
     "npvi_v": 33.28706732899566,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
-    "max": 150.0,
-    "mean": 30.4583,
-    "stddev": 51.0057,
+    "max": 86.0,
+    "mean": 6.6667,
+    "stddev": 40.5254,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
     "max": 150.0,
@@ -177,16 +177,16 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.806298514082947,
-            "percent_v": 34.39920159680639,
-            "mean_c_ms": 114.11896155110088,
-            "mean_v_ms": 129.73067915690868,
-            "delta_c_ms": 52.472050792150725,
-            "delta_v_ms": 36.85486529971392,
-            "varco_c": 45.98013343177371,
-            "varco_v": 28.40875075905378,
-            "rpvi_c": 63.31886916502301,
-            "npvi_v": 22.441197681974927,
+            "percent_c": 30.278489842183276,
+            "percent_v": 34.3429244049176,
+            "mean_c_ms": 113.07847606642787,
+            "mean_v_ms": 131.7761793241887,
+            "delta_c_ms": 52.2315564498969,
+            "delta_v_ms": 40.17989517035766,
+            "varco_c": 46.19053799346704,
+            "varco_v": 30.491015429662166,
+            "rpvi_c": 63.25798045602606,
+            "npvi_v": 24.21463861909597,
         },
         "unit_drift": {
             "max": 0.0,
@@ -836,16 +836,16 @@ def test_lexlinks_construct_word_counts_match_independent_reference(tmp_path: Pa
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 30.81%" in table
-    assert "%V: 34.40%" in table
-    assert "meanC: 114.12 ms" in table
-    assert "meanV: 129.73 ms" in table
-    assert "ΔC: 52.47 ms" in table
-    assert "ΔV: 36.85 ms" in table
-    assert "VarcoC: 45.98" in table
-    assert "VarcoV: 28.41" in table
-    assert "rPVI-C: 63.32" in table
-    assert "nPVI-V: 22.44" in table
+    assert "%C: 30.28%" in table
+    assert "%V: 34.34%" in table
+    assert "meanC: 113.08 ms" in table
+    assert "meanV: 131.78 ms" in table
+    assert "ΔC: 52.23 ms" in table
+    assert "ΔV: 40.18 ms" in table
+    assert "VarcoC: 46.19" in table
+    assert "VarcoV: 30.49" in table
+    assert "rPVI-C: 63.26" in table
+    assert "nPVI-V: 24.21" in table
     assert "Unit drift max: 0.00 ms" in table
     assert "Unit drift mean: 0.00 ms" in table
     assert "Unit drift stddev: 0.00 ms" in table
