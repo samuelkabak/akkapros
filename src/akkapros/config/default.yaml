@@ -113,7 +113,7 @@ phonetize:
       # Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30
       accentuation_distribution_policy: "80_20"
       # maximum local timing mismatch tolerated before the algorithm must fail
-      drift_tolerance: 0
+      drift_tolerance: 19
       speech:
         # Speech-rate estimate used by timing and pause logic.
         wpm: 193
@@ -128,7 +128,7 @@ phonetize:
         # Global validation floor for vowel minima, consonant anchors and minima, and
         # the hiatus and vowel-transition special realizations. Validation-only; not a
         # runtime timing control.
-        segmental_floor: 10
+        segmental_floor: 20
         # Central heavy-syllable timing reference used by accentuation and pause
         # alignment. Set inside the empirically grounded CVC interval 286-306 ms. This
         # keeps the control value conservative and compatible with pause-band alignment

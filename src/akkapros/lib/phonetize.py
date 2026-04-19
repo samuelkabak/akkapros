@@ -99,7 +99,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 choices=ACCENTUATION_DISTRIBUTION_CHOICES,
             ),
             'drift_tolerance': _field(
-                0,
+                19,
                 'int',
                 'maximum local timing mismatch tolerated before the algorithm must fail',
             ),
@@ -116,7 +116,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                     'Global validation ceiling for class-local consonant gemination maxima and the vowel elongation max. This key remains part of the config and verification surface, but runtime consonant saturation uses class-local gemination_max values instead.',
                 ),
                 'segmental_floor': _field(
-                    10,
+                    20,
                     'int',
                     'Global validation floor for vowel minima, consonant anchors and minima, and the hiatus and vowel-transition special realizations. Validation-only; not a runtime timing control.',
                 ),

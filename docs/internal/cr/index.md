@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[077. Retune Default Phonetizer Drift Tolerance and Segmental Floor](077-retune-default-phonetizer-drift-tolerance-and-segmental-floor.md) - Done
 [076. Optimize Governance Context Loading and Make the CR the Primary Execution Prompt](076-optimize-governance-context-loading-and-agent-cr-responsibilities.md) - Done
 [075. Humanize Phonetizer Diagnostic Names and Replace Ordinary Vowel Correction Rate with Drift Tolerance Effect](075-humanize-phonetizer-diagnostic-names-and-replace-ordinary-vowel-correction-rate-with-drift-tolerance-effect.md) - Done
 [074. Apply Accentuation Before Ordinary Long-Vowel Drift Recovery](074-apply-accentuation-before-ordinary-long-vowel-drift-recovery.md) - Done

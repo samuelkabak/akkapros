@@ -696,6 +696,50 @@ def test_phase2_reports_drift_tolerance_effect_over_non_accented_long_vowels() -
     assert report['lengthened_non_accented_long_vowel_count'] == 1
 
 
+def test_phase2_explicit_tolerance_19_keeps_small_fricative_long_vowel_drift_as_is() -> None:
+    zero_rows = build_phone_rows('šā')
+    zero_report = realize_phone_rows(
+        zero_rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'durations': {
+                        'cvc_reference': 260,
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+    tolerant_rows = build_phone_rows('šā')
+    tolerant_report = realize_phone_rows(
+        tolerant_rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 19,
+                    'durations': {
+                        'cvc_reference': 260,
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert zero_report['non_accented_long_vowel_count'] == 1
+    assert zero_report['adjusted_non_accented_long_vowel_count'] == 1
+    assert zero_report['left_as_is_non_accented_long_vowel_count'] == 0
+    assert zero_report['drift_tolerance_effect'] == pytest.approx(0.0)
+
+    assert tolerant_report['non_accented_long_vowel_count'] == 1
+    assert tolerant_report['adjusted_non_accented_long_vowel_count'] == 0
+    assert tolerant_report['left_as_is_non_accented_long_vowel_count'] == 1
+    assert tolerant_report['drift_tolerance_effect'] == pytest.approx(1.0)
+    assert [row['duration'] for row in zero_rows] != [row['duration'] for row in tolerant_rows]
+
+
 def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> None:
     rows = build_phone_rows('qat pa')
 
@@ -778,9 +822,9 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '80_20'
     assert 'drift_policy' not in defaults['process']['timing_model']
     assert 'short_pause_policy' not in defaults['process']['timing_model']
-    assert defaults['process']['timing_model']['drift_tolerance'] == 0
+    assert defaults['process']['timing_model']['drift_tolerance'] == 19
     durations = defaults['process']['timing_model']['durations']
-    assert durations['segmental_floor'] == 10
+    assert durations['segmental_floor'] == 20
     assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 260
     assert durations['consonants']['fricative']['geminate'] == 210
     assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 163

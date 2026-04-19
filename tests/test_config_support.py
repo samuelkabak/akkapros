@@ -44,10 +44,12 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "csv:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
     assert loaded["phonetize"]["process"]["timing_model"]["accentuation_distribution_policy"] == "80_20"
+    assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
     durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
-    assert durations["segmental_floor"] == 10
+    assert durations["segmental_floor"] == 20
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
-    assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 10") < text.index("cvc_reference: 300")
+    assert text.index("drift_tolerance: 19") > text.index("accentuation_distribution_policy: \"80_20\"")
+    assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260
     assert durations["consonants"]["fricative"]["geminate"] == 210
     assert durations["consonants"]["fricative"]["perception_limits"]["geminate_min"] == 163

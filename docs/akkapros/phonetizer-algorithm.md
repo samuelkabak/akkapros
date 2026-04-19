@@ -110,7 +110,7 @@ That layer validates the current live timing model, including:
 - short- and long-pause compatibility against `cvc_reference`
 - the non-negative integer requirement for `drift_tolerance`
 
-The live default now sets `drift_tolerance = 0`.
+The live default now sets `drift_tolerance = 19`.
 
 When `DEBUG_CHRONO` is enabled in the library constants, runtime also enforces
 a checkpoint integrality invariant at every syllable-final and pause row. At

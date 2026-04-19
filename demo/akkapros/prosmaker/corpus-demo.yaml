@@ -48,13 +48,13 @@ phonetize:
     timing_model:
       geminate_policy: "corrective"
       accentuation_distribution_policy: "80_20"
-      drift_tolerance: 0
+      drift_tolerance: 19
       speech:
         wpm: 193
         pause_ratio: 35
       durations:
         segmental_ceiling: 310
-        segmental_floor: 10
+        segmental_floor: 20
         cvc_reference: 300
         consonants:
           closure:
