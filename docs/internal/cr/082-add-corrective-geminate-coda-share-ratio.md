@@ -1,10 +1,10 @@
 ---
 cr_id: CR-082
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 implements: 'REQ-042'
 ---
 
@@ -191,15 +191,15 @@ demo/akkapros/prosmaker/corpus-demo.yaml
 
 # Acceptance Criteria
 
-- [ ] Each consonant class row exposes `geminate_coda_ratio` with default
+- [x] Each consonant class row exposes `geminate_coda_ratio` with default
       `0.60`.
-- [ ] Shared verification rejects values outside `0 < value < 1`.
-- [ ] Corrective same-consonant pairs rebalance both coda and onset from the
+- [x] Shared verification rejects values outside `0 < value < 1`.
+- [x] Corrective same-consonant pairs rebalance both coda and onset from the
       selected corrective pair total according to the configured ratio.
-- [ ] Cumulative same-consonant pairs continue to follow cumulative policy and
+- [x] Cumulative same-consonant pairs continue to follow cumulative policy and
       do not use the new ratio.
-- [ ] Default/help/demo/doc surfaces show the new key consistently.
-- [ ] Focused unit and config-surface tests pin the new contract.
+- [x] Default/help/demo/doc surfaces show the new key consistently.
+- [x] Focused unit and config-surface tests pin the new contract.
 
 ---
 
@@ -252,24 +252,30 @@ Revert the new key and restore the previous corrective fixed-coda-anchor split.
 
 ## Implementation
 
-- [ ] Add `geminate_coda_ratio` to the class-local timing rows
-- [ ] Validate `0 < value < 1`
-- [ ] Rebalance corrective same-consonant pairs from the selected total
+- [x] Add `geminate_coda_ratio` to the class-local timing rows
+- [x] Validate `0 < value < 1`
+- [x] Rebalance corrective same-consonant pairs from the selected total
 
 ## Tests
 
-- [ ] Update default/config/help surface tests
-- [ ] Add corrective and cumulative same-consonant coverage
-- [ ] Keep verification fixtures self-sufficient under `tests/`
+- [x] Update default/config/help surface tests
+- [x] Add corrective and cumulative same-consonant coverage
+- [x] Keep verification fixtures self-sufficient under `tests/`
 
 ## Documentation
 
-- [ ] Update phonetizer/config docs and demo YAML examples
+- [x] Update phonetizer/config docs and demo YAML examples
 
 ## Review
 
-- [ ] Verify the new ratio only affects corrective same-consonant pairs
+- [x] Verify the new ratio only affects corrective same-consonant pairs
 
----
+## Implementation Notes
 
-# Implementation Blockers
+- 2026-04-20: Added class-local `geminate_coda_ratio` defaults for `closure`,
+  `fricative`, and `sonorant` across schema, emitted defaults, and demo YAML.
+- 2026-04-20: Shared phonetize verification now rejects non-numeric values and
+  endpoint values outside the exclusive interval `0 < value < 1`.
+- 2026-04-20: Corrective same-consonant timing now recomputes both coda and
+  onset from the selected pair total, while cumulative behavior remains
+  unchanged.

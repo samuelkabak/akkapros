@@ -75,8 +75,8 @@ GOLD_REGULAR_METRICS = {
         },
         "unit_drift": {
             "max": 68.0,
-            "mean": 3.7333,
-            "stddev": 31.478,
+            "mean": 4.3333,
+            "stddev": 31.2093,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -127,8 +127,8 @@ GOLD_REGULAR_METRICS = {
         },
         "unit_drift": {
             "max": 116.0,
-            "mean": 1.7407,
-            "stddev": 39.9153,
+            "mean": 2.4074,
+            "stddev": 39.7131,
         },
     },
     "accentuation_stats": {
@@ -187,8 +187,8 @@ GOLD_MONO_METRICS = {
         },
         "unit_drift": {
             "max": 68.0,
-            "mean": 3.7333,
-            "stddev": 31.478,
+            "mean": 4.3333,
+            "stddev": 31.2093,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -240,8 +240,8 @@ GOLD_MONO_METRICS = {
         },
         "unit_drift": {
             "max": 116.0,
-            "mean": -3.6786,
-            "stddev": 39.3338,
+            "mean": -3.0357,
+            "stddev": 39.2251,
         },
     },
     "accentuation_stats": {
@@ -726,6 +726,37 @@ def test_phonetizer_cli_applies_pause_intonation_to_ophone_and_ombrola(tmp_path:
     assert phone_rows[-2]['type'] == 'Q'
     assert phone_rows[-2]['intonation'] == 'H3C'
     assert any(any(target != 120 for target in targets) for _symbol, _duration, targets in ombrola_rows)
+
+
+def test_phonetizer_cli_ratio_override_changes_corrective_same_consonant_split(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_corrective_ratio'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'ratio_tilde.txt'
+    tilde_file.write_text('at·ta\n', encoding='utf-8')
+
+    config = apply_overrides(
+        build_default_config(),
+        {
+            ('common', 'run.prefix'): 'ratio',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.timing_model.durations.consonants.closure.geminate_coda_ratio'): 0.4,
+        },
+    )
+    config_path = outdir / 'ratio.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '--conf', str(config_path))
+
+    phone_rows = [
+        parse_phone_row(line)
+        for line in _strip_yaml_frontmatter(_read_text(outdir / 'ratio_phone.txt')).strip().splitlines()
+    ]
+
+    assert phone_rows[1]['text'] == 't'
+    assert phone_rows[1]['duration'] == '0070'
+    assert phone_rows[2]['text'] == 't'
+    assert phone_rows[2]['duration'] == '0105'
 
 
 def test_phonetizer_cli_uses_frontmatter_mora_mode_for_half_beat_alignment(tmp_path: Path) -> None:

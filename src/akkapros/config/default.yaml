@@ -140,6 +140,10 @@ phonetize:
             # Default geminate closure target. Summary point for the attested stop-
             # geminate band.
             geminate: 175
+            # Corrective same-consonant coda share used when geminate_policy is
+            # corrective. The onset side receives the exact remainder of the selected
+            # pair total.
+            geminate_coda_ratio: 0.6
             special_realization:
               # Hiatus or zero-onset marker between adjacent vowels. Unstressed light
               # glottal-stop realization; stressed cases defer to full geminated closure
@@ -166,6 +170,10 @@ phonetize:
             # Default geminate fricative target. Exploratory value based on the current
             # onset + post-vocalic row.
             geminate: 210
+            # Corrective same-consonant coda share used when geminate_policy is
+            # corrective. The onset side receives the exact remainder of the selected
+            # pair total.
+            geminate_coda_ratio: 0.6
             perception_limits:
               # Earliest fricative duration treated as held or geminate-like. Class-
               # specific perceptual floor from weak fricative gemination evidence.
@@ -185,6 +193,10 @@ phonetize:
             # Default geminate sonorant target. Set from the direct glide geminate
             # region.
             geminate: 190
+            # Corrective same-consonant coda share used when geminate_policy is
+            # corrective. The onset side receives the exact remainder of the selected
+            # pair total.
+            geminate_coda_ratio: 0.6
             special_realization:
               # Diphthong-internal or glide-like VV transition marker. Unstressed light
               # glide realization; stressed cases defer to full geminated glide timing.

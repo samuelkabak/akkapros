@@ -46,17 +46,17 @@ VARCO_VERIFICATION_ACCENTUATED = {
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "max": 86.0,
-    "mean": 6.6667,
-    "stddev": 40.5254,
+    "mean": 7.4167,
+    "stddev": 39.2841,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
     "max": 150.0,
-    "mean": 18.3333,
-    "stddev": 60.3805,
+    "mean": 19.0833,
+    "stddev": 59.4074,
 }
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGRESSION_CONFIG = REPO_ROOT / "tests" / "integration_refs" / "regression_defaults.yaml"
-LEXLINKS_CONSTRUCT_PROC = REPO_ROOT / "data" / "lexlinks" / "construct_prep" / "erra_construct_proc.txt"
+LEXLINKS_CONSTRUCT_PROC_FIXTURE = REPO_ROOT / "tests" / "integration_refs" / "lexlinks_construct_proc_fixture.txt"
 LEXLINKS_REFERENCE_WORD_COUNTS = {
     "original": 1169,
     "accentuated": 963,
@@ -177,16 +177,16 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.278489842183276,
-            "percent_v": 34.3429244049176,
-            "mean_c_ms": 113.07847606642787,
-            "mean_v_ms": 131.7761793241887,
-            "delta_c_ms": 52.2315564498969,
-            "delta_v_ms": 40.17989517035766,
-            "varco_c": 46.19053799346704,
-            "varco_v": 30.491015429662166,
-            "rpvi_c": 63.25798045602606,
-            "npvi_v": 24.21463861909597,
+            "percent_c": 30.282450403313714,
+            "percent_v": 34.33163287551777,
+            "mean_c_ms": 113.04166666666667,
+            "mean_v_ms": 131.71562395449982,
+            "delta_c_ms": 52.241073632780136,
+            "delta_v_ms": 40.08914572973614,
+            "varco_c": 46.21399805332559,
+            "varco_v": 30.43613546072912,
+            "rpvi_c": 63.24975577987626,
+            "npvi_v": 24.17256028410385,
         },
         "unit_drift": {
             "max": 0.0,
@@ -307,7 +307,7 @@ def _build_varco_verification_tilde() -> str:
 
 
 def _build_lexlinks_construct_tilde() -> str:
-    _frontmatter, body = split_frontmatter(LEXLINKS_CONSTRUCT_PROC.read_text(encoding="utf-8"))
+    _frontmatter, body = split_frontmatter(LEXLINKS_CONSTRUCT_PROC_FIXTURE.read_text(encoding="utf-8"))
     syllabified = syllabify_text(body, preserve_lines=True)
     engine = ProsodyEngine(style=AccentStyle.LOB)
     accentuated_lines = []
@@ -837,15 +837,15 @@ def test_lexlinks_construct_word_counts_match_independent_reference(tmp_path: Pa
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
     assert "%C: 30.28%" in table
-    assert "%V: 34.34%" in table
-    assert "meanC: 113.08 ms" in table
-    assert "meanV: 131.78 ms" in table
-    assert "ΔC: 52.23 ms" in table
-    assert "ΔV: 40.18 ms" in table
-    assert "VarcoC: 46.19" in table
-    assert "VarcoV: 30.49" in table
-    assert "rPVI-C: 63.26" in table
-    assert "nPVI-V: 24.21" in table
+    assert "%V: 34.33%" in table
+    assert "meanC: 113.04 ms" in table
+    assert "meanV: 131.72 ms" in table
+    assert "ΔC: 52.24 ms" in table
+    assert "ΔV: 40.09 ms" in table
+    assert "VarcoC: 46.21" in table
+    assert "VarcoV: 30.44" in table
+    assert "rPVI-C: 63.25" in table
+    assert "nPVI-V: 24.17" in table
     assert "Unit drift max: 0.00 ms" in table
     assert "Unit drift mean: 0.00 ms" in table
     assert "Unit drift stddev: 0.00 ms" in table

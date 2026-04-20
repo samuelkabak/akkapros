@@ -77,6 +77,7 @@ Important current phonetize timing keys include:
 
 - `phonetize.process.timing_model.durations.segmental_ceiling`: validation-only global ceiling for consonant `gemination_max` values and `vowels.perception_limits.elongation_max`
 - `phonetize.process.timing_model.durations.segmental_floor`: validation-only shared floor for vowel minima, consonant anchors and minima, and hiatus/transition special realizations
+- `phonetize.process.timing_model.durations.consonants.<class>.geminate_coda_ratio`: corrective-only coda share for same-consonant coda/onset pairs; the onset side receives the exact remainder of the selected corrective total
 - `phonetize.process.timing_model.durations.consonants.<class>.perception_limits.gemination_max`: class-local runtime consonant saturation ceiling for `closure`, `fricative`, and `sonorant`
 - `phonetize.process.timing_model.durations.vowels.perception_limits.long_min`: long-vowel category boundary; adjacent short-vowel accent spill remains strictly below this value
 

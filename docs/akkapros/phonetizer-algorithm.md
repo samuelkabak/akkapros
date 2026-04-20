@@ -386,6 +386,13 @@ For each syllable unit, the solver does the following.
 3. Assign the nucleus anchor.
 4. If the coda is followed by the same onset consonant, pre-assign the next
    onset through the geminate policy.
+
+Under `geminate_policy = corrective`, the same-consonant pair total still
+comes from `min(class geminate target, class gemination_max)`, but the solver
+now recomputes both sides from that selected total: the coda receives
+`pair_total * geminate_coda_ratio` and the onset receives the exact remainder.
+Under `geminate_policy = cumulative`, the solver keeps the existing cumulative
+same-consonant behavior and does not use `geminate_coda_ratio`.
 5. Compute the current non-accentuated syllable target from the beat mapping.
 6. Compute signed post-assignment drift:
 

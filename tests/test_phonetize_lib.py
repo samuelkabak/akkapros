@@ -347,12 +347,34 @@ def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
     realize_phone_rows(corrective_rows, allow_accentuation=False)
     realize_phone_rows(cumulative_rows, cumulative_config, allow_accentuation=False)
 
-    assert corrective_rows[1]['duration'] == '0087'
-    assert corrective_rows[2]['duration'] == '0088'
+    assert corrective_rows[1]['duration'] == '0105'
+    assert corrective_rows[2]['duration'] == '0070'
     assert cumulative_rows[1]['duration'] == '0087'
     assert cumulative_rows[2]['duration'] == '0089'
     assert corrective_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
     assert cumulative_rows[3]['duration'] != PHONE_ROW_DURATION_PLACEHOLDER
+
+
+def test_phase2_same_consonant_pair_uses_configured_corrective_coda_ratio() -> None:
+    rows = build_phone_rows('at·ta')
+    config = {
+        'process': {
+            'timing_model': {
+                'durations': {
+                    'consonants': {
+                        'closure': {
+                            'geminate_coda_ratio': 0.4,
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    realize_phone_rows(rows, config, allow_accentuation=False)
+
+    assert rows[1]['duration'] == '0070'
+    assert rows[2]['duration'] == '0105'
 
 
 def test_phase2_supports_all_active_accent_classes() -> None:
@@ -994,9 +1016,12 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     durations = defaults['process']['timing_model']['durations']
     assert durations['segmental_floor'] == 20
     assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 260
+    assert durations['consonants']['closure']['geminate_coda_ratio'] == 0.60
     assert durations['consonants']['fricative']['geminate'] == 210
+    assert durations['consonants']['fricative']['geminate_coda_ratio'] == 0.60
     assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 163
     assert durations['consonants']['fricative']['perception_limits']['gemination_max'] == 290
+    assert durations['consonants']['sonorant']['geminate_coda_ratio'] == 0.60
     assert durations['consonants']['sonorant']['perception_limits']['gemination_max'] == 275
     assert durations['vowels']['perception_limits']['elongation_max'] == 280
 
@@ -1066,6 +1091,28 @@ def test_shared_verification_rejects_segmental_floor_above_vowel_and_consonant_m
 
     assert result.status == 'failure'
     assert any('segmental_floor' in issue.path for issue in result.failures)
+
+
+@pytest.mark.parametrize('value', [0, 1, 'oops'])
+def test_shared_verification_rejects_invalid_geminate_coda_ratio(value: object) -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'consonants': {
+                            'closure': {
+                                'geminate_coda_ratio': value,
+                            }
+                        },
+                    }
+                }
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any(issue.path.endswith('closure.geminate_coda_ratio') for issue in result.failures)
 
 
 def _first_syllable_analysis(sample: str) -> dict[str, object]:
@@ -1682,7 +1729,7 @@ def test_phase2_first_construct_demo_line_preserves_half_foot_checkpoint_invaria
     from akkapros.lib.syllabify import syllabify_text
 
     repo_root = Path(__file__).resolve().parents[1]
-    proc_path = repo_root / 'data' / 'lexlinks' / 'construct_prep' / 'erra_construct_proc.txt'
+    proc_path = repo_root / 'tests' / 'integration_refs' / 'lexlinks_construct_proc_fixture.txt'
     _frontmatter, body = split_frontmatter(proc_path.read_text(encoding='utf-8'))
     syllabified = syllabify_text(body, preserve_lines=True)
     engine = ProsodyEngine(style=AccentStyle.LOB)

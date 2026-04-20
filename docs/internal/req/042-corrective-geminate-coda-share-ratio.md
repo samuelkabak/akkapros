@@ -1,10 +1,10 @@
 ---
 req_id: REQ-042
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 related_adrs: 'ADR-046'
 implemented_by: 'CR-082'
 ---

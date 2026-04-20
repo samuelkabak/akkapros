@@ -51,10 +51,13 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
     assert text.index("drift_tolerance: 19") > text.index("accentuation_distribution_policy: \"80_20\"")
     assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
+    assert durations["consonants"]["closure"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260
     assert durations["consonants"]["fricative"]["geminate"] == 210
+    assert durations["consonants"]["fricative"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["fricative"]["perception_limits"]["geminate_min"] == 163
     assert durations["consonants"]["fricative"]["perception_limits"]["gemination_max"] == 290
+    assert durations["consonants"]["sonorant"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["sonorant"]["perception_limits"]["gemination_max"] == 275
     assert durations["vowels"]["perception_limits"]["elongation_max"] == 280
     assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
@@ -346,6 +349,8 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--set",
             "phonetize.process.timing_model.geminate_policy=cumulative",
             "--set",
+            "phonetize.process.timing_model.durations.consonants.closure.geminate_coda_ratio=0.55",
+            "--set",
             "phonetize.process.timing_model.drift_tolerance=21",
         ],
         cwd=REPO_ROOT,
@@ -358,7 +363,29 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
 
     loaded = load_config_file(config_path)
     assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
+    assert loaded["phonetize"]["process"]["timing_model"]["durations"]["consonants"]["closure"]["geminate_coda_ratio"] == 0.55
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 21
+
+
+def test_confwriter_list_exposes_geminate_coda_ratio_path(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--list", "geminate_coda_ratio"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert "phonetize.process.timing_model.durations.consonants.closure.geminate_coda_ratio { NUMBER }" in proc.stdout
+    assert "phonetize.process.timing_model.durations.consonants.fricative.geminate_coda_ratio { NUMBER }" in proc.stdout
+    assert "phonetize.process.timing_model.durations.consonants.sonorant.geminate_coda_ratio { NUMBER }" in proc.stdout
 
 
 def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:

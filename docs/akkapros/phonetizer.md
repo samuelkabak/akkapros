@@ -224,6 +224,7 @@ Representative grouped-config keys:
 - `phonetize.process.timing_model.durations.segmental_ceiling`
 - `phonetize.process.timing_model.durations.segmental_floor`
 - `phonetize.process.timing_model.durations.cvc_reference`
+- `phonetize.process.timing_model.durations.consonants.<class>.geminate_coda_ratio`
 - `phonetize.process.timing_model.durations.consonants.closure.perception_limits.gemination_max`
 - `phonetize.process.timing_model.durations.consonants.fricative.perception_limits.gemination_max`
 - `phonetize.process.timing_model.durations.consonants.sonorant.perception_limits.gemination_max`
@@ -244,6 +245,7 @@ At runtime, path-scoped help and `-t/--option` overrides expose the same canonic
 Current legality notes:
 
 - adjacent accent spill into a short vowel is strictly sub-long and stops at `long_min - 1`
+- corrective same-consonant pairs preserve the selected class-local geminate total but split it by `geminate_coda_ratio` on the coda side and the exact remainder on the onset side
 - runtime consonant saturation uses class-local `perception_limits.gemination_max`
 - ordinary non-accented long-vowel cleanup is tolerance-gated and stops at `very_long_min - 1`, while accent-bearing `CVV:` and `CVV:C` syllables apply accentuation first and may then clean up inside the broader `elongation_max` range
 - `segmental_ceiling` and `segmental_floor` remain validation-facing config bounds rather than direct runtime timing knobs

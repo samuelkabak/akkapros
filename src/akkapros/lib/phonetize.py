@@ -132,6 +132,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'onset': _field(89, 'int', 'Default onset closure duration. Direct comparative stop-closure anchor.'),
                         'coda': _field(87, 'int', 'Default post-vocalic closure duration. Direct comparative coda/post-vocalic stop anchor.'),
                         'geminate': _field(175, 'int', 'Default geminate closure target. Summary point for the attested stop-geminate band.'),
+                        'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'special_realization': {
                             '__comment__': None,
                             'hiatus': _field(35, 'int', 'Hiatus or zero-onset marker between adjacent vowels. Unstressed light glottal-stop realization; stressed cases defer to full geminated closure timing.'),
@@ -147,6 +148,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'onset': _field(115, 'int', 'Default onset fricative duration. Derived from closure onset plus fricative manner delta.'),
                         'coda': _field(112, 'int', 'Default post-vocalic fricative duration. Current heavy post-vocalic anchor used by the simplified row.'),
                         'geminate': _field(210, 'int', 'Default geminate fricative target. Retuned summary point for the live fricative geminate-like row.'),
+                        'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'perception_limits': {
                             '__comment__': None,
                             'geminate_min': _field(163, 'int', 'Earliest fricative duration treated as held or geminate-like. Retuned class-specific perceptual floor.'),
@@ -158,6 +160,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         'onset': _field(105, 'int', 'Default onset sonorant duration. Set from the clearer singleton liquid onset anchor.'),
                         'coda': _field(100, 'int', 'Default post-vocalic sonorant duration. Structural minimum retained on the coda side of the row.'),
                         'geminate': _field(190, 'int', 'Default geminate sonorant target. Set from the direct glide geminate region.'),
+                        'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'special_realization': {
                             '__comment__': None,
                             'vowel_transition': _field(25, 'int', 'Diphthong-internal or glide-like VV transition marker. Unstressed light glide realization; stressed cases defer to full geminated glide timing.'),
@@ -1214,6 +1217,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         row = consonants[consonant_class]
         geminate_min = row['perception_limits']['geminate_min']
         gemination_max = row['perception_limits']['gemination_max']
+        geminate_coda_ratio = row['geminate_coda_ratio']
         if not (row['onset'] < geminate_min <= row['geminate'] <= gemination_max <= segmental_ceiling):
             add_failure(
                 f'{base_path}.onset, {base_path}.perception_limits.geminate_min, {base_path}.geminate, {base_path}.perception_limits.gemination_max, phonetize.process.timing_model.durations.segmental_ceiling',
@@ -1237,6 +1241,12 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                     f'phonetize.process.timing_model.durations.segmental_floor <= {min_path}',
                     'The configured segmental floor is above a required consonant anchor or minimum.',
                 )
+        if not isinstance(geminate_coda_ratio, (int, float)) or isinstance(geminate_coda_ratio, bool) or not (0 < geminate_coda_ratio < 1):
+            add_failure(
+                f'{base_path}.geminate_coda_ratio',
+                f'0 < {base_path}.geminate_coda_ratio < 1',
+                'Corrective geminate coda share must be numeric and strictly between 0 and 1.',
+            )
         if abs(row['onset'] - row['coda']) / row['onset'] >= 0.5:
             add_warning(
                 f'{base_path}.onset, {base_path}.coda',
@@ -1848,6 +1858,10 @@ def _same_consonant_next_onset(
     ceiling = _consonant_maximum(rows[coda_index], config)
     if config['process']['geminate_policy'] == 'corrective':
         pair_total = min(_consonant_geminate_target(rows[coda_index], config), ceiling)
+        consonant_class = _consonant_timing_key(rows[coda_index])
+        coda_ratio = float(config['timing_model']['durations']['consonants'][consonant_class]['geminate_coda_ratio'])
+        coda_duration = pair_total * coda_ratio
+        durations[coda_index] = coda_duration
     else:
         pair_total = min(coda_duration + onset_anchor, ceiling)
     durations[onset_index] = max(0.0, pair_total - coda_duration)

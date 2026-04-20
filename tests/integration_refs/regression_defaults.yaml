@@ -54,6 +54,7 @@ phonetize:
             onset: 89
             coda: 87
             geminate: 175
+            geminate_coda_ratio: 0.6
             special_realization:
               hiatus: 35
             perception_limits:
@@ -63,6 +64,7 @@ phonetize:
             onset: 115
             coda: 112
             geminate: 210
+            geminate_coda_ratio: 0.6
             perception_limits:
               geminate_min: 163
               gemination_max: 290
@@ -70,6 +72,7 @@ phonetize:
             onset: 105
             coda: 100
             geminate: 190
+            geminate_coda_ratio: 0.6
             special_realization:
               vowel_transition: 25
             perception_limits:

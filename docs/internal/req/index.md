@@ -5,8 +5,8 @@ This index lists requirement documents. It is maintained by `scripts/update-inde
 - [045. Requirement: Global Phonetizer Duration Scale](045-global-phonetizer-duration-scale.md) - Draft
 - [044. Requirement: Pre-Pausal Final Duration Anchors](044-pre-pausal-final-duration-anchors.md) - Draft
 - [043. Requirement: Resync Pause Terminology, Toggle, and Reporting](043-resync-pause-terminology-toggle-and-reporting.md) - Draft
-- [042. Requirement: Corrective Geminate Coda Share Ratio](042-corrective-geminate-coda-share-ratio.md) - Draft
-- [041. Requirement: Remove Phonetize Speech Config Surface](041-remove-phonetize-speech-config-surface.md) - Draft
+- [042. Requirement: Corrective Geminate Coda Share Ratio](042-corrective-geminate-coda-share-ratio.md) - Implemented
+- [041. Requirement: Remove Phonetize Speech Config Surface](041-remove-phonetize-speech-config-surface.md) - Implemented
 - [040. Requirement: Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](040-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Implemented
 - [039. Requirement: Probability-Oriented Phonetizer Diagnostic Reporting](039-probability-oriented-phonetizer-diagnostic-reporting.md) - Implemented
 - [038. Requirement: Post-Unit Drift Reporting Label Clarity](038-post-unit-drift-reporting-label-clarity.md) - Implemented
