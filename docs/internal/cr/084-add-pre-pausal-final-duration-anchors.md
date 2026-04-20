@@ -1,10 +1,10 @@
 ---
 cr_id: CR-084
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 implements: 'REQ-044'
 ---
 
@@ -154,14 +154,14 @@ demo/akkapros/prosmaker/corpus-demo.yaml
 
 # Acceptance Criteria
 
-- [ ] Each consonant class row exposes `coda_final`.
-- [ ] The vowels row exposes `short_final` and `long_final`.
-- [ ] Preceding a punctuation-owned short or long pause selects final anchors.
-- [ ] Preceding an inserted resync pause does not select final anchors.
-- [ ] Ordinary long-vowel downward recovery before punctuation-owned pauses uses
+- [x] Each consonant class row exposes `coda_final`.
+- [x] The vowels row exposes `short_final` and `long_final`.
+- [x] Preceding a punctuation-owned short or long pause selects final anchors.
+- [x] Preceding an inserted resync pause does not select final anchors.
+- [x] Ordinary long-vowel downward recovery before punctuation-owned pauses uses
       `long_final` as the floor.
-- [ ] Config/help/demo/doc surfaces explain the new pre-pausal-only scope.
-- [ ] Focused unit coverage pins the context-sensitive behavior.
+- [x] Config/help/demo/doc surfaces explain the new pre-pausal-only scope.
+- [x] Focused unit coverage pins the context-sensitive behavior.
 
 ---
 
@@ -215,22 +215,22 @@ selection logic.
 
 ## Implementation
 
-- [ ] Add `coda_final`, `short_final`, and `long_final`
-- [ ] Make anchor selection context-aware for punctuation-owned pauses
-- [ ] Use `long_final` as the pre-pausal long-vowel recovery floor
+- [x] Add `coda_final`, `short_final`, and `long_final`
+- [x] Make anchor selection context-aware for punctuation-owned pauses
+- [x] Use `long_final` as the pre-pausal long-vowel recovery floor
 
 ## Tests
 
-- [ ] Update config/help surface tests
-- [ ] Add context-aware anchor and recovery tests
+- [x] Update config/help surface tests
+- [x] Add context-aware anchor and recovery tests
 
 ## Documentation
 
-- [ ] Update phonetizer/config docs and demo YAML examples
+- [x] Update phonetizer/config docs and demo YAML examples
 
 ## Review
 
-- [ ] Verify inserted resync pauses do not trigger final-anchor behavior
+- [x] Verify inserted resync pauses do not trigger final-anchor behavior
 
 ---
 

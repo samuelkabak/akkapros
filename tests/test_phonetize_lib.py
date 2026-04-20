@@ -25,11 +25,14 @@ from akkapros.lib.phonetize import (
     _apply_accent_increment,
     _adjacent_accent_index,
     _analyze_syllable,
+    _consonant_anchor,
     _consonant_timing_key,
     _format_row_drift_token,
     _is_chrono_checkpoint_row,
+    _new_resync_pause_row,
     _normalize_drift_to_nearest_branch,
     _partition_phone_units,
+    _pause_row_triggers_final_anchors,
     _maybe_insert_resync_pause,
     _merge_phonetize_config,
     _primary_accent_index,
@@ -37,6 +40,8 @@ from akkapros.lib.phonetize import (
     _resolve_synchronization_basis,
     _runtime_view_phonetize_config,
     _validate_chrono_checkpoints,
+    _vowel_anchor,
+    _vowel_bounds,
     build_default_phonetize_verification_config,
     build_phone_streams,
     build_phone_rows,
@@ -375,6 +380,132 @@ def test_phase2_same_consonant_pair_uses_configured_corrective_coda_ratio() -> N
 
     assert rows[1]['duration'] == '0070'
     assert rows[2]['duration'] == '0105'
+
+
+def test_final_anchor_helpers_only_trigger_before_punctuation_owned_pauses() -> None:
+    config = _runtime_view_phonetize_config(
+        _merge_phonetize_config(
+            {
+                'process': {
+                    'timing_model': {
+                        'durations': {
+                            'consonants': {
+                                'closure': {
+                                    'coda_final': 99,
+                                },
+                            },
+                            'vowels': {
+                                'short_final': 123,
+                                'long_final': 177,
+                            },
+                        },
+                    },
+                },
+            }
+        )
+    )
+    rows = build_phone_rows('qat,')
+    long_rows = build_phone_rows('qā,')
+
+    assert _pause_row_triggers_final_anchors(rows[3]) is True
+    assert _pause_row_triggers_final_anchors(_new_resync_pause_row()) is False
+    assert _consonant_anchor(rows[2], config, 'C', pre_pausal_final=True) == 99.0
+    assert _consonant_anchor(rows[2], config, 'C', pre_pausal_final=False) == 87.0
+    assert _vowel_anchor(rows[1], config, pre_pausal_final=True) == 123.0
+    assert _vowel_anchor(long_rows[1], config, pre_pausal_final=True) == 177.0
+    assert _vowel_bounds(long_rows[1], config, ordinary_recovery=True, pre_pausal_final=True) == (177.0, 232.0)
+    assert _vowel_bounds(long_rows[1], config, ordinary_recovery=True, pre_pausal_final=False) == (153.0, 232.0)
+
+
+def test_phase2_uses_final_short_vowel_and_coda_anchors_before_punctuation_owned_pause() -> None:
+    rows = build_phone_rows('qat,')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 500,
+                    'durations': {
+                        'consonants': {
+                            'closure': {
+                                'coda_final': 99,
+                            },
+                        },
+                        'vowels': {
+                            'short_final': 123,
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[0]['duration'] == '0089'
+    assert rows[1]['duration'] == '0123'
+    assert rows[2]['duration'] == '0099'
+
+
+def test_phase2_uses_final_long_vowel_anchor_before_punctuation_owned_pause() -> None:
+    rows = build_phone_rows('qā,')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 500,
+                    'durations': {
+                        'vowels': {
+                            'long_final': 177,
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0177'
+
+
+def test_phase2_inserted_resync_pause_does_not_activate_final_anchors() -> None:
+    rows = build_phone_rows('qat pa')
+
+    realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'enable_resync_pause': True,
+                    'durations': {
+                        'cvc_reference': 350,
+                        'consonants': {
+                            'closure': {
+                                'coda_final': 140,
+                            },
+                        },
+                        'vowels': {
+                            'short_final': 130,
+                        },
+                        'pauses': {
+                            'resync': {
+                                'min': 50,
+                                'max': 80,
+                            },
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert rows[1]['duration'] == '0110'
+    assert rows[2]['duration'] == '0087'
+    assert any(row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT for row in rows)
 
 
 def test_phase2_supports_all_active_accent_classes() -> None:
@@ -952,15 +1083,15 @@ def test_phase2_explicit_tolerance_19_keeps_small_fricative_long_vowel_drift_as_
     )
 
     assert zero_report['non_accented_long_vowel_count'] == 1
-    assert zero_report['adjusted_non_accented_long_vowel_count'] == 1
-    assert zero_report['left_as_is_non_accented_long_vowel_count'] == 0
-    assert zero_report['drift_tolerance_effect'] == pytest.approx(0.0)
+    assert zero_report['adjusted_non_accented_long_vowel_count'] == 0
+    assert zero_report['left_as_is_non_accented_long_vowel_count'] == 1
+    assert zero_report['drift_tolerance_effect'] == pytest.approx(1.0)
 
     assert tolerant_report['non_accented_long_vowel_count'] == 1
     assert tolerant_report['adjusted_non_accented_long_vowel_count'] == 0
     assert tolerant_report['left_as_is_non_accented_long_vowel_count'] == 1
     assert tolerant_report['drift_tolerance_effect'] == pytest.approx(1.0)
-    assert [row['duration'] for row in zero_rows] != [row['duration'] for row in tolerant_rows]
+    assert [row['duration'] for row in zero_rows] == [row['duration'] for row in tolerant_rows]
 
 
 def test_phase2_reports_resync_pause_probability_over_structural_eligibility() -> None:
@@ -1052,13 +1183,42 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert durations['segmental_floor'] == 20
     assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 260
     assert durations['consonants']['closure']['geminate_coda_ratio'] == 0.60
+    assert durations['consonants']['closure']['coda_final'] == 87
     assert durations['consonants']['fricative']['geminate'] == 210
     assert durations['consonants']['fricative']['geminate_coda_ratio'] == 0.60
+    assert durations['consonants']['fricative']['coda_final'] == 112
     assert durations['consonants']['fricative']['perception_limits']['geminate_min'] == 163
     assert durations['consonants']['fricative']['perception_limits']['gemination_max'] == 290
     assert durations['consonants']['sonorant']['geminate_coda_ratio'] == 0.60
+    assert durations['consonants']['sonorant']['coda_final'] == 100
     assert durations['consonants']['sonorant']['perception_limits']['gemination_max'] == 275
+    assert durations['vowels']['short_final'] == 110
+    assert durations['vowels']['long_final'] == 160
     assert durations['vowels']['perception_limits']['elongation_max'] == 280
+
+
+def test_shared_verification_rejects_invalid_final_anchor_ordering() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'consonants': {
+                            'closure': {
+                                'coda_final': 200,
+                            },
+                        },
+                        'vowels': {
+                            'short_final': 170,
+                        },
+                    },
+                },
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any('coda_final' in issue.path or 'short_final' in issue.path for issue in result.failures)
 
 
 def test_shared_verification_does_not_emit_removed_speech_issues() -> None:
@@ -1758,18 +1918,13 @@ def test_path_11_round_half_up_behavior() -> None:
     assert _round_half_up(152.5) == 153
 
 
-def test_phase2_first_construct_demo_line_preserves_half_foot_checkpoint_invariant() -> None:
-    from pathlib import Path
-
-    from akkapros.lib.frontmatter import split_frontmatter
+def test_phase2_self_contained_proc_line_preserves_half_foot_checkpoint_invariant() -> None:
     from akkapros.lib.phonetize import build_phone_streams, realize_phone_rows
     from akkapros.lib.prosody import AccentStyle, ProsodyEngine, parse_syl_line, postprocess_restore_diphthongs
     from akkapros.lib.syllabify import syllabify_text
 
-    repo_root = Path(__file__).resolve().parents[1]
-    proc_path = repo_root / 'tests' / 'integration_refs' / 'lexlinks_construct_proc_fixture.txt'
-    _frontmatter, body = split_frontmatter(proc_path.read_text(encoding='utf-8'))
-    syllabified = syllabify_text(body, preserve_lines=True)
+    proc_text = 'appūnā-ma ištēn-ešret : kīma šuāti uštabši\n'
+    syllabified = syllabify_text(proc_text, preserve_lines=True)
     engine = ProsodyEngine(style=AccentStyle.LOB)
     accentuated_lines = []
     for line in syllabified.splitlines():

@@ -340,3 +340,8 @@ manual before/after comparison.
 For user-facing rendering, `printer.py` reconstructs lexical text from the row
 stream and uses the pause rows to decide whether a pause is short, long, or a
 line break.
+
+Those same pause-row ownership distinctions now also govern pre-pausal final
+anchors in the phonetizer timing table: punctuation-owned short and long pause
+rows trigger `coda_final`, `short_final`, and `long_final`, while inserted
+resync rows (`MEN|...|MP|...`) do not.

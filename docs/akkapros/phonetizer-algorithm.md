@@ -384,6 +384,10 @@ For each syllable unit, the solver does the following.
 1. Assign baseline onset anchors.
 2. Assign coda anchors if present.
 3. Assign the nucleus anchor.
+  If the immediately following realized unit is a punctuation-owned short or
+  long pause, coda rows use `coda_final` and vowel rows use `short_final` or
+  `long_final` instead of the clause-internal anchors. Inserted resync pauses
+  do not trigger this branch.
 4. If the coda is followed by the same onset consonant, pre-assign the next
    onset through the geminate policy.
 
@@ -475,7 +479,8 @@ Their legal recovery space now depends on why the vowel is moving.
 For ordinary non-accentual recovery in `CVV` and `CVVC`, the solver may move a
 long vowel only inside:
 
-- `long_min .. very_long_min - 1`
+- clause-internal: `long_min .. very_long_min - 1`
+- immediately before a punctuation-owned short or long pause: `long_final .. very_long_min - 1`
 
 This means ordinary recovery may use the long vowel as local slack, but it may
 not push that vowel into the very-long category. If more correction would still
@@ -617,6 +622,11 @@ For a long-vowel syllable such as `qā`, the nucleus remains legal recovery
 space. If the beat target demands more duration and the configured long-vowel
 range still has room, the solver may extend that long vowel before carrying any
 remaining drift forward.
+
+Immediately before punctuation-owned pauses, ordinary downward recovery is also
+kept above `long_final`, which provides the dedicated pre-pausal final floor.
+Inserted resync pauses do not activate that floor because they are not
+punctuation-owned pause rows.
 
 ### Resync-pause examples
 

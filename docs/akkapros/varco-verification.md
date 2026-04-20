@@ -76,6 +76,7 @@ Closure class:
 
 - `closure.onset = 89`
 - `closure.coda = 87`
+- `closure.coda_final = 87`
 - `closure.geminate = 175`
 - `closure.special_realization.hiatus = 35`
 - `closure.perception_limits.geminate_min = 145`
@@ -85,6 +86,7 @@ Fricative class:
 
 - `fricative.onset = 115`
 - `fricative.coda = 112`
+- `fricative.coda_final = 112`
 - `fricative.geminate = 210`
 - `fricative.perception_limits.geminate_min = 163`
 - `fricative.perception_limits.gemination_max = 290`
@@ -93,6 +95,7 @@ Sonorant class:
 
 - `sonorant.onset = 105`
 - `sonorant.coda = 100`
+- `sonorant.coda_final = 100`
 - `sonorant.geminate = 190`
 - `sonorant.special_realization.vowel_transition = 25`
 - `sonorant.perception_limits.geminate_min = 148`
@@ -101,7 +104,9 @@ Sonorant class:
 ### Vowel timings
 
 - `vowels.short = 110`
+- `vowels.short_final = 110`
 - `vowels.long = 160`
+- `vowels.long_final = 160`
 - `vowels.very_long = 260`
 - `vowels.perception_limits.short_min = 60`
 - `vowels.perception_limits.long_min = 153`

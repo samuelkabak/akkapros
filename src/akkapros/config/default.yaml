@@ -140,6 +140,9 @@ phonetize:
             # Default post-vocalic closure duration. Direct comparative coda/post-
             # vocalic stop anchor.
             coda: 87
+            # Default pre-pausal final closure duration. Used only when the next
+            # realized unit is a punctuation-owned short or long pause.
+            coda_final: 87
             # Default geminate closure target. Summary point for the attested stop-
             # geminate band.
             geminate: 175
@@ -170,6 +173,9 @@ phonetize:
             # Default post-vocalic fricative duration. Current heavy post-vocalic anchor
             # used by the simplified row.
             coda: 112
+            # Default pre-pausal final fricative duration. Used only when the next
+            # realized unit is a punctuation-owned short or long pause.
+            coda_final: 112
             # Default geminate fricative target. Exploratory value based on the current
             # onset + post-vocalic row.
             geminate: 210
@@ -193,6 +199,9 @@ phonetize:
             # Default post-vocalic sonorant duration. Structural minimum retained on the
             # coda side of the row.
             coda: 100
+            # Default pre-pausal final sonorant duration. Used only when the next
+            # realized unit is a punctuation-owned short or long pause.
+            coda_final: 100
             # Default geminate sonorant target. Set from the direct glide geminate
             # region.
             geminate: 190
@@ -216,9 +225,16 @@ phonetize:
           # Default short-vowel duration. Production anchor from the retained short-
           # vowel baseline.
           short: 110
+          # Default pre-pausal final short-vowel duration. Used only when the next
+          # realized unit is a punctuation-owned short or long pause.
+          short_final: 110
           # Default long-vowel duration. Production anchor from the retained long-vowel
           # baseline.
           long: 160
+          # Default pre-pausal final long-vowel duration. Used only when the next
+          # realized unit is a punctuation-owned short or long pause. Ordinary
+          # downward recovery in that context must not go below this anchor.
+          long_final: 160
           # Default very-long vowel duration. Contextual extension anchor, not ordinary
           # lexical default.
           very_long: 260

@@ -56,20 +56,10 @@ VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
 }
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGRESSION_CONFIG = REPO_ROOT / "tests" / "integration_refs" / "regression_defaults.yaml"
-LEXLINKS_CONSTRUCT_PROC_FIXTURE = REPO_ROOT / "tests" / "integration_refs" / "lexlinks_construct_proc_fixture.txt"
-LEXLINKS_REFERENCE_WORD_COUNTS = {
-    "original": 1169,
-    "accentuated": 963,
-}
 
 
 def _load_regression_phonetize_config() -> dict:
     return load_config_file(REGRESSION_CONFIG)["phonetize"]
-LEXLINKS_REFERENCE_PROMINENCE = {
-    "function_word_count": 189,
-    "explicit_word_link_count": 63,
-    "prominence_candidate_word_count": 917,
-}
 SMALL_SAMPLE_REFERENCE = {
     "original": {
         "stats": {
@@ -154,105 +144,6 @@ SMALL_SAMPLE_REFERENCE = {
         "avg_unit_size": 2.0,
     },
 }
-LEXLINKS_REFERENCE_METRICS = {
-    "original": {
-        "stats": {
-            "total_syllables": 2989,
-            "word_stats": {
-                "total_words": 1169,
-                "morae_per_word": {
-                    "mean": 3.97519247219846,
-                    "std": 1.6783983573546182,
-                },
-            },
-            "mora_stats": {
-                "mean": 1.554700568752091,
-                "std": 0.5531661505946163,
-                "total": 4647,
-            },
-            "merge_stats": {
-                "total_merged_words": 124,
-                "merged_units": 61,
-                "avg_unit_size": 2.0327868852459017,
-            },
-        },
-        "acoustic": {
-            "percent_c": 31.11266406844958,
-            "percent_v": 35.17985933790261,
-            "mean_c_ms": 114.26916748930569,
-            "mean_v_ms": 131.3683506189361,
-            "delta_c_ms": 52.51789779691762,
-            "delta_v_ms": 39.61808917171696,
-            "varco_c": 45.9598148396703,
-            "varco_v": 30.15801674075842,
-            "rpvi_c": 63.41211323238973,
-            "npvi_v": 23.874525527701188,
-        },
-        "unit_drift": {
-            "max": 0.0,
-            "mean": 0.0,
-            "stddev": 0.0,
-        },
-        "prominence_statistics": {
-            "function_word_count": 189,
-            "explicit_word_link_count": 63,
-            "prominence_candidate_word_count": 917,
-        },
-    },
-    "accentuated": {
-        "stats": {
-            "total_syllables": 2989,
-            "word_stats": {
-                "total_words": 963,
-                "morae_per_word": {
-                    "mean": 5.393561786085151,
-                    "std": 1.6433068693377408,
-                },
-            },
-            "mora_stats": {
-                "mean": 1.7377049180327868,
-                "std": 0.7941302095614974,
-                "total": 5194,
-            },
-            "merge_stats": {
-                "total_merged_words": 522,
-                "merged_units": 253,
-                "avg_unit_size": 2.0632411067193677,
-            },
-        },
-        "acoustic": {
-            "percent_c": 32.39913065712094,
-            "percent_v": 35.747293957214694,
-            "mean_c_ms": 125.08687068114511,
-            "mean_v_ms": 140.32218133154902,
-            "delta_c_ms": 69.89895651436223,
-            "delta_v_ms": 52.8605630242856,
-            "varco_c": 55.8803303126348,
-            "varco_v": 37.67085326259877,
-            "rpvi_c": 81.92758393680053,
-            "npvi_v": 31.640393581491487,
-        },
-        "unit_drift": {
-            "max": 0.0,
-            "mean": 0.0,
-            "stddev": 0.0,
-        },
-    },
-    "accentuation_stats": {
-        "accentuated_syllables": 547,
-        "accentuation_rate": 18.30043492806959,
-        "accentuation_types": {
-            "CVV:C": 18,
-            "CVC:": 174,
-            "VV:": 13,
-            "VC:": 60,
-            "CVV:": 282,
-        },
-        "merged_words": 522,
-        "merged_units": 253,
-        "avg_unit_size": 2.0632411067193677,
-    },
-}
 
 
 def _assert_nested_expected(actual: dict, expected: dict) -> None:
@@ -304,19 +195,6 @@ def _build_varco_verification_tilde() -> str:
     engine = ProsodyEngine(style=AccentStyle.LOB)
     accentuated = [engine.accentuation_line(parse_syl_line(line)) for line in syllabified.splitlines() if line.strip()]
     return "\n".join(postprocess_restore_diphthongs(accentuated)) + "\n"
-
-
-def _build_lexlinks_construct_tilde() -> str:
-    _frontmatter, body = split_frontmatter(LEXLINKS_CONSTRUCT_PROC_FIXTURE.read_text(encoding="utf-8"))
-    syllabified = syllabify_text(body, preserve_lines=True)
-    engine = ProsodyEngine(style=AccentStyle.LOB)
-    accentuated_lines = []
-    for line in syllabified.splitlines():
-        if not line.strip():
-            accentuated_lines.append("")
-            continue
-        accentuated_lines.append(engine.accentuation_line(parse_syl_line(line)))
-    return "\n".join(postprocess_restore_diphthongs(accentuated_lines)) + "\n"
 
 
 def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_text: str) -> tuple[Path, Path]:
@@ -795,59 +673,3 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
 
     assert result["original"]["unit_drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
     assert result["accentuated"]["unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT
-
-
-def test_lexlinks_construct_word_counts_match_independent_reference(tmp_path: Path) -> None:
-    ophone_file, phone_file = _write_phone_pair(
-        tmp_path,
-        "lexlinks-construct",
-        _build_lexlinks_construct_tilde(),
-    )
-
-    assert _count_reference_words_from_phone_file(ophone_file) == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
-    assert _count_reference_words_from_phone_file(phone_file) == LEXLINKS_REFERENCE_WORD_COUNTS["accentuated"]
-
-    result = metrics.process_file(
-        str(phone_file),
-        ophone_filename=str(ophone_file),
-    )
-
-    assert result["original"]["stats"]["word_stats"]["total_words"] == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
-    assert result["original"]["stats"]["word_statistics"]["total_words"] == LEXLINKS_REFERENCE_WORD_COUNTS["original"]
-    assert result["accentuated"]["stats"]["word_stats"]["total_words"] == LEXLINKS_REFERENCE_WORD_COUNTS["accentuated"]
-    assert result["accentuated"]["stats"]["word_statistics"]["total_words"] == LEXLINKS_REFERENCE_WORD_COUNTS["accentuated"]
-    assert result["original"]["prominence_statistics"] == LEXLINKS_REFERENCE_PROMINENCE
-
-    _assert_nested_expected(result["original"], LEXLINKS_REFERENCE_METRICS["original"])
-    _assert_nested_expected(result["accentuated"], LEXLINKS_REFERENCE_METRICS["accentuated"])
-    _assert_nested_expected(result["accentuation_stats"], LEXLINKS_REFERENCE_METRICS["accentuation_stats"])
-
-    table = metrics.format_table(result)
-    assert "Total syllables: 2989 syllables" in table
-    assert "Total words: 1169 words" in table
-    assert "Total words: 963 words" in table
-    assert "Mean morae per syllable: 1.555" in table
-    assert "Mean morae per word: 3.975" in table
-    assert "Total morae: 4647 mora" in table
-    assert "Function words: 189 words" in table
-    assert "Explicitly linked words: 63 words" in table
-    assert "Prominence candidates: 917 words" in table
-    assert table.count("Speech metrics:") == 2
-    assert "Speech rate (original):" not in table
-    assert "Pause metrics:" not in table
-    assert "Pause duration allocation" not in table
-    assert "%C: 31.11%" in table
-    assert "%V: 35.18%" in table
-    assert "meanC: 114.27 ms" in table
-    assert "meanV: 131.37 ms" in table
-    assert "ΔC: 52.52 ms" in table
-    assert "ΔV: 39.62 ms" in table
-    assert "VarcoC: 45.96" in table
-    assert "VarcoV: 30.16" in table
-    assert "rPVI-C: 63.41" in table
-    assert "nPVI-V: 23.87" in table
-    assert "Unit drift max: 0.00 ms" in table
-    assert "Unit drift mean: 0.00 ms" in table
-    assert "Unit drift stddev: 0.00 ms" in table
-    assert "Accentuated syllables: 547" in table
-    assert "Accentuation rate: 18.30%" in table

@@ -53,13 +53,18 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert text.index("drift_tolerance: 19") > text.index("accentuation_distribution_policy: \"80_20\"")
     assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
     assert durations["consonants"]["closure"]["geminate_coda_ratio"] == 0.60
+    assert durations["consonants"]["closure"]["coda_final"] == 87
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260
     assert durations["consonants"]["fricative"]["geminate"] == 210
+    assert durations["consonants"]["fricative"]["coda_final"] == 112
     assert durations["consonants"]["fricative"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["fricative"]["perception_limits"]["geminate_min"] == 163
     assert durations["consonants"]["fricative"]["perception_limits"]["gemination_max"] == 290
+    assert durations["consonants"]["sonorant"]["coda_final"] == 100
     assert durations["consonants"]["sonorant"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["sonorant"]["perception_limits"]["gemination_max"] == 275
+    assert durations["vowels"]["short_final"] == 110
+    assert durations["vowels"]["long_final"] == 160
     assert durations["vowels"]["perception_limits"]["elongation_max"] == 280
     assert durations["pauses"]["resync"]["min"] == 100
     assert durations["pauses"]["resync"]["max"] == 200

@@ -77,12 +77,18 @@ Important current phonetize timing keys include:
 
 - `phonetize.process.timing_model.durations.segmental_ceiling`: validation-only global ceiling for consonant `gemination_max` values and `vowels.perception_limits.elongation_max`
 - `phonetize.process.timing_model.durations.segmental_floor`: validation-only shared floor for vowel minima, consonant anchors and minima, and hiatus/transition special realizations
+- `phonetize.process.timing_model.durations.consonants.<class>.coda_final`: dedicated pre-pausal final coda anchor used only when the immediately following realized unit is a punctuation-owned short or long pause; inserted resync pauses do not trigger it
 - `phonetize.process.timing_model.durations.consonants.<class>.geminate_coda_ratio`: corrective-only coda share for same-consonant coda/onset pairs; the onset side receives the exact remainder of the selected corrective total
 - `phonetize.process.timing_model.durations.consonants.<class>.perception_limits.gemination_max`: class-local runtime consonant saturation ceiling for `closure`, `fricative`, and `sonorant`
+- `phonetize.process.timing_model.durations.vowels.short_final` and `phonetize.process.timing_model.durations.vowels.long_final`: dedicated pre-pausal final vowel anchors used only before punctuation-owned short or long pauses; inserted resync pauses do not trigger them
 - `phonetize.process.timing_model.durations.vowels.perception_limits.long_min`: long-vowel category boundary; adjacent short-vowel accent spill remains strictly below this value
 
 Under the live defaults, `long_min = 153`, so an adjacent short-vowel spill may
 reach `152 ms` but not `153 ms`.
+
+Ordinary non-accented long-vowel recovery now uses `vowels.long_final` as its
+lower bound in that same pre-pausal punctuation-owned context. Clause-internal
+long-vowel recovery still uses `perception_limits.long_min`.
 
 Before standalone phonetizer runtime continues into Phase 2 realization, it
 now runs the shared phonetize semantic verification layer against the effective

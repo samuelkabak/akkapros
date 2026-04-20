@@ -58,6 +58,7 @@ phonetize:
           closure:
             onset: 89
             coda: 87
+            coda_final: 87
             geminate: 175
             geminate_coda_ratio: 0.6
             special_realization:
@@ -68,6 +69,7 @@ phonetize:
           fricative:
             onset: 115
             coda: 112
+            coda_final: 112
             geminate: 210
             geminate_coda_ratio: 0.6
             perception_limits:
@@ -76,6 +78,7 @@ phonetize:
           sonorant:
             onset: 105
             coda: 100
+            coda_final: 100
             geminate: 190
             geminate_coda_ratio: 0.6
             special_realization:
@@ -85,7 +88,9 @@ phonetize:
               gemination_max: 275
         vowels:
           short: 110
+          short_final: 110
           long: 160
+          long_final: 160
           very_long: 260
           perception_limits:
             short_min: 60

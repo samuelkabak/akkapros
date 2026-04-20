@@ -851,6 +851,35 @@ def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_
     assert vowel_row['duration'] == '0110'
 
 
+def test_phonetizer_cli_applies_pre_pausal_final_anchor_overrides_before_punctuation_owned_pause(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_final_anchor_override'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'final_anchor_tilde.txt'
+    tilde_file.write_text('qat,\n', encoding='utf-8')
+
+    config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'final_anchor',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.timing_model.durations.consonants.closure.coda_final'): 120,
+        },
+    )
+    config_path = outdir / 'final_anchor.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '--conf', str(config_path))
+
+    phone_rows = [
+        parse_phone_row(line)
+        for line in _strip_yaml_frontmatter(_read_text(outdir / 'final_anchor_phone.txt')).strip().splitlines()
+    ]
+
+    coda_row = next(row for row in phone_rows if row['position'] == 'C' and row['text'] == 't')
+    assert coda_row['duration'] == '0120'
+
+
 def test_phonetizer_cli_inserts_resync_pause_without_changing_reconstructed_tilde(tmp_path: Path) -> None:
     outdir = tmp_path / 'phonetizer_resync_pause'
     outdir.mkdir(parents=True, exist_ok=True)

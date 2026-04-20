@@ -136,6 +136,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         '__comment__': 'Stop-like closure class. Includes lexical ʾ.',
                         'onset': _field(89, 'int', 'Default onset closure duration. Direct comparative stop-closure anchor.'),
                         'coda': _field(87, 'int', 'Default post-vocalic closure duration. Direct comparative coda/post-vocalic stop anchor.'),
+                        'coda_final': _field(87, 'int', 'Default pre-pausal final closure duration. Used only when the next realized unit is a punctuation-owned short or long pause.'),
                         'geminate': _field(175, 'int', 'Default geminate closure target. Summary point for the attested stop-geminate band.'),
                         'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'special_realization': {
@@ -152,6 +153,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         '__comment__': 'Fricative class. Heavier than closures by manner, but less directly grounded than the stop row.',
                         'onset': _field(115, 'int', 'Default onset fricative duration. Derived from closure onset plus fricative manner delta.'),
                         'coda': _field(112, 'int', 'Default post-vocalic fricative duration. Current heavy post-vocalic anchor used by the simplified row.'),
+                        'coda_final': _field(112, 'int', 'Default pre-pausal final fricative duration. Used only when the next realized unit is a punctuation-owned short or long pause.'),
                         'geminate': _field(210, 'int', 'Default geminate fricative target. Retuned summary point for the live fricative geminate-like row.'),
                         'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'perception_limits': {
@@ -164,6 +166,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                         '__comment__': 'Sonorant, nasal, and glide class.',
                         'onset': _field(105, 'int', 'Default onset sonorant duration. Set from the clearer singleton liquid onset anchor.'),
                         'coda': _field(100, 'int', 'Default post-vocalic sonorant duration. Structural minimum retained on the coda side of the row.'),
+                        'coda_final': _field(100, 'int', 'Default pre-pausal final sonorant duration. Used only when the next realized unit is a punctuation-owned short or long pause.'),
                         'geminate': _field(190, 'int', 'Default geminate sonorant target. Set from the direct glide geminate region.'),
                         'geminate_coda_ratio': _field(0.60, 'float', 'Corrective same-consonant coda share used when geminate_policy is corrective. The onset side receives the exact remainder of the selected pair total.'),
                         'special_realization': {
@@ -180,7 +183,9 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'vowels': {
                     '__comment__': None,
                     'short': _field(110, 'int', 'Default short-vowel duration. Production anchor from the retained short-vowel baseline.'),
+                    'short_final': _field(110, 'int', 'Default pre-pausal final short-vowel duration. Used only when the next realized unit is a punctuation-owned short or long pause.'),
                     'long': _field(160, 'int', 'Default long-vowel duration. Production anchor from the retained long-vowel baseline.'),
+                    'long_final': _field(160, 'int', 'Default pre-pausal final long-vowel duration. Used only when the next realized unit is a punctuation-owned short or long pause. Ordinary downward recovery in that context must not go below this anchor.'),
                     'very_long': _field(260, 'int', 'Default very-long vowel duration. Contextual extension anchor, not ordinary lexical default.'),
                     'perception_limits': {
                         '__comment__': None,
@@ -751,6 +756,15 @@ def _is_resync_pause_row(row: dict[str, str]) -> bool:
     )
 
 
+def _pause_row_triggers_final_anchors(row: dict[str, str] | None) -> bool:
+    return bool(
+        row
+        and row['category'] == 'S'
+        and not _is_resync_pause_row(row)
+        and row['length'] in {'S', 'L'}
+    )
+
+
 def _normalize_intonation_token(value: str) -> str:
     if not isinstance(value, str):
         raise ValueError('Intonation preset must be a string token.')
@@ -1236,9 +1250,16 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 f'{base_path}.coda < {base_path}.perception_limits.geminate_min <= {base_path}.geminate <= {base_path}.perception_limits.gemination_max <= phonetize.process.timing_model.durations.segmental_ceiling',
                 'Consonant timing ordering does not hold on the coda side.',
             )
+        if not (row['coda'] <= row['coda_final'] < geminate_min):
+            add_failure(
+                f'{base_path}.coda, {base_path}.coda_final, {base_path}.perception_limits.geminate_min',
+                f'{base_path}.coda <= {base_path}.coda_final < {base_path}.perception_limits.geminate_min',
+                'Final-position coda timing must stay category-preserving and below the geminate threshold.',
+            )
         for min_path, min_value in (
             (f'{base_path}.onset', row['onset']),
             (f'{base_path}.coda', row['coda']),
+            (f'{base_path}.coda_final', row['coda_final']),
             (f'{base_path}.perception_limits.geminate_min', geminate_min),
         ):
             if min_value < segmental_floor:
@@ -1301,12 +1322,13 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 'A vowel perception minimum falls below the configured segmental floor.',
             )
     if not (
-        vowel_limits['short_min'] < vowels['short'] < vowel_limits['long_min'] < vowels['long']
-        < vowel_limits['very_long_min'] < vowels['very_long'] < vowel_limits['elongation_max']
+        vowel_limits['short_min'] < vowels['short'] <= vowels['short_final'] < vowel_limits['long_min']
+        <= vowels['long'] <= vowels['long_final'] < vowel_limits['very_long_min']
+        < vowels['very_long'] < vowel_limits['elongation_max']
     ):
         add_failure(
-            'phonetize.process.timing_model.durations.vowels.perception_limits.short_min, phonetize.process.timing_model.durations.vowels.short, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.long, phonetize.process.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.process.timing_model.durations.vowels.very_long, phonetize.process.timing_model.durations.vowels.perception_limits.elongation_max',
-            'short_min < short < long_min < long < very_long_min < very_long < elongation_max',
+            'phonetize.process.timing_model.durations.vowels.perception_limits.short_min, phonetize.process.timing_model.durations.vowels.short, phonetize.process.timing_model.durations.vowels.short_final, phonetize.process.timing_model.durations.vowels.perception_limits.long_min, phonetize.process.timing_model.durations.vowels.long, phonetize.process.timing_model.durations.vowels.long_final, phonetize.process.timing_model.durations.vowels.perception_limits.very_long_min, phonetize.process.timing_model.durations.vowels.very_long, phonetize.process.timing_model.durations.vowels.perception_limits.elongation_max',
+            'short_min < short <= short_final < long_min <= long <= long_final < very_long_min < very_long < elongation_max',
             'Vowel category ordering is invalid.',
         )
 
@@ -1432,7 +1454,13 @@ def _consonant_timing_key(row: dict[str, str]) -> str:
     raise ValueError(f"Unsupported consonant timing type: {row['type']!r}")
 
 
-def _consonant_anchor(row: dict[str, str], config: dict[str, Any], position: str) -> float:
+def _consonant_anchor(
+    row: dict[str, str],
+    config: dict[str, Any],
+    position: str,
+    *,
+    pre_pausal_final: bool = False,
+) -> float:
     durations = config['timing_model']['durations']
     timing_key = _consonant_timing_key(row)
     consonant_cfg = durations['consonants'][timing_key]
@@ -1441,6 +1469,8 @@ def _consonant_anchor(row: dict[str, str], config: dict[str, Any], position: str
     if row['type'] == 'T':
         return float(durations['consonants']['sonorant']['special_realization']['vowel_transition'])
     if position == 'C':
+        if pre_pausal_final:
+            return float(consonant_cfg['coda_final'])
         return float(consonant_cfg['coda'])
     return float(consonant_cfg['onset'])
 
@@ -1457,9 +1487,18 @@ def _consonant_maximum(row: dict[str, str], config: dict[str, Any]) -> float:
     return float(durations['consonants'][timing_key]['perception_limits']['gemination_max'])
 
 
-def _vowel_anchor(row: dict[str, str], config: dict[str, Any]) -> float:
+def _vowel_anchor(
+    row: dict[str, str],
+    config: dict[str, Any],
+    *,
+    pre_pausal_final: bool = False,
+) -> float:
     vowels_cfg = config['timing_model']['durations']['vowels']
-    return float(vowels_cfg['short'] if row['length'] == 'S' else vowels_cfg['long'])
+    if row['length'] == 'S':
+        key = 'short_final' if pre_pausal_final else 'short'
+        return float(vowels_cfg[key])
+    key = 'long_final' if pre_pausal_final else 'long'
+    return float(vowels_cfg[key])
 
 
 def _vowel_bounds(
@@ -1467,16 +1506,19 @@ def _vowel_bounds(
     config: dict[str, Any],
     *,
     ordinary_recovery: bool = False,
+    pre_pausal_final: bool = False,
 ) -> tuple[float, float]:
     vowels_cfg = config['timing_model']['durations']['vowels']
     limits = vowels_cfg['perception_limits']
     if row['length'] == 'S':
-        anchor = float(vowels_cfg['short'])
+        key = 'short_final' if pre_pausal_final else 'short'
+        anchor = float(vowels_cfg[key])
         return anchor, anchor
     if ordinary_recovery:
+        minimum = float(vowels_cfg['long_final']) if pre_pausal_final else float(limits['long_min'])
         ordinary_maximum = min(float(limits['elongation_max']), float(limits['very_long_min']) - 1.0)
-        ordinary_maximum = max(float(limits['long_min']), ordinary_maximum)
-        return float(limits['long_min']), ordinary_maximum
+        ordinary_maximum = max(minimum, ordinary_maximum)
+        return minimum, ordinary_maximum
     return float(limits['long_min']), float(limits['elongation_max'])
 
 
@@ -2052,6 +2094,10 @@ def realize_phone_rows(
         next_analysis = None
         if unit_index + 1 < len(units) and units[unit_index + 1]['kind'] == 'syllable':
             next_analysis = analyses[unit_index + 1]
+        next_pause_row = None
+        if unit_index + 1 < len(units) and units[unit_index + 1]['kind'] == 'pause':
+            next_pause_row = rows[units[unit_index + 1]['index']]
+        pre_pausal_final = _pause_row_triggers_final_anchors(next_pause_row)
 
         for row_index in analysis['indices']:
             row_drift_tokens[row_index] = last_completed_drift_token
@@ -2059,9 +2105,9 @@ def realize_phone_rows(
         for onset_index in analysis['onset_indices']:
             durations.setdefault(onset_index, _consonant_anchor(rows[onset_index], config, 'O'))
         for coda_index in analysis['coda_indices']:
-            durations[coda_index] = _consonant_anchor(rows[coda_index], config, 'C')
+            durations[coda_index] = _consonant_anchor(rows[coda_index], config, 'C', pre_pausal_final=pre_pausal_final)
         nucleus_index = analysis['nucleus_index']
-        durations[nucleus_index] = _vowel_anchor(rows[nucleus_index], config)
+        durations[nucleus_index] = _vowel_anchor(rows[nucleus_index], config, pre_pausal_final=pre_pausal_final)
 
         next_same_onset = _same_consonant_next_onset(rows, analysis, next_analysis, durations, config)
 
@@ -2092,7 +2138,7 @@ def realize_phone_rows(
 
         ordinary_long_vowel_adjusted = False
         if supports_post_accent_cleanup:
-            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=False)
+            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=False, pre_pausal_final=pre_pausal_final)
             drift_after_assignment, _correction_kind = _apply_vowel_correction(
                 rows,
                 analysis,
@@ -2102,7 +2148,7 @@ def realize_phone_rows(
                 maximum,
             )
         elif abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':
-            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=True)
+            minimum, maximum = _vowel_bounds(nucleus_row, config, ordinary_recovery=True, pre_pausal_final=pre_pausal_final)
             drift_after_assignment, correction_kind = _apply_vowel_correction(
                 rows,
                 analysis,

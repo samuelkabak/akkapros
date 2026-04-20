@@ -1,10 +1,10 @@
 ---
 cr_id: CR-080
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-21
 implements: 'CR-039, CR-040, CR-047, CR-059, CR-079'
 ---
 
@@ -216,18 +216,18 @@ The final implementation may touch only a subset of these files, but the CR shou
 
 ## Acceptance Criteria
 
-- [ ] The phonetizer reads `mora_mode` from input frontmatter when realizing `_tilde` into phone artifacts.
-- [ ] In the accentuated stream with `mora_mode=bi`, beat-aware synchronization continues to align to `cvc_reference`.
-- [ ] In the accentuated stream with `mora_mode=mono`, beat-aware synchronization aligns to `0.5 * cvc_reference`.
-- [ ] In `_ophone.txt`, synchronization changes from `cvc_reference` to `0.5 * cvc_reference`.
-- [ ] In the accentuated stream with `mora_mode=mono`, beat-aware pause targeting uses the half-beat basis for choosing exact pause durations inside legal short and long ranges.
-- [ ] In `_ophone.txt`, beat-aware pause targeting also uses the half-beat basis.
-- [ ] In the accentuated stream with `mora_mode=mono`, beat-aware mini-pause insertion uses the half-beat basis.
-- [ ] In `_ophone.txt`, mini-pause and long-vowel drift-correction behavior remain synchronized but use the half-beat basis rather than full `cvc_reference`.
-- [ ] Internal synchronization arithmetic may use `0.1 ms` precision, while emitted row durations remain integer milliseconds.
-- [ ] `_ophone.txt` remains a finalized original-stream artifact and is still compatible with the pause-governed intonation work described by `CR-079`.
-- [ ] Documentation explains both the mono half-beat rule and the `_ophone.txt` half-beat rule.
-- [ ] Focused library and integration verification pass for mono and original-stream half-beat synchronization behavior.
+- [x] The phonetizer reads `mora_mode` from input frontmatter when realizing `_tilde` into phone artifacts.
+- [x] In the accentuated stream with `mora_mode=bi`, beat-aware synchronization continues to align to `cvc_reference`.
+- [x] In the accentuated stream with `mora_mode=mono`, beat-aware synchronization aligns to `0.5 * cvc_reference`.
+- [x] In `_ophone.txt`, synchronization changes from `cvc_reference` to `0.5 * cvc_reference`.
+- [x] In the accentuated stream with `mora_mode=mono`, beat-aware pause targeting uses the half-beat basis for choosing exact pause durations inside legal short and long ranges.
+- [x] In `_ophone.txt`, beat-aware pause targeting also uses the half-beat basis.
+- [x] In the accentuated stream with `mora_mode=mono`, beat-aware mini-pause insertion uses the half-beat basis.
+- [x] In `_ophone.txt`, mini-pause and long-vowel drift-correction behavior remain synchronized but use the half-beat basis rather than full `cvc_reference`.
+- [x] Internal synchronization arithmetic may use `0.1 ms` precision, while emitted row durations remain integer milliseconds.
+- [x] `_ophone.txt` remains a finalized original-stream artifact and is still compatible with the pause-governed intonation work described by `CR-079`.
+- [x] Documentation explains both the mono half-beat rule and the `_ophone.txt` half-beat rule.
+- [x] Focused library and integration verification pass for mono and original-stream half-beat synchronization behavior.
 
 ---
 
@@ -287,24 +287,24 @@ Revert the `_ophone.txt` half-beat override separately if needed, while keeping 
 
 ### Implementation
 
-- [ ] Add frontmatter-driven synchronization-basis resolution from `mora_mode` and stream type.
-- [ ] Switch beat-aware synchronization from raw `cvc_reference` to the derived synchronization basis where required.
-- [ ] Reuse the half-beat mechanism for mono timing and `_ophone.txt` timing.
+- [x] Add frontmatter-driven synchronization-basis resolution from `mora_mode` and stream type.
+- [x] Switch beat-aware synchronization from raw `cvc_reference` to the derived synchronization basis where required.
+- [x] Reuse the half-beat mechanism for mono timing and `_ophone.txt` timing.
 
 ### Tests
 
-- [ ] Add or update focused library tests for mono beat and `_ophone.txt` half-beat synchronization.
-- [ ] Add or update integration coverage for mono and original-stream synchronization artifacts.
+- [x] Add or update focused library tests for mono beat and `_ophone.txt` half-beat synchronization.
+- [x] Add or update integration coverage for mono and original-stream synchronization artifacts.
 
 ### Documentation
 
-- [ ] Update user-facing phonetizer docs for mora-mode-aware beat alignment.
-- [ ] Update user-facing phonetizer docs for `_ophone.txt` half-beat synchronization.
+- [x] Update user-facing phonetizer docs for mora-mode-aware beat alignment.
+- [x] Update user-facing phonetizer docs for `_ophone.txt` half-beat synchronization.
 
 ### Review
 
-- [ ] Verify acceptance criteria.
-- [ ] Confirm compatibility with `CR-079`.
+- [x] Verify acceptance criteria.
+- [x] Confirm compatibility with `CR-079`.
 
 ---
 

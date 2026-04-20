@@ -276,24 +276,24 @@ If the difficulty is documentation-only, revert the doc changes separately while
 
 ### Implementation
 
-- [ ] Update the original-stream intonation pass to apply pause-governed contours.
-- [ ] Preserve stress-only contour assignment as accentuated-stream behavior.
-- [ ] Ensure `_ombrola.pho` reflects finalized `_ophone` row intonation.
+- [x] Update the original-stream intonation pass to apply pause-governed contours.
+- [x] Preserve stress-only contour assignment as accentuated-stream behavior.
+- [x] Ensure `_ombrola.pho` reflects finalized `_ophone` row intonation.
 
 ### Tests
 
-- [ ] Add or update focused library tests for original-stream pause intonation.
-- [ ] Add or update integration tests for `_ophone.txt` and `_ombrola.pho`.
+- [x] Add or update focused library tests for original-stream pause intonation.
+- [x] Add or update integration tests for `_ophone.txt` and `_ombrola.pho`.
 
 ### Documentation
 
-- [ ] Update user-facing phonetizer documentation for `_ophone` and `_ombrola` production.
-- [ ] Update generated diagrams if the documentation flow requires them.
+- [x] Update user-facing phonetizer documentation for `_ophone` and `_ombrola` production.
+- [x] Update generated diagrams if the documentation flow requires them.
 
 ### Review
 
-- [ ] Verify acceptance criteria.
-- [ ] Confirm the new CR text is sufficient as the primary implementation prompt.
+- [x] Verify acceptance criteria.
+- [x] Confirm the new CR text is sufficient as the primary implementation prompt.
 
 ---
 
