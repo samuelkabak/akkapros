@@ -49,6 +49,7 @@ from akkapros.lib.phonetize import (
     reconstruct_tilde_from_phone_rows,
     serialize_mbrola_rows,
     serialize_phone_row,
+    validate_phonetize_source,
     verify_phonetize_config,
 )
 
@@ -986,6 +987,7 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
 
     assert ACCENTUATION_DISTRIBUTION_CHOICES == ('100_0', '95_05', '90_10', '85_15', '80_20', '75_25', '70_30')
     assert defaults['process']['timing_model']['accentuation_distribution_policy'] == '80_20'
+    assert 'speech' not in defaults['process']['timing_model']
     assert 'drift_policy' not in defaults['process']['timing_model']
     assert 'short_pause_policy' not in defaults['process']['timing_model']
     assert defaults['process']['timing_model']['drift_tolerance'] == 19
@@ -999,23 +1001,30 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert durations['vowels']['perception_limits']['elongation_max'] == 280
 
 
-def test_shared_verification_warns_on_high_pause_ratio() -> None:
-    result = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 71}}}})
+def test_shared_verification_does_not_emit_removed_speech_issues() -> None:
+    result = verify_phonetize_config()
     lines = render_phonetize_verification_lines(result)
 
-    assert result.status == 'pass-with-warnings'
-    assert not result.failures
-    assert any('phonetize.process.timing_model.speech.pause_ratio' in line for line in lines)
-    assert any('pause_ratio > 70' in line for line in lines)
+    assert result.status == 'pass'
+    assert not any('phonetize.process.timing_model.speech' in line for line in lines)
 
 
-def test_shared_verification_blocks_invalid_pause_ratio() -> None:
-    result = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}})
-    lines = render_phonetize_verification_lines(result)
+def test_validate_phonetize_source_rejects_removed_speech_block() -> None:
+    with pytest.raises(ValueError) as excinfo:
+        validate_phonetize_source(
+            {
+                'process': {
+                    'timing_model': {
+                        'speech': {
+                            'wpm': 201,
+                        }
+                    }
+                }
+            },
+            lambda value, _kind: value,
+        )
 
-    assert result.status == 'failure'
-    assert result.failures
-    assert any('0 < pause_ratio < 100' in line for line in lines)
+    assert 'Removed config keys (CR-081): phonetize.process.timing_model.speech' in str(excinfo.value)
 
 
 def test_shared_verification_rejects_gemination_max_above_segmental_ceiling() -> None:

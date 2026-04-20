@@ -114,12 +114,6 @@ phonetize:
       accentuation_distribution_policy: "80_20"
       # maximum local timing mismatch tolerated before the algorithm must fail
       drift_tolerance: 19
-      speech:
-        # Speech-rate estimate used by timing and pause logic.
-        wpm: 193
-        # Share of total time reserved for pauses. Shared semantic verification fails
-        # outside 0 < pause_ratio < 100 and emits a warning when pause_ratio > 70.
-        pause_ratio: 35
       durations:
         # Upper ordinary duration for one vowel or consonant. Model-facing ceiling from
         # comparative duration limits; used as a validation ceiling for class-local

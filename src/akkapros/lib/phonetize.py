@@ -20,7 +20,11 @@ from akkapros.lib.utils import compile_contextual_regex
 
 PHONETIZE_SECTION = 'phonetize'
 PHONETIZE_SECTION_HELP = 'Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.'
-REMOVED_TIMING_MODEL_KEYS = frozenset({'short_pause_policy', 'drift_policy'})
+REMOVED_TIMING_MODEL_KEYS = {
+    'short_pause_policy': 'CR-061',
+    'drift_policy': 'CR-061',
+    'speech': 'CR-081',
+}
 ACCENTUATION_DISTRIBUTION_SHARES = {
     '100_0': (1.0, 0.0),
     '95_05': (0.95, 0.05),
@@ -104,11 +108,6 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'int',
                 'maximum local timing mismatch tolerated before the algorithm must fail',
             ),
-            'speech': {
-                '__comment__': None,
-                'wpm': _field(193, 'int', 'Speech-rate estimate used by timing and pause logic.'),
-                'pause_ratio': _field(35, 'int', 'Share of total time reserved for pauses. Shared semantic verification fails outside 0 < pause_ratio < 100 and emits a warning when pause_ratio > 70.'),
-            },
             'durations': {
                 '__comment__': None,
                 'segmental_ceiling': _field(
@@ -523,10 +522,21 @@ def validate_phonetize_source(section: Any, coerce_scalar) -> dict[str, Any]:
             if prefix == (PHONETIZE_SECTION, 'process', 'timing_model'):
                 removed = [key for key in unknown_keys if key in REMOVED_TIMING_MODEL_KEYS]
                 if removed:
+                    cr_ids = {REMOVED_TIMING_MODEL_KEYS[key] for key in removed}
                     joined = ', '.join('.'.join(prefix + (key,)) for key in removed)
+                    if len(cr_ids) == 1:
+                        cr_id = next(iter(cr_ids))
+                        raise ValueError(
+                            f'Removed config keys ({cr_id}): {joined}. '
+                            'These options were removed and are no longer part of the active config contract.'
+                        )
+                    grouped = '; '.join(
+                        f"{cr_id}: {', '.join('.'.join(prefix + (key,)) for key in removed if REMOVED_TIMING_MODEL_KEYS[key] == cr_id)}"
+                        for cr_id in sorted(cr_ids)
+                    )
                     raise ValueError(
-                        f'Removed config keys (CR-061): {joined}. '
-                        'These options were removed and behavior is now fixed internally.'
+                        'Removed config keys: '
+                        f'{grouped}. These options were removed and are no longer part of the active config contract.'
                     )
             joined = ', '.join('.'.join(prefix + (key,)) for key in unknown_keys)
             raise ValueError(f'Unknown config keys: {joined}')
@@ -1124,7 +1134,6 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
 
     process = config['process']
     timing_model = config['timing_model']
-    speech = timing_model['speech']
     durations = timing_model['durations']
     consonants = durations['consonants']
     vowels = durations['vowels']
@@ -1156,27 +1165,6 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             'phonetize.process.timing_model.drift_tolerance',
             'drift_tolerance is an integer >= 0',
             'Drift tolerance must be a non-negative integer number of milliseconds.',
-        )
-
-    if not isinstance(speech['wpm'], int) or isinstance(speech['wpm'], bool) or speech['wpm'] <= 0:
-        add_failure(
-            'phonetize.process.timing_model.speech.wpm',
-            'wpm > 0',
-            'Speech-rate estimate must be a positive integer.',
-        )
-
-    pause_ratio = speech['pause_ratio']
-    if not isinstance(pause_ratio, int) or isinstance(pause_ratio, bool) or not (0 < pause_ratio < 100):
-        add_failure(
-            'phonetize.process.timing_model.speech.pause_ratio',
-            '0 < pause_ratio < 100',
-            'pause_ratio must be a percentage strictly between 0 and 100.',
-        )
-    elif pause_ratio > 70:
-        add_warning(
-            'phonetize.process.timing_model.speech.pause_ratio',
-            'pause_ratio > 70',
-            'pause_ratio above 70 reserves an unusually large share of time for pauses.',
         )
 
     for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations'), durations):
@@ -1354,7 +1342,6 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         )
 
     selected_default_paths = (
-        ('process', 'timing_model', 'speech', 'wpm'),
         ('process', 'timing_model', 'durations', 'segmental_ceiling'),
         ('process', 'timing_model', 'durations', 'segmental_floor'),
         ('process', 'timing_model', 'durations', 'cvc_reference'),
@@ -2468,13 +2455,11 @@ def _test_intonation_normalization_and_assignment() -> bool:
 
 
 def _test_shared_verification() -> bool:
-    warnings_only = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 71}}}})
-    blocking = verify_phonetize_config({'process': {'timing_model': {'speech': {'pause_ratio': 100}}}})
-    rendered = render_phonetize_verification_lines(warnings_only)
+    defaults = build_default_phonetize_verification_config()
+    rendered = render_phonetize_verification_lines(verify_phonetize_config())
     return (
-        warnings_only.status == 'pass-with-warnings'
-        and blocking.status == 'failure'
-        and any('pause_ratio > 70' in line for line in rendered)
+        'speech' not in defaults['process']['timing_model']
+        and all('phonetize.process.timing_model.speech' not in line for line in rendered)
     )
 
 

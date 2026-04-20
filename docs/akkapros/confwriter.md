@@ -44,7 +44,6 @@ Keys use full YAML paths such as:
 - `atfparse.process.preserve_case`
 - `prosody.process.style`
 - `phonetize.process.timing_model.geminate_policy`
-- `phonetize.process.timing_model.speech.wpm`
 - `metrics.run.json`
 - `print.run.ipa`
 
@@ -72,7 +71,7 @@ Examples:
 ```bash
 python -m akkapros.cli.confwriter --conf run.yaml --set metrics.run.json=true
 python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.geminate_policy=cumulative
-python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.speech.wpm=201
+python -m akkapros.cli.confwriter --conf run.yaml --set phonetize.process.timing_model.drift_tolerance=21
 python -m akkapros.cli.confwriter --conf run.yaml --set syllabify.process.extra_short_punct_pattern=["\\.\\.\\."]
 ```
 
@@ -87,6 +86,9 @@ used by standalone phonetizer preflight.
 The verify path assumes schema-valid grouped config first, then applies the
 current baseline semantic invariant inventory and warning rules for the active
 phonetize timing model. Output status is one of:
+
+Legacy `phonetize.process.timing_model.speech.*` keys are rejected as removed
+config paths and are no longer part of the current contract.
 
 - `VERIFY STATUS: pass`
 - `VERIFY STATUS: pass-with-warnings`

@@ -1,10 +1,10 @@
 ---
 cr_id: CR-081
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 implements: 'REQ-041'
 ---
 
@@ -236,23 +236,23 @@ tests, demos, and docs.
 
 # Acceptance Criteria
 
-- [ ] `phonetize.process.timing_model.speech` is absent from the approved
+- [x] `phonetize.process.timing_model.speech` is absent from the approved
       config surface and default emitted YAML.
-- [ ] `phonetize.process.timing_model.speech.wpm` and
+- [x] `phonetize.process.timing_model.speech.wpm` and
       `phonetize.process.timing_model.speech.pause_ratio` are absent from
       config-path inventory, help, and docs.
-- [ ] Shared phonetize verification no longer validates or warns on the removed
+- [x] Shared phonetize verification no longer validates or warns on the removed
       keys.
-- [ ] Configs that still provide the removed `speech` block fail clearly as
+- [x] Configs that still provide the removed `speech` block fail clearly as
       unsupported current contract.
-- [ ] Tests that previously asserted `pause_ratio` warning/blocking behavior are
+- [x] Tests that previously asserted `pause_ratio` warning/blocking behavior are
       removed or rewritten to assert removed-key rejection or absence.
-- [ ] Demo/sample YAML files no longer include a phonetize `speech` block.
-- [ ] User-facing docs no longer present phonetize `wpm` or `pause_ratio` as
+- [x] Demo/sample YAML files no longer include a phonetize `speech` block.
+- [x] User-facing docs no longer present phonetize `wpm` or `pause_ratio` as
       approved configuration inputs.
-- [ ] Metrics outputs still report row-derived `WPM` and `Pause ratio` where
+- [x] Metrics outputs still report row-derived `WPM` and `Pause ratio` where
       currently approved.
-- [ ] Focused verification passes for config-surface, phonetizer, and
+- [x] Focused verification passes for config-surface, phonetizer, and
       integration surfaces touched by the removal.
 
 ---
@@ -320,28 +320,28 @@ in schema, because that would recreate the same contract drift this CR removes.
 
 ## Implementation
 
-- [ ] Remove the phonetize `speech` subtree from schema/default config surfaces.
-- [ ] Remove dead verification logic for `wpm` and `pause_ratio`.
-- [ ] Remove stale CLI/config-tooling path support for the deleted keys.
-- [ ] Reject old configs containing the removed `speech` block clearly.
+- [x] Remove the phonetize `speech` subtree from schema/default config surfaces.
+- [x] Remove dead verification logic for `wpm` and `pause_ratio`.
+- [x] Remove stale CLI/config-tooling path support for the deleted keys.
+- [x] Reject old configs containing the removed `speech` block clearly.
 
 ## Tests
 
-- [ ] Rewrite or remove tests that still assert live `pause_ratio` warning or
+- [x] Rewrite or remove tests that still assert live `pause_ratio` warning or
       blocking semantics.
-- [ ] Add or update tests for removed-key absence and removed-key rejection.
-- [ ] Verify touched tests use only test-owned inputs and configs.
+- [x] Add or update tests for removed-key absence and removed-key rejection.
+- [x] Verify touched tests use only test-owned inputs and configs.
 
 ## Documentation
 
-- [ ] Remove the `speech` block from package docs and config examples.
-- [ ] Update demo/sample YAML files to the new approved phonetize surface.
-- [ ] Keep row-derived metrics-output documentation where still active.
+- [x] Remove the `speech` block from package docs and config examples.
+- [x] Update demo/sample YAML files to the new approved phonetize surface.
+- [x] Keep row-derived metrics-output documentation where still active.
 
 ## Review
 
-- [ ] Verify acceptance criteria.
-- [ ] Confirm supersession of the older phonetize speech-config contract is
+- [x] Verify acceptance criteria.
+- [x] Confirm supersession of the older phonetize speech-config contract is
       explicit in the resulting docs and behavior.
 
 

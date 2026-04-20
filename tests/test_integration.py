@@ -598,15 +598,18 @@ def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
         _assert_matches_reference(generated, reference)
 
 
-def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: Path) -> None:
-    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_blocking')
-    prefix = 'verify_blocking'
-    config = apply_overrides(
-        build_default_config(),
-        {('phonetize', 'process.timing_model.speech.pause_ratio'): 100},
-    )
+def test_phonetizer_rejects_removed_speech_config_before_processing(tmp_path: Path) -> None:
+    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_removed_speech')
+    prefix = 'verify_removed_speech'
     config_path = outdir / 'verify.yaml'
-    config_path.write_text(dump_config_text(config), encoding='utf-8')
+    config_path.write_text(
+        'phonetize:\n'
+        '  process:\n'
+        '    timing_model:\n'
+        '      speech:\n'
+        '        wpm: 201\n',
+        encoding='utf-8',
+    )
 
     proc = _run_cli_expect_failure(
         'akkapros.cli.phonetizer',
@@ -620,40 +623,34 @@ def test_phonetizer_preflight_fails_before_phase2_on_blocking_config(tmp_path: P
     )
 
     assert proc.returncode == 2
-    assert 'FAIL phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
-    assert 'Phonetizer preflight failed before Phase 2 processing continued.' in proc.stderr
+    assert 'Removed config keys (CR-081): phonetize.process.timing_model.speech' in proc.stderr
     assert not (outdir / f'{prefix}_ophone.txt').exists()
     assert not (outdir / f'{prefix}_phone.txt').exists()
     assert not (outdir / f'{prefix}_ombrola.pho').exists()
     assert not (outdir / f'{prefix}_mbrola.pho').exists()
 
 
-def test_phonetizer_preflight_reports_warnings_without_blocking(tmp_path: Path) -> None:
-    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_warning')
-    prefix = 'verify_warning'
-    config = apply_overrides(
-        build_default_config(),
-        {('phonetize', 'process.timing_model.speech.pause_ratio'): 71},
-    )
-    config_path = outdir / 'verify.yaml'
-    config_path.write_text(dump_config_text(config), encoding='utf-8')
+def test_phonetizer_rejects_removed_speech_option_path(tmp_path: Path) -> None:
+    tilde_file, outdir = _build_tilde_file(tmp_path, 'verify_removed_option')
+    prefix = 'verify_removed_option'
 
-    proc = _run_cli(
+    proc = _run_cli_expect_failure(
         'akkapros.cli.phonetizer',
         str(tilde_file),
         '-p',
         prefix,
         '--outdir',
         str(outdir),
-        '--conf',
-        str(config_path),
+        '--option',
+        'phonetize.process.timing_model.speech.pause_ratio=35',
     )
 
-    assert 'WARN phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
-    assert (outdir / f'{prefix}_ophone.txt').exists()
-    assert (outdir / f'{prefix}_phone.txt').exists()
-    assert (outdir / f'{prefix}_ombrola.pho').exists()
-    assert (outdir / f'{prefix}_mbrola.pho').exists()
+    assert proc.returncode == 2
+    assert 'Removed config key (CR-081): phonetize.process.timing_model.speech.pause_ratio' in proc.stderr
+    assert not (outdir / f'{prefix}_ophone.txt').exists()
+    assert not (outdir / f'{prefix}_phone.txt').exists()
+    assert not (outdir / f'{prefix}_ombrola.pho').exists()
+    assert not (outdir / f'{prefix}_mbrola.pho').exists()
 
 
 def test_printer_accepts_defaults_only_runtime_config_plus_path_override(tmp_path: Path) -> None:

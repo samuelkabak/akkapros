@@ -42,7 +42,8 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "explicit_link_count" not in loaded["metrics"]["run"]
     assert "csv" not in loaded["metrics"]["run"]
     assert "csv:" not in text
-    assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 193
+    assert "speech" not in loaded["phonetize"]["process"]["timing_model"]
+    assert "speech:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["accentuation_distribution_policy"] == "80_20"
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
     durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
@@ -345,7 +346,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--set",
             "phonetize.process.timing_model.geminate_policy=cumulative",
             "--set",
-            "phonetize.process.timing_model.speech.wpm=201",
+            "phonetize.process.timing_model.drift_tolerance=21",
         ],
         cwd=REPO_ROOT,
         env=env,
@@ -357,7 +358,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
 
     loaded = load_config_file(config_path)
     assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
-    assert loaded["phonetize"]["process"]["timing_model"]["speech"]["wpm"] == 201
+    assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 21
 
 
 def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:
@@ -383,13 +384,54 @@ def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) ->
     assert config_path.read_text(encoding="utf-8") == before
 
 
-def test_confwriter_verify_reports_warnings_without_mutating_file(tmp_path: Path) -> None:
+def test_removed_phonetize_speech_key_option_path_is_rejected() -> None:
+    parser = argparse.ArgumentParser(add_help=False)
+    add_config_argument(parser)
+    add_runtime_interface_arguments(parser, "phonetizer")
+    parser.add_argument("input", nargs="?")
+
+    with pytest.raises(ConfigError) as excinfo:
+        parse_args_with_config(
+            parser,
+            "phonetizer",
+            [
+                "sample_tilde.txt",
+                "--option",
+                "phonetize.process.timing_model.speech.wpm=201",
+            ],
+        )
+
+    assert "Removed config key (CR-081): phonetize.process.timing_model.speech.wpm" in str(excinfo.value)
+
+
+def test_removed_phonetize_speech_keys_in_file_are_rejected(tmp_path: Path) -> None:
     config_path = tmp_path / "conf.yaml"
-    config = apply_overrides(
-        build_default_config(),
-        {("phonetize", "process.timing_model.speech.pause_ratio"): 71},
+    config_path.write_text(
+        "phonetize:\n"
+        "  process:\n"
+        "    timing_model:\n"
+        "      speech:\n"
+        "        wpm: 201\n"
+        "        pause_ratio: 35\n",
+        encoding="utf-8",
     )
-    config_path.write_text(dump_config_text(config), encoding="utf-8")
+
+    with pytest.raises(ConfigError) as excinfo:
+        load_config_file(config_path)
+
+    assert "Removed config keys (CR-081): phonetize.process.timing_model.speech" in str(excinfo.value)
+
+
+def test_confwriter_verify_rejects_removed_speech_keys_without_mutating_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    config_path.write_text(
+        "phonetize:\n"
+        "  process:\n"
+        "    timing_model:\n"
+        "      speech:\n"
+        "        wpm: 201\n",
+        encoding="utf-8",
+    )
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
@@ -405,37 +447,8 @@ def test_confwriter_verify_reports_warnings_without_mutating_file(tmp_path: Path
         encoding="utf-8",
     )
 
-    assert proc.returncode == 0, proc.stderr
-    assert "VERIFY STATUS: pass-with-warnings" in proc.stdout
-    assert "WARN phonetize.process.timing_model.speech.pause_ratio" in proc.stdout
-    assert config_path.read_text(encoding="utf-8") == before
-
-
-def test_confwriter_verify_reports_failures_without_mutating_file(tmp_path: Path) -> None:
-    config_path = tmp_path / "conf.yaml"
-    config = apply_overrides(
-        build_default_config(),
-        {("phonetize", "process.timing_model.speech.pause_ratio"): 100},
-    )
-    config_path.write_text(dump_config_text(config), encoding="utf-8")
-
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
-    env["PYTHONIOENCODING"] = "utf-8"
-
-    before = config_path.read_text(encoding="utf-8")
-    proc = subprocess.run(
-        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--verify"],
-        cwd=REPO_ROOT,
-        env=env,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-    )
-
-    assert proc.returncode == 1
-    assert "VERIFY STATUS: failure" in proc.stdout
-    assert "FAIL phonetize.process.timing_model.speech.pause_ratio" in proc.stdout
+    assert proc.returncode == 2
+    assert "Removed config keys (CR-081): phonetize.process.timing_model.speech" in (proc.stdout + proc.stderr)
     assert config_path.read_text(encoding="utf-8") == before
 
 
@@ -521,6 +534,7 @@ def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
     assert "Active Config Paths:" in default_text
     assert "common.run.prefix" in default_text
     assert "phonetize.process.timing_model.durations.cvc_reference" in default_text
+    assert "phonetize.process.timing_model.speech.wpm" not in default_text
     assert default_text.index("Active Config Paths:") < default_text.index("Deprecated Dedicated Flags:")
 
     subtree_help = subprocess.run(

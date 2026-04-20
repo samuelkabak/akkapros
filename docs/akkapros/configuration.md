@@ -182,9 +182,11 @@ Examples:
 - `prosody.process.style`
 - `phonetize.process.intonation.stress`
 - `phonetize.process.timing_model.geminate_policy`
-- `phonetize.process.timing_model.speech.wpm`
 - `metrics.run.json`
 - `print.run.ipa`
+
+`WPM` and `Pause ratio` still appear in metrics artifacts, but they are
+row-derived report outputs rather than approved phonetize config inputs.
 
 When you run `fullprosmaker`, those stage sections still apply. For example,
 `prosody.process.style` feeds `--prosody-style`, `metrics.run.json` feeds

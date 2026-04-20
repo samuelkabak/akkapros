@@ -88,12 +88,6 @@ from akkapros.lib.utils import (
     validate_intermediate_format,
 )
 
-
-
-PHONETIZE_DEFAULT_WPM = 193
-PHONETIZE_DEFAULT_PAUSE_RATIO = 35
-
-
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     output_ipa = args.print_ipa

@@ -201,7 +201,7 @@ Dedicated config-backed flags such as `--geminate-policy` remain supported for c
 ```bash
 python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --outdir outputs
 python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --geminate-policy cumulative
-python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --option phonetize.process.timing_model.speech.wpm=201
+python -m akkapros.cli.phonetizer outputs/erra_tilde.txt -p erra --option phonetize.process.timing_model.drift_tolerance=21
 python -m akkapros.cli.phonetizer --help
 python -m akkapros.cli.phonetizer --help phonetize.process.timing_model.durations
 ```
@@ -221,7 +221,6 @@ Representative grouped-config keys:
 - `phonetize.process.timing_model.geminate_policy`
 - `phonetize.process.timing_model.accentuation_distribution_policy`
 - `phonetize.process.timing_model.drift_tolerance`
-- `phonetize.process.timing_model.speech.wpm`
 - `phonetize.process.timing_model.durations.segmental_ceiling`
 - `phonetize.process.timing_model.durations.segmental_floor`
 - `phonetize.process.timing_model.durations.cvc_reference`
@@ -234,8 +233,9 @@ No longer user-configurable:
 
 - `phonetize.process.timing_model.short_pause_policy`
 - `phonetize.process.timing_model.drift_policy`
+- `phonetize.process.timing_model.speech`
 
-Both behaviors are now fixed internally and are no longer user-configurable.
+These behaviors are now fixed internally or removed from the active contract.
 
 At runtime, path-scoped help and `-t/--option` overrides expose the same canonical phonetize subtree: `phonetize.process.intonation.*` and `phonetize.process.timing_model.*`.
 
@@ -263,16 +263,23 @@ That preflight:
 - reports warning paths, thresholds or formulas, and configuration-wide hint
   summaries for warning-only conditions
 
-Representative warning-only output:
+If an old config still provides the removed speech block, the active contract
+rejects it explicitly rather than accepting it as a no-op.
+
+Representative removed-key output:
 
 ```text
-WARN phonetize.process.timing_model.speech.pause_ratio | relation: pause_ratio > 70 | reason: pause_ratio above 70 reserves an unusually large share of time for pauses.
+Removed config key (CR-081): phonetize.process.timing_model.speech.wpm. This option was removed and is no longer part of the active config contract.
 ```
+
+`WPM` and `Pause ratio` remain available downstream in metrics artifacts as
+row-derived outputs from realized phone rows; they are no longer phonetizer
+inputs.
 
 Representative blocking output:
 
 ```text
-FAIL phonetize.process.timing_model.speech.pause_ratio | relation: 0 < pause_ratio < 100 | reason: pause_ratio must be a percentage strictly between 0 and 100.
+FAIL phonetize.process.timing_model.durations.segmental_floor, phonetize.process.timing_model.durations.vowels.perception_limits.short_min | relation: segmental_floor <= short_min | reason: The global segmental floor cannot exceed the configured short-vowel minimum.
 ```
 
 `confwriter --list phonetize` is the supported way to inspect the live schema.

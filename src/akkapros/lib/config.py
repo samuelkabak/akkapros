@@ -50,12 +50,13 @@ RUNTIME_HELP_DEST = 'help_path'
 RUNTIME_HELP_SENTINEL = '__PROGRAM__'
 RUNTIME_OPTION_DEST = 'option_values'
 RUNTIME_PHONETIZE_ROOT = f'{PHONETIZE_SECTION}.process.timing_model'
-REMOVED_CONFIG_PATHS = frozenset(
-    {
-        'phonetize.process.timing_model.short_pause_policy',
-        'phonetize.process.timing_model.drift_policy',
-    }
-)
+REMOVED_CONFIG_PATHS = {
+    'phonetize.process.timing_model.short_pause_policy': 'CR-061',
+    'phonetize.process.timing_model.drift_policy': 'CR-061',
+    'phonetize.process.timing_model.speech': 'CR-081',
+    'phonetize.process.timing_model.speech.wpm': 'CR-081',
+    'phonetize.process.timing_model.speech.pause_ratio': 'CR-081',
+}
 
 CONFIG_SECTION_ORDER = (
     COMMON_SECTION,
@@ -384,9 +385,10 @@ def resolve_config_path(path: str) -> tuple[str, str, ConfigField]:
         raise ConfigError(f"Unknown config key: {path}")
     normalized_path = '.'.join(parts)
     if normalized_path in REMOVED_CONFIG_PATHS:
+        cr_id = REMOVED_CONFIG_PATHS[normalized_path]
         raise ConfigError(
-            f"Removed config key (CR-061): {normalized_path}. "
-            "This option was removed and behavior is now fixed internally."
+            f"Removed config key ({cr_id}): {normalized_path}. "
+            "This option was removed and is no longer part of the active config contract."
         )
     section = parts[0]
     if section == PHONETIZE_SECTION:
