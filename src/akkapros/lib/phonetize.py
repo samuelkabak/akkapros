@@ -108,6 +108,11 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'int',
                 'maximum local timing mismatch tolerated before the algorithm must fail',
             ),
+            'enable_resync_pause': _field(
+                False,
+                'bool',
+                'Enable algorithmic resynchronization-pause insertion at eligible non-punctuation boundaries.',
+            ),
             'durations': {
                 '__comment__': None,
                 'segmental_ceiling': _field(
@@ -187,10 +192,10 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 },
                 'pauses': {
                     '__comment__': None,
-                    'mini': {
-                        '__comment__': 'Default mini-pause band. Non-punctuation recovery gap used only when the stream is ahead of the beat and no punctuation-owned pause already follows the current merged unit boundary.',
-                        'min': _field(100, 'int', 'Minimum mini-pause duration.'),
-                        'max': _field(200, 'int', 'Maximum mini-pause duration.'),
+                    'resync': {
+                        '__comment__': 'Default resync-pause band. Non-punctuation recovery gap used only when the stream is ahead of the beat and no punctuation-owned pause already follows the current merged unit boundary.',
+                        'min': _field(100, 'int', 'Minimum resync-pause duration.'),
+                        'max': _field(200, 'int', 'Maximum resync-pause duration.'),
                     },
                     'short': {
                         '__comment__': 'Default short-pause band. Empirically grounded short-pause region from comparative studies. Rhythmic alignment remains possible when at least one integer multiple N * cvc_reference falls inside this band without redefining the empirical range.',
@@ -213,6 +218,7 @@ PROCESS_KEYS = (
     'geminate_policy',
     'accentuation_distribution_policy',
     'drift_tolerance',
+    'enable_resync_pause',
 )
 
 PHONE_ROW_FIELDS = (
@@ -235,10 +241,10 @@ PHONE_ROW_INTONATION_NEUTRAL = 'M0C'
 INNER_PUNCT_TEXT = ':inner-punct:'
 PHRASAL_PUNCT_TEXT = ':phrasal-punct:'
 EOL_TEXT = '<EOL>'
-MINI_PAUSE_LABEL = 'MEN'
-MINI_PAUSE_TYPE = 'M'
-MINI_PAUSE_REALIZATION = 'MP'
-MINI_PAUSE_TEXT = ' '
+RESYNC_PAUSE_LABEL = 'MEN'
+RESYNC_PAUSE_TYPE = 'M'
+RESYNC_PAUSE_REALIZATION = 'MP'
+RESYNC_PAUSE_TEXT = ' '
 
 CONSONANT_HIATUS = set('˙')
 CONSONANT_VOWEL_TRANSITION = set('¨')
@@ -354,7 +360,7 @@ REALIZATION_CODE_ROWS = (
     ('EO', 'ɛ', 'e.', 'V', 'M', 'P'),
     ('IO', 'ɨ', 'i.', 'V', 'H', 'P'),
     ('UO', 'ʊ', 'u.', 'V', 'H', 'P'),
-    (MINI_PAUSE_REALIZATION, '.', '_', 'S', 'S', 'P'),
+    (RESYNC_PAUSE_REALIZATION, '.', '_', 'S', 'S', 'P'),
     ('SP', '|', '_', 'S', 'S', 'P'),
     ('ZP', '‖', '_', 'S', 'S', 'P'),
 )
@@ -420,7 +426,7 @@ INPUT_TO_REALIZATION_ROWS = (
     ('EWI', 'EO'),
     ('IWI', 'IO'),
     ('UWI', 'UO'),
-    (MINI_PAUSE_LABEL, MINI_PAUSE_REALIZATION),
+    (RESYNC_PAUSE_LABEL, RESYNC_PAUSE_REALIZATION),
     ('SES', 'SP'),
     ('ZEN', 'ZP'),
 )
@@ -719,29 +725,29 @@ def _new_pause_row(text: str, *, pause_type: str, length_code: str) -> dict[str,
     }
 
 
-def _new_mini_pause_row() -> dict[str, str]:
+def _new_resync_pause_row() -> dict[str, str]:
     return {
-        'label': MINI_PAUSE_LABEL,
+        'label': RESYNC_PAUSE_LABEL,
         'category': 'S',
-        'type': MINI_PAUSE_TYPE,
+        'type': RESYNC_PAUSE_TYPE,
         'length': 'S',
         'position': 'S',
         'boundary': 'N',
         'accent': 'P',
-        'realization': MINI_PAUSE_REALIZATION,
+        'realization': RESYNC_PAUSE_REALIZATION,
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
         'drift': PHONE_ROW_DRIFT_NEUTRAL,
         'intonation': PHONE_ROW_INTONATION_NEUTRAL,
-        'text': MINI_PAUSE_TEXT,
+        'text': RESYNC_PAUSE_TEXT,
     }
 
 
-def _is_mini_pause_row(row: dict[str, str]) -> bool:
+def _is_resync_pause_row(row: dict[str, str]) -> bool:
     return (
         row['category'] == 'S'
-        and row['label'] == MINI_PAUSE_LABEL
-        and row['type'] == MINI_PAUSE_TYPE
-        and row['realization'] == MINI_PAUSE_REALIZATION
+        and row['label'] == RESYNC_PAUSE_LABEL
+        and row['type'] == RESYNC_PAUSE_TYPE
+        and row['realization'] == RESYNC_PAUSE_REALIZATION
     )
 
 
@@ -1305,15 +1311,15 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         )
 
     if not (
-        pauses['mini']['min'] < pauses['mini']['max']
-        and pauses['mini']['max'] < pauses['short']['min']
+        pauses['resync']['min'] < pauses['resync']['max']
+        and pauses['resync']['max'] < pauses['short']['min']
         and pauses['short']['min'] < pauses['short']['max']
         and pauses['short']['max'] < pauses['long']['min']
         and pauses['long']['min'] < pauses['long']['max']
     ):
         add_failure(
-            'phonetize.process.timing_model.durations.pauses.mini.min, phonetize.process.timing_model.durations.pauses.mini.max, phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max',
-            'mini.min < mini.max < short.min < short.max < long.min < long.max',
+            'phonetize.process.timing_model.durations.pauses.resync.min, phonetize.process.timing_model.durations.pauses.resync.max, phonetize.process.timing_model.durations.pauses.short.min, phonetize.process.timing_model.durations.pauses.short.max, phonetize.process.timing_model.durations.pauses.long.min, phonetize.process.timing_model.durations.pauses.long.max',
+            'resync.min < resync.max < short.min < short.max < long.min < long.max',
             'Pause-band ordering is invalid.',
         )
 
@@ -1364,7 +1370,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'long_min'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'very_long_min'),
         ('process', 'timing_model', 'durations', 'vowels', 'perception_limits', 'elongation_max'),
-        ('process', 'timing_model', 'durations', 'pauses', 'mini', 'min'),
+        ('process', 'timing_model', 'durations', 'pauses', 'resync', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'short', 'min'),
         ('process', 'timing_model', 'durations', 'pauses', 'long', 'min'),
     )
@@ -1707,10 +1713,10 @@ def _pause_duration_and_drift(
     synchronization_basis: float,
 ) -> tuple[float, float]:
     pauses_cfg = config['timing_model']['durations']['pauses']
-    band = pauses_cfg['mini'] if _is_mini_pause_row(row) else (pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short'])
+    band = pauses_cfg['resync'] if _is_resync_pause_row(row) else (pauses_cfg['long'] if row['length'] == 'L' else pauses_cfg['short'])
     minimum = float(band['min'])
     maximum = float(band['max'])
-    if _is_mini_pause_row(row):
+    if _is_resync_pause_row(row):
         actual = -drift_cursor if drift_cursor < 0 else (synchronization_basis - drift_cursor)
         emitted = float(_rounded_duration_value(actual))
         return emitted, _normalize_drift_to_nearest_branch(drift_cursor + emitted, synchronization_basis)
@@ -1922,7 +1928,7 @@ def _validate_chrono_checkpoints(rows: list[dict[str, str]], cvc_reference: int)
             )
 
 
-def _mini_pause_structurally_eligible(
+def _resync_pause_structurally_eligible(
     rows: list[dict[str, str]],
     units: list[dict[str, Any]],
     unit_index: int,
@@ -1933,7 +1939,7 @@ def _mini_pause_structurally_eligible(
     return rows[analysis['indices'][-1]]['boundary'] == 'F'
 
 
-def _maybe_insert_mini_pause(
+def _maybe_insert_resync_pause(
     rows: list[dict[str, str]],
     units: list[dict[str, Any]],
     unit_index: int,
@@ -1942,12 +1948,14 @@ def _maybe_insert_mini_pause(
     drift_cursor: float,
     synchronization_basis: float,
 ) -> tuple[dict[str, str], float, float] | None:
-    if not _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
+    if not config['process']['enable_resync_pause']:
+        return None
+    if not _resync_pause_structurally_eligible(rows, units, unit_index, analysis):
         return None
 
-    mini_cfg = config['timing_model']['durations']['pauses']['mini']
-    mini_min = float(mini_cfg['min'])
-    mini_max = float(mini_cfg['max'])
+    resync_cfg = config['timing_model']['durations']['pauses']['resync']
+    resync_min = float(resync_cfg['min'])
+    resync_max = float(resync_cfg['max'])
 
     if drift_cursor < 0:
         target_duration = abs(drift_cursor)
@@ -1956,19 +1964,19 @@ def _maybe_insert_mini_pause(
     else:
         return None
 
-    if target_duration < mini_min or target_duration > mini_max:
+    if target_duration < resync_min or target_duration > resync_max:
         return None
 
-    mini_row = _new_mini_pause_row()
+    resync_row = _new_resync_pause_row()
     pause_duration, new_drift = _pause_duration_and_drift(
-        mini_row,
+        resync_row,
         config,
         drift_cursor,
         synchronization_basis=synchronization_basis,
     )
     if abs(new_drift) >= abs(drift_cursor) and abs(new_drift) >= 0.5:
         return None
-    return mini_row, pause_duration, new_drift
+    return resync_row, pause_duration, new_drift
 
 
 def realize_phone_rows(
@@ -1995,8 +2003,8 @@ def realize_phone_rows(
     lengthened_non_accented_long_vowel_count = 0
     non_accented_long_vowel_count = 0
     left_as_is_non_accented_long_vowel_count = 0
-    mini_pause_insert_count = 0
-    mini_pause_eligible_count = 0
+    resync_pause_insert_count = 0
+    resync_pause_eligible_count = 0
     pause_residual_post_unit_drift_count = 0
     tolerance = float(config['process']['drift_tolerance'])
     inserted_after: dict[int, list[tuple[dict[str, str], float, str]]] = {}
@@ -2028,11 +2036,11 @@ def realize_phone_rows(
                         config,
                         synchronization_basis=synchronization_basis,
                     )
-                    if not _is_mini_pause_row(rows[unit['index']])
+                    if not _is_resync_pause_row(rows[unit['index']])
                     else 0.0
                 )
             )
-            if not _is_mini_pause_row(rows[unit['index']]) and abs(drift_cursor) >= 0.5:
+            if not _is_resync_pause_row(rows[unit['index']]) and abs(drift_cursor) >= 0.5:
                 pause_residual_post_unit_drift_count += 1
             drift_history.append(drift_cursor)
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
@@ -2132,9 +2140,9 @@ def realize_phone_rows(
         last_completed_drift_token = _format_row_drift_token(drift_cursor)
         row_drift_tokens[analysis['indices'][-1]] = last_completed_drift_token
 
-        if _mini_pause_structurally_eligible(rows, units, unit_index, analysis):
-            mini_pause_eligible_count += 1
-        mini_pause = _maybe_insert_mini_pause(
+        if config['process']['enable_resync_pause'] and _resync_pause_structurally_eligible(rows, units, unit_index, analysis):
+            resync_pause_eligible_count += 1
+        resync_pause = _maybe_insert_resync_pause(
             rows,
             units,
             unit_index,
@@ -2143,11 +2151,11 @@ def realize_phone_rows(
             drift_cursor,
             synchronization_basis,
         )
-        if mini_pause is not None:
-            mini_row, mini_duration, drift_cursor = mini_pause
-            mini_pause_insert_count += 1
+        if resync_pause is not None:
+            resync_row, resync_duration, drift_cursor = resync_pause
+            resync_pause_insert_count += 1
             last_completed_drift_token = _format_row_drift_token(drift_cursor)
-            inserted_after.setdefault(analysis['indices'][-1], []).append((mini_row, mini_duration, last_completed_drift_token))
+            inserted_after.setdefault(analysis['indices'][-1], []).append((resync_row, resync_duration, last_completed_drift_token))
             drift_history.append(drift_cursor)
 
     finalized_rows: list[dict[str, str]] = []
@@ -2176,15 +2184,15 @@ def realize_phone_rows(
         max_abs = 0.0
 
     one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
-    mini_pause_row_count = mini_pause_insert_count
-    completed_unit_count = syllable_unit_count + pause_unit_count + mini_pause_row_count
+    resync_pause_row_count = resync_pause_insert_count
+    completed_unit_count = syllable_unit_count + pause_unit_count + resync_pause_row_count
     return {
         'one_mora_ref': one_mora_ref,
         'two_mora_ref': two_mora_ref,
         'three_mora_ref': three_mora_ref,
         'syllable_count': syllable_unit_count,
         'pause_count': pause_unit_count,
-        'mini_pause_count': mini_pause_row_count,
+        'resync_pause_count': resync_pause_row_count,
         'total_unit_count': completed_unit_count,
         'unit_drift': {
             'max': round(max_abs, 4),
@@ -2205,9 +2213,9 @@ def realize_phone_rows(
         'adjusted_non_accented_long_vowel_count': adjusted_non_accented_long_vowel_count,
         'shortened_non_accented_long_vowel_count': shortened_non_accented_long_vowel_count,
         'lengthened_non_accented_long_vowel_count': lengthened_non_accented_long_vowel_count,
-        'inserted_mini_pause_count': mini_pause_insert_count,
-        'eligible_mini_pause_count': mini_pause_eligible_count,
-        'mini_pause_insertion_rate': _diagnostic_rate(mini_pause_insert_count, mini_pause_eligible_count),
+        'inserted_resync_pause_count': resync_pause_insert_count,
+        'eligible_resync_pause_count': resync_pause_eligible_count,
+        'resync_pause_insertion_rate': _diagnostic_rate(resync_pause_insert_count, resync_pause_eligible_count),
         'pause_with_residual_drift_count': pause_residual_post_unit_drift_count,
         'pause_with_residual_drift_rate': _diagnostic_rate(
             pause_residual_post_unit_drift_count,
@@ -2353,7 +2361,7 @@ def reconstruct_tilde_from_phone_rows(rows: list[dict[str, str]]) -> str:
             if row['text'] and set(row['text'].replace(EOL_TEXT, '')) == set() and EOL_TEXT in row['text']:
                 pieces.append('\n' * row['text'].count(EOL_TEXT))
                 previous_boundary = ''
-            elif not _is_mini_pause_row(row):
+            elif not _is_resync_pause_row(row):
                 pieces.append(row['text'])
                 previous_boundary = ''
             continue
@@ -2378,10 +2386,10 @@ def run_tests() -> bool:
         lambda: CONSONANT_HIATUS == set('˙') and CONSONANT_VOWEL_TRANSITION == set('¨'),
         lambda: INPUT_CHARACTER_LABELS['ṣ'] == 'SUD' and INPUT_CHARACTER_LENGTHS['û'] == 'L',
         lambda: REALIZATION_CODE_METADATA['SP']['category'] == 'S' and INPUT_TO_REALIZATION_CODES['ENA'] == ('WA', 'YI'),
-        lambda: REALIZATION_CODE_METADATA[MINI_PAUSE_REALIZATION]['ipa'] == '.' and INPUT_TO_REALIZATION_CODES[MINI_PAUSE_LABEL] == (MINI_PAUSE_REALIZATION,),
+        lambda: REALIZATION_CODE_METADATA[RESYNC_PAUSE_REALIZATION]['ipa'] == '.' and INPUT_TO_REALIZATION_CODES[RESYNC_PAUSE_LABEL] == (RESYNC_PAUSE_REALIZATION,),
         lambda: derive_original_tilde_text('u+ana&šar~.ri') == 'u+ana šar.ri',
         lambda: _test_emphatic_vowel_and_row_format(),
-        lambda: _test_mini_pause_row_contract(),
+        lambda: _test_resync_pause_row_contract(),
         lambda: _test_boundary_reconstruction(),
         lambda: _test_transition_resolution(),
         lambda: _test_dual_stream_generation(),
@@ -2401,13 +2409,13 @@ def _test_emphatic_vowel_and_row_format() -> bool:
     return parse_phone_row(line) == rows[0] and rows[0]['duration'] == PHONE_ROW_DURATION_PLACEHOLDER
 
 
-def _test_mini_pause_row_contract() -> bool:
-    row = _new_mini_pause_row()
+def _test_resync_pause_row_contract() -> bool:
+    row = _new_resync_pause_row()
     return (
-        row['label'] == MINI_PAUSE_LABEL
-        and row['type'] == MINI_PAUSE_TYPE
-        and row['realization'] == MINI_PAUSE_REALIZATION
-        and parse_phone_row(serialize_phone_row(row))['text'] == MINI_PAUSE_TEXT
+        row['label'] == RESYNC_PAUSE_LABEL
+        and row['type'] == RESYNC_PAUSE_TYPE
+        and row['realization'] == RESYNC_PAUSE_REALIZATION
+        and parse_phone_row(serialize_phone_row(row))['text'] == RESYNC_PAUSE_TEXT
     )
 
 

@@ -1,10 +1,10 @@
 ---
 req_id: REQ-043
-status: Draft
+status: Implemented
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 related_adrs: 'ADR-046'
 implemented_by: 'CR-083'
 ---
@@ -54,29 +54,29 @@ available hidden default.
 # Acceptance Criteria
 *Verifiable conditions that must be met. Use Given/When/Then format where appropriate.*
 
-- [ ] Given the approved grouped config surface is materialized, when the
+- [x] Given the approved grouped config surface is materialized, when the
       phonetize timing-model process controls are inspected, then
       `enable_resync_pause: false` appears immediately after
       `drift_tolerance`.
-- [ ] Given the approved grouped config surface is materialized, when pause-band
+- [x] Given the approved grouped config surface is materialized, when pause-band
       keys are inspected, then `phonetize.process.timing_model.durations.pauses`
       uses `resync` instead of `mini` as the non-punctuation recovery pause
       band name.
-- [ ] Given the phonetizer is executed with `enable_resync_pause = false`, when
+- [x] Given the phonetizer is executed with `enable_resync_pause = false`, when
       a boundary would otherwise qualify for algorithmic recovery pause
       insertion, then no inserted `MEN|...|MP|...` row is emitted.
-- [ ] Given the phonetizer is executed with `enable_resync_pause = true`, when
+- [x] Given the phonetizer is executed with `enable_resync_pause = true`, when
       a boundary qualifies for algorithmic recovery pause insertion, then the
       existing row contract `MEN`, `M`, `MP`, and one literal space in `text`
       remains unchanged.
-- [ ] Given frontmatter diagnostics, metrics extraction, and human-readable
+- [x] Given frontmatter diagnostics, metrics extraction, and human-readable
       metrics output are inspected, when pause-insertion statistics are named,
       then the canonical keys and labels use `resync_pause_*` terminology rather
       than `mini_pause_*` terminology.
-- [ ] Given public phonetizer documentation is updated, when the recovery pause
+- [x] Given public phonetizer documentation is updated, when the recovery pause
       mechanism is described, then it is called a `resync pause` and the row
       identity codes are documented as unchanged.
-- [ ] Given config and CLI help surfaces are updated, when old paths or labels
+- [x] Given config and CLI help surfaces are updated, when old paths or labels
       are checked, then the approved path is `pauses.resync` and the process
       toggle is `enable_resync_pause`.
 
@@ -114,7 +114,7 @@ available hidden default.
 ---
 
 # Open Questions
-- [ ] None.
+- [x] None.
 
 ---
 

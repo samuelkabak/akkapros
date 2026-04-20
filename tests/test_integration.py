@@ -8,10 +8,10 @@ from pathlib import Path
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text, load_config_file
 from akkapros.lib.frontmatter import compose_text_document, split_frontmatter
 from akkapros.lib.phonetize import (
-    MINI_PAUSE_LABEL,
-    MINI_PAUSE_REALIZATION,
-    MINI_PAUSE_TEXT,
-    MINI_PAUSE_TYPE,
+    RESYNC_PAUSE_LABEL,
+    RESYNC_PAUSE_REALIZATION,
+    RESYNC_PAUSE_TEXT,
+    RESYNC_PAUSE_TYPE,
     parse_phone_row,
     reconstruct_tilde_from_phone_rows,
 )
@@ -62,8 +62,8 @@ GOLD_REGULAR_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 25.980099502487562,
-            "percent_v": 28.885572139303484,
+            "percent_c": 27.197916666666664,
+            "percent_v": 30.239583333333332,
             "mean_c_ms": 108.79166666666667,
             "mean_v_ms": 126.21739130434783,
             "delta_c_ms": 53.581697097879314,
@@ -74,9 +74,9 @@ GOLD_REGULAR_METRICS = {
             "npvi_v": 19.01349336499547,
         },
         "unit_drift": {
-            "max": 68.0,
-            "mean": 4.3333,
-            "stddev": 31.2093,
+            "max": 62.0,
+            "mean": 13.1481,
+            "stddev": 31.4298,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -174,8 +174,8 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 25.980099502487562,
-            "percent_v": 28.885572139303484,
+            "percent_c": 27.197916666666664,
+            "percent_v": 30.239583333333332,
             "mean_c_ms": 108.79166666666667,
             "mean_v_ms": 126.21739130434783,
             "delta_c_ms": 53.581697097879314,
@@ -186,9 +186,9 @@ GOLD_MONO_METRICS = {
             "npvi_v": 19.01349336499547,
         },
         "unit_drift": {
-            "max": 68.0,
-            "mean": 4.3333,
-            "stddev": 31.2093,
+            "max": 62.0,
+            "mean": 13.1481,
+            "stddev": 31.4298,
         },
         "prominence_statistics": {
             "function_word_count": 1,
@@ -227,8 +227,8 @@ GOLD_MONO_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 29.023474178403756,
-            "percent_v": 31.746478873239436,
+            "percent_c": 29.438095238095237,
+            "percent_v": 32.2,
             "mean_c_ms": 128.79166666666666,
             "mean_v_ms": 147.0,
             "delta_c_ms": 82.83617324105589,
@@ -240,8 +240,8 @@ GOLD_MONO_METRICS = {
         },
         "unit_drift": {
             "max": 116.0,
-            "mean": -3.0357,
-            "stddev": 39.2251,
+            "mean": 2.4074,
+            "stddev": 39.7131,
         },
     },
     "accentuation_stats": {
@@ -423,14 +423,14 @@ def _assert_phone_artifact(path: Path) -> None:
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['unit_drift']
     assert 'syllable_count' in frontmatter['metadata']['data']['phonetize']
     assert 'pause_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'mini_pause_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'resync_pause_count' in frontmatter['metadata']['data']['phonetize']
     assert 'total_unit_count' in frontmatter['metadata']['data']['phonetize']
     assert 'unit_drift_extension_rate' in frontmatter['metadata']['data']['phonetize']
     assert 'non_accented_long_vowel_count' in frontmatter['metadata']['data']['phonetize']
     assert 'left_as_is_non_accented_long_vowel_count' in frontmatter['metadata']['data']['phonetize']
     assert 'drift_tolerance_effect' in frontmatter['metadata']['data']['phonetize']
-    assert 'eligible_mini_pause_count' in frontmatter['metadata']['data']['phonetize']
-    assert 'mini_pause_insertion_rate' in frontmatter['metadata']['data']['phonetize']
+    assert 'eligible_resync_pause_count' in frontmatter['metadata']['data']['phonetize']
+    assert 'resync_pause_insertion_rate' in frontmatter['metadata']['data']['phonetize']
     assert 'pause_with_residual_drift_count' in frontmatter['metadata']['data']['phonetize']
     assert 'pause_with_residual_drift_rate' in frontmatter['metadata']['data']['phonetize']
 
@@ -851,46 +851,47 @@ def test_phonetizer_cli_keeps_short_vowel_anchor_under_higher_cvc_reference(tmp_
     assert vowel_row['duration'] == '0110'
 
 
-def test_phonetizer_cli_inserts_mini_pause_without_changing_reconstructed_tilde(tmp_path: Path) -> None:
-    outdir = tmp_path / 'phonetizer_mini_pause'
+def test_phonetizer_cli_inserts_resync_pause_without_changing_reconstructed_tilde(tmp_path: Path) -> None:
+    outdir = tmp_path / 'phonetizer_resync_pause'
     outdir.mkdir(parents=True, exist_ok=True)
 
-    tilde_file = outdir / 'mini_tilde.txt'
+    tilde_file = outdir / 'resync_tilde.txt'
     tilde_file.write_text('qat pa\n', encoding='utf-8')
 
     config = apply_overrides(
         _load_regression_config(),
         {
+            ('phonetize', 'process.timing_model.enable_resync_pause'): True,
             ('phonetize', 'process.timing_model.durations.cvc_reference'): 350,
-            ('phonetize', 'process.timing_model.durations.pauses.mini.min'): 50,
-            ('phonetize', 'process.timing_model.durations.pauses.mini.max'): 80,
+            ('phonetize', 'process.timing_model.durations.pauses.resync.min'): 50,
+            ('phonetize', 'process.timing_model.durations.pauses.resync.max'): 80,
         },
     )
-    config_path = outdir / 'mini.yaml'
+    config_path = outdir / 'resync.yaml'
     config_path.write_text(dump_config_text(config), encoding='utf-8')
 
     _run_cli(
         'akkapros.cli.phonetizer',
         str(tilde_file),
         '-p',
-        'mini',
+        'resync',
         '--outdir',
         str(outdir),
         '--conf',
         str(config_path),
     )
 
-    phone_text = _read_text(outdir / 'mini_phone.txt')
+    phone_text = _read_text(outdir / 'resync_phone.txt')
     frontmatter, phone_body = split_frontmatter(phone_text)
     assert frontmatter is not None
     phone_rows = [parse_phone_row(line) for line in phone_body.strip().splitlines()]
 
-    mini_rows = [row for row in phone_rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
-    assert len(mini_rows) == 1
-    assert mini_rows[0]['label'] == MINI_PAUSE_LABEL
-    assert mini_rows[0]['type'] == MINI_PAUSE_TYPE
-    assert mini_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_rows[0]['duration'] == '0064'
+    resync_rows = [row for row in phone_rows if row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT]
+    assert len(resync_rows) == 1
+    assert resync_rows[0]['label'] == RESYNC_PAUSE_LABEL
+    assert resync_rows[0]['type'] == RESYNC_PAUSE_TYPE
+    assert resync_rows[0]['realization'] == RESYNC_PAUSE_REALIZATION
+    assert resync_rows[0]['duration'] == '0064'
     assert reconstruct_tilde_from_phone_rows(phone_rows) == 'qat pa\n'
     assert frontmatter['metadata']['data']['phonetize']['phone_row_count'] == len(phone_rows)
 
@@ -1206,20 +1207,20 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
         "Total words: 7 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
-        "%C: 25.98%",
-        "%V: 28.89%",
+        "%C: 27.20%",
+        "%V: 30.24%",
             "%C: 27.95%",
             "%V: 32.56%",
         "VarcoC: 49.25",
             "VarcoC: 54.54",
         "Accentuation rate: 21.74%",
         "Accentuated syllables: 5 syllables",
-        "Unit drift max: 68.00 ms",
+        "Unit drift max: 62.00 ms",
             "Unit drift max: 116.00 ms",
         "Phonetizer diagnostics:",
         "Unit drift extension:",
         "Drift tolerance effect:",
-        "Inserted mini pauses:",
+        "Inserted resync pauses:",
         "Pauses with residual drift:",
     ]:
         assert expected_line in metrics_text
@@ -1313,10 +1314,10 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
         "Total syllables: 23 syllables",
         "Total words: 8 words",
         "Total words: 7 words",
-        "%C: 25.98%",
-        "%V: 28.89%",
-            "%C: 29.02%",
-            "%V: 31.75%",
+        "%C: 27.20%",
+        "%V: 30.24%",
+            "%C: 29.44%",
+            "%V: 32.20%",
         "VarcoC: 49.25",
             "VarcoC: 64.32",
         "Accentuated syllables: 7 syllables",
@@ -1630,3 +1631,10 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
     frontmatter, _ = split_frontmatter(_read_text(proc_file))
     assert frontmatter is not None
     assert frontmatter["metadata"]["options"]["preserve_case"] is True
+
+
+
+
+
+
+

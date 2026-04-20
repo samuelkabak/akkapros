@@ -114,6 +114,9 @@ phonetize:
       accentuation_distribution_policy: "80_20"
       # maximum local timing mismatch tolerated before the algorithm must fail
       drift_tolerance: 19
+      # Enable algorithmic resynchronization-pause insertion at eligible
+      # non-punctuation boundaries.
+      enable_resync_pause: false
       durations:
         # Upper ordinary duration for one vowel or consonant. Model-facing ceiling from
         # comparative duration limits; used as a validation ceiling for class-local
@@ -236,14 +239,14 @@ phonetize:
             # this wider legality ceiling.
             elongation_max: 280 
         pauses:
-          # Default mini-pause band. Non-punctuation recovery gap used only when one
-          # legal mini duration lands the stream on an equivalent beat checkpoint:
+          # Default resync-pause band. Non-punctuation recovery gap used only when one
+          # legal resync duration lands the stream on an equivalent beat checkpoint:
           # directly to 0 for negative drift, or to +cvc_reference for positive drift
           # before the hard-coded beat fold maps that checkpoint back to 0.
-          mini:
-            # Minimum mini-pause duration.
+          resync:
+            # Minimum resync-pause duration.
             min: 100
-            # Maximum mini-pause duration.
+            # Maximum resync-pause duration.
             max: 200
           # Default short-pause band. Empirically grounded short-pause region from
           # comparative studies. Rhythmic alignment remains possible when at least one

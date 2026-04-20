@@ -46,6 +46,7 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "speech:" not in text
     assert loaded["phonetize"]["process"]["timing_model"]["accentuation_distribution_policy"] == "80_20"
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
+    assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is False
     durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
     assert durations["segmental_floor"] == 20
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
@@ -60,8 +61,13 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert durations["consonants"]["sonorant"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["sonorant"]["perception_limits"]["gemination_max"] == 275
     assert durations["vowels"]["perception_limits"]["elongation_max"] == 280
+    assert durations["pauses"]["resync"]["min"] == 100
+    assert durations["pauses"]["resync"]["max"] == 200
     assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
     assert "short_pause_policy" not in loaded["phonetize"]["process"]["timing_model"]
+    assert text.index("enable_resync_pause: false") > text.index("drift_tolerance: 19")
+    assert "mini:" not in text
+    assert "resync:" in text
 
 
 def test_metrics_schema_and_help_no_longer_expose_csv() -> None:
@@ -349,9 +355,13 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--set",
             "phonetize.process.timing_model.geminate_policy=cumulative",
             "--set",
+            "phonetize.process.timing_model.enable_resync_pause=true",
+            "--set",
             "phonetize.process.timing_model.durations.consonants.closure.geminate_coda_ratio=0.55",
             "--set",
             "phonetize.process.timing_model.drift_tolerance=21",
+            "--set",
+            "phonetize.process.timing_model.durations.pauses.resync.min=90",
         ],
         cwd=REPO_ROOT,
         env=env,
@@ -363,8 +373,10 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
 
     loaded = load_config_file(config_path)
     assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
+    assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is True
     assert loaded["phonetize"]["process"]["timing_model"]["durations"]["consonants"]["closure"]["geminate_coda_ratio"] == 0.55
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 21
+    assert loaded["phonetize"]["process"]["timing_model"]["durations"]["pauses"]["resync"]["min"] == 90
 
 
 def test_confwriter_list_exposes_geminate_coda_ratio_path(tmp_path: Path) -> None:
@@ -386,6 +398,27 @@ def test_confwriter_list_exposes_geminate_coda_ratio_path(tmp_path: Path) -> Non
     assert "phonetize.process.timing_model.durations.consonants.closure.geminate_coda_ratio { NUMBER }" in proc.stdout
     assert "phonetize.process.timing_model.durations.consonants.fricative.geminate_coda_ratio { NUMBER }" in proc.stdout
     assert "phonetize.process.timing_model.durations.consonants.sonorant.geminate_coda_ratio { NUMBER }" in proc.stdout
+
+
+def test_confwriter_list_exposes_resync_paths(tmp_path: Path) -> None:
+    config_path = tmp_path / "conf.yaml"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--list", "resync"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert "phonetize.process.timing_model.enable_resync_pause { true | false }" in proc.stdout
+    assert "phonetize.process.timing_model.durations.pauses.resync.min { int }" in proc.stdout
+    assert "phonetize.process.timing_model.durations.pauses.resync.max { int }" in proc.stdout
 
 
 def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:

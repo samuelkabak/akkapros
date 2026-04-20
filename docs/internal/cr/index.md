@@ -4,7 +4,7 @@ This index lists Change Requests. It is maintained by `scripts/update-indexes.py
 
 [085. Add Global Duration Scale to Phonetizer Timing Model](085-add-global-duration-scale-to-phonetizer-timing-model.md) - Draft
 [084. Add Pre-Pausal Final Duration Anchors](084-add-pre-pausal-final-duration-anchors.md) - Draft
-[083. Rename Mini Pause to Resync Pause and Add Toggle](083-rename-mini-pause-to-resync-pause-and-add-toggle.md) - Draft
+[083. Rename Mini Pause to Resync Pause and Add Toggle](083-rename-mini-pause-to-resync-pause-and-add-toggle.md) - Done
 [082. Add Corrective Geminate Coda Share Ratio](082-add-corrective-geminate-coda-share-ratio.md) - Done
 [081. Remove Phonetize Speech Config and Dead Speech Controls](081-remove-phonetize-speech-config-and-dead-speech-controls.md) - Done
 [080. Add Half-Beat Synchronization for Mono and ophone](080-add-mora-mode-aware-beat-alignment-and-relax-original-ophone-timing.md) - Draft

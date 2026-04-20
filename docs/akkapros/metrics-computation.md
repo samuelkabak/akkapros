@@ -194,11 +194,11 @@ also carries them through as phonetizer diagnostics in the derived report. The
 rendered table keeps the same count/population/rate structure so corpus-scale
 comparisons can be read as frequencies over explicit populations instead of raw
 row totals. Fresh artifacts use `syllable_count`, `pause_count`,
-`mini_pause_count`, `total_unit_count`, `unit_drift_extension_*`,
+`resync_pause_count`, `total_unit_count`, `unit_drift_extension_*`,
 `non_accented_long_vowel_count`,
 `left_as_is_non_accented_long_vowel_count`, `drift_tolerance_effect`,
-`inserted_mini_pause_count`, `eligible_mini_pause_count`,
-`mini_pause_insertion_rate`, and `pause_with_residual_drift_*`.
+`inserted_resync_pause_count`, `eligible_resync_pause_count`,
+`resync_pause_insertion_rate`, and `pause_with_residual_drift_*`.
 
 ## Reading the Outputs
 

@@ -70,7 +70,7 @@ def _validate_phonetizer_target() -> None:
     )
 
     rows_source = _source_text(phonetize.realize_phone_rows)
-    for fragment in ("_pause_duration_and_drift(", "_maybe_insert_mini_pause("):
+    for fragment in ("_pause_duration_and_drift(", "_maybe_insert_resync_pause("):
         if fragment not in rows_source:
             raise FlowchartSyncError(
                 f"Flowchart source for phonetizer flowchart is missing required fragment {fragment!r}"
@@ -119,7 +119,7 @@ def _validate_phonetizer_phase2_target() -> None:
             "if supports_post_accent_cleanup:",
             "elif abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':",
             "if _should_fold_completed_syllable(rows, analysis):",
-            "mini_pause = _maybe_insert_mini_pause(",
+            "resync_pause = _maybe_insert_resync_pause(",
             "_validate_chrono_checkpoints(",
         ),
         "phonetizer Phase 2 flowchart",
@@ -291,7 +291,7 @@ FLOWCHART_TARGETS: tuple[FlowchartTarget, ...] = (
             "    N -->|\"no\"| P[\"Keep anchored syllable timing\"]",
             "    O --> Q{\"Completed boundary is F?\"}",
             "    P --> Q",
-            "    Q -->|\"yes\"| R[\"Fold drift to the nearest beat-equivalent branch\\nand optionally insert one mini pause\"]",
+            "    Q -->|\"yes\"| R[\"Fold drift to the nearest beat-equivalent branch\\nand optionally insert one resync pause\"]",
             "    Q -->|\"no\"| S[\"Carry raw drift into the next linked syllable\"]",
             "    L --> T[\"Phase 3 assign row-level intonation\"]",
             "    R --> T",
@@ -358,9 +358,9 @@ FLOWCHART_TARGETS: tuple[FlowchartTarget, ...] = (
             "    N --> O",
             "    O -->|\"F boundary\"| P[\"Fold drift to the nearest beat-equivalent branch\"]",
             "    O -->|\"I, E, L, or X\"| Q[\"Carry raw drift forward\\ninside the linked prosodic unit\"]",
-            "    P --> R{\"Mini pause exactly legal here?\"}",
+            "    P --> R{\"Resync pause exactly legal here?\"}",
             "    Q --> S[\"Write row drift tokens\\nand continue to the next unit\"]",
-            "    R -->|\"yes\"| T[\"Insert one mini pause\\nand update drift again\"]",
+            "    R -->|\"yes\"| T[\"Insert one resync pause\\nand update drift again\"]",
             "    R -->|\"no\"| S",
             "    T --> S",
             "    D --> U[\"After all units, write realized durations and drift tokens\\nthen validate chrono checkpoints\"]",

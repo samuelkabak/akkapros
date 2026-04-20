@@ -95,7 +95,7 @@ For pause rows:
 | `S` | statement or line-final pause |
 | `C` | continuation pause |
 | `I` | internal or sanitizing punctuation-owned pause |
-| `M` | inserted mini pause |
+| `M` | inserted resync pause |
 
 ### `length`
 
@@ -249,7 +249,7 @@ realization code, IPA, MBROLA/X-SAMPA export, category, type, and emphaticity.
 
 Realization-side constraints:
 
-- `MP` is the dedicated mini-pause realization code
+- `MP` is the dedicated resync-pause realization code
 - `SP` and `ZP` remain the punctuation-owned short and long pause realizations
 - downstream `.pho` export derives its symbol directly from this table
 
@@ -318,7 +318,7 @@ Association constraints:
 
 - realization metadata is looked up through the realization inventory, not
   repeated here
-- `MEN` exists only for algorithmically inserted mini pauses
+- `MEN` exists only for algorithmically inserted resync pauses
 - `SES` and `ZEN` remain the canonical punctuation-owned pause labels
 
 ## Pause and Text Conventions
@@ -329,12 +329,12 @@ The phonetizer distinguishes three pause identities at the row-contract level:
 | --- | --- | --- | --- | --- | --- |
 | short punctuation-owned pause | `SES` | `Q`, `E`, `S`, `C`, or `I` | `S` | `SP` | punctuation suite text |
 | long punctuation-owned pause | `ZEN` | `Q`, `E`, `S`, `C`, or `I` | `L` | `ZP` | punctuation suite text or `<EOL>` |
-| inserted mini pause | `MEN` | `M` | `S` | `MP` | one literal space |
+| inserted resync pause | `MEN` | `M` | `S` | `MP` | one literal space |
 
 Text-field constraints:
 
 - `<EOL>` is the serialized representation of a line break in a pause row
-- an inserted mini pause uses exactly one literal ASCII space in `text`
+- an inserted resync pause uses exactly one literal ASCII space in `text`
 - downstream parsers must preserve the final field exactly as written
 
 ## Serialization and Parsing Constraints
@@ -356,7 +356,7 @@ Text-field constraints:
   prosodic-unit ends
 - `_ophone.txt` is derived from `_tilde` by removing `~` and replacing `&`
   with ordinary spaces while preserving `+`
-- mini pauses are phone-row artifacts only and are ignored when reconstructing
+- resync pauses are phone-row artifacts only and are ignored when reconstructing
   upstream lexical `_tilde` text
 - metrics and printer consume the phone-row stream directly; they do not need
   to recompute pause strength or infer consonant class from raw glyphs

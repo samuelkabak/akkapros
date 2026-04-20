@@ -1119,7 +1119,7 @@ def _extract_phonetizer_diagnostics(input_frontmatter: Dict | None) -> Dict[str,
     field_specs: tuple[tuple[str, tuple[str, ...], type], ...] = (
         ('syllable_count', ('syllable_count', 'syllable_unit_count'), int),
         ('pause_count', ('pause_count', 'pause_unit_count'), int),
-        ('mini_pause_count', ('mini_pause_count', 'mini_pause_row_count'), int),
+        ('resync_pause_count', ('resync_pause_count',), int),
         ('total_unit_count', ('total_unit_count', 'completed_unit_count'), int),
         ('unit_drift_extension_count', ('unit_drift_extension_count', 'post_unit_drift_extension_count'), int),
         ('unit_drift_extension_rate', ('unit_drift_extension_rate', 'post_unit_drift_extension_rate'), float),
@@ -1130,9 +1130,9 @@ def _extract_phonetizer_diagnostics(input_frontmatter: Dict | None) -> Dict[str,
         ('adjusted_non_accented_long_vowel_count', ('adjusted_non_accented_long_vowel_count',), int),
         ('shortened_non_accented_long_vowel_count', ('shortened_non_accented_long_vowel_count',), int),
         ('lengthened_non_accented_long_vowel_count', ('lengthened_non_accented_long_vowel_count',), int),
-        ('inserted_mini_pause_count', ('inserted_mini_pause_count', 'mini_pause_insert_count'), int),
-        ('eligible_mini_pause_count', ('eligible_mini_pause_count', 'mini_pause_eligible_count', 'mini_pause_insert_denominator'), int),
-        ('mini_pause_insertion_rate', ('mini_pause_insertion_rate', 'mini_pause_insert_rate', 'mini_pause_success_rate_over_eligible'), float),
+        ('inserted_resync_pause_count', ('inserted_resync_pause_count',), int),
+        ('eligible_resync_pause_count', ('eligible_resync_pause_count',), int),
+        ('resync_pause_insertion_rate', ('resync_pause_insertion_rate',), float),
         ('pause_with_residual_drift_count', ('pause_with_residual_drift_count', 'pause_residual_post_unit_drift_count'), int),
         ('pause_with_residual_drift_rate', ('pause_with_residual_drift_rate', 'pause_residual_post_unit_drift_rate'), float),
     )
@@ -1656,7 +1656,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
         lines.append(f"\nPhonetizer diagnostics:")
         lines.append(
             f"  Total units: {diagnostics['total_unit_count']} = "
-            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['mini_pause_count']} mini pauses"
+            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['resync_pause_count']} resync pauses"
         )
         lines.append(
             f"  Unit drift extension: {diagnostics['unit_drift_extension_count']} / "
@@ -1671,8 +1671,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
                 f"  Drift tolerance effect: {float(diagnostics['drift_tolerance_effect']) * 100:.2f}%"
             )
         lines.append(
-            f"  Inserted mini pauses: {diagnostics['inserted_mini_pause_count']} / "
-            f"{diagnostics['eligible_mini_pause_count']} = {float(diagnostics['mini_pause_insertion_rate']) * 100:.2f}%"
+            f"  Inserted resync pauses: {diagnostics['inserted_resync_pause_count']} / "
+            f"{diagnostics['eligible_resync_pause_count']} = {float(diagnostics['resync_pause_insertion_rate']) * 100:.2f}%"
         )
         lines.append(
             f"  Pauses with residual drift: {diagnostics['pause_with_residual_drift_count']} / "
@@ -1738,7 +1738,7 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
         lines.append(f"\nPhonetizer diagnostics:")
         lines.append(
             f"  Total units: {diagnostics['total_unit_count']} = "
-            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['mini_pause_count']} mini pauses"
+            f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['resync_pause_count']} resync pauses"
         )
         lines.append(
             f"  Unit drift extension: {diagnostics['unit_drift_extension_count']} / "
@@ -1753,8 +1753,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
                 f"  Drift tolerance effect: {float(diagnostics['drift_tolerance_effect']) * 100:.2f}%"
             )
         lines.append(
-            f"  Inserted mini pauses: {diagnostics['inserted_mini_pause_count']} / "
-            f"{diagnostics['eligible_mini_pause_count']} = {float(diagnostics['mini_pause_insertion_rate']) * 100:.2f}%"
+            f"  Inserted resync pauses: {diagnostics['inserted_resync_pause_count']} / "
+            f"{diagnostics['eligible_resync_pause_count']} = {float(diagnostics['resync_pause_insertion_rate']) * 100:.2f}%"
         )
         lines.append(
             f"  Pauses with residual drift: {diagnostics['pause_with_residual_drift_count']} / "

@@ -34,10 +34,10 @@ from akkapros.lib.frontmatter import (
 )
 from akkapros.lib.phonetize import (
     EOL_TEXT,
-    MINI_PAUSE_LABEL,
-    MINI_PAUSE_TEXT,
-    MINI_PAUSE_REALIZATION,
-    MINI_PAUSE_TYPE,
+    RESYNC_PAUSE_LABEL,
+    RESYNC_PAUSE_TEXT,
+    RESYNC_PAUSE_REALIZATION,
+    RESYNC_PAUSE_TYPE,
     parse_phone_row,
     realize_phone_streams,
     reconstruct_tilde_from_phone_rows,
@@ -910,10 +910,10 @@ def _render_ipa_pause_row(row: dict[str, str]) -> str:
 
 def _render_pause_row(row: dict[str, str], mode: str) -> str:
     if (
-        row['label'] == MINI_PAUSE_LABEL
-        and row['type'] == MINI_PAUSE_TYPE
-        and row['realization'] == MINI_PAUSE_REALIZATION
-        and row['text'] == MINI_PAUSE_TEXT
+        row['label'] == RESYNC_PAUSE_LABEL
+        and row['type'] == RESYNC_PAUSE_TYPE
+        and row['realization'] == RESYNC_PAUSE_REALIZATION
+        and row['text'] == RESYNC_PAUSE_TEXT
     ):
         if mode == 'ipa':
             return '.'
@@ -1591,4 +1591,11 @@ def run_tests() -> bool:
 
     log_selftest_summary(logger, category, passed, total)
     return passed == total
+
+
+
+
+
+
+
 

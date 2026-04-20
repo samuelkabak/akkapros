@@ -44,7 +44,7 @@ flowchart TD
     N -->|"no"| P["Keep anchored syllable timing"]
     O --> Q{"Completed boundary is F?"}
     P --> Q
-    Q -->|"yes"| R["Fold drift to the nearest beat-equivalent branch\nand optionally insert one mini pause"]
+    Q -->|"yes"| R["Fold drift to the nearest beat-equivalent branch\nand optionally insert one resync pause"]
     Q -->|"no"| S["Carry raw drift into the next linked syllable"]
     L --> T["Phase 3 assign row-level intonation"]
     R --> T
@@ -84,14 +84,14 @@ Important fields:
 - `drift` is the unit-drift token written after the most recently completed syllable or pause
 - `intonation` is the Phase 3 row token
 - `text` preserves the source glyph, punctuation suite, `<EOL>`, or the
-  inserted mini-pause marker
+  inserted resync-pause marker
 
 Pause rows use the same code inventory as before:
 
 - short-like pauses use `SES` / `SP`
 - long pauses and line breaks use `ZEN` / `ZP`
 
-The phonetizer may also insert a non-punctuation mini-pause row during Phase 2.
+The phonetizer may also insert a non-punctuation resync-pause row during Phase 2.
 That row is a phone-row artifact only. It is not part of lexical structure and
 is ignored when reconstructing upstream `_tilde` text from finalized rows.
 
@@ -351,9 +351,9 @@ flowchart TD
     N --> O
     O -->|"F boundary"| P["Fold drift to the nearest beat-equivalent branch"]
     O -->|"I, E, L, or X"| Q["Carry raw drift forward\ninside the linked prosodic unit"]
-    P --> R{"Mini pause exactly legal here?"}
+    P --> R{"Resync pause exactly legal here?"}
     Q --> S["Write row drift tokens\nand continue to the next unit"]
-    R -->|"yes"| T["Insert one mini pause\nand update drift again"]
+    R -->|"yes"| T["Insert one resync pause\nand update drift again"]
     R -->|"no"| S
     T --> S
     D --> U["After all units, write realized durations and drift tokens\nthen validate chrono checkpoints"]
@@ -449,7 +449,7 @@ In both cases, once cleanup is active it aims at zero residual drift within the
 legal range rather than merely trimming mismatch down to the tolerance boundary.
 
 1. If the current boundary is eligible and the stream is synchronized at the
-  completed `F` boundary, optionally insert one mini pause using the
+  completed `F` boundary, optionally insert one resync pause using the
   equivalent-beat rule.
 
 ### Hard Short Vowels
@@ -464,7 +464,7 @@ Consequences:
 
 - `CV` and `CVC` syllables may leave substantial drift behind
 - that drift must be discharged later by a long vowel, a punctuation-owned
-  pause, a mini pause, or retained drift
+  pause, a resync pause, or retained drift
 
 ### Long-Vowel Recovery
 
@@ -549,40 +549,40 @@ They usually reset drift in normal configurations because their legal space is
 much larger, but the rule is still "closest legal discharge," not an automatic
 magical reset.
 
-### Mini Pauses
+### Resync Pauses
 
-Mini pauses are non-punctuation recovery gaps inserted by the phonetizer.
+Resync pauses are non-punctuation recovery gaps inserted by the phonetizer.
 
 They are not lexical phoneme structure and are not punctuation-owned pauses.
 
-The live solver inserts at most one mini pause at an eligible boundary when all
+The live solver inserts at most one resync pause at an eligible boundary when all
 of the following are true:
 
 - the next unit is another syllable, not an existing pause row
 - the current syllable ends at a plain word boundary (`F`)
 
-Mini pauses use the same beat-equivalence logic as drift folding.
+Resync pauses use the same beat-equivalence logic as drift folding.
 
 If the current drift is negative, the target checkpoint is `0`, so the legal
-mini-pause duration must be exactly `abs(drift)`.
+resync-pause duration must be exactly `abs(drift)`.
 
 If the current drift is positive, the target checkpoint is
-`+synchronization_basis`, so the legal mini-pause duration must be exactly
+`+synchronization_basis`, so the legal resync-pause duration must be exactly
 `synchronization_basis - drift`.
 
-The mini pause is inserted only when that exact target duration lies inside:
+The resync pause is inserted only when that exact target duration lies inside:
 
-- `pauses.mini.min .. pauses.mini.max`
+- `pauses.resync.min .. pauses.resync.max`
 
 When inserted, the pause lands the stream on an equivalent beat checkpoint,
-which then folds back to zero drift in the canonical interval. Because mini
+which then folds back to zero drift in the canonical interval. Because resync
 pauses are only eligible at plain `F` boundaries, they are always evaluated
 after the merged prosodic unit has been completed and folded.
 
-The default mini band is:
+The default resync band is:
 
-- `pauses.mini.min = 100`
-- `pauses.mini.max = 200`
+- `pauses.resync.min = 100`
+- `pauses.resync.max = 200`
 
 ## Worked Examples
 
@@ -618,26 +618,26 @@ space. If the beat target demands more duration and the configured long-vowel
 range still has room, the solver may extend that long vowel before carrying any
 remaining drift forward.
 
-### Mini-pause examples
+### Resync-pause examples
 
-With a diagnostic mini band of `50 .. 80 ms` and `cvc_reference = 350`, the
+With a diagnostic resync band of `50 .. 80 ms` and `cvc_reference = 350`, the
 sequence `qat pa` leaves the first word `54 ms` ahead of the beat.
 
 Because that boundary is a plain word boundary, the next unit is another
 syllable, and no punctuation-owned pause already exists there, the phonetizer
-may insert one `54 ms` mini pause before `pa`.
+may insert one `54 ms` resync pause before `pa`.
 
 Positive drift works the same way against the next equivalent checkpoint.
 With `synchronization_basis = 300`, the syllable `ša` realizes `72 ms` behind the beat.
-If the mini band includes `228 ms`, the phonetizer may insert one `228 ms`
-mini pause because `72 + 228 = 300`, and `+300` is synchronization-equivalent
+If the resync band includes `228 ms`, the phonetizer may insert one `228 ms`
+resync pause because `72 + 228 = 300`, and `+300` is synchronization-equivalent
 to `0` after beat folding. In mono timing or in `_ophone.txt`, the same rule is
 evaluated against the half beat instead.
 
-That mini pause is visible in the phone-row stream but not in reconstructed
+That resync pause is visible in the phone-row stream but not in reconstructed
 upstream `_tilde` text.
 
-Under the current row contract, an inserted mini pause is emitted as a
+Under the current row contract, an inserted resync pause is emitted as a
 dedicated silence row such as `MEN|S|M|S|S|N|P|MP|0064|+000|M0C|<space>`.
 The last field is one literal space character, not a named sentinel token.
 
@@ -653,7 +653,7 @@ The accentuated stream assigns row-level contour from:
 - exclamation pauses
 - continuation pauses
 
-Internal pauses, including inserted mini pauses, do not impose a clause-final
+Internal pauses, including inserted resync pauses, do not impose a clause-final
 contour.
 
 The original stream now shares pause-governed contour assignment for question,
@@ -677,17 +677,17 @@ stream:
 
 The same front matter now also carries human-readable recovery diagnostics:
 
-- `syllable_count`, `pause_count`, `mini_pause_count`, and `total_unit_count`
+- `syllable_count`, `pause_count`, `resync_pause_count`, and `total_unit_count`
 - `non_accented_long_vowel_count`, `left_as_is_non_accented_long_vowel_count`, and `drift_tolerance_effect`
-- `inserted_mini_pause_count`, `eligible_mini_pause_count`, and `mini_pause_insertion_rate`
+- `inserted_resync_pause_count`, `eligible_resync_pause_count`, and `resync_pause_insertion_rate`
 - `pause_with_residual_drift_count` and `pause_with_residual_drift_rate`
 
 Population meanings are fixed by the runtime control flow rather than by row totals:
 
 - unit-drift extension is measured over realized syllable units
 - ordinary vowel correction is measured over long-vowel syllables where ordinary correction was considered
-- mini-pause recovery is measured over structurally eligible `F`-boundary syllables
-- pause residual carry is measured over non-mini pause units
+- resync-pause recovery is measured over structurally eligible `F`-boundary syllables
+- pause residual carry is measured over non-resync pause units
 
 ## Metrics Handoff
 

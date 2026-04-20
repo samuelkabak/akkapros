@@ -335,7 +335,7 @@ def run_pipeline(
             'max_unit_drift_extension': ophone_report['max_unit_drift_extension'],
             'syllable_count': ophone_report['syllable_count'],
             'pause_count': ophone_report['pause_count'],
-            'mini_pause_count': ophone_report['mini_pause_count'],
+            'resync_pause_count': ophone_report['resync_pause_count'],
             'total_unit_count': ophone_report['total_unit_count'],
             'non_accented_long_vowel_count': ophone_report['non_accented_long_vowel_count'],
             'left_as_is_non_accented_long_vowel_count': ophone_report['left_as_is_non_accented_long_vowel_count'],
@@ -343,9 +343,9 @@ def run_pipeline(
             'adjusted_non_accented_long_vowel_count': ophone_report['adjusted_non_accented_long_vowel_count'],
             'shortened_non_accented_long_vowel_count': ophone_report['shortened_non_accented_long_vowel_count'],
             'lengthened_non_accented_long_vowel_count': ophone_report['lengthened_non_accented_long_vowel_count'],
-            'inserted_mini_pause_count': ophone_report['inserted_mini_pause_count'],
-            'eligible_mini_pause_count': ophone_report['eligible_mini_pause_count'],
-            'mini_pause_insertion_rate': ophone_report['mini_pause_insertion_rate'],
+            'inserted_resync_pause_count': ophone_report['inserted_resync_pause_count'],
+            'eligible_resync_pause_count': ophone_report['eligible_resync_pause_count'],
+            'resync_pause_insertion_rate': ophone_report['resync_pause_insertion_rate'],
             'pause_with_residual_drift_count': ophone_report['pause_with_residual_drift_count'],
             'pause_with_residual_drift_rate': ophone_report['pause_with_residual_drift_rate'],
         },
@@ -369,7 +369,7 @@ def run_pipeline(
             'max_unit_drift_extension': phone_report['max_unit_drift_extension'],
             'syllable_count': phone_report['syllable_count'],
             'pause_count': phone_report['pause_count'],
-            'mini_pause_count': phone_report['mini_pause_count'],
+            'resync_pause_count': phone_report['resync_pause_count'],
             'total_unit_count': phone_report['total_unit_count'],
             'non_accented_long_vowel_count': phone_report['non_accented_long_vowel_count'],
             'left_as_is_non_accented_long_vowel_count': phone_report['left_as_is_non_accented_long_vowel_count'],
@@ -377,9 +377,9 @@ def run_pipeline(
             'adjusted_non_accented_long_vowel_count': phone_report['adjusted_non_accented_long_vowel_count'],
             'shortened_non_accented_long_vowel_count': phone_report['shortened_non_accented_long_vowel_count'],
             'lengthened_non_accented_long_vowel_count': phone_report['lengthened_non_accented_long_vowel_count'],
-            'inserted_mini_pause_count': phone_report['inserted_mini_pause_count'],
-            'eligible_mini_pause_count': phone_report['eligible_mini_pause_count'],
-            'mini_pause_insertion_rate': phone_report['mini_pause_insertion_rate'],
+            'inserted_resync_pause_count': phone_report['inserted_resync_pause_count'],
+            'eligible_resync_pause_count': phone_report['eligible_resync_pause_count'],
+            'resync_pause_insertion_rate': phone_report['resync_pause_insertion_rate'],
             'pause_with_residual_drift_count': phone_report['pause_with_residual_drift_count'],
             'pause_with_residual_drift_rate': phone_report['pause_with_residual_drift_rate'],
         },
@@ -565,6 +565,9 @@ Version: {__version__}
                         help=help_for('fullprosmaker.phonetize_accentuation_distribution_policy'))
     parser.add_argument('--phonetize-drift-tolerance', dest='phonetize_drift_tolerance', type=int, default=None,
                         help=help_for('fullprosmaker.phonetize_drift_tolerance'))
+    parser.add_argument('--phonetize-enable-resync-pause', dest='phonetize_enable_resync_pause', choices=['true', 'false'], default=None,
+                        type=lambda value: value.lower() == 'true',
+                        help='Enable or disable algorithmic resync-pause insertion in the phonetizer stage.')
 
     # Metricalc options
     parser.add_argument('--metrics-table', action='store_true', help=help_for('fullprosmaker.metrics_table'))

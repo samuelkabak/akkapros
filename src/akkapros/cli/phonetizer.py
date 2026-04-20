@@ -91,6 +91,7 @@ def run_tests() -> bool:
         geminate_policy='corrective',
         accentuation_distribution_policy='80_20',
         drift_tolerance=0,
+        enable_resync_pause=False,
     )
     config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)
@@ -147,6 +148,9 @@ def main() -> None:
     parser.add_argument('--geminate-policy', dest='geminate_policy', choices=['corrective', 'cumulative'], default=None, help=help_for('phonetizer.geminate_policy'))
     parser.add_argument('--accentuation-distribution-policy', dest='accentuation_distribution_policy', choices=['100_0', '95_05', '90_10', '85_15', '80_20', '75_25', '70_30'], default=None, help=help_for('phonetizer.accentuation_distribution_policy'))
     parser.add_argument('--drift-tolerance', dest='drift_tolerance', type=int, default=None, help=help_for('phonetizer.drift_tolerance'))
+    parser.add_argument('--enable-resync-pause', dest='enable_resync_pause', choices=['true', 'false'], default=None,
+                        type=lambda value: value.lower() == 'true',
+                        help='Enable or disable algorithmic resync-pause insertion.')
     parser.add_argument('--test', action='store_true', help=help_for('phonetizer.test'))
 
     try:
@@ -238,7 +242,7 @@ def main() -> None:
             'max_unit_drift_extension': original_report['max_unit_drift_extension'],
             'syllable_count': original_report['syllable_count'],
             'pause_count': original_report['pause_count'],
-            'mini_pause_count': original_report['mini_pause_count'],
+            'resync_pause_count': original_report['resync_pause_count'],
             'total_unit_count': original_report['total_unit_count'],
             'non_accented_long_vowel_count': original_report['non_accented_long_vowel_count'],
             'left_as_is_non_accented_long_vowel_count': original_report['left_as_is_non_accented_long_vowel_count'],
@@ -246,9 +250,9 @@ def main() -> None:
             'adjusted_non_accented_long_vowel_count': original_report['adjusted_non_accented_long_vowel_count'],
             'shortened_non_accented_long_vowel_count': original_report['shortened_non_accented_long_vowel_count'],
             'lengthened_non_accented_long_vowel_count': original_report['lengthened_non_accented_long_vowel_count'],
-            'inserted_mini_pause_count': original_report['inserted_mini_pause_count'],
-            'eligible_mini_pause_count': original_report['eligible_mini_pause_count'],
-            'mini_pause_insertion_rate': original_report['mini_pause_insertion_rate'],
+            'inserted_resync_pause_count': original_report['inserted_resync_pause_count'],
+            'eligible_resync_pause_count': original_report['eligible_resync_pause_count'],
+            'resync_pause_insertion_rate': original_report['resync_pause_insertion_rate'],
             'pause_with_residual_drift_count': original_report['pause_with_residual_drift_count'],
             'pause_with_residual_drift_rate': original_report['pause_with_residual_drift_rate'],
         },
@@ -272,7 +276,7 @@ def main() -> None:
             'max_unit_drift_extension': accentuated_report['max_unit_drift_extension'],
             'syllable_count': accentuated_report['syllable_count'],
             'pause_count': accentuated_report['pause_count'],
-            'mini_pause_count': accentuated_report['mini_pause_count'],
+            'resync_pause_count': accentuated_report['resync_pause_count'],
             'total_unit_count': accentuated_report['total_unit_count'],
             'non_accented_long_vowel_count': accentuated_report['non_accented_long_vowel_count'],
             'left_as_is_non_accented_long_vowel_count': accentuated_report['left_as_is_non_accented_long_vowel_count'],
@@ -280,9 +284,9 @@ def main() -> None:
             'adjusted_non_accented_long_vowel_count': accentuated_report['adjusted_non_accented_long_vowel_count'],
             'shortened_non_accented_long_vowel_count': accentuated_report['shortened_non_accented_long_vowel_count'],
             'lengthened_non_accented_long_vowel_count': accentuated_report['lengthened_non_accented_long_vowel_count'],
-            'inserted_mini_pause_count': accentuated_report['inserted_mini_pause_count'],
-            'eligible_mini_pause_count': accentuated_report['eligible_mini_pause_count'],
-            'mini_pause_insertion_rate': accentuated_report['mini_pause_insertion_rate'],
+            'inserted_resync_pause_count': accentuated_report['inserted_resync_pause_count'],
+            'eligible_resync_pause_count': accentuated_report['eligible_resync_pause_count'],
+            'resync_pause_insertion_rate': accentuated_report['resync_pause_insertion_rate'],
             'pause_with_residual_drift_count': accentuated_report['pause_with_residual_drift_count'],
             'pause_with_residual_drift_rate': accentuated_report['pause_with_residual_drift_rate'],
         },

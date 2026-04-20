@@ -45,6 +45,7 @@ phonetize:
       geminate_policy: "corrective"
       accentuation_distribution_policy: "80_20"
       drift_tolerance: 35
+      enable_resync_pause: false
       durations:
         segmental_ceiling: 310
         segmental_floor: 20
@@ -88,7 +89,7 @@ phonetize:
             very_long_min: 233
             elongation_max: 280
         pauses:
-          mini:
+          resync:
             min: 100
             max: 200
           short:

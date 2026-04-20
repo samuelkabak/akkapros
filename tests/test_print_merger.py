@@ -178,16 +178,17 @@ def test_fullprosmaker_print_merger_true(tmp_path: Path) -> None:
     assert "‿" in xar_body
 
 
-def test_printer_hides_internal_mini_pause_marker(tmp_path: Path) -> None:
+def test_printer_hides_internal_resync_pause_marker(tmp_path: Path) -> None:
     phone_file = tmp_path / "sample_phone.txt"
     ophone_file = tmp_path / "sample_ophone.txt"
     config = {
         "process": {
             "timing_model": {
+                "enable_resync_pause": True,
                 "durations": {
                     "cvc_reference": 350,
                     "pauses": {
-                        "mini": {"min": 50, "max": 80},
+                        "resync": {"min": 50, "max": 80},
                     },
                 }
             }
@@ -216,6 +217,6 @@ def test_printer_hides_internal_mini_pause_marker(tmp_path: Path) -> None:
     _bold_frontmatter, bold_body = _read_frontmatter(tmp_path / "sample_accent_bold.md")
     _xar_frontmatter, xar_body = _read_frontmatter(tmp_path / "sample_accent_xar.txt")
 
-    assert ":mini-pause:" not in acute_body
-    assert ":mini-pause:" not in bold_body
-    assert ":mini-pause:" not in xar_body
+    assert ":resync-pause:" not in acute_body
+    assert ":resync-pause:" not in bold_body
+    assert ":resync-pause:" not in xar_body

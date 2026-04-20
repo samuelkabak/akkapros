@@ -42,7 +42,7 @@ Read this as:
 
 - fields are pipe-delimited; `text` is the final field
 - parsers must use bounded splitting (for example `split('|', 11)`) to preserve any `|` in text
-- parsers must not trim the serialized row before splitting, because the final `text` field may legally be one literal space character for an inserted mini pause
+- parsers must not trim the serialized row before splitting, because the final `text` field may legally be one literal space character for an inserted resync pause
 
 ## Field Meanings
 
@@ -60,7 +60,7 @@ Read this as:
 
 - Consonant and vowel subclass code used by runtime logic.
 - Typical values include closure/fricative/sonorant classes and the special hiatus/transition rows.
-- For pause rows, `Q`, `E`, `S`, `C`, and `I` are punctuation-owned pause subtypes, while `M` marks an inserted mini pause.
+- For pause rows, `Q`, `E`, `S`, `C`, and `I` are punctuation-owned pause subtypes, while `M` marks an inserted resync pause.
 
 `length`
 
@@ -97,7 +97,7 @@ For pause rows this is the pause class:
 `realization`
 
 - Two-letter realization code such as `SU`, `AA`, `AO`, `MP`, `SP`, `ZP`.
-- `MP` is the mini-pause marker used for algorithmically inserted prosodic-space rows.
+- `MP` is the resync-pause marker used for algorithmically inserted prosodic-space rows.
 - `SP` is the short-pause IPA-like marker `|`.
 - `ZP` is the long-pause IPA-like marker `‖`.
 
@@ -136,7 +136,7 @@ Debug note:
   instead of writing a silently inconsistent timeline.
 
 The active synchronization basis used for pause targeting, drift folding, and
-mini-pause discharge may still be either `cvc_reference` or
+resync-pause discharge may still be either `cvc_reference` or
 `0.5 * cvc_reference`, depending on stream type and the upstream
 `metadata.options.mora_mode` value.
 
@@ -149,7 +149,7 @@ mini-pause discharge may still be either `cvc_reference` or
 `text`
 
 - The source-facing glyph or pause text.
-- Inserted mini pauses use one literal ASCII space character in this field.
+- Inserted resync pauses use one literal ASCII space character in this field.
 - For line breaks the phonetizer writes `<EOL>` once per consumed newline.
 - A coalesced newline run therefore appears as repeated tokens in one row, for example `<EOL><EOL><EOL>`.
 
@@ -164,7 +164,7 @@ Pause rows now carry a meaningful subtype rather than one generic silence type.
 | `S` | statement-final or ordinary line-final pause |
 | `C` | continuation pause |
 | `I` | internal or sanitizing pause with no clause-final override |
-| `M` | inserted mini pause used to discharge drift between ordinary units |
+| `M` | inserted resync pause used to discharge drift between ordinary units |
 
 When a punctuation suite contains mixed cues, the phonetizer resolves it by the
 active precedence `Q > E > S > C > I`.
@@ -199,7 +199,7 @@ Short pause row:
 SES|S|C|S|S|N|P|SP|0600|+023|H1C|:
 ```
 
-Inserted mini pause row:
+Inserted resync pause row:
 
 ```text
 MEN|S|M|S|S|N|P|MP|0064|+000|M0C| 
@@ -228,9 +228,9 @@ Important rules:
 - If the consumed upstream text has no final line break, the phonetizer inserts one final `<EOL>` row before writing `_phone.txt` and `_ophone.txt`.
 - A maximal run of adjacent newline characters becomes one newline-owned long-pause row, not one row per newline.
 - Reconstruction expands repeated `<EOL>` tokens in one newline-owned row back into the same number of literal newlines.
-- Punctuation-owned pause rows use subtype `Q`, `S`, `E`, `C`, or `I`; inserted mini pauses use subtype `M`.
-- Inserted mini pauses use `MEN` plus realization code `MP`; they are not punctuation-owned `SES ... SP` rows.
-- The mini-pause `text` field is one literal space character, not a sentinel token.
+- Punctuation-owned pause rows use subtype `Q`, `S`, `E`, `C`, or `I`; inserted resync pauses use subtype `M`.
+- Inserted resync pauses use `MEN` plus realization code `MP`; they are not punctuation-owned `SES ... SP` rows.
+- The resync-pause `text` field is one literal space character, not a sentinel token.
 - Grouped punctuation suites use precedence `Q > E > S > C > I`.
 - Metrics and printer read pause strength from these rows instead of recomputing it from punctuation later.
 
@@ -268,7 +268,7 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 - `metadata.data.phonetize.silence_row_count`
 - `metadata.data.phonetize.syllable_count`
 - `metadata.data.phonetize.pause_count`
-- `metadata.data.phonetize.mini_pause_count`
+- `metadata.data.phonetize.resync_pause_count`
 - `metadata.data.phonetize.total_unit_count`
 - `metadata.data.phonetize.unit_drift.max`
 - `metadata.data.phonetize.unit_drift.mean`
@@ -278,9 +278,9 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 - `metadata.data.phonetize.non_accented_long_vowel_count`
 - `metadata.data.phonetize.left_as_is_non_accented_long_vowel_count`
 - `metadata.data.phonetize.drift_tolerance_effect`
-- `metadata.data.phonetize.inserted_mini_pause_count`
-- `metadata.data.phonetize.eligible_mini_pause_count`
-- `metadata.data.phonetize.mini_pause_insertion_rate`
+- `metadata.data.phonetize.inserted_resync_pause_count`
+- `metadata.data.phonetize.eligible_resync_pause_count`
+- `metadata.data.phonetize.resync_pause_insertion_rate`
 - `metadata.data.phonetize.pause_with_residual_drift_count`
 - `metadata.data.phonetize.pause_with_residual_drift_rate`
 
@@ -289,14 +289,14 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 The probability-oriented diagnostics are denominator-aware on purpose:
 
 - `syllable_count` counts realized syllable units
-- `pause_count` counts non-mini realized pause units
-- `mini_pause_count` counts inserted mini-pause rows
-- `total_unit_count` is the sum of syllables, non-mini pauses, and inserted mini pauses
+- `pause_count` counts non-resync realized pause units
+- `resync_pause_count` counts inserted resync-pause rows
+- `total_unit_count` is the sum of syllables, non-resync pauses, and inserted resync pauses
 - `unit_drift_extension_rate` uses realized syllable units as its population because extension events are evaluated in the completed-syllable branch
 - `non_accented_long_vowel_count` counts the full non-accented long-vowel population, while `left_as_is_non_accented_long_vowel_count` counts the subset left unchanged by ordinary long-vowel adjustment
 - `drift_tolerance_effect` is `left_as_is_non_accented_long_vowel_count / non_accented_long_vowel_count`
-- `eligible_mini_pause_count` counts structurally eligible `F`-boundary syllables where mini-pause insertion could be considered
-- `pause_with_residual_drift_rate` uses non-mini pause units as its population
+- `eligible_resync_pause_count` counts structurally eligible `F`-boundary syllables where resync-pause insertion could be considered
+- `pause_with_residual_drift_rate` uses non-resync pause units as its population
 
 ## How `.pho` Export Relates to Phone Rows
 

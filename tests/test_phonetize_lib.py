@@ -14,10 +14,10 @@ from akkapros.lib.phonetize import (
     INPUT_CHARACTER_LABELS,
     INPUT_CHARACTER_LENGTHS,
     INPUT_TO_REALIZATION_CODES,
-    MINI_PAUSE_LABEL,
-    MINI_PAUSE_REALIZATION,
-    MINI_PAUSE_TEXT,
-    MINI_PAUSE_TYPE,
+    RESYNC_PAUSE_LABEL,
+    RESYNC_PAUSE_REALIZATION,
+    RESYNC_PAUSE_TEXT,
+    RESYNC_PAUSE_TYPE,
     PHONE_ROW_DRIFT_NEUTRAL,
     PHONE_ROW_DURATION_PLACEHOLDER,
     REALIZATION_CODE_ROWS,
@@ -30,7 +30,7 @@ from akkapros.lib.phonetize import (
     _is_chrono_checkpoint_row,
     _normalize_drift_to_nearest_branch,
     _partition_phone_units,
-    _maybe_insert_mini_pause,
+    _maybe_insert_resync_pause,
     _merge_phonetize_config,
     _primary_accent_index,
     _round_half_up,
@@ -76,8 +76,8 @@ def test_input_inventory_and_realization_inventory_are_explicit() -> None:
         'type': 'S',
         'emphaticity': 'P',
     }
-    assert INPUT_TO_REALIZATION_CODES[MINI_PAUSE_LABEL] == (MINI_PAUSE_REALIZATION,)
-    assert REALIZATION_CODE_METADATA[MINI_PAUSE_REALIZATION] == {
+    assert INPUT_TO_REALIZATION_CODES[RESYNC_PAUSE_LABEL] == (RESYNC_PAUSE_REALIZATION,)
+    assert REALIZATION_CODE_METADATA[RESYNC_PAUSE_REALIZATION] == {
         'ipa': '.',
         'mbrola_xsampa': '_',
         'category': 'S',
@@ -94,7 +94,7 @@ def test_realization_inventory_exposes_canonical_mbrola_xsampa_mapping() -> None
     assert row_map['HE'] == ('x', 'x')
     assert row_map['AL'] == ('ʔ', '?')
     assert row_map['AO'] == ('ɑ', 'a.')
-    assert row_map[MINI_PAUSE_REALIZATION] == ('.', '_')
+    assert row_map[RESYNC_PAUSE_REALIZATION] == ('.', '_')
     assert row_map['SP'] == ('|', '_')
     assert row_map['ZP'] == ('‖', '_')
 
@@ -485,16 +485,17 @@ def test_phase2_pause_target_uses_half_beat_for_mono_and_original_streams() -> N
     assert original_short_pause['duration'] == '0782'
 
 
-def test_phase2_mini_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone() -> None:
+def test_phase2_resync_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone() -> None:
     runtime_config = _runtime_view_phonetize_config(
         _merge_phonetize_config(
             {
                 'process': {
                     'timing_model': {
+                        'enable_resync_pause': True,
                         'durations': {
                             'cvc_reference': 305,
                             'pauses': {
-                                'mini': {
+                                'resync': {
                                     'min': 50,
                                     'max': 80,
                                 },
@@ -527,7 +528,7 @@ def test_phase2_mini_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone(
         input_frontmatter=bi_frontmatter,
     )
 
-    assert _maybe_insert_mini_pause(
+    assert _maybe_insert_resync_pause(
         rows,
         units,
         0,
@@ -537,7 +538,7 @@ def test_phase2_mini_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone(
         bi_basis,
     ) is None
 
-    mono_pause = _maybe_insert_mini_pause(
+    mono_pause = _maybe_insert_resync_pause(
         rows,
         units,
         0,
@@ -546,7 +547,7 @@ def test_phase2_mini_pause_eligibility_uses_half_beat_basis_for_mono_and_ophone(
         100.0,
         mono_basis,
     )
-    original_pause = _maybe_insert_mini_pause(
+    original_pause = _maybe_insert_resync_pause(
         rows,
         units,
         0,
@@ -722,7 +723,38 @@ def test_phase2_long_vowels_remain_available_for_ordinary_drift_recovery() -> No
     assert int(rows[1]['duration']) > 160
 
 
-def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
+def test_phase2_does_not_insert_resync_pause_when_disabled() -> None:
+    rows = build_phone_rows('qat pa')
+
+    report = realize_phone_rows(
+        rows,
+        {
+            'process': {
+                'timing_model': {
+                    'drift_tolerance': 0,
+                    'enable_resync_pause': False,
+                    'durations': {
+                        'cvc_reference': 350,
+                        'pauses': {
+                            'resync': {
+                                'min': 50,
+                                'max': 80,
+                            },
+                        },
+                    },
+                },
+            }
+        },
+        allow_accentuation=False,
+    )
+
+    assert all(row['text'] != RESYNC_PAUSE_TEXT for row in rows if row['category'] == 'S')
+    assert report['resync_pause_count'] == 0
+    assert report['eligible_resync_pause_count'] == 0
+    assert report['inserted_resync_pause_count'] == 0
+
+
+def test_phase2_inserts_one_resync_pause_at_eligible_word_boundary() -> None:
     rows = build_phone_rows('qat pa')
 
     realize_phone_rows(
@@ -731,10 +763,11 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
             'process': {
                 'timing_model': {
                     'drift_tolerance': 0,
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 350,
                         'pauses': {
-                            'mini': {
+                            'resync': {
                                 'min': 50,
                                 'max': 80,
                             },
@@ -746,17 +779,17 @@ def test_phase2_inserts_one_mini_pause_at_eligible_word_boundary() -> None:
         allow_accentuation=False,
     )
 
-    mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
-    assert len(mini_pause_rows) == 1
-    assert mini_pause_rows[0]['label'] == MINI_PAUSE_LABEL
-    assert mini_pause_rows[0]['type'] == MINI_PAUSE_TYPE
-    assert mini_pause_rows[0]['realization'] == MINI_PAUSE_REALIZATION
-    assert mini_pause_rows[0]['duration'] == '0064'
-    assert mini_pause_rows[0]['drift'] == '+000'
+    resync_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT]
+    assert len(resync_pause_rows) == 1
+    assert resync_pause_rows[0]['label'] == RESYNC_PAUSE_LABEL
+    assert resync_pause_rows[0]['type'] == RESYNC_PAUSE_TYPE
+    assert resync_pause_rows[0]['realization'] == RESYNC_PAUSE_REALIZATION
+    assert resync_pause_rows[0]['duration'] == '0064'
+    assert resync_pause_rows[0]['drift'] == '+000'
     assert reconstruct_tilde_from_phone_rows(rows) == 'qat pa\n'
 
 
-def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> None:
+def test_phase2_does_not_insert_resync_pause_before_punctuation_owned_pause() -> None:
     rows = build_phone_rows('qat, pa')
 
     realize_phone_rows(
@@ -765,10 +798,11 @@ def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> N
             'process': {
                 'timing_model': {
                     'drift_tolerance': 0,
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 306,
                         'pauses': {
-                            'mini': {
+                            'resync': {
                                 'min': 50,
                                 'max': 80,
                             },
@@ -780,7 +814,7 @@ def test_phase2_does_not_insert_mini_pause_before_punctuation_owned_pause() -> N
         allow_accentuation=False,
     )
 
-    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+    assert all(row['text'] != RESYNC_PAUSE_TEXT for row in rows if row['category'] == 'S')
 
 
 def test_phase2_long_pause_resets_running_drift_to_zero() -> None:
@@ -854,7 +888,7 @@ def test_phase2_reports_probability_oriented_extension_rates() -> None:
 
     assert report['syllable_count'] == 1
     assert report['pause_count'] == 1
-    assert report['mini_pause_count'] == 0
+    assert report['resync_pause_count'] == 0
     assert report['total_unit_count'] == 2
     assert report['unit_drift_extension_rate'] == pytest.approx(1.0)
 
@@ -929,7 +963,7 @@ def test_phase2_explicit_tolerance_19_keeps_small_fricative_long_vowel_drift_as_
     assert [row['duration'] for row in zero_rows] != [row['duration'] for row in tolerant_rows]
 
 
-def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> None:
+def test_phase2_reports_resync_pause_probability_over_structural_eligibility() -> None:
     rows = build_phone_rows('qat pa')
 
     report = realize_phone_rows(
@@ -938,10 +972,11 @@ def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> 
             'process': {
                 'timing_model': {
                     'drift_tolerance': 0,
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 350,
                         'pauses': {
-                            'mini': {
+                            'resync': {
                                 'min': 50,
                                 'max': 80,
                             },
@@ -955,14 +990,14 @@ def test_phase2_reports_mini_pause_probability_over_structural_eligibility() -> 
 
     assert report['syllable_count'] == 2
     assert report['pause_count'] == 1
-    assert report['mini_pause_count'] == 1
+    assert report['resync_pause_count'] == 1
     assert report['total_unit_count'] == 4
-    assert report['eligible_mini_pause_count'] == 1
-    assert report['inserted_mini_pause_count'] == 1
-    assert report['mini_pause_insertion_rate'] == pytest.approx(1.0)
+    assert report['eligible_resync_pause_count'] == 1
+    assert report['inserted_resync_pause_count'] == 1
+    assert report['resync_pause_insertion_rate'] == pytest.approx(1.0)
 
 
-def test_phase2_reports_pause_residual_frequency_over_non_mini_pauses() -> None:
+def test_phase2_reports_pause_residual_frequency_over_non_resync_pauses() -> None:
     rows = build_phone_rows('qat,')
 
     report = realize_phone_rows(
@@ -1601,7 +1636,7 @@ def test_path_7_2_adjacent_consonant_stays_singleton() -> None:
     assert int(onset['duration']) <= 179
 
 
-def test_path_8_1_mini_pause_inserted_when_eligible() -> None:
+def test_path_8_1_resync_pause_inserted_when_eligible() -> None:
     """Path 8.1"""
     rows = build_phone_rows('qat pa')
     realize_phone_rows(
@@ -1609,30 +1644,31 @@ def test_path_8_1_mini_pause_inserted_when_eligible() -> None:
         {
             'process': {
                 'timing_model': {
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 350,
-                        'pauses': {'mini': {'min': 50, 'max': 80}},
+                        'pauses': {'resync': {'min': 50, 'max': 80}},
                     }
                 }
             }
         },
         allow_accentuation=False,
     )
-    assert any(row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT for row in rows)
-    mini_row = next(row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT)
-    assert mini_row['label'] == MINI_PAUSE_LABEL
-    assert mini_row['type'] == MINI_PAUSE_TYPE
-    assert mini_row['realization'] == MINI_PAUSE_REALIZATION
+    assert any(row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT for row in rows)
+    mini_row = next(row for row in rows if row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT)
+    assert mini_row['label'] == RESYNC_PAUSE_LABEL
+    assert mini_row['type'] == RESYNC_PAUSE_TYPE
+    assert mini_row['realization'] == RESYNC_PAUSE_REALIZATION
 
 
-def test_path_8_2_mini_pause_not_inserted_when_not_eligible() -> None:
+def test_path_8_2_resync_pause_not_inserted_when_not_eligible() -> None:
     """Path 8.2"""
     rows = build_phone_rows('qat, pa')
-    realize_phone_rows(rows, {'process': {'timing_model': {'durations': {'cvc_reference': 306}}}}, allow_accentuation=False)
-    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+    realize_phone_rows(rows, {'process': {'timing_model': {'enable_resync_pause': True, 'durations': {'cvc_reference': 306}}}}, allow_accentuation=False)
+    assert all(row['text'] != RESYNC_PAUSE_TEXT for row in rows if row['category'] == 'S')
 
 
-def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
+def test_path_8_3_positive_drift_resync_pause_targets_next_sync_point() -> None:
     """Path 8.3"""
     rows = build_phone_rows('ša pa')
     realize_phone_rows(
@@ -1640,9 +1676,10 @@ def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
         {
             'process': {
                 'timing_model': {
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 300,
-                        'pauses': {'mini': {'min': 220, 'max': 230}},
+                        'pauses': {'resync': {'min': 220, 'max': 230}},
                     }
                 }
             }
@@ -1650,11 +1687,11 @@ def test_path_8_3_positive_drift_mini_pause_targets_next_sync_point() -> None:
         allow_accentuation=False,
     )
 
-    mini_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == MINI_PAUSE_TEXT]
-    assert mini_pause_rows == []
+    resync_pause_rows = [row for row in rows if row['category'] == 'S' and row['text'] == RESYNC_PAUSE_TEXT]
+    assert resync_pause_rows == []
 
 
-def test_path_8_4_negative_drift_outside_mini_band_does_not_clamp_partial_pause() -> None:
+def test_path_8_4_negative_drift_outside_resync_band_does_not_clamp_partial_pause() -> None:
     """Path 8.4"""
     rows = build_phone_rows('qat pa')
     realize_phone_rows(
@@ -1662,9 +1699,10 @@ def test_path_8_4_negative_drift_outside_mini_band_does_not_clamp_partial_pause(
         {
             'process': {
                 'timing_model': {
+                    'enable_resync_pause': True,
                     'durations': {
                         'cvc_reference': 500,
-                        'pauses': {'mini': {'min': 100, 'max': 200}},
+                        'pauses': {'resync': {'min': 100, 'max': 200}},
                     }
                 }
             }
@@ -1672,7 +1710,7 @@ def test_path_8_4_negative_drift_outside_mini_band_does_not_clamp_partial_pause(
         allow_accentuation=False,
     )
 
-    assert all(row['text'] != MINI_PAUSE_TEXT for row in rows if row['category'] == 'S')
+    assert all(row['text'] != RESYNC_PAUSE_TEXT for row in rows if row['category'] == 'S')
 
 
 def test_path_9_1_short_pause_uses_nearest_discharge_in_band() -> None:

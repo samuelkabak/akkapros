@@ -1,10 +1,10 @@
 ---
 cr_id: CR-083
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-20
 implements: 'REQ-043'
 ---
 
@@ -187,18 +187,18 @@ demo/akkapros/prosmaker/corpus-demo.yaml
 
 # Acceptance Criteria
 
-- [ ] `enable_resync_pause: false` exists in the approved process timing-model
+- [x] `enable_resync_pause: false` exists in the approved process timing-model
       surface.
-- [ ] `pauses.resync` replaces `pauses.mini` as the canonical config path.
-- [ ] When `enable_resync_pause = false`, no algorithmic resync pause rows are
+- [x] `pauses.resync` replaces `pauses.mini` as the canonical config path.
+- [x] When `enable_resync_pause = false`, no algorithmic resync pause rows are
       inserted.
-- [ ] When `enable_resync_pause = true`, legal inserted rows still emit
+- [x] When `enable_resync_pause = true`, legal inserted rows still emit
       `MEN`, `M`, `MP`, and one literal space in `text`.
-- [ ] Canonical diagnostics and metrics-facing labels use `resync_pause_*`
+- [x] Canonical diagnostics and metrics-facing labels use `resync_pause_*`
       terminology.
-- [ ] Public docs and help surfaces say `resync pause` instead of `mini pause`
+- [x] Public docs and help surfaces say `resync pause` instead of `mini pause`
       except in historical records.
-- [ ] Focused tests cover the new toggle, renamed config path, and renamed
+- [x] Focused tests cover the new toggle, renamed config path, and renamed
       diagnostics.
 
 ---
@@ -255,25 +255,25 @@ always-available insertion behavior.
 
 ## Implementation
 
-- [ ] Add `enable_resync_pause`
-- [ ] Rename the canonical band path to `pauses.resync`
-- [ ] Rename canonical diagnostics/reporting labels to `resync_pause_*`
-- [ ] Gate insertion on the new flag
+- [x] Add `enable_resync_pause`
+- [x] Rename the canonical band path to `pauses.resync`
+- [x] Rename canonical diagnostics/reporting labels to `resync_pause_*`
+- [x] Gate insertion on the new flag
 
 ## Tests
 
-- [ ] Update config/help surface tests
-- [ ] Update runtime and metrics tests for renamed diagnostics
-- [ ] Add explicit disabled/enabled insertion coverage
+- [x] Update config/help surface tests
+- [x] Update runtime and metrics tests for renamed diagnostics
+- [x] Add explicit disabled/enabled insertion coverage
 
 ## Documentation
 
-- [ ] Update phonetizer, phone-row, metrics, and config docs
-- [ ] Update demo YAML examples
+- [x] Update phonetizer, phone-row, metrics, and config docs
+- [x] Update demo YAML examples
 
 ## Review
 
-- [ ] Verify terminology changed without changing row encoding
+- [x] Verify terminology changed without changing row encoding
 
 ---
 

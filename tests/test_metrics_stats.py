@@ -21,8 +21,8 @@ ušašqi qingu : ina birīšunu šâšu ušrabbīš
 
 VARCO_VERIFICATION_SAMPLE = "šazu šuḫgurim ina rebî : šākin tašmê ana ilī abbīšu\n"
 VARCO_VERIFICATION_ORIGINAL = {
-    "percent_c": 31.944444444444443,
-    "percent_v": 35.72222222222222,
+    "percent_c": 33.33333333333333,
+    "percent_v": 37.27536231884058,
     "mean_c_ms": 115.0,
     "mean_v_ms": 128.6,
     "delta_c_ms": 49.15689168366934,
@@ -33,26 +33,26 @@ VARCO_VERIFICATION_ORIGINAL = {
     "npvi_v": 21.886221401456858,
 }
 VARCO_VERIFICATION_ACCENTUATED = {
-    "percent_c": 32.17948717948718,
-    "percent_v": 35.84615384615385,
-    "mean_c_ms": 119.52380952380952,
-    "mean_v_ms": 139.8,
-    "delta_c_ms": 66.65591750076268,
-    "delta_v_ms": 53.035459835849444,
-    "varco_c": 55.76789910422376,
-    "varco_v": 37.93666654924853,
-    "rpvi_c": 75.8,
-    "npvi_v": 33.28706732899566,
+    "percent_c": 33.46666666666667,
+    "percent_v": 37.93333333333334,
+    "mean_c_ms": 125.5,
+    "mean_v_ms": 142.25,
+    "delta_c_ms": 65.30811588156558,
+    "delta_v_ms": 57.019185367733904,
+    "varco_c": 52.03833934786102,
+    "varco_v": 40.08378584726461,
+    "rpvi_c": 75.57894736842105,
+    "npvi_v": 35.35754530962182,
 }
 VARCO_VERIFICATION_ORIGINAL_DRIFT = {
     "max": 86.0,
-    "mean": 7.4167,
-    "stddev": 39.2841,
+    "mean": 11.8182,
+    "stddev": 40.2409,
 }
 VARCO_VERIFICATION_ACCENTUATED_DRIFT = {
-    "max": 150.0,
-    "mean": 19.0833,
-    "stddev": 59.4074,
+    "max": 236.0,
+    "mean": 20.9545,
+    "stddev": 81.866,
 }
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGRESSION_CONFIG = REPO_ROOT / "tests" / "integration_refs" / "regression_defaults.yaml"
@@ -177,16 +177,16 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 30.282450403313714,
-            "percent_v": 34.33163287551777,
-            "mean_c_ms": 113.04166666666667,
-            "mean_v_ms": 131.71562395449982,
-            "delta_c_ms": 52.241073632780136,
-            "delta_v_ms": 40.08914572973614,
-            "varco_c": 46.21399805332559,
-            "varco_v": 30.43613546072912,
-            "rpvi_c": 63.24975577987626,
-            "npvi_v": 24.17256028410385,
+            "percent_c": 31.11266406844958,
+            "percent_v": 35.17985933790261,
+            "mean_c_ms": 114.26916748930569,
+            "mean_v_ms": 131.3683506189361,
+            "delta_c_ms": 52.51789779691762,
+            "delta_v_ms": 39.61808917171696,
+            "varco_c": 45.9598148396703,
+            "varco_v": 30.15801674075842,
+            "rpvi_c": 63.41211323238973,
+            "npvi_v": 23.874525527701188,
         },
         "unit_drift": {
             "max": 0.0,
@@ -221,16 +221,16 @@ LEXLINKS_REFERENCE_METRICS = {
             },
         },
         "acoustic": {
-            "percent_c": 31.965943491422806,
-            "percent_v": 35.416078035654216,
-            "mean_c_ms": 124.96351084812623,
-            "mean_v_ms": 140.90598862495818,
-            "delta_c_ms": 69.84585486424615,
-            "delta_v_ms": 53.67155540027244,
-            "varco_c": 55.892999796663,
-            "varco_v": 38.090329533918606,
-            "rpvi_c": 81.90200591910556,
-            "npvi_v": 32.06313006133178,
+            "percent_c": 32.39913065712094,
+            "percent_v": 35.747293957214694,
+            "mean_c_ms": 125.08687068114511,
+            "mean_v_ms": 140.32218133154902,
+            "delta_c_ms": 69.89895651436223,
+            "delta_v_ms": 52.8605630242856,
+            "varco_c": 55.8803303126348,
+            "varco_v": 37.67085326259877,
+            "rpvi_c": 81.92758393680053,
+            "npvi_v": 31.640393581491487,
         },
         "unit_drift": {
             "max": 0.0,
@@ -836,16 +836,16 @@ def test_lexlinks_construct_word_counts_match_independent_reference(tmp_path: Pa
     assert "Speech rate (original):" not in table
     assert "Pause metrics:" not in table
     assert "Pause duration allocation" not in table
-    assert "%C: 30.28%" in table
-    assert "%V: 34.33%" in table
-    assert "meanC: 113.04 ms" in table
-    assert "meanV: 131.72 ms" in table
-    assert "ΔC: 52.24 ms" in table
-    assert "ΔV: 40.09 ms" in table
-    assert "VarcoC: 46.21" in table
-    assert "VarcoV: 30.44" in table
-    assert "rPVI-C: 63.25" in table
-    assert "nPVI-V: 24.17" in table
+    assert "%C: 31.11%" in table
+    assert "%V: 35.18%" in table
+    assert "meanC: 114.27 ms" in table
+    assert "meanV: 131.37 ms" in table
+    assert "ΔC: 52.52 ms" in table
+    assert "ΔV: 39.62 ms" in table
+    assert "VarcoC: 45.96" in table
+    assert "VarcoV: 30.16" in table
+    assert "rPVI-C: 63.41" in table
+    assert "nPVI-V: 23.87" in table
     assert "Unit drift max: 0.00 ms" in table
     assert "Unit drift mean: 0.00 ms" in table
     assert "Unit drift stddev: 0.00 ms" in table
