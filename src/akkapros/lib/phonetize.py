@@ -115,6 +115,11 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
             ),
             'durations': {
                 '__comment__': None,
+                'scale': _field(
+                    1.0,
+                    'float',
+                    'Global multiplier applied to all other numeric duration leaves when different from 1.0. Runtime treats 1.0 as a true no-op path and uses configured values directly.',
+                ),
                 'segmental_ceiling': _field(
                     310,
                     'int',
@@ -1050,13 +1055,42 @@ def _merge_phonetize_config(phonetize_config: dict[str, Any] | None) -> dict[str
 
 def _runtime_view_phonetize_config(phonetize_config: dict[str, Any]) -> dict[str, Any]:
     timing_model = deepcopy(phonetize_config['process']['timing_model'])
+    effective_durations, duration_scale = _derive_effective_durations(timing_model['durations'])
+    timing_model['durations'] = effective_durations
     process = {key: deepcopy(timing_model[key]) for key in PROCESS_KEYS}
     model_only = {key: deepcopy(value) for key, value in timing_model.items() if key not in PROCESS_KEYS}
+    model_only['duration_scale'] = duration_scale
     return {
         'process': process,
         'intonation': _runtime_intonation_config(deepcopy(phonetize_config['process'].get('intonation', {}))),
         'timing_model': model_only,
     }
+
+
+def _scale_duration_values(node: Any, scale: float, *, path: tuple[str, ...] = ()) -> Any:
+    if isinstance(node, dict):
+        scaled: dict[str, Any] = {}
+        for key, value in node.items():
+            if path == () and key == 'scale':
+                scaled[key] = value
+            else:
+                scaled[key] = _scale_duration_values(value, scale, path=path + (key,))
+        return scaled
+    if isinstance(node, (int, float)) and not isinstance(node, bool):
+        return float(node) * scale
+    return deepcopy(node)
+
+
+def _derive_effective_durations(durations: dict[str, Any]) -> tuple[dict[str, Any], float]:
+    raw_scale = durations.get('scale', 1.0)
+    if not isinstance(raw_scale, (int, float)) or isinstance(raw_scale, bool):
+        raise ValueError('phonetize.process.timing_model.durations.scale must be a positive number.')
+    scale = float(raw_scale)
+    if scale <= 0:
+        raise ValueError('phonetize.process.timing_model.durations.scale must be > 0.')
+    if scale == 1.0:
+        return deepcopy(durations), scale
+    return _scale_duration_values(deepcopy(durations), scale), scale
 
 
 def _semitone_to_hz(base_f0: int, semitones: int) -> int:
@@ -1132,19 +1166,32 @@ def _supported_synchronization_bases(cvc_reference: float) -> tuple[float, ...]:
     return (half, full)
 
 
-def _iter_numeric_leaves(prefix: tuple[str, ...], node: Any) -> list[tuple[str, int]]:
-    leaves: list[tuple[str, int]] = []
+def _iter_numeric_leaves(prefix: tuple[str, ...], node: Any) -> list[tuple[str, float]]:
+    leaves: list[tuple[str, float]] = []
     if isinstance(node, dict):
         for key, value in node.items():
             leaves.extend(_iter_numeric_leaves(prefix + (key,), value))
-    elif isinstance(node, int) and not isinstance(node, bool):
-        leaves.append(('.'.join(prefix), node))
+    elif isinstance(node, (int, float)) and not isinstance(node, bool):
+        leaves.append(('.'.join(prefix), float(node)))
     return leaves
 
 
 def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> PhonetizeVerificationResult:
     raw_config = _merge_phonetize_config(phonetize_config)
-    config = _runtime_view_phonetize_config(raw_config)
+    try:
+        config = _runtime_view_phonetize_config(raw_config)
+    except ValueError as exc:
+        return PhonetizeVerificationResult(
+            (
+                _make_issue(
+                    'failure',
+                    'phonetize.process.timing_model.durations.scale',
+                    'scale is a positive numeric value',
+                    str(exc),
+                ),
+            ),
+            (),
+        )
     verification_defaults = build_default_phonetize_verification_config()
     failures: list[VerificationIssue] = []
     warnings: list[VerificationIssue] = []
@@ -1158,6 +1205,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     process = config['process']
     timing_model = config['timing_model']
     durations = timing_model['durations']
+    duration_scale = float(timing_model.get('duration_scale', 1.0))
     consonants = durations['consonants']
     vowels = durations['vowels']
     pauses = durations['pauses']
@@ -1190,12 +1238,19 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
             'Drift tolerance must be a non-negative integer number of milliseconds.',
         )
 
+    if not isinstance(raw_config['process']['timing_model']['durations'].get('scale', 1.0), (int, float)) or isinstance(raw_config['process']['timing_model']['durations'].get('scale', 1.0), bool) or float(raw_config['process']['timing_model']['durations'].get('scale', 1.0)) <= 0:
+        add_failure(
+            'phonetize.process.timing_model.durations.scale',
+            'scale is a positive numeric value',
+            'Timing-model duration scale must be a positive number.',
+        )
+
     for path, value in _iter_numeric_leaves(('phonetize', 'process', 'timing_model', 'durations'), durations):
         if value <= 0:
             add_failure(
                 path,
-                'value is a positive integer in milliseconds',
-                'Timing-model durations must be positive integers measured in milliseconds.',
+                'value is a positive numeric duration',
+                'Timing-model durations must be positive numeric values.',
             )
 
     intonation = raw_config['process']['intonation']
@@ -2216,7 +2271,7 @@ def realize_phone_rows(
     rows[:] = finalized_rows
     _validate_chrono_checkpoints(
         rows,
-        int(config['timing_model']['durations']['cvc_reference']),
+        _rounded_duration_value(float(config['timing_model']['durations']['cvc_reference'])),
     )
 
     if drift_history:
@@ -2233,6 +2288,7 @@ def realize_phone_rows(
     resync_pause_row_count = resync_pause_insert_count
     completed_unit_count = syllable_unit_count + pause_unit_count + resync_pause_row_count
     return {
+        'duration_scale': float(config['timing_model'].get('duration_scale', 1.0)),
         'one_mora_ref': one_mora_ref,
         'two_mora_ref': two_mora_ref,
         'three_mora_ref': three_mora_ref,

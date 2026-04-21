@@ -51,6 +51,7 @@ phonetize:
       drift_tolerance: 19
       enable_resync_pause: false
       durations:
+        scale: 1.0
         segmental_ceiling: 310
         segmental_floor: 20
         cvc_reference: 300

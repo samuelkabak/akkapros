@@ -313,6 +313,7 @@ def run_pipeline(
         phonetize_config,
         tilde_frontmatter,
     )
+    logger.info('Active phonetizer duration scale: %.6g', float(ophone_report.get('duration_scale', 1.0)))
     ophone_body = serialize_phone_rows(ophone_rows)
     phone_body = serialize_phone_rows(phone_rows)
     ombrola_body = serialize_mbrola_rows(ophone_rows, phonetize_config, accentuated=False)
@@ -326,6 +327,7 @@ def run_pipeline(
         input_frontmatter=tilde_frontmatter,
         stage_data={
             'source_variant': 'original',
+            'duration_scale': ophone_report['duration_scale'],
             'phone_row_count': len(ophone_rows),
             'silence_row_count': sum(1 for row in ophone_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in ophone_rows if row['category'] != 'S'),
@@ -360,6 +362,7 @@ def run_pipeline(
         input_frontmatter=tilde_frontmatter,
         stage_data={
             'source_variant': 'accentuated',
+            'duration_scale': phone_report['duration_scale'],
             'phone_row_count': len(phone_rows),
             'silence_row_count': sum(1 for row in phone_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in phone_rows if row['category'] != 'S'),

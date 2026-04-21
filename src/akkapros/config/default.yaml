@@ -118,6 +118,9 @@ phonetize:
       # non-punctuation boundaries.
       enable_resync_pause: false
       durations:
+        # Global multiplier applied to all other numeric duration leaves when
+        # different from 1.0. Runtime treats 1.0 as a true no-op path.
+        scale: 1.0
         # Upper ordinary duration for one vowel or consonant. Model-facing ceiling from
         # comparative duration limits; used as a validation ceiling for class-local
         # consonant gemination maxima and the vowel elongation max.

@@ -75,6 +75,7 @@ materialize and finalize the two phone-row outputs, `<prefix>_ophone.txt` and
 
 Important current phonetize timing keys include:
 
+- `phonetize.process.timing_model.durations.scale`: global duration multiplier for runtime realization and diagnostics; `1.0` is a true no-op path that preserves configured values exactly
 - `phonetize.process.timing_model.durations.segmental_ceiling`: validation-only global ceiling for consonant `gemination_max` values and `vowels.perception_limits.elongation_max`
 - `phonetize.process.timing_model.durations.segmental_floor`: validation-only shared floor for vowel minima, consonant anchors and minima, and hiatus/transition special realizations
 - `phonetize.process.timing_model.durations.consonants.<class>.coda_final`: dedicated pre-pausal final coda anchor used only when the immediately following realized unit is a punctuation-owned short or long pause; inserted resync pauses do not trigger it

@@ -264,6 +264,7 @@ Both phone files keep YAML frontmatter. Important downstream metadata includes:
 
 - `file.format: "phone"`
 - `metadata.data.phonetize.source_variant`
+- `metadata.data.phonetize.duration_scale`
 - `metadata.data.phonetize.phone_row_count`
 - `metadata.data.phonetize.silence_row_count`
 - `metadata.data.phonetize.syllable_count`

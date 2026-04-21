@@ -1,10 +1,10 @@
 ---
 cr_id: CR-085
-status: Draft
+status: Done
 priority: High
 impact: Mutative
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-21
 implements: 'REQ-045'
 ---
 
@@ -14,13 +14,13 @@ implements: 'REQ-045'
 
 Add `phonetize.process.timing_model.durations.scale` as the first key in the
 phonetizer `durations` block with default `1.0`, and apply it as a global
-multiplier for the rest of the duration table when the value differs from
-`1.0`.
+multiplier for all other numeric leaves in that `durations` tree when the
+value differs from `1.0`.
 
 The implementation shall special-case `scale == 1.0` so the original configured
 values are used directly, avoiding unnecessary float multiplication on the
 default path. The applied scale shall be reported in phonetizer frontmatter,
-logs, and metrics outputs.
+logs, and metrics outputs using one canonical metadata field name.
 
 Repository inspection on 2026-04-19 shows that no `scale` key currently exists,
 the phonetizer reads duration values directly from the merged timing table, and
@@ -96,8 +96,9 @@ The canonical timing table begins with:
 ## 2. Derive one effective duration table
 
 - If `scale == 1.0`, use the original configured duration values directly.
-- If `scale != 1.0`, multiply every other duration value under `durations` by
-  the scale before runtime use.
+- If `scale != 1.0`, multiply every other numeric duration value under
+  `durations` by the scale before runtime use.
+- `durations.scale` itself is configuration metadata and is never scaled.
 
 The same effective table must be used by runtime realization and by any
 verification/reporting surface that depends on current effective durations.
@@ -107,6 +108,19 @@ verification/reporting surface that depends on current effective durations.
 The phonetizer must record the applied scale in emitted frontmatter and expose
 it in logging. Metrics outputs that summarize phonetizer timing context must
 also surface the same scalar.
+
+Canonical reporting field:
+
+- `metadata.data.phonetize.duration_scale`
+
+Contract:
+
+- Frontmatter written by phonetizer includes
+  `metadata.data.phonetize.duration_scale`.
+- Metrics extraction includes `duration_scale` in phonetizer diagnostics when
+  present in input frontmatter.
+- Human-readable metrics output prints the same `duration_scale` value in the
+  diagnostics section.
 
 ## 4. Keep the contract visible everywhere
 
@@ -133,18 +147,27 @@ Concrete execution surfaces:
   conversion to runtime values
 - route runtime anchor helpers and reference helpers through that effective
   table
-- add a frontmatter field for the applied scale, for example a canonical
-  phonetizer stage-data key dedicated to duration scale
+- add the canonical frontmatter field
+  `metadata.data.phonetize.duration_scale`
 - update metrics extraction and human-readable metrics output to surface the
   applied scale from frontmatter
 - update logging/help/docs/tests/demo configs accordingly
 
 Recommended reporting contract:
 
-- frontmatter: one stable phonetizer metadata field for the applied scale
+- frontmatter: `metadata.data.phonetize.duration_scale`
 - logs: include the active scale in phonetizer timing-model summaries
-- metrics: expose the same value in JSON/text where phonetizer timing context is
-  summarized
+- metrics: expose the same value in JSON/text where phonetizer timing context
+  is summarized
+
+Implementation order contract:
+
+1. Add config key and schema/help visibility.
+2. Add effective-duration derivation helper and route runtime through it.
+3. Route verification through the same effective-duration view.
+4. Add frontmatter/logging reporting.
+5. Add metrics extraction/reporting wiring.
+6. Update tests and public docs.
 
 ---
 
@@ -171,16 +194,16 @@ demo/akkapros/prosmaker/corpus-demo.yaml
 
 # Acceptance Criteria
 
-- [ ] `durations.scale: 1.0` exists and is the first key in the canonical
+- [x] `durations.scale: 1.0` exists and is the first key in the canonical
       `durations` block.
-- [ ] `scale == 1.0` uses original configured values directly.
-- [ ] `scale != 1.0` multiplies every other duration leaf under `durations`.
-- [ ] The effective scaled table is used coherently by runtime realization.
-- [ ] Verification rejects non-positive scale values and does not silently allow
+- [x] `scale == 1.0` uses original configured values directly.
+- [x] `scale != 1.0` multiplies every other duration leaf under `durations`.
+- [x] The effective scaled table is used coherently by runtime realization.
+- [x] Verification rejects non-positive scale values and does not silently allow
       invalid scaled effective relations.
-- [ ] Phonetizer frontmatter records the applied scale.
-- [ ] Phonetizer logs and metrics outputs surface the applied scale.
-- [ ] Default/help/demo/doc/test surfaces reflect the new key.
+- [x] Phonetizer frontmatter records the applied scale.
+- [x] Phonetizer logs and metrics outputs surface the applied scale.
+- [x] Default/help/demo/doc/test surfaces reflect the new key.
 
 ---
 
@@ -215,6 +238,13 @@ Manual checks:
 - inspect default/help/demo/doc surfaces to confirm `scale` appears first in the
   `durations` block
 
+Verification commands (implementation handoff):
+
+- `pytest tests/test_config_support.py -q`
+- `pytest tests/test_phonetize_lib.py -q`
+- `pytest tests/test_metrics_stats.py -q`
+- `pytest tests/test_integration.py -q`
+
 ---
 
 # Rollback Plan
@@ -235,23 +265,23 @@ remove the added reporting fields.
 
 ## Implementation
 
-- [ ] Add `durations.scale`
-- [ ] Derive one effective scaled duration table
-- [ ] Route runtime and verification through that table
-- [ ] Surface the applied scale in frontmatter, logs, and metrics outputs
+- [x] Add `durations.scale`
+- [x] Derive one effective scaled duration table
+- [x] Route runtime and verification through that table
+- [x] Surface the applied scale in frontmatter, logs, and metrics outputs
 
 ## Tests
 
-- [ ] Update config/help surface tests
-- [ ] Add runtime/metrics reporting coverage for scale
+- [x] Update config/help surface tests
+- [x] Add runtime/metrics reporting coverage for scale
 
 ## Documentation
 
-- [ ] Update phonetizer/configuration/metrics docs and demo YAML examples
+- [x] Update phonetizer/configuration/metrics docs and demo YAML examples
 
 ## Review
 
-- [ ] Verify the `1.0` path is a true no-op
+- [x] Verify the `1.0` path is a true no-op
 
 ---
 

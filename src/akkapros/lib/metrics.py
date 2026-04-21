@@ -1117,6 +1117,7 @@ def _extract_unit_drift_summary(input_frontmatter: Dict | None) -> Dict[str, flo
 def _extract_phonetizer_diagnostics(input_frontmatter: Dict | None) -> Dict[str, float | int]:
     phonetize_data = (((input_frontmatter or {}).get('metadata') or {}).get('data') or {}).get('phonetize', {})
     field_specs: tuple[tuple[str, tuple[str, ...], type], ...] = (
+        ('duration_scale', ('duration_scale',), float),
         ('syllable_count', ('syllable_count', 'syllable_unit_count'), int),
         ('pause_count', ('pause_count', 'pause_unit_count'), int),
         ('resync_pause_count', ('resync_pause_count',), int),
@@ -1654,6 +1655,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     diagnostics = orig.get('phonetizer_diagnostics') or {}
     if diagnostics:
         lines.append(f"\nPhonetizer diagnostics:")
+        if 'duration_scale' in diagnostics:
+            lines.append(f"  Duration scale: {float(diagnostics['duration_scale']):.6g}")
         lines.append(
             f"  Total units: {diagnostics['total_unit_count']} = "
             f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['resync_pause_count']} resync pauses"
@@ -1736,6 +1739,8 @@ def format_table(result: Dict, run_context: Dict | None = None) -> str:
     diagnostics = rep.get('phonetizer_diagnostics') or {}
     if diagnostics:
         lines.append(f"\nPhonetizer diagnostics:")
+        if 'duration_scale' in diagnostics:
+            lines.append(f"  Duration scale: {float(diagnostics['duration_scale']):.6g}")
         lines.append(
             f"  Total units: {diagnostics['total_unit_count']} = "
             f"{diagnostics['syllable_count']} syllables + {diagnostics['pause_count']} pauses + {diagnostics['resync_pause_count']} resync pauses"

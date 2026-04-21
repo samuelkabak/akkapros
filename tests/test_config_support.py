@@ -48,10 +48,11 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
     assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is False
     durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
+    assert durations["scale"] == 1.0
     assert durations["segmental_floor"] == 20
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
     assert text.index("drift_tolerance: 19") > text.index("accentuation_distribution_policy: \"80_20\"")
-    assert text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
+    assert text.index("scale: 1.0") < text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
     assert durations["consonants"]["closure"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["closure"]["coda_final"] == 87
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260
@@ -598,6 +599,7 @@ def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
     default_text = default_help.stdout
     assert "Active Config Paths:" in default_text
     assert "common.run.prefix" in default_text
+    assert "phonetize.process.timing_model.durations.scale" in default_text
     assert "phonetize.process.timing_model.durations.cvc_reference" in default_text
     assert "phonetize.process.timing_model.speech.wpm" not in default_text
     assert default_text.index("Active Config Paths:") < default_text.index("Deprecated Dedicated Flags:")
@@ -613,6 +615,7 @@ def test_phonetizer_help_is_program_scoped_and_subtree_scoped() -> None:
     assert subtree_help.returncode == 0, subtree_help.stderr
     subtree_text = subtree_help.stdout
     assert "Config Help: phonetize.process.timing_model.durations" in subtree_text
+    assert "phonetize.process.timing_model.durations.scale" in subtree_text
     assert "phonetize.process.timing_model.durations.cvc_reference" in subtree_text
     assert "common.run.prefix" not in subtree_text
     assert "Deprecated Dedicated Flags:" not in subtree_text

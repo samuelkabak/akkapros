@@ -418,6 +418,7 @@ def _assert_phone_artifact(path: Path) -> None:
     assert any(row['duration'] != '0000' for row in all_rows)
     assert all(re.fullmatch(r'[+-]\d{3}', row['drift']) for row in all_rows)
     assert all(len(row['intonation']) == 3 for row in all_rows)
+    assert frontmatter['metadata']['data']['phonetize']['duration_scale'] > 0
     assert frontmatter['metadata']['data']['phonetize']['unit_drift']['max'] >= 0
     assert 'mean' in frontmatter['metadata']['data']['phonetize']['unit_drift']
     assert 'stddev' in frontmatter['metadata']['data']['phonetize']['unit_drift']

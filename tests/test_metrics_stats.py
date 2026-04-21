@@ -207,6 +207,7 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
+                    "duration_scale": 1.25,
                     "unit_drift": {
                         "max": ophone_report["unit_drift"]["max"],
                         "mean": ophone_report["unit_drift"]["mean"],
@@ -220,6 +221,7 @@ def _write_phone_pair_with_drift_frontmatter(tmp_path: Path, prefix: str, tilde_
         "metadata": {
             "data": {
                 "phonetize": {
+                    "duration_scale": 1.25,
                     "unit_drift": {
                         "max": phone_report["unit_drift"]["max"],
                         "mean": phone_report["unit_drift"]["mean"],
@@ -671,5 +673,7 @@ def test_single_line_metrics_match_manual_varco_verification_reference(tmp_path:
     for key, expected in VARCO_VERIFICATION_ACCENTUATED.items():
         assert math.isclose(result["accentuated"]["acoustic"][key], expected, rel_tol=0.0, abs_tol=1e-9), key
 
+    assert math.isclose(result["original"]["phonetizer_diagnostics"]["duration_scale"], 1.25, rel_tol=0.0, abs_tol=1e-12)
+    assert math.isclose(result["accentuated"]["phonetizer_diagnostics"]["duration_scale"], 1.25, rel_tol=0.0, abs_tol=1e-12)
     assert result["original"]["unit_drift"] == VARCO_VERIFICATION_ORIGINAL_DRIFT
     assert result["accentuated"]["unit_drift"] == VARCO_VERIFICATION_ACCENTUATED_DRIFT

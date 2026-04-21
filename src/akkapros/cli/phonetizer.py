@@ -208,6 +208,7 @@ def main() -> None:
         phonetize_config,
         input_frontmatter,
     )
+    logger.info('Active phonetizer duration scale: %.6g', float(original_report.get('duration_scale', 1.0)))
     original_body = serialize_phone_rows(original_rows)
     accentuated_body = serialize_phone_rows(accentuated_rows)
     original_mbrola_body = serialize_mbrola_rows(original_rows, phonetize_config, accentuated=False)
@@ -233,6 +234,7 @@ def main() -> None:
         input_frontmatter=input_frontmatter,
         stage_data={
             'source_variant': 'original',
+            'duration_scale': original_report['duration_scale'],
             'phone_row_count': len(original_rows),
             'silence_row_count': sum(1 for row in original_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in original_rows if row['category'] != 'S'),
@@ -267,6 +269,7 @@ def main() -> None:
         input_frontmatter=input_frontmatter,
         stage_data={
             'source_variant': 'accentuated',
+            'duration_scale': accentuated_report['duration_scale'],
             'phone_row_count': len(accentuated_rows),
             'silence_row_count': sum(1 for row in accentuated_rows if row['category'] == 'S'),
             'phoneme_row_count': sum(1 for row in accentuated_rows if row['category'] != 'S'),

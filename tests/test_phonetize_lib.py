@@ -335,7 +335,69 @@ def test_phase2_baseline_realization_uses_non_zero_durations() -> None:
     assert report['one_mora_ref'] == 150.0
     assert report['two_mora_ref'] == 300.0
     assert report['three_mora_ref'] == 450.0
+    assert report['duration_scale'] == 1.0
     assert report['unit_drift']['label'] in {'Ahead (rushing)', 'On the beat', 'Behind (dragging)'}
+
+
+def test_runtime_view_applies_duration_scale_when_non_default() -> None:
+    config = _runtime_view_phonetize_config(
+        _merge_phonetize_config(
+            {
+                'process': {
+                    'timing_model': {
+                        'durations': {
+                            'scale': 2.0,
+                        },
+                    },
+                },
+            }
+        )
+    )
+
+    durations = config['timing_model']['durations']
+    assert config['timing_model']['duration_scale'] == 2.0
+    assert durations['scale'] == 2.0
+    assert durations['cvc_reference'] == 600.0
+    assert durations['consonants']['closure']['onset'] == 178.0
+
+
+def test_runtime_view_keeps_identity_path_at_duration_scale_one() -> None:
+    config = _runtime_view_phonetize_config(
+        _merge_phonetize_config(
+            {
+                'process': {
+                    'timing_model': {
+                        'durations': {
+                            'scale': 1.0,
+                            'cvc_reference': 305,
+                        },
+                    },
+                },
+            }
+        )
+    )
+
+    durations = config['timing_model']['durations']
+    assert config['timing_model']['duration_scale'] == 1.0
+    assert durations['scale'] == 1.0
+    assert durations['cvc_reference'] == 305
+
+
+def test_shared_verification_rejects_non_positive_duration_scale() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'timing_model': {
+                    'durations': {
+                        'scale': 0,
+                    },
+                },
+            },
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any(issue.path == 'phonetize.process.timing_model.durations.scale' for issue in result.failures)
 
 
 def test_phase2_same_consonant_pair_honors_geminate_policy() -> None:
