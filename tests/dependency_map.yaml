@@ -1,0 +1,115 @@
+# Test Dependency Map
+# Maps code domains to pytest markers/selectors for targeted verification.
+# Usage:
+#   full default:          pytest
+#   fast development:      pytest -m "not integration and not slow"
+#   config impact:         pytest -m "config_impact and not slow"
+#   phonetize-only:        pytest -m "phonetize_impact and not slow"
+#   full integration gate: pytest -m "integration or slow"
+#   release gate:          pytest
+
+domains:
+  syllabify:
+    module: src/akkapros/lib/syllabify.py
+    fast_markers: [unit, prosody_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_selftests_lib.py         # unit: syllabify_text and tokenize_line
+      - tests/test_integration.py           # integration: stage_pipeline
+
+  prosody:
+    module: src/akkapros/lib/prosody.py
+    fast_markers: [unit, prosody_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_prosody_mora_mode.py     # unit: mora_mode logic
+      - tests/test_selftests_lib.py         # unit: prosody selftests
+      - tests/test_integration.py           # integration: stage_pipeline, fullprosmaker
+
+  phonetize:
+    module: src/akkapros/lib/phonetize.py
+    fast_markers: [unit, phonetize_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_phonetize_lib.py         # unit: phone row logic
+      - tests/test_selftests_lib.py         # unit: phonetize selftests
+      - tests/test_integration.py           # integration: phonetizer CLI tests
+
+  metrics:
+    module: src/akkapros/lib/metrics.py
+    fast_markers: [unit, metrics_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_metrics_stats.py         # unit: metrics computation
+      - tests/test_selftests_lib.py         # unit: metrics selftests
+      - tests/test_integration.py           # integration: metricalc CLI, fullprosmaker
+
+  config:
+    module: src/akkapros/lib/config.py
+    fast_markers: [unit, config_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_config_support.py        # unit/integration: config loading, schema
+      - tests/test_integration.py           # integration: config-file based runs
+
+  frontmatter:
+    module: src/akkapros/lib/frontmatter.py
+    fast_markers: [unit, config_impact]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_frontmatter_append.py    # unit: frontmatter append logic
+      - tests/test_integration_append_frontmatter.py  # integration: CLI frontmatter
+
+  print:
+    module: src/akkapros/lib/print.py
+    fast_markers: [unit]
+    integration_markers: [integration]
+    test_modules:
+      - tests/test_selftests_lib.py         # unit: print selftests
+      - tests/test_integration.py           # integration: printer CLI
+
+  phoneprep:
+    module: src/akkapros/lib/phoneprep.py
+    fast_markers: [unit]
+    integration_markers: [integration, slow]
+    test_modules:
+      - tests/test_phoneprep_lib.py         # unit: phoneprep logic
+      - tests/test_integration.py           # integration: phoneprep CLI (slow)
+
+  pipeline:
+    module: src/akkapros/cli/fullprosmaker.py
+    fast_markers: [unit, critical_path]
+    integration_markers: [integration, slow]
+    test_modules:
+      - tests/test_integration.py           # integration+slow: fullprosmaker gold refs
+
+  docs:
+    module: docs/
+    fast_markers: [docs_only]
+    integration_markers: []
+    test_modules:
+      - tests/test_doc_flowcharts.py        # docs_only: flowchart consistency
+
+# Mandatory fast-mode tests per domain (no subprocess, under 5 s):
+fast_mandatory:
+  - tests/test_selftests_lib.py
+  - tests/test_prosody_mora_mode.py
+  - tests/test_metrics_stats.py
+  - tests/test_phonetize_lib.py
+  - tests/test_phoneprep_lib.py
+  - tests/test_config_support.py
+  - tests/test_frontmatter_append.py
+  - tests/test_format_validation.py
+  - tests/test_akkadian_likelihood.py
+  - tests/test_print_merger.py
+  - tests/test_punctuation_whitelist.py
+  - tests/test_gencode_diphthongs.py
+  - tests/test_update_indexes_script.py
+  - tests/test_doc_flowcharts.py
+
+# Integration tests (opt-in with: pytest -m "integration or slow"):
+integration_optional:
+  - tests/test_integration.py
+  - tests/test_selftests_cli.py
+  - tests/test_cli_logging.py
+  - tests/test_integration_append_frontmatter.py

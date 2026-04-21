@@ -2,7 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[085. Add Global Duration Scale to Phonetizer Timing Model](085-add-global-duration-scale-to-phonetizer-timing-model.md) - Draft
+[086. Optimize Test Execution with Markers, Fast fullprosmaker Modes, and Tagged Code Index](086-optimize-test-execution-with-markers-fast-fullprosmaker-and-tagged-code-index.md) - Done
+[085. Add Global Duration Scale to Phonetizer Timing Model](085-add-global-duration-scale-to-phonetizer-timing-model.md) - Done
 [084. Add Pre-Pausal Final Duration Anchors](084-add-pre-pausal-final-duration-anchors.md) - Done
 [083. Rename Mini Pause to Resync Pause and Add Toggle](083-rename-mini-pause-to-resync-pause-and-add-toggle.md) - Done
 [082. Add Corrective Geminate Coda Share Ratio](082-add-corrective-geminate-coda-share-ratio.md) - Done

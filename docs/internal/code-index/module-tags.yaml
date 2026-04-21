@@ -1,0 +1,180 @@
+# Tagged Code Index: Module Domain Tags
+# Supports bounded, tag-filtered code inspection by domain.
+# Usage: load entries matching domain tags first; expand to related modules only when needed.
+#
+# Fields per entry:
+#   module:       workspace-relative path
+#   domain:       primary functional domain(s)
+#   coupling:     independent | shared-core | pipeline-critical
+#   test_markers: primary pytest markers used by tests for this module
+#   sections:     named logical sections (approximate line ranges for navigation)
+
+modules:
+
+  - module: src/akkapros/lib/syllabify.py
+    domain: [syllabify]
+    coupling: pipeline-critical
+    test_markers: [unit, prosody_impact, integration]
+    sections:
+      - name: phonetic_constants
+        note: Module-level VOWELS/CONSONANTS sets; update here first for new characters.
+      - name: tokenize_line
+        note: High-risk function. Hyphen/dash distinction, bracket state machine.
+      - name: syllabify_text
+        note: High-risk function. Multi-line orchestration, glottal stop insertion.
+      - name: run_tests
+        note: ~40 test cases. Run with --test flag before any change.
+
+  - module: src/akkapros/lib/prosody.py
+    domain: [prosody]
+    coupling: pipeline-critical
+    test_markers: [unit, prosody_impact, integration]
+    sections:
+      - name: AccentStyle_MoraMode
+        note: Enums for LOB/SOB/AOB and bi/mono mora modes.
+      - name: ProsodyEngine
+        note: Main entry point; process_file() drives the pipeline.
+      - name: accentuation_phrase
+        note: Core stress-selection logic; depends on AccentStyle.
+      - name: merge_unmerge_logic
+        note: Function-word forward/backward merge algorithm.
+
+  - module: src/akkapros/lib/phonetize.py
+    domain: [phonetize]
+    coupling: pipeline-critical
+    test_markers: [unit, phonetize_impact, integration]
+    sections:
+      - name: timing_model_constants
+        note: Duration tables, pause ranges, drift parameters.
+      - name: realize_phone_streams
+        note: Top-level entry; returns (ophone_rows, report), (phone_rows, report).
+      - name: realize_phone_rows
+        note: Hot path (see profiling notes in CR-086).
+      - name: serialize_phone_rows
+        note: Serializes phone rows to text format.
+      - name: serialize_mbrola_rows
+        note: Serializes to MBROLA .pho format; xsampa mapping applied here.
+
+  - module: src/akkapros/lib/metrics.py
+    domain: [metrics]
+    coupling: pipeline-critical
+    test_markers: [unit, metrics_impact, integration]
+    sections:
+      - name: phone_interval_model
+        note: VarcoC, DeltaC, %V, %C, nPVI, rPVI computation.
+      - name: process_file
+        note: Hot path (see profiling notes in CR-086).
+      - name: format_table
+        note: Human-readable metrics table output.
+      - name: run_tests
+        note: Selftest suite; run with --test flag.
+
+  - module: src/akkapros/lib/config.py
+    domain: [config]
+    coupling: shared-core
+    test_markers: [unit, config_impact, integration]
+    sections:
+      - name: schema_validation
+        note: Config key validation; removed-key rejection (CR-081).
+      - name: parse_args_with_config
+        note: Merges file config + CLI args; override precedence here.
+      - name: effective_options_from_namespace
+        note: Converts argparse namespace to options dict for frontmatter.
+
+  - module: src/akkapros/lib/frontmatter.py
+    domain: [config, pipeline]
+    coupling: shared-core
+    test_markers: [unit, config_impact, integration]
+    sections:
+      - name: build_output_frontmatter
+        note: Constructs frontmatter dict for all stage outputs.
+      - name: split_frontmatter
+        note: Parses YAML front matter from text files.
+      - name: compose_text_document
+        note: Serializes frontmatter + body to text.
+
+  - module: src/akkapros/lib/print.py
+    domain: [print]
+    coupling: pipeline-critical
+    test_markers: [unit, integration]
+    sections:
+      - name: process_file
+        note: Hot path (see profiling notes in CR-086).
+      - name: _render_phone_rows
+        note: Hot path; IPA/xar/acute/bold rendering per row.
+
+  - module: src/akkapros/lib/helpmsg.py
+    domain: [config, cli]
+    coupling: independent
+    test_markers: []
+    sections:
+      - name: OPTION_HELP
+        note: Registry of all CLI help strings keyed by 'module.option_name'.
+
+  - module: src/akkapros/cli/fullprosmaker.py
+    domain: [pipeline, cli]
+    coupling: pipeline-critical
+    test_markers: [unit, critical_path, integration, slow]
+    sections:
+      - name: FAST_MAX_LINES
+        note: Default line cap for --fast mode (10 lines).
+      - name: run_pipeline
+        note: Orchestrates all pipeline stages; accepts max_lines for bounded runs.
+      - name: main
+        note: argparse setup; --fast and --max-lines added in CR-086.
+      - name: selftests
+        note: _run_all_selftests_with_summary(); invoked by --test-all.
+
+  - module: src/akkapros/cli/atfparser.py
+    domain: [atf, cli]
+    coupling: independent
+    test_markers: [unit, integration]
+    sections:
+      - name: parse_atf_file
+        note: Strips eBL ATF markup; keeps %% lines, discards metadata.
+
+  - module: src/akkapros/cli/syllabifier.py
+    domain: [syllabify, cli]
+    coupling: independent
+    test_markers: [unit, integration]
+
+  - module: src/akkapros/cli/prosmaker.py
+    domain: [prosody, cli]
+    coupling: independent
+    test_markers: [unit, prosody_impact, integration]
+
+  - module: src/akkapros/cli/phonetizer.py
+    domain: [phonetize, cli]
+    coupling: independent
+    test_markers: [unit, phonetize_impact, integration]
+
+  - module: src/akkapros/cli/metricalc.py
+    domain: [metrics, cli]
+    coupling: independent
+    test_markers: [unit, metrics_impact, integration]
+
+  - module: src/akkapros/cli/printer.py
+    domain: [print, cli]
+    coupling: independent
+    test_markers: [unit, integration]
+
+  - module: src/akkapros/lib/phoneprep.py
+    domain: [phoneprep]
+    coupling: independent
+    test_markers: [unit, integration, slow]
+
+  - module: tests/dependency_map.yaml
+    domain: [governance]
+    coupling: independent
+    test_markers: []
+    sections:
+      - name: domains
+        note: Maps code domains to fast/integration markers and test modules.
+      - name: fast_mandatory
+        note: Tests that must pass in default (fast) mode.
+
+inspection_guidelines:
+  - Start with the module matching your changed domain tag.
+  - Load coupling=independent modules in isolation; they have no cross-module side effects.
+  - For coupling=pipeline-critical modules, check upstream/downstream stage I/O contracts.
+  - Full repository sweep is only needed when tag resolution is insufficient.

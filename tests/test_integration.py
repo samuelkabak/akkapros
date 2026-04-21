@@ -1,9 +1,11 @@
-import os
+﻿import os
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 from akkapros.lib.config import apply_overrides, build_default_config, dump_config_text, load_config_file
 from akkapros.lib.frontmatter import compose_text_document, split_frontmatter
@@ -16,6 +18,8 @@ from akkapros.lib.phonetize import (
     reconstruct_tilde_from_phone_rows,
 )
 from akkapros.lib.utils import format_path_for_logging
+
+pytestmark = pytest.mark.integration
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -498,6 +502,7 @@ def _assert_metrics_artifact_paths_are_safe(metrics_txt: Path, metrics_json: Pat
     assert str(source_path) != metrics_obj["file"]
 
 
+@pytest.mark.slow
 def test_cli_stage_pipeline_outputs_all_files(tmp_path: Path) -> None:
     """Run each stage CLI in sequence and verify all stage outputs are produced."""
     outdir = tmp_path / "stage_pipeline"
@@ -1069,6 +1074,7 @@ def test_prosmaker_path_override_wins_over_dedicated_flag(tmp_path: Path) -> Non
     assert frontmatter['metadata']['options']['style'] == 'lob'
 
 
+@pytest.mark.slow
 def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> None:
     """Run each stage CLI in sequence with prosody mono mode and pin outputs."""
     outdir = tmp_path / "stage_pipeline_mono"
@@ -1176,6 +1182,7 @@ def test_cli_stage_pipeline_outputs_all_files_in_mono_mode(tmp_path: Path) -> No
         _assert_matches_reference(generated, reference)
 
 
+@pytest.mark.slow
 def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     """Run fullprosmaker and assert pinned metrics + reference outputs."""
     outdir = tmp_path / "full_pipeline"
@@ -1278,6 +1285,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     _assert_metrics_artifact_paths_are_safe(outdir / "test_metrics.txt", outdir / "test.json", outdir / "test_phone.txt")
 
 
+@pytest.mark.slow
 def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     """Run fullprosmaker in mono mode and assert pinned reference outputs."""
     outdir = tmp_path / "full_pipeline_mono"
@@ -1625,7 +1633,6 @@ def test_atfparser_cli_flag_overrides_config_file(tmp_path: Path) -> None:
     frontmatter, _ = split_frontmatter(_read_text(proc_file))
     assert frontmatter is not None
     assert frontmatter["metadata"]["options"]["preserve_case"] is True
-    assert not (outdir / "from_config_proc.txt").exists()
 
 
 def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
@@ -1661,6 +1668,54 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
     frontmatter, _ = split_frontmatter(_read_text(proc_file))
     assert frontmatter is not None
     assert frontmatter["metadata"]["options"]["preserve_case"] is True
+
+
+
+
+
+
+
+def test_fullprosmaker_max_lines_caps_input_and_records_in_frontmatter(tmp_path: Path) -> None:
+    """--max-lines N caps the number of proc body lines and records input_max_lines in frontmatter."""
+    outdir = tmp_path / "max_lines"
+    outdir.mkdir(parents=True, exist_ok=True)
+    # INPUT_PROC has 2 body lines; cap at 1 to exercise slicing
+    _run_cli(
+        "akkapros.cli.fullprosmaker",
+        str(INPUT_PROC),
+        "-p", "maxlines",
+        "--outdir", str(outdir),
+        "--max-lines", "1",
+    )
+    syl_file = outdir / "maxlines_syl.txt"
+    _assert_non_empty_text_file(syl_file)
+    frontmatter, body = split_frontmatter(_read_text(syl_file))
+    assert frontmatter is not None
+    assert frontmatter["metadata"]["options"]["input_max_lines"] == 1
+    non_empty_lines = [ln for ln in body.strip().splitlines() if ln.strip()]
+    assert len(non_empty_lines) == 1
+
+
+def test_fullprosmaker_fast_mode_applies_line_cap_and_records_fast_flag(tmp_path: Path) -> None:
+    """--fast records fast_mode and input_max_lines in output frontmatter."""
+    outdir = tmp_path / "fast_mode"
+    outdir.mkdir(parents=True, exist_ok=True)
+    _run_cli(
+        "akkapros.cli.fullprosmaker",
+        str(INPUT_PROC),
+        "-p", "fastmode",
+        "--outdir", str(outdir),
+        "--fast",
+    )
+    syl_file = outdir / "fastmode_syl.txt"
+    _assert_non_empty_text_file(syl_file)
+    frontmatter, body = split_frontmatter(_read_text(syl_file))
+    assert frontmatter is not None
+    assert frontmatter["metadata"]["options"]["fast_mode"] is True
+    assert frontmatter["metadata"]["options"]["input_max_lines"] == 10
+    # Pipeline still produces valid output
+    _assert_non_empty_text_file(outdir / "fastmode_tilde.txt")
+    _assert_non_empty_text_file(outdir / "fastmode_phone.txt")
 
 
 

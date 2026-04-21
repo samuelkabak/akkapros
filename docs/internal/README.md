@@ -120,3 +120,14 @@ Related governance changes
 Contacts
 
 - Maintainers and reviewer contacts are listed in `CONTRIBUTING.md`. Use the issue tracker to request reviews for ADR/CR proposals.
+
+Agent optimization artifacts
+
+- Code tag index: `docs/internal/code-index/module-tags.yaml`
+- Test dependency routing map: `tests/dependency_map.yaml`
+- Purpose: help contributors and coding agents choose a bounded code-reading slice and targeted test slice during implementation.
+- Important: these artifacts are advisory metadata today. They are not auto-consumed by pytest or by `scripts/update-indexes.py`.
+- Suggested workflow:
+	- Full safety gate: `pytest`
+	- Fast development slice: `pytest -m "not integration and not slow"`
+	- Domain-targeted slice examples: `pytest -m "config_impact and not slow"` or `pytest -m "critical_path and not slow"`

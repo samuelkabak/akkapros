@@ -155,6 +155,8 @@ OPTION_HELP = {
     "fullprosmaker.print_circ_hiatus": "Speculative IPA mode: split circumflex vowels into hiatus (for example qû -> qʊ.ʊ).",
     "fullprosmaker.print_xar": "Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.",
     "fullprosmaker.print_merger": "Render the visible merge connector in supported outputs.",
+    "fullprosmaker.fast": "Enable fast mode: cap input to the first 10 body lines and record fast_mode in output frontmatter.",
+    "fullprosmaker.max_lines": "Process at most N non-frontmatter body lines from the proc input. Recorded as input_max_lines in output frontmatter.",
     "fullprosmaker.test_syllabify": "Run syllabify library tests.",
     "fullprosmaker.test_prosody": "Run prosody realization library tests.",
     "fullprosmaker.test_diphthongs": "Run diphthong restoration tests.",

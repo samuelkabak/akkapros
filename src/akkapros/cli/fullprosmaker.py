@@ -88,6 +88,10 @@ from akkapros.lib.utils import (
     validate_intermediate_format,
 )
 
+FAST_MAX_LINES: int = 10
+"""Number of body lines processed when --fast is active without an explicit --max-lines value."""
+
+
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
     """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
     output_ipa = args.print_ipa
@@ -241,6 +245,7 @@ def run_pipeline(
     circ_hiatus: bool = False,
     title: str | None = None,
     options: dict[str, object] | None = None,
+    max_lines: int | None = None,
 ) -> int:
     """Execute syllabify -> prosody realization -> metrics -> print and write all outputs."""
     if outdir != Path('.'):
@@ -262,6 +267,11 @@ def run_pipeline(
 
     # 1) Syllabify using library call
     input_frontmatter, source_text = read_text_file(input_file)
+
+    if max_lines is not None and max_lines > 0:
+        body_lines = source_text.splitlines(keepends=True)
+        if len(body_lines) > max_lines:
+            source_text = ''.join(body_lines[:max_lines])
 
     syllabify.configure_punctuation_rules(
         short_punct_chars=extra_short_punct_chars,
@@ -593,6 +603,12 @@ Version: {__version__}
                         help=help_for('fullprosmaker.print_merger'))
 
     # Test controls (covering all grouped sub-components)
+    # Bounded execution controls
+    parser.add_argument('--fast', action='store_true', default=False,
+                        help=help_for('fullprosmaker.fast'))
+    parser.add_argument('--max-lines', dest='max_lines', type=int, default=None,
+                        help=help_for('fullprosmaker.max_lines'))
+
     parser.add_argument('--test-syllabify', action='store_true', help=help_for('fullprosmaker.test_syllabify'))
     parser.add_argument('--test-prosody', dest='test_prosody', action='store_true',
                         help=help_for('fullprosmaker.test_prosody'))
@@ -694,13 +710,19 @@ Version: {__version__}
         logger.error('%s', exc)
         sys.exit(2)
 
+    effective_max_lines: int | None = args.max_lines
+    if args.fast and effective_max_lines is None:
+        effective_max_lines = FAST_MAX_LINES
+
     option_values = with_inherited_syllabify_options(
         {
             **effective_options_from_namespace(
                 args,
-                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'conf'},
+                exclude={'input', 'outdir', 'prefix', 'test_syllabify', 'test_prosody', 'test_diphthongs', 'test_metrics', 'test_print', 'test_cli', 'test_all', 'version', 'conf', 'fast', 'max_lines'},
             ),
             'print_merger': args.print_merger,
+            **(({'fast_mode': True}) if args.fast else {}),
+            **(({'input_max_lines': effective_max_lines}) if effective_max_lines is not None else {}),
         },
         extra_vowels=args.extra_vowels,
         extra_consonants=args.extra_consonants,
@@ -739,6 +761,7 @@ Version: {__version__}
         circ_hiatus=circ_hiatus,
         title=args.title,
         options=option_values,
+        max_lines=effective_max_lines,
     )
     sys.exit(code)
 

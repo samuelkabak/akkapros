@@ -4,7 +4,11 @@ import sys
 from shutil import copyfile
 from pathlib import Path
 
+import pytest
+
 from akkapros.lib.utils import format_path_for_logging
+
+pytestmark = pytest.mark.integration
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
