@@ -79,6 +79,10 @@ prosody:
 # Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.
 phonetize:
   process:
+    realization:
+      # Enable same-syllable emphatic-coda coloring and immediate next-syllable
+      # carry while preserving onset-triggered coloring.
+      extended_emphatic_coloring: true
     intonation:
       # Baseline speaker pitch in Hertz used for emitted .pho rows.
       f0: 120
@@ -305,7 +309,7 @@ print:
     acute: false
     # Write <prefix>_accent_bold.md.
     bold: false
-    # Write <prefix>_accent_ipa.txt (vowel coloring applies post-emphatic only).
+    # Write <prefix>_accent_ipa.txt using phonetizer-owned vowel realizations.
     ipa: false
     # Speculative IPA mode: split circumflex vowels into hiatus (for example qû ->
     # qʊ.ʊ).

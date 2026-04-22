@@ -35,3 +35,20 @@ def test_phoneprep_mbrola_sidecar_mapping_remains_unchanged():
     assert phoneprep.to_mbrola_symbol('ʾ') == '?'
     assert phoneprep.to_mbrola_symbol('ɑ') == 'a.'
     assert phoneprep.to_mbrola_symbol('ā') == 'a a'
+
+
+def test_phoneprep_accepts_coda_licensed_colored_vowels_with_recording_exclusions():
+    assert phoneprep.is_vowel_valid('ɑ', 'm', 'q')
+    assert not phoneprep.is_vowel_valid('ɑ', 't', 'q')
+    assert not phoneprep.is_vowel_valid('ɑ', 'd', 'q')
+    assert not phoneprep.is_vowel_valid('ɑ', 'k', 'q')
+
+
+def test_phoneprep_reachable_inventory_includes_extended_colored_contexts():
+    inventory = phoneprep.compute_reachable_diphone_inventory()
+
+    assert 'm-ɑ' in inventory
+    assert 'ɑ-q' in inventory
+    assert 'ɑ-ɑ' in inventory
+    assert 't-ɑ' not in inventory
+    assert 'd-ɑ' not in inventory

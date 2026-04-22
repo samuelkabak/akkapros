@@ -27,6 +27,7 @@ INTREF_DIR = REPO_ROOT / "tests" / "integration_refs"
 STAGE_REF_DIR = INTREF_DIR / "stage_pipeline"
 FULL_REF_DIR = INTREF_DIR / "fullprosmaker"
 PHONEPREP_REF_DIR = INTREF_DIR / "phoneprep"
+CR088_REF_DIR = INTREF_DIR / "cr088"
 REGRESSION_CONFIG = INTREF_DIR / "regression_defaults.yaml"
 INPUT_ATF = INTREF_DIR / "L_I.2_Poem_of_Creation_SB_II.atf"
 INPUT_PROC = STAGE_REF_DIR / "expected_e2e_proc.txt"
@@ -732,6 +733,68 @@ def test_phonetizer_cli_applies_pause_intonation_to_ophone_and_ombrola(tmp_path:
     assert phone_rows[-2]['type'] == 'Q'
     assert phone_rows[-2]['intonation'] == 'H3C'
     assert any(any(target != 120 for target in targets) for _symbol, _duration, targets in ombrola_rows)
+
+
+def test_printer_outputs_follow_extended_emphatic_coloring_configs(tmp_path: Path) -> None:
+    outdir = tmp_path / 'cr088_printer_outputs'
+    outdir.mkdir(parents=True, exist_ok=True)
+    tilde_file = outdir / 'cr088_tilde.txt'
+    tilde_file.write_text(_read_text(CR088_REF_DIR / 'extended_emphatic_coloring_sample_tilde.txt'), encoding='utf-8')
+
+    cases = [
+        (
+            True,
+            'extended_on',
+            'expected_extended_emphatic_coloring_ipa.txt',
+            'expected_extended_emphatic_coloring_xar.txt',
+        ),
+        (
+            False,
+            'extended_off',
+            'expected_legacy_emphatic_coloring_ipa.txt',
+            'expected_legacy_emphatic_coloring_xar.txt',
+        ),
+    ]
+
+    for enabled, prefix, ipa_name, xar_name in cases:
+        config_path = _write_regression_config(
+            outdir / f'{prefix}.yaml',
+            {('phonetize', 'process.realization.extended_emphatic_coloring'): enabled},
+        )
+        _run_cli(
+            'akkapros.cli.phonetizer',
+            str(tilde_file),
+            '--conf',
+            str(config_path),
+            '-p',
+            prefix,
+            '--outdir',
+            str(outdir),
+        )
+        _run_cli(
+            'akkapros.cli.printer',
+            str(outdir / f'{prefix}_phone.txt'),
+            '-p',
+            prefix,
+            '--outdir',
+            str(outdir),
+            '--ophone',
+            str(outdir / f'{prefix}_ophone.txt'),
+            '--ipa',
+            '--xar',
+        )
+
+        ipa_body = _strip_yaml_frontmatter(_read_text(outdir / f'{prefix}_accent_ipa.txt'))
+        xar_body = _strip_yaml_frontmatter(_read_text(outdir / f'{prefix}_accent_xar.txt'))
+        expected_ipa = _read_text(CR088_REF_DIR / ipa_name)
+        expected_xar = _read_text(CR088_REF_DIR / xar_name)
+        if not expected_ipa.endswith('\n'):
+            expected_ipa += '\n'
+        if not expected_xar.endswith('\n'):
+            expected_xar += '\n'
+
+        assert ipa_body == expected_ipa
+        assert xar_body == expected_xar
 
 
 def test_phonetizer_cli_ratio_override_changes_corrective_same_consonant_split(tmp_path: Path) -> None:

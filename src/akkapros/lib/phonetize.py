@@ -165,6 +165,7 @@ CONSONANT_CLOSURE = set('bdgkptṭqʾ')
 CONSONANT_FRICATIVE = set('szšṣḥḫʿ')
 CONSONANT_SONORANT = set('lrmnwy')
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
+EMPHATIC_COLORING_BLOCKERS = {'t', 's', 'k'}
 
 SHORT_VOWELS = set('aeiu')
 LONG_VOWELS = set('āēīūâêîû')
@@ -407,6 +408,86 @@ def _choose_vowel_realization(label: str, emphatic_onset: bool) -> str:
     return PLAIN_VOWEL_REALIZATIONS[label]
 
 
+def _syllable_ranges(rows: list[dict[str, str]]) -> list[tuple[int, int]]:
+    ranges: list[tuple[int, int]] = []
+    start_index: int | None = None
+    for index, row in enumerate(rows):
+        if row['category'] == 'S':
+            start_index = None
+            continue
+        if start_index is None:
+            start_index = index
+        if row['boundary'] in {'I', 'E', 'L', 'X', 'F'}:
+            ranges.append((start_index, index + 1))
+            start_index = None
+    if start_index is not None:
+        ranges.append((start_index, len(rows)))
+    return ranges
+
+
+def _syllable_has_emphatic_onset(rows: list[dict[str, str]], start_index: int, end_index: int) -> bool:
+    return any(
+        row['position'] == 'O' and row['text'] in EMPHATIC_CONSONANTS
+        for row in rows[start_index:end_index]
+    )
+
+
+def _syllable_has_emphatic_coda(rows: list[dict[str, str]], start_index: int, end_index: int) -> bool:
+    return any(
+        row['position'] == 'C' and row['text'] in EMPHATIC_CONSONANTS
+        for row in rows[start_index:end_index]
+    )
+
+
+def _syllable_has_coloring_blocker(rows: list[dict[str, str]], start_index: int, end_index: int) -> bool:
+    return any(
+        row['position'] == 'O' and row['text'] in EMPHATIC_COLORING_BLOCKERS
+        for row in rows[start_index:end_index]
+    )
+
+
+def _color_syllable_vowels(rows: list[dict[str, str]], start_index: int, end_index: int, *, emphatic: bool) -> None:
+    for row in rows[start_index:end_index]:
+        if row['category'] == 'V':
+            row['realization'] = _choose_vowel_realization(row['label'], emphatic)
+
+
+def _apply_emphatic_vowel_coloring(
+    rows: list[dict[str, str]],
+    phonetize_config: dict[str, Any] | None,
+) -> None:
+    config = _merge_phonetize_config(phonetize_config)
+    extended = bool(config['process']['realization']['extended_emphatic_coloring'])
+    ranges = _syllable_ranges(rows)
+    carry_targets: set[int] = set()
+
+    for syllable_index, (start_index, end_index) in enumerate(ranges):
+        emphatic = (
+            syllable_index in carry_targets
+            or _syllable_has_emphatic_onset(rows, start_index, end_index)
+        )
+        carries_forward = False
+
+        if extended and _syllable_has_emphatic_coda(rows, start_index, end_index):
+            blocker_present = _syllable_has_coloring_blocker(rows, start_index, end_index)
+            if not blocker_present:
+                emphatic = True
+            carries_forward = True
+
+        _color_syllable_vowels(rows, start_index, end_index, emphatic=emphatic)
+
+        if not extended or not carries_forward or syllable_index + 1 >= len(ranges):
+            continue
+
+        next_start, next_end = ranges[syllable_index + 1]
+        if any(row['category'] == 'S' and not _is_resync_pause_row(row) for row in rows[end_index:next_start]):
+            continue
+        if _syllable_has_coloring_blocker(rows, next_start, next_end):
+            continue
+        carry_targets.add(syllable_index + 1)
+        _color_syllable_vowels(rows, next_start, next_end, emphatic=True)
+
+
 def _choose_vowel_transition_realization(previous_code: str, next_code: str) -> str:
     if next_code in {'UU', 'UO'}:
         return 'WA' if previous_code in {'AA', 'AO', 'EE', 'EO', 'UU', 'UO'} else 'YI'
@@ -581,13 +662,9 @@ def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]
             row['position'] = 'N'
         else:
             row['position'] = 'O' if index < nucleus_index else 'C'
-    emphatic_onset = any(
-        row['position'] == 'O' and row['text'] in EMPHATIC_CONSONANTS
-        for row in syllable
-    )
     for row in syllable:
         if row['category'] == 'V':
-            row['realization'] = _choose_vowel_realization(row['label'], emphatic_onset)
+            row['realization'] = _choose_vowel_realization(row['label'], False)
         elif row['label'] == 'ENA':
             row['realization'] = 'YI'
         else:
@@ -1554,7 +1631,6 @@ def build_phone_rows(
     phonetize_config: dict[str, Any] | None = None,
     input_frontmatter: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
-    _ = phonetize_config
     tilde_text = _normalize_terminal_line_break(tilde_text)
     rows: list[dict[str, str]] = []
     syllable: list[dict[str, str]] = []
@@ -1649,6 +1725,7 @@ def build_phone_rows(
         index += 1
     _finish('F')
     _resolve_transition_rows(rows)
+    _apply_emphatic_vowel_coloring(rows, phonetize_config)
     return rows
 
 

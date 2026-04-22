@@ -165,9 +165,9 @@ Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
 
 **Emphatic vowel coloring**: In Semitic languages, emphatic consonants (`q`, `ṣ`, `ṭ`) retract the tongue body, lowering the second formant (F2) of following vowels. This is transcribed in IPA as vowel backing: plain `/a/` → `/ɑ/`, `/i/` → `/ɨ/`, `/u/` → `/ʉ/`, `/e/` → `/ɛ/`. Example: sˤɑr (plain sar would be /sar/).
 
-This printer-side vowel coloring is post-emphatic only. `ḥ` does not trigger
-automatic recoloring, so any `ḥ`-conditioned vowel quality must already be
-encoded in the input text.
+For phone-row rendering, IPA and XAR now follow the phonetizer-owned vowel
+realizations directly. Standalone text conversion still uses local textual
+context, and `ḥ` still does not trigger automatic recoloring by itself.
 
 Escaped chunks from earlier stages are preserved in IPA metadata as:
 

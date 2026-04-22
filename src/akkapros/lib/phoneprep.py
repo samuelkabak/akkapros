@@ -58,6 +58,7 @@ ALL_VOWELS = ALL_PLAIN_VOWELS + ALL_COLORED_VOWELS
 # Boundary symbol
 BOUNDARY = '#'
 DEFAULT_MAX_WORDS_PER_RECORDING = 1000
+PHONEPREP_COLORED_PREDECESSOR_EXCLUSIONS = {'t', 'd', 'k'}
 
 # Long vowels are represented as repeated short vowels (x x), not single symbols.
 LONG_TO_SHORT = {
@@ -234,29 +235,37 @@ def is_vowel_valid(v: str, left: Optional[str], right: Optional[str]) -> bool:
     """
     Check if a vowel is valid in its context.
 
-    Updated rule: coloring is post-emphatic only.
-    A vowel is colored only when the PRECEDING consonant is emphatic (q/ṣ/ṭ).
-    Colored vowels before emphatics are illegal.
+    Colored vowels remain legal after emphatic onsets and additionally become
+    legal before emphatic codas when the predecessor is not in the dedicated
+    phoneprep recording-exclusion set.
     """
+    left_is_consonant = left is not None and (is_consonant_plain(left) or is_consonant_emphatic(left))
+    right_is_consonant = right is not None and (is_consonant_plain(right) or is_consonant_emphatic(right))
+
+    colored_licensed = False
+    if left_is_consonant and is_consonant_emphatic(left):
+        colored_licensed = True
+    elif left_is_consonant and right_is_consonant and is_consonant_emphatic(right):
+        colored_licensed = left not in PHONEPREP_COLORED_PREDECESSOR_EXCLUSIONS
+
     # Word-initial (left is boundary): no preceding emphatic exists, so only plain vowels are legal.
     if left == BOUNDARY:
-        return is_vowel_plain(v) and right is not None and (is_consonant_plain(right) or is_consonant_emphatic(right))
+        return is_vowel_plain(v) and right_is_consonant
 
     # Word-final (right is boundary): quality depends on left consonant only.
     if right == BOUNDARY:
-        if not (left is not None and (is_consonant_plain(left) or is_consonant_emphatic(left))):
+        if not left_is_consonant:
             return False
-        if is_consonant_emphatic(left):
+        if colored_licensed:
             return is_vowel_colored(v)
         return is_vowel_plain(v)
 
-    # Word-medial (both sides consonants): quality depends on left consonant only.
-    left_valid = left is not None and (is_consonant_plain(left) or is_consonant_emphatic(left))
-    right_valid = right is not None and (is_consonant_plain(right) or is_consonant_emphatic(right))
-    if not (left_valid and right_valid):
+    # Word-medial (both sides consonants): quality depends on onset licensing
+    # plus the extended coda-conditioned recording coverage rule.
+    if not (left_is_consonant and right_is_consonant):
         return False
 
-    if is_consonant_emphatic(left):
+    if colored_licensed:
         return is_vowel_colored(v)
     return is_vowel_plain(v)
 
@@ -540,11 +549,13 @@ def generate_all_pattern3_words() -> List[Tuple[List[str], int]]:
     return words
 
 
-def vowel_pool_for_left(left: str) -> List[str]:
-    """Return legal vowel class after left segment under post-emphatic rule."""
+def vowel_pool_for_context(left: str, right: str) -> List[str]:
+    """Return the legal vowel class for a concrete consonantal frame."""
     if left == BOUNDARY:
         return ALL_PLAIN_VOWELS
     if is_consonant_emphatic(left):
+        return ALL_COLORED_VOWELS
+    if is_consonant_emphatic(right) and left not in PHONEPREP_COLORED_PREDECESSOR_EXCLUSIONS:
         return ALL_COLORED_VOWELS
     return ALL_PLAIN_VOWELS
 
@@ -563,7 +574,7 @@ def compute_reachable_diphone_inventory() -> Set[str]:
         diphones.add(f"{BOUNDARY}-{v}")
 
     for c in ALL_CONSONANTS:
-        for v in vowel_pool_for_left(c):
+        for v in vowel_pool_for_context(c, BOUNDARY):
             diphones.add(f"{v}-{BOUNDARY}")
 
     # C-C is unconstrained by vowel legality in patterns 1/2
@@ -571,11 +582,11 @@ def compute_reachable_diphone_inventory() -> Set[str]:
         for c2 in ALL_CONSONANTS:
             diphones.add(f"{c1}-{c2}")
 
-    # V-C and C-V with post-emphatic conditioning
+    # V-C and C-V with onset and coda-conditioned emphatic licensing
     for c_left in ALL_CONSONANTS:
-        for v in vowel_pool_for_left(c_left):
-            diphones.add(f"{c_left}-{v}")  # C-V
-            for c_right in ALL_CONSONANTS:
+        for c_right in ALL_CONSONANTS:
+            for v in vowel_pool_for_context(c_left, c_right):
+                diphones.add(f"{c_left}-{v}")  # C-V
                 diphones.add(f"{v}-{c_right}")  # V-C
 
     # Initial V-C from pattern 1 starts plain only
@@ -584,11 +595,12 @@ def compute_reachable_diphone_inventory() -> Set[str]:
             diphones.add(f"{v}-{c}")
 
     # V-V from pattern 3: same class only
-    for c in ALL_CONSONANTS:
-        pool = vowel_pool_for_left(c)
-        for v1 in pool:
-            for v2 in pool:
-                diphones.add(f"{v1}-{v2}")
+    for c_left in ALL_CONSONANTS:
+        for c_right in ALL_CONSONANTS:
+            pool = vowel_pool_for_context(c_left, c_right)
+            for v1 in pool:
+                for v2 in pool:
+                    diphones.add(f"{v1}-{v2}")
 
     return diphones
 
@@ -601,8 +613,8 @@ def random_valid_word(pattern: int) -> List[str]:
         C4 = random.choice(ALL_CONSONANTS)
         C5 = random.choice(ALL_CONSONANTS)
         V1 = random.choice(ALL_PLAIN_VOWELS)
-        V2 = random.choice(vowel_pool_for_left(C3))
-        V3 = random.choice(vowel_pool_for_left(C5))
+        V2 = random.choice(vowel_pool_for_context(C3, C4))
+        V3 = random.choice(vowel_pool_for_context(C5, BOUNDARY))
         return [V1, C2, C3, V2, C4, C5, V3]
 
     if pattern == 2:
@@ -611,16 +623,16 @@ def random_valid_word(pattern: int) -> List[str]:
         C5 = random.choice(ALL_CONSONANTS)
         C6 = random.choice(ALL_CONSONANTS)
         C8 = random.choice(ALL_CONSONANTS)
-        V2 = random.choice(vowel_pool_for_left(C1))
-        V4 = random.choice(vowel_pool_for_left(C3))
-        V7 = random.choice(vowel_pool_for_left(C6))
+        V2 = random.choice(vowel_pool_for_context(C1, C3))
+        V4 = random.choice(vowel_pool_for_context(C3, C5))
+        V7 = random.choice(vowel_pool_for_context(C6, C8))
         return [C1, V2, C3, V4, C5, C6, V7, C8]
 
     C1 = random.choice(ALL_CONSONANTS)
     C4 = random.choice(ALL_CONSONANTS)
     C7 = random.choice(ALL_CONSONANTS)
-    pool1 = vowel_pool_for_left(C1)
-    pool2 = vowel_pool_for_left(C4)
+    pool1 = vowel_pool_for_context(C1, C4)
+    pool2 = vowel_pool_for_context(C4, C7)
     V2 = random.choice(pool1)
     V3 = random.choice(pool1)
     V5 = random.choice(pool2)

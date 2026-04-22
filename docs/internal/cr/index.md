@@ -2,6 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[088. Extend emphatic vowel coloring to coda contexts and phoneprep](088-extend-emphatic-vowel-coloring-to-coda-contexts-and-phoneprep.md) - Done
+[087. Business-zone split of large library modules to reduce LLM token costs](087-refactor-split-large-files-for-llm-cost.md) - 'Done'
 [086. Optimize Test Execution with Markers, Fast fullprosmaker Modes, and Tagged Code Index](086-optimize-test-execution-with-markers-fast-fullprosmaker-and-tagged-code-index.md) - Done
 [085. Add Global Duration Scale to Phonetizer Timing Model](085-add-global-duration-scale-to-phonetizer-timing-model.md) - Done
 [084. Add Pre-Pausal Final Duration Anchors](084-add-pre-pausal-final-duration-anchors.md) - Done

@@ -14,30 +14,29 @@
 # - Record at 16kHz, 16-bit, mono
 
 # ========== PATTERN 1 (VCCVCCV) ==========
-# 3 words
+# 2 words
 
 # Block 1
-_am.qɑq.ma_
-_aq.qɑm.ma_
-_am.maq.qɑ_
+_aq.mam.qɑ_
+_am.mam.ma_
 
 # ========== PATTERN 2 (CVCVCCVC) ==========
 # 1 words
 
 # Block 1
-_qɑ.maq.qɑm_
+_qɑ.mɑq.qɑm_
 
 # ========== PATTERN 3 (CVVCVVC) ==========
 # 2 words
 
 # Block 1
-_ma.a.ma.aq_
-_qɑ.ɑ.ma.aq_
+_ma.a.ma.am_
+_qɑ.ɑ.mɑ.ɑq_
 
 # ============================================
 # SUMMARY
 # ============================================
-# Total words: 6
-# Pattern 1: 3 words
+# Total words: 5
+# Pattern 1: 2 words
 # Pattern 2: 1 words
 # Pattern 3: 2 words

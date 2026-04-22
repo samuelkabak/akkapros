@@ -34,6 +34,8 @@ prosody:
     relax_last: false
 phonetize:
   process:
+    realization:
+      extended_emphatic_coloring: true
     intonation:
       f0: 120
       stress: "H2"

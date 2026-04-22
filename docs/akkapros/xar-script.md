@@ -153,9 +153,9 @@ Circumflex series under emphatic coloring remains structurally parallel:
 
 Operational rule:
 
-- vowel coloring is **post-emphatic only**: a vowel is colored only when the preceding consonant is emphatic (`q`, `ṣ`, `ṭ`)
-- vowels before emphatics remain plain
-- if no preceding emphatic is present, the vowel must remain plain
+- vowel coloring follows the phonetizer realization pass: a vowel is colored after emphatic onsets and may also be colored from an emphatic coda or one immediate carried syllable
+- the phoneprep recording model additionally excludes plain `t`, `d`, and `k` from coda-conditioned colored-vowel predecessors
+- if no emphatic realization trigger is present, the vowel must remain plain
 
 #### Word-Initial Contexts (`# + V + C`)
 

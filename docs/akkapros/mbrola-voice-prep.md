@@ -84,7 +84,7 @@ Ready-to-run scripts are provided:
 
 ### Key Legality Rule
 
-**Colored vowels are post-emphatic only** – they are licensed only after emphatic consonants (`q`, `ṣ`, `ṭ`). This reflects Akkadian phonology.
+**Colored vowels follow the extended emphatic model** – they remain licensed after emphatic consonants (`q`, `ṣ`, `ṭ`) and the recording inventory also admits coda-conditioned colored vowels except after the dedicated phoneprep exclusions `t`, `d`, and `k`.
 
 ---
 

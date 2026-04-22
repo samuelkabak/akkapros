@@ -69,6 +69,14 @@ def _field(default: Any, kind: str, description: str, choices: tuple[str, ...] |
 PHONETIZE_SCHEMA: dict[str, Any] = {
     'process': {
         '__comment__': None,
+        'realization': {
+            '__comment__': None,
+            'extended_emphatic_coloring': _field(
+                True,
+                'bool',
+                'Enable same-syllable emphatic-coda coloring and immediate next-syllable carry while preserving onset-triggered coloring.',
+            ),
+        },
         'intonation': {
             '__comment__': None,
             'f0': _field(120, 'int', 'Baseline speaker pitch in Hertz used for emitted .pho rows.'),
@@ -453,6 +461,7 @@ def _runtime_view_phonetize_config(phonetize_config: dict[str, Any]) -> dict[str
     effective_durations, duration_scale = _derive_effective_durations(timing_model['durations'])
     timing_model['durations'] = effective_durations
     process = {key: deepcopy(timing_model[key]) for key in PROCESS_KEYS}
+    process['realization'] = deepcopy(phonetize_config['process'].get('realization', {}))
     model_only = {key: deepcopy(value) for key, value in timing_model.items() if key not in PROCESS_KEYS}
     model_only['duration_scale'] = duration_scale
     return {

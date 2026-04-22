@@ -502,7 +502,7 @@ IPA mode is controlled with `--print-ipa-proto-semitic {preserve,replace}`:
 
 ### Note on vowel coloring in IPA
 
-The IPA renderer applies context-sensitive vowel coloring **post-emphatic only** (after `q`, `ṣ`, `ṭ`). As a result:
+The IPA renderer now follows phonetizer-owned emphatic vowel realizations, which preserve post-onset coloring and may also reflect coda-driven coloring when the realization pass enables it. As a result:
 
 | Default vowel | After emphatic |
 |---------------|----------------|
@@ -511,7 +511,7 @@ The IPA renderer applies context-sensitive vowel coloring **post-emphatic only**
 | `u` | `ʊ` |
 | `e` | `ɛ` |
 
-Vowels before emphatics remain plain.
+Vowels before emphatics remain plain unless the phonetizer realization pass has already colored them from the same syllable coda or one immediate carried syllable.
 
 ---
 

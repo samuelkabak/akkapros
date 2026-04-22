@@ -82,8 +82,8 @@ IPA_PROSODY_WEAK = '|'
 IPA_PROSODY_STRONG = '‖'
 
 ALL_VOWELS = set('aeiuāēīūâêîû')
-# Printer-side vowel coloring is limited to the emphatic set; ḥ is intentionally
-# not a recoloring trigger and any desired vowel quality must come from input.
+# Standalone text conversion still uses the emphatic consonant set for local
+# vowel-coloring fallback. Phone-row rendering can override that per vowel.
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
 
 IPA_MAP_STRICT = {
@@ -253,7 +253,7 @@ def _insert_glottal_stops_with_indices(word: str) -> Tuple[str, list]:
 
 
 def _is_emphatic_adjacent(text: str, index: int, skip_chars=None) -> bool:
-    """True when a vowel is post-emphatic (previous consonant is q/ṣ/ṭ)."""
+    """Fallback text-context emphatic check for standalone text conversion."""
 
     if skip_chars is None:
         skip_chars = {TILDE}
@@ -270,6 +270,10 @@ def _is_emphatic_adjacent(text: str, index: int, skip_chars=None) -> bool:
     return left in EMPHATIC_CONSONANTS
 
 
+def _row_vowel_is_emphatic(row: dict[str, str]) -> bool:
+    return row['category'] == 'V' and row['realization'] in {'AO', 'EO', 'IO', 'UO'}
+
+
 def _to_ipa_vowel(vowel: str, emphatic_context: bool) -> str:
     if emphatic_context:
         return IPA_VOWELS_EMPHATIC.get(vowel, vowel)
@@ -282,12 +286,15 @@ def _to_xar_vowel(vowel: str, emphatic_context: bool) -> str:
     return XAR_VOWELS_DEFAULT.get(vowel, vowel)
 
 
-def _convert_word_xar(word: str) -> str:
+def _convert_word_xar(word: str, emphatic_by_source_index: dict[int, bool] | None = None) -> str:
     """Convert one Akkadian word token to XAR with ordered transforms."""
     emphatic_flags = []
     for idx, char in enumerate(word):
         if char in ALL_VOWELS:
-            emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR}))
+            if emphatic_by_source_index is not None and idx in emphatic_by_source_index:
+                emphatic_flags.append(emphatic_by_source_index[idx])
+            else:
+                emphatic_flags.append(_is_emphatic_adjacent(word, idx, {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR}))
 
     step = ''.join(XAR_CONSONANT_MAP.get(char, char) for char in word)
 
@@ -379,6 +386,7 @@ def _flush_syllable(
     mode: str,
     source_text: str = '',
     source_indices=None,
+    emphatic_by_source_index: dict[int, bool] | None = None,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
 ) -> str:
@@ -399,7 +407,14 @@ def _flush_syllable(
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
                 context_index = source_indices[idx] if source_indices else idx
-                emphatic = _is_emphatic_adjacent(context_text, context_index, context_skip_chars)
+                if (
+                    emphatic_by_source_index is not None
+                    and context_index >= 0
+                    and context_index in emphatic_by_source_index
+                ):
+                    emphatic = emphatic_by_source_index[context_index]
+                else:
+                    emphatic = _is_emphatic_adjacent(context_text, context_index, context_skip_chars)
                 if circ_hiatus and char in {'â', 'î', 'û', 'ê'}:
                     short_base = {
                         'â': 'a',
@@ -452,10 +467,18 @@ def _flush_syllable(
         for idx, char in enumerate(syllable_text):
             if char in ALL_VOWELS:
                 context_index = source_indices[idx] if source_indices else idx
+                if (
+                    emphatic_by_source_index is not None
+                    and context_index >= 0
+                    and context_index in emphatic_by_source_index
+                ):
+                    emphatic = emphatic_by_source_index[context_index]
+                else:
+                    emphatic = _is_emphatic_adjacent(context_text, context_index, context_skip_chars)
                 converted.append(
                     _to_xar_vowel(
                         char,
-                        _is_emphatic_adjacent(context_text, context_index, context_skip_chars),
+                        emphatic,
                     )
                 )
             elif char in XAR_CONSONANT_MAP:
@@ -480,10 +503,11 @@ def _convert_word(
     mode: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    emphatic_by_source_index: dict[int, bool] | None = None,
 ) -> str:
     """Convert one Akkadian word token."""
     if mode == 'xar':
-        return _convert_word_xar(word)
+        return _convert_word_xar(word, emphatic_by_source_index=emphatic_by_source_index)
 
     source_word = word
     source_index_map = None
@@ -511,6 +535,7 @@ def _convert_word(
                     mode,
                     source_text=source_text,
                     source_indices=source_indices,
+                    emphatic_by_source_index=emphatic_by_source_index,
                     ipa_mode=ipa_mode,
                     circ_hiatus=circ_hiatus,
                 )
@@ -559,21 +584,49 @@ def _convert_non_bracket_part(
     mode: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    emphatic_by_source_index: dict[int, bool] | None = None,
+    source_offset: int = 0,
 ) -> str:
     """Convert a string part that is outside square brackets."""
     if mode == 'ipa':
-        return _convert_non_bracket_part_ipa(part, ipa_mode, circ_hiatus=circ_hiatus)
+        return _convert_non_bracket_part_ipa(
+            part,
+            ipa_mode,
+            circ_hiatus=circ_hiatus,
+            emphatic_by_source_index=emphatic_by_source_index,
+            source_offset=source_offset,
+        )
 
     out = []
     current_word = []
+    current_start: int | None = None
 
     def flush_word() -> None:
+        nonlocal current_start
         if current_word:
-            out.append(_convert_word(''.join(current_word), mode, ipa_mode, circ_hiatus=circ_hiatus))
+            word_map = None
+            if emphatic_by_source_index is not None and current_start is not None:
+                word_map = {
+                    index - current_start: value
+                    for index, value in emphatic_by_source_index.items()
+                    if current_start <= index < current_start + len(current_word)
+                }
+            out.append(
+                _convert_word(
+                    ''.join(current_word),
+                    mode,
+                    ipa_mode,
+                    circ_hiatus=circ_hiatus,
+                    emphatic_by_source_index=word_map,
+                )
+            )
             current_word.clear()
+            current_start = None
 
-    for char in part:
+    for index, char in enumerate(part):
         if _is_word_char(char):
+            if current_start is None:
+                current_start = source_offset + index
             current_word.append(char)
         else:
             flush_word()
@@ -587,6 +640,8 @@ def _convert_non_bracket_part_ipa(
     part: str,
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
+    emphatic_by_source_index: dict[int, bool] | None = None,
+    source_offset: int = 0,
 ) -> str:
     tokens = []
     index = 0
@@ -597,7 +652,7 @@ def _convert_non_bracket_part_ipa(
             start = index
             while index < len(part) and _is_word_char(part[index]):
                 index += 1
-            tokens.append({'type': 'word', 'text': part[start:index]})
+            tokens.append({'type': 'word', 'text': part[start:index], 'start': start, 'end': index})
             continue
 
         if char == ' ':
@@ -629,7 +684,24 @@ def _convert_non_bracket_part_ipa(
         token_type = token['type']
 
         if token_type == 'word':
-            out.append(_convert_word(token['text'], 'ipa', ipa_mode, circ_hiatus=circ_hiatus))
+            word_map = None
+            if emphatic_by_source_index is not None:
+                absolute_start = source_offset + token['start']
+                absolute_end = source_offset + token['end']
+                word_map = {
+                    index - absolute_start: value
+                    for index, value in emphatic_by_source_index.items()
+                    if absolute_start <= index < absolute_end
+                }
+            out.append(
+                _convert_word(
+                    token['text'],
+                    'ipa',
+                    ipa_mode,
+                    circ_hiatus=circ_hiatus,
+                    emphatic_by_source_index=word_map,
+                )
+            )
 
             j = i + 1
             while j < token_count and tokens[j]['type'] in {'space', 'linker'}:
@@ -733,6 +805,7 @@ def convert_line(
     ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
+    emphatic_by_source_index: dict[int, bool] | None = None,
 ) -> str:
     """Convert one line to accent_acute, accent_bold, accent_ipa, or accent_xar format.
     
@@ -752,14 +825,31 @@ def convert_line(
     parts = split_by_escape_segments(core_line)
     if len(parts) > 1 or (parts and parts[0][0]):
         converted = []
+        source_offset = 0
         for is_escape, part in parts:
             if is_escape and _is_escape_segment(part):
                 converted.append(_convert_escape_segment(part, mode))
             else:
-                converted.append(_convert_non_bracket_part(part, mode, ipa_mode, circ_hiatus=circ_hiatus))
+                converted.append(
+                    _convert_non_bracket_part(
+                        part,
+                        mode,
+                        ipa_mode,
+                        circ_hiatus=circ_hiatus,
+                        emphatic_by_source_index=emphatic_by_source_index,
+                        source_offset=source_offset,
+                    )
+                )
+            source_offset += len(part)
         result = ''.join(converted)
     else:
-        result = _convert_non_bracket_part(core_line, mode, ipa_mode, circ_hiatus=circ_hiatus)
+        result = _convert_non_bracket_part(
+            core_line,
+            mode,
+            ipa_mode,
+            circ_hiatus=circ_hiatus,
+            emphatic_by_source_index=emphatic_by_source_index,
+        )
 
     if mode == 'ipa':
         result = _normalize_ipa_spacing(result)
@@ -946,11 +1036,20 @@ def _render_phone_rows(
     pieces: list[str] = []
     chunk: list[dict[str, str]] = []
 
+    def _chunk_emphatic_map(chunk_text: str) -> dict[int, bool]:
+        vowel_positions = [index for index, char in enumerate(chunk_text) if char in ALL_VOWELS]
+        vowel_rows = [row for row in chunk if row['category'] == 'V']
+        return {
+            position: _row_vowel_is_emphatic(row)
+            for position, row in zip(vowel_positions, vowel_rows)
+        }
+
     def flush_chunk() -> None:
         nonlocal chunk
         if not chunk:
             return
         chunk_text = reconstruct_tilde_from_phone_rows(chunk)
+        emphatic_map = _chunk_emphatic_map(chunk_text) if mode in {'ipa', 'xar'} else None
         pieces.append(
             convert_line(
                 chunk_text,
@@ -958,6 +1057,7 @@ def _render_phone_rows(
                 ipa_mode=ipa_mode,
                 circ_hiatus=circ_hiatus,
                 print_merger=print_merger,
+                emphatic_by_source_index=emphatic_map,
             )
         )
         chunk = []

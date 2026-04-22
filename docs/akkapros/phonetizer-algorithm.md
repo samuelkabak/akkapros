@@ -67,6 +67,12 @@ The difference is only structural input:
 - the original stream is derived by removing `~` and replacing internal merge
   marks `&` with spaces while preserving explicit lexical merges `+`
 
+After Phase 1 resolves positions, boundaries, and transition rows, the live
+pipeline runs one dedicated vowel-coloring pass before Phase 2. That pass owns
+all emphatic vowel-coloring decisions for both streams, including onset-based
+coloring and the optional coda-driven extension controlled by
+`phonetize.process.realization.extended_emphatic_coloring`.
+
 ## Row Model
 
 Each output row uses this flat-line format:
@@ -219,6 +225,11 @@ flowchart TD
     Q --> R["Phase 1 output: structure-only rows\nwith positions, boundaries, placeholder duration, and neutral intonation"]
 ```
 <!-- END GENERATED FLOWCHART: phonetizer-phase1-row-building -->
+
+Immediately after that structure-only output is available, the phonetizer runs
+its realization pass to color vowel rows from emphatic onsets and, when the
+flag is enabled, from emphatic codas plus one immediate carried syllable inside
+the same punctuation-bounded continuity span.
 
 The row builder is structure-first.
 

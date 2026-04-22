@@ -155,6 +155,30 @@ def test_build_phone_rows_emits_canonical_flat_line_contract() -> None:
     assert parse_phone_row(line) == rows[0]
 
 
+def test_extended_emphatic_coloring_covers_coda_and_carry_examples() -> None:
+    rows = build_phone_rows('maq.rab saq.rab maq.sab')
+
+    assert [row['realization'] for row in rows if row['category'] == 'V'] == [
+        'AO',
+        'AO',
+        'AA',
+        'AO',
+        'AO',
+        'AA',
+    ]
+
+
+def test_extended_emphatic_coloring_stops_at_punctuation_and_can_be_disabled() -> None:
+    disabled_rows = build_phone_rows(
+        'maq.rab saq.rab maq.sab',
+        {'process': {'realization': {'extended_emphatic_coloring': False}}},
+    )
+    paused_rows = build_phone_rows('maq, rab')
+
+    assert all(row['realization'] == 'AA' for row in disabled_rows if row['category'] == 'V')
+    assert [row['realization'] for row in paused_rows if row['category'] == 'V'] == ['AO', 'AA']
+
+
 def test_row_drift_token_format_is_canonical() -> None:
     assert _format_row_drift_token(0.0) == '+000'
     assert _format_row_drift_token(-12.2) == '-012'
