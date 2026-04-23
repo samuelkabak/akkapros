@@ -69,6 +69,11 @@ def _field(default: Any, kind: str, description: str, choices: tuple[str, ...] |
 PHONETIZE_SCHEMA: dict[str, Any] = {
     'process': {
         '__comment__': None,
+        'allow_experimental': _field(
+            False,
+            'bool',
+            'Must be true to enable experimental phonetizer features. Currently guarded features: limit_emphatic_coloring: true (limit coloring to onset‑only) and enable_resync_pause: true. Set to false to block experimental features and cause verification failure if any are enabled.',
+        ),
         'realization': {
             '__comment__': None,
             'limit_emphatic_coloring': _field(
@@ -631,6 +636,23 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 path,
                 f'value in {{{" | ".join(choices)}}}',
                 f'Expected one of {choices!r}, got {value!r}.',
+            )
+
+    allow_experimental = bool(raw_config['process'].get('allow_experimental', False))
+    limit_emphatic_coloring = bool(raw_config['process']['realization'].get('limit_emphatic_coloring', False))
+    enable_resync_pause = bool(raw_config['process']['timing_model'].get('enable_resync_pause', False))
+    if not allow_experimental:
+        if limit_emphatic_coloring:
+            add_failure(
+                'phonetize.process.allow_experimental',
+                'allow_experimental must be true when limit_emphatic_coloring is true',
+                'Experimental feature limit_emphatic_coloring: true (limit coloring to onset‑only) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
+            )
+        if enable_resync_pause:
+            add_failure(
+                'phonetize.process.allow_experimental',
+                'allow_experimental must be true when enable_resync_pause is true',
+                'Experimental feature enable_resync_pause: true (resynchronization‑pause insertion) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
             )
 
     if not isinstance(process['drift_tolerance'], int) or isinstance(process['drift_tolerance'], bool) or process['drift_tolerance'] < 0:

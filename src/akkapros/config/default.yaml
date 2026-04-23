@@ -79,6 +79,11 @@ prosody:
 # Options used by the phonetizer CLI and by fullprosmaker during the phonetize stage.
 phonetize:
   process:
+    # Must be true to enable experimental phonetizer features. Currently guarded
+    # features: limit_emphatic_coloring: true (limit coloring to onset‑only) and
+    # enable_resync_pause: true. Set to false to block experimental features and
+    # cause verification failure if any are enabled.
+    allow_experimental: false
     realization:
       # When true, limit emphatic vowel coloring to the legacy onset‑only rule
       # (non‑experimental). When false, enable same‑syllable emphatic‑coda

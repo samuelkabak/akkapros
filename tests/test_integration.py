@@ -757,9 +757,12 @@ def test_printer_outputs_follow_limit_emphatic_coloring_configs(tmp_path: Path) 
     ]
 
     for limit_enabled, prefix, ipa_name, xar_name in cases:
+        overrides = {('phonetize', 'process.realization.limit_emphatic_coloring'): limit_enabled}
+        if limit_enabled:
+            overrides[('phonetize', 'process.allow_experimental')] = True
         config_path = _write_regression_config(
             outdir / f'{prefix}.yaml',
-            {('phonetize', 'process.realization.limit_emphatic_coloring'): limit_enabled},
+            overrides,
         )
         _run_cli(
             'akkapros.cli.phonetizer',
@@ -959,6 +962,7 @@ def test_phonetizer_cli_inserts_resync_pause_without_changing_reconstructed_tild
     config = apply_overrides(
         _load_regression_config(),
         {
+            ('phonetize', 'process.allow_experimental'): True,
             ('phonetize', 'process.timing_model.enable_resync_pause'): True,
             ('phonetize', 'process.timing_model.durations.cvc_reference'): 350,
             ('phonetize', 'process.timing_model.durations.pauses.resync.min'): 50,

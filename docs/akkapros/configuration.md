@@ -49,8 +49,9 @@ shared stage sections: `syllabify`, `prosody`, `phonetize`, `metrics`, and `prin
 It does not have a duplicated YAML section of its own for those stage-owned
 options.
 
-The `phonetize` section owns both the intonation presets under
-`phonetize.process.intonation` and the timing-model controls under
+The `phonetize` section owns the experimental-feature guard under
+`phonetize.process.allow_experimental`, the intonation presets under
+`phonetize.process.intonation`, and the timing-model controls under
 `phonetize.process.timing_model`.
 That means grouped config no longer defines `metrics.wpm` or
 `metrics.pause_ratio`. Metricalc now computes its outputs from the phonetizer
@@ -73,8 +74,9 @@ Those same `phonetize` settings are used when `phonetizer` and `fullprosmaker`
 materialize and finalize the two phone-row outputs, `<prefix>_ophone.txt` and
 `<prefix>_phone.txt`.
 
-Important current phonetize timing keys include:
+Important current phonetize keys include:
 
+- `phonetize.process.allow_experimental`: must be `true` to enable experimental phonetizer features (default `false`). Currently guards `limit_emphatic_coloring: true` and `enable_resync_pause: true`. Config verification fails if an experimental feature is enabled without this flag.
 - `phonetize.process.timing_model.durations.scale`: global duration multiplier for runtime realization and diagnostics; `1.0` is a true no-op path that preserves configured values exactly
 - `phonetize.process.timing_model.durations.segmental_ceiling`: validation-only global ceiling for consonant `gemination_max` values and `vowels.perception_limits.elongation_max`
 - `phonetize.process.timing_model.durations.segmental_floor`: validation-only shared floor for vowel minima, consonant anchors and minima, and hiatus/transition special realizations

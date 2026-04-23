@@ -212,6 +212,7 @@ The phonetizer is the canonical owner of the top-level `phonetize` config sectio
 
 Representative grouped-config keys:
 
+- `phonetize.process.allow_experimental`: must be `true` to enable experimental features (default `false`). Currently guards `limit_emphatic_coloring: true` and `enable_resync_pause: true`.
 - `phonetize.process.intonation.f0`
 - `phonetize.process.intonation.stress`
 - `phonetize.process.intonation.question`
@@ -265,6 +266,9 @@ That preflight:
 
 - assumes schema-valid key paths and value types first
 - checks the current baseline semantic invariants and warning rules
+- checks the experimental-feature guard: if `limit_emphatic_coloring: true` or
+  `enable_resync_pause: true` is set without `allow_experimental: true`,
+  verification fails with a clear error
 - checks the validation-only `segmental_floor` lower-bound relations
 - checks class-local consonant `gemination_max` values against the global `segmental_ceiling`
 - reports full dotted paths, relations, and reasons for blocking failures

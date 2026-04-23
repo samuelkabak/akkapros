@@ -38,6 +38,7 @@ prosody:
 
 phonetize:
   process:
+    allow_experimental: false
     realization:
       limit_emphatic_coloring: false
     intonation:

@@ -1396,6 +1396,68 @@ def test_shared_verification_rejects_invalid_geminate_coda_ratio(value: object) 
     assert any(issue.path.endswith('closure.geminate_coda_ratio') for issue in result.failures)
 
 
+def test_experimental_guard_rejects_limit_emphatic_coloring_without_allow_experimental() -> None:
+    """CR-090: limit_emphatic_coloring: true requires allow_experimental: true."""
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'allow_experimental': False,
+                'realization': {
+                    'limit_emphatic_coloring': True,
+                },
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any('allow_experimental' in issue.path for issue in result.failures)
+    assert any('limit_emphatic_coloring' in issue.reason for issue in result.failures)
+
+
+def test_experimental_guard_rejects_enable_resync_pause_without_allow_experimental() -> None:
+    """CR-090: enable_resync_pause: true requires allow_experimental: true."""
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'allow_experimental': False,
+                'timing_model': {
+                    'enable_resync_pause': True,
+                },
+            }
+        }
+    )
+
+    assert result.status == 'failure'
+    assert any('allow_experimental' in issue.path for issue in result.failures)
+    assert any('enable_resync_pause' in issue.reason for issue in result.failures)
+
+
+def test_experimental_guard_passes_with_allow_experimental_true() -> None:
+    """CR-090: allow_experimental: true allows experimental features."""
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'allow_experimental': True,
+                'realization': {
+                    'limit_emphatic_coloring': True,
+                },
+                'timing_model': {
+                    'enable_resync_pause': True,
+                },
+            }
+        }
+    )
+
+    assert result.status == 'pass'
+
+
+def test_experimental_guard_passes_default_config() -> None:
+    """CR-090: default config (no experimental features) passes verification."""
+    result = verify_phonetize_config()
+
+    assert result.status == 'pass'
+
+
 def _first_syllable_analysis(sample: str) -> dict[str, object]:
     """Helper for Path-indexed tests."""
     rows = build_phone_rows(sample)
