@@ -44,7 +44,7 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "csv:" not in text
     assert "speech" not in loaded["phonetize"]["process"]["timing_model"]
     assert "speech:" not in text
-    assert loaded["phonetize"]["process"]["realization"]["extended_emphatic_coloring"] is True
+    assert loaded["phonetize"]["process"]["realization"]["limit_emphatic_coloring"] is False
     assert loaded["phonetize"]["process"]["timing_model"]["accentuation_distribution_policy"] == "80_20"
     assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
     assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is False
@@ -73,7 +73,7 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
     assert "short_pause_policy" not in loaded["phonetize"]["process"]["timing_model"]
     assert text.index("enable_resync_pause: false") > text.index("drift_tolerance: 19")
-    assert text.index("extended_emphatic_coloring: true") < text.index("f0: 120")
+    assert text.index("limit_emphatic_coloring: false") < text.index("f0: 120")
     assert "mini:" not in text
     assert "resync:" in text
 
@@ -361,7 +361,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--set",
             "common.run.prefix=demo",
             "--set",
-            "phonetize.process.realization.extended_emphatic_coloring=false",
+            "phonetize.process.realization.limit_emphatic_coloring=true",
             "--set",
             "phonetize.process.timing_model.geminate_policy=cumulative",
             "--set",
@@ -382,7 +382,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
     assert proc.returncode == 0, proc.stderr
 
     loaded = load_config_file(config_path)
-    assert loaded["phonetize"]["process"]["realization"]["extended_emphatic_coloring"] is False
+    assert loaded["phonetize"]["process"]["realization"]["limit_emphatic_coloring"] is True
     assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
     assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is True
     assert loaded["phonetize"]["process"]["timing_model"]["durations"]["consonants"]["closure"]["geminate_coda_ratio"] == 0.55
@@ -432,14 +432,14 @@ def test_confwriter_list_exposes_resync_paths(tmp_path: Path) -> None:
     assert "phonetize.process.timing_model.durations.pauses.resync.max { int }" in proc.stdout
 
 
-def test_confwriter_list_exposes_extended_emphatic_coloring_path(tmp_path: Path) -> None:
+def test_confwriter_list_exposes_limit_emphatic_coloring_path(tmp_path: Path) -> None:
     config_path = tmp_path / "conf.yaml"
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
     env["PYTHONIOENCODING"] = "utf-8"
 
     proc = subprocess.run(
-        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--list", "extended_emphatic_coloring"],
+        [sys.executable, "-m", "akkapros.cli.confwriter", "--conf", str(config_path), "--list", "limit_emphatic_coloring"],
         cwd=REPO_ROOT,
         env=env,
         capture_output=True,
@@ -448,7 +448,7 @@ def test_confwriter_list_exposes_extended_emphatic_coloring_path(tmp_path: Path)
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "phonetize.process.realization.extended_emphatic_coloring { true | false }" in proc.stdout
+    assert "phonetize.process.realization.limit_emphatic_coloring { true | false }" in proc.stdout
 
 
 def test_confwriter_verify_reports_pass_without_mutating_file(tmp_path: Path) -> None:

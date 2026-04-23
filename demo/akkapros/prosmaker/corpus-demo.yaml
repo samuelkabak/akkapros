@@ -39,7 +39,7 @@ prosody:
 phonetize:
   process:
     realization:
-      extended_emphatic_coloring: true
+      limit_emphatic_coloring: false
     intonation:
       f0: 120
       stress: "H2"

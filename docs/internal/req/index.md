@@ -2,6 +2,7 @@
 
 This index lists requirement documents. It is maintained by `scripts/update-indexes.py`.
 
+- [047. Requirement: Experimental Feature Guard and Renamed Emphatic Coloring](047-experimental-feature-guard-and-renamed-emphatic-coloring.md) - Draft
 - [046. Requirement: Extended Emphatic Vowel Coloring and Phoneprep Coverage](046-extended-emphatic-vowel-coloring-and-phoneprep-coverage.md) - Implemented
 - [045. Requirement: Global Phonetizer Duration Scale](045-global-phonetizer-duration-scale.md) - Implemented
 - [044. Requirement: Pre-Pausal Final Duration Anchors](044-pre-pausal-final-duration-anchors.md) - Implemented

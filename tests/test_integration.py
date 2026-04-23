@@ -735,7 +735,7 @@ def test_phonetizer_cli_applies_pause_intonation_to_ophone_and_ombrola(tmp_path:
     assert any(any(target != 120 for target in targets) for _symbol, _duration, targets in ombrola_rows)
 
 
-def test_printer_outputs_follow_extended_emphatic_coloring_configs(tmp_path: Path) -> None:
+def test_printer_outputs_follow_limit_emphatic_coloring_configs(tmp_path: Path) -> None:
     outdir = tmp_path / 'cr088_printer_outputs'
     outdir.mkdir(parents=True, exist_ok=True)
     tilde_file = outdir / 'cr088_tilde.txt'
@@ -743,23 +743,23 @@ def test_printer_outputs_follow_extended_emphatic_coloring_configs(tmp_path: Pat
 
     cases = [
         (
-            True,
-            'extended_on',
+            False,  # limit_emphatic_coloring: false = extended coloring enabled
+            'limit_off',
             'expected_extended_emphatic_coloring_ipa.txt',
             'expected_extended_emphatic_coloring_xar.txt',
         ),
         (
-            False,
-            'extended_off',
+            True,   # limit_emphatic_coloring: true = extended coloring disabled (legacy)
+            'limit_on',
             'expected_legacy_emphatic_coloring_ipa.txt',
             'expected_legacy_emphatic_coloring_xar.txt',
         ),
     ]
 
-    for enabled, prefix, ipa_name, xar_name in cases:
+    for limit_enabled, prefix, ipa_name, xar_name in cases:
         config_path = _write_regression_config(
             outdir / f'{prefix}.yaml',
-            {('phonetize', 'process.realization.extended_emphatic_coloring'): enabled},
+            {('phonetize', 'process.realization.limit_emphatic_coloring'): limit_enabled},
         )
         _run_cli(
             'akkapros.cli.phonetizer',

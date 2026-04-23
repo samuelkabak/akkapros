@@ -457,7 +457,7 @@ def _apply_emphatic_vowel_coloring(
     phonetize_config: dict[str, Any] | None,
 ) -> None:
     config = _merge_phonetize_config(phonetize_config)
-    extended = bool(config['process']['realization']['extended_emphatic_coloring'])
+    extended = not bool(config['process']['realization']['limit_emphatic_coloring'])
     ranges = _syllable_ranges(rows)
     carry_targets: set[int] = set()
 

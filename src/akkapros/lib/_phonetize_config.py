@@ -71,10 +71,10 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
         '__comment__': None,
         'realization': {
             '__comment__': None,
-            'extended_emphatic_coloring': _field(
-                True,
+            'limit_emphatic_coloring': _field(
+                False,
                 'bool',
-                'Enable same-syllable emphatic-coda coloring and immediate next-syllable carry while preserving onset-triggered coloring.',
+                'When true, limit emphatic vowel coloring to the legacy onset‑only rule (non‑experimental). When false, enable same‑syllable emphatic‑coda coloring and immediate next‑syllable carry (experimental).',
             ),
         },
         'intonation': {

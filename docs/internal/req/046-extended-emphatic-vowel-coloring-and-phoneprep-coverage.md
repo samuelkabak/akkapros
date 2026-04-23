@@ -57,8 +57,8 @@ evaluated against one explicit contract.
 - [x] Given the new feature is configured off, when phonetizer runtime runs,
       then the legacy onset-only coloring behavior is preserved.
 - [x] Given phonetizer configuration is rendered or loaded, when defaults are
-  applied, then `phonetize.process.realization.extended_emphatic_coloring`
-  exists as a boolean key with default `true`.
+  applied, then `phonetize.process.realization.limit_emphatic_coloring`
+  exists as a boolean key with default `false`.
 - [x] Given `confwriter` renders, lists, or verifies phonetize configuration,
   when the new feature is present, then the new realization key is included
   in the same help, default, and verification surfaces as the other live
@@ -102,7 +102,7 @@ evaluated against one explicit contract.
   - updated printer IPA/XAR surfaces that consume those rows
   - expanded `phoneprep` reachable diphone inventory and legality model
 - New config key:
-  - `phonetize.process.realization.extended_emphatic_coloring: true`
+  - `phonetize.process.realization.limit_emphatic_coloring: false`
 - Affected components:
   - `src/akkapros/lib/phonetize.py`
   - `src/akkapros/lib/_phonetize_config.py`

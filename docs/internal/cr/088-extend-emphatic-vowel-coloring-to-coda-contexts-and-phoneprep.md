@@ -63,8 +63,8 @@ together.
 - Add optional extended coloring behavior for the immediately following
   syllable when it remains inside the same pause-bounded continuity.
 - Add a boolean phonetizer config parameter named
-  `phonetize.process.realization.extended_emphatic_coloring` with default
-  value `true`.
+  `phonetize.process.realization.limit_emphatic_coloring` with default
+  value `false` (after CR-089 rename).
 - Update phonetizer config help, defaults, confwriter surfaces, and
   verification/documentation surfaces so the new flag is user-visible and
   testable.
@@ -253,11 +253,11 @@ Normative examples:
 
 Add a new boolean config key:
 
-- `phonetize.process.realization.extended_emphatic_coloring`
+- `phonetize.process.realization.limit_emphatic_coloring` (after CR-089 rename)
 
 Contract:
 
-- default value: `true`
+- default value: `false` (after CR-089 rename)
 - when `true`: apply the onset rule plus the new coda and next-syllable rules
 - when `false`: preserve legacy behavior, meaning only the pre-existing
   emphatic-onset coloring rule applies
@@ -384,7 +384,7 @@ Suggested implementation shape:
 Add the new boolean under the phonetize realization subsection. The canonical
 config path is:
 
-- `phonetize.process.realization.extended_emphatic_coloring`
+- `phonetize.process.realization.limit_emphatic_coloring` (after CR-089 rename)
 
 The implementation must update the grouped phonetize config schema and all
 rendered/default YAML surfaces accordingly. This includes repository-owned demo
@@ -444,12 +444,12 @@ and regression-default YAML files where the live phonetize config is serialized.
 
 ## Acceptance Criteria
 
-- [x] Phonetizer exposes `phonetize.process.realization.extended_emphatic_coloring` as a boolean config key with default `true`.
-- [x] When the new flag is `false`, phonetizer preserves legacy onset-only vowel coloring behavior.
-- [x] When the new flag is `true`, a syllable nucleus is colored when its onset is emphatic, matching current behavior.
-- [x] When the new flag is `true`, a syllable nucleus is colored when its coda contains `q`, `ṣ`, or `ṭ` and its onset does not contain `t`, `s`, or `k`.
-- [x] When the new flag is `true`, the immediate following syllable nucleus is colored from an emphatic coda when that following onset does not contain `t`, `s`, or `k` and no punctuation-owned pause row intervenes.
-- [x] Focused phonetizer tests cover both configuration states of `extended_emphatic_coloring` using explicit test-local config rather than inherited defaults.
+- [x] Phonetizer exposes `phonetize.process.realization.limit_emphatic_coloring` as a boolean config key with default `false` (after CR-089 rename).
+- [x] When the new flag is `true`, phonetizer preserves legacy onset-only vowel coloring behavior.
+- [x] When the new flag is `false`, a syllable nucleus is colored when its onset is emphatic, matching current behavior.
+- [x] When the new flag is `false`, a syllable nucleus is colored when its coda contains `q`, `ṣ`, or `ṭ` and its onset does not contain `t`, `s`, or `k`.
+- [x] When the new flag is `false`, the immediate following syllable nucleus is colored from an emphatic coda when that following onset does not contain `t`, `s`, or `k` and no punctuation-owned pause row intervenes.
+- [x] Focused phonetizer tests cover both configuration states of `limit_emphatic_coloring` using explicit test-local config rather than inherited defaults.
 - [x] Controlled phonetizer tests prove: `maq.rab` colors both vowels, `saq.rab` colors only the second vowel, and `maq.sab` colors only the first vowel.
 - [x] Controlled phonetizer tests prove that `ma.qâm` still colors the second syllable from emphatic onset behavior.
 - [x] Integration tests verify IPA output changes for at least one same-syllable coda case and one next-syllable carry case using immutable test-owned fixtures.
@@ -457,7 +457,7 @@ and regression-default YAML files where the live phonetize config is serialized.
 - [x] Integration tests verify XAR output changes for at least one same-syllable coda case and one next-syllable carry case using immutable test-owned fixtures.
 - [x] `phoneprep` legality and reachable diphone inventory include newly legal plain->colored and colored->emphatic combinations required by the extended phonetizer behavior.
 - [x] `phoneprep` excludes plain `t`, `d`, and `k` as predecessors of emphatic-colored vowels in its recording-inventory generation path.
-- [x] Every repository YAML file that serializes active phonetize defaults or examples includes `phonetize.process.realization.extended_emphatic_coloring`.
+- [x] Every repository YAML file that serializes active phonetize defaults or examples includes `phonetize.process.realization.limit_emphatic_coloring` (after CR-089 rename).
 - [x] `confwriter` surfaces render and verify the new realization key.
 - [x] Any new fixtures or configs added for this feature live under `tests/` and do not depend on mutable repository data outside `tests/`.
 - [x] Documentation is updated to explain the new pass, the new config key, and the revised vowel-coloring contexts.
@@ -479,7 +479,7 @@ and regression-default YAML files where the live phonetize config is serialized.
 Unit tests:
 
 - Add narrow `phonetize` tests on hand-built `_tilde` inputs that isolate onset coloring, same-syllable coda coloring, blocker suppression, and next-syllable carry.
-- Add explicit config-controlled tests for `extended_emphatic_coloring=true` and `false`.
+- Add explicit config-controlled tests for `limit_emphatic_coloring=false` and `true` (after CR-089 rename).
 - Add `phoneprep` tests for legality decisions and reachable diphone inventory entries covering newly legal colored-vowel contexts.
 - Add `phoneprep` tests that prove the special exclusion of plain `t`, `d`, and `k` from predecessor-to-colored-vowel generation.
 - Add printer tests for IPA/XAR rendering from controlled phone rows or small pipeline fixtures.
@@ -502,7 +502,7 @@ Verification commands should use test-owned inputs or hardcoded strings only. Do
 ## Rollback Plan
 
 Disable the new behavior by setting
-`phonetize.process.realization.extended_emphatic_coloring: false` if an
+`phonetize.process.realization.limit_emphatic_coloring: true` (after CR-089 rename) if an
 immediate runtime rollback is needed.
 
 If a code rollback is required, revert the dedicated coloring-pass changes, the

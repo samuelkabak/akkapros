@@ -80,9 +80,10 @@ prosody:
 phonetize:
   process:
     realization:
-      # Enable same-syllable emphatic-coda coloring and immediate next-syllable
-      # carry while preserving onset-triggered coloring.
-      extended_emphatic_coloring: true
+      # When true, limit emphatic vowel coloring to the legacy onset‑only rule
+      # (non‑experimental). When false, enable same‑syllable emphatic‑coda
+      # coloring and immediate next‑syllable carry (experimental).
+      limit_emphatic_coloring: false
     intonation:
       # Baseline speaker pitch in Hertz used for emitted .pho rows.
       f0: 120

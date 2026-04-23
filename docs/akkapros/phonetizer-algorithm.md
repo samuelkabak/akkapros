@@ -71,7 +71,7 @@ After Phase 1 resolves positions, boundaries, and transition rows, the live
 pipeline runs one dedicated vowel-coloring pass before Phase 2. That pass owns
 all emphatic vowel-coloring decisions for both streams, including onset-based
 coloring and the optional coda-driven extension controlled by
-`phonetize.process.realization.extended_emphatic_coloring`.
+`phonetize.process.realization.limit_emphatic_coloring`.
 
 ## Row Model
 
