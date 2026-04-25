@@ -39,7 +39,7 @@ from akkapros.lib.metrics import (
     update_character_sets,
     process_file,
     format_table,
-    run_tests,
+    _run_tests,
 )
 from akkapros.lib.utils import (
     RawDefaultsHelpFormatter,
@@ -88,7 +88,7 @@ Version {__version__}
     if args.test:
         logger = setup_cli_logging(args, 'akkapros.cli.metricalc')
         log_deprecated_config_flag_warnings(logger, args)
-        success = run_tests()
+        success = _run_tests()()
         sys.exit(0 if success else 1)
 
     if not args.input and not args.input_list:

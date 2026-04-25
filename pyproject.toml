@@ -25,6 +25,11 @@ dev = [
     "pytest>=7.0.0",
     "black",
     "flake8",
+    "explr>=0.1.7",
+    "python-call-graph>=1.0.0",
+    "trailmark>=0.1.0",
+    "python-pycg>=0.1.0",
+    "mypy>=1.10.0",
 ]
 
 [tool.setuptools]

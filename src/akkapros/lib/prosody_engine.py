@@ -3,8 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, List, Optional, Tuple, Union
 
-from akkapros.lib._prosody_text import assemble_line, parse_syl_line, postprocess_restore_diphthongs
-from akkapros.lib._prosody_types import AccentStyle, MoraMode
+from akkapros.lib._prosody_text import assemble_line, parse_syl_line, postprocess_restore_diphthongs, AccentStyle, MoraMode
 from akkapros.lib.constants import INTERNAL_WORD_LINKER, MERGE_LINKERS, WORD_LINKER
 from akkapros.lib.frontmatter import (
     build_output_frontmatter,

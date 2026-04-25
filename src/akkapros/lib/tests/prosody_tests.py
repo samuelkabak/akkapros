@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Union
 
-from akkapros.lib._prosody_text import parse_syl_line, postprocess_restore_diphthongs
-from akkapros.lib._prosody_types import AccentStyle, MoraMode
+from akkapros.lib._prosody_text import parse_syl_line, postprocess_restore_diphthongs, AccentStyle, MoraMode
 from akkapros.lib.constants import DIPH_SEPARATOR, SYL_SEPARATOR, WORD_LINKER
 from akkapros.lib.prosody_engine import ProsodyEngine
 from akkapros.lib.prosody_model import Word

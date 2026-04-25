@@ -69,7 +69,7 @@ from akkapros.lib.metrics import (
     update_character_sets,
     process_file as process_metrics_file,
     format_table,
-    run_tests as run_metrics_tests,
+    _run_tests as _run_metrics_tests,
 )
 from akkapros.lib import print as accent_print
 from akkapros.lib.utils import simple_safe_filename
@@ -150,7 +150,7 @@ def _run_all_selftests_with_summary(logger: logging.Logger) -> bool:
         ok = syllabify.run_tests() and ok
         ok = run_prosody_tests() and ok
         ok = test_diphthong_restoration() and ok
-        ok = run_metrics_tests() and ok
+        ok = _run_metrics_tests()() and ok
         ok = accent_print.run_tests() and ok
         ok = run_tests() and ok
     finally:
@@ -641,7 +641,7 @@ Version: {__version__}
         if args.test_diphthongs:
             ok = test_diphthong_restoration() and ok
         if args.test_metrics:
-            ok = run_metrics_tests() and ok
+            ok = _run_metrics_tests()() and ok
         if args.test_print:
             ok = accent_print.run_tests() and ok
         if args.test_cli:

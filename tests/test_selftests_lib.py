@@ -22,7 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
         ("syllabify", syllabify.run_tests),
         ("prosody", prosody.run_tests),
         ("prosody_diphthongs", prosody.test_diphthong_restoration),
-        ("metrics", metrics.run_tests),
+        ("metrics", metrics._run_tests()),
         ("phonetize", phonetize.run_tests),
         ("print", printlib.run_tests),
         ("utils", utils.run_tests),
@@ -33,23 +33,42 @@ def test_library_selftests(name, runner):
 
 
 def test_metrics_refactored_chunks():
-    assert metrics._test_word_pattern_matching()
-    assert metrics._test_tokenizer()
-    assert metrics._test_word_processing()
-    assert metrics._test_preprocessing()
-    assert metrics._test_segment_extraction()
-    assert metrics._test_distance_calculation()
-    assert metrics._test_consonant_distance_definitions()
-    assert metrics._test_punctuation_marks_segment_boundaries()
-    assert metrics._test_pause_metrics_grouping()
-    assert metrics._test_unknown_punctuation_raises()
-    assert metrics._test_armored_pause_token_classification()
-    assert metrics._test_mora_totals_and_original_speech()
-    assert metrics._test_table_new_fields_and_no_csv()
-    assert metrics._test_small_corpus_metrics_consistency()
-    assert metrics._test_small_corpus_exact_surface_values()
-    assert metrics._test_interval_metrics_zero_case()
-    assert metrics._test_percent_v_fallback_safe()
+    from akkapros.lib.tests.metrics_tests import (
+        _test_word_pattern_matching,
+        _test_tokenizer,
+        _test_word_processing,
+        _test_preprocessing,
+        _test_segment_extraction,
+        _test_distance_calculation,
+        _test_consonant_distance_definitions,
+        _test_punctuation_marks_segment_boundaries,
+        _test_pause_metrics_grouping,
+        _test_unknown_punctuation_raises,
+        _test_armored_pause_token_classification,
+        _test_mora_totals_and_original_speech,
+        _test_table_new_fields_and_no_csv,
+        _test_small_corpus_metrics_consistency,
+        _test_small_corpus_exact_surface_values,
+        _test_interval_metrics_zero_case,
+        _test_percent_v_fallback_safe,
+    )
+    assert _test_word_pattern_matching()
+    assert _test_tokenizer()
+    assert _test_word_processing()
+    assert _test_preprocessing()
+    assert _test_segment_extraction()
+    assert _test_distance_calculation()
+    assert _test_consonant_distance_definitions()
+    assert _test_punctuation_marks_segment_boundaries()
+    assert _test_pause_metrics_grouping()
+    assert _test_unknown_punctuation_raises()
+    assert _test_armored_pause_token_classification()
+    assert _test_mora_totals_and_original_speech()
+    assert _test_table_new_fields_and_no_csv()
+    assert _test_small_corpus_metrics_consistency()
+    assert _test_small_corpus_exact_surface_values()
+    assert _test_interval_metrics_zero_case()
+    assert _test_percent_v_fallback_safe()
 
 
 def test_source_tree_has_no_print_calls():

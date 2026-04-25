@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
 
-from akkapros.lib._prosody_text import is_function_word
-from akkapros.lib._prosody_types import AccentStyle, MoraMode
+from akkapros.lib._prosody_text import is_function_word, AccentStyle, MoraMode
 from akkapros.lib.constants import (
     AKKADIAN_CONSONANTS,
     CIRCUMFLEX_VOWELS,
