@@ -10,6 +10,7 @@ demo/akkapros/phoneprep/results
 demo/akkapros/prosmaker/results
 demo/akkapros/lexlinks/results
 
+test_*
 
 # IDE
 .vscode/

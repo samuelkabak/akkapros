@@ -2,8 +2,10 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[092. Phase 2 Module Splitting — Remaining Library Files](092-phase-2-module-splitting-remaining.md) - Done
+[091. Phase 2 Module Splitting for LLM Cost](091-phase-2-module-splitting-for-llm-cost.md) - Done
 [090. Add experimental feature guard to phonetizer](090-add-experimental-feature-guard-to-phonetizer.md) - Implemented
-[089. Rename extended_emphatic_coloring to limit_emphatic_coloring with inverted default](089-rename-extended-emphatic-coloring-to-limit-emphatic-coloring.md) - Implemented
+[089. Rename extended_emphatic_coloring to limit_emphatic_coloring with inverted default](089-rename-extended-emphatic-coloring-to-limit-emphatic-coloring.md) - Done
 [088. Extend emphatic vowel coloring to coda contexts and phoneprep](088-extend-emphatic-vowel-coloring-to-coda-contexts-and-phoneprep.md) - Done
 [087. Business-zone split of large library modules to reduce LLM token costs](087-refactor-split-large-files-for-llm-cost.md) - 'Done'
 [086. Optimize Test Execution with Markers, Fast fullprosmaker Modes, and Tagged Code Index](086-optimize-test-execution-with-markers-fast-fullprosmaker-and-tagged-code-index.md) - Done

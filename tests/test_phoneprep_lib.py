@@ -8,6 +8,7 @@ if SRC_PATH not in sys.path:
     sys.path.insert(0, SRC_PATH)
 
 from akkapros.lib import phoneprep
+from akkapros.lib.tests.phoneprep_tests import run_tests as phoneprep_run_tests
 
 
 def test_parse_symbol_list():
@@ -25,7 +26,7 @@ def test_validate_pattern1_sample():
 
 
 def test_phoneprep_lib_selftest():
-    assert phoneprep.run_tests()
+    assert phoneprep_run_tests()
 
 
 def test_phoneprep_mbrola_sidecar_mapping_remains_unchanged():
