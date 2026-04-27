@@ -1,10 +1,13 @@
 # Internal Documentation — Development Cycle
 
+**Quick start:** Read `docs/internal/GUIDELINES.md` first for compressed governance rules. This file has the full details.
+
 Purpose
 
 - Central place for machine-oriented project records: Architecture Decision Records (ADRs), Change Requests (CRs), short requirements, and reviews.
 
 Principles / Workflow
+
 
 - ADR-first: Propose design changes as an ADR before changing behavior or files. Each ADR should explain motivation, alternatives considered, the decision, and consequences.
 - CRs implement or coordinate changes that follow from ADRs (use CRs for breaking changes, broad refactors, or cross-cutting work). CR status workflow is `Draft -> Approved -> Done` for accepted work, or `Draft -> Rejected` for declined work. Use `Blocked` as a temporary status when a CR cannot be implemented or verified safely as written.
@@ -128,6 +131,6 @@ Agent optimization artifacts
 - Purpose: help contributors and coding agents choose a bounded code-reading slice and targeted test slice during implementation.
 - Important: these artifacts are advisory metadata today. They are not auto-consumed by pytest or by `scripts/update-indexes.py`.
 - Suggested workflow:
-	- Full safety gate: `pytest`
-	- Fast development slice: `pytest -m "not integration and not slow"`
-	- Domain-targeted slice examples: `pytest -m "config_impact and not slow"` or `pytest -m "critical_path and not slow"`
+  - Full safety gate: `pytest`
+  - Fast development slice: `pytest -m "not integration and not slow"`
+  - Domain-targeted slice examples: `pytest -m "config_impact and not slow"` or `pytest -m "critical_path and not slow"`

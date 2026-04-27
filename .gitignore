@@ -10,6 +10,12 @@ demo/akkapros/phoneprep/results
 demo/akkapros/prosmaker/results
 demo/akkapros/lexlinks/results
 
+explr_diagrams/
+.agent_tools/
+.cline/
+.clinerules
+
+
 test_*
 
 # IDE

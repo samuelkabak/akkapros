@@ -1,0 +1,26 @@
+---
+title: confwriter
+---
+flowchart LR
+	__start__(("S"))
+	__end__(("E"))
+	__main____harness["harness"]
+	src_akkapros_cli_confwriter__main["confwriter.main"]
+	akkapros_lib_utils__add_standard_version_argument["utils.add_standard_version_argument"]
+	akkapros_lib_utils__add_standard_logging_arguments["utils.add_standard_logging_arguments"]
+	akkapros_lib_config__add_config_argument["config.add_config_argument"]
+	subgraph akkapros [akkapros]
+		akkapros__get_version_display["akkapros.get_version_display"]
+		akkapros__get_repo_url["akkapros.get_repo_url"]
+	end
+	akkapros_lib_helpmsg__help_for["helpmsg.help_for"]
+	__start__ --> __main____harness
+	__main____harness --> src_akkapros_cli_confwriter__main
+	src_akkapros_cli_confwriter__main --> akkapros_lib_utils__add_standard_version_argument
+	akkapros_lib_utils__add_standard_version_argument --> akkapros_lib_utils__add_standard_logging_arguments
+	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_config__add_config_argument
+	akkapros_lib_config__add_config_argument --> __end__
+	akkapros_lib_utils__add_standard_version_argument --> akkapros__get_version_display
+	akkapros__get_version_display --> akkapros__get_repo_url
+	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_helpmsg__help_for
+	akkapros_lib_config__add_config_argument --> akkapros_lib_helpmsg__help_for

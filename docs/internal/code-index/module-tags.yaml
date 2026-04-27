@@ -2,6 +2,10 @@
 # Supports bounded, tag-filtered code inspection by domain.
 # Usage: load entries matching domain tags first; expand to related modules only when needed.
 #
+# Created/maintained: manually updated when modules are added, renamed, or significantly
+#   restructured. Run `python scripts/gen_code_graph.py` to generate Mermaid call graphs
+#   that supplement this index with dynamic call-relationship data.
+#
 # Fields per entry:
 #   module:       workspace-relative path
 #   domain:       primary functional domain(s)

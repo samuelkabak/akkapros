@@ -1,0 +1,62 @@
+---
+title: syllabifier
+---
+flowchart LR
+	__start__(("S"))
+	__end__(("E"))
+	__main____harness["harness"]
+	src_akkapros_cli_syllabifier__main["syllabifier.main"]
+	akkapros_lib_utils__add_standard_version_argument["utils.add_standard_version_argument"]
+	akkapros_lib_utils__add_standard_logging_arguments["utils.add_standard_logging_arguments"]
+	akkapros_lib_config__add_config_argument["config.add_config_argument"]
+	akkapros_lib_config__add_runtime_interface_arguments["config.add_runtime_interface_arguments"]
+	akkapros_lib_config__parse_args_with_config["config.parse_args_with_config"]
+	akkapros_lib_config__render_runtime_help["config.render_runtime_help"]
+	subgraph akkapros [akkapros]
+		akkapros__get_version_display["akkapros.get_version_display"]
+		akkapros__get_repo_url["akkapros.get_repo_url"]
+	end
+	akkapros_lib_helpmsg__help_for["helpmsg.help_for"]
+	subgraph akkapros_lib_config [config]
+		akkapros_lib_config__build_runtime_default_config["config.build_runtime_default_config"]
+		akkapros_lib_config__build_default_config["config.build_default_config"]
+		akkapros_lib_config__tool_dest_to_config_path["config.tool_dest_to_config_path"]
+		akkapros_lib_config__tool_config_values["config.tool_config_values"]
+		akkapros_lib_config__normalize_config["config.normalize_config"]
+		akkapros_lib_config__validate_config_source["config.validate_config_source"]
+		akkapros_lib_config__build_runtime_effective_config["config.build_runtime_effective_config"]
+		akkapros_lib_config__get_program_config_roots["config.get_program_config_roots"]
+	end
+	subgraph akkapros_lib__phonetize_config [_phonetize_config]
+		akkapros_lib__phonetize_config__build_default_phonetize_config["_phonetize_config.build_default_phonetize_config"]
+		akkapros_lib__phonetize_config__validate_phonetize_source["_phonetize_config.validate_phonetize_source"]
+		akkapros_lib__phonetize_config__normalize_phonetize_config["_phonetize_config.normalize_phonetize_config"]
+	end
+	__start__ --> __main____harness
+	__main____harness --> src_akkapros_cli_syllabifier__main
+	src_akkapros_cli_syllabifier__main --> akkapros_lib_utils__add_standard_version_argument
+	akkapros_lib_utils__add_standard_version_argument --> akkapros_lib_utils__add_standard_logging_arguments
+	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_config__add_config_argument
+	akkapros_lib_config__add_config_argument --> akkapros_lib_config__add_runtime_interface_arguments
+	akkapros_lib_config__add_runtime_interface_arguments --> akkapros_lib_config__parse_args_with_config
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__render_runtime_help
+	akkapros_lib_config__render_runtime_help --> __end__
+	akkapros_lib_utils__add_standard_version_argument --> akkapros__get_version_display
+	akkapros__get_version_display --> akkapros__get_repo_url
+	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_helpmsg__help_for
+	akkapros_lib_config__add_config_argument --> akkapros_lib_helpmsg__help_for
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__build_runtime_default_config
+	akkapros_lib_config__build_runtime_default_config --> akkapros_lib_config__build_default_config
+	akkapros_lib_config__build_default_config --> akkapros_lib__phonetize_config__build_default_phonetize_config
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__tool_dest_to_config_path
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__tool_config_values
+	akkapros_lib_config__tool_config_values --> akkapros_lib_config__normalize_config
+	akkapros_lib_config__normalize_config --> akkapros_lib_config__validate_config_source
+	akkapros_lib_config__validate_config_source --> akkapros_lib__phonetize_config__validate_phonetize_source
+	akkapros_lib_config__normalize_config --> akkapros_lib_config__build_default_config
+	akkapros_lib_config__normalize_config --> akkapros_lib__phonetize_config__normalize_phonetize_config
+	akkapros_lib__phonetize_config__normalize_phonetize_config --> akkapros_lib__phonetize_config__build_default_phonetize_config
+	akkapros_lib__phonetize_config__normalize_phonetize_config --> akkapros_lib__phonetize_config__validate_phonetize_source
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__build_runtime_effective_config
+	akkapros_lib_config__build_runtime_effective_config --> akkapros_lib_config__normalize_config
+	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__get_program_config_roots
