@@ -65,8 +65,8 @@
 
 | Alias | File | Purpose |
 |-------|------|---------|
-| `@spec` | `.cline/spec.md` | Write/update CR, ADR, REQ, REVIEW docs |
-| `@change` | `.cline/change.md` | Implement, verify, review CR-NNN |
+| `@spec` | `agent/spec.md` | Write/update CR, ADR, REQ, REVIEW docs |
+| `@change` | `agent/change.md` | Implement, verify, review CR-NNN |
 
 ## 10. Quick Commands
 
