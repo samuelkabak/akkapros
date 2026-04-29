@@ -1036,7 +1036,7 @@ def _analyze_syllable(rows: list[dict[str, str]], indices: list[int]) -> dict[st
     }
 
 
-def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool) -> float:
+def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool, mora_mode: str = 'bi', mono_lengthening: float = 0.0) -> float:
     one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
     base_map = {
         'CV': one_mora_ref,
@@ -1046,7 +1046,10 @@ def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accent
     }
     target = base_map[analysis['base_shape']]
     if accentuated and analysis['accent_shape'] is not None:
-        target += one_mora_ref
+        if mora_mode == 'mono':
+            target += mono_lengthening
+        else:
+            target += one_mora_ref
     return target
 
 
@@ -1170,6 +1173,8 @@ def _apply_accent_increment(
     config: dict[str, Any],
     drift_portion: float,
     next_same_onset: int | None,
+    *,
+    total_increment: float | None = None,
 ) -> float:
     accent_index = analysis['accent_index']
     if accent_index is None:
@@ -1182,7 +1187,8 @@ def _apply_accent_increment(
     one_mora_ref, _two_mora_ref, _three_mora_ref = _timing_refs(config)
     policy = config['process']['accentuation_distribution_policy']
     primary_share, adjacent_share = ACCENTUATION_DISTRIBUTION_SHARES[policy]
-    total_increment = float(_round_half_up(one_mora_ref))
+    if total_increment is None:
+        total_increment = float(_round_half_up(one_mora_ref))
 
     consonants_cfg = config['timing_model']['durations']['consonants']
 
@@ -1466,27 +1472,50 @@ def realize_phone_rows(
 
         next_same_onset = _same_consonant_next_onset(rows, analysis, next_analysis, durations, config)
 
-        shape_ref = _shape_reference(analysis, config, accentuated=False)
+        mora_mode = _resolve_mora_mode(input_frontmatter)
+        shape_ref = _shape_reference(analysis, config, accentuated=False, mora_mode=mora_mode)
         realized_total = sum(durations[index] for index in analysis['indices'])
         drift_after_assignment = drift_cursor + (realized_total - shape_ref)
         cvc_reference = float(config['timing_model']['durations']['cvc_reference'])
 
         accent_target = 0.0
         if allow_accentuation and analysis['accent_shape'] is not None:
-            accent_increment_applied = _apply_accent_increment(
-                rows,
-                analysis,
-                durations,
-                config,
-                drift_after_assignment,
-                next_same_onset,
-            )
-            accent_target = float(_round_half_up(0.5 * cvc_reference))
+            mora_mode = _resolve_mora_mode(input_frontmatter)
+            if mora_mode == 'mono':
+                mono_lengthening = float(config['timing_model']['durations'].get('mono_mode_accentuation_lengthening', 50))
+                _apply_accent_increment(
+                    rows,
+                    analysis,
+                    durations,
+                    config,
+                    drift_after_assignment,
+                    next_same_onset,
+                    total_increment=mono_lengthening,
+                )
+            else:
+                mono_lengthening = 0.0
+                _apply_accent_increment(
+                    rows,
+                    analysis,
+                    durations,
+                    config,
+                    drift_after_assignment,
+                    next_same_onset,
+                )
             emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
-            drift_after_assignment = entry_drift + (emitted_total - shape_ref - accent_target)
+            total_target = _shape_reference(
+                analysis, config, accentuated=True,
+                mora_mode=mora_mode, mono_lengthening=mono_lengthening,
+            )
+            accent_target = total_target - shape_ref
+            drift_after_assignment = entry_drift + (emitted_total - total_target)
 
         nucleus_row = rows[analysis['nucleus_index']]
-        supports_post_accent_cleanup = _supports_post_accent_long_vowel_cleanup(rows, analysis)
+        mora_mode = _resolve_mora_mode(input_frontmatter)
+        supports_post_accent_cleanup = (
+            _supports_post_accent_long_vowel_cleanup(rows, analysis)
+            and mora_mode != 'mono'
+        )
         counts_as_non_accented_long_vowel = nucleus_row['length'] == 'L' and not supports_post_accent_cleanup
         if counts_as_non_accented_long_vowel:
             non_accented_long_vowel_count += 1

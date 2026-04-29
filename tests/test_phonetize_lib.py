@@ -2126,3 +2126,122 @@ def test_normal_mode_does_not_trigger_debug_chrono_checkpoint_guard() -> None:
     rows[2]['drift'] = '-013'
 
     _validate_chrono_checkpoints(rows, 306)
+
+
+def test_cr093_mono_mode_applies_configurable_elongation() -> None:
+    """CR-093: mono mode applies mono_mode_accentuation_lengthening (default 50ms) instead of full mora."""
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+    bi_frontmatter = {'metadata': {'options': {'mora_mode': 'bi'}}}
+
+    mono_rows = build_phone_rows('bā~', input_frontmatter=mono_frontmatter)
+    bi_rows = build_phone_rows('bā~', input_frontmatter=bi_frontmatter)
+
+    realize_phone_rows(mono_rows, allow_accentuation=True, input_frontmatter=mono_frontmatter)
+    realize_phone_rows(bi_rows, allow_accentuation=True, input_frontmatter=bi_frontmatter)
+
+    mono_durations = [int(row['duration']) for row in mono_rows if row['category'] != 'S']
+    bi_durations = [int(row['duration']) for row in bi_rows if row['category'] != 'S']
+
+    # Mono mode applies 50ms mono_lengthening distributed via accentuation_distribution_policy.
+    # Onset anchor 89 + 10 (from 80/20 split of 50ms) = 99.
+    assert mono_durations[0] == 99, f'Mono onset should reflect configurable elongation: {mono_durations}'
+    # Bi mode applies full mora (153ms) elongation, onset anchor 89 + 30 = 119.
+    assert bi_durations[0] == 119, f'Bi onset should reflect full mora elongation: {bi_durations}'
+    # Bi mode total should be larger than mono mode total.
+    assert sum(bi_durations) > sum(mono_durations), (
+        f'Bi total {sum(bi_durations)} should exceed mono total {sum(mono_durations)}'
+    )
+
+
+def test_cr093_mono_mode_applies_configurable_elongation_over_plain() -> None:
+    """CR-093: mono mode with accentuation applies 50ms elongation vs non-accentuated."""
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    mono_accentuated = build_phone_rows('bā~', input_frontmatter=mono_frontmatter)
+    mono_plain = build_phone_rows('bā', input_frontmatter=mono_frontmatter)
+
+    realize_phone_rows(mono_accentuated, allow_accentuation=True, input_frontmatter=mono_frontmatter)
+    realize_phone_rows(mono_plain, allow_accentuation=False, input_frontmatter=mono_frontmatter)
+
+    acc_durations = [int(row['duration']) for row in mono_accentuated if row['category'] != 'S']
+    plain_durations = [int(row['duration']) for row in mono_plain if row['category'] != 'S']
+
+    # Mono mode applies 50ms elongation, so accentuated durations should be larger.
+    assert sum(acc_durations) > sum(plain_durations), (
+        f'Mono accentuated sum {sum(acc_durations)} should exceed plain sum {sum(plain_durations)}'
+    )
+    # The onset should be larger due to the 80/20 distribution of the 50ms elongation.
+    assert acc_durations[0] > plain_durations[0], (
+        f'Mono accentuated onset {acc_durations[0]} should exceed plain onset {plain_durations[0]}'
+    )
+
+
+def test_cr093_mono_mode_uses_half_beat_synchronization_basis() -> None:
+    """CR-093: mono mode uses half-beat basis even with allow_accentuation=True."""
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+    bi_frontmatter = {'metadata': {'options': {'mora_mode': 'bi'}}}
+
+    mono_basis = _resolve_synchronization_basis(
+        _runtime_view_phonetize_config(build_default_phonetize_verification_config()),
+        allow_accentuation=True,
+        input_frontmatter=mono_frontmatter,
+    )
+    bi_basis = _resolve_synchronization_basis(
+        _runtime_view_phonetize_config(build_default_phonetize_verification_config()),
+        allow_accentuation=True,
+        input_frontmatter=bi_frontmatter,
+    )
+
+    assert mono_basis == 150.0, f'Mono basis should be half-beat (150.0), got {mono_basis}'
+    assert bi_basis == 300.0, f'Bi basis should be full-beat (300.0), got {bi_basis}'
+
+
+def test_cr093_mono_mode_applies_elongation_for_cvc_shape() -> None:
+    """CR-093: mono mode applies configurable elongation for CVC shapes."""
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    mono_accentuated = build_phone_rows('bat~', input_frontmatter=mono_frontmatter)
+    mono_plain = build_phone_rows('bat', input_frontmatter=mono_frontmatter)
+
+    realize_phone_rows(mono_accentuated, allow_accentuation=True, input_frontmatter=mono_frontmatter)
+    realize_phone_rows(mono_plain, allow_accentuation=False, input_frontmatter=mono_frontmatter)
+
+    acc_durations = [int(row['duration']) for row in mono_accentuated if row['category'] != 'S']
+    plain_durations = [int(row['duration']) for row in mono_plain if row['category'] != 'S']
+
+    # Mono mode applies 50ms elongation distributed via accentuation_distribution_policy.
+    # For CVC: the coda (primary) gets most of the 50ms, vowel (adjacent) gets the rest.
+    assert sum(acc_durations) > sum(plain_durations), (
+        f'Mono CVC acc sum {sum(acc_durations)} should exceed plain sum {sum(plain_durations)}'
+    )
+    # The vowel and coda should be larger due to the 80/20 distribution.
+    assert acc_durations[1] > plain_durations[1], (
+        f'Mono CVC acc vowel {acc_durations[1]} should exceed plain vowel {plain_durations[1]}'
+    )
+    assert acc_durations[2] > plain_durations[2], (
+        f'Mono CVC acc coda {acc_durations[2]} should exceed plain coda {plain_durations[2]}'
+    )
+
+
+def test_cr093_mono_mode_applies_elongation_for_cvvc_shape() -> None:
+    """CR-093: mono mode applies configurable elongation for CVVC shapes."""
+    mono_frontmatter = {'metadata': {'options': {'mora_mode': 'mono'}}}
+
+    mono_accentuated = build_phone_rows('bāt~', input_frontmatter=mono_frontmatter)
+    mono_plain = build_phone_rows('bāt', input_frontmatter=mono_frontmatter)
+
+    realize_phone_rows(mono_accentuated, allow_accentuation=True, input_frontmatter=mono_frontmatter)
+    realize_phone_rows(mono_plain, allow_accentuation=False, input_frontmatter=mono_frontmatter)
+
+    acc_durations = [int(row['duration']) for row in mono_accentuated if row['category'] != 'S']
+    plain_durations = [int(row['duration']) for row in mono_plain if row['category'] != 'S']
+
+    # Mono mode applies 50ms elongation distributed via accentuation_distribution_policy.
+    # For CVVC: the vowel (primary) gets most of the 50ms, coda (adjacent) gets the rest.
+    assert sum(acc_durations) > sum(plain_durations), (
+        f'Mono CVVC acc sum {sum(acc_durations)} should exceed plain sum {sum(plain_durations)}'
+    )
+    # The coda should be larger due to the 80/20 distribution.
+    assert acc_durations[2] > plain_durations[2], (
+        f'Mono CVVC acc coda {acc_durations[2]} should exceed plain coda {plain_durations[2]}'
+    )

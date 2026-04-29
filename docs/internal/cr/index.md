@@ -2,6 +2,7 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[093. Configurable Mono-Mode Accentuation Lengthening](093-skip-accent-elongation-in-mono-mode.md) - Done
 [092. Phase 2 Module Splitting — Remaining Library Files](092-phase-2-module-splitting-remaining.md) - Done
 [091. Phase 2 Module Splitting for LLM Cost](091-phase-2-module-splitting-for-llm-cost.md) - Done
 [090. Add experimental feature guard to phonetizer](090-add-experimental-feature-guard-to-phonetizer.md) - Implemented

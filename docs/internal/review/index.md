@@ -2,6 +2,7 @@
 
 This index lists review documents. It is maintained by `scripts/update-indexes.py`.
 
+- [review-093. CR-093 Polish Review: Configurable Mono-Mode Accentuation Lengthening](093-cr093-polish-review.md)
 - [review-014. Code and Project Review — CR-080 Implementation Bottlenecks](014-review-cr-080-implementation-bottlenecks.md)
 - [review-013. Code and Project Review — Hiatus and Vowel Transition Processing](013-hiatus-and-vowel-transition-processing-review.md)
 - [review-012. Code and Project Review — Phonetizer Drift Column and Drift Statistics Semantics](012-review.md)

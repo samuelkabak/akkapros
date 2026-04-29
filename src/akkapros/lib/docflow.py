@@ -115,7 +115,7 @@ def _validate_phonetizer_phase2_target() -> None:
             "for coda_index in analysis['coda_indices']:",
             "durations[nucleus_index] = _vowel_anchor(",
             "if allow_accentuation and analysis['accent_shape'] is not None:",
-            "supports_post_accent_cleanup = _supports_post_accent_long_vowel_cleanup(rows, analysis)",
+            "supports_post_accent_cleanup = (",
             "if supports_post_accent_cleanup:",
             "elif abs(drift_after_assignment) > tolerance and nucleus_row['length'] == 'L':",
             "if _should_fold_completed_syllable(rows, analysis):",

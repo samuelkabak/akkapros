@@ -102,7 +102,7 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
             'accentuation_distribution_policy': _field(
                 '80_20',
                 'string',
-                'this policy indicates how the accentuation mora (0.5 * cvc_reference) is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nWhen legality caps block the full target, the solver preserves the configured ratio, realizes the largest legal proportional increment, and carries the remaining shortfall into drift.\nAllowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30',
+                'this policy indicates how the accentuation mora is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nWhen legality caps block the full target, the solver preserves the configured ratio, realizes the largest legal proportional increment, and carries the remaining shortfall into drift.\nIn bi mode, the total increment is 0.5 * cvc_reference (one mora). In mono mode, the total increment is mono_mode_accentuation_lengthening ms.\nAllowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30',
                 choices=ACCENTUATION_DISTRIBUTION_CHOICES,
             ),
             'drift_tolerance': _field(
@@ -136,6 +136,15 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                     300,
                     'int',
                     'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
+                ),
+                'mono_mode_accentuation_lengthening': _field(
+                    50,
+                    'int',
+                    'Additional duration in milliseconds attributed to accentuated syllables in mono mora mode. '
+                    'Unlike bi mode where accentuation adds one mora (0.5 * cvc_reference) and forces prosodic '
+                    'units to multiples of two morae, mono mode uses this smaller configurable elongation. '
+                    'The value is distributed using the same accentuation_distribution_policy as bi mode. '
+                    'Default: 50 ms. Validation range: [0, round(0.5 * cvc_reference)].',
                 ),
                 'consonants': {
                     '__comment__': None,
@@ -825,6 +834,14 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
         )
 
     cvc_reference = float(durations['cvc_reference'])
+    mono_lengthening = float(durations.get('mono_mode_accentuation_lengthening', 50))
+    mono_lengthening_max = round(0.5 * cvc_reference)
+    if not (0 <= mono_lengthening <= mono_lengthening_max):
+        add_failure(
+            'phonetize.process.timing_model.durations.mono_mode_accentuation_lengthening',
+            f'0 <= mono_mode_accentuation_lengthening <= round(0.5 * cvc_reference) = {mono_lengthening_max}',
+            f'Mono-mode accentuation lengthening {mono_lengthening} is outside the allowed range [0, {mono_lengthening_max}].',
+        )
     short_min = float(pauses['short']['min'])
     short_max = float(pauses['short']['max'])
     long_min = float(pauses['long']['min'])

@@ -14,7 +14,8 @@ explr_diagrams/
 .agent_tools/
 .cline/
 .clinerules
-.agent/
+agent/
+.ca/
 
 
 test_*

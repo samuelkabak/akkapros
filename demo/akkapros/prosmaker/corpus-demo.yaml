@@ -58,6 +58,7 @@ phonetize:
         segmental_ceiling: 310
         segmental_floor: 20
         cvc_reference: 300
+        mono_mode_accentuation_lengthening: 50
         consonants:
           closure:
             onset: 89
