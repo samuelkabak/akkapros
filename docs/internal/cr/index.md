@@ -2,9 +2,10 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[094. Split `metrics.py` into `_metrics_stats.py` + `_metrics_output.py`](094-split-metrics-py.md) - Done
 [093. Configurable Mono-Mode Accentuation Lengthening](093-skip-accent-elongation-in-mono-mode.md) - Done
 [092. Phase 2 Module Splitting — Remaining Library Files](092-phase-2-module-splitting-remaining.md) - Done
-[091. Phase 2 Module Splitting for LLM Cost](091-phase-2-module-splitting-for-llm-cost.md) - Done
+[091. Phase 2 Module Splitting for LLM Cost](091-phase-2-module-splitting-for-llm-cost.md) - Superseded
 [090. Add experimental feature guard to phonetizer](090-add-experimental-feature-guard-to-phonetizer.md) - Implemented
 [089. Rename extended_emphatic_coloring to limit_emphatic_coloring with inverted default](089-rename-extended-emphatic-coloring-to-limit-emphatic-coloring.md) - Done
 [088. Extend emphatic vowel coloring to coda contexts and phoneprep](088-extend-emphatic-vowel-coloring-to-coda-contexts-and-phoneprep.md) - Done

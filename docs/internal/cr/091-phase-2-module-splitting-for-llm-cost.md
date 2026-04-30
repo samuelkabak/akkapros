@@ -1,11 +1,12 @@
 ---
 cr_id: CR-091
-status: Done
+status: Superseded
 priority: Medium
 impact: Mutative
 created: 2026-04-23
-updated: 2026-04-25
+updated: 2026-04-29
 implements: 'CR-087'
+superseded_by: 'CR-094'
 ---
 
 # Change Request: Phase 2 Module Splitting for LLM Cost
@@ -316,3 +317,9 @@ Each split is a move-only refactor. Revert by restoring the original file and de
 ## Documentation
 
 - [ ] Update `.github/copilot-instructions.md` if new submodule patterns are established
+
+# Revision History
+
+## 2026-04-29 — Superseded by CR-094
+- **What changed:** Status changed from `Done` to `Superseded`; added `superseded_by: CR-094`
+- **Why:** CR-091 was marked `Done` but none of its proposed splits were ever implemented. CR-092 superseded CR-091 (partial) and implemented the `phoneprep`, `print`, and `config` splits. The `metrics.py` split was never delivered. CR-094 now covers the metrics split specifically.
