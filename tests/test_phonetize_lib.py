@@ -541,8 +541,8 @@ def test_phase2_uses_final_long_vowel_anchor_before_punctuation_owned_pause() ->
         {
             'process': {
                 'timing_model': {
-                    'drift_tolerance': 500,
                     'durations': {
+                        'drift_tolerance': 500,
                         'vowels': {
                             'long_final': 177,
                         },
@@ -1264,7 +1264,7 @@ def test_shared_verification_uses_extensible_canonical_drift_default() -> None:
     assert 'speech' not in defaults['process']['timing_model']
     assert 'drift_policy' not in defaults['process']['timing_model']
     assert 'short_pause_policy' not in defaults['process']['timing_model']
-    assert defaults['process']['timing_model']['drift_tolerance'] == 19
+    assert defaults['process']['timing_model']['durations']['drift_tolerance'] == 19
     durations = defaults['process']['timing_model']['durations']
     assert durations['segmental_floor'] == 20
     assert durations['consonants']['closure']['perception_limits']['gemination_max'] == 260
@@ -1539,8 +1539,10 @@ def test_path_2_tolerance_gate_skips_long_vowel_correction() -> None:
         {
             'process': {
                 'timing_model': {
-                    'drift_tolerance': 500,
-                    'durations': {'cvc_reference': 306},
+                    'durations': {
+                        'drift_tolerance': 500,
+                        'cvc_reference': 306,
+                    },
                 }
             }
         },

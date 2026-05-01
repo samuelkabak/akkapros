@@ -122,8 +122,6 @@ phonetize:
       # carries the remaining shortfall into drift.
       # Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30
       accentuation_distribution_policy: "80_20"
-      # maximum local timing mismatch tolerated before the algorithm must fail
-      drift_tolerance: 19
       # Enable algorithmic resynchronization-pause insertion at eligible
       # non-punctuation boundaries.
       enable_resync_pause: false
@@ -145,6 +143,10 @@ phonetize:
         # whenever at least one integer multiple N * cvc_reference falls inside a
         # configured pause band.
         cvc_reference: 300
+        # Maximum local timing mismatch tolerated before the algorithm must fail.
+        # Subject to the global duration scale: effective value =
+        # round(drift_tolerance * scale) when scale != 1.0.
+        drift_tolerance: 19
         # Additional duration in milliseconds attributed to accentuated syllables in
         # mono mora mode. Unlike bi mode where accentuation adds one mora
         # (0.5 * cvc_reference), mono mode uses this smaller configurable elongation.

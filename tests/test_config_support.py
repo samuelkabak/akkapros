@@ -46,14 +46,14 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert "speech:" not in text
     assert loaded["phonetize"]["process"]["realization"]["limit_emphatic_coloring"] is False
     assert loaded["phonetize"]["process"]["timing_model"]["accentuation_distribution_policy"] == "80_20"
-    assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 19
     assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is False
     durations = loaded["phonetize"]["process"]["timing_model"]["durations"]
     assert durations["scale"] == 1.0
     assert durations["segmental_floor"] == 20
+    assert durations["drift_tolerance"] == 19
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
-    assert text.index("drift_tolerance: 19") > text.index("accentuation_distribution_policy: \"80_20\"")
     assert text.index("scale: 1.0") < text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
+    assert text.index("cvc_reference: 300") < text.index("drift_tolerance: 19") < text.index("mono_mode_accentuation_lengthening: 50")
     assert durations["consonants"]["closure"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["closure"]["coda_final"] == 87
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260
@@ -72,7 +72,7 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert durations["pauses"]["resync"]["max"] == 200
     assert "drift_policy" not in loaded["phonetize"]["process"]["timing_model"]
     assert "short_pause_policy" not in loaded["phonetize"]["process"]["timing_model"]
-    assert text.index("enable_resync_pause: false") > text.index("drift_tolerance: 19")
+    assert text.index("enable_resync_pause: false") < text.index("drift_tolerance: 19")
     assert text.index("limit_emphatic_coloring: false") < text.index("f0: 120")
     assert "mini:" not in text
     assert "resync:" in text
@@ -369,7 +369,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
             "--set",
             "phonetize.process.timing_model.durations.consonants.closure.geminate_coda_ratio=0.55",
             "--set",
-            "phonetize.process.timing_model.drift_tolerance=21",
+            "phonetize.process.timing_model.durations.drift_tolerance=21",
             "--set",
             "phonetize.process.timing_model.durations.pauses.resync.min=90",
         ],
@@ -386,7 +386,7 @@ def test_confwriter_supports_nested_phonetize_paths(tmp_path: Path) -> None:
     assert loaded["phonetize"]["process"]["timing_model"]["geminate_policy"] == "cumulative"
     assert loaded["phonetize"]["process"]["timing_model"]["enable_resync_pause"] is True
     assert loaded["phonetize"]["process"]["timing_model"]["durations"]["consonants"]["closure"]["geminate_coda_ratio"] == 0.55
-    assert loaded["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 21
+    assert loaded["phonetize"]["process"]["timing_model"]["durations"]["drift_tolerance"] == 21
     assert loaded["phonetize"]["process"]["timing_model"]["durations"]["pauses"]["resync"]["min"] == 90
 
 
@@ -559,15 +559,15 @@ def test_parse_args_with_config_materializes_defaults_without_conf_and_path_over
             "--drift-tolerance",
             "3",
             "--option",
-            "phonetize.process.timing_model.drift_tolerance=7",
+            "phonetize.process.timing_model.durations.drift_tolerance=7",
         ],
     )
 
     assert args.prefix == "akkapros"
     assert args.outdir == "."
     assert args.drift_tolerance == 7
-    assert args._effective_config["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 7
-    assert args._effective_grouped_config["phonetize"]["process"]["timing_model"]["drift_tolerance"] == 7
+    assert args._effective_config["phonetize"]["process"]["timing_model"]["durations"]["drift_tolerance"] == 7
+    assert args._effective_grouped_config["phonetize"]["process"]["timing_model"]["durations"]["drift_tolerance"] == 7
 
 
 def test_removed_phonetize_policy_option_path_is_rejected() -> None:

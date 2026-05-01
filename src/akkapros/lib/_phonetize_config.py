@@ -13,6 +13,7 @@ REMOVED_TIMING_MODEL_KEYS = {
     'short_pause_policy': 'CR-061',
     'drift_policy': 'CR-061',
     'speech': 'CR-081',
+    'drift_tolerance': 'CR-095',
 }
 ACCENTUATION_DISTRIBUTION_SHARES = {
     '100_0': (1.0, 0.0),
@@ -105,11 +106,6 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'this policy indicates how the accentuation mora is distributed, format N_M\nN = percentage on the accentuated segment; M = percentage on the adjacent segment\nWhen legality caps block the full target, the solver preserves the configured ratio, realizes the largest legal proportional increment, and carries the remaining shortfall into drift.\nIn bi mode, the total increment is 0.5 * cvc_reference (one mora). In mono mode, the total increment is mono_mode_accentuation_lengthening ms.\nAllowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30',
                 choices=ACCENTUATION_DISTRIBUTION_CHOICES,
             ),
-            'drift_tolerance': _field(
-                19,
-                'int',
-                'maximum local timing mismatch tolerated before the algorithm must fail',
-            ),
             'enable_resync_pause': _field(
                 False,
                 'bool',
@@ -136,6 +132,13 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                     300,
                     'int',
                     'Central heavy-syllable timing reference used by accentuation and pause alignment. Set inside the empirically grounded CVC interval 286-306 ms. This keeps the control value conservative and compatible with pause-band alignment whenever at least one integer multiple N * cvc_reference falls inside a configured pause band.',
+                ),
+                'drift_tolerance': _field(
+                    19,
+                    'int',
+                    'Maximum local timing mismatch tolerated before the algorithm must fail. '
+                    'Subject to the global duration scale: effective value = '
+                    'round(drift_tolerance * scale) when scale != 1.0.',
                 ),
                 'mono_mode_accentuation_lengthening': _field(
                     50,
@@ -238,7 +241,6 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
 PROCESS_KEYS = (
     'geminate_policy',
     'accentuation_distribution_policy',
-    'drift_tolerance',
     'enable_resync_pause',
 )
 
@@ -508,7 +510,11 @@ def _derive_effective_durations(durations: dict[str, Any]) -> tuple[dict[str, An
         raise ValueError('phonetize.process.timing_model.durations.scale must be > 0.')
     if scale == 1.0:
         return deepcopy(durations), scale
-    return _scale_duration_values(deepcopy(durations), scale), scale
+    scaled = _scale_duration_values(deepcopy(durations), scale)
+    # Round drift_tolerance to nearest integer after scaling (CR-095)
+    if 'drift_tolerance' in scaled:
+        scaled['drift_tolerance'] = round(scaled['drift_tolerance'])
+    return scaled, scale
 
 
 def _make_issue(
@@ -664,9 +670,10 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 'Experimental feature enable_resync_pause: true (resynchronization‑pause insertion) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
             )
 
-    if not isinstance(process['drift_tolerance'], int) or isinstance(process['drift_tolerance'], bool) or process['drift_tolerance'] < 0:
+    drift_tolerance = durations.get('drift_tolerance', 19)
+    if not isinstance(drift_tolerance, int) or isinstance(drift_tolerance, bool) or drift_tolerance < 0:
         add_failure(
-            'phonetize.process.timing_model.drift_tolerance',
+            'phonetize.process.timing_model.durations.drift_tolerance',
             'drift_tolerance is an integer >= 0',
             'Drift tolerance must be a non-negative integer number of milliseconds.',
         )

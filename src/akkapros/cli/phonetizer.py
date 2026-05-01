@@ -96,8 +96,8 @@ def run_tests() -> bool:
     config = build_runtime_default_config()[PHONETIZE_SECTION]
     updated = _apply_process_flag_overrides(defaults, config)
     cases = [
-        ('default process overrides', lambda: updated['process']['timing_model']['geminate_policy'] == 'corrective' and updated['process']['timing_model']['drift_tolerance'] == 0),
-        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.drift_tolerance=3'])['process']['timing_model']['drift_tolerance'] == 3),
+        ('default process overrides', lambda: updated['process']['timing_model']['geminate_policy'] == 'corrective'),
+        ('timing override path', lambda: _apply_path_overrides(config, ['phonetize.process.timing_model.durations.drift_tolerance=3'])['process']['timing_model']['durations']['drift_tolerance'] == 3),
         ('reject bad option path', _selftest_invalid_option_path),
         ('reject removed speech option path', _selftest_removed_speech_option_path),
         ('canonical phone rows', run_phonetize_tests),

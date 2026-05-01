@@ -1409,7 +1409,7 @@ def realize_phone_rows(
     resync_pause_insert_count = 0
     resync_pause_eligible_count = 0
     pause_residual_post_unit_drift_count = 0
-    tolerance = float(config['process']['drift_tolerance'])
+    tolerance = float(config['timing_model']['durations']['drift_tolerance'])
     inserted_after: dict[int, list[tuple[dict[str, str], float, str]]] = {}
     row_drift_tokens: dict[int, str] = {}
     last_completed_drift_token = PHONE_ROW_DRIFT_NEUTRAL

@@ -47,12 +47,12 @@ phonetize:
     timing_model:
       geminate_policy: "corrective"
       accentuation_distribution_policy: "80_20"
-      drift_tolerance: 35
       enable_resync_pause: false
       durations:
         segmental_ceiling: 310
         segmental_floor: 20
         cvc_reference: 300
+        drift_tolerance: 35
         mono_mode_accentuation_lengthening: 50
         consonants:
           closure:

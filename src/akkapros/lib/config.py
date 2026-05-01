@@ -196,7 +196,7 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             {
                 "process.timing_model.geminate_policy": "geminate_policy",
                 "process.timing_model.accentuation_distribution_policy": "accentuation_distribution_policy",
-                "process.timing_model.drift_tolerance": "drift_tolerance",
+                "process.timing_model.durations.drift_tolerance": "drift_tolerance",
             },
         ),
     ),
@@ -249,7 +249,7 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             {
                 "process.timing_model.geminate_policy": "phonetize_geminate_policy",
                 "process.timing_model.accentuation_distribution_policy": "phonetize_accentuation_distribution_policy",
-                "process.timing_model.drift_tolerance": "phonetize_drift_tolerance",
+                "process.timing_model.durations.drift_tolerance": "phonetize_drift_tolerance",
             },
         ),
         (
