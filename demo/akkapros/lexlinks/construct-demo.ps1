@@ -19,12 +19,18 @@ try {
     New-Item -ItemType Directory -Path $resultsDir | Out-Null
   }
 
+  $monoPrefix = 'erra_construct-mono'
+  $monoArgs = @('--prefix', $monoPrefix, '--mora-mode', 'mono', '--prosody-style', 'lob')
+
   if (Test-Path $venvPython) {
     & $venvPython 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile
+    & $venvPython 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile $monoArgs
   } elseif (Get-Command python -ErrorAction SilentlyContinue) {
     python 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile
+    python 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile $monoArgs
   } elseif (Get-Command py -ErrorAction SilentlyContinue) {
     py -3 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile
+    py -3 'src/akkapros/cli/fullprosmaker.py' $inputFile --conf $configFile $monoArgs
   } else {
     throw 'No usable Python interpreter found. Expected .venv\Scripts\python.exe, python, or py.'
   }

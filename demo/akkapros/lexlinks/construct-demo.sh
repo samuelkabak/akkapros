@@ -27,3 +27,6 @@ else
 fi
 
 eval "$PYTHON_BIN" src/akkapros/cli/fullprosmaker.py "$inputFile" --conf "$configFile"
+
+# Mono mode branch (style lob)
+eval "$PYTHON_BIN" src/akkapros/cli/fullprosmaker.py "$inputFile" --conf "$configFile" -p erra_construct-mono --mora-mode mono --prosody-style lob

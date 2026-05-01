@@ -19,7 +19,9 @@ This folder documents the small demo scripts included with the project. Each dem
  - **Script (PowerShell):** [akkapros/lexlinks/construct-demo.ps1](akkapros/lexlinks/construct-demo.ps1) — PowerShell variant of the same full-pipeline demo.
  - **Config:** [akkapros/lexlinks/construct-demo.yaml](akkapros/lexlinks/construct-demo.yaml) — grouped YAML config shared by both launchers. It sets the runnable prefix to `erra_construct` and keeps the demo outputs in `demo/akkapros/lexlinks/results/`.
  - **Input:** `data/lexlinks/construct_prep/erra_construct_proc.txt` — prebuilt cleaned construct text consumed directly by `fullprosmaker.py`.
- - **Outputs (in results/):** the run emits the standard `fullprosmaker` artifact set for the `erra_construct` prefix, including `_syl.txt`, `_tilde.txt`, `_ophone.txt`, `_phone.txt`, `_metrics.txt`, `_metrics.json`, `_accent_acute.txt`, `_accent_bold.md`, `_accent_xar.txt`, `_xar.txt`, `_ombrola.pho`, and `_mbrola.pho`.
+ - **Outputs (in results/):** the run emits two parallel artifact sets:
+   - **Bi mode (style lob):** `erra_construct_*` prefix — the standard `fullprosmaker` artifact set including `_syl.txt`, `_tilde.txt`, `_ophone.txt`, `_phone.txt`, `_metrics.txt`, `_metrics.json`, `_accent_acute.txt`, `_accent_bold.md`, `_accent_xar.txt`, `_xar.txt`, `_ombrola.pho`, and `_mbrola.pho`.
+   - **Mono mode (style lob):** `erra_construct-mono_*` prefix — same artifact set produced with `--mora-mode mono`, allowing direct comparison of bi vs. mono mode outputs on the same input.
 
 **Akkapros Phoneprep Demo**
  - **Script (POSIX):** [akkapros/phoneprep/phoneprep-demo.sh](akkapros/phoneprep/phoneprep-demo.sh) — runs the phone-preparation demo in the `akkapros` toolchain.
