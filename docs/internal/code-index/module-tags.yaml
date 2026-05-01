@@ -64,14 +64,30 @@ modules:
     coupling: pipeline-critical
     test_markers: [unit, metrics_impact, integration]
     sections:
+      - name: facade
+        note: Thin re-export facade; imports from _metrics_stats and _metrics_output (CR-094).
+      - name: run_tests
+        note: Selftest suite; run with --test flag.
+
+  - module: src/akkapros/lib/_metrics_stats.py
+    domain: [metrics]
+    coupling: pipeline-critical
+    test_markers: [unit, metrics_impact, integration]
+    sections:
       - name: phone_interval_model
         note: VarcoC, DeltaC, %V, %C, nPVI, rPVI computation.
       - name: process_file
         note: Hot path (see profiling notes in CR-086).
+      - name: pause_punctuation
+        note: Pause classification, gap analysis, punctuation tokenization.
+
+  - module: src/akkapros/lib/_metrics_output.py
+    domain: [metrics]
+    coupling: pipeline-critical
+    test_markers: [unit, metrics_impact, integration]
+    sections:
       - name: format_table
         note: Human-readable metrics table output.
-      - name: run_tests
-        note: Selftest suite; run with --test flag.
 
   - module: src/akkapros/lib/config.py
     domain: [config]
@@ -80,10 +96,18 @@ modules:
     sections:
       - name: schema_validation
         note: Config key validation; removed-key rejection (CR-081).
-      - name: parse_args_with_config
-        note: Merges file config + CLI args; override precedence here.
       - name: effective_options_from_namespace
         note: Converts argparse namespace to options dict for frontmatter.
+
+  - module: src/akkapros/lib/_config_io.py
+    domain: [config, cli]
+    coupling: shared-core
+    test_markers: [unit, config_impact, integration]
+    sections:
+      - name: parse_args_with_config
+        note: Merges file config + CLI args; override precedence here (extracted from config.py by CR-092).
+      - name: help_rendering
+        note: Runtime help text, documented config output, config file I/O.
 
   - module: src/akkapros/lib/frontmatter.py
     domain: [config, pipeline]
@@ -102,10 +126,66 @@ modules:
     coupling: pipeline-critical
     test_markers: [unit, integration]
     sections:
+      - name: facade
+        note: Thin re-export facade; imports from _print_ipa and _print_pho (CR-092).
+      - name: run_tests
+        note: Selftest suite (still in parent facade; extraction deferred per CR-092).
+
+  - module: src/akkapros/lib/_print_ipa.py
+    domain: [print]
+    coupling: pipeline-critical
+    test_markers: [unit, integration]
+    sections:
+      - name: convert_line
+        note: Hot path; IPA/xar/acute/bold rendering per line.
+      - name: convert_text
+        note: Full-text conversion with IPA and transliteration outputs.
+
+  - module: src/akkapros/lib/_print_pho.py
+    domain: [print]
+    coupling: pipeline-critical
+    test_markers: [unit, integration]
+    sections:
       - name: process_file
         note: Hot path (see profiling notes in CR-086).
       - name: _render_phone_rows
-        note: Hot path; IPA/xar/acute/bold rendering per row.
+        note: Phone row rendering with emphatic coloring.
+
+  - module: src/akkapros/lib/phoneprep.py
+    domain: [phoneprep]
+    coupling: independent
+    test_markers: [unit, integration, slow]
+    sections:
+      - name: facade
+        note: Thin re-export facade; imports from _phoneprep_* submodules (CR-092).
+      - name: main
+        note: CLI entry point; orchestrates script generation.
+
+  - module: src/akkapros/lib/_phoneprep_phonology.py
+    domain: [phoneprep]
+    coupling: independent
+    test_markers: [unit, integration, slow]
+    sections:
+      - name: phonological_rules
+        note: Segment transformation, diphone extraction, word generation.
+      - name: CoverageOptimizer
+        note: Diphone coverage optimization for recording script generation.
+
+  - module: src/akkapros/lib/_phoneprep_io.py
+    domain: [phoneprep]
+    coupling: independent
+    test_markers: [unit, integration, slow]
+    sections:
+      - name: script_generation
+        note: File I/O, script generation, recording helpers, manifest writing.
+
+  - module: src/akkapros/lib/_phoneprep_html_template.py
+    domain: [phoneprep]
+    coupling: independent
+    test_markers: []
+    sections:
+      - name: PHONEPREP_HTML_TEMPLATE
+        note: Static HTML/CSS/JS template for recording helper (extracted by CR-092).
 
   - module: src/akkapros/lib/helpmsg.py
     domain: [config, cli]
@@ -162,10 +242,10 @@ modules:
     coupling: independent
     test_markers: [unit, integration]
 
-  - module: src/akkapros/lib/phoneprep.py
-    domain: [phoneprep]
+  - module: src/akkapros/cli/confwriter.py
+    domain: [config, cli]
     coupling: independent
-    test_markers: [unit, integration, slow]
+    test_markers: [unit, config_impact, integration]
 
   - module: tests/dependency_map.yaml
     domain: [governance]

@@ -4,7 +4,7 @@ status: Done
 priority: Medium
 impact: Mutative
 created: 2026-04-25
-updated: 2026-04-26
+updated: 2026-05-01
 implements: 'CR-087'
 supersedes: 'CR-091 (partial)'
 ---
@@ -17,11 +17,11 @@ Split the remaining large library modules (`phoneprep.py`, `print.py`, `config.p
 
 CR-091 split `metrics.py` and `prosody.py`. This CR extends the same treatment to the three remaining files over 1000 lines, plus the `metrics.py` output formatting that was deferred.
 
-## Implementation Status (as of 2026-04-25)
+## Implementation Status (as of 2026-05-01)
 
-**All splits proposed in this CR have been implemented.** All target source files have been split into focused submodules following the move-only pattern. All acceptance criteria are satisfied.
+**All splits proposed in this CR have been implemented.** All target source files have been split into focused submodules following the move-only pattern. However, two acceptance criteria remain unsatisfied: `print.py` still contains `def run_tests()` at line 1181 (the test function was not extracted to `lib/tests/print_tests.py` as specified). See the Acceptance Criteria section for details.
 
-All `# Tasks` checkboxes below are checked. This CR is complete.
+All `# Tasks` checkboxes below are checked. This CR is partially complete — the `print.py` test extraction task is marked done but was not actually implemented.
 
 ---
 
@@ -288,19 +288,19 @@ Test files are created new; no existing test files are modified.
 
 # Acceptance Criteria
 
-- [ ] `phoneprep.py` public API unchanged: all existing imports from `akkapros.lib.phoneprep` still work
-- [ ] `print.py` public API unchanged
-- [ ] `config.py` public API unchanged
-- [ ] All existing tests pass (`python -m pytest`)
-- [ ] No behavioral changes detected in integration test gold outputs
-- [ ] Each new submodule is under 1000 lines
-- [ ] Each new submodule has a single clear responsibility
-- [ ] No circular imports introduced (verify with `python -c "from akkapros.lib import phoneprep, print, config"`)
-- [ ] Module-level state is preserved: `set_active_inventory` still affects phoneprep phonology correctly
-- [ ] No test functions (`run_tests`, `_test_*`, `test_*`) exist in any `_*.py` submodule file or in the parent facade
-- [ ] Parent facade does NOT import or re-export `run_tests` from `lib/tests/`
-- [ ] New test files (`phoneprep_tests.py`, `print_tests.py`) use static top-level imports, not dynamic lazy module references
-- [ ] `_phoneprep_html_template.py` contains only the `PHONEPREP_HTML_TEMPLATE` constant (no Python logic, no function definitions)
+- [x] `phoneprep.py` public API unchanged: all existing imports from `akkapros.lib.phoneprep` still work
+- [x] `print.py` public API unchanged
+- [x] `config.py` public API unchanged
+- [x] All existing tests pass (`python -m pytest`)
+- [x] No behavioral changes detected in integration test gold outputs
+- [x] Each new submodule is under 1000 lines
+- [x] Each new submodule has a single clear responsibility
+- [x] No circular imports introduced (verify with `python -c "from akkapros.lib import phoneprep, print, config"`)
+- [x] Module-level state is preserved: `set_active_inventory` still affects phoneprep phonology correctly
+- [ ] No test functions (`run_tests`, `_test_*`, `test_*`) exist in any `_*.py` submodule file or in the parent facade — **FAILED: `print.py` still contains `def run_tests()` at line 1181 (verified 2026-05-01)**
+- [ ] Parent facade does NOT import or re-export `run_tests` from `lib/tests/` — **FAILED: `print.py` has the full `run_tests` body, not a re-export (verified 2026-05-01)**
+- [x] New test files (`phoneprep_tests.py`, `print_tests.py`) use static top-level imports, not dynamic lazy module references
+- [x] `_phoneprep_html_template.py` contains only the `PHONEPREP_HTML_TEMPLATE` constant (no Python logic, no function definitions)
 
 ---
 

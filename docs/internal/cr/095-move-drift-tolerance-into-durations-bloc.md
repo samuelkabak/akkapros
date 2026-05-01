@@ -1,6 +1,7 @@
 ---
 cr_id: CR-095
-status: Draft
+status: Done
+verified: 2026-05-01
 priority: High
 impact: Mutative
 created: 2026-05-01
@@ -400,24 +401,24 @@ tests/test_integration.py
 
 # Acceptance Criteria
 
-- [ ] `drift_tolerance` is removed from `timing_model` (top level) and added to
+- [x] `drift_tolerance` is removed from `timing_model` (top level) and added to
       `timing_model.durations` immediately after `cvc_reference`.
-- [ ] `drift_tolerance` is removed from `PROCESS_KEYS`.
-- [ ] The schema, verification, and runtime all read/write `drift_tolerance` at
+- [x] `drift_tolerance` is removed from `PROCESS_KEYS`.
+- [x] The schema, verification, and runtime all read/write `drift_tolerance` at
       the new path.
-- [ ] When `scale == 1.0`, `drift_tolerance` is used as configured (no scaling).
-- [ ] When `scale != 1.0`, the effective `drift_tolerance` is
+- [x] When `scale == 1.0`, `drift_tolerance` is used as configured (no scaling).
+- [x] When `scale != 1.0`, the effective `drift_tolerance` is
       `round(drift_tolerance * scale)`.
-- [ ] The rounded integer result is used at runtime for drift comparison.
-- [ ] CLI flags `--drift-tolerance` (phonetizer) and
+- [x] The rounded integer result is used at runtime for drift comparison.
+- [x] CLI flags `--drift-tolerance` (phonetizer) and
       `--phonetize-drift-tolerance` (fullprosmaker) correctly write to the new
       config path.
-- [ ] Config field maps in `config.py` reference the new path.
-- [ ] All YAML files (`default.yaml`, both demo YAMLs,
+- [x] Config field maps in `config.py` reference the new path.
+- [x] All YAML files (`default.yaml`, both demo YAMLs,
       `regression_defaults.yaml`) have `drift_tolerance` at the new position.
-- [ ] Help text reflects the new location and scaling behavior.
-- [ ] Existing tests pass after path updates.
-- [ ] New tests verify scaling behavior for `drift_tolerance`.
+- [x] Help text reflects the new location and scaling behavior.
+- [x] Existing tests pass after path updates.
+- [x] New tests verify scaling behavior for `drift_tolerance`.
 
 ---
 
@@ -488,31 +489,31 @@ restore old YAML structure, and remove the rounding logic.
 
 ## Implementation
 
-- [ ] Move `drift_tolerance` in the schema from `timing_model` to `durations`.
-- [ ] Remove `drift_tolerance` from `PROCESS_KEYS`.
-- [ ] Add rounding logic in `_derive_effective_durations()` for
+- [x] Move `drift_tolerance` in the schema from `timing_model` to `durations`.
+- [x] Remove `drift_tolerance` from `PROCESS_KEYS`.
+- [x] Add rounding logic in `_derive_effective_durations()` for
       `drift_tolerance`.
-- [ ] Update runtime read path in `phonetize.py`.
-- [ ] Update verification path in `_phonetize_config.py`.
-- [ ] Update config field maps in `config.py`.
-- [ ] Update CLI override handlers in `phonetizer.py` and `fullprosmaker.py`.
-- [ ] Update help text in `helpmsg.py`.
-- [ ] Add `drift_tolerance` to `REMOVED_TIMING_MODEL_KEYS` with reference to
+- [x] Update runtime read path in `phonetize.py`.
+- [x] Update verification path in `_phonetize_config.py`.
+- [x] Update config field maps in `config.py`.
+- [x] Update CLI override handlers in `phonetizer.py` and `fullprosmaker.py`.
+- [x] Update help text in `helpmsg.py`.
+- [x] Add `drift_tolerance` to `REMOVED_TIMING_MODEL_KEYS` with reference to
       this CR for backward compatibility.
 
 ## Config/YAML
 
-- [ ] Update `src/akkapros/config/default.yaml`.
-- [ ] Update `demo/akkapros/prosmaker/corpus-demo.yaml`.
-- [ ] Update `demo/akkapros/lexlinks/construct-demo.yaml`.
-- [ ] Update `tests/integration_refs/regression_defaults.yaml`.
+- [x] Update `src/akkapros/config/default.yaml`.
+- [x] Update `demo/akkapros/prosmaker/corpus-demo.yaml`.
+- [x] Update `demo/akkapros/lexlinks/construct-demo.yaml`.
+- [x] Update `tests/integration_refs/regression_defaults.yaml`.
 
 ## Tests
 
-- [ ] Update existing tests that reference the old path.
-- [ ] Add tests for `drift_tolerance` scaling behavior.
-- [ ] Add tests for rounded integer result.
-- [ ] Verify all tests pass.
+- [x] Update existing tests that reference the old path.
+- [x] Add tests for `drift_tolerance` scaling behavior.
+- [x] Add tests for rounded integer result.
+- [x] Verify all tests pass.
 
 ## Documentation
 
@@ -521,10 +522,10 @@ restore old YAML structure, and remove the rounding logic.
 
 ## Review
 
-- [ ] Verify that `drift_tolerance` is correctly scaled when `scale != 1.0`.
-- [ ] Verify that `drift_tolerance` is NOT scaled when `scale == 1.0`.
-- [ ] Verify backward compatibility error message for old path.
-- [ ] Verify all YAML files are consistent.
+- [x] Verify that `drift_tolerance` is correctly scaled when `scale != 1.0`.
+- [x] Verify that `drift_tolerance` is NOT scaled when `scale == 1.0`.
+- [x] Verify backward compatibility error message for old path.
+- [x] Verify all YAML files are consistent.
 
 ---
 

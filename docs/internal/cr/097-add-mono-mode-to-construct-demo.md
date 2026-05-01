@@ -1,6 +1,7 @@
 ---
 cr_id: CR-097
-status: Draft
+status: Done
+verified: 2026-05-01
 priority: Low
 impact: Additive
 created: 2026-05-01
@@ -93,12 +94,12 @@ demo/README.md
 
 # Acceptance Criteria
 
-- [ ] `construct-demo.sh` runs two `fullprosmaker.py` invocations (bi + mono)
-- [ ] `construct-demo.ps1` runs two `fullprosmaker.py` invocations (bi + mono)
-- [ ] Mono branch produces artifacts under prefix `erra_construct-mono` in `results/`
-- [ ] Existing bi mode artifacts under prefix `erra_construct` are unchanged
-- [ ] `demo/README.md` documents the new mono branch outputs
-- [ ] Running either launcher script completes without error
+- [x] `construct-demo.sh` runs two `fullprosmaker.py` invocations (bi + mono)
+- [x] `construct-demo.ps1` runs two `fullprosmaker.py` invocations (bi + mono)
+- [x] Mono branch produces artifacts under prefix `erra_construct-mono` in `results/`
+- [x] Existing bi mode artifacts under prefix `erra_construct` are unchanged
+- [x] `demo/README.md` documents the new mono branch outputs
+- [x] Running either launcher script completes without error
 
 ---
 
@@ -137,21 +138,21 @@ Revert the two launcher scripts and `demo/README.md` to remove the mono invocati
 
 ## Implementation
 
-- [ ] Add mono `fullprosmaker.py` invocation to `construct-demo.sh`
-- [ ] Add mono `fullprosmaker.py` invocation to `construct-demo.ps1`
-- [ ] Update `demo/README.md` to document mono branch outputs
+- [x] Add mono `fullprosmaker.py` invocation to `construct-demo.sh`
+- [x] Add mono `fullprosmaker.py` invocation to `construct-demo.ps1`
+- [x] Update `demo/README.md` to document mono branch outputs
 
 ## Tests
 
-- [ ] Manual verification: run both launcher scripts and confirm artifact sets
+- [x] Manual verification: run both launcher scripts and confirm artifact sets
 
 ## Documentation
 
-- [ ] Update `demo/README.md`
+- [x] Update `demo/README.md`
 
 ## Review
 
-- [ ] Verify acceptance criteria
+- [x] Verify acceptance criteria
 
 ---
 

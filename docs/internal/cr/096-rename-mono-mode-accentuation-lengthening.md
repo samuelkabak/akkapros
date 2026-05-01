@@ -1,6 +1,7 @@
 ---
 cr_id: CR-096
-status: Draft
+status: Done
+verified: 2026-05-01
 priority: Medium
 impact: Mutative
 created: 2026-05-01
@@ -260,18 +261,18 @@ Replace the YAML examples that show `mono_mode_accentuation_lengthening: 50` wit
 
 # Acceptance Criteria
 
-- [ ] The schema field key is `'basic_accentuation_lengthening'` in `PHONETIZE_SCHEMA`.
-- [ ] The field description uses the new name and updated wording.
-- [ ] The `accentuation_distribution_policy` description references `basic_accentuation_lengthening`.
-- [ ] The validation logic in `verify_phonetize_config()` uses the new config path and error messages.
-- [ ] The runtime read in `realize_phone_rows()` reads `'basic_accentuation_lengthening'`.
-- [ ] The `_shape_reference()` parameter is renamed to `basic_lengthening`.
-- [ ] All four YAML config files use `basic_accentuation_lengthening: 50`.
-- [ ] All test references use the new name.
-- [ ] All governance documents (CR-093, REQ-048, REVIEW-015, CR-095) use the new name.
-- [ ] The full test suite passes (`python -m pytest`).
-- [ ] No references to `mono_mode_accentuation_lengthening` remain in `src/`, `tests/`, or `demo/`.
-- [ ] Governance indexes are regenerated (`python scripts/update-indexes.py`).
+- [x] The schema field key is `'basic_accentuation_lengthening'` in `PHONETIZE_SCHEMA`.
+- [x] The field description uses the new name and updated wording.
+- [x] The `accentuation_distribution_policy` description references `basic_accentuation_lengthening`.
+- [x] The validation logic in `verify_phonetize_config()` uses the new config path and error messages.
+- [x] The runtime read in `realize_phone_rows()` reads `'basic_accentuation_lengthening'`.
+- [x] The `_shape_reference()` parameter is renamed to `basic_lengthening`.
+- [x] All four YAML config files use `basic_accentuation_lengthening: 50`.
+- [x] All test references use the new name.
+- [x] All governance documents (CR-093, REQ-048, REVIEW-015, CR-095) use the new name.
+- [x] The full test suite passes (`python -m pytest`).
+- [x] No references to `mono_mode_accentuation_lengthening` remain in `src/`, `tests/`, or `demo/`.
+- [x] Governance indexes are regenerated (`python scripts/update-indexes.py`).
 
 ---
 
@@ -324,29 +325,29 @@ Revert the rename: change all occurrences of `basic_accentuation_lengthening` ba
 
 ## Implementation
 
-- [ ] Rename schema field key in `_phonetize_config.py` from `'mono_mode_accentuation_lengthening'` to `'basic_accentuation_lengthening'`.
-- [ ] Update field description string in `_phonetize_config.py`.
-- [ ] Update `accentuation_distribution_policy` description string in `_phonetize_config.py`.
-- [ ] Update validation logic in `verify_phonetize_config()` in `_phonetize_config.py`.
-- [ ] Update runtime read path in `phonetize.py` (`realize_phone_rows()`).
-- [ ] Rename `_shape_reference()` parameter `mono_lengthening` → `basic_lengthening` in `phonetize.py`.
-- [ ] Update all four YAML config files.
-- [ ] Update `tests/test_phonetize_lib.py` (docstrings, comments, config keys).
-- [ ] Update `tests/test_config_support.py` (string assertion).
+- [x] Rename schema field key in `_phonetize_config.py` from `'mono_mode_accentuation_lengthening'` to `'basic_accentuation_lengthening'`.
+- [x] Update field description string in `_phonetize_config.py`.
+- [x] Update `accentuation_distribution_policy` description string in `_phonetize_config.py`.
+- [x] Update validation logic in `verify_phonetize_config()` in `_phonetize_config.py`.
+- [x] Update runtime read path in `phonetize.py` (`realize_phone_rows()`).
+- [x] Rename `_shape_reference()` parameter `mono_lengthening` → `basic_lengthening` in `phonetize.py`.
+- [x] Update all four YAML config files.
+- [x] Update `tests/test_phonetize_lib.py` (docstrings, comments, config keys).
+- [x] Update `tests/test_config_support.py` (string assertion).
 
 ## Governance Documents
 
-- [ ] Update `docs/internal/cr/093-skip-accent-elongation-in-mono-mode.md`.
-- [ ] Update `docs/internal/req/048-skip-accent-elongation-in-mono-mode.md`.
-- [ ] Update `docs/internal/review/015-cr093-polish-review.md`.
-- [ ] Update `docs/internal/cr/095-move-drift-tolerance-into-durations-bloc.md`.
+- [x] Update `docs/internal/cr/093-skip-accent-elongation-in-mono-mode.md`.
+- [x] Update `docs/internal/req/048-skip-accent-elongation-in-mono-mode.md`.
+- [x] Update `docs/internal/review/015-cr093-polish-review.md`.
+- [x] Update `docs/internal/cr/095-move-drift-tolerance-into-durations-bloc.md`.
 - [ ] Update `task_progress.md` if it references the old name.
 
 ## Verification
 
-- [ ] Run `python -m pytest` — full suite passes.
-- [ ] Run `grep -r "mono_mode_accentuation_lengthening" src/ tests/ demo/` — no results.
-- [ ] Run `python scripts/update-indexes.py` — indexes regenerated.
+- [x] Run `python -m pytest` — full suite passes.
+- [x] Run `grep -r "mono_mode_accentuation_lengthening" src/ tests/ demo/` — no results.
+- [x] Run `python scripts/update-indexes.py` — indexes regenerated.
 
 ---
 

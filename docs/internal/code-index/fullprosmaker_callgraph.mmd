@@ -5,8 +5,8 @@ flowchart LR
 	__start__(("S"))
 	__end__(("E"))
 	__main____harness["harness"]
-	akkapros_lib_metrics__PunctuationConfigError["metrics.PunctuationConfigError"]
-	akkapros_lib_metrics__configure_pause_punctuation_rules["metrics.configure_pause_punctuation_rules"]
+	akkapros_lib__metrics_stats__PunctuationConfigError["_metrics_stats.PunctuationConfigError"]
+	akkapros_lib__metrics_stats__configure_pause_punctuation_rules["_metrics_stats.configure_pause_punctuation_rules"]
 	src_akkapros_cli_fullprosmaker__main["fullprosmaker.main"]
 	akkapros_lib_utils__add_standard_version_argument["utils.add_standard_version_argument"]
 	akkapros_lib_utils__add_standard_logging_arguments["utils.add_standard_logging_arguments"]
@@ -36,9 +36,9 @@ flowchart LR
 		akkapros_lib__phonetize_config__get_relative_value["_phonetize_config.get_relative_value"]
 	end
 	__start__ --> __main____harness
-	__main____harness --> akkapros_lib_metrics__PunctuationConfigError
-	akkapros_lib_metrics__PunctuationConfigError --> akkapros_lib_metrics__configure_pause_punctuation_rules
-	akkapros_lib_metrics__configure_pause_punctuation_rules --> src_akkapros_cli_fullprosmaker__main
+	__main____harness --> akkapros_lib__metrics_stats__PunctuationConfigError
+	akkapros_lib__metrics_stats__PunctuationConfigError --> akkapros_lib__metrics_stats__configure_pause_punctuation_rules
+	akkapros_lib__metrics_stats__configure_pause_punctuation_rules --> src_akkapros_cli_fullprosmaker__main
 	src_akkapros_cli_fullprosmaker__main --> akkapros_lib_utils__add_standard_version_argument
 	akkapros_lib_utils__add_standard_version_argument --> akkapros_lib_utils__add_standard_logging_arguments
 	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_config__add_config_argument

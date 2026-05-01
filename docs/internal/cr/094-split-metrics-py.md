@@ -1,10 +1,11 @@
 ---
 cr_id: CR-094
 status: Done
+verified: 2026-05-01
 priority: Medium
 impact: Mutative
 created: 2026-04-29
-updated: 2026-04-29
+updated: 2026-05-01
 implements: 'CR-087'
 supersedes: 'CR-091 (partial — metrics split only)'
 ---
@@ -110,11 +111,11 @@ src/akkapros/lib/metrics.py          → + _metrics_stats.py, _metrics_output.py
 
 ## Acceptance Criteria
 
-- [ ] `metrics.py` public API unchanged: all existing imports from `akkapros.lib.metrics` still work
-- [ ] All existing tests pass (`python -m pytest`)
-- [ ] No behavioral changes detected in integration test gold outputs
-- [ ] Each new submodule is under 1000 lines
-- [ ] Each new submodule has a single clear responsibility
+- [x] `metrics.py` public API unchanged: all existing imports from `akkapros.lib.metrics` still work
+- [x] All existing tests pass (`python -m pytest`)
+- [x] No behavioral changes detected in integration test gold outputs
+- [ ] Each new submodule is under 1000 lines — **FAILED: `_metrics_stats.py` is 1577 lines (verified 2026-05-01)**
+- [x] Each new submodule has a single clear responsibility
 
 ---
 
@@ -181,17 +182,17 @@ The split is a move-only refactor. Revert by restoring the original `metrics.py`
 
 ### Implementation
 
-- [ ] Audit external imports of `akkapros.lib.metrics` across `src/` and `tests/`
-- [ ] Create `_metrics_stats.py` with statistics computation functions
-- [ ] Create `_metrics_output.py` with output formatting functions
-- [ ] Update `metrics.py` to import and re-export from submodules
-- [ ] Verify all public symbols are re-exported
+- [x] Audit external imports of `akkapros.lib.metrics` across `src/` and `tests/`
+- [x] Create `_metrics_stats.py` with statistics computation functions
+- [x] Create `_metrics_output.py` with output formatting functions
+- [x] Update `metrics.py` to import and re-export from submodules
+- [x] Verify all public symbols are re-exported
 
 ### Tests
 
-- [ ] Full pytest suite passes after split
-- [ ] Integration gold outputs unchanged
-- [ ] Library self-tests pass
+- [x] Full pytest suite passes after split
+- [x] Integration gold outputs unchanged
+- [x] Library self-tests pass
 
 ### Documentation
 
