@@ -53,7 +53,7 @@ def test_default_yaml_matches_schema_defaults() -> None:
     assert durations["drift_tolerance"] == 19
     assert "Allowed values: 100_0, 95_05, 90_10, 85_15, 80_20, 75_25, 70_30" in text
     assert text.index("scale: 1.0") < text.index("segmental_ceiling: 310") < text.index("segmental_floor: 20") < text.index("cvc_reference: 300")
-    assert text.index("cvc_reference: 300") < text.index("drift_tolerance: 19") < text.index("mono_mode_accentuation_lengthening: 50")
+    assert text.index("cvc_reference: 300") < text.index("drift_tolerance: 19") < text.index("basic_accentuation_lengthening: 50")
     assert durations["consonants"]["closure"]["geminate_coda_ratio"] == 0.60
     assert durations["consonants"]["closure"]["coda_final"] == 87
     assert durations["consonants"]["closure"]["perception_limits"]["gemination_max"] == 260

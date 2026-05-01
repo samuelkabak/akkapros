@@ -58,7 +58,7 @@ phonetize:
         segmental_floor: 20
         cvc_reference: 300
         drift_tolerance: 19
-        mono_mode_accentuation_lengthening: 50
+        basic_accentuation_lengthening: 50
         consonants:
           closure:
             onset: 89

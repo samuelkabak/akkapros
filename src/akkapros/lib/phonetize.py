@@ -1036,7 +1036,7 @@ def _analyze_syllable(rows: list[dict[str, str]], indices: list[int]) -> dict[st
     }
 
 
-def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool, mora_mode: str = 'bi', mono_lengthening: float = 0.0) -> float:
+def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accentuated: bool, mora_mode: str = 'bi', basic_lengthening: float = 0.0) -> float:
     one_mora_ref, two_mora_ref, three_mora_ref = _timing_refs(config)
     base_map = {
         'CV': one_mora_ref,
@@ -1047,7 +1047,7 @@ def _shape_reference(analysis: dict[str, Any], config: dict[str, Any], *, accent
     target = base_map[analysis['base_shape']]
     if accentuated and analysis['accent_shape'] is not None:
         if mora_mode == 'mono':
-            target += mono_lengthening
+            target += basic_lengthening
         else:
             target += one_mora_ref
     return target
@@ -1482,7 +1482,7 @@ def realize_phone_rows(
         if allow_accentuation and analysis['accent_shape'] is not None:
             mora_mode = _resolve_mora_mode(input_frontmatter)
             if mora_mode == 'mono':
-                mono_lengthening = float(config['timing_model']['durations'].get('mono_mode_accentuation_lengthening', 50))
+                basic_lengthening = float(config['timing_model']['durations'].get('basic_accentuation_lengthening', 50))
                 _apply_accent_increment(
                     rows,
                     analysis,
@@ -1490,10 +1490,10 @@ def realize_phone_rows(
                     config,
                     drift_after_assignment,
                     next_same_onset,
-                    total_increment=mono_lengthening,
+                    total_increment=basic_lengthening,
                 )
             else:
-                mono_lengthening = 0.0
+                basic_lengthening = 0.0
                 _apply_accent_increment(
                     rows,
                     analysis,
@@ -1505,7 +1505,7 @@ def realize_phone_rows(
             emitted_total = sum(float(_rounded_duration_value(durations[index])) for index in analysis['indices'])
             total_target = _shape_reference(
                 analysis, config, accentuated=True,
-                mora_mode=mora_mode, mono_lengthening=mono_lengthening,
+                mora_mode=mora_mode, basic_lengthening=basic_lengthening,
             )
             accent_target = total_target - shape_ref
             drift_after_assignment = entry_drift + (emitted_total - total_target)

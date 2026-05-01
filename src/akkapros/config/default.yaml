@@ -151,7 +151,7 @@ phonetize:
         # mono mora mode. Unlike bi mode where accentuation adds one mora
         # (0.5 * cvc_reference), mono mode uses this smaller configurable elongation.
         # Default: 50 ms. Validation range: [0, round(0.5 * cvc_reference)].
-        mono_mode_accentuation_lengthening: 50
+        basic_accentuation_lengthening: 50
         consonants:
           # Stop-like closure class. Includes lexical ʾ.
           closure:
