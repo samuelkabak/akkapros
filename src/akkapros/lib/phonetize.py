@@ -402,6 +402,16 @@ def _base_realization_for_label(label: str) -> str:
     return codes[0]
 
 
+def _resolve_realization(
+    label: str,
+    replace_proto_semitic: bool,
+) -> str:
+    code = _base_realization_for_label(label)
+    if replace_proto_semitic and label in ('ETE', 'AIN'):
+        return 'AL'
+    return code
+
+
 def _choose_vowel_realization(label: str, emphatic_onset: bool) -> str:
     if emphatic_onset:
         return EMPHATIC_VOWEL_REALIZATIONS[label]
@@ -496,7 +506,7 @@ def _choose_vowel_transition_realization(previous_code: str, next_code: str) -> 
     return 'YI'
 
 
-def _new_segment_seed(symbol: str) -> dict[str, str]:
+def _new_segment_seed(symbol: str, replace_proto_semitic: bool = False) -> dict[str, str]:
     label = INPUT_CHARACTER_LABELS[symbol]
     category, type_code, length_code = _classify_symbol(symbol)
     return {
@@ -507,7 +517,7 @@ def _new_segment_seed(symbol: str) -> dict[str, str]:
         'position': 'N' if category == 'V' else 'O',
         'boundary': 'N',
         'accent': 'F',
-        'realization': _base_realization_for_label(label),
+        'realization': _resolve_realization(label, replace_proto_semitic),
         'duration': PHONE_ROW_DURATION_PLACEHOLDER,
         'drift': PHONE_ROW_DRIFT_NEUTRAL,
         'intonation': PHONE_ROW_INTONATION_NEUTRAL,
@@ -651,7 +661,7 @@ def _consume_pause_suite(
     return tilde_text[start_index:index], index
 
 
-def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]], boundary_code: str) -> None:
+def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]], boundary_code: str, replace_proto_semitic: bool = False) -> None:
     if not syllable:
         return
     nucleus_index = next((index for index, row in enumerate(syllable) if row['category'] == 'V'), None)
@@ -668,7 +678,7 @@ def _finalize_syllable(rows: list[dict[str, str]], syllable: list[dict[str, str]
         elif row['label'] == 'ENA':
             row['realization'] = 'YI'
         else:
-            row['realization'] = _base_realization_for_label(row['label'])
+            row['realization'] = _resolve_realization(row['label'], replace_proto_semitic)
     syllable[-1]['boundary'] = boundary_code
     rows.extend(syllable)
 
@@ -1666,10 +1676,12 @@ def build_phone_rows(
     short_pause_chars, long_pause_chars, short_pause_regex, long_pause_regex = _resolve_pause_punctuation_rules(
         input_frontmatter
     )
+    merged_config = _merge_phonetize_config(phonetize_config)
+    replace_proto_semitic = bool(merged_config['process']['realization'].get('replace_proto_semitic', False))
 
     def _finish(boundary_code: str) -> None:
         nonlocal syllable
-        _finalize_syllable(rows, syllable, boundary_code)
+        _finalize_syllable(rows, syllable, boundary_code, replace_proto_semitic=replace_proto_semitic)
         syllable = []
 
     def _consume_eol_run(start_index: int) -> tuple[str, int]:
@@ -1748,7 +1760,7 @@ def build_phone_rows(
             index = next_index
             continue
         if symbol in INPUT_CHARACTER_LABELS and symbol not in {INNER_PUNCT_TEXT, PHRASAL_PUNCT_TEXT}:
-            syllable.append(_new_segment_seed(symbol))
+            syllable.append(_new_segment_seed(symbol, replace_proto_semitic=replace_proto_semitic))
             index += 1
             continue
         index += 1

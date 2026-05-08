@@ -80,15 +80,20 @@ prosody:
 phonetize:
   process:
     # Must be true to enable experimental phonetizer features. Currently guarded
-    # features: limit_emphatic_coloring: true (limit coloring to onset‑only) and
-    # enable_resync_pause: true. Set to false to block experimental features and
-    # cause verification failure if any are enabled.
+    # features: limit_emphatic_coloring: true (limit coloring to onset‑only),
+    # enable_resync_pause: true, and replace_proto_semitic: true (merge
+    # pharyngeal/glottal realizations). Set to false to block experimental
+    # features and cause verification failure if any are enabled.
     allow_experimental: false
     realization:
       # When true, limit emphatic vowel coloring to the legacy onset‑only rule
       # (non‑experimental). When false, enable same‑syllable emphatic‑coda
       # coloring and immediate next‑syllable carry (experimental).
       limit_emphatic_coloring: false
+      # When true, replace pharyngeal/glottal realizations: ḥ/ʿ/ʾ -> ʔ (AL),
+      # ḫ -> χ (HE). When false (default), preserve distinct realizations:
+      # ḥ -> ħ (ET), ḫ -> χ (HE), ʿ -> ʕ (AI), ʾ -> ʔ (AL).
+      replace_proto_semitic: false
     intonation:
       # Baseline speaker pitch in Hertz used for emitted .pho rows.
       f0: 120

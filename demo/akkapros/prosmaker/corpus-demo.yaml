@@ -41,6 +41,7 @@ phonetize:
     allow_experimental: false
     realization:
       limit_emphatic_coloring: false
+      replace_proto_semitic: false
     intonation:
       f0: 120
       stress: "H2"

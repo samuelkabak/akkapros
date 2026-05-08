@@ -179,6 +179,77 @@ def test_limit_emphatic_coloring_stops_at_punctuation_and_can_be_enabled() -> No
     assert [row['realization'] for row in paused_rows if row['category'] == 'V'] == ['AO', 'AA']
 
 
+def test_replace_proto_semitic_default_preserves_pharyngeal_realizations() -> None:
+    rows = build_phone_rows('ḥa ʿa')
+    assert rows[0]['realization'] == 'ET'
+    assert rows[0]['label'] == 'ETE'
+    assert rows[2]['realization'] == 'AI'
+    assert rows[2]['label'] == 'AIN'
+
+
+def test_replace_proto_semitic_enabled_merges_pharyngeal_to_glottal_stop() -> None:
+    config = {
+        'process': {
+            'allow_experimental': True,
+            'realization': {'replace_proto_semitic': True},
+        },
+    }
+    rows = build_phone_rows('ḥa ʿa', config)
+    assert rows[0]['realization'] == 'AL'
+    assert rows[0]['label'] == 'ETE'
+    assert rows[2]['realization'] == 'AL'
+    assert rows[2]['label'] == 'AIN'
+
+
+def test_replace_proto_semitic_does_not_affect_other_consonants() -> None:
+    config = {
+        'process': {
+            'allow_experimental': True,
+            'realization': {'replace_proto_semitic': True},
+        },
+    }
+    rows = build_phone_rows('ba da ga ka pa ta ṭa qa sa za ša la ma na ra ḫa ʾa wa ya', config)
+    expected = {
+        'BET': 'BE', 'DAL': 'DA', 'GIM': 'GI', 'KAP': 'KA', 'PAY': 'PA',
+        'TAW': 'TA', 'TUT': 'TU', 'QUP': 'QU', 'SUD': 'SU', 'SAM': 'SA',
+        'ZIN': 'ZI', 'SIN': 'SI', 'LAM': 'LA', 'MIM': 'MI', 'NAN': 'NA',
+        'RES': 'RE', 'HET': 'HE', 'ALE': 'AL', 'WAW': 'WA', 'YID': 'YI',
+    }
+    for row in rows:
+        if row['label'] in expected:
+            assert row['realization'] == expected[row['label']], (
+                f"Label {row['label']}: expected {expected[row['label']]}, got {row['realization']}"
+            )
+
+
+def test_replace_proto_semitic_requires_allow_experimental() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'allow_experimental': False,
+                'realization': {'replace_proto_semitic': True},
+            },
+        }
+    )
+    assert result.status == 'failure'
+    assert any(
+        'replace_proto_semitic' in issue.reason
+        for issue in result.failures
+    )
+
+
+def test_replace_proto_semitic_accepted_with_allow_experimental() -> None:
+    result = verify_phonetize_config(
+        {
+            'process': {
+                'allow_experimental': True,
+                'realization': {'replace_proto_semitic': True},
+            },
+        }
+    )
+    assert result.status == 'pass'
+
+
 def test_row_drift_token_format_is_canonical() -> None:
     assert _format_row_drift_token(0.0) == '+000'
     assert _format_row_drift_token(-12.2) == '-012'

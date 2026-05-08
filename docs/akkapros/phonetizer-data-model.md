@@ -320,6 +320,13 @@ Association constraints:
   repeated here
 - `MEN` exists only for algorithmically inserted resync pauses
 - `SES` and `ZEN` remain the canonical punctuation-owned pause labels
+- When `phonetize.process.realization.replace_proto_semitic` is `true`
+  (experimental, requires `allow_experimental: true`), the default
+  realizations for `ETE` (ḥ → `ET` → ħ) and `AIN` (ʿ → `AI` → ʕ) are
+  overridden to `AL` (ʔ), merging pharyngeal/glottal realizations into a
+  single glottal stop. This is a config-driven override applied at row
+  construction time in `_new_segment_seed()` and `_finalize_syllable()`;
+  the association table above reflects the default (preserve) mapping.
 
 ## Pause and Text Conventions
 

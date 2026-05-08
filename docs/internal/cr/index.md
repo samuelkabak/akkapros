@@ -2,6 +2,9 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
+[100. Remove Printer `--ipa-proto-semitic` Option](100-remove-printer-ipa-proto-semitic.md) - Draft
+[099. Phonetizer Proto-Semitic Pharyngeal/Glottal Replacement](099-phonetizer-proto-semitic-replacement.md) - Done
+[098. Verify and Complete Metrics and Phonetizer Documentation](098-verify-and-complete-metrics-and-phonetizer-docs.md) - Done
 [097. Add Mono Mode Branch to Lexlinks Construct Demo](097-add-mono-mode-to-construct-demo.md) - Done
 [096. Rename `mono_mode_accentuation_lengthening` to `basic_accentuation_lengthening`](096-rename-mono-mode-accentuation-lengthening.md) - Done
 [095. Move `drift_tolerance` into the `durations` Bloc and Make It Subject to Scale](095-move-drift-tolerance-into-durations-bloc.md) - Done

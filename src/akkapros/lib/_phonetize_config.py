@@ -82,6 +82,14 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'bool',
                 'When true, limit emphatic vowel coloring to the legacy onset‑only rule (non‑experimental). When false, enable same‑syllable emphatic‑coda coloring and immediate next‑syllable carry (experimental).',
             ),
+            'replace_proto_semitic': _field(
+                False,
+                'bool',
+                'When true, replace pharyngeal/glottal realizations: '
+                'ḥ/ʿ/ʾ -> ʔ (AL), ḫ -> χ (HE). When false (default), '
+                'preserve distinct realizations: ḥ -> ħ (ET), ḫ -> χ (HE), '
+                'ʿ -> ʕ (AI), ʾ -> ʔ (AL).',
+            ),
         },
         'intonation': {
             '__comment__': None,
@@ -657,6 +665,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     allow_experimental = bool(raw_config['process'].get('allow_experimental', False))
     limit_emphatic_coloring = bool(raw_config['process']['realization'].get('limit_emphatic_coloring', False))
     enable_resync_pause = bool(raw_config['process']['timing_model'].get('enable_resync_pause', False))
+    replace_proto_semitic = bool(raw_config['process']['realization'].get('replace_proto_semitic', False))
     if not allow_experimental:
         if limit_emphatic_coloring:
             add_failure(
@@ -669,6 +678,12 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 'phonetize.process.allow_experimental',
                 'allow_experimental must be true when enable_resync_pause is true',
                 'Experimental feature enable_resync_pause: true (resynchronization‑pause insertion) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
+            )
+        if replace_proto_semitic:
+            add_failure(
+                'phonetize.process.allow_experimental',
+                'allow_experimental must be true when replace_proto_semitic is true',
+                'Experimental feature replace_proto_semitic: true (merge pharyngeal/glottal realizations) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
             )
 
     drift_tolerance = durations.get('drift_tolerance', 19)

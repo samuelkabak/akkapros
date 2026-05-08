@@ -247,6 +247,35 @@ its realization pass to color vowel rows from emphatic onsets and, when the
 flag is enabled, from emphatic codas plus one immediate carried syllable inside
 the same punctuation-bounded continuity span.
 
+### Proto-Semitic Pharyngeal/Glottal Replacement
+
+The phonetizer supports an experimental config key
+`phonetize.process.realization.replace_proto_semitic` (default `false`) that
+merges the realization codes for three pharyngeal/glottal consonants into the
+same glottal-stop code `AL` (ʔ):
+
+| Label | Glyph | Default Realization | Replacement Realization |
+|-------|-------|---------------------|-------------------------|
+| `ETE` | `ḥ`   | `ET` (ħ)            | `AL` (ʔ)                |
+| `AIN` | `ʿ`   | `AI` (ʕ)            | `AL` (ʔ)                |
+| `ALE` | `ʾ`   | `AL` (ʔ)            | `AL` (ʔ, unchanged)     |
+| `HET` | `ḫ`   | `HE` (χ)            | `HE` (χ, unchanged)     |
+
+When `replace_proto_semitic` is `true`, the replacement is applied during
+Phase 1 row building, at the point where each segment glyph's realization code
+is assigned. This means the replacement affects both the accentuated
+(`_phone.txt`) and original (`_ophone.txt`) streams, and propagates to all
+downstream consumers (IPA, MBROLA `.pho`, XAR, acute, bold) without requiring
+separate mapping in each consumer.
+
+This key is guarded by `phonetize.process.allow_experimental`: setting
+`replace_proto_semitic` to `true` requires `allow_experimental = true`. When
+`allow_experimental` is `false` and `replace_proto_semitic` is `true`, the
+phonetizer config verification reports a failure.
+
+The replacement does not affect other phonemes, hiatus markers (`˙`),
+vowel-transition markers (`¨`), or emphatic vowel coloring logic.
+
 The row builder is structure-first.
 
 It does not assign timings yet. It only materializes rows with:
