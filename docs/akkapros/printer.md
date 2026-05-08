@@ -78,7 +78,6 @@ re-parsing `_tilde` punctuation as an active downstream source.
 
 | Option | Description |
 |--------|-------------|
-| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: `ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ` (default)<br>• `replace`: `ḥ -> ʔ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ` |
 | `--circ-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA<br>Example: `qû → qʊ.ʊ` |
 
 ---
@@ -91,11 +90,10 @@ re-parsing `_tilde` punctuation as an active downstream source.
       -p erra \
       --outdir outputs
 
-### IPA Output with OB Pharyngeal Policy
+### IPA Output
 
         python src/akkapros/cli/printer.py outputs/erra_phone.txt \
       --ipa \
-      --ipa-proto-semitic replace \
       -p erra \
       --outdir outputs
 
@@ -160,8 +158,13 @@ Full phonetic transcription with:
 
 Example: `taː.ˈχaːː.za.ˈʔikː.ta.sˤɑr`
 
-`--ipa-proto-semitic preserve` keeps `ḥ`, `ḫ`, `ʿ`, and `ʾ` distinct. In
-`replace` mode, `ḥ`, `ʿ`, and `ʾ` converge to `ʔ`, while `ḫ` remains `χ`.
+The printer inherits the proto-Semitic pharyngeal/glottal replacement policy
+from the phonetizer output. When the phonetizer has `replace_proto_semitic: true`,
+`ḥ`, `ʿ`, and `ʾ` converge to `ʔ` while `ḫ` remains `χ`. When
+`replace_proto_semitic: false` (default), `ḥ` maps to `ħ`, `ḫ` to `χ`,
+`ʿ` to `ʕ`, and `ʾ` to `ʔ`. The printer no longer has its own
+`--ipa-proto-semitic` option — the replacement is determined entirely by the
+phonetizer configuration.
 
 **Emphatic vowel coloring**: In Semitic languages, emphatic consonants (`q`, `ṣ`, `ṭ`) retract the tongue body, lowering the second formant (F2) of following vowels. This is transcribed in IPA as vowel backing: plain `/a/` → `/ɑ/`, `/i/` → `/ɨ/`, `/u/` → `/ʉ/`, `/e/` → `/ɛ/`. Example: sˤɑr (plain sar would be /sar/).
 

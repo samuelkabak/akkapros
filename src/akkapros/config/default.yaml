@@ -319,9 +319,6 @@ metrics:
 # Options used by the printer CLI and by fullprosmaker for print outputs, grouped into
 # process and run controls.
 print:
-  process:
-    # IPA proto-Semitic policy: preserve=Old Akkadian, replace=Old Babylonian merger.
-    ipa_proto_semitic: "preserve"
   run:
     # Write <prefix>_accent_acute.txt.
     acute: false

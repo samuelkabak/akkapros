@@ -140,11 +140,8 @@ CONFIG_SCHEMA: dict[str, dict[str, Any]] = {
             'json': ConfigField(False, 'bool', config_help('metrics.run.json')),
         },
     },
-    PRINT_SECTION: {
-        'process': {
-            'ipa_proto_semitic': ConfigField('preserve', 'string', config_help('print.process.ipa_proto_semitic'), choices=('preserve', 'replace')),
-        },
-        'run': {
+     PRINT_SECTION: {
+         'run': {
             'acute': ConfigField(False, 'bool', config_help('print.run.acute')),
             'bold': ConfigField(False, 'bool', config_help('print.run.bold')),
             'ipa': ConfigField(False, 'bool', config_help('print.run.ipa')),
@@ -213,7 +210,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
             'run.acute': 'acute',
             'run.bold': 'bold',
             'run.ipa': 'ipa',
-            'process.ipa_proto_semitic': 'ipa_proto_semitic',
             'run.circ_hiatus': 'circ_hiatus',
             'run.xar': 'xar',
             'run.print_merger': 'print_merger',
@@ -265,7 +261,6 @@ TOOL_CONFIG_SECTIONS: dict[str, tuple[tuple[str, dict[str, str] | None], ...]] =
                 "run.acute": "print_acute",
                 "run.bold": "print_bold",
                 "run.ipa": "print_ipa",
-                "process.ipa_proto_semitic": "print_ipa_proto_semitic",
                 "run.circ_hiatus": "print_circ_hiatus",
                 "run.xar": "print_xar",
                 "run.print_merger": "print_merger",

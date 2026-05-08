@@ -1074,6 +1074,12 @@ def test_phonetizer_cli_drift_tolerance_changes_rates_without_changing_populatio
 
 
 def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -> None:
+    """Verify printer IPA and XAR mappings for proto-Semitic consonants.
+
+    The proto-Semitic replacement now happens in the phonetizer stage
+    (via replace_proto_semitic), not in the printer. The printer uses a
+    single IPA_MAP: ḥ→ʔ, ḫ→χ, ʿ→ʔ, ʾ→ʔ.
+    """
     outdir = tmp_path / 'printer_het_mapping'
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -1085,36 +1091,32 @@ def test_printer_corrects_het_mapping_across_xar_and_ipa_modes(tmp_path: Path) -
     _run_cli('akkapros.cli.phonetizer', str(outdir / 'het_tilde.txt'), '-p', 'het', '--outdir', str(outdir))
 
     phone_file = outdir / 'het_phone.txt'
-
-    _run_cli('akkapros.cli.printer', str(phone_file), '-p', 'het_preserve', '--outdir', str(outdir), '--ipa')
     _run_cli(
         'akkapros.cli.printer',
         str(phone_file),
         '-p',
-        'het_replace',
+        'het',
         '--outdir',
         str(outdir),
         '--ipa',
-        '--ipa-proto-semitic',
-        'replace',
         '--xar',
     )
 
-    preserve_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_preserve_accent_ipa.txt'))
-    replace_ipa_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_replace_accent_ipa.txt'))
-    replace_xar_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_replace_xar.txt'))
+    ipa_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_accent_ipa.txt'))
+    xar_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_accent_xar.txt'))
+    xar_plain_body = _strip_yaml_frontmatter(_read_text(outdir / 'het_xar.txt'))
 
-    assert 'ħa' in preserve_body
-    assert 'χa' in preserve_body
-    assert 'ʕa' in preserve_body
-    assert 'ʔa' in preserve_body
+    # IPA: ḥ→ʔ, ḫ→χ, ʿ→ʔ, ʾ→ʔ
+    assert ipa_body.count('ʔa') >= 3
+    assert 'χa' in ipa_body
 
-    assert replace_ipa_body.count('ʔa') >= 3
-    assert 'χa' in replace_ipa_body
-    assert 'ħa' not in replace_ipa_body
+    # XAR: ḥ→', ḫ→ḫ, ʿ→', ʾ→'
+    assert xar_body.count("'a") >= 3
+    assert 'ḫa' in xar_body
 
-    assert replace_xar_body.count("'a") >= 3
-    assert 'ḫa' in replace_xar_body
+    # Plain XAR (no accent marks): same consonant mapping
+    assert xar_plain_body.count("'a") >= 3
+    assert 'ḫa' in xar_plain_body
 
 
 def test_prosmaker_path_override_wins_over_dedicated_flag(tmp_path: Path) -> None:

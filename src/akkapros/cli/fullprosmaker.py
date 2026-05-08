@@ -92,13 +92,9 @@ FAST_MAX_LINES: int = 10
 """Number of body lines processed when --fast is active without an explicit --max-lines value."""
 
 
-def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
-    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting."""
-    output_ipa = args.print_ipa
-    ipa_mode = 'ipa-strict' if getattr(args, 'print_ipa_proto_semitic', None) == 'preserve' else 'ipa-ob'
-    circ_hiatus = args.print_circ_hiatus
-
-    return output_ipa, ipa_mode, circ_hiatus
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, bool]:
+    """Resolve IPA output flags: enabled and circumflex hiatus splitting."""
+    return args.print_ipa, args.print_circ_hiatus
 
 
 def _apply_phonetize_process_overrides(args: argparse.Namespace) -> dict[str, object]:
@@ -164,26 +160,22 @@ def run_tests() -> bool:
     """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
     logger = get_logger_with_fallback('akkapros.cli.fullprosmaker')
     class _Args:
-        def __init__(self, print_ipa: bool, print_ipa_proto_semitic: str, print_circ_hiatus: bool) -> None:
+        def __init__(self, print_ipa: bool, print_circ_hiatus: bool) -> None:
             self.print_ipa = print_ipa
-            self.print_ipa_proto_semitic = print_ipa_proto_semitic
             self.print_circ_hiatus = print_circ_hiatus
 
     cases = [
-        (_Args(False, 'preserve', False), False, 'ipa-strict', False),
-        (_Args(False, 'replace', False), False, 'ipa-ob', False),
-        (_Args(True, 'preserve', False), True, 'ipa-strict', False),
-        (_Args(True, 'replace', False), True, 'ipa-ob', False),
-        (_Args(True, 'replace', True), True, 'ipa-ob', True),
+        (_Args(False, False), False, False),
+        (_Args(True, False), True, False),
+        (_Args(True, True), True, True),
     ]
 
     passed = 0
     total = len(cases)
-    for index, (args, exp_write, exp_mode, exp_circ_hiatus) in enumerate(cases, start=1):
-        got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
+    for index, (args, exp_write, exp_circ_hiatus) in enumerate(cases, start=1):
+        got_write, got_circ_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
-            and got_mode == exp_mode
             and got_circ_hiatus == exp_circ_hiatus
         ):
             passed += 1
@@ -201,13 +193,10 @@ def run_tests() -> bool:
                 format_selftest_label(index, total, 'Cli ipa mode'),
                 details=[
                     f'print_ipa={args.print_ipa}',
-                    f'print_ipa_proto_semitic={args.print_ipa_proto_semitic!r}',
                     f'print_circ_hiatus={args.print_circ_hiatus}',
                     f'expected_output_ipa={exp_write}',
-                    f'expected_ipa_mode={exp_mode!r}',
                     f'expected_print_circ_hiatus={exp_circ_hiatus}',
                     f'got_output_ipa={got_write}',
-                    f'got_ipa_mode={got_mode!r}',
                     f'got_print_circ_hiatus={got_circ_hiatus}',
                 ],
             )
@@ -241,7 +230,6 @@ def run_pipeline(
     output_ipa: bool,
     output_xar: bool,
     print_merger: bool,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     title: str | None = None,
     options: dict[str, object] | None = None,
@@ -503,7 +491,6 @@ def run_pipeline(
         write_bold=output_bold,
         write_ipa=output_ipa,
         write_xar=output_xar,
-        ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         print_merger=print_merger,
         options=options,
@@ -593,8 +580,6 @@ Version: {__version__}
                         help=help_for('fullprosmaker.print_bold'))
     parser.add_argument('--print-ipa', action='store_true',
                         help=help_for('fullprosmaker.print_ipa'))
-    parser.add_argument('--print-ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
-                        help=help_for('fullprosmaker.print_ipa_proto_semitic'))
     parser.add_argument('--print-circ-hiatus', action='store_true',
                         help=help_for('fullprosmaker.print_circ_hiatus'))
     parser.add_argument('--print-xar', action='store_true',
@@ -690,7 +675,7 @@ Version: {__version__}
     output_json = args.metrics_json
     output_acute = args.print_acute
     output_bold = args.print_bold
-    output_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
+    output_ipa, circ_hiatus = _resolve_ipa_options(args)
     output_xar = args.print_xar
 
     # Match metricalc behavior: default to table if no explicit format selected.
@@ -757,7 +742,6 @@ Version: {__version__}
         output_ipa=output_ipa,
         output_xar=output_xar,
         print_merger=args.print_merger,
-        ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         title=args.title,
         options=option_values,

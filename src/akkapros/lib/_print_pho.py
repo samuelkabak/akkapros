@@ -119,7 +119,6 @@ def _render_phone_rows(
     rows: list[dict[str, str]],
     *,
     mode: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
 ) -> str:
@@ -144,7 +143,6 @@ def _render_phone_rows(
             convert_line(
                 chunk_text,
                 mode=mode,
-                ipa_mode=ipa_mode,
                 circ_hiatus=circ_hiatus,
                 print_merger=print_merger,
                 emphatic_by_source_index=emphatic_map,
@@ -180,7 +178,6 @@ def process_file(
     write_bold: bool = True,
     write_ipa: bool = False,
     write_xar: bool = False,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
     options: dict | None = None,
@@ -196,11 +193,11 @@ def process_file(
     logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(text))
 
     title_frontmatter = phone_frontmatter or ophone_frontmatter
-    acute_text = _render_phone_rows(phone_rows, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    bold_text = _render_phone_rows(phone_rows, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    ipa_text = _render_phone_rows(phone_rows, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    xar_text = _render_phone_rows(phone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
+    acute_text = _render_phone_rows(phone_rows, mode='acute', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    bold_text = _render_phone_rows(phone_rows, mode='bold', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    ipa_text = _render_phone_rows(phone_rows, mode='ipa', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    xar_text = _render_phone_rows(phone_rows, mode='xar', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
 
     def _write(text: str, path: str) -> None:
         """Write text to path, ensuring a POSIX-compliant trailing newline."""

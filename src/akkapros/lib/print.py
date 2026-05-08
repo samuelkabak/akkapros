@@ -86,19 +86,13 @@ ALL_VOWELS = set('aeiuāēīūâêîû')
 # vowel-coloring fallback. Phone-row rendering can override that per vowel.
 EMPHATIC_CONSONANTS = {'q', 'ṣ', 'ṭ'}
 
-IPA_MAP_STRICT = {
+IPA_MAP = {
     'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
     'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
     's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    'r': 'r', 'ḥ': 'ħ', 'ḫ': 'χ', 'ʿ': 'ʕ', 'ʾ': 'ʔ',
-    'w': 'w', 'y': 'j', 't': 't',
-}
-
-IPA_MAP_OB = {
-    'b': 'b', 'd': 'd', 'g': 'g', 'k': 'k', 'p': 'p',
-    'q': 'q', 'ṭ': 'tˤ', 'ṣ': 'sˤ', 'š': 'ʃ',
-    's': 's', 'z': 'z', 'l': 'l', 'm': 'm', 'n': 'n',
-    # In replace mode, ḥ joins ʿ/ʾ as ʔ while ḫ remains distinct as χ.
+    # The phonetizer already handles the preserve/replace distinction via
+    # replace_proto_semitic. The printer uses a single IPA mapping that
+    # directly translates realization codes to IPA symbols.
     'r': 'r', 'ḥ': 'ʔ', 'ḫ': 'χ', 'ʿ': 'ʔ', 'ʾ': 'ʔ',
     'w': 'w', 'y': 'j', 't': 't',
 }
@@ -387,7 +381,6 @@ def _flush_syllable(
     source_text: str = '',
     source_indices=None,
     emphatic_by_source_index: dict[int, bool] | None = None,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
 ) -> str:
     if not syllable_text:
@@ -399,7 +392,7 @@ def _flush_syllable(
     if mode == 'ipa':
         accentuated = TILDE in syllable_text
         converted = []
-        ipa_map = IPA_MAP_STRICT if ipa_mode == 'ipa-strict' else IPA_MAP_OB
+        ipa_map = IPA_MAP
 
         context_text = source_text if source_text else syllable_text
         context_skip_chars = {TILDE, SYL_SEPARATOR, DIPH_SEPARATOR} if source_text else {TILDE}
@@ -501,7 +494,6 @@ def _flush_syllable(
 def _convert_word(
     word: str,
     mode: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
 ) -> str:
@@ -536,7 +528,6 @@ def _convert_word(
                     source_text=source_text,
                     source_indices=source_indices,
                     emphatic_by_source_index=emphatic_by_source_index,
-                    ipa_mode=ipa_mode,
                     circ_hiatus=circ_hiatus,
                 )
             )
@@ -582,7 +573,6 @@ def _is_word_char(char: str) -> bool:
 def _convert_non_bracket_part(
     part: str,
     mode: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
     source_offset: int = 0,
@@ -591,7 +581,6 @@ def _convert_non_bracket_part(
     if mode == 'ipa':
         return _convert_non_bracket_part_ipa(
             part,
-            ipa_mode,
             circ_hiatus=circ_hiatus,
             emphatic_by_source_index=emphatic_by_source_index,
             source_offset=source_offset,
@@ -615,7 +604,6 @@ def _convert_non_bracket_part(
                 _convert_word(
                     ''.join(current_word),
                     mode,
-                    ipa_mode,
                     circ_hiatus=circ_hiatus,
                     emphatic_by_source_index=word_map,
                 )
@@ -638,7 +626,6 @@ def _convert_non_bracket_part(
 
 def _convert_non_bracket_part_ipa(
     part: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
     source_offset: int = 0,
@@ -697,7 +684,6 @@ def _convert_non_bracket_part_ipa(
                 _convert_word(
                     token['text'],
                     'ipa',
-                    ipa_mode,
                     circ_hiatus=circ_hiatus,
                     emphatic_by_source_index=word_map,
                 )
@@ -802,7 +788,6 @@ def _dearmor_pivot_punctuation(text: str) -> str:
 def convert_line(
     line: str,
     mode: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
@@ -812,8 +797,6 @@ def convert_line(
     Args:
         line: Input line in *_tilde format
         mode: 'acute', 'bold', 'ipa', or 'xar'
-        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
-              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     if mode not in {'acute', 'bold', 'ipa', 'xar'}:
         raise ValueError("mode must be 'acute', 'bold', 'ipa', or 'xar'")
@@ -834,7 +817,6 @@ def convert_line(
                     _convert_non_bracket_part(
                         part,
                         mode,
-                        ipa_mode,
                         circ_hiatus=circ_hiatus,
                         emphatic_by_source_index=emphatic_by_source_index,
                         source_offset=source_offset,
@@ -846,7 +828,6 @@ def convert_line(
         result = _convert_non_bracket_part(
             core_line,
             mode,
-            ipa_mode,
             circ_hiatus=circ_hiatus,
             emphatic_by_source_index=emphatic_by_source_index,
         )
@@ -875,7 +856,6 @@ def convert_text(text: str, print_merger: bool = False) -> Tuple[str, str]:
 
 def convert_text_with_ipa(
     text: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
 ) -> Tuple[str, str, str]:
@@ -883,12 +863,9 @@ def convert_text_with_ipa(
     
     Args:
         text: Full text in *_tilde format
-        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
-              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(
         text,
-        ipa_mode,
         circ_hiatus=circ_hiatus,
         print_merger=print_merger,
     )
@@ -897,7 +874,6 @@ def convert_text_with_ipa(
 
 def convert_text_with_ipa_xar(
     text: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
 ) -> Tuple[str, str, str, str]:
@@ -905,23 +881,20 @@ def convert_text_with_ipa_xar(
     
     Args:
         text: Full text in *_tilde format
-        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
-              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     lines = text.splitlines(keepends=True)
     acute_lines = [
-        convert_line(line, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='acute', circ_hiatus=circ_hiatus, print_merger=print_merger)
         for line in lines
     ]
     bold_lines = _convert_bold_markdown_lines(
         lines,
-        ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         print_merger=print_merger,
     )
-    ipa_lines = [convert_line(line, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', circ_hiatus=circ_hiatus) for line in lines]
     xar_lines = [
-        convert_line(line, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='xar', circ_hiatus=circ_hiatus, print_merger=print_merger)
         for line in lines
     ]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
@@ -929,13 +902,12 @@ def convert_text_with_ipa_xar(
 
 def _convert_bold_markdown_lines(
     lines: list[str],
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
 ) -> list[str]:
     """Convert lines to bold Markdown and preserve non-blank lineation for renderers."""
     bold_lines = [
-        convert_line(line, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='bold', circ_hiatus=circ_hiatus, print_merger=print_merger)
         for line in lines
     ]
 
@@ -1029,7 +1001,6 @@ def _render_phone_rows(
     rows: list[dict[str, str]],
     *,
     mode: str,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
 ) -> str:
@@ -1054,7 +1025,6 @@ def _render_phone_rows(
             convert_line(
                 chunk_text,
                 mode=mode,
-                ipa_mode=ipa_mode,
                 circ_hiatus=circ_hiatus,
                 print_merger=print_merger,
                 emphatic_by_source_index=emphatic_map,
@@ -1090,7 +1060,6 @@ def process_file(
     write_bold: bool = True,
     write_ipa: bool = False,
     write_xar: bool = False,
-    ipa_mode: str = 'ipa-ob',
     circ_hiatus: bool = False,
     print_merger: bool = False,
     options: dict | None = None,
@@ -1109,8 +1078,6 @@ def process_file(
         write_bold: Whether to write bold output
         write_ipa: Whether to write IPA output
         write_xar: Whether to write XAR output
-        ipa_mode: 'ipa-ob' (Old Babylonian pharyngeal merger) or
-              'ipa-strict' (Old Akkadian pharyngeal distinctions)
     """
     phone_frontmatter, phone_rows = _load_phone_rows(input_file)
     resolved_ophone = _resolve_original_phone_path(input_file, ophone_file or None)
@@ -1122,11 +1089,11 @@ def process_file(
     logger.info('Computed syllable_count: %d', count_syllables_from_marked_text(text))
 
     title_frontmatter = phone_frontmatter or ophone_frontmatter
-    acute_text = _render_phone_rows(phone_rows, mode='acute', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    bold_text = _render_phone_rows(phone_rows, mode='bold', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    ipa_text = _render_phone_rows(phone_rows, mode='ipa', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    xar_text = _render_phone_rows(phone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=print_merger)
-    plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', ipa_mode=ipa_mode, circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
+    acute_text = _render_phone_rows(phone_rows, mode='acute', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    bold_text = _render_phone_rows(phone_rows, mode='bold', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    ipa_text = _render_phone_rows(phone_rows, mode='ipa', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    xar_text = _render_phone_rows(phone_rows, mode='xar', circ_hiatus=circ_hiatus, print_merger=print_merger)
+    plain_xar_text = _render_phone_rows(ophone_rows, mode='xar', circ_hiatus=circ_hiatus, print_merger=False).replace(ACUTE_MARK, '')
 
     def _write(text: str, path: str) -> None:
         """Write text to path, ensuring a POSIX-compliant trailing newline."""
@@ -1376,21 +1343,13 @@ def run_tests() -> bool:
         ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir dad´mē"),
     ]
 
-    ipa_mode_cases = [
-        ("ḥa", "ʔa", "ħa"),
-        ("ḫa", "χa", "χa"),
-        ("ʿa", "ʔa", "ʕa"),
-        ("ʾa", "ʔa", "ʔa"),
-        ("ʾ~a", "ˈʔːa", "ˈʔːa"),
-        ("ʿa+ʾi", "ʔa.ʔi", "ʕa.ʔi"),
-    ]
     circ_hiatus_cases = [
         ("qû", "qʊ.ʊ"),
         ("bû", "bu.u"),
         ("qâ", "qɑ.ɑ"),
         ("qû~", "ˈqʊ.ʊː"),
     ]
-    total = len(tests) + 10 + (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
+    total = len(tests) + 11 + len(circ_hiatus_cases) + 1
     passed = 0
     case_index = 0
 
@@ -1606,58 +1565,16 @@ def run_tests() -> bool:
                 ],
             )
 
-    for inp, exp_ob, exp_strict in ipa_mode_cases:
-        got_ob = convert_line(inp, 'ipa', ipa_mode='ipa-ob')
-        if got_ob == exp_ob:
-            report(True, f'Ipa ob {inp}')
-        else:
-            report(
-                False,
-                f'Ipa ob {inp}',
-                details=[
-                    f'input={inp!r}',
-                    f'expected={exp_ob!r}',
-                    f'got={got_ob!r}',
-                ],
-            )
-
-        got_strict = convert_line(inp, 'ipa', ipa_mode='ipa-strict')
-        if got_strict == exp_strict:
-            report(True, f'Ipa strict {inp}')
-        else:
-            report(
-                False,
-                f'Ipa strict {inp}',
-                details=[
-                    f'input={inp!r}',
-                    f'expected={exp_strict!r}',
-                    f'got={got_strict!r}',
-                ],
-            )
-
-    _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
-    if got_ipa_ob == "ʔa.ʔa ⟨linebreak⟩ ‖\n":
-        report(True, 'Convert text ipa mode ob')
+    _, _, got_ipa, _ = convert_text_with_ipa_xar("ʾa ʿa\n")
+    if got_ipa == "ʔa.ʔa ⟨linebreak⟩ ‖\n":
+        report(True, 'Convert text ipa')
     else:
         report(
             False,
-            'Convert text ipa mode ob',
+            'Convert text ipa',
             details=[
                 f'expected={"ʔa.ʔa ⟨linebreak⟩ ‖\\n"!r}',
-                f'got={got_ipa_ob!r}',
-            ],
-        )
-
-    _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
-    if got_ipa_strict == "ʔa.ʕa ⟨linebreak⟩ ‖\n":
-        report(True, 'Convert text ipa mode strict')
-    else:
-        report(
-            False,
-            'Convert text ipa mode strict',
-            details=[
-                f'expected={"ʔa.ʕa ⟨linebreak⟩ ‖\\n"!r}',
-                f'got={got_ipa_strict!r}',
+                f'got={got_ipa!r}',
             ],
         )
 

@@ -108,8 +108,6 @@ metrics:
     table: false
     json: false
 print:
-  process:
-    ipa_proto_semitic: "preserve"
   run:
     acute: false
     bold: false

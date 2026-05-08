@@ -268,6 +268,14 @@ is assigned. This means the replacement affects both the accentuated
 downstream consumers (IPA, MBROLA `.pho`, XAR, acute, bold) without requiring
 separate mapping in each consumer.
 
+The printer inherits the proto-Semitic replacement from the phonetizer output
+and no longer has its own `--ipa-proto-semitic` option. The printer's IPA
+mapping uses a single `IPA_MAP` that directly translates realization codes to
+IPA symbols. When the phonetizer has `replace_proto_semitic: true`, the
+realization codes in the phone rows already reflect the merged pharyngeal/
+glottal mapping (`AL` for ḥ/ʿ/ʾ, `HE` for ḫ), and the printer translates those
+codes to IPA without any additional preserve/replace branching.
+
 This key is guarded by `phonetize.process.allow_experimental`: setting
 `replace_proto_semitic` to `true` requires `allow_experimental = true`. When
 `allow_experimental` is `false` and `replace_proto_semitic` is `true`, the

@@ -46,18 +46,9 @@ from akkapros.lib.utils import (
 )
 
 
-def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, str, bool]:
-    """Resolve IPA output flags: enabled, mode, and circumflex hiatus splitting.
-
-    CLI option renamed: `--ipa-proto-semitic` (values: 'preserve', 'replace').
-    Internally this maps to existing IPA modes used by `print.py`.
-    """
-    write_ipa = args.ipa
-    # map new CLI values to existing internal ipa modes
-    ipa_mode = 'ipa-strict' if getattr(args, 'ipa_proto_semitic', None) == 'preserve' else 'ipa-ob'
-    circ_hiatus = args.circ_hiatus
-
-    return write_ipa, ipa_mode, circ_hiatus
+def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, bool]:
+    """Resolve IPA output flags: enabled and circumflex hiatus splitting."""
+    return args.ipa, args.circ_hiatus
 
 
 def run_tests() -> bool:
@@ -66,26 +57,22 @@ def run_tests() -> bool:
     ok = True
 
     class _Args:
-        def __init__(self, ipa: bool, ipa_proto_semitic: str, circ_hiatus: bool) -> None:
+        def __init__(self, ipa: bool, circ_hiatus: bool) -> None:
             self.ipa = ipa
-            self.ipa_proto_semitic = ipa_proto_semitic
             self.circ_hiatus = circ_hiatus
 
     cases = [
-        (_Args(False, 'preserve', False), False, 'ipa-strict', False),
-        (_Args(False, 'replace', False), False, 'ipa-ob', False),
-        (_Args(True, 'preserve', False), True, 'ipa-strict', False),
-        (_Args(True, 'replace', False), True, 'ipa-ob', False),
-        (_Args(True, 'replace', True), True, 'ipa-ob', True),
+        (_Args(False, False), False, False),
+        (_Args(True, False), True, False),
+        (_Args(True, True), True, True),
     ]
 
     passed = 0
     total = len(cases)
-    for index, (args, exp_write, exp_mode, exp_circ_hiatus) in enumerate(cases, start=1):
-        got_write, got_mode, got_circ_hiatus = _resolve_ipa_options(args)
+    for index, (args, exp_write, exp_circ_hiatus) in enumerate(cases, start=1):
+        got_write, got_circ_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
-            and got_mode == exp_mode
             and got_circ_hiatus == exp_circ_hiatus
         ):
             passed += 1
@@ -104,13 +91,10 @@ def run_tests() -> bool:
                 format_selftest_label(index, total, 'Cli ipa mode'),
                 details=[
                     f'ipa={args.ipa}',
-                    f'ipa_proto_semitic={args.ipa_proto_semitic!r}',
                     f'circ_hiatus={args.circ_hiatus}',
                     f'expected_write_ipa={exp_write}',
-                    f'expected_ipa_mode={exp_mode!r}',
                     f'expected_circ_hiatus={exp_circ_hiatus}',
                     f'got_write_ipa={got_write}',
-                    f'got_ipa_mode={got_mode!r}',
                     f'got_circ_hiatus={got_circ_hiatus}',
                 ],
             )
@@ -141,8 +125,6 @@ def main() -> None:
                         help=help_for('printer.bold'))
     parser.add_argument('--ipa', action='store_true',
                         help=help_for('printer.ipa'))
-    parser.add_argument('--ipa-proto-semitic', choices=['preserve', 'replace'], default='preserve',
-                        help=help_for('printer.ipa_proto_semitic'))
     parser.add_argument('--circ-hiatus', action='store_true',
                         help=help_for('printer.circ_hiatus'))
     parser.add_argument('--xar', action='store_true',
@@ -196,7 +178,7 @@ def main() -> None:
 
     write_acute = args.acute
     write_bold = args.bold
-    write_ipa, ipa_mode, circ_hiatus = _resolve_ipa_options(args)
+    write_ipa, circ_hiatus = _resolve_ipa_options(args)
     write_xar = args.xar
 
     if not (write_acute or write_bold or write_ipa or write_xar):
@@ -221,7 +203,6 @@ def main() -> None:
         write_bold=write_bold,
         write_ipa=write_ipa,
         write_xar=write_xar,
-        ipa_mode=ipa_mode,
         circ_hiatus=circ_hiatus,
         print_merger=args.print_merger,
         options={

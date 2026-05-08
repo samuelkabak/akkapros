@@ -223,21 +223,13 @@ def run_tests() -> bool:
         ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir dad´mē"),
     ]
 
-    ipa_mode_cases = [
-        ("ḥa", "ʔa", "ħa"),
-        ("ḫa", "χa", "χa"),
-        ("ʿa", "ʔa", "ʕa"),
-        ("ʾa", "ʔa", "ʔa"),
-        ("ʾ~a", "ˈʔːa", "ˈʔːa"),
-        ("ʿa+ʾi", "ʔa.ʔi", "ʕa.ʔi"),
-    ]
     circ_hiatus_cases = [
         ("qû", "qʊ.ʊ"),
         ("bû", "bu.u"),
         ("qâ", "qɑ.ɑ"),
         ("qû~", "ˈqʊ.ʊː"),
     ]
-    total = len(tests) + 10 + (len(ipa_mode_cases) * 2) + 2 + len(circ_hiatus_cases) + 1
+    total = len(tests) + 10 + len(circ_hiatus_cases) + 1
     passed = 0
     case_index = 0
 
@@ -452,61 +444,6 @@ def run_tests() -> bool:
                     f'bold_exists={out_bold.exists()}',
                 ],
             )
-
-    for inp, exp_ob, exp_strict in ipa_mode_cases:
-        got_ob = convert_line(inp, 'ipa', ipa_mode='ipa-ob')
-        if got_ob == exp_ob:
-            report(True, f'Ipa ob {inp}')
-        else:
-            report(
-                False,
-                f'Ipa ob {inp}',
-                details=[
-                    f'input={inp!r}',
-                    f'expected={exp_ob!r}',
-                    f'got={got_ob!r}',
-                ],
-            )
-
-        got_strict = convert_line(inp, 'ipa', ipa_mode='ipa-strict')
-        if got_strict == exp_strict:
-            report(True, f'Ipa strict {inp}')
-        else:
-            report(
-                False,
-                f'Ipa strict {inp}',
-                details=[
-                    f'input={inp!r}',
-                    f'expected={exp_strict!r}',
-                    f'got={got_strict!r}',
-                ],
-            )
-
-    _, _, got_ipa_ob, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-ob')
-    if got_ipa_ob == "ʔa.ʔa ⟨linebreak⟩ ‖\n":
-        report(True, 'Convert text ipa mode ob')
-    else:
-        report(
-            False,
-            'Convert text ipa mode ob',
-            details=[
-                f'expected={"ʔa.ʔa ⟨linebreak⟩ ‖\\n"!r}',
-                f'got={got_ipa_ob!r}',
-            ],
-        )
-
-    _, _, got_ipa_strict, _ = convert_text_with_ipa_xar("ʾa ʿa\n", ipa_mode='ipa-strict')
-    if got_ipa_strict == "ʔa.ʕa ⟨linebreak⟩ ‖\n":
-        report(True, 'Convert text ipa mode strict')
-    else:
-        report(
-            False,
-            'Convert text ipa mode strict',
-            details=[
-                f'expected={"ʔa.ʕa ⟨linebreak⟩ ‖\\n"!r}',
-                f'got={got_ipa_strict!r}',
-            ],
-        )
 
     for inp, expected in circ_hiatus_cases:
         got = convert_line(inp, 'ipa', circ_hiatus=True)

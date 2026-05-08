@@ -121,7 +121,6 @@ metrics:
 
 print:
   process:
-    ipa_proto_semitic: "preserve"
   run:
     acute: true
     bold: true
