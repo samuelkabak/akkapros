@@ -159,6 +159,30 @@ the paired phone artifacts:
 - prominence statistics
 - row-derived speech metrics
 
+### Word Counts: What They Represent
+
+The word counts reported in metrics (both `original` and `accentuated`) are
+derived from the phone-row boundary contract, not from intermediate pipeline
+files such as `_syl.txt` or `_tilde.txt`. This means:
+
+- **Original word count** reflects the number of lexical words in the original
+  `_proc` text, including punctuation tokens that are separate in the source.
+- **Accentuated word count** reflects the number of words after prosody
+  processing (merges, grouping), which is typically lower than the original
+  count.
+
+Intermediate files may show different counts:
+
+- `_syl.txt` merges punctuation (e.g., `⟦ : ⟧`) with adjacent words, so its
+  word count may be slightly lower than the metrics-reported original count.
+- `_tilde.txt` reflects the prosody-realized pivot with merged prosodic units,
+  so its word count differs from both the original and accentuated metrics
+  counts.
+
+The metrics-reported counts are the authoritative values for research use. If
+you need to audit them manually, use the phone-row boundary method described in
+`docs/akkapros/word-count-verification.md`.
+
 The human-readable table now reports a `Speech metrics:` section for each
 stream with these row-derived fields:
 
@@ -200,6 +224,14 @@ row totals. Fresh artifacts use `syllable_count`, `pause_count`,
 `left_as_is_non_accented_long_vowel_count`, `drift_tolerance_effect`,
 `inserted_resync_pause_count`, `eligible_resync_pause_count`,
 `resync_pause_insertion_rate`, and `pause_with_residual_drift_*`.
+
+The phonetizer also computes three additional diagnostic fields
+(`adjusted_non_accented_long_vowel_count`,
+`shortened_non_accented_long_vowel_count`,
+`lengthened_non_accented_long_vowel_count`) that are available in the
+structured JSON frontmatter but are not rendered in the human-readable
+`_metrics.txt` table. They describe how many non-accented long vowels were
+adjusted, shortened, or lengthened during the ordinary long-vowel recovery pass.
 
 ## Reading the Outputs
 

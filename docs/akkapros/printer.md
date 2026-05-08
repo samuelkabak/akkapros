@@ -78,7 +78,7 @@ re-parsing `_tilde` punctuation as an active downstream source.
 
 | Option | Description |
 |--------|-------------|
-| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: `ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ`<br>• `replace`: `ḥ -> ʔ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ` (default) |
+| `--ipa-proto-semitic {preserve,replace}` | Pharyngeal/glottal mapping:<br>• `preserve`: `ḥ -> ħ`, `ḫ -> χ`, `ʿ -> ʕ`, `ʾ -> ʔ` (default)<br>• `replace`: `ḥ -> ʔ`, `ḫ -> χ`, `ʿ -> ʔ`, `ʾ -> ʔ` |
 | `--circ-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA<br>Example: `qû → qʊ.ʊ` |
 
 ---

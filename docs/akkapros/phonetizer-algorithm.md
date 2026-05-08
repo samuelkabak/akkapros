@@ -154,7 +154,23 @@ The nominal non-accentuated targets are:
 - `CVVC = 1.5 * cvc_reference`
 
 Accentuated shapes still add exactly `0.5 * cvc_reference` beyond the matching
-non-accentuated target.
+non-accentuated target, except in mono mode where the accentuation increment is
+`basic_accentuation_lengthening` (default 50 ms) instead of `0.5 * cvc_reference`.
+
+### Global Duration Scale
+
+All numeric duration leaves in the timing model are subject to a global
+`duration_scale` multiplier (default `1.0`, no-op). When `duration_scale` is
+not `1.0`, every integer and float leaf in the durations tree is multiplied by
+the scale factor before any runtime computation. The `drift_tolerance` value is
+rounded to the nearest integer after scaling. The `scale` key itself is excluded
+from scaling.
+
+The effective durations are derived once at runtime entry by
+`_derive_effective_durations` and cached for the duration of the phonetizer
+pass. This means all consonant anchors, vowel anchors, geminate targets,
+perception limits, pause bands, and special-realization values are uniformly
+scaled.
 
 Current legality limits also distinguish validation bounds from runtime caps:
 
@@ -512,15 +528,19 @@ models contain no long vowel.
 Accentuation still uses the half-foot reference, but the target quantity is now
 independent of entry drift.
 
-Increment quantity:
+Increment quantity depends on the mora mode:
 
-- `AA = round_half_up(0.5 * cvc_reference)`
-- `round_half_up` means halves round up (`2.5 -> 3`)
+- **Bimoraic mode** (`mora_mode = bi`): `AA = round_half_up(0.5 * cvc_reference)`
+- **Monomoraic mode** (`mora_mode = mono`): `AA = basic_accentuation_lengthening` (default 50 ms)
+
+`round_half_up` means halves round up (`2.5 -> 3`).
 
 What did not change:
 
 - the existence of a primary/adjacent distribution-policy family
 - the same-consonant handling logic around coda/onset pairs
+- the distribution mechanics: the configured policy ratio is preserved even
+  when legality caps prevent the full target from being realized
 
 What did change:
 
@@ -529,8 +549,8 @@ What did change:
 - the default policy is `80_20`
 - when legality caps block the full target, the solver scales the total local increment down to the largest value that preserves the configured ratio instead of greedily spending leftover slack on one segment
 
-So the extra mora is realized through accentable consonants or long-vowel space
-only.
+So the extra mora (or the basic lengthening in mono mode) is realized through
+accentable consonants or long-vowel space only.
 
 Primary/adjacent routing by accent shape:
 
@@ -571,9 +591,14 @@ Resync pauses are non-punctuation recovery gaps inserted by the phonetizer.
 
 They are not lexical phoneme structure and are not punctuation-owned pauses.
 
+Resync-pause insertion is controlled by the `enable_resync_pause` toggle
+(default `False`). When disabled, the phonetizer never inserts resync pauses
+regardless of drift conditions.
+
 The live solver inserts at most one resync pause at an eligible boundary when all
 of the following are true:
 
+- `enable_resync_pause` is `True`
 - the next unit is another syllable, not an existing pause row
 - the current syllable ends at a plain word boundary (`F`)
 
@@ -702,6 +727,14 @@ The same front matter now also carries human-readable recovery diagnostics:
 - `non_accented_long_vowel_count`, `left_as_is_non_accented_long_vowel_count`, and `drift_tolerance_effect`
 - `inserted_resync_pause_count`, `eligible_resync_pause_count`, and `resync_pause_insertion_rate`
 - `pause_with_residual_drift_count` and `pause_with_residual_drift_rate`
+
+The phonetizer also computes three additional diagnostic fields
+(`adjusted_non_accented_long_vowel_count`,
+`shortened_non_accented_long_vowel_count`,
+`lengthened_non_accented_long_vowel_count`) that are available in the
+structured JSON frontmatter but are not rendered in the human-readable
+`_metrics.txt` table. They describe how many non-accented long vowels were
+adjusted, shortened, or lengthened during the ordinary long-vowel recovery pass.
 
 Population meanings are fixed by the runtime control flow rather than by row totals:
 
