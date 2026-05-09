@@ -1741,7 +1741,138 @@ def test_confwriter_generated_config_is_reused_by_cli(tmp_path: Path) -> None:
 
 
 
+def test_phonetizer_cli_ultraheavy_hiatus_produces_y_files(tmp_path: Path) -> None:
+    """Run phonetizer with ultraheavy_hiatus_enable=true and verify yphone/ymbrola output."""
+    outdir = tmp_path / 'ultraheavy_yfiles'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'uh_tilde.txt'
+    tilde_file.write_text('qû ba\n', encoding='utf-8')
+
+    config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'uh',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.allow_experimental'): True,
+            ('phonetize', 'process.realization.ultraheavy_hiatus_enable'): True,
+        },
+    )
+    config_path = outdir / 'uh.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file), '--conf', str(config_path))
+
+    # Standard files still produced
+    phone_file = outdir / 'uh_phone.txt'
+    ophone_file = outdir / 'uh_ophone.txt'
+    mbrola_file = outdir / 'uh_mbrola.pho'
+    ombrola_file = outdir / 'uh_ombrola.pho'
+    _assert_phone_artifact(phone_file)
+    _assert_phone_artifact(ophone_file)
+    _assert_pho_artifact(mbrola_file)
+    _assert_pho_artifact(ombrola_file)
+
+    # Y-files produced
+    yphone_file = outdir / 'uh_yphone.txt'
+    yophone_file = outdir / 'uh_yophone.txt'
+    ymbrola_file = outdir / 'uh_ymbrola.pho'
+    yombrola_file = outdir / 'uh_yombrola.pho'
+    _assert_non_empty_text_file(yphone_file)
+    _assert_non_empty_text_file(yophone_file)
+    _assert_non_empty_text_file(ymbrola_file)
+    _assert_non_empty_text_file(yombrola_file)
+
+    # Verify yphone has more rows than phone (circumflex expanded)
+    phone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(phone_file)).strip().splitlines()]
+    yphone_rows = [parse_phone_row(line) for line in _strip_yaml_frontmatter(_read_text(yphone_file)).strip().splitlines()]
+    assert len(yphone_rows) > len(phone_rows), 'yphone should have more rows due to circumflex expansion'
+
+    # Verify the circumflex vowel (û) is expanded into 3 rows in yphone
+    # Find the UWI rows in phone (1 row) vs yphone (3 rows)
+    phone_uwi = [row for row in phone_rows if row['label'] == 'UWI']
+    yphone_uwi = [row for row in yphone_rows if row['label'] == 'UWI']
+    assert len(phone_uwi) == 1, 'phone should have 1 UWI row'
+    assert len(yphone_uwi) == 2, 'yphone should have 2 UWI rows (vowel1 + vowel2)'
+
+    # Verify transition row exists
+    yphone_ena = [row for row in yphone_rows if row['label'] == 'ENA']
+    assert len(yphone_ena) == 1, 'yphone should have 1 ENA transition row'
+
+    # Verify timing: U1 + T + U2 = Z
+    original_duration = int(phone_uwi[0]['duration'])
+    u1_duration = int(yphone_uwi[0]['duration'])
+    t_duration = int(yphone_ena[0]['duration'])
+    u2_duration = int(yphone_uwi[1]['duration'])
+    assert u1_duration + t_duration + u2_duration == original_duration, (
+        f'Timing mismatch: {u1_duration} + {t_duration} + {u2_duration} != {original_duration}'
+    )
+
+    # Verify frontmatter has ultraheavy_hiatus_enable
+    yphone_frontmatter, _ = split_frontmatter(_read_text(yphone_file))
+    assert yphone_frontmatter is not None
+    assert yphone_frontmatter['metadata']['options'].get('ultraheavy_hiatus_enable') is True
+
+    # Verify ymbrola has more rows than mbrola
+    mbrola_lines = _read_text(mbrola_file).strip().splitlines()
+    ymbrola_lines = _read_text(ymbrola_file).strip().splitlines()
+    assert len(ymbrola_lines) > len(mbrola_lines), 'ymbrola should have more rows due to circumflex expansion'
+
+    # Verify standard phone/mbrola are unchanged (no y-files when disabled)
+    outdir2 = tmp_path / 'ultraheavy_disabled'
+    outdir2.mkdir(parents=True, exist_ok=True)
+    tilde_file2 = outdir2 / 'uh_disabled_tilde.txt'
+    tilde_file2.write_text('qû ba\n', encoding='utf-8')
+    config2 = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'uh_disabled',
+            ('common', 'run.outdir'): str(outdir2),
+            ('phonetize', 'process.allow_experimental'): True,
+        },
+    )
+    config_path2 = outdir2 / 'uh_disabled.yaml'
+    config_path2.write_text(dump_config_text(config2), encoding='utf-8')
+    _run_cli('akkapros.cli.phonetizer', str(tilde_file2), '--conf', str(config_path2))
+    assert not (outdir2 / 'uh_disabled_yphone.txt').exists()
+    assert not (outdir2 / 'uh_disabled_ymbrola.pho').exists()
+
+
+def test_phonetizer_cli_ultraheavy_hiatus_rejects_without_experimental(tmp_path: Path) -> None:
+    """Verify ultraheavy_hiatus_enable=true without allow_experimental=true raises error."""
+    outdir = tmp_path / 'ultraheavy_reject'
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    tilde_file = outdir / 'uh_reject_tilde.txt'
+    tilde_file.write_text('qû\n', encoding='utf-8')
+
+    config = apply_overrides(
+        _load_regression_config(),
+        {
+            ('common', 'run.prefix'): 'uh_reject',
+            ('common', 'run.outdir'): str(outdir),
+            ('phonetize', 'process.realization.ultraheavy_hiatus_enable'): True,
+        },
+    )
+    config_path = outdir / 'uh_reject.yaml'
+    config_path.write_text(dump_config_text(config), encoding='utf-8')
+
+    proc = _run_cli_expect_failure(
+        'akkapros.cli.phonetizer',
+        str(tilde_file),
+        '--conf',
+        str(config_path),
+    )
+
+    assert proc.returncode == 2
+    assert 'allow_experimental' in proc.stderr
+    assert 'ultraheavy_hiatus_enable' in proc.stderr
+    assert not (outdir / 'uh_reject_yphone.txt').exists()
+    assert not (outdir / 'uh_reject_ymbrola.pho').exists()
+
+
 def test_fullprosmaker_max_lines_caps_input_and_records_in_frontmatter(tmp_path: Path) -> None:
+
     """--max-lines N caps the number of proc body lines and records input_max_lines in frontmatter."""
     outdir = tmp_path / "max_lines"
     outdir.mkdir(parents=True, exist_ok=True)

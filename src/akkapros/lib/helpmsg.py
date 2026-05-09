@@ -102,7 +102,9 @@ OPTION_HELP = {
     "phonetizer.accentuation_distribution_policy": "Policy controlling how the added accentuation mora is distributed. Only applies in bi mode; mono mode skips accentuation elongation entirely.",
     "phonetizer.drift_tolerance": "Maximum local timing mismatch tolerated before strict failure.",
     "phonetizer.option": "Override one config path with KEY=VALUE syntax; repeatable. Phonetize-owned runtime paths use phonetize.process.realization.*, phonetize.process.intonation.*, and phonetize.process.timing_model.*.",
+    "phonetizer.ultraheavy_hiatus_enable": "Experimental: expand circumflex vowels into vowel+transition+vowel in yphone/ymbrola output (requires allow_experimental=true).",
     "phonetizer.test": "Run phonetizer self-tests.",
+
     "metricalc.input": "Input <prefix>_phone.txt file.",
     "metricalc.input_list": "File containing a list of input files, one per line.",
     "metricalc.ophone": "Optional matching <prefix>_ophone.txt file; otherwise derived from the *_phone.txt input name.",
@@ -143,6 +145,7 @@ OPTION_HELP = {
     "fullprosmaker.phonetize_geminate_policy": "Same-consonant geminate handling policy for the phonetize stage.",
     "fullprosmaker.phonetize_accentuation_distribution_policy": "Policy controlling how the added accentuation mora is distributed in the phonetize stage. Only applies in bi mode; mono mode skips accentuation elongation entirely.",
     "fullprosmaker.phonetize_drift_tolerance": "Maximum local timing mismatch tolerated before strict failure in the phonetize stage.",
+    "fullprosmaker.ultraheavy_hiatus_enable": "Experimental: expand circumflex vowels into vowel+transition+vowel in yphone/ymbrola output (requires allow_experimental=true).",
     "fullprosmaker.option": "Override one config path with KEY=VALUE syntax; repeatable. Phonetize-owned runtime paths use phonetize.process.realization.*, phonetize.process.intonation.*, and phonetize.process.timing_model.*.",
     "fullprosmaker.metrics_table": "Write human-readable metrics table output.",
     "fullprosmaker.metrics_json": "Write JSON metrics output.",

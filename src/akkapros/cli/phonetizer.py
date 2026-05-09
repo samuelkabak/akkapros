@@ -36,6 +36,7 @@ from akkapros.lib.helpmsg import help_for
 from akkapros.lib.phonetize import (
     PHONETIZE_SECTION,
     PROCESS_KEYS,
+    produce_ultraheavy_rows,
     render_phonetize_verification_lines,
     realize_phone_streams,
     run_tests as run_phonetize_tests,
@@ -77,6 +78,10 @@ def _apply_process_flag_overrides(args: argparse.Namespace, phonetize_config: di
         if value is None:
             continue
         updated = set_config_value(updated, f'phonetize.process.timing_model.{key}', value)
+    # Apply realization flag overrides
+    ultraheavy = getattr(args, 'ultraheavy_hiatus_enable', None)
+    if ultraheavy is not None:
+        updated = set_config_value(updated, 'phonetize.process.realization.ultraheavy_hiatus_enable', ultraheavy)
     return get_section_config(updated, PHONETIZE_SECTION)
 
 
@@ -151,6 +156,9 @@ def main() -> None:
     parser.add_argument('--enable-resync-pause', dest='enable_resync_pause', choices=['true', 'false'], default=None,
                         type=lambda value: value.lower() == 'true',
                         help='Enable or disable algorithmic resync-pause insertion.')
+    parser.add_argument('--ultraheavy-hiatus-enable', dest='ultraheavy_hiatus_enable', choices=['true', 'false'], default=None,
+                        type=lambda value: value.lower() == 'true',
+                        help=help_for('phonetizer.ultraheavy_hiatus_enable'))
     parser.add_argument('--test', action='store_true', help=help_for('phonetizer.test'))
 
     try:
@@ -303,6 +311,103 @@ def main() -> None:
     logger.info('Written file: %s', format_path_for_logging(accentuated_output_path))
     logger.info('Written file: %s', format_path_for_logging(original_mbrola_output_path))
     logger.info('Written file: %s', format_path_for_logging(accentuated_mbrola_output_path))
+
+    # Write ultraheavy-expanded y-files if enabled
+    ultraheavy_enabled = bool(
+        phonetize_config.get('process', {}).get('realization', {}).get('ultraheavy_hiatus_enable', False)
+    )
+    if ultraheavy_enabled:
+        y_option_values = {**option_values, 'ultraheavy_hiatus_enable': True}
+        y_original_rows = produce_ultraheavy_rows(original_rows, phonetize_config)
+        y_accentuated_rows = produce_ultraheavy_rows(accentuated_rows, phonetize_config)
+        y_original_body = serialize_phone_rows(y_original_rows)
+        y_accentuated_body = serialize_phone_rows(y_accentuated_rows)
+        y_original_mbrola_body = serialize_mbrola_rows(y_original_rows, phonetize_config, accentuated=False)
+        y_accentuated_mbrola_body = serialize_mbrola_rows(y_accentuated_rows, phonetize_config, accentuated=True)
+
+        y_original_output_path = outdir / f'{safe_prefix}_yophone.txt'
+        y_accentuated_output_path = outdir / f'{safe_prefix}_yphone.txt'
+        y_original_mbrola_output_path = outdir / f'{safe_prefix}_yombrola.pho'
+        y_accentuated_mbrola_output_path = outdir / f'{safe_prefix}_ymbrola.pho'
+
+        y_original_frontmatter = build_output_frontmatter(
+            output_path=y_original_output_path,
+            step='phonetize',
+            title=resolve_file_title(input_frontmatter),
+            body=y_original_body,
+            options=y_option_values,
+            input_frontmatter=input_frontmatter,
+            stage_data={
+                'source_variant': 'original_ultraheavy',
+                'duration_scale': original_report['duration_scale'],
+                'phone_row_count': len(y_original_rows),
+                'silence_row_count': sum(1 for row in y_original_rows if row['category'] == 'S'),
+                'phoneme_row_count': sum(1 for row in y_original_rows if row['category'] != 'S'),
+                'unit_drift': original_report['unit_drift'],
+                'unit_drift_extension_count': original_report['unit_drift_extension_count'],
+                'unit_drift_extension_rate': original_report['unit_drift_extension_rate'],
+                'max_unit_drift_extension': original_report['max_unit_drift_extension'],
+                'syllable_count': original_report['syllable_count'],
+                'pause_count': original_report['pause_count'],
+                'resync_pause_count': original_report['resync_pause_count'],
+                'total_unit_count': original_report['total_unit_count'],
+                'non_accented_long_vowel_count': original_report['non_accented_long_vowel_count'],
+                'left_as_is_non_accented_long_vowel_count': original_report['left_as_is_non_accented_long_vowel_count'],
+                'drift_tolerance_effect': original_report['drift_tolerance_effect'],
+                'adjusted_non_accented_long_vowel_count': original_report['adjusted_non_accented_long_vowel_count'],
+                'shortened_non_accented_long_vowel_count': original_report['shortened_non_accented_long_vowel_count'],
+                'lengthened_non_accented_long_vowel_count': original_report['lengthened_non_accented_long_vowel_count'],
+                'inserted_resync_pause_count': original_report['inserted_resync_pause_count'],
+                'eligible_resync_pause_count': original_report['eligible_resync_pause_count'],
+                'resync_pause_insertion_rate': original_report['resync_pause_insertion_rate'],
+                'pause_with_residual_drift_count': original_report['pause_with_residual_drift_count'],
+                'pause_with_residual_drift_rate': original_report['pause_with_residual_drift_rate'],
+            },
+            file_format='yphone',
+        )
+        y_accentuated_frontmatter = build_output_frontmatter(
+            output_path=y_accentuated_output_path,
+            step='phonetize',
+            title=resolve_file_title(input_frontmatter),
+            body=y_accentuated_body,
+            options=y_option_values,
+            input_frontmatter=input_frontmatter,
+            stage_data={
+                'source_variant': 'accentuated_ultraheavy',
+                'duration_scale': accentuated_report['duration_scale'],
+                'phone_row_count': len(y_accentuated_rows),
+                'silence_row_count': sum(1 for row in y_accentuated_rows if row['category'] == 'S'),
+                'phoneme_row_count': sum(1 for row in y_accentuated_rows if row['category'] != 'S'),
+                'unit_drift': accentuated_report['unit_drift'],
+                'unit_drift_extension_count': accentuated_report['unit_drift_extension_count'],
+                'unit_drift_extension_rate': accentuated_report['unit_drift_extension_rate'],
+                'max_unit_drift_extension': accentuated_report['max_unit_drift_extension'],
+                'syllable_count': accentuated_report['syllable_count'],
+                'pause_count': accentuated_report['pause_count'],
+                'resync_pause_count': accentuated_report['resync_pause_count'],
+                'total_unit_count': accentuated_report['total_unit_count'],
+                'non_accented_long_vowel_count': accentuated_report['non_accented_long_vowel_count'],
+                'left_as_is_non_accented_long_vowel_count': accentuated_report['left_as_is_non_accented_long_vowel_count'],
+                'drift_tolerance_effect': accentuated_report['drift_tolerance_effect'],
+                'adjusted_non_accented_long_vowel_count': accentuated_report['adjusted_non_accented_long_vowel_count'],
+                'shortened_non_accented_long_vowel_count': accentuated_report['shortened_non_accented_long_vowel_count'],
+                'lengthened_non_accented_long_vowel_count': accentuated_report['lengthened_non_accented_long_vowel_count'],
+                'inserted_resync_pause_count': accentuated_report['inserted_resync_pause_count'],
+                'eligible_resync_pause_count': accentuated_report['eligible_resync_pause_count'],
+                'resync_pause_insertion_rate': accentuated_report['resync_pause_insertion_rate'],
+                'pause_with_residual_drift_count': accentuated_report['pause_with_residual_drift_count'],
+                'pause_with_residual_drift_rate': accentuated_report['pause_with_residual_drift_rate'],
+            },
+            file_format='yphone',
+        )
+        y_original_output_path.write_text(compose_text_document(y_original_frontmatter, y_original_body), encoding='utf-8')
+        y_accentuated_output_path.write_text(compose_text_document(y_accentuated_frontmatter, y_accentuated_body), encoding='utf-8')
+        y_original_mbrola_output_path.write_text(y_original_mbrola_body, encoding='utf-8')
+        y_accentuated_mbrola_output_path.write_text(y_accentuated_mbrola_body, encoding='utf-8')
+        logger.info('Written file: %s', format_path_for_logging(y_original_output_path))
+        logger.info('Written file: %s', format_path_for_logging(y_accentuated_output_path))
+        logger.info('Written file: %s', format_path_for_logging(y_original_mbrola_output_path))
+        logger.info('Written file: %s', format_path_for_logging(y_accentuated_mbrola_output_path))
 
 
 if __name__ == '__main__':

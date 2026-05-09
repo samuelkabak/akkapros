@@ -90,6 +90,11 @@ PHONETIZE_SCHEMA: dict[str, Any] = {
                 'preserve distinct realizations: ḥ -> ħ (ET), ḫ -> χ (HE), '
                 'ʿ -> ʕ (AI), ʾ -> ʔ (AL).',
             ),
+            'ultraheavy_hiatus_enable': _field(
+                False,
+                'bool',
+                'Experimental: expand circumflex vowels into vowel+transition+vowel in yphone/ymbrola output (requires allow_experimental=true).',
+            ),
         },
         'intonation': {
             '__comment__': None,
@@ -666,6 +671,7 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
     limit_emphatic_coloring = bool(raw_config['process']['realization'].get('limit_emphatic_coloring', False))
     enable_resync_pause = bool(raw_config['process']['timing_model'].get('enable_resync_pause', False))
     replace_proto_semitic = bool(raw_config['process']['realization'].get('replace_proto_semitic', False))
+    ultraheavy_hiatus_enable = bool(raw_config['process']['realization'].get('ultraheavy_hiatus_enable', False))
     if not allow_experimental:
         if limit_emphatic_coloring:
             add_failure(
@@ -684,6 +690,12 @@ def verify_phonetize_config(phonetize_config: dict[str, Any] | None = None) -> P
                 'phonetize.process.allow_experimental',
                 'allow_experimental must be true when replace_proto_semitic is true',
                 'Experimental feature replace_proto_semitic: true (merge pharyngeal/glottal realizations) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
+            )
+        if ultraheavy_hiatus_enable:
+            add_failure(
+                'phonetize.process.allow_experimental',
+                'allow_experimental must be true when ultraheavy_hiatus_enable is true',
+                'Experimental feature ultraheavy_hiatus_enable: true (expand circumflex vowels) is enabled but allow_experimental is false. Set phonetize.process.allow_experimental to true to enable experimental features.',
             )
 
     drift_tolerance = durations.get('drift_tolerance', 19)

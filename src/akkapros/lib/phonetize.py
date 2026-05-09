@@ -418,6 +418,144 @@ def _choose_vowel_realization(label: str, emphatic_onset: bool) -> str:
     return PLAIN_VOWEL_REALIZATIONS[label]
 
 
+def _choose_ultraheavy_transition(realization_code: str) -> str:
+    """Choose the transition realization for an ultraheavy expansion.
+
+    Args:
+        realization_code: The realization code of the circumflex vowel
+            (e.g., 'AA', 'AO', 'UU', 'UO', 'EE', 'II', 'EO', 'IO').
+
+    Returns:
+        The transition realization code ('AL', 'WA', or 'YI').
+    """
+    if realization_code in {'AA', 'AO'}:
+        return 'AL'
+    if realization_code in {'UU', 'UO'}:
+        return 'WA'
+    if realization_code in {'EE', 'II', 'EO', 'IO'}:
+        return 'YI'
+    return 'AL'  # fallback
+
+
+CIRCUMFLEX_LABELS = {'AWI', 'EWI', 'IWI', 'UWI'}
+
+
+def _expand_ultraheavy_rows(
+    rows: list[dict[str, str]],
+    vowel_transition_duration: int,
+) -> list[dict[str, str]]:
+    """Expand circumflex vowel rows into vowel+transition+vowel triplets.
+
+    Args:
+        rows: Fully realized phone rows (after Phase 2 and Phase 3).
+        vowel_transition_duration: Duration of the transition segment in ms
+            (from config: durations.consonants.sonorant.special_realization.vowel_transition).
+
+    Returns:
+        New list of rows with circumflex vowels expanded.
+    """
+    expanded: list[dict[str, str]] = []
+    for row in rows:
+        if row['category'] == 'S' or row['label'] not in CIRCUMFLEX_LABELS:
+            expanded.append(dict(row))
+            continue
+
+        original_duration = int(row['duration'])
+        if original_duration <= vowel_transition_duration:
+            expanded.append(dict(row))
+            continue
+
+        T = vowel_transition_duration
+        Z = original_duration
+        U1 = int(math.floor(0.5 * (Z - T)))
+        U2 = int(math.ceil(0.5 * (Z - T)))
+
+        # Parse intonation token for frequency targets
+        base_f0 = 120  # default, will be overridden if config is available
+        intonation_targets = _intonation_targets(row['intonation'], base_f0)
+        original_start_freq = intonation_targets[0]
+        original_end_freq = intonation_targets[-1] if len(intonation_targets) > 1 else original_start_freq
+
+        # Calculate midpoint frequency
+        if Z > 0:
+            mid_freq = int(math.floor(original_start_freq + (original_end_freq - original_start_freq) * (U1 / Z)))
+        else:
+            mid_freq = original_start_freq
+
+        # Row 1: first vowel (same as original, short length, internal boundary)
+        row1 = dict(row)
+        row1['length'] = 'S'
+        row1['boundary'] = 'I'
+        row1['duration'] = f'{U1:04d}'
+        row1['drift'] = PHONE_ROW_DRIFT_NEUTRAL
+        # Intonation: linear from original_start to mid_freq
+        if len(intonation_targets) > 1:
+            row1['intonation'] = _intonation_token_for_range(original_start_freq, mid_freq, base_f0)
+        else:
+            row1['intonation'] = row['intonation']
+
+        # Row 2: transition (ENA, category C, type T, short)
+        row2 = {
+            'label': 'ENA',
+            'category': 'C',
+            'type': 'T',
+            'length': 'S',
+            'position': 'N',
+            'boundary': 'I',
+            'accent': 'F',
+            'realization': _choose_ultraheavy_transition(row['realization']),
+            'duration': f'{T:04d}',
+            'drift': PHONE_ROW_DRIFT_NEUTRAL,
+            'intonation': _intonation_token_for_range(mid_freq, mid_freq, base_f0),
+            'text': '',
+        }
+
+        # Row 3: second vowel (same as original, short length, original boundary, no accent)
+        row3 = dict(row)
+        row3['length'] = 'S'
+        row3['accent'] = 'F'
+        row3['duration'] = f'{U2:04d}'
+        row3['drift'] = PHONE_ROW_DRIFT_NEUTRAL
+        row3['text'] = ''
+        # Intonation: linear from mid_freq to original_end
+        if len(intonation_targets) > 1:
+            row3['intonation'] = _intonation_token_for_range(mid_freq, original_end_freq, base_f0)
+        else:
+            row3['intonation'] = row['intonation']
+
+        expanded.append(row1)
+        expanded.append(row2)
+        expanded.append(row3)
+
+    return expanded
+
+
+def _intonation_token_for_range(start_freq: int, end_freq: int, base_f0: int) -> str:
+    """Build an intonation token for a frequency range.
+
+    For constant frequency (start == end), returns M0C.
+    For rising (end > start), returns R<N>C where N is the semitone rise.
+    For falling (end < start), returns F<N>C where N is the semitone fall.
+    """
+    if start_freq == end_freq:
+        return 'M0C'
+    if end_freq > start_freq:
+        semitones = _hz_to_semitone(end_freq, start_freq)
+        return f'R{semitones}C'
+    semitones = _hz_to_semitone(start_freq, end_freq)
+    return f'F{semitones}C'
+
+
+def _hz_to_semitone(hz: int, reference: int) -> int:
+    """Convert a frequency ratio to semitones (rounded to nearest integer)."""
+    if reference <= 0:
+        return 0
+    return max(1, min(9, int(round(12 * math.log2(hz / reference)))))
+
+
+def _semitone_to_hz(base_f0: int, semitones: int) -> int:
+    return max(1, int(round(base_f0 * (2 ** (semitones / 12.0)))))
+
 def _syllable_ranges(rows: list[dict[str, str]]) -> list[tuple[int, int]]:
     ranges: list[tuple[int, int]] = []
     start_index: int | None = None
@@ -800,11 +938,34 @@ def realize_phone_streams(
     )
     realize_row_intonation(original_rows, phonetize_config, accentuated=False)
     realize_row_intonation(accentuated_rows, phonetize_config, accentuated=True)
+
     return (original_rows, original_report), (accentuated_rows, accentuated_report)
 
 
-def _semitone_to_hz(base_f0: int, semitones: int) -> int:
-    return max(1, int(round(base_f0 * (2 ** (semitones / 12.0)))))
+def produce_ultraheavy_rows(
+    rows: list[dict[str, str]],
+    phonetize_config: dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
+    """Produce ultraheavy-expanded copies of phone rows for y-file output.
+
+    Takes fully realized phone rows and expands circumflex vowels into
+    vowel+transition+vowel triplets. The original rows are not modified.
+
+    Args:
+        rows: Fully realized phone rows (after Phase 2 and Phase 3).
+        phonetize_config: Phonetize configuration dict.
+
+    Returns:
+        New list of rows with circumflex vowels expanded, or the original
+        rows if ultraheavy expansion is not enabled.
+    """
+    merged_config = _merge_phonetize_config(phonetize_config)
+    if not merged_config['process']['realization'].get('ultraheavy_hiatus_enable', False):
+        return rows
+    vowel_transition_duration = int(
+        merged_config['process']['timing_model']['durations']['consonants']['sonorant']['special_realization']['vowel_transition']
+    )
+    return _expand_ultraheavy_rows(rows, vowel_transition_duration)
 
 
 def _rounded_duration_value(value: float) -> int:

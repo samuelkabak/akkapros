@@ -94,6 +94,9 @@ phonetize:
       # ḫ -> χ (HE). When false (default), preserve distinct realizations:
       # ḥ -> ħ (ET), ḫ -> χ (HE), ʿ -> ʕ (AI), ʾ -> ʔ (AL).
       replace_proto_semitic: false
+      # Experimental: expand circumflex vowels into vowel+transition+vowel in
+      # yphone/ymbrola output (requires allow_experimental=true).
+      ultraheavy_hiatus_enable: false
     intonation:
       # Baseline speaker pitch in Hertz used for emitted .pho rows.
       f0: 120

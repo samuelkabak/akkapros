@@ -38,10 +38,11 @@ prosody:
 
 phonetize:
   process:
-    allow_experimental: false
+    allow_experimental: true
     realization:
       limit_emphatic_coloring: false
       replace_proto_semitic: false
+      ultraheavy_hiatus_enable: true
     intonation:
       f0: 120
       stress: "H2"
@@ -120,7 +121,6 @@ metrics:
     json: true
 
 print:
-  process:
   run:
     acute: true
     bold: true

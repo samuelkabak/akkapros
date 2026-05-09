@@ -387,9 +387,175 @@ and no forced move to the ordinary geminate target"]
 ```
 <!-- END GENERATED FLOWCHART: phonetizer-hiatus-and-vowel-transition-processing -->
 
+## Ultraheavy Hiatus Expansion (Experimental)
+
+The phonetizer supports an experimental config key
+`phonetize.process.realization.ultraheavy_hiatus_enable` (default `false`) that
+expands circumflex vowels (`â`, `ê`, `î`, `û`) from a single long-vowel segment
+into three segments (vowel + transition + vowel) in dedicated output files
+distinguished by the letter `y` in their names.
+
+This feature is parallel to the printer's `--circ-hiatus` option but operates at
+the phonetizer realization level so that the expansion propagates through all
+downstream consumers (metrics, printer, MBROLA export) without requiring each
+consumer to implement its own mapping.
+
+### Configuration
+
+```yaml
+phonetize:
+  process:
+    allow_experimental: true
+    realization:
+      ultraheavy_hiatus_enable: true
+```
+
+This key is guarded by `phonetize.process.allow_experimental`: setting
+`ultraheavy_hiatus_enable` to `true` requires `allow_experimental = true`. When
+`allow_experimental` is `false` and `ultraheavy_hiatus_enable` is `true`, the
+phonetizer config verification reports a failure.
+
+### Output Files
+
+When `ultraheavy_hiatus_enable = true`, the phonetizer produces four additional
+files alongside the standard `<prefix>_phone.txt` and `<prefix>_mbrola.pho`:
+
+| Standard File | Ultraheavy File |
+|---|---|
+| `<prefix>_phone.txt` | `<prefix>_yphone.txt` |
+| `<prefix>_ophone.txt` | `<prefix>_yophone.txt` |
+| `<prefix>_mbrola.pho` | `<prefix>_ymbrola.pho` |
+| `<prefix>_ombrola.pho` | `<prefix>_yombrola.pho` |
+
+The `y` prefix stands for "ultraheavy" (circumflex → ultraheavy). The `y` files
+are independent: they incorporate all previous realization options
+(mora_mode, replace_proto_semitic, limit_emphatic_coloring, etc.) because the
+expansion operates on the already-realized rows.
+
+### Expansion Logic
+
+A circumflex vowel row is identified by its label being in
+`{AWI, EWI, IWI, UWI}`. These correspond to the input characters `â`, `ê`,
+`î`, `û`.
+
+For each such row, the expansion replaces it with three rows:
+
+**Row 1 (first vowel):**
+- Same label, category `V`, type from vowel height, length `S` (short)
+- Same boundary, accent, text as original
+- Realization: same as original (e.g., `AA` or `AO`)
+- Duration: U1 = floor(0.5 × (Z − T))
+- Intonation: start_freq = original_start, end_freq = floor(midpoint)
+
+**Row 2 (transition):**
+- Label: `ENA` (transition), category `C`, type `T`, length `S`
+- Boundary: `I` (internal), accent: `F` (none)
+- Realization: determined by vowel quality (see mapping table below)
+- Duration: T = `vowel_transition` (from config, default 25 ms)
+- Intonation: constant frequency at midpoint value
+- Text: empty string
+
+**Row 3 (second vowel):**
+- Same label, category `V`, type from vowel height, length `S` (short)
+- Boundary: same as original, accent: `F` (none)
+- Realization: same as original
+- Duration: U2 = ceiling(0.5 × (Z − T))
+- Intonation: start_freq = ceiling(midpoint), end_freq = original_end
+- Text: empty string
+
+### Transition Realization Mapping
+
+| Original Realization | Transition Realization | IPA | MBROLA X-SAMPA |
+|---|---|---|---|
+| `AA` (a) | `AL` | `ʔ` | `?` |
+| `AO` (ɑ) | `AL` | `ʔ` | `?` |
+| `UU` (u) | `WA` | `w` | `w` |
+| `UO` (ʊ) | `WA` | `w` | `w` |
+| `EE` (e) | `YI` | `j` | `j` |
+| `II` (i) | `YI` | `j` | `j` |
+| `EO` (ɛ) | `YI` | `j` | `j` |
+| `IO` (ɨ) | `YI` | `j` | `j` |
+
+### Timing Formula
+
+```
+Z = original duration in ms
+T = vowel_transition (from config, default 25 ms)
+U1 = floor(0.5 × (Z − T))
+U2 = ceiling(0.5 × (Z − T))
+```
+
+If `Z − T` is negative or zero, the expansion is not applied (the original row
+is kept as-is).
+
+### Intonation Formula
+
+Original intonation token: `[HLMRFPV][0-9][CLE]` with start frequency F1 and
+end frequency F2 (derived from the token's contour type).
+
+```
+mid_freq = F1 + (F2 − F1) × (U1 / Z)
+```
+
+- Row 1: linear rise from F1 to mid_freq over U1 ms
+- Row 2: constant mid_freq over T ms
+- Row 3: linear rise from mid_freq to F2 over U2 ms
+
+Floor/ceiling is used to avoid decimal frequencies.
+
+### Example
+
+Input: `qû`
+
+Standard phone row for `û`:
+```
+label=UWI, category=V, type=H, length=L, position=P, boundary=F, accent=F, realization=UU, duration=0180, drift=+000, intonation=R1C, text=û
+```
+
+Ultraheavy expansion (3 rows):
+```
+label=UWI, category=V, type=H, length=S, position=P, boundary=I, accent=F, realization=UU, duration=0077, drift=+000, intonation=R1C, text=û
+label=ENA, category=C, type=T, length=S, position=P, boundary=I, accent=F, realization=WA, duration=0025, drift=+000, intonation=M0C, text=
+label=UWI, category=V, type=H, length=S, position=P, boundary=F, accent=F, realization=UU, duration=0078, drift=+000, intonation=R1C, text=
+```
+
+Where:
+- Z = 180 ms, T = 25 ms
+- U1 = floor(0.5 × (180 − 25)) = floor(77.5) = 77
+- U2 = ceiling(0.5 × (180 − 25)) = 78
+- Original intonation R1C (rising): start 120 Hz, end 135 Hz
+- mid_freq = 120 + (135 − 120) × (77 / 180) = 120 + 15 × 0.428 = 126.42 → 126
+- Row 1: R1C from 120 to 126 over 77 ms
+- Row 2: M0C constant at 126 over 25 ms
+- Row 3: R1C from 126 to 135 over 78 ms
+
+### Front Matter Propagation
+
+The `_yphone.txt` and `_ymbrola.pho` files include `ultraheavy_hiatus_enable: true`
+in their front matter so downstream consumers can detect that ultraheavy
+expansion was applied.
+
+### Edge Cases
+
+- **Zero or negative split**: If Z ≤ T, the expansion is not applied (the
+  original row is kept as-is)
+- **Accentuated circumflex vowels**: The accent mark (`~`) is preserved on the
+  first vowel segment of the expansion
+- **Emphatic coloring**: Emphatic realizations (`AO`, `EO`, `IO`, `UO`) are
+  preserved in both vowel segments
+- **Boundary codes**: The last segment inherits the original boundary code;
+  internal boundaries are `I`
+- **Text field**: Only the first segment carries the original text; transition
+  and second segment have empty text
+- **Drift field**: The drift of the original row is assigned to the first
+  segment; transition and second segment get neutral drift
+- **Pause rows**: Pause rows are unaffected by the expansion
+- **Resync pause rows**: Resync pause rows are unaffected
+
 ## Phase 2: Duration Solver
 
 The visual summary below follows the live realization loop: how pause units and
+
 syllable units branch, where long-vowel correction and accentuation can occur,
 and when drift is folded or carried forward.
 

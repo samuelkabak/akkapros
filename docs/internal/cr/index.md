@@ -2,8 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[101. Verify and Complete Metrics and Phonetizer Documentation (Follow-up)](101-verify-and-complete-metrics-and-phonetizer-docs-followup.md) - Draft
-[100. Remove Printer `--ipa-proto-semitic` Option](100-remove-printer-ipa-proto-semitic.md) - Draft
+[101. Ultraheavy Marker Phone and MBROLA Output](101-ultraheavy-marker-phone-and-mbrola-output.md) - Draft
+[100. Remove Printer `--ipa-proto-semitic` Option](100-remove-printer-ipa-proto-semitic.md) - Done
 [099. Phonetizer Proto-Semitic Pharyngeal/Glottal Replacement](099-phonetizer-proto-semitic-replacement.md) - Done
 [098. Verify and Complete Metrics and Phonetizer Documentation](098-verify-and-complete-metrics-and-phonetizer-docs.md) - Done
 [097. Add Mono Mode Branch to Lexlinks Construct Demo](097-add-mono-mode-to-construct-demo.md) - Done
