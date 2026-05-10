@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.1] - 2026-05-11
+
+### Fixed
+- Metrics word count now counts lexical words, not merged prosodic units.
+  Words linked with `+` or `&` are merged prosodically but remain separate
+  lexical words. The metrics stage now correctly splits merged words into
+  their lexical parts before computing `total_words`, `syllables_per_word`,
+  `morae_per_word`, and derived statistics (WPM, prominence candidates).
+  (CR-103)
+
 ## [3.0.0] - 2026-05-10
 
 ### Breaking Changes
