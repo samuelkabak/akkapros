@@ -63,14 +63,7 @@
   - **Update rule:** Run `python scripts/gen_code_graph.py` after any module restructuring to regenerate call graphs. The `explr` tracer automatically picks up new submodule structure.
 - `tests/dependency_map.yaml` — test marker routing
 
-## 9. Agent Aliases
-
-| Alias | File | Purpose |
-|-------|------|---------|
-| `@spec` | `agent/spec.md` | Write/update CR, ADR, REQ, REVIEW docs |
-| `@change` | `agent/change.md` | Implement, verify, review CR-NNN |
-
-## 10. Quick Commands
+## 9. Quick Commands
 
 ```bash
 python -m pytest                          # full suite

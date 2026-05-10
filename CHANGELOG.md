@@ -7,9 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.0.0] - 2026-05-10
 
-- No unreleased changes yet.
+### Breaking Changes
+- Phonetizer `.pho` output now uses MBROLA/X-SAMPA-like symbols instead of internal realization codes; residual printer MBROLA renderer removed.
+- Phone/ophone row separator unified to `|`; row-level drift tokens use signed arithmetic form `[+-]DDD`.
+- Metrics redesigned around phone/ophone interval data; CSV output removed.
+- Stage configuration split into `run` and `process` blocks; `--conf`/`--option` system replaces many individual CLI flags.
+- Removed CLI options: `--ipa-proto-semitic` (printer), `--long-pause-weight` (metrics), short-pause/drift policy options, `--csv`.
+- Renamed options: `print.run.circ_hiatus` → `print.run.ipa_ultraheavy_hiatus`, `extended_emphatic_coloring` → `limit_emphatic_coloring` (inverted default), `mono_mode_accentuation_lengthening` → `basic_accentuation_lengthening`.
+- Explicit inherited merges (`+`) distinguished from internal prosody merges (`&`) in tilde pivot.
+- Punctuation armor `⟦...⟧` preserved through tilde pivot and downstream stages.
+
+### Added
+- Full phonetizer stage: phoneme framework, duration modeling, intonation contours, pause typing, drift tracking, MBROLA `.pho` export.
+- Package-wide YAML configuration system with `--conf`/`--option` CLI, `confwriter`, scoped `--help [PATH]`.
+- Global duration scale, pre-pausal final anchors, corrective geminate coda share ratio, resync pause toggle.
+- Probability-oriented phonetizer diagnostics, ratio-preserving shortfall carry, class-local gemination caps.
+- Experimental feature guard for phonetizer.
+- Proto-Semitic pharyngeal/glottal replacement (`ḥ/ʿ/ʾ` → `ʔ`) in phonetizer.
+- Ultraheavy hiatus marker phone and MBROLA output.
+- Config-driven prosmaker demo with explicit defaults; lexlinks construct demo with mono-mode branch.
+- Mermaid flowcharts in user-facing docs; metrics coverage matrix.
+- Comprehensive phonetizer documentation (algorithm, data model, phone file guide).
+
+### Changed
+- Metrics redesigned around phone/ophone interval metrics with per-row drift columns, pause-governed intonation, half-beat synchronization.
+- Business-zone module splitting for LLM cost optimization (CR-087, CR-091, CR-092).
+- `_metrics_stats.py`/`_metrics_output.py` split from `metrics.py`.
+- Emphatic vowel coloring extended to coda contexts and phoneprep.
+- `limit_emphatic_coloring` replaces `extended_emphatic_coloring` with inverted default.
+- `basic_accentuation_lengthening` replaces `mono_mode_accentuation_lengthening`.
+- `drift_tolerance` moved into `durations` bloc and made subject to scale.
+- Accentuation applied before ordinary long-vowel drift recovery.
+- Code index with Mermaid call graphs and tagged test markers for optimized execution.
+- Governance records expanded with ADRs, CRs, REQs, and reviews.
+
+### Fixed
+- Phonetizer solver tuning for better duration convergence.
+- Narrowed short-vowel spill and adopted class-local gemination max caps.
+- Coalesced consecutive EOL pause rows while preserving repeated EOL text.
+- Corrected `ḥ` reader mappings across XAR and IPA replace mode.
+- Markdown line breaks in bold printer output.
+- Metrics pivot integrity for syllable totals, linked words, and diphthongs.
 
 ## [2.0.0] - 2026-03-23
 

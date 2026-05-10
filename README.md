@@ -77,7 +77,7 @@ All results are fully reproducible using the included demo scripts.
 | [Metrics](docs/akkapros/metrics-computation.md) | Full explanation of all computed metrics |
 | [XAR Script](docs/akkapros/xar-script.md) | Practical reading orthography for Akkadian |
 | [Release Strategy](docs/akkapros/release-strategy.md) | Versioning and release procedures |
-| [Release Notes](release-notes/v2.0.0.md) | Current release summary and upgrade notes |
+| [Release Notes](release-notes/v3.0.0.md) | Current release summary and upgrade notes |
 | [ADR Index](docs/internal/adr/index.md) | Architecture Decision Records |
 | [CR Index](docs/internal/cr/index.md) | Architecture Decision Records (after v1.0.1) |
 | [Req Index](docs/internal/req/index.md) | Requirements and short specifications |
@@ -129,7 +129,7 @@ If you use akkapros in your research, please cite:
       title        = {akkapros: Akkadian Prosody Reconstruction Toolkit},
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {2.0.0},
+      version      = {3.0.0},
       doi          = {10.5281/zenodo.19010721},
       url          = {https://github.com/samuelkabak/akkapros}
     }

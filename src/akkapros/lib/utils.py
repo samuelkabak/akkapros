@@ -853,11 +853,13 @@ def run_tests() -> bool:
     """
     logger = get_logger_with_fallback('akkapros.lib.utils')
 
+    from akkapros import __version__ as _pkg_version
+
     proc_with_frontmatter = (
         "---\n"
         "package:\n"
         "  name: \"akkapros\"\n"
-        "  version: \"2.0.0\"\n"
+        f"  version: \"{_pkg_version}\"\n"
         "pipeline: \"pipeline\"\n"
         "step: \"atfparse\"\n"
         "file:\n"
