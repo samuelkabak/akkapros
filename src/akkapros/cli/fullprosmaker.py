@@ -95,7 +95,7 @@ FAST_MAX_LINES: int = 10
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, bool]:
     """Resolve IPA output flags: enabled and circumflex hiatus splitting."""
-    return args.print_ipa, args.print_circ_hiatus
+    return args.print_ipa, args.print_ipa_ultraheavy_hiatus
 
 
 def _apply_phonetize_process_overrides(args: argparse.Namespace) -> dict[str, object]:
@@ -171,9 +171,9 @@ def run_tests() -> bool:
     """Run fullprosmaker CLI resolution tests only (no pipeline execution)."""
     logger = get_logger_with_fallback('akkapros.cli.fullprosmaker')
     class _Args:
-        def __init__(self, print_ipa: bool, print_circ_hiatus: bool) -> None:
+        def __init__(self, print_ipa: bool, print_ipa_ultraheavy_hiatus: bool) -> None:
             self.print_ipa = print_ipa
-            self.print_circ_hiatus = print_circ_hiatus
+            self.print_ipa_ultraheavy_hiatus = print_ipa_ultraheavy_hiatus
 
     cases = [
         (_Args(False, False), False, False),
@@ -183,11 +183,11 @@ def run_tests() -> bool:
 
     passed = 0
     total = len(cases)
-    for index, (args, exp_write, exp_circ_hiatus) in enumerate(cases, start=1):
-        got_write, got_circ_hiatus = _resolve_ipa_options(args)
+    for index, (args, exp_write, exp_ipa_ultraheavy_hiatus) in enumerate(cases, start=1):
+        got_write, got_ipa_ultraheavy_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
-            and got_circ_hiatus == exp_circ_hiatus
+            and got_ipa_ultraheavy_hiatus == exp_ipa_ultraheavy_hiatus
         ):
             passed += 1
             log_selftest_result(
@@ -204,11 +204,11 @@ def run_tests() -> bool:
                 format_selftest_label(index, total, 'Cli ipa mode'),
                 details=[
                     f'print_ipa={args.print_ipa}',
-                    f'print_circ_hiatus={args.print_circ_hiatus}',
+                    f'print_ipa_ultraheavy_hiatus={args.print_ipa_ultraheavy_hiatus}',
                     f'expected_output_ipa={exp_write}',
-                    f'expected_print_circ_hiatus={exp_circ_hiatus}',
+                    f'expected_print_ipa_ultraheavy_hiatus={exp_ipa_ultraheavy_hiatus}',
                     f'got_output_ipa={got_write}',
-                    f'got_print_circ_hiatus={got_circ_hiatus}',
+                    f'got_print_ipa_ultraheavy_hiatus={got_ipa_ultraheavy_hiatus}',
                 ],
             )
 
@@ -241,7 +241,7 @@ def run_pipeline(
     output_ipa: bool,
     output_xar: bool,
     print_merger: bool,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     title: str | None = None,
     options: dict[str, object] | None = None,
     max_lines: int | None = None,
@@ -603,7 +603,7 @@ def run_pipeline(
         write_bold=output_bold,
         write_ipa=output_ipa,
         write_xar=output_xar,
-        circ_hiatus=circ_hiatus,
+        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
         print_merger=print_merger,
         options=options,
     )
@@ -695,8 +695,8 @@ Version: {__version__}
                         help=help_for('fullprosmaker.print_bold'))
     parser.add_argument('--print-ipa', action='store_true',
                         help=help_for('fullprosmaker.print_ipa'))
-    parser.add_argument('--print-circ-hiatus', action='store_true',
-                        help=help_for('fullprosmaker.print_circ_hiatus'))
+    parser.add_argument('--print-ipa-ultraheavy-hiatus', action='store_true',
+                        help=help_for('fullprosmaker.print_ipa_ultraheavy_hiatus'))
     parser.add_argument('--print-xar', action='store_true',
                         help=help_for('fullprosmaker.print_xar'))
     parser.add_argument('--print-merger', action='store_true',
@@ -790,7 +790,7 @@ Version: {__version__}
     output_json = args.metrics_json
     output_acute = args.print_acute
     output_bold = args.print_bold
-    output_ipa, circ_hiatus = _resolve_ipa_options(args)
+    output_ipa, ipa_ultraheavy_hiatus = _resolve_ipa_options(args)
     output_xar = args.print_xar
 
     # Match metricalc behavior: default to table if no explicit format selected.
@@ -857,7 +857,7 @@ Version: {__version__}
         output_ipa=output_ipa,
         output_xar=output_xar,
         print_merger=args.print_merger,
-        circ_hiatus=circ_hiatus,
+        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
         title=args.title,
         options=option_values,
         max_lines=effective_max_lines,

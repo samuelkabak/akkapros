@@ -395,10 +395,11 @@ expands circumflex vowels (`â`, `ê`, `î`, `û`) from a single long-vowel segm
 into three segments (vowel + transition + vowel) in dedicated output files
 distinguished by the letter `y` in their names.
 
-This feature is parallel to the printer's `--circ-hiatus` option but operates at
-the phonetizer realization level so that the expansion propagates through all
-downstream consumers (metrics, printer, MBROLA export) without requiring each
-consumer to implement its own mapping.
+This feature is parallel to the printer's `--ipa-ultraheavy-hiatus` option
+(which only affects IPA output) but operates at the phonetizer realization level
+so that the expansion propagates through all downstream consumers (metrics,
+printer, MBROLA export) without requiring each consumer to implement its own
+mapping.
 
 ### Configuration
 

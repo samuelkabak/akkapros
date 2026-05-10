@@ -2,7 +2,8 @@
 
 This index lists Change Requests. It is maintained by `scripts/update-indexes.py`.
 
-[101. Ultraheavy Marker Phone and MBROLA Output](101-ultraheavy-marker-phone-and-mbrola-output.md) - Draft
+[102. Rename `print.run.circ_hiatus` to `print.run.ipa_ultraheavy_hiatus`](102-rename-circ-hiatus-to-ipa-ultraheavy-hiatus.md) - Done
+[101. Ultraheavy Marker Phone and MBROLA Output](101-ultraheavy-marker-phone-and-mbrola-output.md) - Done
 [100. Remove Printer `--ipa-proto-semitic` Option](100-remove-printer-ipa-proto-semitic.md) - Done
 [099. Phonetizer Proto-Semitic Pharyngeal/Glottal Replacement](099-phonetizer-proto-semitic-replacement.md) - Done
 [098. Verify and Complete Metrics and Phonetizer Documentation](098-verify-and-complete-metrics-and-phonetizer-docs.md) - Done

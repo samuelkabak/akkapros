@@ -340,7 +340,7 @@ def _flush_syllable(
     source_text: str = '',
     source_indices=None,
     emphatic_by_source_index: dict[int, bool] | None = None,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
 ) -> str:
     if not syllable_text:
         return ''
@@ -367,7 +367,7 @@ def _flush_syllable(
                     emphatic = emphatic_by_source_index[context_index]
                 else:
                     emphatic = _is_emphatic_adjacent(context_text, context_index, context_skip_chars)
-                if circ_hiatus and char in {'â', 'î', 'û', 'ê'}:
+                if ipa_ultraheavy_hiatus and char in {'â', 'î', 'û', 'ê'}:
                     short_base = {
                         'â': 'a',
                         'î': 'i',
@@ -447,7 +447,7 @@ def _flush_syllable(
 def _convert_word(
     word: str,
     mode: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
 ) -> str:
     """Convert one Akkadian word token."""
@@ -481,7 +481,7 @@ def _convert_word(
                     source_text=source_text,
                     source_indices=source_indices,
                     emphatic_by_source_index=emphatic_by_source_index,
-                    circ_hiatus=circ_hiatus,
+                    ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
                 )
             )
             current_syllable.clear()
@@ -526,7 +526,7 @@ def _is_word_char(char: str) -> bool:
 def _convert_non_bracket_part(
     part: str,
     mode: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
     source_offset: int = 0,
 ) -> str:
@@ -534,7 +534,7 @@ def _convert_non_bracket_part(
     if mode == 'ipa':
         return _convert_non_bracket_part_ipa(
             part,
-            circ_hiatus=circ_hiatus,
+            ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
             emphatic_by_source_index=emphatic_by_source_index,
             source_offset=source_offset,
         )
@@ -557,7 +557,7 @@ def _convert_non_bracket_part(
                 _convert_word(
                     ''.join(current_word),
                     mode,
-                    circ_hiatus=circ_hiatus,
+                    ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
                     emphatic_by_source_index=word_map,
                 )
             )
@@ -579,7 +579,7 @@ def _convert_non_bracket_part(
 
 def _convert_non_bracket_part_ipa(
     part: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
     source_offset: int = 0,
 ) -> str:
@@ -637,7 +637,7 @@ def _convert_non_bracket_part_ipa(
                 _convert_word(
                     token['text'],
                     'ipa',
-                    circ_hiatus=circ_hiatus,
+                    ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
                     emphatic_by_source_index=word_map,
                 )
             )
@@ -741,7 +741,7 @@ def _dearmor_pivot_punctuation(text: str) -> str:
 def convert_line(
     line: str,
     mode: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     print_merger: bool = False,
     emphatic_by_source_index: dict[int, bool] | None = None,
 ) -> str:
@@ -765,7 +765,7 @@ def convert_line(
                     _convert_non_bracket_part(
                         part,
                         mode,
-                        circ_hiatus=circ_hiatus,
+                        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
                         emphatic_by_source_index=emphatic_by_source_index,
                         source_offset=source_offset,
                     )
@@ -776,7 +776,7 @@ def convert_line(
         result = _convert_non_bracket_part(
             core_line,
             mode,
-            circ_hiatus=circ_hiatus,
+            ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
             emphatic_by_source_index=emphatic_by_source_index,
         )
 
@@ -804,13 +804,13 @@ def convert_text(text: str, print_merger: bool = False) -> Tuple[str, str]:
 
 def convert_text_with_ipa(
     text: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     print_merger: bool = False,
 ) -> Tuple[str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text)."""
     acute_text, bold_text, ipa_text, _ = convert_text_with_ipa_xar(
         text,
-        circ_hiatus=circ_hiatus,
+        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
         print_merger=print_merger,
     )
     return acute_text, bold_text, ipa_text
@@ -818,23 +818,23 @@ def convert_text_with_ipa(
 
 def convert_text_with_ipa_xar(
     text: str,
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     print_merger: bool = False,
 ) -> Tuple[str, str, str, str]:
     """Convert full text and return (accent_acute_text, accent_bold_text, accent_ipa_text, accent_xar_text)."""
     lines = text.splitlines(keepends=True)
     acute_lines = [
-        convert_line(line, mode='acute', circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='acute', ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus, print_merger=print_merger)
         for line in lines
     ]
     bold_lines = _convert_bold_markdown_lines(
         lines,
-        circ_hiatus=circ_hiatus,
+        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
         print_merger=print_merger,
     )
-    ipa_lines = [convert_line(line, mode='ipa', circ_hiatus=circ_hiatus) for line in lines]
+    ipa_lines = [convert_line(line, mode='ipa', ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus) for line in lines]
     xar_lines = [
-        convert_line(line, mode='xar', circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='xar', ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus, print_merger=print_merger)
         for line in lines
     ]
     return ''.join(acute_lines), ''.join(bold_lines), ''.join(ipa_lines), ''.join(xar_lines)
@@ -842,12 +842,12 @@ def convert_text_with_ipa_xar(
 
 def _convert_bold_markdown_lines(
     lines: list[str],
-    circ_hiatus: bool = False,
+    ipa_ultraheavy_hiatus: bool = False,
     print_merger: bool = False,
 ) -> list[str]:
     """Convert lines to bold Markdown and preserve non-blank lineation for renderers."""
     bold_lines = [
-        convert_line(line, mode='bold', circ_hiatus=circ_hiatus, print_merger=print_merger)
+        convert_line(line, mode='bold', ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus, print_merger=print_merger)
         for line in lines
     ]
     return _preserve_markdown_lineation(bold_lines)

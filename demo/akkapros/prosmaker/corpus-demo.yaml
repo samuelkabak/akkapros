@@ -38,11 +38,11 @@ prosody:
 
 phonetize:
   process:
-    allow_experimental: true
+    allow_experimental: false
     realization:
       limit_emphatic_coloring: false
       replace_proto_semitic: false
-      ultraheavy_hiatus_enable: true
+      ultraheavy_hiatus_enable: false
     intonation:
       f0: 120
       stress: "H2"
@@ -125,6 +125,6 @@ print:
     acute: true
     bold: true
     ipa: false
-    circ_hiatus: false
+    ipa_ultraheavy_hiatus: false
     xar: true
     print_merger: false

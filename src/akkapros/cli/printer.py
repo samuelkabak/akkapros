@@ -48,7 +48,7 @@ from akkapros.lib.utils import (
 
 def _resolve_ipa_options(args: argparse.Namespace) -> tuple[bool, bool]:
     """Resolve IPA output flags: enabled and circumflex hiatus splitting."""
-    return args.ipa, args.circ_hiatus
+    return args.ipa, args.ipa_ultraheavy_hiatus
 
 
 def run_tests() -> bool:
@@ -57,9 +57,9 @@ def run_tests() -> bool:
     ok = True
 
     class _Args:
-        def __init__(self, ipa: bool, circ_hiatus: bool) -> None:
+        def __init__(self, ipa: bool, ipa_ultraheavy_hiatus: bool) -> None:
             self.ipa = ipa
-            self.circ_hiatus = circ_hiatus
+            self.ipa_ultraheavy_hiatus = ipa_ultraheavy_hiatus
 
     cases = [
         (_Args(False, False), False, False),
@@ -69,11 +69,11 @@ def run_tests() -> bool:
 
     passed = 0
     total = len(cases)
-    for index, (args, exp_write, exp_circ_hiatus) in enumerate(cases, start=1):
-        got_write, got_circ_hiatus = _resolve_ipa_options(args)
+    for index, (args, exp_write, exp_ipa_ultraheavy_hiatus) in enumerate(cases, start=1):
+        got_write, got_ipa_ultraheavy_hiatus = _resolve_ipa_options(args)
         if (
             got_write == exp_write
-            and got_circ_hiatus == exp_circ_hiatus
+            and got_ipa_ultraheavy_hiatus == exp_ipa_ultraheavy_hiatus
         ):
             passed += 1
             log_selftest_result(
@@ -91,11 +91,11 @@ def run_tests() -> bool:
                 format_selftest_label(index, total, 'Cli ipa mode'),
                 details=[
                     f'ipa={args.ipa}',
-                    f'circ_hiatus={args.circ_hiatus}',
+                    f'ipa_ultraheavy_hiatus={args.ipa_ultraheavy_hiatus}',
                     f'expected_write_ipa={exp_write}',
-                    f'expected_circ_hiatus={exp_circ_hiatus}',
+                    f'expected_ipa_ultraheavy_hiatus={exp_ipa_ultraheavy_hiatus}',
                     f'got_write_ipa={got_write}',
-                    f'got_circ_hiatus={got_circ_hiatus}',
+                    f'got_ipa_ultraheavy_hiatus={got_ipa_ultraheavy_hiatus}',
                 ],
             )
 
@@ -125,8 +125,8 @@ def main() -> None:
                         help=help_for('printer.bold'))
     parser.add_argument('--ipa', action='store_true',
                         help=help_for('printer.ipa'))
-    parser.add_argument('--circ-hiatus', action='store_true',
-                        help=help_for('printer.circ_hiatus'))
+    parser.add_argument('--ipa-ultraheavy-hiatus', action='store_true',
+                        help=help_for('printer.ipa_ultraheavy_hiatus'))
     parser.add_argument('--xar', action='store_true',
                         help=help_for('printer.xar'))
     parser.add_argument('--print-merger', action='store_true',
@@ -178,7 +178,7 @@ def main() -> None:
 
     write_acute = args.acute
     write_bold = args.bold
-    write_ipa, circ_hiatus = _resolve_ipa_options(args)
+    write_ipa, ipa_ultraheavy_hiatus = _resolve_ipa_options(args)
     write_xar = args.xar
 
     if not (write_acute or write_bold or write_ipa or write_xar):
@@ -203,7 +203,7 @@ def main() -> None:
         write_bold=write_bold,
         write_ipa=write_ipa,
         write_xar=write_xar,
-        circ_hiatus=circ_hiatus,
+        ipa_ultraheavy_hiatus=ipa_ultraheavy_hiatus,
         print_merger=args.print_merger,
         options={
             **effective_options_from_namespace(

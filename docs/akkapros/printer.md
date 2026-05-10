@@ -78,7 +78,7 @@ re-parsing `_tilde` punctuation as an active downstream source.
 
 | Option | Description |
 |--------|-------------|
-| `--circ-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA<br>Example: `qû → qʊ.ʊ` |
+| `--ipa-ultraheavy-hiatus` | Speculative mode splitting circumflex vowels into hiatus in IPA output only (cumulative with `--ipa`)<br>Example: `qû → qʊ.ʊ` |
 
 ---
 
@@ -97,11 +97,11 @@ re-parsing `_tilde` punctuation as an active downstream source.
       -p erra \
       --outdir outputs
 
-### IPA Output with Speculative Circumflex Hiatus
+### IPA Output with Speculative Ultraheavy Hiatus
 
         python src/akkapros/cli/printer.py outputs/erra_phone.txt \
       --ipa \
-      --circ-hiatus \
+      --ipa-ultraheavy-hiatus \
       -p erra \
       --outdir outputs
 

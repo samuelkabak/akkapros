@@ -117,7 +117,7 @@ Print output selection:
 - `--print-bold`
 - `--print-ipa`
 - `--print-ipa-proto-semitic {preserve,replace}`
-- `--print-circ-hiatus`
+- `--print-ipa-ultraheavy-hiatus` (cumulative with `--print-ipa`)
 - `--print-xar`
 - `--print-merger`
 

@@ -2,6 +2,7 @@
 
 Latest ADRs first. Status shown after each entry.
 
+- [052. ADR-052: Ultraheavy Hiatus Options](052-ultraheavy-hiatus-options.md) - Accepted
 - [051. Test Self-Sufficiency and Test-Owned Fixtures](051-test-self-sufficiency-and-test-owned-fixtures.md) - Accepted
 - [050. Bounded Governance Context, CR Self-Containment, and Dependency-Based CR Sequencing](050-bounded-governance-context-and-dependency-based-cr-sequencing.md) - Accepted
 - [049. Accentuation-First Long-Vowel Recovery and Accent-Sensitive Bounds](049-accentuation-first-long-vowel-recovery-and-accent-sensitive-bounds.md) - Accepted

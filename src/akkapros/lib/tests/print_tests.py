@@ -223,13 +223,13 @@ def run_tests() -> bool:
         ("šar, 123 gi·mir+dad~·mē", "acute", "šar, 123 gimir dad´mē"),
     ]
 
-    circ_hiatus_cases = [
+    ipa_ultraheavy_hiatus_cases = [
         ("qû", "qʊ.ʊ"),
         ("bû", "bu.u"),
         ("qâ", "qɑ.ɑ"),
         ("qû~", "ˈqʊ.ʊː"),
     ]
-    total = len(tests) + 10 + len(circ_hiatus_cases) + 1
+    total = len(tests) + 10 + len(ipa_ultraheavy_hiatus_cases) + 1
     passed = 0
     case_index = 0
 
@@ -445,14 +445,14 @@ def run_tests() -> bool:
                 ],
             )
 
-    for inp, expected in circ_hiatus_cases:
-        got = convert_line(inp, 'ipa', circ_hiatus=True)
+    for inp, expected in ipa_ultraheavy_hiatus_cases:
+        got = convert_line(inp, 'ipa', ipa_ultraheavy_hiatus=True)
         if got == expected:
-            report(True, f'Ipa circ hiatus {inp}')
+            report(True, f'Ipa ultraheavy hiatus {inp}')
         else:
             report(
                 False,
-                f'Ipa circ hiatus {inp}',
+                f'Ipa ultraheavy hiatus {inp}',
                 details=[
                     f'input={inp!r}',
                     f'expected={expected!r}',
@@ -460,13 +460,13 @@ def run_tests() -> bool:
                 ],
             )
 
-    # Ensure default remains unchanged when circ-hiatus is disabled.
+    # Ensure default remains unchanged when ipa_ultraheavy_hiatus is disabled.
     if convert_line("qû", 'ipa') == "qʊː":
-        report(True, 'Ipa circ hiatus default off')
+        report(True, 'Ipa ultraheavy hiatus default off')
     else:
         report(
             False,
-            'Ipa circ hiatus default off',
+            'Ipa ultraheavy hiatus default off',
             details=[
                 'expected="qʊː"',
                 f'got={convert_line("qû", "ipa")!r}',

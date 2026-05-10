@@ -331,7 +331,7 @@ print:
     ipa: false
     # Speculative IPA mode: split circumflex vowels into hiatus (for example qû ->
     # qʊ.ʊ).
-    circ_hiatus: false
+    ipa_ultraheavy_hiatus: false
     # Write both <prefix>_accent_xar.txt and <prefix>_xar.txt.
     xar: false
     # Render the visible merge connector in supported outputs.

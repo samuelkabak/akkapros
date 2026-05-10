@@ -112,6 +112,6 @@ print:
     acute: false
     bold: false
     ipa: false
-    circ_hiatus: false
+    ipa_ultraheavy_hiatus: false
     xar: false
     print_merger: false

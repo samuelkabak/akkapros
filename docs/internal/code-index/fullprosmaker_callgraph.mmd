@@ -5,6 +5,18 @@ flowchart LR
 	__start__(("S"))
 	__end__(("E"))
 	__main____harness["harness"]
+	akkapros_lib_utils__RawDefaultsHelpFormatter["utils.RawDefaultsHelpFormatter"]
+	akkapros_lib_utils__FormatValidationError["utils.FormatValidationError"]
+	akkapros_lib_atfparse__EBLError["atfparse.EBLError"]
+	akkapros_lib_atfparse__TestResult["atfparse.TestResult"]
+	akkapros_lib_atfparse__TestCase["atfparse.TestCase"]
+	akkapros_lib_atfparse__ATFParser["atfparse.ATFParser"]
+	akkapros_lib_syllabify__PunctuationConfigError["syllabify.PunctuationConfigError"]
+	akkapros_lib_utils__build_numeric_currency_pattern["utils.build_numeric_currency_pattern"]
+	akkapros_lib_syllabify__configure_punctuation_rules["syllabify.configure_punctuation_rules"]
+	akkapros_lib_config__ConfigError["config.ConfigError"]
+	akkapros_lib_config__ConfigField["config.ConfigField"]
+	akkapros_lib_helpmsg__config_help["helpmsg.config_help"]
 	akkapros_lib__metrics_stats__PunctuationConfigError["_metrics_stats.PunctuationConfigError"]
 	akkapros_lib__metrics_stats__configure_pause_punctuation_rules["_metrics_stats.configure_pause_punctuation_rules"]
 	src_akkapros_cli_fullprosmaker__main["fullprosmaker.main"]
@@ -36,7 +48,19 @@ flowchart LR
 		akkapros_lib__phonetize_config__get_relative_value["_phonetize_config.get_relative_value"]
 	end
 	__start__ --> __main____harness
-	__main____harness --> akkapros_lib__metrics_stats__PunctuationConfigError
+	__main____harness --> akkapros_lib_utils__RawDefaultsHelpFormatter
+	akkapros_lib_utils__RawDefaultsHelpFormatter --> akkapros_lib_utils__FormatValidationError
+	akkapros_lib_utils__FormatValidationError --> akkapros_lib_atfparse__EBLError
+	akkapros_lib_atfparse__EBLError --> akkapros_lib_atfparse__TestResult
+	akkapros_lib_atfparse__TestResult --> akkapros_lib_atfparse__TestCase
+	akkapros_lib_atfparse__TestCase --> akkapros_lib_atfparse__ATFParser
+	akkapros_lib_atfparse__ATFParser --> akkapros_lib_syllabify__PunctuationConfigError
+	akkapros_lib_syllabify__PunctuationConfigError --> akkapros_lib_utils__build_numeric_currency_pattern
+	akkapros_lib_utils__build_numeric_currency_pattern --> akkapros_lib_syllabify__configure_punctuation_rules
+	akkapros_lib_syllabify__configure_punctuation_rules --> akkapros_lib_config__ConfigError
+	akkapros_lib_config__ConfigError --> akkapros_lib_config__ConfigField
+	akkapros_lib_config__ConfigField --> akkapros_lib_helpmsg__config_help
+	akkapros_lib_helpmsg__config_help --> akkapros_lib__metrics_stats__PunctuationConfigError
 	akkapros_lib__metrics_stats__PunctuationConfigError --> akkapros_lib__metrics_stats__configure_pause_punctuation_rules
 	akkapros_lib__metrics_stats__configure_pause_punctuation_rules --> src_akkapros_cli_fullprosmaker__main
 	src_akkapros_cli_fullprosmaker__main --> akkapros_lib_utils__add_standard_version_argument
@@ -46,8 +70,9 @@ flowchart LR
 	akkapros_lib_config__add_runtime_interface_arguments --> akkapros_lib_config__parse_args_with_config
 	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__render_runtime_help
 	akkapros_lib_config__render_runtime_help --> __end__
-	akkapros_lib_utils__add_standard_version_argument --> akkapros__get_version_display
 	akkapros__get_version_display --> akkapros__get_repo_url
+	akkapros_lib_helpmsg__config_help --> akkapros_lib_helpmsg__help_for
+	akkapros_lib_utils__add_standard_version_argument --> akkapros__get_version_display
 	akkapros_lib_utils__add_standard_logging_arguments --> akkapros_lib_helpmsg__help_for
 	akkapros_lib_config__add_config_argument --> akkapros_lib_helpmsg__help_for
 	akkapros_lib_config__parse_args_with_config --> akkapros_lib_config__build_runtime_default_config
