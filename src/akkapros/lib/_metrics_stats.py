@@ -639,8 +639,25 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
             morae_list.append(morae)
             word_mora_count += morae
         
-        syllables_per_word.append(word_syllable_count)
-        morae_per_word.append(word_mora_count)
+        # Split merged words into lexical parts for word-level statistics.
+        # Words linked with + or & are merged prosodically but remain
+        # separate lexical words. Each lexical part gets its own entry
+        # in syllables_per_word and morae_per_word.
+        lexical_parts = re.split(rf'[{re.escape(WORD_LINKER)}{re.escape(INTERNAL_WORD_LINKER)}]+', word)
+        if len(lexical_parts) > 1:
+            syl_idx = len(morae_list) - word_syllable_count
+            for part in lexical_parts:
+                if not part.strip():
+                    continue
+                part_syls = re.split(rf'[\{SYL_SEPARATOR}\{HYPHEN}\{DIPH_SEPARATOR}]+', part)
+                part_syl_count = sum(1 for s in part_syls if s.strip())
+                part_mora_count = sum(morae_list[syl_idx + i] for i in range(part_syl_count))
+                syllables_per_word.append(part_syl_count)
+                morae_per_word.append(part_mora_count)
+                syl_idx += part_syl_count
+        else:
+            syllables_per_word.append(word_syllable_count)
+            morae_per_word.append(word_mora_count)
     
     # Calculate statistics
     total_syllables = sum(syllable_counts.values())
@@ -670,8 +687,8 @@ def analyze_text(text: str, is_accentuated: bool = False) -> Dict:
     mora_mean = statistics.mean(morae_list) if morae_list else 0
     mora_std = statistics.stdev(morae_list) if len(morae_list) > 1 else 0
 
-    # Word statistics
-    total_words = len(words)
+    # Word statistics — count lexical parts, not merged words
+    total_words = len(syllables_per_word)
     syllables_per_word_mean = statistics.mean(syllables_per_word) if syllables_per_word else 0
     syllables_per_word_std = statistics.stdev(syllables_per_word) if len(syllables_per_word) > 1 else 0
     morae_per_word_mean = statistics.mean(morae_per_word) if morae_per_word else 0

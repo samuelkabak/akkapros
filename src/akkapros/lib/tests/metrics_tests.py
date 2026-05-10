@@ -437,7 +437,7 @@ def _test_table_new_fields_and_no_csv() -> bool:
         return False
     if "Explicitly linked words: 1 words" not in table:
         return False
-    if "Prominence candidates: 2 words" not in table:
+    if "Prominence candidates: 3 words" not in table:
         return False
     if "meanC:" not in table or "meanV:" not in table:
         return False
@@ -603,7 +603,7 @@ def _test_small_corpus_exact_surface_values() -> bool:
     accentuation = result['accentuation_stats']
     if original['stats']['total_syllables'] != 60:
         return False
-    if original['stats']['word_stats']['total_words'] != 22:
+    if original['stats']['word_stats']['total_words'] != 24:
         return False
     if original['stats']['mora_stats']['total'] != 100:
         return False
@@ -622,7 +622,7 @@ def _test_small_corpus_exact_surface_values() -> bool:
     if original.get('prominence_statistics') != {
         'function_word_count': 2,
         'explicit_word_link_count': 1,
-        'prominence_candidate_word_count': 19,
+        'prominence_candidate_word_count': 21,
     }:
         return False
     if accentuated['stats']['mora_stats']['total'] != 116:
@@ -731,7 +731,7 @@ def _test_process_file_derives_prominence_counts_from_phone_rows() -> bool:
     return prominence == {
         'function_word_count': 0,
         'explicit_word_link_count': 1,
-        'prominence_candidate_word_count': 3,
+        'prominence_candidate_word_count': 4,
     }
 
 

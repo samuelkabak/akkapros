@@ -102,14 +102,14 @@ GOLD_REGULAR_METRICS = {
                 "VV:C": 1,
             },
             "word_stats": {
-                "total_words": 7,
+                "total_words": 8,
                 "syllables_per_word": {
-                    "mean": 3.2857142857142856,
-                    "std": 0.4879500364742666,
+                    "mean": 2.875,
+                    "std": 0.6408699444616558,
                 },
                 "morae_per_word": {
-                    "mean": 5.714285714285714,
-                    "std": 0.7559289460184545,
+                    "mean": 5.0,
+                    "std": 1.511857892036909,
                 },
             },
             "mora_stats": {
@@ -215,14 +215,14 @@ GOLD_MONO_METRICS = {
                 "VC:": 1,
             },
             "word_stats": {
-                "total_words": 7,
+                "total_words": 8,
                 "syllables_per_word": {
-                    "mean": 3.2857142857142856,
-                    "std": 0.4879500364742666,
+                    "mean": 2.875,
+                    "std": 0.6408699444616558,
                 },
                 "morae_per_word": {
-                    "mean": 6,
-                    "std": 0.5773502691896257,
+                    "mean": 5.25,
+                    "std": 1.5811388300841898,
                 },
             },
             "mora_stats": {
@@ -1310,7 +1310,7 @@ def test_cli_fullprosmaker_gold_standard_reference(tmp_path: Path) -> None:
     for expected_line in [
         "Total syllables: 23 syllables",
         "Total words: 8 words",
-        "Total words: 7 words",
+        "Total words: 8 words",
         "Function words: 1 words",
         "Prominence candidates: 7 words",
         "%C: 26.78%",
@@ -1420,7 +1420,7 @@ def test_cli_fullprosmaker_mono_reference(tmp_path: Path) -> None:
     for expected_line in [
         "Total syllables: 23 syllables",
         "Total words: 8 words",
-        "Total words: 7 words",
+        "Total words: 8 words",
         "%C: 26.78%",
         "%V: 30.16%",
         "VarcoC: 49.25",

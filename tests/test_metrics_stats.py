@@ -69,19 +69,19 @@ SMALL_SAMPLE_REFERENCE = {
                 "CVC": 10,
                 "CVV": 9,
                 "CVVC": 6,
-                "V": 4,
                 "VC": 7,
                 "VV": 2,
+                "V": 4,
             },
             "word_stats": {
-                "total_words": 22,
+                "total_words": 24,
                 "syllables_per_word": {
-                    "mean": 2.727272727272727,
-                    "std": 1.1204513623586057,
+                    "mean": 2.5,
+                    "std": 0.8340576562282991,
                 },
                 "morae_per_word": {
-                    "mean": 4.545454545454546,
-                    "std": 1.4712247158412493,
+                    "mean": 4.166666666666667,
+                    "std": 1.4939491483885972,
                 },
             },
             "mora_stats": {
@@ -93,7 +93,7 @@ SMALL_SAMPLE_REFERENCE = {
         "prominence_statistics": {
             "function_word_count": 2,
             "explicit_word_link_count": 1,
-            "prominence_candidate_word_count": 19,
+            "prominence_candidate_word_count": 21,
         },
     },
     "accentuated": {
@@ -113,14 +113,14 @@ SMALL_SAMPLE_REFERENCE = {
                 "VV": 2,
             },
             "word_stats": {
-                "total_words": 22,
+                "total_words": 24,
                 "syllables_per_word": {
-                    "mean": 2.727272727272727,
-                    "std": 1.1204513623586057,
+                    "mean": 2.5,
+                    "std": 0.8340576562282991,
                 },
                 "morae_per_word": {
-                    "mean": 5.2727272727272725,
-                    "std": 1.4203225046854737,
+                    "mean": 4.833333333333333,
+                    "std": 1.522773975253762,
                 },
             },
             "mora_stats": {
@@ -305,6 +305,34 @@ def test_small_corpus_metrics_match_fixed_reference_values() -> None:
     _assert_nested_expected(result["original"], SMALL_SAMPLE_REFERENCE["original"])
     _assert_nested_expected(result["accentuated"], SMALL_SAMPLE_REFERENCE["accentuated"])
     _assert_nested_expected(result["accentuation_stats"], SMALL_SAMPLE_REFERENCE["accentuation_stats"])
+
+
+def test_analyze_text_counts_lexical_words_not_merged_words() -> None:
+    """CR-103: Words linked with + or & must be counted as separate lexical words."""
+    # erra_construct sample: 3 merged words + 2 space-separated = 5 lexical words
+    tilde = "šar+gi·mir&dad~·mē bā·nû kib·rā~·ti"
+    stats = metrics.analyze_text(tilde, is_accentuated=True)
+    assert stats["word_stats"]["total_words"] == 5, (
+        f"Expected 5 lexical words, got {stats['word_stats']['total_words']}"
+    )
+    # Mean syllables per word: 10 syllables / 5 words = 2.0
+    assert stats["word_stats"]["syllables_per_word"]["mean"] == 2.0
+    # Mean morae per word: 20 morae / 5 words = 4.0
+    assert stats["word_stats"]["morae_per_word"]["mean"] == 4.0
+
+    # Sample with & linker only
+    tilde2 = "˙i·na&˙i·lī"
+    stats2 = metrics.analyze_text(tilde2, is_accentuated=False)
+    assert stats2["word_stats"]["total_words"] == 2, (
+        f"Expected 2 lexical words, got {stats2['word_stats']['total_words']}"
+    )
+
+    # Sample without any merge linkers (regression check)
+    tilde3 = "šar·ru kiš·ša·ti"
+    stats3 = metrics.analyze_text(tilde3, is_accentuated=False)
+    assert stats3["word_stats"]["total_words"] == 2, (
+        f"Expected 2 words, got {stats3['word_stats']['total_words']}"
+    )
 
 
 def test_compute_speech_metrics_from_rows_matches_manual_formula() -> None:
@@ -576,7 +604,7 @@ def test_process_file_derives_prominence_statistics_from_phone_rows(tmp_path: Pa
     assert result["original"]["prominence_statistics"] == {
         "function_word_count": 0,
         "explicit_word_link_count": 1,
-        "prominence_candidate_word_count": 3,
+        "prominence_candidate_word_count": 4,
     }
 
 
