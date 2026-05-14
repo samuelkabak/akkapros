@@ -48,6 +48,14 @@ The algorithm has four moving parts that must be kept separate:
 | Heavy | `CVC`, `VC`, `CVV`, `VV` | 2 |
 | Superheavy | `CVVC`, `VVC` | 3 |
 
+**Note on circumflex vowels:** A vowel written with a circumflex (â, ê, î, û)
+represents a long vowel that results from phonetic contraction. For stress
+purposes, a final CVV or VV syllable whose vowel is circumflex is treated as
+superheavy (3 morae) and therefore attracts stress under the LOB
+final-superheavy rule. Non-final circumflex syllables do not automatically
+attract stress; they compete with other heavy syllables under the standard
+rightmost-eligible rule.
+
 ### Legal Operations
 
 The engine always adds exactly one mora.

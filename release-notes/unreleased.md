@@ -1,6 +1,5 @@
 ## Unreleased
 
-Commits since release `v3.0.1`:
+Commits since release `v3.0.2`:
 
 - (no commits)
-

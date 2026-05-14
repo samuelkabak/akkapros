@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.2] - 2026-05-14
+
+### Documentation
+- LOB circumflex vowel rule now documented in
+  `docs/akkapros/prosody-realization-algorithm.md`. The syllable types table
+  now includes a note explaining that a final CVV or VV syllable whose vowel
+  is circumflex (â, ê, î, û) is treated as superheavy (3 morae) and attracts
+  stress under the LOB final-superheavy rule. Non-final circumflex syllables
+  do not automatically attract stress; they compete under the standard
+  rightmost-eligible rule. The implementation was already correct.
+
 ## [3.0.1] - 2026-05-11
 
 ### Fixed
